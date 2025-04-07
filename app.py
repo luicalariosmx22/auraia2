@@ -49,10 +49,10 @@ app.config.update(
 
 # Inicializar CSRF y SocketIO
 csrf = CSRFProtect(app)
-socketio = SocketIO(app, 
-                   cors_allowed_origins="*",
-                   logger=logger,
-                   engineio_logger=os.getenv('FLASK_ENV') == 'development')
+socketio = SocketIO(app,
+                    cors_allowed_origins="*",
+                    logger=logger,
+                    engineio_logger=os.getenv('FLASK_ENV') == 'development')
 
 # Excepciones CSRF para APIs/Webhooks
 csrf._exempt_views.add('webhook.webhook')  # Ruta completa blueprint.view_function
@@ -141,8 +141,8 @@ if __name__ == '__main__':
     logger.info(f"🌐 Accesible en: http://0.0.0.0:{port}")
     
     socketio.run(app,
-                host='0.0.0.0',
-                port=port,
-                debug=debug_mode,
-                use_reloader=debug_mode,
-                allow_unsafe_werkzeug=debug_mode)
+                 host='0.0.0.0',
+                 port=port,
+                 debug=debug_mode,
+                 use_reloader=debug_mode,
+                 allow_unsafe_werkzeug=debug_mode)
