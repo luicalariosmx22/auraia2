@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Configuración - Aura AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/flash_messages.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 Panel de Configuración de Aura AI</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="estado-box">
+      <h2>⚙️ Estado del Sistema</h2>
+      <p>🧠 <strong>IA activada:</strong> {{ 'Sí ✅' if usar_openai else 'No ❌' }}</p>
+      <form method="POST" action="{{ url_for('main.toggle_ia') }}" style="margin-bottom: 15px;">
+        <button type="submit">🔁 Cambiar estado de IA</button>
+      </form>
+
+      <p>📞 <strong>Twilio:</strong> {{ info_twilio.nombre }} ({{ info_twilio.estado }})</p>
+      <p>🧠 <strong>OpenAI:</strong> {{ info_openai.estado }}</p>
+
+      <div style="margin-top: 15px;">
+        <a href="{{ url_for('error_panel.ver_errores') }}" class="btn-secundario">🛑 Ver Errores</a>
+        <form method="POST" action="{{ url_for('error_panel.limpiar_errores') }}" style="display:inline;" onsubmit="return confirm('¿Deseas borrar el log de errores?');">
+          <button type="submit" class="btn-secundario">🧹 Limpiar Errores</button>
+        </form>
+        <a href="{{ url_for('panel_chat.panel_chat') }}" class="btn-principal">💬 Ir al Chat</a>
+      </div>
+    </div>
+
+    <hr>
+
+    <h2>📚 Respuestas y Categorías</h2>
+    <ul>
+      <li><a href="{{ url_for('main.index') }}">🏠 Inicio</a></li>
+      <li><a href="{{ url_for('respuestas.editar', clave='nueva') }}">➕ Agregar Respuesta</a></li>
+      <li><a href="{{ url_for('categorias.mostrar_categorias') }}">🏷️ Categorías</a></li>
+    </ul>
+
+    <hr>
+
+    <h2>📌 Respuestas Registradas</h2>
+    {% if datos %}
+      <ul>
+        {% for clave, info in datos.items() %}
+          <li>
+            <strong>{{ clave }}</strong>
+            <br>
+            Categoría: {{ info.categoria }}
+            <br>
+            Palabras clave: {{ info.palabras_clave|join(', ') }}
+            <br>
+            <a href="{{ url_for('respuestas.editar', clave=clave) }}">✏️ Editar</a> |
+            <form action="{{ url_for('respuestas.eliminar', clave=clave) }}" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar esta respuesta?');">
+              <button type="submit">🗑️ Eliminar</button>
+            </form>
+          </li>
+          <hr>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay respuestas registradas todavía.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

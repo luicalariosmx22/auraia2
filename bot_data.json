@@ -1,0 +1,51 @@
+{
+    "rfc": {
+        "palabras_clave": [
+            "rfc"
+        ],
+        "contenido": "Te comparto la Constancia de Situacion fiscal que manejamos en Aura.",
+        "categoria": "Otros",
+        "botones": [
+            {
+                "tipo": "link",
+                "texto": "RFC Aura",
+                "url": "https://drive.google.com/file/d/16YWirunrsRDat2ekUHjuDcvfmWjUqgaq/view?usp=sharing"
+            }
+        ]
+    },
+    "presentacion": {
+        "palabras_clave": [
+            "presentacion",
+            "auraai"
+        ],
+        "contenido": "🌟 ¡Hola! Soy Aura AI, tu asistente más carismático del mundo digital. 😊\r\n\r\n🤖 Mi misión: Ayudarte a llevar tu empresa al siguiente nivel con la Ayuda de Aura Marketing\r\n🔧 ¡Aviso importante!\r\nActualmente estoy en fase de entrenamiento, así que aún no soy 100% perfecta…\r\n¡Pero prometo esforzarme al máximo para resolver tus dudas! 💪\r\n\r\n📌 ¿En qué puedo ayudarte hoy?\r\n✔ Asesoría rápida\r\n✔ Soluciones para tu negocio\r\n✔ Recomendaciones estratégicas\r\n\r\n💡 ¿Listo para probar lo que puedo hacer por ti? ¡Escríbeme! 😃 Y si quieres hablar con alguien escribe la palabra *humano*",
+        "categoria": "Soporte",
+        "botones": []
+    },
+    "curso": {
+        "palabras_clave": [
+            "curso"
+        ],
+        "contenido": "(Cursos): 🎓 Marketing de Contenidos, IA y Meta Ads \r\n📅 Fechas: 15 y 16 de Abril\r\n⏰ Horario: 5:00 PM a 8:00 PM \r\n📚 Módulos: 1️⃣ Marketing de Contenidos Estratégico (2 hrs) \r\n2️⃣ Inteligencia Artificial para Marketing (2 hrs) \r\n3️⃣ Anuncios en Meta Ads (2 hrs) \r\n🎁 Bonus Extra: WhatsApp Business para Ventas (2 hrs) \r\n⏳ Duración total: 6 hrs + Bonus \r\n💰 Inversión: $1,490 MXN \r\n📲 ¿Te interesa? ¡Aparta tu lugar!",
+        "categoria": "Cursos",
+        "botones": []
+    },
+    "datos2": {
+        "palabras_clave": [
+            "datos2"
+        ],
+        "contenido": "🎥 ¡Agenda una videollamada con Luica Larios! ¿Necesitas asesoría personalizada, conocer nuestros servicios o resolver un problema técnico? ¡Reserva tu sesión ahora! 🔹 Temas que podemos tratar: ✔ Asesoría estratégica ✔ Servicios de la agencia ✔ Solución a problemas técnicos ✔ Y más... 📅 Proceso sencillo: 1️⃣ Reserva tu horario (nosotros nos contactaremos contigo). 2️⃣ Recibe la confirmación con los detalles de la videollamada. 3️⃣ Conéctate y hablemos para resolver tus necesidades.",
+        "categoria": "Soporte",
+        "botones": []
+    },
+    "videollamada": {
+        "palabras_clave": [
+            "videollamada",
+            "agendar",
+            "cita"
+        ],
+        "contenido": "🎥 ¡Agenda una videollamada con Luica Larios! ¿Necesitas asesoría personalizada, conocer nuestros servicios o resolver un problema técnico? ¡Reserva tu sesión ahora! 🔹 Temas que podemos tratar: \r\n✔ Asesoría estratégica \r\n✔ Servicios de la agencia \r\n✔ Solución a problemas técnicos \r\n📅 Proceso sencillo: 1️⃣ Reserva tu horario (nosotros nos contactaremos contigo). \r\n2️⃣ Recibe la confirmación con los detalles de la videollamada. \r\n3️⃣ Conéctate y hablemos para resolver tus necesidades.",
+        "categoria": "Marketing",
+        "botones": []
+    }
+}

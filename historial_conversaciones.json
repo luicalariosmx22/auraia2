@@ -1,0 +1,566 @@
+[
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "prueba numero 1000 mil",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T17:50:49.547101",
+    "ia_activada": false
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "hola hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T18:14:45.573544",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "desactive la ai",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T18:15:08.440913",
+    "ia_activada": false
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "probando probando",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T18:39:00.046210",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "ultima vez",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T18:42:22.062339",
+    "ia_activada": false
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "sera este el bueno?",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T18:46:11.995159",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "hola hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T18:50:32.875061",
+    "ia_activada": false
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "hola hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T19:10:23.454379",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "como andas?",
+    "tipo": "enviado",
+    "timestamp": "2025-04-05T19:10:43.127763",
+    "nombre": "Aura AI",
+    "ia_activada": false
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T19:18:21.196247",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "mmm",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T19:18:48.556770",
+    "ia_activada": false
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "a ver si ahora",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T19:23:14.855326",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "intento 200",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T19:29:14.901330",
+    "ia_activada": false
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "bueno",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T19:29:27.290671",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "hokla",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T19:37:54.725627",
+    "ia_activada": false
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "que tal?",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T20:34:15.996905",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621380622",
+    "mensaje": "como llego a mi casa?",
+    "tipo": "recibido",
+    "timestamp": "2025-04-05T22:42:01.811498",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5213332459258",
+    "mensaje": "hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T07:49:27.045990",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5213332459258",
+    "mensaje": "citas",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T07:49:52.815666",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T13:27:23.477171",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:18:19.613251",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "hola robot",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:18:21.711483",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "fallbackintent",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:18:39.297258",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "817372384",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:18:51.241623",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "no",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:18:57.607263",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:19:08.406478",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "hi",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:19:12.920266",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "hello",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:19:16.811525",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "cursos",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:19:48.319345",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "so",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:05.461770",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:06.193380",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:12.671807",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si quiero",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:21.996158",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:32.692409",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:38.030364",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:39.243686",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:40.124781",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "no",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:45.948794",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "nada",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:20:51.989104",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "hi",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:21:02.866781",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "menu",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:21:06.870076",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "citas",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:21:14.789559",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "1",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:21:29.474480",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "2",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:21:35.487757",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "3",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:21:40.044296",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "welcome",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:21:45.671416",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "hi",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:32.656511",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "menu",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:33.969038",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:38.449589",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:42.182746",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:44.858248",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:48.024660",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "no",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:50.368837",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "salir",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:52.874194",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "exitn",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:56.315313",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "quit",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:24:59.213501",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "ayuda",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:25:06.692267",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "help",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:25:10.649789",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "humano",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:25:14.249982",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "humano",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:25:23.467642",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "humano",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:25:32.778573",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "quiero sabrosearme al luica",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:25:45.647687",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "quiero sabrosearme al luica me puedes poner una cita ?",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T15:26:05.921967",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "jajaja no mames voy viendo tu conversacion",
+    "tipo": "enviado",
+    "timestamp": "2025-04-06T18:19:03.046207",
+    "ia_activada": true,
+    "nombre": "Aura AI"
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "le agregue para que pueda intervenir yo pero cuando tu contestes se activa la IA.. ando agregando un boton para desactivarlo individualmente",
+    "tipo": "enviado",
+    "timestamp": "2025-04-06T18:19:33.352193",
+    "ia_activada": true,
+    "nombre": "Aura AI"
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T18:30:55.067814",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216453316257",
+    "mensaje": "hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T18:31:10.313455",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216453316257",
+    "mensaje": "eres tu?=",
+    "tipo": "enviado",
+    "timestamp": "2025-04-06T18:32:25.083587",
+    "ia_activada": true,
+    "nombre": "Aura AI"
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "citas",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T18:32:40.972850",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "me gusta",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T18:33:16.823177",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216453316257",
+    "mensaje": "hee hee",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T18:34:14.934348",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T18:34:30.823060",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "que opndas",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T18:44:37.306976",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216624644200",
+    "mensaje": "ya?",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T19:42:24.480089",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T21:01:19.021664",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T21:01:36.527944",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T21:01:43.800807",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T21:01:50.003950",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621193986",
+    "mensaje": "si",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T21:01:54.918134",
+    "ia_activada": true
+  },
+  {
+    "remitente": "whatsapp:+5216621395179",
+    "mensaje": "hola",
+    "tipo": "recibido",
+    "timestamp": "2025-04-06T23:07:52.783972",
+    "ia_activada": true
+  }
+]

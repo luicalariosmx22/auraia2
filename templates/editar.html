@@ -1,0 +1,35 @@
+<!-- templates/editar.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Palabra Clave</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>✏️ Editar Palabra Clave</h1>
+    <form method="POST">
+      <label for="titulo">Palabras clave (separadas por coma):</label>
+      <input type="text" id="titulo" name="titulo" value="{{ palabras_clave }}" required>
+
+      <label for="contenido">Contenido de la respuesta:</label>
+      <textarea id="contenido" name="contenido" rows="8" required>{{ contenido }}</textarea>
+
+      <label for="categoria">Categoría:</label>
+      <select name="categoria" id="categoria" required>
+        {% for cat in categorias %}
+          <option value="{{ cat }}" {% if cat == categoria %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="botones_json">Botones (formato JSON):</label>
+      <textarea name="botones_json" id="botones_json" rows="4">{{ botones_json }}</textarea>
+
+      <br><br>
+      <button type="submit">💾 Guardar Cambios</button>
+      <a href="{{ url_for('main.index') }}">🔙 Volver</a>
+    </form>
+  </div>
+</body>
+</html>

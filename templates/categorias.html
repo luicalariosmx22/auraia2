@@ -1,0 +1,38 @@
+<!-- templates/categorias.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Categorías</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>📂 Categorías</h1>
+
+    {% if categorias %}
+      <ul>
+        {% for categoria in categorias %}
+          <li>
+            {{ categoria }}
+            <a href="{{ url_for('categorias.editar_categoria', nombre=categoria) }}">✏️ Editar</a>
+            <form method="POST" action="{{ url_for('categorias.eliminar_categoria', nombre=categoria) }}" style="display:inline;">
+              <button type="submit" onclick="return confirm('¿Estás seguro que deseas eliminar esta categoría?')">🗑️ Eliminar</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay categorías registradas.</p>
+    {% endif %}
+
+    <h2>➕ Agregar Categoría</h2>
+    <form method="POST" action="{{ url_for('categorias.agregar_categoria') }}">
+      <input type="text" name="nombre" placeholder="Nombre de la categoría" required>
+      <button type="submit">✅ Agregar</button>
+    </form>
+
+    <br><a href="{{ url_for('main.index') }}">⬅️ Volver al Panel</a>
+  </div>
+</body>
+</html>
