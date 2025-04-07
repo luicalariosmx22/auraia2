@@ -7,7 +7,7 @@ from routes.respuestas import respuestas_bp as respuestas_blueprint
 from routes.webhook import webhook as webhook_blueprint
 from routes.whatsapp import whatsapp_bp as whatsapp_blueprint
 from routes.panel_chat import panel_chat_bp as panel_chat_blueprint
-from routes.error_panel import error_panel_bp
+from routes.error_panel import panel_errores_bp as error_panel_bp
 from utils.config import cargar_configuracion
 from socketio_handlers import register_socketio_handlers
 from dotenv import load_dotenv
@@ -49,10 +49,10 @@ app.config.update(
 
 # Inicializar CSRF y SocketIO
 csrf = CSRFProtect(app)
-socketio = SocketIO(app,
-                    cors_allowed_origins="*",
-                    logger=logger,
-                    engineio_logger=os.getenv('FLASK_ENV') == 'development')
+socketio = SocketIO(app, 
+                   cors_allowed_origins="*",
+                   logger=logger,
+                   engineio_logger=os.getenv('FLASK_ENV') == 'development')
 
 # Excepciones CSRF para APIs/Webhooks
 csrf._exempt_views.add('webhook.webhook')  # Ruta completa blueprint.view_function
@@ -74,9 +74,12 @@ def login():
 
     if request.method == 'POST':
         password = request.form.get('password')
-        expected_password = os.getenv('ADMIN_PASSWORD', 'default_admin_password')
-        
-        if password == expected_password:
+        expected_passwords = [
+            os.getenv('ADMIN_PASSWORD'),
+            os.getenv('LOGIN_PASSWORD'),
+            cargar_configuracion().get('admin_password')
+        ]
+        if password in expected_passwords:
             session['logged_in'] = True
             session.permanent = True
             return redirect(url_for('panel_chat.panel_chat'))
@@ -90,18 +93,23 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# Middleware de autenticación
+# ✅ Middleware de autenticación ajustado
 @app.before_request
 def require_login():
-    allowed_endpoints = {
-        'login',
-        'static',
-        'webhook.webhook'  # Formato: nombre_blueprint.funcion
-    }
-    
-    if (request.endpoint and 
-        request.endpoint not in allowed_endpoints and 
-        not session.get('logged_in')):
+    if request.path.startswith('/webhook'):
+        return  # Deja pasar los POST de Twilio
+
+    allowed_paths = [
+        '/login',
+        '/logout',
+        '/healthcheck',
+        '/static/'
+    ]
+
+    if any(request.path.startswith(p) for p in allowed_paths):
+        return
+
+    if not session.get('logged_in'):
         return redirect(url_for('login'))
 
 # Registro de blueprints
@@ -141,8 +149,8 @@ if __name__ == '__main__':
     logger.info(f"🌐 Accesible en: http://0.0.0.0:{port}")
     
     socketio.run(app,
-                 host='0.0.0.0',
-                 port=port,
-                 debug=debug_mode,
-                 use_reloader=debug_mode,
-                 allow_unsafe_werkzeug=debug_mode)
+                host='0.0.0.0',
+                port=port,
+                debug=debug_mode,
+                use_reloader=debug_mode,
+                allow_unsafe_werkzeug=debug_mode)
