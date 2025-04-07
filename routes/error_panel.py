@@ -29,3 +29,6 @@ def contar_errores():
         except:
             return 0
     return 0
+
+# ✅ Alias para importar como 'error_panel_bp' desde app.py
+error_panel_bp = panel_errores_bp

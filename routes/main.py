@@ -61,7 +61,6 @@ def index():
 
     config = cargar_configuracion()
 
-    # Variables para mostrar estado de Twilio y OpenAI (panel superior)
     info_twilio = {
         "nombre": os.getenv("TWILIO_ACCOUNT_SID", "No disponible"),
         "estado": "activo",
@@ -87,15 +86,14 @@ def index():
 def panel_conversaciones():
     return render_template('panel_conversaciones.html')
 
-
-# ✅ BLOQUE PARA INICIAR EL SERVIDOR SI ESTE ARCHIVO ES EL PRINCIPAL
+# ✅ Solo este bloque debe quedar
 if __name__ == "__main__":
     from app import app, socketio
 
     port = int(os.environ.get("PORT", 5000))
     debug_mode = os.getenv('FLASK_ENV') == 'development'
 
-    print(f"🚀 Iniciando app desde main.py - Puerto: {port}")
+    print(f"🚀 Iniciando desde main.py - Puerto: {port}")
 
     socketio.run(app,
                  host="0.0.0.0",
