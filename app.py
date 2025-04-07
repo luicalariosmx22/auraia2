@@ -49,13 +49,15 @@ app.config.update(
 
 # Inicializar CSRF y SocketIO
 csrf = CSRFProtect(app)
-socketio = SocketIO(app, 
-                   cors_allowed_origins="*",
-                   logger=logger,
-                   engineio_logger=os.getenv('FLASK_ENV') == 'development')
+socketio = SocketIO(app,
+                    cors_allowed_origins="*",
+                    logger=logger,
+                    engineio_logger=os.getenv('FLASK_ENV') == 'development')
 
-# Excepciones CSRF para APIs/Webhooks
-csrf._exempt_views.add('webhook.webhook')  # Ruta completa blueprint.view_function
+# ⚠️ Desactivar CSRF completo para el blueprint del webhook
+csrf.exempt(webhook_blueprint)
+
+# También puedes dejar esta línea si deseas seguir excluyendo esa ruta específica
 csrf._exempt_views.add('panel_chat.panel_chat')
 
 # Inyectar CSRF en templates
@@ -67,7 +69,7 @@ def inject_csrf():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     template_path = os.path.join(app.template_folder, 'login.html')
-    
+
     if not os.path.exists(template_path):
         logger.error(f"Archivo login.html no encontrado en: {template_path}")
         return "Error de configuración: falta login.html", 500
@@ -83,7 +85,7 @@ def login():
             session['logged_in'] = True
             session.permanent = True
             return redirect(url_for('panel_chat.panel_chat'))
-        
+
         flash('Credenciales inválidas', 'danger')
 
     return render_template('login.html')
@@ -143,14 +145,14 @@ def healthcheck():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug_mode = os.getenv('FLASK_ENV') == 'development'
-    
+
     logger.info(f"\n--- 🚀 Iniciando servidor en modo {'DESARROLLO' if debug_mode else 'PRODUCCIÓN'} ---")
     logger.info(f"🔌 SocketIO habilitado en: ws://0.0.0.0:{port}")
     logger.info(f"🌐 Accesible en: http://0.0.0.0:{port}")
-    
+
     socketio.run(app,
-                host='0.0.0.0',
-                port=port,
-                debug=debug_mode,
-                use_reloader=debug_mode,
-                allow_unsafe_werkzeug=debug_mode)
+                 host='0.0.0.0',
+                 port=port,
+                 debug=debug_mode,
+                 use_reloader=debug_mode,
+                 allow_unsafe_werkzeug=debug_mode)
