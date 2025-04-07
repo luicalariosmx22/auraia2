@@ -11,7 +11,7 @@ from utils.error_logger import registrar_error  # ✅ Corrección aquí
 
 webhook = Blueprint("webhook", __name__)
 
-@webhook.route("/", methods=["POST"])  # 👈 CAMBIO: antes era '/webhook', ahora es solo '/'
+@webhook.route("", methods=["POST"])  # 👈 CAMBIO: antes era '/webhook', ahora es solo '/'
 def whatsapp_webhook():
     try:
         mensaje_usuario = request.form.get('Body', '').strip().lower()
