@@ -7,11 +7,16 @@ from routes.respuestas import respuestas_bp as respuestas_blueprint
 from routes.webhook import webhook as webhook_blueprint
 from routes.whatsapp import whatsapp_bp as whatsapp_blueprint
 from routes.panel_chat import panel_chat_bp as panel_chat_blueprint
-from routes.error_panel import error_panel_bp  # 🔹 Agregado
+from routes.error_panel import error_panel_bp
 from utils.config import cargar_configuracion
 from socketio_handlers import register_socketio_handlers
 from dotenv import load_dotenv
 import os
+import logging
+
+# Configuración básica de logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Cargar variables desde .env
 load_dotenv()
@@ -19,67 +24,87 @@ load_dotenv()
 # Verificación crítica de directorios
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
-if not os.path.exists(TEMPLATES_DIR):
-    os.makedirs(TEMPLATES_DIR)
-    print(f"✅ Directorio templates creado en: {TEMPLATES_DIR}")
+os.makedirs(TEMPLATES_DIR, exist_ok=True)
+os.makedirs(STATIC_DIR, exist_ok=True)
+
+logger.info(f"📂 Directorio de templates: {TEMPLATES_DIR}")
+logger.info(f"📂 Directorio static: {STATIC_DIR}")
 
 # Inicializa la aplicación Flask
 app = Flask(__name__,
             template_folder=TEMPLATES_DIR,
-            static_folder=os.path.join(BASE_DIR, 'static'))
+            static_folder=STATIC_DIR)
 
-# Configuraciones
+# Configuraciones esenciales para producción
 app.config.update(
-    SECRET_KEY=os.getenv('SECRET_KEY') or cargar_configuracion().get('secret_key', 'default_secret'),
-    TEMPLATES_AUTO_RELOAD=True
+    SECRET_KEY=os.getenv('SECRET_KEY', cargar_configuracion().get('secret_key', 'fallback_secret_key')),
+    TEMPLATES_AUTO_RELOAD=os.getenv('FLASK_ENV') == 'development',
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=3600  # 1 hora
 )
 
 # Inicializar CSRF y SocketIO
 csrf = CSRFProtect(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
-print("🔧 SocketIO inicializado y a la espera de eventos...")
+socketio = SocketIO(app, 
+                   cors_allowed_origins="*",
+                   logger=logger,
+                   engineio_logger=os.getenv('FLASK_ENV') == 'development')
 
-# CSRF en Jinja
+# Excepciones CSRF para APIs/Webhooks
+csrf._exempt_views.add('webhook.webhook')  # Ruta completa blueprint.view_function
+csrf._exempt_views.add('panel_chat.panel_chat')
+
+# Inyectar CSRF en templates
 @app.context_processor
 def inject_csrf():
     return dict(csrf_token=generate_csrf)
 
-# Login
+# Sistema de login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     template_path = os.path.join(app.template_folder, 'login.html')
-
+    
     if not os.path.exists(template_path):
-        raise FileNotFoundError(
-            f"❌ No se encontró login.html en: {template_path}\n"
-            f"📁 Directorio de templates actual: {app.template_folder}"
-        )
+        logger.error(f"Archivo login.html no encontrado en: {template_path}")
+        return "Error de configuración: falta login.html", 500
 
     if request.method == 'POST':
         password = request.form.get('password')
-        expected_password = os.getenv('ADMIN_PASSWORD', 'tu_contraseña_secreta')
+        expected_password = os.getenv('ADMIN_PASSWORD', 'default_admin_password')
+        
         if password == expected_password:
             session['logged_in'] = True
+            session.permanent = True
             return redirect(url_for('panel_chat.panel_chat'))
-        flash('Contraseña incorrecta', 'error')
+        
+        flash('Credenciales inválidas', 'danger')
 
     return render_template('login.html')
 
-# Logout
 @app.route('/logout')
 def logout():
-    session.pop('logged_in', None)
+    session.clear()
     return redirect(url_for('login'))
 
-# Middleware para proteger rutas
+# Middleware de autenticación
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'static', 'webhook']
-    if request.endpoint and request.endpoint.split('.')[0] not in allowed_routes and not session.get('logged_in'):
+    allowed_endpoints = {
+        'login',
+        'static',
+        'webhook.webhook'  # Formato: nombre_blueprint.funcion
+    }
+    
+    if (request.endpoint and 
+        request.endpoint not in allowed_endpoints and 
+        not session.get('logged_in')):
         return redirect(url_for('login'))
 
-# Registro de Blueprints
+# Registro de blueprints
 blueprints = [
     (main_blueprint, None),
     (categorias_blueprint, None),
@@ -87,28 +112,37 @@ blueprints = [
     (webhook_blueprint, {'url_prefix': '/webhook'}),
     (whatsapp_blueprint, None),
     (panel_chat_blueprint, None),
-    (error_panel_bp, None)  # 🔹 Panel de errores
+    (error_panel_bp, None)
 ]
 
 for bp, options in blueprints:
-    app.register_blueprint(bp, **(options or {}))
+    try:
+        app.register_blueprint(bp, **(options or {}))
+        logger.info(f"✅ Blueprint registrado: {bp.name}")
+    except Exception as e:
+        logger.error(f"❌ Error registrando {bp.name}: {str(e)}")
+        raise
 
-# Excepciones CSRF para ciertas rutas
-csrf.exempt(webhook_blueprint)
-csrf.exempt(panel_chat_blueprint)
-
-# Registrar SocketIO handlers
+# Registrar handlers de SocketIO
 register_socketio_handlers(socketio)
 
-# Verificación final
-print("\n--- ✅ Configuración Final ---")
-print(f"📂 Directorio de templates: {app.template_folder}")
-print(f"🔍 Ruta esperada para login.html: {os.path.join(app.template_folder, 'login.html')}")
-print(f"📄 ¿Existe login.html? {'Sí' if os.path.exists(os.path.join(app.template_folder, 'login.html')) else 'No'}\n")
+# Verificación final de rutas
+@app.route('/healthcheck')
+def healthcheck():
+    return "OK", 200
 
-# Iniciar servidor
+# Configuración para producción
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.getenv('FLASK_ENV') == 'development'
+    
+    logger.info(f"\n--- 🚀 Iniciando servidor en modo {'DESARROLLO' if debug_mode else 'PRODUCCIÓN'} ---")
+    logger.info(f"🔌 SocketIO habilitado en: ws://0.0.0.0:{port}")
+    logger.info(f"🌐 Accesible en: http://0.0.0.0:{port}")
+    
     socketio.run(app,
-                 debug=True,
-                 host='0.0.0.0',
-                 port=5000)
+                host='0.0.0.0',
+                port=port,
+                debug=debug_mode,
+                use_reloader=debug_mode,
+                allow_unsafe_werkzeug=debug_mode)
