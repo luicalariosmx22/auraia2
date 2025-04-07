@@ -86,3 +86,20 @@ def index():
 @login_requerido
 def panel_conversaciones():
     return render_template('panel_conversaciones.html')
+
+
+# ✅ BLOQUE PARA INICIAR EL SERVIDOR SI ESTE ARCHIVO ES EL PRINCIPAL
+if __name__ == "__main__":
+    from app import app, socketio
+
+    port = int(os.environ.get("PORT", 5000))
+    debug_mode = os.getenv('FLASK_ENV') == 'development'
+
+    print(f"🚀 Iniciando app desde main.py - Puerto: {port}")
+
+    socketio.run(app,
+                 host="0.0.0.0",
+                 port=port,
+                 debug=debug_mode,
+                 use_reloader=debug_mode,
+                 allow_unsafe_werkzeug=debug_mode)
