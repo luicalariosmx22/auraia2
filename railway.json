@@ -1,0 +1,15 @@
+{
+  "build": {
+    "nixpacksPlan": {
+      "phases": {
+        "setup": {
+          "runtime": "python",
+          "runtimeVersion": "3.10"
+        },
+        "install": {
+          "cacheDirectories": ["/root/.cache/pip"]
+        }
+      }
+    }
+  }
+}
