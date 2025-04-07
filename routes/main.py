@@ -20,11 +20,18 @@ def login():
     error = None
     if request.method == 'POST':
         password = request.form['password']
+
+        # 👇 Prints de depuración para Railway Logs
+        print("👉 ADMIN_PASSWORD:", os.getenv("ADMIN_PASSWORD"))
+        print("👉 LOGIN_PASSWORD:", os.getenv("LOGIN_PASSWORD"))
+        print("👉 Password ingresado:", password)
+
         if password in [os.getenv("ADMIN_PASSWORD"), os.getenv("LOGIN_PASSWORD")]:
             session['logueado'] = True
             return redirect(url_for('main.index'))
         else:
             error = "Contraseña incorrecta."
+
     return render_template('login.html', error=error)
 
 # TOGGLE IA
