@@ -20,7 +20,7 @@ def login():
     error = None
     if request.method == 'POST':
         password = request.form['password']
-        if password == os.getenv("ADMIN_PASSWORD"):
+        if password in [os.getenv("ADMIN_PASSWORD"), os.getenv("LOGIN_PASSWORD")]:
             session['logueado'] = True
             return redirect(url_for('main.index'))
         else:
@@ -86,7 +86,7 @@ def index():
 def panel_conversaciones():
     return render_template('panel_conversaciones.html')
 
-# ✅ Solo este bloque debe quedar
+# ✅ ÚNICO BLOQUE PARA INICIAR LA APP
 if __name__ == "__main__":
     from app import app, socketio
 
