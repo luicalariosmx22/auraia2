@@ -140,10 +140,10 @@ blueprints = [
     (whatsapp_blueprint, None),
     (panel_chat_blueprint, None),
     (error_panel_bp, None),
-    (etiquetas_bp, None)  # ✅ aquí ya está bien
-    (api_mensajes, None)  # ✅ registrar el API de mensajes
+    (etiquetas_bp, None),
+    (api_mensajes, None)  # ✅ última línea SIN coma después
+]  # <== importante este cierre
 
-]
 
 
 for bp, options in blueprints:
