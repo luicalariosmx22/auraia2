@@ -1,111 +1,201 @@
-<!-- templates/panel_conversaciones.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Conversaciones en Tiempo Real</title>
-  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <title>Chat en Tiempo Real - Nora AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
     }
 
-    #mensajes {
-      border: 1px solid #ccc;
-      padding: 10px;
-      height: 300px;
-      overflow-y: scroll;
-      margin-bottom: 10px;
+    .chat-container {
+      display: flex;
+      height: 100vh;
     }
 
-    #mensajes div {
-      margin-bottom: 5px;
+    .contactos {
+      width: 280px;
+      background-color: #fff;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
     }
 
-    .remitente {
+    .contacto {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+
+    .contacto:hover {
+      background-color: #f0f0f0;
+    }
+
+    .contacto-activo {
+      background-color: #e6f0ff;
+    }
+
+    .chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 15px;
+      background-color: #4a90e2;
+      color: white;
       font-weight: bold;
     }
 
-    input, button {
+    .chat-mensajes {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #f9fbff;
+    }
+
+    .mensaje {
+      margin-bottom: 15px;
+    }
+
+    .mensaje.recibido {
+      text-align: left;
+    }
+
+    .mensaje.enviado {
+      text-align: right;
+    }
+
+    .mensaje span {
+      display: inline-block;
+      background-color: #e0e0e0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      max-width: 70%;
+    }
+
+    .mensaje.enviado span {
+      background-color: #4a90e2;
+      color: white;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 15px;
+      background-color: #fff;
+      border-top: 1px solid #ddd;
+    }
+
+    .chat-input input {
+      flex: 1;
       padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
       font-size: 14px;
     }
 
-    #respuesta {
-      width: 70%;
+    .chat-input button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
-    #numero {
-      width: 25%;
+    .chat-input button:hover {
+      background-color: #3d7acb;
+    }
+
+    .etiquetas {
+      font-size: 12px;
+      margin-top: 5px;
+      color: #666;
+    }
+
+    .etiquetas span {
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      padding: 2px 8px;
+      margin-right: 4px;
     }
   </style>
 </head>
 <body>
-  <h2>📬 Panel de Conversaciones en Tiempo Real</h2>
+  <div class="chat-container">
+    <div class="contactos" id="lista-contactos">
+      <!-- Contactos se cargan dinámicamente por Socket.IO -->
+    </div>
 
-  <div id="mensajes">
-    <!-- Aquí se mostrarán los mensajes en tiempo real -->
+    <div class="chat">
+      <div class="chat-header" id="nombre-contacto">
+        Selecciona un contacto
+      </div>
+      <div class="chat-mensajes" id="mensajes-chat">
+        <!-- Mensajes aparecerán aquí -->
+      </div>
+      <form class="chat-input" id="formulario-chat">
+        <input type="text" id="mensaje" placeholder="Escribe un mensaje..." autocomplete="off" required>
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
   </div>
 
-  <form id="formularioRespuesta">
-    <input type="text" id="numero" placeholder="+521XXXXXXXXXX" required>
-    <input type="text" id="respuesta" placeholder="Escribe una respuesta..." required>
-    <button type="submit">Enviar</button>
-  </form>
-
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script>
     const socket = io();
 
-    const mensajesDiv = document.getElementById("mensajes");
-    const formulario = document.getElementById("formularioRespuesta");
-    const respuestaInput = document.getElementById("respuesta");
-    const numeroInput = document.getElementById("numero");
+    let contactoSeleccionado = null;
 
-    socket.on("connect", () => {
-      console.log("Conectado al servidor de SocketIO");
+    socket.on("lista_contactos", contactos => {
+      const lista = document.getElementById("lista-contactos");
+      lista.innerHTML = "";
+
+      for (const numero in contactos) {
+        const contacto = contactos[numero];
+        const div = document.createElement("div");
+        div.classList.add("contacto");
+        div.innerHTML = `<strong>${contacto.nombre}</strong><br><small>${numero}</small><div class="etiquetas">${(contacto.etiquetas || []).map(e => `<span>${e}</span>`).join(" ")}</div>`;
+        div.onclick = () => {
+          contactoSeleccionado = numero;
+          document.getElementById("nombre-contacto").textContent = `${contacto.nombre} - ${numero}`;
+          socket.emit("obtener_mensajes", numero);
+          document.querySelectorAll(".contacto").forEach(c => c.classList.remove("contacto-activo"));
+          div.classList.add("contacto-activo");
+        };
+        lista.appendChild(div);
+      }
     });
 
-    socket.on("actualizar_chat", data => {
-      const mensajeHTML = `
-        <div>
-          <span class="remitente">${data.remitente || "Usuario"}:</span>
-          <span>${data.mensaje}</span>
-        </div>
-      `;
-      mensajesDiv.innerHTML += mensajeHTML;
-      mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+    socket.on("mensajes", mensajes => {
+      const contenedor = document.getElementById("mensajes-chat");
+      contenedor.innerHTML = "";
+
+      mensajes.forEach(msg => {
+        const div = document.createElement("div");
+        div.classList.add("mensaje", msg.tipo);
+        div.innerHTML = `<span>${msg.mensaje}</span>`;
+        contenedor.appendChild(div);
+      });
+
+      contenedor.scrollTop = contenedor.scrollHeight;
     });
 
-    formulario.addEventListener("submit", async e => {
+    document.getElementById("formulario-chat").addEventListener("submit", e => {
       e.preventDefault();
+      const mensaje = document.getElementById("mensaje").value.trim();
+      if (!mensaje || !contactoSeleccionado) return;
 
-      const texto = respuestaInput.value.trim();
-      let numero = numeroInput.value.trim();
+      socket.emit("enviar_mensaje", {
+        numero: contactoSeleccionado,
+        mensaje: mensaje
+      });
 
-      if (!numero.startsWith("whatsapp:")) {
-        numero = "whatsapp:" + numero;
-      }
-
-      if (texto !== "" && numero !== "") {
-        try {
-          const response = await fetch("/whatsapp/enviar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ numero: numero, mensaje: texto })
-          });
-
-          const resultado = await response.json();
-          if (resultado.status === "ok") {
-            alert("Mensaje enviado correctamente ✅");
-            respuestaInput.value = "";
-          } else {
-            alert("❌ Error al enviar: " + resultado.message);
-          }
-        } catch (error) {
-          alert("❌ Error al conectar con el servidor");
-        }
-      }
+      document.getElementById("mensaje").value = "";
     });
   </script>
 </body>
