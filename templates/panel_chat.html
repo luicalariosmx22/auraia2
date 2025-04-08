@@ -2,12 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Chat - Aura AI</title>
+  <title>Chat - Nora AI</title>
   <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/flash_messages.css') }}">
 </head>
 <body>
+  <audio id="audioNotificacion" src="{{ url_for('static', filename='sounds/pling.mp3') }}" preload="auto"></audio>
+
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <div class="flash-messages">
@@ -19,6 +21,14 @@
   {% endwith %}
 
   <div class="sidebar">
+    <div class="panel-botones-top">
+      <a href="{{ url_for('main.index') }}">⬅️ Volver</a>
+      <a href="{{ url_for('etiquetas.mostrar_etiquetas') }}">🏷️ Etiquetas</a>
+      <button onclick="toggleSonido()" class="campanita" title="Sonido">
+        <span id="iconoCampana">🔔</span>
+      </button>
+    </div>
+
     <div class="filtro-container">
       <form action="{{ url_for('panel_chat.filter_etiquetas') }}" method="get" class="form-filtro">
         <label for="etiqueta">Filtrar por etiqueta:</label>
@@ -81,8 +91,8 @@
 
   <div class="chat">
     <div class="encabezado">
-      <img src="{{ url_for('static', filename='logo-aura-ai.png') }}" alt="Aura AI" class="logo">
-      <h2>Aura AI Bot</h2>
+      <img src="{{ url_for('static', filename='nora_logo.png') }}" alt="Nora AI" class="logo">
+      <h2>Nora AI Bot</h2>
     </div>
 
     <div class="mensajes" id="mensajes">
@@ -108,6 +118,12 @@
 
   <script>
     const socket = io();
+    let sonidoActivado = true;
+
+    function toggleSonido() {
+      sonidoActivado = !sonidoActivado;
+      document.getElementById("iconoCampana").textContent = sonidoActivado ? "🔔" : "🔕";
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('formularioRespuesta');
@@ -121,19 +137,20 @@
         const mensaje = input.value.trim();
         if (mensaje === '') return;
 
-        socket.emit('enviar_mensaje', {
-          mensaje: mensaje,
-          numero: numero
-        });
-
+        socket.emit('enviar_mensaje', { mensaje, numero });
         agregarMensaje("Tú", mensaje, 'enviado');
         input.value = '';
       });
     });
 
     socket.on('nuevo_mensaje', function (data) {
+      if (data && sonidoActivado) {
+        const audio = document.getElementById('audioNotificacion');
+        audio.play().catch(() => {});
+      }
+
       if (data) {
-        const nombre = data.remitente === 'bot' ? 'Aura AI' : (data.nombre || data.remitente);
+        const nombre = data.remitente === 'bot' ? 'Nora AI' : (data.nombre || data.remitente);
         agregarMensaje(nombre, data.mensaje, 'recibido');
       }
     });

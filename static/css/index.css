@@ -1,0 +1,94 @@
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f9;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px;
+}
+
+.logo-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo-header img {
+  width: 120px;
+}
+
+.logo-header h1 {
+  margin: 10px 0 0 0;
+  font-size: 26px;
+  color: #333;
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.card h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.card ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.card li {
+  margin-bottom: 12px;
+}
+
+.btn-principal,
+.btn-secundario,
+button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-decoration: none;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.btn-principal {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+}
+
+.btn-secundario {
+  background-color: #eaeaea;
+  color: #333;
+  border: none;
+}
+
+.alert {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 25px 0;
+}
