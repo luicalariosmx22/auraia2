@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Etiqueta - Nora AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .btn {
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-guardar {
+      background-color: #4a90e2;
+      color: white;
+    }
+
+    .btn-volver {
+      background-color: #ccc;
+      color: #333;
+      text-align: center;
+      display: inline-block;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✏️ Editar Etiqueta</h1>
+    <form method="post">
+      <label for="nuevo_nombre">Nuevo nombre para <strong>"{{ etiqueta }}"</strong>:</label>
+      <input type="text" id="nuevo_nombre" name="nuevo_nombre" value="{{ etiqueta }}" required>
+      <button type="submit" class="btn btn-guardar">💾 Guardar Cambios</button>
+    </form>
+
+    <div style="margin-top: 20px;">
+      <a href="{{ url_for('etiquetas.mostrar_etiquetas') }}" class="btn btn-volver">⬅️ Volver</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -11,6 +11,8 @@ from routes.error_panel import panel_errores_bp as error_panel_bp
 from utils.config import cargar_configuracion
 from socketio_handlers import register_socketio_handlers
 from dotenv import load_dotenv
+from routes.etiquetas import etiquetas_bp
+
 import os
 import logging
 
@@ -136,8 +138,10 @@ blueprints = [
     (webhook_blueprint, {'url_prefix': '/webhook'}),
     (whatsapp_blueprint, None),
     (panel_chat_blueprint, None),
-    (error_panel_bp, None)
+    (error_panel_bp, None),
+    (etiquetas_bp, None)  # ✅ aquí ya está bien
 ]
+
 
 for bp, options in blueprints:
     try:

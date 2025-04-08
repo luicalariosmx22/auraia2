@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Etiquetas - Nora AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin-bottom: 16px;
+      padding: 15px;
+      background-color: #f1f1f1;
+      border-radius: 8px;
+    }
+
+    .acciones {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      font-size: 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primario {
+      background-color: #4a90e2;
+      color: white;
+    }
+
+    .btn-secundario {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-rojo {
+      background-color: #e74c3c;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏷️ Etiquetas Asignadas</h1>
+
+    {% if etiquetas %}
+      <ul>
+        {% for etiqueta in etiquetas %}
+          <li>
+            <strong>{{ etiqueta }}</strong>
+            <div class="acciones">
+              <a href="{{ url_for('etiquetas.editar_etiqueta', nombre=etiqueta) }}" class="btn btn-primario">✏️ Editar</a>
+              <form action="{{ url_for('etiquetas.eliminar_etiqueta', nombre=etiqueta) }}" method="post" onsubmit="return confirm('¿Eliminar esta etiqueta de todos los contactos?');">
+                <button type="submit" class="btn btn-rojo">🗑️ Eliminar</button>
+              </form>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay etiquetas aún.</p>
+    {% endif %}
+
+    <div style="margin-top: 30px;">
+      <a href="{{ url_for('main.index') }}" class="btn btn-secundario">⬅️ Volver al Panel</a>
+    </div>
+  </div>
+</body>
+</html>
