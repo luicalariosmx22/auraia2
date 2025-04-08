@@ -5,98 +5,30 @@
   <title>Respuestas Rápidas - Nora AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f9;
-      margin: 0;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      padding: 30px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    li {
-      margin-bottom: 16px;
-      padding: 15px;
-      background-color: #f1f1f1;
-      border-radius: 8px;
-    }
-
-    .clave {
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    .contenido {
-      margin: 8px 0;
-    }
-
-    .acciones {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .btn {
-      padding: 8px 14px;
-      font-size: 14px;
-      border-radius: 6px;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-    }
-
-    .btn-primario {
-      background-color: #4a90e2;
-      color: white;
-    }
-
-    .btn-secundario {
-      background-color: #e0e0e0;
-      color: #333;
-    }
-
-    .btn-agregar {
-      display: inline-block;
-      margin-bottom: 20px;
-      background-color: #28a745;
-      color: white;
-    }
+    body { background: #f4f6f9; font-family: Arial, sans-serif; padding: 30px; }
+    .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .btn { padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; }
+    .btn-primario { background-color: #4a90e2; color: white; }
+    .btn-secundario { background-color: #e0e0e0; color: #333; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 15px; background: #f1f1f1; padding: 15px; border-radius: 8px; }
+    .acciones { margin-top: 10px; display: flex; gap: 10px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>📋 Respuestas Rápidas</h1>
-
-    <a href="{{ url_for('respuestas.editar', clave='nueva') }}" class="btn btn-agregar">➕ Agregar Nueva Respuesta</a>
-
+    <a href="{{ url_for('respuestas.editar', clave='nueva') }}" class="btn btn-primario">➕ Agregar Nueva</a>
     {% if datos %}
       <ul>
         {% for clave, info in datos.items() %}
           <li>
-            <div class="clave">{{ clave }}</div>
-            <div class="contenido">{{ info.contenido }}</div>
-            <div><strong>Palabras clave:</strong> {{ info.palabras_clave | join(', ') }}</div>
-            <div><strong>Categoría:</strong> {{ info.categoria }}</div>
+            <strong>{{ clave }}</strong><br>
+            <small>Categoría: {{ info.categoria }}</small><br>
+            <small>Palabras clave: {{ info.palabras_clave | join(', ') }}</small>
             <div class="acciones">
               <a href="{{ url_for('respuestas.editar', clave=clave) }}" class="btn btn-primario">✏️ Editar</a>
-              <form action="{{ url_for('respuestas.eliminar', clave=clave) }}" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar esta respuesta?');">
+              <form action="{{ url_for('respuestas.eliminar', clave=clave) }}" method="post" onsubmit="return confirm('¿Eliminar esta respuesta?');">
                 <button type="submit" class="btn btn-secundario">🗑️ Eliminar</button>
               </form>
             </div>
@@ -104,12 +36,9 @@
         {% endfor %}
       </ul>
     {% else %}
-      <p>No hay respuestas registradas todavía.</p>
+      <p>No hay respuestas registradas.</p>
     {% endif %}
-
-    <div style="margin-top: 30px;">
-      <a href="{{ url_for('main.index') }}" class="btn btn-secundario">⬅️ Volver al Panel</a>
-    </div>
+    <a href="{{ url_for('main.index') }}" class="btn btn-secundario">⬅️ Volver</a>
   </div>
 </body>
 </html>

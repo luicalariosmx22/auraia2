@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Panel de Configuración - Nora AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/flash_messages.css') }}">
   <style>
     body {
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -12,28 +11,18 @@
       margin: 0;
       padding: 0;
     }
-
     .container {
       max-width: 1100px;
       margin: auto;
       padding: 30px;
     }
-
     .logo-header {
       text-align: center;
       margin-bottom: 30px;
     }
-
     .logo-header img {
       width: 120px;
     }
-
-    .logo-header h1 {
-      margin: 10px 0 0 0;
-      font-size: 26px;
-      color: #333;
-    }
-
     .card {
       background-color: white;
       border-radius: 12px;
@@ -41,64 +30,22 @@
       padding: 25px;
       margin-bottom: 30px;
     }
-
-    .card h2 {
-      margin-top: 0;
-      color: #333;
-    }
-
-    .card ul {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    .card li {
-      margin-bottom: 12px;
-    }
-
-    .btn-principal,
-    .btn-secundario,
-    button {
-      padding: 10px 16px;
-      border-radius: 8px;
+    .btn {
+      padding: 8px 16px;
       font-size: 14px;
+      border-radius: 8px;
       text-decoration: none;
-      margin-right: 10px;
+      border: none;
       cursor: pointer;
+      transition: background-color 0.2s ease;
     }
-
-    .btn-principal {
+    .btn-primario {
       background-color: #4a90e2;
       color: white;
-      border: none;
     }
-
     .btn-secundario {
-      background-color: #eaeaea;
+      background-color: #e0e0e0;
       color: #333;
-      border: none;
-    }
-
-    .alert {
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-    }
-
-    .alert-danger {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-
-    .alert-success {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    hr {
-      border: none;
-      border-top: 1px solid #ddd;
-      margin: 25px 0;
     }
   </style>
 </head>
@@ -109,64 +56,27 @@
       <h1>🤖 Panel de Configuración de Nora AI</h1>
     </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="card">
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-
     <div class="card">
       <h2>⚙️ Estado del Sistema</h2>
       <p>🧠 <strong>IA activada:</strong> {{ 'Sí ✅' if usar_openai else 'No ❌' }}</p>
       <form method="POST" action="{{ url_for('main.toggle_ia') }}">
-        <button type="submit" class="btn-secundario">🔁 Cambiar estado de IA</button>
+        <button type="submit" class="btn btn-secundario">🔁 Cambiar estado de IA</button>
       </form>
-
-      <p>📞 <strong>Twilio:</strong> {{ info_twilio.nombre }} ({{ info_twilio.estado }})</p>
-      <p>🧠 <strong>OpenAI:</strong> {{ info_openai.estado }}</p>
-
       <div style="margin-top: 15px;">
-        <a href="{{ url_for('panel_errores.ver_errores') }}" class="btn-secundario">🛑 Ver Errores</a>
+        <a href="{{ url_for('panel_errores.ver_errores') }}" class="btn btn-secundario">🛑 Ver Errores</a>
         <form method="POST" action="{{ url_for('panel_errores.limpiar_errores') }}" style="display:inline;" onsubmit="return confirm('¿Deseas borrar el log de errores?');">
-          <button type="submit" class="btn-secundario">🧹 Limpiar Errores</button>
+          <button type="submit" class="btn btn-secundario">🧹 Limpiar Errores</button>
         </form>
-        <a href="{{ url_for('panel_chat.panel_chat') }}" class="btn-principal">💬 Ir al Chat</a>
+        <a href="{{ url_for('panel_chat.panel_chat') }}" class="btn btn-primario">💬 Ir al Chat</a>
       </div>
     </div>
 
     <div class="card">
       <h2>📚 Respuestas y Categorías</h2>
       <ul>
-        <li><a href="{{ url_for('main.index') }}">🏠 Inicio</a></li>
-        <li><a href="{{ url_for('respuestas.editar', clave='nueva') }}">➕ Agregar Respuesta</a></li>
-        <li><a href="{{ url_for('categorias.mostrar_categorias') }}">🏷️ Categorías</a></li>
+        <li><a href="{{ url_for('respuestas.mostrar_respuestas') }}" class="btn btn-primario">📋 Ver Respuestas Rápidas</a></li>
+        <li><a href="{{ url_for('categorias.mostrar_categorias') }}" class="btn btn-secundario">🏷️ Categorías</a></li>
       </ul>
-    </div>
-
-    <div class="card">
-      <h2>📌 Respuestas Registradas</h2>
-      {% if datos %}
-        <ul>
-          {% for clave, info in datos.items() %}
-            <li>
-              <strong>{{ clave }}</strong><br>
-              Categoría: {{ info.categoria }}<br>
-              Palabras clave: {{ info.palabras_clave|join(', ') }}<br>
-              <a href="{{ url_for('respuestas.editar', clave=clave) }}">✏️ Editar</a> |
-              <form action="{{ url_for('respuestas.eliminar', clave=clave) }}" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar esta respuesta?');">
-                <button type="submit" class="btn-secundario">🗑️ Eliminar</button>
-              </form>
-            </li>
-            <hr>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No hay respuestas registradas todavía.</p>
-      {% endif %}
     </div>
   </div>
 </body>
