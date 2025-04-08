@@ -1,94 +1,71 @@
 import os
 import json
 import requests
-import openai
-import twilio
-from twilio.rest import Client
-from utils.config_helper import cargar_configuracion
+from dotenv import load_dotenv
 
-# Función de verificación de archivos
-def verificar_archivos():
-    archivos_essenciales = [
-        'webhook.py', 'bot_data.json', 'logs_errores.json', 'config.json', 'panel_errores.html', 'login.html'
+# Cargar las variables de entorno desde el archivo .env
+load_dotenv()  # Asegúrate de que esto esté al principio del archivo
+
+# Función para verificar las variables de entorno necesarias
+def verificar_variables_entorno():
+    print("🔍 Verificando variables de entorno...")
+    required_vars = [
+        'OPENAI_API_KEY', 
+        'TWILIO_AUTH_TOKEN', 
+        'TWILIO_ACCOUNT_SID', 
+        'TWILIO_PHONE_NUMBER', 
+        'ADMIN_PASSWORD', 
+        'TWILIO_WHATSAPP_NUMBER', 
+        'LOGIN_PASSWORD'
     ]
-    for archivo in archivos_essenciales:
-        if not os.path.exists(archivo):
-            print(f"❌ El archivo {archivo} NO se encuentra en el proyecto.")
-        else:
-            print(f"✅ El archivo {archivo} está presente.")
-
-# Función de verificación de Twilio
-def verificar_twilio():
-    try:
-        account_sid = os.getenv('TWILIO_ACCOUNT_SID')
-        auth_token = os.getenv('TWILIO_AUTH_TOKEN')
-        client = Client(account_sid, auth_token)
-        phone_number = os.getenv('TWILIO_PHONE_NUMBER')
-        client.messages.create(
-            body="Verificación de conexión Twilio",
-            from_=phone_number,
-            to=phone_number  # Enviar a tu propio número como prueba
-        )
-        print("✅ Conexión con Twilio OK.")
-    except Exception as e:
-        print(f"❌ Error con Twilio: {e}")
-
-# Función de verificación de OpenAI
-def verificar_openai():
-    try:
-        openai.api_key = os.getenv('OPENAI_API_KEY')
-        completion = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt="Verificar conexión de OpenAI",
-            max_tokens=5
-        )
-        print("✅ Conexión con OpenAI OK.")
-    except Exception as e:
-        print(f"❌ Error con OpenAI: {e}")
-
-# Función de verificación de conexión al webhook
-def verificar_webhook():
-    try:
-        url_webhook = os.getenv('WEBHOOK_URL', 'http://localhost:5000/webhook')  # Reemplazar con la URL real
-        response = requests.post(url_webhook, data={'Body': 'hola', 'From': 'whatsapp:+5215593372311'})
-        if response.status_code == 200:
-            print("✅ Webhook responde correctamente.")
-        else:
-            print(f"❌ Error en el webhook, status code: {response.status_code}")
-    except Exception as e:
-        print(f"❌ Error en la conexión con el webhook: {e}")
-
-# Función de verificación del servidor Flask
-def verificar_servidor_flask():
-    try:
-        url_servidor = os.getenv('FLASK_SERVER_URL', 'http://localhost:5000')
-        response = requests.get(url_servidor)
-        if response.status_code == 200:
-            print("✅ Servidor Flask responde correctamente.")
-        else:
-            print(f"❌ Error en el servidor Flask, status code: {response.status_code}")
-    except Exception as e:
-        print(f"❌ Error en la conexión con el servidor Flask: {e}")
-
-# Función principal
-def diagnosticar():
-    print("🔍 Iniciando diagnóstico del sistema Aura AI...\n")
-
-    # Verificar archivos esenciales
-    verificar_archivos()
     
-    # Verificar conexión con Twilio
-    verificar_twilio()
+    missing_vars = [var for var in required_vars if not os.getenv(var)]
 
-    # Verificar conexión con OpenAI
-    verificar_openai()
+    if missing_vars:
+        print(f"❌ Falta la(s) siguiente(s) variable(s) de entorno: {', '.join(missing_vars)}")
+    else:
+        print("✅ Todas las variables de entorno están configuradas correctamente.")
 
-    # Verificar webhook
+# Función para verificar los archivos esenciales
+def verificar_archivos_esenciales():
+    print("\n🔍 Verificando archivos esenciales...")
+    required_files = ['bot_data.json', 'logs_errores.json']
+    for file in required_files:
+        if not os.path.exists(file):
+            print(f"❌ Falta el archivo: {file}")
+        else:
+            print(f"✅ El archivo {file} está presente.")
+
+# Función para verificar la conexión al webhook
+def verificar_webhook():
+    print("\n🔍 Verificando Webhook...")
+    url = "https://auraia2-production.up.railway.app/webhook"  # URL actualizada del webhook en Railway
+    try:
+        response = requests.post(url, data={"Body": "hola", "From": "whatsapp:+5215593372311"})
+        if response.status_code == 200:
+            print("✅ Webhook conectado correctamente.")
+        else:
+            print(f"❌ Error al conectar con el webhook: {response.status_code} - {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error al conectar con el webhook: {e}")
+
+# Función para verificar la accesibilidad de la base de datos
+def verificar_base_de_datos():
+    print("\n🔍 Verificando conexión a la base de datos...")
+    try:
+        with open('bot_data.json', 'r', encoding='utf-8') as f:
+            json.load(f)  # Intentamos leer el archivo para ver si es accesible.
+        print("✅ La base de datos 'bot_data.json' es accesible.")
+    except Exception as e:
+        print(f"❌ Error al leer la base de datos: {e}")
+
+# Función principal para ejecutar las verificaciones
+def ejecutar_verificaciones():
+    verificar_variables_entorno()
+    verificar_archivos_esenciales()
     verificar_webhook()
+    verificar_base_de_datos()
 
-    # Verificar servidor Flask
-    verificar_servidor_flask()
-
-# Ejecutar el diagnóstico
-if __name__ == '__main__':
-    diagnosticar()
+# Ejecución de las verificaciones al correr el script
+if __name__ == "__main__":
+    ejecutar_verificaciones()

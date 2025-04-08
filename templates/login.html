@@ -2,12 +2,94 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Iniciar Sesión</title>
+  <title>Iniciar Sesión - Nora AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-box img {
+      width: 100px;
+      margin-bottom: 20px;
+    }
+
+    .login-box h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      text-align: left;
+      color: #555;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #357ABD;
+    }
+
+    .alert {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      text-align: left;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🔐 Iniciar Sesión</h1>
+  <div class="login-box">
+    <img src="{{ url_for('static', filename='nora_logo.png') }}" alt="Nora AI Logo">
+    <h1>Iniciar Sesión en Nora AI</h1>
+    
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -15,11 +97,11 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
+
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label for="password">Contraseña:</label>
       <input type="password" id="password" name="password" required>
-      <br><br>
       <button type="submit">Entrar</button>
     </form>
   </div>
