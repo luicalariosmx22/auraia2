@@ -95,11 +95,11 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# ✅ Middleware de autenticación ajustado
+# ✅ Middleware de autenticación
 @app.before_request
 def require_login():
     if request.path.startswith('/webhook'):
-        return  # Deja pasar los POST de Twilio
+        return  # Permitir POST del webhook
 
     allowed_paths = [
         '/login',
@@ -133,15 +133,15 @@ for bp, options in blueprints:
         logger.error(f"❌ Error registrando {bp.name}: {str(e)}")
         raise
 
-# Registrar handlers de SocketIO
+# Registrar eventos de SocketIO
 register_socketio_handlers(socketio)
 
-# Verificación final de rutas
+# Healthcheck
 @app.route('/healthcheck')
 def healthcheck():
     return "OK", 200
 
-# Configuración para producción
+# Iniciar servidor
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug_mode = os.getenv('FLASK_ENV') == 'development'
