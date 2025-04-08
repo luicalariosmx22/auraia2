@@ -1,8 +1,34 @@
-from flask import Blueprint, request, redirect, url_for, session, render_template
+from flask import Blueprint, request, redirect, url_for, session, render_template, flash
 import json
+import os
 from utils.config import login_requerido
 
 respuestas_bp = Blueprint('respuestas', __name__)
+
+BOT_DATA_FILE = 'bot_data.json'
+CATEGORIAS_FILE = 'categorias.json'
+
+def cargar_respuestas():
+    if not os.path.exists(BOT_DATA_FILE):
+        return {}
+    with open(BOT_DATA_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def guardar_respuestas(data):
+    with open(BOT_DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+def cargar_categorias():
+    if not os.path.exists(CATEGORIAS_FILE):
+        return []
+    with open(CATEGORIAS_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+@respuestas_bp.route('/respuestas')
+@login_requerido
+def mostrar_respuestas():
+    datos = cargar_respuestas()
+    return render_template('respuestas.html', datos=datos)
 
 @respuestas_bp.route('/guardar', methods=['POST'])
 @login_requerido
@@ -18,12 +44,7 @@ def guardar():
     except json.JSONDecodeError:
         botones = []
 
-    try:
-        with open('bot_data.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        data = {}
-
+    data = cargar_respuestas()
     id_respuesta = palabras_clave[0]
     data[id_respuesta] = {
         "palabras_clave": palabras_clave,
@@ -32,20 +53,14 @@ def guardar():
         "botones": botones
     }
 
-    with open('bot_data.json', 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-
-    return redirect(url_for('main.index'))
+    guardar_respuestas(data)
+    return redirect(url_for('respuestas.mostrar_respuestas'))
 
 @respuestas_bp.route('/editar/<clave>', methods=['GET', 'POST'])
 @login_requerido
 def editar(clave):
     clave = clave.lower()
-    try:
-        with open('bot_data.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        data = {}
+    data = cargar_respuestas()
 
     if request.method == 'POST':
         claves_raw = request.form['titulo'].strip().lower()
@@ -68,10 +83,8 @@ def editar(clave):
             "botones": botones
         }
 
-        with open('bot_data.json', 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-
-        return redirect(url_for('main.index'))
+        guardar_respuestas(data)
+        return redirect(url_for('respuestas.mostrar_respuestas'))
 
     else:
         info = data.get(clave, {})
@@ -80,26 +93,22 @@ def editar(clave):
         categoria = info.get("categoria", "")
         botones = info.get("botones", [])
 
-        try:
-            with open('categorias.json', 'r', encoding='utf-8') as f:
-                categorias = json.load(f)
-        except FileNotFoundError:
-            categorias = []
+        categorias = cargar_categorias()
 
-        return render_template('editar.html', clave=clave, contenido=contenido, categoria=categoria, categorias=categorias, botones_json=json.dumps(botones), palabras_clave=palabras_clave)
+        return render_template('editar.html',
+                               clave=clave,
+                               contenido=contenido,
+                               categoria=categoria,
+                               categorias=categorias,
+                               botones_json=json.dumps(botones),
+                               palabras_clave=palabras_clave)
 
 @respuestas_bp.route('/eliminar/<clave>', methods=['POST'])
 @login_requerido
 def eliminar(clave):
     clave = clave.lower()
-    try:
-        with open('bot_data.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        data = {}
-
+    data = cargar_respuestas()
     if clave in data:
         del data[clave]
-        with open('bot_data.json', 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-    return redirect(url_for('main.index'))
+        guardar_respuestas(data)
+    return redirect(url_for('respuestas.mostrar_respuestas'))
