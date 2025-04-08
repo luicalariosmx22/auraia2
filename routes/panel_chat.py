@@ -4,21 +4,45 @@ from collections import defaultdict
 import os
 from utils.normalizador import normalizar_numero
 from flask_wtf.csrf import CSRFProtect
+from datetime import datetime
+from werkzeug.utils import secure_filename
 
 panel_chat_bp = Blueprint('panel_chat', __name__)
 ARCHIVO_HISTORIAL = "historial_conversaciones.json"
 CONTACTOS_INFO = "contactos_info.json"
 ETIQUETAS_DISPONIBLES = "etiquetas.json"
+UPLOAD_FOLDER = os.path.join("static", "uploads")
 
 csrf = CSRFProtect()
 
-@panel_chat_bp.route('/panel/chat')
+@panel_chat_bp.route('/panel/chat', methods=['GET', 'POST'])
 def panel_chat():
     numero_seleccionado = request.args.get('numero')
     etiqueta_seleccionada = request.args.get('etiqueta')
 
     contactos_info = cargar_json(CONTACTOS_INFO, {})
     historial = cargar_json(ARCHIVO_HISTORIAL, [])
+
+    if request.method == 'POST':
+        mensaje = request.form.get('respuesta', '').strip()
+        numero = request.form.get('numero')
+        archivo = request.files.get('archivo')
+
+        nuevo_mensaje = {
+            "remitente": numero,
+            "mensaje": mensaje,
+            "timestamp": obtener_timestamp_actual()
+        }
+
+        if archivo and archivo.filename:
+            nombre_archivo = secure_filename(archivo.filename)
+            ruta_completa = os.path.join(UPLOAD_FOLDER, nombre_archivo)
+            archivo.save(ruta_completa)
+            nuevo_mensaje["archivo"] = nombre_archivo
+
+        historial.append(nuevo_mensaje)
+        guardar_json(ARCHIVO_HISTORIAL, historial)
+        return redirect(url_for('panel_chat.panel_chat', numero=numero))
 
     if etiqueta_seleccionada:
         contactos_info = {
@@ -140,7 +164,27 @@ def guardar_nota(numero):
     flash("Nota guardada correctamente", "success")
     return redirect(url_for('panel_chat.panel_chat', numero=numero))
 
+@panel_chat_bp.route('/actualizar_nombre/<numero>', methods=['POST'])
+def actualizar_nombre(numero):
+    nuevo_nombre = request.form.get('nuevo_nombre', '').strip()
+    if not nuevo_nombre:
+        flash("El nombre no puede estar vacío", "warning")
+        return redirect(url_for('panel_chat.panel_chat', numero=numero))
+
+    contactos_info = cargar_json(CONTACTOS_INFO, {})
+    numero = normalizar_numero(numero)
+
+    if numero not in contactos_info:
+        contactos_info[numero] = {"ia_activada": True, "etiquetas": [], "nombre": nuevo_nombre}
+    else:
+        contactos_info[numero]["nombre"] = nuevo_nombre
+
+    guardar_json(CONTACTOS_INFO, contactos_info)
+    flash("Nombre actualizado", "success")
+    return redirect(url_for('panel_chat.panel_chat', numero=numero))
+
 # Utilidades
+
 def cargar_json(archivo, default=None):
     try:
         with open(archivo, 'r', encoding='utf-8') as f:
@@ -161,7 +205,9 @@ def procesar_contactos(historial, contactos_info):
         numero = normalizar_numero(mensaje.get("remitente", ""))
         if numero in contactos_info:
             contactos[numero].append(mensaje)
-            if "nombre" in mensaje and mensaje["nombre"]:
+            if "nombre" in contactos_info[numero]:
+                nombres[numero] = contactos_info[numero]["nombre"]
+            elif "nombre" in mensaje:
                 nombres[numero] = mensaje["nombre"]
             estados_ia[numero] = contactos_info.get(numero, {}).get("ia_activada", True)
 
@@ -176,6 +222,5 @@ def cargar_notas():
 def cargar_notas_modificadas():
     return cargar_json("notas_modificadas.json", {})
 
-from datetime import datetime
 def obtener_timestamp_actual():
     return datetime.now().strftime("%Y-%m-%d %H:%M")

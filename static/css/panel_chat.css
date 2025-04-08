@@ -1,212 +1,214 @@
 
 body {
   margin: 0;
-  padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f6f9;
   display: flex;
   height: 100vh;
   overflow: hidden;
 }
 
 .sidebar {
-  width: 280px;
-  background-color: #ffffff;
-  border-right: 1px solid #ddd;
+  width: 320px;
+  background-color: #f0f4f8;
+  border-right: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
   overflow-y: auto;
-  padding: 15px;
 }
 
 .panel-botones-top {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
 }
 
 .form-filtro {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   margin-bottom: 15px;
 }
 
-.btn-filtrar,
+.form-filtro select,
+.form-filtro button,
 .btn-limpiar {
-  padding: 6px;
-  border-radius: 6px;
-  border: none;
-  background-color: #4a90e2;
-  color: white;
-  cursor: pointer;
+  margin-top: 5px;
+  padding: 5px 10px;
+  font-size: 14px;
 }
 
 .contacto {
-  padding: 10px;
   border-radius: 8px;
-  margin-bottom: 8px;
-  transition: background-color 0.2s ease;
+  padding: 10px;
+  margin-bottom: 5px;
+  background: #ffffff;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-.contacto.activo,
-.contacto:hover {
-  background-color: #e6f0fc;
+.contacto.activo {
+  background: #dce9f9;
+  border-left: 4px solid #4a90e2;
 }
 
-.contacto-link {
-  text-decoration: none;
-  color: inherit;
+.contacto-content {
   display: flex;
-  gap: 10px;
+  align-items: center;
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   background-color: #4a90e2;
-  color: white;
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  font-weight: bold;
+  margin-right: 10px;
 }
 
 .contacto-info {
-  display: flex;
-  flex-direction: column;
+  flex: 1;
 }
 
 .etiquetas-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  margin-top: 4px;
 }
 
 .etiqueta {
-  background-color: #dfe9f5;
-  padding: 2px 6px;
-  border-radius: 6px;
+  background: #e2edfc;
+  color: #0366d6;
   font-size: 11px;
-  color: #333;
+  padding: 2px 6px;
+  margin-right: 3px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .chat {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #f9fbfe;
+  background-color: #e6ecf3;
   position: relative;
 }
 
 .encabezado {
+  background-color: #f5f7fa;
+  padding: 10px;
   display: flex;
   align-items: center;
-  padding: 10px;
-  background-color: #dde7f3;
+  gap: 10px;
   border-bottom: 1px solid #ccc;
 }
 
-.encabezado .logo {
-  height: 30px;
-  margin-right: 10px;
+.encabezado img.logo {
+  height: 40px;
 }
 
 .mensajes {
   flex: 1;
-  padding: 15px;
   overflow-y: auto;
+  padding: 10px 15px;
 }
 
 .mensaje {
   margin-bottom: 12px;
+}
+
+.mensaje .texto-mensaje {
+  background-color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: inline-block;
   max-width: 70%;
 }
 
-.mensaje.enviado {
+.mensaje.enviado .texto-mensaje {
+  background-color: #d1eaff;
   align-self: flex-end;
-  background-color: #dcf8c6;
-  border-radius: 8px 8px 0 8px;
-  padding: 10px;
-}
-
-.mensaje.recibido {
-  align-self: flex-start;
-  background-color: #fff;
-  border-radius: 8px 8px 8px 0;
-  padding: 10px;
-}
-
-.texto-mensaje {
-  font-size: 14px;
 }
 
 .hora {
   font-size: 11px;
-  color: #999;
-  text-align: right;
+  color: #666;
+  margin-top: 2px;
 }
 
 .formulario {
   display: flex;
   padding: 10px;
   border-top: 1px solid #ccc;
-  background-color: white;
+  background: #fff;
 }
 
-.formulario input[type="text"] {
+.formulario input[type="text"],
+.formulario input[type="file"] {
   flex: 1;
   padding: 8px;
+  margin-right: 5px;
+  border-radius: 5px;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-right: 10px;
 }
 
 .formulario button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
   background-color: #4a90e2;
   color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
 .contacto-detalle {
-  width: 300px;
-  background-color: #f2f6fa;
-  border-left: 1px solid #ddd;
+  width: 320px;
+  background: #f0f4f8;
   padding: 15px;
+  border-left: 1px solid #ccc;
   overflow-y: auto;
 }
 
-.contacto-detalle h3 {
-  margin-top: 0;
-}
-
 .contacto-detalle .campo {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-.contacto-detalle select,
 .contacto-detalle textarea {
   width: 100%;
-  padding: 6px;
+  height: 80px;
+  resize: vertical;
   border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-top: 5px;
+  padding: 8px;
+  border-radius: 5px;
 }
 
-.btn-toggle-ia {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 6px;
+.contacto-detalle input[type="text"] {
+  width: 100%;
+  padding: 6px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.contacto-detalle button {
   background-color: #4a90e2;
   color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
 }
 
-.btn-toggle-ia.desactivado {
-  background-color: #ccc;
-  color: #333;
+.preview-imagen img {
+  max-width: 150px;
+  margin-top: 5px;
+  border-radius: 8px;
+}
+
+.preview-archivo {
+  margin-top: 5px;
 }

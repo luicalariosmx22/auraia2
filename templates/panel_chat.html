@@ -75,6 +75,24 @@
         <div class="mensaje {{ m.tipo }}">
           <div class="texto-mensaje">
             <strong>{{ m.nombre if m.nombre else m.remitente }}:</strong> {{ m.mensaje }}
+            {% if m.archivo %}
+              <div class="archivo-adjunto">
+                {% set extension = m.archivo.split('.')[-1].lower() %}
+                {% if extension in ['jpg', 'jpeg', 'png', 'gif', 'webp'] %}
+                  <div class="preview-imagen">
+                    <a href="{{ url_for('static', filename='uploads/' ~ m.archivo) }}" target="_blank">
+                      <img src="{{ url_for('static', filename='uploads/' ~ m.archivo) }}" alt="imagen">
+                    </a>
+                  </div>
+                {% else %}
+                  <div class="preview-archivo">
+                    <a href="{{ url_for('static', filename='uploads/' ~ m.archivo) }}" target="_blank">
+                      📎 {{ m.archivo }}
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
           </div>
           <div class="hora">{{ m.timestamp.replace("T", " ")[:16] }}</div>
         </div>
@@ -82,10 +100,11 @@
     </div>
 
     {% if seleccionado %}
-      <form class="formulario" id="formularioRespuesta" method="POST">
+      <form class="formulario" id="formularioRespuesta" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" id="numero" value="{{ seleccionado }}">
-        <input type="text" id="respuesta" placeholder="Escribe un mensaje..." required>
+        <input type="hidden" id="numero" name="numero" value="{{ seleccionado }}">
+        <input type="text" id="respuesta" name="respuesta" placeholder="Escribe un mensaje..." required>
+        <input type="file" id="archivo" name="archivo">
         <button type="submit">Enviar</button>
       </form>
     {% endif %}
@@ -93,9 +112,13 @@
 
   {% if seleccionado %}
   <div class="contacto-detalle">
-    <h3>{{ nombres[seleccionado] if seleccionado in nombres else 'Sin nombre' }}</h3>
+    <form action="{{ url_for('panel_chat.actualizar_nombre', numero=seleccionado) }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label><strong>Nombre:</strong></label>
+      <input type="text" name="nuevo_nombre" value="{{ nombres[seleccionado] if seleccionado in nombres else '' }}">
+      <button type="submit">✏️ Actualizar</button>
+    </form>
     <div class="campo"><strong>Número:</strong> {{ seleccionado }}</div>
-
     <div class="campo">
       <form action="{{ url_for('panel_chat.toggle_ia', numero=seleccionado) }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -104,22 +127,20 @@
         </button>
       </form>
     </div>
-
     <div class="campo">
       <strong>Etiquetas:</strong>
       <div class="etiquetas-container">
         {% for etiqueta in etiquetas.get(seleccionado, []) %}
-          <form action="{{ url_for('panel_chat.eliminar_etiqueta', numero=seleccionado, etiqueta=etiqueta) }}" method="post" class="form-etiqueta-inline">
+          <form action="{{ url_for('panel_chat.eliminar_etiqueta', numero=seleccionado, etiqueta=etiqueta) }}" method="post" style="display:inline;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <span class="etiqueta">
               {{ etiqueta }}
-              <button type="submit" class="btn-etiqueta-delete" title="Eliminar etiqueta">✖</button>
+              <button type="submit" class="btn-etiqueta-delete" title="Eliminar etiqueta">❌</button>
             </span>
           </form>
         {% endfor %}
       </div>
     </div>
-
     <form action="{{ url_for('panel_chat.add_etiqueta', numero=seleccionado) }}" method="post" class="etiqueta-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <select name="nueva_etiqueta" required>
@@ -130,7 +151,6 @@
       </select>
       <button type="submit">➕</button>
     </form>
-
     <div class="campo notas">
       <form action="{{ url_for('panel_chat.guardar_nota', numero=seleccionado) }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
