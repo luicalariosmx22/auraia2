@@ -9,11 +9,11 @@
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f4f6f9;
       margin: 0;
-      padding: 20px;
+      padding: 40px;
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 800px;
       margin: auto;
       background-color: white;
       border-radius: 12px;
@@ -23,6 +23,7 @@
 
     h1 {
       text-align: center;
+      margin-bottom: 20px;
       color: #333;
     }
 
@@ -36,12 +37,20 @@
       padding: 15px;
       background-color: #f1f1f1;
       border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nombre {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
     }
 
     .acciones {
       display: flex;
       gap: 10px;
-      margin-top: 10px;
     }
 
     .btn {
@@ -58,42 +67,74 @@
       color: white;
     }
 
-    .btn-rojo {
-      background-color: #e74c3c;
+    .btn-secundario {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-agregar {
+      display: inline-block;
+      margin-bottom: 20px;
+      background-color: #28a745;
       color: white;
     }
 
-    .btn-volver {
-      background-color: #ccc;
-      color: #333;
-      margin-top: 30px;
+    .alert {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🏷️ Etiquetas Asignadas</h1>
+    <h1>🏷️ Etiquetas</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <a href="{{ url_for('etiquetas.editar_etiqueta', nombre='nueva') }}" class="btn btn-agregar">➕ Agregar Nueva Etiqueta</a>
 
     {% if etiquetas %}
       <ul>
         {% for etiqueta in etiquetas %}
           <li>
-            <strong>{{ etiqueta }}</strong>
+            <span class="nombre">{{ etiqueta }}</span>
             <div class="acciones">
               <a href="{{ url_for('etiquetas.editar_etiqueta', nombre=etiqueta) }}" class="btn btn-primario">✏️ Editar</a>
-              <form action="{{ url_for('etiquetas.eliminar_etiqueta', nombre=etiqueta) }}" method="post" onsubmit="return confirm('¿Eliminar esta etiqueta de todos los contactos?');">
-                <button type="submit" class="btn btn-rojo">🗑️ Eliminar</button>
+              <form action="{{ url_for('etiquetas.eliminar_etiqueta', nombre=etiqueta) }}" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar esta etiqueta?');">
+                <button type="submit" class="btn btn-secundario">🗑️ Eliminar</button>
               </form>
             </div>
           </li>
         {% endfor %}
       </ul>
     {% else %}
-      <p>No hay etiquetas aún.</p>
+      <p>No hay etiquetas registradas.</p>
     {% endif %}
 
-    <div>
-      <a href="{{ url_for('main.index') }}" class="btn btn-volver">⬅️ Volver al Panel</a>
+    <div style="margin-top: 30px;">
+      <a href="{{ url_for('main.index') }}" class="btn btn-secundario">⬅️ Volver al Panel</a>
     </div>
   </div>
 </body>

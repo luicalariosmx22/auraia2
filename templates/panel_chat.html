@@ -8,8 +8,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/flash_messages.css') }}">
 </head>
 <body>
-  <audio id="audioNotificacion" src="{{ url_for('static', filename='sounds/pling.mp3') }}" preload="auto"></audio>
-
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <div class="flash-messages">
@@ -23,29 +21,24 @@
   <div class="sidebar">
     <div class="panel-botones-top">
       <a href="{{ url_for('main.index') }}">⬅️ Volver</a>
-      <a href="{{ url_for('etiquetas.mostrar_etiquetas') }}">🏷️ Etiquetas</a>
-      <button onclick="toggleSonido()" class="campanita" title="Sonido">
-        <span id="iconoCampana">🔔</span>
-      </button>
+      <button class="campanita" title="Sonido">🔔</button>
     </div>
 
-    <div class="filtro-container">
-      <form action="{{ url_for('panel_chat.filter_etiquetas') }}" method="get" class="form-filtro">
-        <label for="etiqueta">Filtrar por etiqueta:</label>
-        <select name="etiqueta" id="etiqueta">
-          <option value="">Todas las conversaciones</option>
-          {% for etiqueta in etiquetas_disponibles %}
-            <option value="{{ etiqueta }}" {% if etiqueta == etiqueta_filtrada %}selected{% endif %}>
-              {{ etiqueta }}
-            </option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="btn-filtrar">Filtrar</button>
-        {% if etiqueta_filtrada %}
-          <a href="{{ url_for('panel_chat.panel_chat') }}" class="btn-limpiar">Limpiar</a>
-        {% endif %}
-      </form>
-    </div>
+    <form action="{{ url_for('panel_chat.filter_etiquetas') }}" method="get" class="form-filtro">
+      <label for="etiqueta">Filtrar por etiqueta:</label>
+      <select name="etiqueta" id="etiqueta">
+        <option value="">Todas las conversaciones</option>
+        {% for etiqueta in etiquetas_disponibles %}
+          <option value="{{ etiqueta }}" {% if etiqueta == etiqueta_filtrada %}selected{% endif %}>
+            {{ etiqueta }}
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn-filtrar">Filtrar</button>
+      {% if etiqueta_filtrada %}
+        <a href="{{ url_for('panel_chat.panel_chat') }}" class="btn-limpiar">Limpiar</a>
+      {% endif %}
+    </form>
 
     {% for numero in contactos %}
       <div class="contacto {% if numero == seleccionado %}activo{% endif %}" data-numero="{{ numero }}">
@@ -61,9 +54,6 @@
             <div class="contacto-info">
               <strong>{{ nombres[numero] if numero in nombres else 'Sin nombre' }}</strong>
               <small class="numero-telefono">{{ numero }}</small>
-              <small class="estado-ia {% if not ia_estado_contactos[numero] %}desactivado{% endif %}">
-                {% if ia_estado_contactos[numero] %}IA activada{% else %}IA desactivada{% endif %}
-              </small>
               <div class="etiquetas-container">
                 {% for etiqueta in etiquetas.get(numero, []) %}
                   <span class="etiqueta">{{ etiqueta }}</span>
@@ -74,8 +64,13 @@
 
           <form action="{{ url_for('panel_chat.add_etiqueta', numero=numero) }}" method="post" class="etiqueta-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="text" name="nueva_etiqueta" placeholder="Agregar etiqueta" required>
-            <button type="submit">Agregar</button>
+            <select name="nueva_etiqueta" required>
+              <option value="" disabled selected>+ Etiqueta</option>
+              {% for etiqueta in etiquetas_disponibles %}
+                <option value="{{ etiqueta }}">{{ etiqueta }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit">➕</button>
           </form>
 
           <form action="{{ url_for('panel_chat.toggle_ia', numero=numero) }}" method="post" class="toggle-form">
@@ -118,12 +113,6 @@
 
   <script>
     const socket = io();
-    let sonidoActivado = true;
-
-    function toggleSonido() {
-      sonidoActivado = !sonidoActivado;
-      document.getElementById("iconoCampana").textContent = sonidoActivado ? "🔔" : "🔕";
-    }
 
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('formularioRespuesta');
@@ -137,18 +126,17 @@
         const mensaje = input.value.trim();
         if (mensaje === '') return;
 
-        socket.emit('enviar_mensaje', { mensaje, numero });
+        socket.emit('enviar_mensaje', {
+          mensaje: mensaje,
+          numero: numero
+        });
+
         agregarMensaje("Tú", mensaje, 'enviado');
         input.value = '';
       });
     });
 
     socket.on('nuevo_mensaje', function (data) {
-      if (data && sonidoActivado) {
-        const audio = document.getElementById('audioNotificacion');
-        audio.play().catch(() => {});
-      }
-
       if (data) {
         const nombre = data.remitente === 'bot' ? 'Nora AI' : (data.nombre || data.remitente);
         agregarMensaje(nombre, data.mensaje, 'recibido');

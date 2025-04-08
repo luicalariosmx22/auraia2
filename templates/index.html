@@ -29,15 +29,18 @@
     </div>
 
     <div class="card" style="text-align: center;">
-      <h2 style="margin-bottom: 20px;">📚 Respuestas y Categorías</h2>
+      <h2 style="margin-bottom: 20px;">📚 Respuestas, Categorías y Etiquetas</h2>
+      
       <a href="{{ url_for('respuestas.mostrar_respuestas') }}" class="btn btn-primario" style="margin: 8px;">
         📋 Ver Respuestas Rápidas
       </a>
+
       <a href="{{ url_for('categorias.mostrar_categorias') }}" class="btn btn-secundario" style="margin: 8px;">
         🏷️ Categorías
       </a>
+
       <a href="{{ url_for('etiquetas.mostrar_etiquetas') }}" class="btn btn-secundario" style="margin: 8px;">
-        🏷️ Etiquetas
+        🔖 Etiquetas
       </a>
     </div>
   </div>
