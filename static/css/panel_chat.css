@@ -1,77 +1,56 @@
+
 body {
   margin: 0;
+  padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5;
+  background-color: #f4f6f9;
   display: flex;
   height: 100vh;
   overflow: hidden;
 }
 
-/* Sidebar izquierda */
 .sidebar {
-  width: 330px;
+  width: 280px;
   background-color: #ffffff;
-  border-right: 1px solid #ccc;
-  display: flex;
-  flex-direction: column;
+  border-right: 1px solid #ddd;
   overflow-y: auto;
+  padding: 15px;
 }
 
 .panel-botones-top {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-  background-color: #f7f9fc;
-}
-
-.panel-botones-top a {
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-}
-
-.campanita {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
+  margin-bottom: 10px;
 }
 
 .form-filtro {
-  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-}
-
-.form-filtro select,
-.form-filtro button {
-  padding: 6px;
-  font-size: 14px;
+  gap: 8px;
+  margin-bottom: 15px;
 }
 
 .btn-filtrar,
 .btn-limpiar {
-  margin-top: 5px;
-  font-size: 14px;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+  background-color: #4a90e2;
+  color: white;
+  cursor: pointer;
 }
 
 .contacto {
   padding: 10px;
-  border-bottom: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: background-color 0.2s ease;
   cursor: pointer;
 }
 
-.contacto.activo {
-  background-color: #e6f0ff;
-}
-
-.contacto-content {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.contacto.activo,
+.contacto:hover {
+  background-color: #e6f0fc;
 }
 
 .contacto-link {
@@ -82,14 +61,14 @@ body {
 }
 
 .avatar {
+  width: 40px;
+  height: 40px;
   background-color: #4a90e2;
   color: white;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  border-radius: 50%;
   font-weight: bold;
 }
 
@@ -99,104 +78,63 @@ body {
 }
 
 .etiquetas-container {
-  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .etiqueta {
-  background-color: #4a90e2;
-  color: white;
+  background-color: #dfe9f5;
+  padding: 2px 6px;
+  border-radius: 6px;
   font-size: 11px;
-  border-radius: 10px;
-  padding: 2px 8px;
-  margin-right: 4px;
+  color: #333;
 }
 
-/* Botones */
-.etiqueta-form,
-.toggle-form {
-  margin-top: 5px;
-  display: flex;
-  gap: 5px;
-}
-
-.etiqueta-form select {
-  flex-grow: 1;
-  padding: 4px;
-  font-size: 13px;
-}
-
-.etiqueta-form button {
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  padding: 5px 8px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.btn-toggle-ia {
-  font-size: 12px;
-  padding: 4px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: #f1f1f1;
-  cursor: pointer;
-}
-
-.btn-toggle-ia.desactivado {
-  background-color: #ffd1d1;
-  color: #a60000;
-}
-
-/* Chat derecho */
 .chat {
-  flex-grow: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  background-color: #f9fbfe;
+  position: relative;
 }
 
 .encabezado {
-  background-color: #e1e9f6;
-  padding: 12px 20px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  padding: 10px;
+  background-color: #dde7f3;
   border-bottom: 1px solid #ccc;
 }
 
 .encabezado .logo {
-  height: 36px;
+  height: 30px;
+  margin-right: 10px;
 }
 
 .mensajes {
-  flex-grow: 1;
+  flex: 1;
+  padding: 15px;
   overflow-y: auto;
-  padding: 20px;
-  background-color: #f7f9fc;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
 .mensaje {
-  max-width: 75%;
-  padding: 10px 15px;
-  border-radius: 10px;
-  position: relative;
-  word-wrap: break-word;
+  margin-bottom: 12px;
+  max-width: 70%;
 }
 
 .mensaje.enviado {
   align-self: flex-end;
-  background-color: #daf1ff;
-  color: #003366;
+  background-color: #dcf8c6;
+  border-radius: 8px 8px 0 8px;
+  padding: 10px;
 }
 
 .mensaje.recibido {
   align-self: flex-start;
-  background-color: #ffffff;
-  color: #000;
+  background-color: #fff;
+  border-radius: 8px 8px 8px 0;
+  padding: 10px;
 }
 
 .texto-mensaje {
@@ -205,33 +143,70 @@ body {
 
 .hora {
   font-size: 11px;
-  color: #555;
+  color: #999;
   text-align: right;
-  margin-top: 4px;
 }
 
 .formulario {
   display: flex;
-  padding: 15px;
+  padding: 10px;
   border-top: 1px solid #ccc;
-  background-color: #fff;
+  background-color: white;
 }
 
 .formulario input[type="text"] {
-  flex-grow: 1;
-  padding: 10px;
-  font-size: 14px;
+  flex: 1;
+  padding: 8px;
   border: 1px solid #ccc;
   border-radius: 8px;
   margin-right: 10px;
 }
 
 .formulario button {
-  padding: 10px 18px;
-  background-color: #4a90e2;
+  padding: 8px 16px;
   border: none;
   border-radius: 8px;
+  background-color: #4a90e2;
   color: white;
   cursor: pointer;
-  font-weight: bold;
+}
+
+.contacto-detalle {
+  width: 300px;
+  background-color: #f2f6fa;
+  border-left: 1px solid #ddd;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.contacto-detalle h3 {
+  margin-top: 0;
+}
+
+.contacto-detalle .campo {
+  margin-bottom: 10px;
+}
+
+.contacto-detalle select,
+.contacto-detalle textarea {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 5px;
+}
+
+.btn-toggle-ia {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #4a90e2;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-toggle-ia.desactivado {
+  background-color: #ccc;
+  color: #333;
 }

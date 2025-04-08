@@ -29,9 +29,7 @@
       <select name="etiqueta" id="etiqueta">
         <option value="">Todas las conversaciones</option>
         {% for etiqueta in etiquetas_disponibles %}
-          <option value="{{ etiqueta }}" {% if etiqueta == etiqueta_filtrada %}selected{% endif %}>
-            {{ etiqueta }}
-          </option>
+          <option value="{{ etiqueta }}" {% if etiqueta == etiqueta_filtrada %}selected{% endif %}>{{ etiqueta }}</option>
         {% endfor %}
       </select>
       <button type="submit" class="btn-filtrar">Filtrar</button>
@@ -61,24 +59,6 @@
               </div>
             </div>
           </a>
-
-          <form action="{{ url_for('panel_chat.add_etiqueta', numero=numero) }}" method="post" class="etiqueta-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <select name="nueva_etiqueta" required>
-              <option value="" disabled selected>+ Etiqueta</option>
-              {% for etiqueta in etiquetas_disponibles %}
-                <option value="{{ etiqueta }}">{{ etiqueta }}</option>
-              {% endfor %}
-            </select>
-            <button type="submit">➕</button>
-          </form>
-
-          <form action="{{ url_for('panel_chat.toggle_ia', numero=numero) }}" method="post" class="toggle-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn-toggle-ia {% if not ia_estado_contactos[numero] %}desactivado{% endif %}">
-              {% if ia_estado_contactos[numero] %}Desactivar IA{% else %}Activar IA{% endif %}
-            </button>
-          </form>
         </div>
       </div>
     {% endfor %}
@@ -110,6 +90,60 @@
       </form>
     {% endif %}
   </div>
+
+  {% if seleccionado %}
+  <div class="contacto-detalle">
+    <h3>{{ nombres[seleccionado] if seleccionado in nombres else 'Sin nombre' }}</h3>
+    <div class="campo"><strong>Número:</strong> {{ seleccionado }}</div>
+
+    <div class="campo">
+      <form action="{{ url_for('panel_chat.toggle_ia', numero=seleccionado) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn-toggle-ia {% if not ia_estado_contactos[seleccionado] %}desactivado{% endif %}">
+          {% if ia_estado_contactos[seleccionado] %}Desactivar IA{% else %}Activar IA{% endif %}
+        </button>
+      </form>
+    </div>
+
+    <div class="campo">
+      <strong>Etiquetas:</strong>
+      <div class="etiquetas-container">
+        {% for etiqueta in etiquetas.get(seleccionado, []) %}
+          <form action="{{ url_for('panel_chat.eliminar_etiqueta', numero=seleccionado, etiqueta=etiqueta) }}" method="post" class="form-etiqueta-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <span class="etiqueta">
+              {{ etiqueta }}
+              <button type="submit" class="btn-etiqueta-delete" title="Eliminar etiqueta">✖</button>
+            </span>
+          </form>
+        {% endfor %}
+      </div>
+    </div>
+
+    <form action="{{ url_for('panel_chat.add_etiqueta', numero=seleccionado) }}" method="post" class="etiqueta-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <select name="nueva_etiqueta" required>
+        <option value="" disabled selected>+ Etiqueta</option>
+        {% for etiqueta in etiquetas_disponibles %}
+          <option value="{{ etiqueta }}">{{ etiqueta }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">➕</button>
+    </form>
+
+    <div class="campo notas">
+      <form action="{{ url_for('panel_chat.guardar_nota', numero=seleccionado) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="nota"><strong>Notas:</strong></label>
+        <textarea name="nota" id="nota" placeholder="Escribe una nota...">{{ notas.get(seleccionado, '') }}</textarea>
+        {% if notas_modificadas.get(seleccionado) %}
+          <small>🕒 Última modificación: {{ notas_modificadas[seleccionado] }}</small>
+        {% endif %}
+        <button type="submit">💾 Guardar Nota</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
 
   <script>
     const socket = io();

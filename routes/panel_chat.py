@@ -10,7 +10,6 @@ ARCHIVO_HISTORIAL = "historial_conversaciones.json"
 CONTACTOS_INFO = "contactos_info.json"
 ETIQUETAS_DISPONIBLES = "etiquetas.json"
 
-# Configuración CSRF
 csrf = CSRFProtect()
 
 @panel_chat_bp.route('/panel/chat')
@@ -38,7 +37,9 @@ def panel_chat():
         ia_estado_contactos=ia_estado_contactos,
         etiquetas={k: v.get("etiquetas", []) for k, v in contactos_info.items()},
         etiquetas_disponibles=cargar_json(ETIQUETAS_DISPONIBLES, []),
-        etiqueta_filtrada=etiqueta_seleccionada
+        etiqueta_filtrada=etiqueta_seleccionada,
+        notas=cargar_notas(),
+        notas_modificadas=cargar_notas_modificadas()
     )
 
 @panel_chat_bp.route('/filter_etiquetas', methods=['GET'])
@@ -103,7 +104,43 @@ def add_etiqueta(numero):
 
     return redirect(url_for('panel_chat.panel_chat', numero=numero))
 
-# Funciones auxiliares
+@panel_chat_bp.route('/eliminar_etiqueta/<numero>/<etiqueta>', methods=['POST'])
+def eliminar_etiqueta(numero, etiqueta):
+    try:
+        contactos_info = cargar_json(CONTACTOS_INFO, {})
+        numero = normalizar_numero(numero)
+
+        etiquetas_actuales = contactos_info.get(numero, {}).get("etiquetas", [])
+        if etiqueta in etiquetas_actuales:
+            etiquetas_actuales.remove(etiqueta)
+            contactos_info[numero]["etiquetas"] = etiquetas_actuales
+            flash(f'Etiqueta "{etiqueta}" eliminada', 'success')
+        else:
+            flash('Etiqueta no encontrada en este contacto', 'warning')
+
+        guardar_json(CONTACTOS_INFO, contactos_info)
+
+    except Exception as e:
+        flash(f'Error al eliminar etiqueta: {str(e)}', 'error')
+
+    return redirect(url_for('panel_chat.panel_chat', numero=numero))
+
+@panel_chat_bp.route('/guardar_nota/<numero>', methods=['POST'])
+def guardar_nota(numero):
+    nota = request.form.get('nota', '').strip()
+    numero = normalizar_numero(numero)
+    notas = cargar_notas()
+    notas[numero] = nota
+    guardar_json('notas.json', notas)
+
+    modificaciones = cargar_notas_modificadas()
+    modificaciones[numero] = obtener_timestamp_actual()
+    guardar_json('notas_modificadas.json', modificaciones)
+
+    flash("Nota guardada correctamente", "success")
+    return redirect(url_for('panel_chat.panel_chat', numero=numero))
+
+# Utilidades
 def cargar_json(archivo, default=None):
     try:
         with open(archivo, 'r', encoding='utf-8') as f:
@@ -132,3 +169,13 @@ def procesar_contactos(historial, contactos_info):
 
 def ordenar_mensajes(mensajes):
     return sorted(mensajes, key=lambda x: x.get("timestamp", ""))
+
+def cargar_notas():
+    return cargar_json("notas.json", {})
+
+def cargar_notas_modificadas():
+    return cargar_json("notas_modificadas.json", {})
+
+from datetime import datetime
+def obtener_timestamp_actual():
+    return datetime.now().strftime("%Y-%m-%d %H:%M")
