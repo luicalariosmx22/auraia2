@@ -19,7 +19,7 @@ def enviar_mensaje_por_twilio(numero, mensaje):
     try:
         account_sid = os.getenv('TWILIO_ACCOUNT_SID')
         auth_token = os.getenv('TWILIO_AUTH_TOKEN')
-        twilio_number = os.getenv('TWILIO_PHONE_NUMBER')
+        twilio_number = os.getenv('TWILIO_PHONE_NUMBER')  # Ya incluye whatsapp:+5255...
 
         if not account_sid or not auth_token or not twilio_number:
             raise Exception("Faltan credenciales de Twilio en el entorno")
@@ -27,7 +27,7 @@ def enviar_mensaje_por_twilio(numero, mensaje):
         client = Client(account_sid, auth_token)
         client.messages.create(
             body=mensaje,
-            from_=f'whatsapp:{twilio_number}',
+            from_=twilio_number,  # ✅ Sin doble whatsapp:
             to=f'whatsapp:{numero}'
         )
     except Exception as e:
