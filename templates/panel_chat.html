@@ -43,11 +43,9 @@
         <div class="contacto-content">
           <a href="{{ url_for('panel_chat.panel_chat', numero=numero) }}" class="contacto-link">
             <div class="avatar">
-              {% if numero in nombres %}
-                {{ nombres[numero][0]|upper }}{% if nombres[numero].split(' ')|length > 1 %}{{ nombres[numero].split(' ')[1][0]|upper }}{% endif %}
-              {% else %}
-                SN
-              {% endif %}
+              {% set nombre_contacto = nombres[numero] if numero in nombres and nombres[numero] else 'Sin nombre' %}
+              {% set partes = nombre_contacto.split(' ') %}
+              {{ partes[0][0]|upper }}{% if partes|length > 1 %}{{ partes[1][0]|upper }}{% endif %}
             </div>
             <div class="contacto-info">
               <strong>{{ nombres[numero] if numero in nombres else 'Sin nombre' }}</strong>
@@ -75,24 +73,6 @@
         <div class="mensaje {{ m.tipo }}">
           <div class="texto-mensaje">
             <strong>{{ m.nombre if m.nombre else m.remitente }}:</strong> {{ m.mensaje }}
-            {% if m.archivo %}
-              <div class="archivo-adjunto">
-                {% set extension = m.archivo.split('.')[-1].lower() %}
-                {% if extension in ['jpg', 'jpeg', 'png', 'gif', 'webp'] %}
-                  <div class="preview-imagen">
-                    <a href="{{ url_for('static', filename='uploads/' ~ m.archivo) }}" target="_blank">
-                      <img src="{{ url_for('static', filename='uploads/' ~ m.archivo) }}" alt="imagen">
-                    </a>
-                  </div>
-                {% else %}
-                  <div class="preview-archivo">
-                    <a href="{{ url_for('static', filename='uploads/' ~ m.archivo) }}" target="_blank">
-                      📎 {{ m.archivo }}
-                    </a>
-                  </div>
-                {% endif %}
-              </div>
-            {% endif %}
           </div>
           <div class="hora">{{ m.timestamp.replace("T", " ")[:16] }}</div>
         </div>
