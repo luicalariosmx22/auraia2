@@ -18,21 +18,29 @@ def enviar_mensaje_api():
         mensaje = request.form.get("respuesta", "").strip()
         archivo = request.files.get("archivo")
 
-        if not numero or not mensaje:
-            return jsonify({"success": False, "error": "Número y mensaje son requeridos"}), 400
+        if not numero:
+            return jsonify({"success": False, "error": "Número es requerido"}), 400
 
-        guardar_en_historial(numero, mensaje, tipo="enviado")
+        # Guardar mensaje si existe
+        if mensaje:
+            guardar_en_historial(numero, mensaje, tipo="enviado")
+            print(f"✅ Mensaje para {numero}: {mensaje}")
 
+        # Guardar archivo si existe
         if archivo:
             nombre_archivo = secure_filename(archivo.filename)
             ruta_guardada = os.path.join(UPLOAD_FOLDER, nombre_archivo)
             archivo.save(ruta_guardada)
-            # Aquí deberías agregar lógica para enviar el archivo por WhatsApp usando tu sistema actual
-            print(f"📎 Archivo recibido para {numero}: {nombre_archivo}")
-            # enviar_archivo_por_whatsapp(numero, ruta_guardada)  # TODO
 
-        # También podrías integrar aquí el envío real usando Twilio u otro servicio
-        print(f"✅ Mensaje para {numero}: {mensaje}")
+            # Lógica simulada de envío
+            print(f"📎 Archivo recibido para {numero}: {nombre_archivo}")
+            guardar_en_historial(numero, f"[Archivo adjunto: {nombre_archivo}]", tipo="enviado")
+
+            # TODO: enviar_archivo_por_whatsapp(numero, ruta_guardada)
+
+        if not mensaje and not archivo:
+            return jsonify({"success": False, "error": "Debes enviar un mensaje o un archivo"}), 400
+
         return jsonify({"success": True})
 
     except Exception as e:

@@ -12,6 +12,7 @@ from utils.config import cargar_configuracion
 from socketio_handlers import register_socketio_handlers
 from dotenv import load_dotenv
 from routes.etiquetas import etiquetas_bp
+from routes.api_mensajes import api_mensajes  # al inicio
 
 import os
 import logging
@@ -140,6 +141,8 @@ blueprints = [
     (panel_chat_blueprint, None),
     (error_panel_bp, None),
     (etiquetas_bp, None)  # ✅ aquí ya está bien
+    (api_mensajes, None)  # ✅ registrar el API de mensajes
+
 ]
 
 
