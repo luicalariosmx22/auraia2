@@ -21,7 +21,7 @@
   <div class="sidebar">
     <div class="panel-botones-top">
       <a href="{{ url_for('main.index') }}">⬅️ Volver</a>
-      <button class="campanita" title="Sonido">🔔</button>
+      <button class="campanita" id="notificaciones-toggle" title="Sonido">🔔</button>
     </div>
 
     <form action="{{ url_for('panel_chat.filter_etiquetas') }}" method="get" class="form-filtro">
@@ -83,7 +83,7 @@
       <form class="formulario" id="formularioRespuesta" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" id="numero" name="numero" value="{{ seleccionado }}">
-        <input type="text" id="respuesta" name="respuesta" placeholder="Escribe un mensaje..." required>
+        <input type="text" id="respuesta" name="respuesta" placeholder="Escribe un mensaje...">
         <input type="file" id="archivo" name="archivo">
         <button type="submit">Enviar</button>
       </form>
@@ -147,6 +147,12 @@
 
   <script>
     const socket = io();
+    let sonidoHabilitado = true;
+
+    document.getElementById('notificaciones-toggle').addEventListener('click', function () {
+      sonidoHabilitado = !sonidoHabilitado;
+      this.textContent = sonidoHabilitado ? '🔔' : '🔕';
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('formularioRespuesta');
@@ -156,17 +162,40 @@
         e.preventDefault();
 
         const input = document.getElementById('respuesta');
+        const fileInput = document.getElementById('archivo');
         const numero = document.getElementById('numero').value;
         const mensaje = input.value.trim();
-        if (mensaje === '') return;
+        const archivo = fileInput.files[0];
 
-        socket.emit('enviar_mensaje', {
-          mensaje: mensaje,
-          numero: numero
+        if (!mensaje && !archivo) return;
+
+        const formData = new FormData();
+        formData.append('numero', numero);
+        formData.append('respuesta', mensaje);
+        if (archivo) {
+          formData.append('archivo', archivo);
+        }
+
+        fetch('/api/enviar_mensaje', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            if (mensaje) {
+              agregarMensaje("Tú", mensaje, 'enviado');
+              input.value = '';
+            }
+            fileInput.value = '';
+          } else {
+            alert('❌ Error al enviar el mensaje');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('❌ Error de red al enviar el mensaje');
         });
-
-        agregarMensaje("Tú", mensaje, 'enviado');
-        input.value = '';
       });
     });
 
@@ -174,6 +203,10 @@
       if (data) {
         const nombre = data.remitente === 'bot' ? 'Nora AI' : (data.nombre || data.remitente);
         agregarMensaje(nombre, data.mensaje, 'recibido');
+        if (sonidoHabilitado) {
+          const audio = new Audio("/static/sonidos/notificacion.mp3");
+          audio.play();
+        }
       }
     });
 
