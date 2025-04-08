@@ -1,83 +1,32 @@
-# routes/api_mensajes.py
+# utils/normalizador.py
 
-from flask import Blueprint, request, jsonify, current_app
-from werkzeug.utils import secure_filename
-import os
-import traceback
-from utils.normalizador import normalizar_numero
-from utils.historial import guardar_en_historial
-from utils.error_logger import registrar_error
-from twilio.rest import Client
+import re
 
-api_mensajes = Blueprint('api_mensajes', __name__)
+def normalizar_numero(numero):
+    """
+    Normaliza un número de WhatsApp eliminando caracteres no numéricos,
+    asegurando que tenga formato internacional E.164 (ej: 521XXXXXXXXXX).
+    """
+    if not numero:
+        return ""
 
-UPLOAD_FOLDER = "archivos_enviados"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    # Extraer solo dígitos
+    solo_digitos = re.sub(r'\D', '', numero)
 
-# ✅ Enviar mensaje de texto por Twilio
-def enviar_mensaje_por_twilio(numero, mensaje):
-    try:
-        account_sid = os.getenv('TWILIO_ACCOUNT_SID')
-        auth_token = os.getenv('TWILIO_AUTH_TOKEN')
-        twilio_number = os.getenv('TWILIO_PHONE_NUMBER')
+    # Si empieza con 521 y tiene 13 dígitos, ya está bien
+    if solo_digitos.startswith("521") and len(solo_digitos) == 13:
+        return solo_digitos
 
-        if not account_sid or not auth_token or not twilio_number:
-            raise Exception("Faltan credenciales de Twilio en el entorno")
+    # Si empieza con 52 y tiene 12 dígitos (sin el 1), añadir el 1
+    if solo_digitos.startswith("52") and len(solo_digitos) == 12:
+        return "521" + solo_digitos[2:]
 
-        client = Client(account_sid, auth_token)
-        client.messages.create(
-            body=mensaje,
-            from_=f'whatsapp:{twilio_number}',
-            to=f'whatsapp:{numero}'
-        )
-    except Exception as e:
-        registrar_error("twilio", "Error enviando mensaje con Twilio", tipo="Twilio", detalles=str(e))
-        raise
+    # Si es número nacional (10 dígitos), agregar 521 para México
+    if len(solo_digitos) == 10:
+        return "521" + solo_digitos
 
-@api_mensajes.route("/api/enviar_mensaje", methods=["POST"])
-def enviar_mensaje_api():
-    try:
-        numero = normalizar_numero(request.form.get("numero", ""))
-        mensaje = request.form.get("respuesta", "").strip()
-        archivo = request.files.get("archivo")
+    # Si empieza con 1 y tiene 11 dígitos (USA), lo dejamos igual
+    if solo_digitos.startswith("1") and len(solo_digitos) == 11:
+        return solo_digitos
 
-        if not numero:
-            return jsonify({"success": False, "error": "Número es requerido"}), 400
-
-        if not mensaje and not archivo:
-            return jsonify({"success": False, "error": "Debes enviar un mensaje o un archivo"}), 400
-
-        # Enviar mensaje de texto
-        if mensaje:
-            guardar_en_historial(numero, mensaje, tipo="enviado")
-            enviar_mensaje_por_twilio(numero, mensaje)
-            print(f"✅ Mensaje enviado a {numero}: {mensaje}")
-
-            current_app.extensions['socketio'].emit("nuevo_mensaje", {
-                "remitente": "bot",
-                "mensaje": mensaje,
-                "nombre": "Nora AI"
-            })
-
-        # Guardar archivo adjunto (solo historial y SocketIO, no se envía por Twilio)
-        if archivo:
-            nombre_archivo = secure_filename(archivo.filename)
-            ruta_guardada = os.path.join(UPLOAD_FOLDER, nombre_archivo)
-            archivo.save(ruta_guardada)
-
-            texto_archivo = f"[Archivo adjunto: {nombre_archivo}]"
-            guardar_en_historial(numero, texto_archivo, tipo="enviado")
-
-            print(f"📎 Archivo guardado para {numero}: {nombre_archivo}")
-            current_app.extensions['socketio'].emit("nuevo_mensaje", {
-                "remitente": "bot",
-                "mensaje": texto_archivo,
-                "nombre": "Nora AI"
-            })
-
-        return jsonify({"success": True})
-
-    except Exception as e:
-        traceback.print_exc()
-        registrar_error("api_mensajes", "Error general en enviar_mensaje_api", tipo="API", detalles=str(e))
-        return jsonify({"success": False, "error": str(e)}), 500
+    return solo_digitos
