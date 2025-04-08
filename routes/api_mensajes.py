@@ -25,10 +25,16 @@ def enviar_mensaje_por_twilio(numero, mensaje):
             raise Exception("Faltan credenciales de Twilio en el entorno")
 
         client = Client(account_sid, auth_token)
+
+        # Verificar si el número ya contiene "whatsapp:", sino agregarlo
+        if not numero.startswith("whatsapp:"):
+            numero = f"whatsapp:{numero}"
+
+        # Enviar el mensaje por WhatsApp
         client.messages.create(
             body=mensaje,
             from_=twilio_number,  # ✅ Sin doble whatsapp:
-            to=f'whatsapp:{numero}'
+            to=numero  # Aquí usamos el número que ya tiene el prefijo "whatsapp:"
         )
     except Exception as e:
         registrar_error("twilio", "Error enviando mensaje con Twilio", tipo="Twilio", detalles=str(e))
@@ -37,7 +43,7 @@ def enviar_mensaje_por_twilio(numero, mensaje):
 @api_mensajes.route("/api/enviar_mensaje", methods=["POST"])
 def enviar_mensaje_api():
     try:
-        numero = normalizar_numero(request.form.get("numero", ""))
+        numero = normalizar_numero(request.form.get("numero", ""))  # Asegúrate que el número esté bien normalizado
         mensaje = request.form.get("respuesta", "").strip()
         archivo = request.files.get("archivo")
 
