@@ -47,7 +47,7 @@ def enviar_mensaje_api():
         if not mensaje and not archivo:
             return jsonify({"success": False, "error": "Debes enviar un mensaje o un archivo"}), 400
 
-        # Enviar mensaje de texto
+        # ✅ Enviar mensaje de texto
         if mensaje:
             guardar_en_historial(numero, mensaje, tipo="enviado")
             enviar_mensaje_por_twilio(numero, mensaje)
@@ -59,7 +59,7 @@ def enviar_mensaje_api():
                 "nombre": "Nora AI"
             })
 
-        # Guardar archivo adjunto (solo historial y SocketIO, no se envía por Twilio)
+        # ✅ Guardar archivo adjunto en historial y panel
         if archivo:
             nombre_archivo = secure_filename(archivo.filename)
             ruta_guardada = os.path.join(UPLOAD_FOLDER, nombre_archivo)
