@@ -84,7 +84,7 @@ def login():
         if password in expected_passwords:
             session['logged_in'] = True
             session.permanent = True
-            return redirect(url_for('main.index'))  # 🔁 Redirige ahora al panel principal
+            return redirect(url_for('main.index'))  # ✅ Redirección corregida
 
         flash('Credenciales inválidas', 'danger')
 
