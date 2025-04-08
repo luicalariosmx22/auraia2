@@ -12,8 +12,7 @@ api_mensajes = Blueprint('api_mensajes', __name__)
 UPLOAD_FOLDER = "archivos_enviados"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Función para enviar mensaje de texto por Twilio
-
+# ✅ Función para enviar mensaje de texto por Twilio
 def enviar_mensaje_por_twilio(numero, mensaje):
     try:
         account_sid = os.getenv('TWILIO_ACCOUNT_SID')
@@ -51,7 +50,7 @@ def enviar_mensaje_api():
                 "nombre": "Nora AI"
             })
 
-        # Guardar archivo si existe (no se envía aún por Twilio)
+        # Guardar archivo si existe (envío por Twilio Media pendiente)
         if archivo:
             nombre_archivo = secure_filename(archivo.filename)
             ruta_guardada = os.path.join(UPLOAD_FOLDER, nombre_archivo)
