@@ -1,12 +1,10 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
-from flask_socketio import emit
 import os
 import traceback
 from utils.normalizador import normalizar_numero
 from utils.historial import guardar_en_historial
 from utils.error_logger import registrar_error
-from app import socketio
 
 api_mensajes = Blueprint('api_mensajes', __name__)
 
@@ -23,33 +21,35 @@ def enviar_mensaje_api():
         if not numero:
             return jsonify({"success": False, "error": "Número es requerido"}), 400
 
-        mensaje_final = mensaje
+        # Guardar mensaje si existe
+        if mensaje:
+            guardar_en_historial(numero, mensaje, tipo="enviado")
+            print(f"✅ Mensaje para {numero}: {mensaje}")
+
+            # Emitir por socket
+            current_app.extensions['socketio'].emit("nuevo_mensaje", {
+                "remitente": "bot",
+                "mensaje": mensaje,
+                "nombre": "Nora AI"
+            })
 
         # Guardar archivo si existe
         if archivo:
             nombre_archivo = secure_filename(archivo.filename)
             ruta_guardada = os.path.join(UPLOAD_FOLDER, nombre_archivo)
             archivo.save(ruta_guardada)
-            mensaje_archivo = f"[Archivo adjunto: {nombre_archivo}]"
-            guardar_en_historial(numero, mensaje_archivo, tipo="enviado")
-            mensaje_final += f" 📎 {nombre_archivo}" if mensaje else mensaje_archivo
 
-            # TODO: enviar_archivo_por_whatsapp(numero, ruta_guardada)
+            print(f"📎 Archivo recibido para {numero}: {nombre_archivo}")
+            guardar_en_historial(numero, f"[Archivo adjunto: {nombre_archivo}]", tipo="enviado")
 
-        # Guardar mensaje si existe
-        if mensaje:
-            guardar_en_historial(numero, mensaje, tipo="enviado")
+            current_app.extensions['socketio'].emit("nuevo_mensaje", {
+                "remitente": "bot",
+                "mensaje": f"[Archivo adjunto: {nombre_archivo}]",
+                "nombre": "Nora AI"
+            })
 
         if not mensaje and not archivo:
             return jsonify({"success": False, "error": "Debes enviar un mensaje o un archivo"}), 400
-
-        # Emitir por Socket.IO para mostrar en el chat del panel
-        socketio.emit("nuevo_mensaje", {
-            "remitente": "bot",
-            "mensaje": mensaje_final,
-            "numero": numero,
-            "nombre": "Tú"
-        })
 
         return jsonify({"success": True})
 
