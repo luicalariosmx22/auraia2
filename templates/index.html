@@ -2,13 +2,114 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Configuración - Aura AI</title>
+  <title>Panel de Configuración - Nora AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/flash_messages.css') }}">
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 30px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      margin-top: 40px;
+    }
+
+    .logo-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo-header img {
+      width: 120px;
+    }
+
+    .logo-header h1 {
+      margin: 10px 0 0 0;
+      font-size: 26px;
+      color: #333;
+    }
+
+    h2 {
+      margin-top: 30px;
+      color: #444;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .btn-principal,
+    .btn-secundario,
+    button {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-decoration: none;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+
+    .btn-principal {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+    }
+
+    .btn-secundario {
+      background-color: #eaeaea;
+      color: #333;
+      border: none;
+    }
+
+    form {
+      display: inline;
+    }
+
+    .flash-messages .alert {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 30px 0;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>🤖 Panel de Configuración de Aura AI</h1>
+    <div class="logo-header">
+      <img src="{{ url_for('static', filename='nora_logo.png') }}" alt="Nora AI Logo">
+      <h1>🤖 Panel de Configuración de Nora AI</h1>
+    </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -23,8 +124,8 @@
     <div class="estado-box">
       <h2>⚙️ Estado del Sistema</h2>
       <p>🧠 <strong>IA activada:</strong> {{ 'Sí ✅' if usar_openai else 'No ❌' }}</p>
-      <form method="POST" action="{{ url_for('main.toggle_ia') }}" style="margin-bottom: 15px;">
-        <button type="submit">🔁 Cambiar estado de IA</button>
+      <form method="POST" action="{{ url_for('main.toggle_ia') }}">
+        <button type="submit" class="btn-secundario">🔁 Cambiar estado de IA</button>
       </form>
 
       <p>📞 <strong>Twilio:</strong> {{ info_twilio.nombre }} ({{ info_twilio.estado }})</p>
@@ -32,7 +133,7 @@
 
       <div style="margin-top: 15px;">
         <a href="{{ url_for('error_panel.ver_errores') }}" class="btn-secundario">🛑 Ver Errores</a>
-        <form method="POST" action="{{ url_for('error_panel.limpiar_errores') }}" style="display:inline;" onsubmit="return confirm('¿Deseas borrar el log de errores?');">
+        <form method="POST" action="{{ url_for('error_panel.limpiar_errores') }}" onsubmit="return confirm('¿Deseas borrar el log de errores?');">
           <button type="submit" class="btn-secundario">🧹 Limpiar Errores</button>
         </form>
         <a href="{{ url_for('panel_chat.panel_chat') }}" class="btn-principal">💬 Ir al Chat</a>
@@ -55,15 +156,12 @@
       <ul>
         {% for clave, info in datos.items() %}
           <li>
-            <strong>{{ clave }}</strong>
-            <br>
-            Categoría: {{ info.categoria }}
-            <br>
-            Palabras clave: {{ info.palabras_clave|join(', ') }}
-            <br>
+            <strong>{{ clave }}</strong><br>
+            Categoría: {{ info.categoria }}<br>
+            Palabras clave: {{ info.palabras_clave|join(', ') }}<br>
             <a href="{{ url_for('respuestas.editar', clave=clave) }}">✏️ Editar</a> |
-            <form action="{{ url_for('respuestas.eliminar', clave=clave) }}" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar esta respuesta?');">
-              <button type="submit">🗑️ Eliminar</button>
+            <form action="{{ url_for('respuestas.eliminar', clave=clave) }}" method="post" onsubmit="return confirm('¿Eliminar esta respuesta?');">
+              <button type="submit" class="btn-secundario">🗑️ Eliminar</button>
             </form>
           </li>
           <hr>
