@@ -5,11 +5,29 @@ import traceback
 from utils.normalizador import normalizar_numero
 from utils.historial import guardar_en_historial
 from utils.error_logger import registrar_error
+from twilio.rest import Client
 
 api_mensajes = Blueprint('api_mensajes', __name__)
 
 UPLOAD_FOLDER = "archivos_enviados"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Función para enviar mensaje de texto por Twilio
+
+def enviar_mensaje_por_twilio(numero, mensaje):
+    try:
+        account_sid = os.getenv('TWILIO_ACCOUNT_SID')
+        auth_token = os.getenv('TWILIO_AUTH_TOKEN')
+        twilio_number = os.getenv('TWILIO_PHONE_NUMBER')
+
+        client = Client(account_sid, auth_token)
+        client.messages.create(
+            body=mensaje,
+            from_=f'whatsapp:{twilio_number}',
+            to=f'whatsapp:{numero}'
+        )
+    except Exception as e:
+        registrar_error("twilio", "Error enviando mensaje con Twilio", tipo="Twilio", detalles=str(e))
 
 @api_mensajes.route("/api/enviar_mensaje", methods=["POST"])
 def enviar_mensaje_api():
@@ -21,19 +39,19 @@ def enviar_mensaje_api():
         if not numero:
             return jsonify({"success": False, "error": "Número es requerido"}), 400
 
-        # Guardar mensaje si existe
+        # Guardar y enviar mensaje si existe
         if mensaje:
             guardar_en_historial(numero, mensaje, tipo="enviado")
+            enviar_mensaje_por_twilio(numero, mensaje)
             print(f"✅ Mensaje para {numero}: {mensaje}")
 
-            # Emitir por socket
             current_app.extensions['socketio'].emit("nuevo_mensaje", {
                 "remitente": "bot",
                 "mensaje": mensaje,
                 "nombre": "Nora AI"
             })
 
-        # Guardar archivo si existe
+        # Guardar archivo si existe (no se envía aún por Twilio)
         if archivo:
             nombre_archivo = secure_filename(archivo.filename)
             ruta_guardada = os.path.join(UPLOAD_FOLDER, nombre_archivo)
