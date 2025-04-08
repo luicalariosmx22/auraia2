@@ -83,12 +83,14 @@ def login():
         ]
         if password in expected_passwords:
             session['logged_in'] = True
+            session['logueado'] = True  # ✅ necesario para acceder a main.index
             session.permanent = True
-            return redirect(url_for('main.index'))  # ✅ Redirección corregida
+            return redirect(url_for('main.index'))  # ✅ panel principal
 
         flash('Credenciales inválidas', 'danger')
 
     return render_template('login.html')
+
 
 @app.route('/logout')
 def logout():
