@@ -166,14 +166,12 @@
         const numero = document.getElementById('numero').value;
         const mensaje = input.value.trim();
         const archivo = fileInput.files[0];
-        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
         if (!mensaje && !archivo) return;
 
         const formData = new FormData();
         formData.append('numero', numero);
         formData.append('respuesta', mensaje);
-        formData.append('csrf_token', csrfToken);
         if (archivo) {
           formData.append('archivo', archivo);
         }
