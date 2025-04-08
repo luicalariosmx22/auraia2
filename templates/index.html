@@ -130,8 +130,8 @@
       <p>🧠 <strong>OpenAI:</strong> {{ info_openai.estado }}</p>
 
       <div style="margin-top: 15px;">
-        <a href="{{ url_for('error_panel.ver_errores') }}" class="btn-secundario">🛑 Ver Errores</a>
-        <form method="POST" action="{{ url_for('error_panel.limpiar_errores') }}" style="display:inline;" onsubmit="return confirm('¿Deseas borrar el log de errores?');">
+        <a href="{{ url_for('panel_errores.ver_errores') }}" class="btn-secundario">🛑 Ver Errores</a>
+        <form method="POST" action="{{ url_for('panel_errores.limpiar_errores') }}" style="display:inline;" onsubmit="return confirm('¿Deseas borrar el log de errores?');">
           <button type="submit" class="btn-secundario">🧹 Limpiar Errores</button>
         </form>
         <a href="{{ url_for('panel_chat.panel_chat') }}" class="btn-principal">💬 Ir al Chat</a>
