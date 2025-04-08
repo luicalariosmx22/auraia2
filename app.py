@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash 
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_socketio import SocketIO
 from routes.main import main_bp as main_blueprint
@@ -31,6 +31,19 @@ os.makedirs(STATIC_DIR, exist_ok=True)
 
 logger.info(f"📂 Directorio de templates: {TEMPLATES_DIR}")
 logger.info(f"📂 Directorio static: {STATIC_DIR}")
+
+# ✅ Crear archivos esenciales si no existen
+archivos_requeridos = {
+    "bot_data.json": "{}",
+    "categorias.json": "[]"
+}
+
+for archivo, contenido in archivos_requeridos.items():
+    ruta = os.path.join(BASE_DIR, archivo)
+    if not os.path.exists(ruta):
+        with open(ruta, 'w', encoding='utf-8') as f:
+            f.write(contenido)
+        logger.warning(f"⚠️ Archivo creado automáticamente: {archivo}")
 
 # Inicializa la aplicación Flask
 app = Flask(__name__,
@@ -85,12 +98,11 @@ def login():
             session['logged_in'] = True
             session['logueado'] = True  # ✅ necesario para acceder a main.index
             session.permanent = True
-            return redirect(url_for('main.index'))  # ✅ panel principal
+            return redirect(url_for('main.index'))  # ✅ redirige al panel principal
 
         flash('Credenciales inválidas', 'danger')
 
     return render_template('login.html')
-
 
 @app.route('/logout')
 def logout():
