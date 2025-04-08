@@ -5,116 +5,138 @@
   <title>Chat - Nora AI</title>
   <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/flash_messages.css') }}">
 </head>
 <body>
-  <div class="chat-container">
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <img src="{{ url_for('static', filename='nora_logo.png') }}" alt="Logo" class="logo">
-        <h3>Nora AI</h3>
-        <a href="{{ url_for('main.index') }}" class="btn-volver">← Panel</a>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
       </div>
+    {% endif %}
+  {% endwith %}
 
-      <form action="{{ url_for('panel_chat.filter_etiquetas') }}" method="get" class="filtro-form">
-        <select name="etiqueta" onchange="this.form.submit()">
-          <option value="">Todas las conversaciones</option>
-          {% for etiqueta in etiquetas_disponibles %}
-            <option value="{{ etiqueta }}" {% if etiqueta == etiqueta_filtrada %}selected{% endif %}>{{ etiqueta }}</option>
-          {% endfor %}
-        </select>
-      </form>
+  <div class="sidebar">
+    <div class="panel-botones-top">
+      <a href="{{ url_for('main.index') }}">⬅️ Volver</a>
+      <button class="campanita" title="Sonido">🔔</button>
+    </div>
 
-      <div class="contactos-lista">
-        {% for numero in contactos %}
-          <a href="{{ url_for('panel_chat.panel_chat', numero=numero) }}" class="contacto {% if numero == seleccionado %}activo{% endif %}">
+    <form action="{{ url_for('panel_chat.filter_etiquetas') }}" method="get" class="form-filtro">
+      <label for="etiqueta">Filtrar por etiqueta:</label>
+      <select name="etiqueta" id="etiqueta">
+        <option value="">Todas las conversaciones</option>
+        {% for etiqueta in etiquetas_disponibles %}
+          <option value="{{ etiqueta }}" {% if etiqueta == etiqueta_filtrada %}selected{% endif %}>
+            {{ etiqueta }}
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn-filtrar">Filtrar</button>
+      {% if etiqueta_filtrada %}
+        <a href="{{ url_for('panel_chat.panel_chat') }}" class="btn-limpiar">Limpiar</a>
+      {% endif %}
+    </form>
+
+    {% for numero in contactos %}
+      <div class="contacto {% if numero == seleccionado %}activo{% endif %}" data-numero="{{ numero }}">
+        <div class="contacto-content">
+          <a href="{{ url_for('panel_chat.panel_chat', numero=numero) }}" class="contacto-link">
             <div class="avatar">
               {% if numero in nombres %}
                 {{ nombres[numero][0]|upper }}{% if nombres[numero].split(' ')|length > 1 %}{{ nombres[numero].split(' ')[1][0]|upper }}{% endif %}
-              {% else %}NA{% endif %}
+              {% else %}
+                SN
+              {% endif %}
             </div>
-            <div class="info">
+            <div class="contacto-info">
               <strong>{{ nombres[numero] if numero in nombres else 'Sin nombre' }}</strong>
-              <small>{{ numero }}</small>
-              <div class="etiquetas">
+              <small class="numero-telefono">{{ numero }}</small>
+              <div class="etiquetas-container">
                 {% for etiqueta in etiquetas.get(numero, []) %}
                   <span class="etiqueta">{{ etiqueta }}</span>
                 {% endfor %}
               </div>
             </div>
           </a>
-        {% endfor %}
-      </div>
-    </div>
 
-    <div class="chat-area">
-      {% if seleccionado %}
-        <div class="chat-header">
-          <div class="nombre-contacto">
-            <h3>{{ nombres[seleccionado] if seleccionado in nombres else seleccionado }}</h3>
-            <span class="estado-ia {% if not ia_estado_contactos[seleccionado] %}desactivado{% endif %}">
-              {% if ia_estado_contactos[seleccionado] %}IA activada{% else %}IA desactivada{% endif %}
-            </span>
-          </div>
-
-          <form method="post" action="{{ url_for('panel_chat.toggle_ia', numero=seleccionado) }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button class="btn-toggle-ia">
-              {% if ia_estado_contactos[seleccionado] %}Desactivar IA{% else %}Activar IA{% endif %}
-            </button>
-          </form>
-
-          <form method="post" action="{{ url_for('panel_chat.add_etiqueta', numero=seleccionado) }}" class="form-etiqueta">
+          <form action="{{ url_for('panel_chat.add_etiqueta', numero=numero) }}" method="post" class="etiqueta-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <select name="nueva_etiqueta" required>
+              <option value="" disabled selected>+ Etiqueta</option>
               {% for etiqueta in etiquetas_disponibles %}
                 <option value="{{ etiqueta }}">{{ etiqueta }}</option>
               {% endfor %}
             </select>
-            <button type="submit">Agregar</button>
+            <button type="submit">➕</button>
+          </form>
+
+          <form action="{{ url_for('panel_chat.toggle_ia', numero=numero) }}" method="post" class="toggle-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-toggle-ia {% if not ia_estado_contactos[numero] %}desactivado{% endif %}">
+              {% if ia_estado_contactos[numero] %}Desactivar IA{% else %}Activar IA{% endif %}
+            </button>
           </form>
         </div>
+      </div>
+    {% endfor %}
+  </div>
 
-        <div class="mensajes" id="mensajes">
-          {% for m in mensajes %}
-            <div class="mensaje {{ m.tipo }}">
-              <div class="contenido">
-                <strong>{{ m.nombre if m.nombre else m.remitente }}:</strong> {{ m.mensaje }}
-              </div>
-              <div class="hora">{{ m.timestamp.replace("T", " ")[:16] }}</div>
-            </div>
-          {% endfor %}
-        </div>
-
-        <form class="formulario" id="formularioRespuesta" method="POST">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <input type="hidden" id="numero" value="{{ seleccionado }}">
-          <input type="text" id="respuesta" placeholder="Escribe un mensaje..." required>
-          <button type="submit">Enviar</button>
-        </form>
-      {% else %}
-        <div class="no-chat">
-          <p>Selecciona un contacto para comenzar</p>
-        </div>
-      {% endif %}
+  <div class="chat">
+    <div class="encabezado">
+      <img src="{{ url_for('static', filename='nora_logo.png') }}" alt="Nora AI" class="logo">
+      <h2>Nora AI Bot</h2>
     </div>
+
+    <div class="mensajes" id="mensajes">
+      {% for m in mensajes %}
+        <div class="mensaje {{ m.tipo }}">
+          <div class="texto-mensaje">
+            <strong>{{ m.nombre if m.nombre else m.remitente }}:</strong> {{ m.mensaje }}
+          </div>
+          <div class="hora">{{ m.timestamp.replace("T", " ")[:16] }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if seleccionado %}
+      <form class="formulario" id="formularioRespuesta" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" id="numero" value="{{ seleccionado }}">
+        <input type="text" id="respuesta" placeholder="Escribe un mensaje..." required>
+        <button type="submit">Enviar</button>
+      </form>
+    {% endif %}
   </div>
 
   <script>
     const socket = io();
 
-    document.getElementById('formularioRespuesta')?.addEventListener('submit', e => {
-      e.preventDefault();
-      const input = document.getElementById('respuesta');
-      const numero = document.getElementById('numero').value;
-      const mensaje = input.value.trim();
-      if (mensaje === '') return;
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('formularioRespuesta');
+      if (!form) return;
 
-      socket.emit('enviar_mensaje', { mensaje, numero });
-      agregarMensaje("Tú", mensaje, 'enviado');
-      input.value = '';
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const input = document.getElementById('respuesta');
+        const numero = document.getElementById('numero').value;
+        const mensaje = input.value.trim();
+        if (mensaje === '') return;
+
+        socket.emit('enviar_mensaje', {
+          mensaje: mensaje,
+          numero: numero
+        });
+
+        agregarMensaje("Tú", mensaje, 'enviado');
+        input.value = '';
+      });
     });
 
-    socket.on('nuevo_mensaje', data => {
+    socket.on('nuevo_mensaje', function (data) {
       if (data) {
         const nombre = data.remitente === 'bot' ? 'Nora AI' : (data.nombre || data.remitente);
         agregarMensaje(nombre, data.mensaje, 'recibido');
@@ -125,7 +147,10 @@
       const contenedor = document.getElementById('mensajes');
       const mensaje = document.createElement('div');
       mensaje.className = `mensaje ${tipo}`;
-      mensaje.innerHTML = `<div class="contenido"><strong>${nombre}:</strong> ${texto}</div><div class="hora">${nuevaHora()}</div>`;
+      mensaje.innerHTML = `
+        <div class="texto-mensaje"><strong>${nombre}:</strong> ${texto}</div>
+        <div class="hora">${nuevaHora()}</div>
+      `;
       contenedor.appendChild(mensaje);
       contenedor.scrollTop = contenedor.scrollHeight;
     }
