@@ -52,11 +52,13 @@ def panel_chat():
 
     contactos, nombres_contactos, ia_estado_contactos = procesar_contactos(historial, contactos_info)
 
+    numero_normalizado = normalizar_numero(numero_seleccionado or "")
+
     return render_template(
         "panel_chat.html",
         contactos=sorted(contactos.keys()),
-        mensajes=ordenar_mensajes(contactos.get(normalizar_numero(numero_seleccionado), [])),
-        seleccionado=normalizar_numero(numero_seleccionado),
+        mensajes=ordenar_mensajes(contactos.get(numero_normalizado, [])),
+        seleccionado=numero_normalizado,
         nombres=nombres_contactos,
         ia_estado_contactos=ia_estado_contactos,
         etiquetas={k: v.get("etiquetas", []) for k, v in contactos_info.items()},
@@ -183,7 +185,7 @@ def actualizar_nombre(numero):
     flash("Nombre actualizado", "success")
     return redirect(url_for('panel_chat.panel_chat', numero=numero))
 
-# Utilidades
+# --- Funciones auxiliares ---
 
 def cargar_json(archivo, default=None):
     try:
@@ -202,14 +204,18 @@ def procesar_contactos(historial, contactos_info):
     estados_ia = {}
 
     for mensaje in historial:
-        numero = normalizar_numero(mensaje.get("remitente", ""))
+        remitente = mensaje.get("remitente", "")
+        numero = normalizar_numero(remitente.replace("whatsapp:", ""))
+
+        contactos[numero].append(mensaje)
+
         if numero in contactos_info:
-            contactos[numero].append(mensaje)
             if "nombre" in contactos_info[numero]:
                 nombres[numero] = contactos_info[numero]["nombre"]
-            elif "nombre" in mensaje:
-                nombres[numero] = mensaje["nombre"]
-            estados_ia[numero] = contactos_info.get(numero, {}).get("ia_activada", True)
+            estados_ia[numero] = contactos_info[numero].get("ia_activada", True)
+        else:
+            nombres[numero] = remitente  # fallback
+            estados_ia[numero] = True
 
     return contactos, nombres, estados_ia
 
