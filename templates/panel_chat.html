@@ -196,9 +196,9 @@
     {% if seleccionado %}
       <form class="formulario" id="formularioRespuesta" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" id="numero" name="numero" value="{{ seleccionado }}">
-        <input type="text" id="respuesta" name="respuesta" placeholder="Escribe un mensaje..." required>
-        <input type="file" id="archivo" name="archivo">
+        <input type="hidden" id="numero" name="numero" value="{{ seleccionado }}"/>
+        <input type="text" id="respuesta" name="respuesta" placeholder="Escribe un mensaje..." required/>
+        <input type="file" id="archivo" name="archivo"/>
         <button type="submit">Enviar</button>
       </form>
     {% endif %}
@@ -209,7 +209,7 @@
     <form action="{{ url_for('panel_chat.actualizar_nombre', numero=seleccionado) }}" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label><strong>Nombre:</strong></label>
-      <input type="text" name="nuevo_nombre" value="{{ nombres[seleccionado] if seleccionado in nombres else '' }}">
+      <input type="text" name="nuevo_nombre" value="{{ nombres[seleccionado] if seleccionado in nombres else '' }}"/>
       <button type="submit">✏️ Actualizar</button>
     </form>
     <div class="campo"><strong>Número:</strong> {{ seleccionado }}</div>
