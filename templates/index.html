@@ -1,58 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGPT Code Editor</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta charset="UTF-8">
+  <title>Panel de Configuración - Nora AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 30px;
+    }
+    .logo-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo-header img {
+      width: 120px;
+    }
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    .btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .btn-primario {
+      background-color: #4a90e2;
+      color: white;
+    }
+    .btn-secundario {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-    <h1>Editor de Código con ChatGPT</h1>
-
-    <!-- Campo para ingresar el link del repositorio -->
-    <div>
-        <h2>Ingresa el link del repositorio GitHub</h2>
-        <input type="text" id="repo-url" placeholder="https://github.com/usuario/repositorio">
-        <button onclick="saveRepo()">Guardar Repositorio</button>
+  <div class="container">
+    <div class="logo-header">
+      <img src="{{ url_for('static', filename='nora_logo.png') }}" alt="Nora AI Logo">
+      <h1>🤖 Panel de Configuración de Nora AI</h1>
     </div>
 
-    <!-- Mostrar repositorios guardados -->
-    <div>
-        <h2>Repositorios Guardados</h2>
-        <ul id="repo-list">
-            {% for repo_name, repo_url in repos.items() %}
-                <li>
-                    <button onclick="loadFiles('{{ repo_name }}')">{{ repo_name }}</button>
-                </li>
-            {% endfor %}
-        </ul>
+    <div class="card">
+      <h2>⚙️ Estado del Sistema</h2>
+      <p>🧠 <strong>IA activada:</strong> {{ 'Sí ✅' if usar_openai else 'No ❌' }}</p>
+      <form method="POST" action="{{ url_for('main.toggle_ia') }}">
+        <button type="submit" class="btn btn-secundario">🔁 Cambiar estado de IA</button>
+      </form>
+      <div style="margin-top: 15px;">
+        <a href="{{ url_for('panel_errores.ver_errores') }}" class="btn btn-secundario">🛑 Ver Errores</a>
+        <form method="POST" action="{{ url_for('panel_errores.limpiar_errores') }}" style="display:inline;" onsubmit="return confirm('¿Deseas borrar el log de errores?');">
+          <button type="submit" class="btn btn-secundario">🧹 Limpiar Errores</button>
+        </form>
+        <a href="{{ url_for('panel_chat.panel_chat') }}" class="btn btn-primario">💬 Ir al Chat</a>
+      </div>
     </div>
 
-    <!-- Mostrar archivos del repositorio -->
-    <div id="repo-files" style="float:right; width: 40%; border-left: 2px solid #ccc; padding-left: 20px;">
-        <h2>Archivos del Repositorio</h2>
-        <ul id="file-list"></ul>
+    <div class="card" style="text-align: center;">
+      <h2 style="margin-bottom: 20px;">📚 Respuestas y Categorías</h2>
+      <a href="{{ url_for('respuestas.mostrar_respuestas') }}" class="btn btn-primario" style="margin: 8px;">
+        📋 Ver Respuestas Rápidas
+      </a>
+      <a href="{{ url_for('categorias.mostrar_categorias') }}" class="btn btn-secundario" style="margin: 8px;">
+        🏷️ Categorías
+      </a>
+      <a href="{{ url_for('etiquetas.mostrar_etiquetas') }}" class="btn btn-secundario" style="margin: 8px;">
+        🏷️ Etiquetas
+      </a>
     </div>
-
-    <!-- Sección para modificar archivos -->
-    <div>
-        <h2>Instrucción para modificar el archivo</h2>
-        <textarea id="prompt" rows="5" cols="80" placeholder="Escribe la instrucción aquí..."></textarea>
-        <button onclick="modifyFile()">Modificar archivo</button>
-    </div>
-
-    <!-- Contenido del archivo seleccionado -->
-    <div>
-        <h2>Contenido del archivo</h2>
-        <textarea id="file-content" rows="20" cols="80"></textarea>
-    </div>
-
-    <!-- Mostrar resultado de la modificación -->
-    <div>
-        <h2>Resultado de la modificación</h2>
-        <textarea id="modified-content" rows="20" cols="80" readonly></textarea>
-    </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </div>
 </body>
 </html>
