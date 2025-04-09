@@ -30,6 +30,11 @@ def panel_chat():
         numero = request.form.get('numero')
         archivo = request.files.get('archivo')
 
+        # Validar que el número y mensaje no estén vacíos
+        if not numero or (not mensaje and not archivo):
+            flash("❌ El número y el mensaje son obligatorios", "error")
+            return redirect(url_for('panel_chat.panel_chat', numero=numero))
+
         nuevo_mensaje = {
             "remitente": numero,
             "mensaje": mensaje,
