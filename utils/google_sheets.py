@@ -4,8 +4,13 @@ from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 from google.oauth2.service_account import Credentials
 
-# Ruta a tu archivo JSON de la cuenta de servicio
-SERVICE_ACCOUNT_FILE = 'credentials/service_account.json'
+# Cargar las credenciales desde las variables de entorno
+GOOGLE_SHEET_CLIENT_ID = os.getenv("GOOGLE_SHEET_CLIENT_ID")
+GOOGLE_SHEET_CLIENT_SECRET = os.getenv("GOOGLE_SHEET_CLIENT_SECRET")
+GOOGLE_SHEET_PROJECT_ID = os.getenv("GOOGLE_SHEET_PROJECT_ID")
+GOOGLE_SHEET_AUTH_URI = os.getenv("GOOGLE_SHEET_AUTH_URI")
+GOOGLE_SHEET_TOKEN_URI = os.getenv("GOOGLE_SHEET_TOKEN_URI")
+GOOGLE_SHEET_AUTH_PROVIDER_X509_CERT_URL = os.getenv("GOOGLE_SHEET_AUTH_PROVIDER_X509_CERT_URL")
 
 # Alcance necesario para trabajar con Google Sheets
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -23,7 +28,17 @@ def get_gsheet_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+            creds = Credentials.from_service_account_info(
+                {
+                    "client_id": GOOGLE_SHEET_CLIENT_ID,
+                    "client_secret": GOOGLE_SHEET_CLIENT_SECRET,
+                    "auth_uri": GOOGLE_SHEET_AUTH_URI,
+                    "token_uri": GOOGLE_SHEET_TOKEN_URI,
+                    "auth_provider_x509_cert_url": GOOGLE_SHEET_AUTH_PROVIDER_X509_CERT_URL,
+                    "project_id": GOOGLE_SHEET_PROJECT_ID
+                },
+                scopes=SCOPES
+            )
         
         # Guarda el token para futuras autenticaciones
         with open('token.json', 'w') as token:
