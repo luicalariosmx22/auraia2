@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/flash_messages.css') }}">
   <style>
+    /* Estilos existentes */
     .btn {
       padding: 8px 16px;
       font-size: 14px;
@@ -37,6 +38,80 @@
     .btn-toggle-ia {
       background-color: #4e9c7f;
       color: white;
+    }
+    
+    /* Nuevos estilos para gestión de contactos */
+    .contactos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .contacto-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: white;
+      transition: all 0.2s;
+    }
+    .contacto-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .contacto-info {
+      flex: 1;
+    }
+    .contacto-acciones {
+      display: flex;
+      gap: 8px;
+    }
+    .etiquetas-container {
+      margin-top: 5px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .etiqueta {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -71,28 +146,34 @@
       {% endif %}
     </form>
 
-    {% for numero in contactos %}
-      <div class="contacto {% if numero == seleccionado %}activo{% endif %}" data-numero="{{ numero }}">
-        <div class="contacto-content">
-          <a href="{{ url_for('panel_chat.panel_chat', numero=numero) }}" class="contacto-link">
-            <div class="avatar">
-              {% set nombre_contacto = nombres[numero] if numero in nombres and nombres[numero] else 'Sin nombre' %}
-              {% set partes = nombre_contacto.split(' ') %}
-              {{ partes[0][0]|upper }}{% if partes|length > 1 %}{{ partes[1][0]|upper }}{% endif %}
+    <div class="contactos-header">
+      <h3>Contactos</h3>
+      <a href="{{ url_for('panel_chat.agregar_contacto') }}" class="btn btn-primario">➕ Nuevo</a>
+    </div>
+
+    <div class="contactos-list">
+      {% for contacto in contactos_info.values() %}
+        <div class="contacto-item {% if contacto.numero == seleccionado %}activo{% endif %}">
+          <div class="contacto-info">
+            <strong>{{ contacto.nombre }}</strong>
+            <p>{{ contacto.numero }}</p>
+            <div class="etiquetas-container">
+              {% for etiqueta in contacto.etiquetas %}
+                <span class="etiqueta">{{ etiqueta }}</span>
+              {% endfor %}
             </div>
-            <div class="contacto-info">
-              <strong>{{ nombres[numero] if numero in nombres else 'Sin nombre' }}</strong>
-              <small class="numero-telefono">{{ numero }}</small>
-              <div class="etiquetas-container">
-                {% for etiqueta in etiquetas.get(numero, []) %}
-                  <span class="etiqueta">{{ etiqueta }}</span>
-                {% endfor %}
-              </div>
-            </div>
-          </a>
+          </div>
+          <div class="contacto-acciones">
+            <a href="{{ url_for('panel_chat.panel_chat', numero=contacto.numero) }}" class="btn">💬</a>
+            <a href="{{ url_for('panel_chat.editar_contacto', numero=contacto.numero) }}" class="btn">✏️</a>
+            <form action="{{ url_for('panel_chat.eliminar_contacto', numero=contacto.numero) }}" method="POST" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn" onclick="return confirm('¿Eliminar este contacto?')">🗑️</button>
+            </form>
+          </div>
         </div>
-      </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
 
   <div class="chat">
@@ -178,10 +259,61 @@
   </div>
   {% endif %}
 
+  <!-- Modal para agregar/editar contactos -->
+  <div id="contactoModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle">Agregar Contacto</h3>
+      <form id="contactoForm" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" name="nombre" required>
+        </div>
+        <div class="form-group">
+          <label for="numero">Número</label>
+          <input type="text" id="numero" name="numero" required>
+        </div>
+        <div class="form-group">
+          <label for="etiquetas">Etiquetas (separadas por comas)</label>
+          <input type="text" id="etiquetas" name="etiquetas">
+        </div>
+        <button type="submit" class="btn btn-primario">Guardar</button>
+        <button type="button" class="btn btn-secundario" onclick="cerrarModal()">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     const socket = io();
     let sonidoHabilitado = true;
 
+    // Función para abrir el modal
+    function abrirModal(contacto = null) {
+      const modal = document.getElementById('contactoModal');
+      const form = document.getElementById('contactoForm');
+      const title = document.getElementById('modalTitle');
+      
+      if (contacto) {
+        title.textContent = 'Editar Contacto';
+        document.getElementById('nombre').value = contacto.nombre || '';
+        document.getElementById('numero').value = contacto.numero || '';
+        document.getElementById('etiquetas').value = contacto.etiquetas ? contacto.etiquetas.join(', ') : '';
+        form.action = `/editar-contacto/${contacto.numero}`;
+      } else {
+        title.textContent = 'Agregar Contacto';
+        form.reset();
+        form.action = '/agregar-contacto';
+      }
+      
+      modal.style.display = 'flex';
+    }
+
+    // Función para cerrar el modal
+    function cerrarModal() {
+      document.getElementById('contactoModal').style.display = 'none';
+    }
+
+    // Event listeners
     document.getElementById('notificaciones-toggle').addEventListener('click', function () {
       sonidoHabilitado = !sonidoHabilitado;
       this.textContent = sonidoHabilitado ? '🔔' : '🔕';
