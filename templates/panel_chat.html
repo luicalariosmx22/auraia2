@@ -38,23 +38,6 @@
       background-color: #4e9c7f;
       color: white;
     }
-    .contacto-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      border: 1px solid #ddd;
-      margin-bottom: 10px;
-    }
-    .contacto-info {
-      flex: 1;
-    }
-    .contacto-acciones {
-      display: flex;
-      gap: 10px;
-    }
-    .contacto-item:hover {
-      background-color: #f1f1f1;
-    }
   </style>
 </head>
 <body>
@@ -88,31 +71,28 @@
       {% endif %}
     </form>
 
-    <div class="contactos-panel">
-      <div class="panel-header">
-        <h2>Lista de Contactos</h2>
-        <a href="{{ url_for('panel_chat.agregar_contacto') }}" class="btn">Agregar Contacto</a>
-      </div>
-      <div class="contactos-list">
-        {% for contacto in contactos %}
-          <div class="contacto-item">
+    {% for numero in contactos %}
+      <div class="contacto {% if numero == seleccionado %}activo{% endif %}" data-numero="{{ numero }}">
+        <div class="contacto-content">
+          <a href="{{ url_for('panel_chat.panel_chat', numero=numero) }}" class="contacto-link">
+            <div class="avatar">
+              {% set nombre_contacto = nombres[numero] if numero in nombres and nombres[numero] else 'Sin nombre' %}
+              {% set partes = nombre_contacto.split(' ') %}
+              {{ partes[0][0]|upper }}{% if partes|length > 1 %}{{ partes[1][0]|upper }}{% endif %}
+            </div>
             <div class="contacto-info">
-              <strong>{{ contacto.nombre }}</strong>
-              <p>{{ contacto.numero }}</p>
+              <strong>{{ nombres[numero] if numero in nombres else 'Sin nombre' }}</strong>
+              <small class="numero-telefono">{{ numero }}</small>
               <div class="etiquetas-container">
-                {% for etiqueta in contacto.etiquetas %}
+                {% for etiqueta in etiquetas.get(numero, []) %}
                   <span class="etiqueta">{{ etiqueta }}</span>
                 {% endfor %}
               </div>
             </div>
-            <div class="contacto-acciones">
-              <a href="{{ url_for('panel_chat.detalles_contacto', numero=contacto.numero) }}" class="btn">Ver detalles</a>
-              <a href="{{ url_for('panel_chat.editar_contacto', numero=contacto.numero) }}" class="btn">Editar</a>
-            </div>
-          </div>
-        {% endfor %}
+          </a>
+        </div>
       </div>
-    </div>
+    {% endfor %}
   </div>
 
   <div class="chat">
