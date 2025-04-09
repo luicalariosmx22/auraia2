@@ -15,6 +15,8 @@ UPLOAD_FOLDER = os.path.join("static", "uploads")
 
 csrf = CSRFProtect()
 
+# ========== RUTAS PRINCIPALES ==========
+
 @panel_chat_bp.route('/panel/chat', methods=['GET', 'POST'])
 def panel_chat():
     numero_seleccionado = request.args.get('numero')
@@ -67,6 +69,79 @@ def panel_chat():
         notas=cargar_notas(),
         notas_modificadas=cargar_notas_modificadas()
     )
+
+# ========== GESTIÓN DE CONTACTOS (NUEVO) ==========
+
+@panel_chat_bp.route('/agregar-contacto', methods=['GET', 'POST'])
+def agregar_contacto():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre', '').strip()
+        numero = request.form.get('numero', '').strip()
+        etiquetas = [e.strip() for e in request.form.get('etiquetas', '').split(',') if e.strip()]
+        
+        if not nombre or not numero:
+            flash('❌ Nombre y número son obligatorios', 'error')
+            return redirect(url_for('panel_chat.agregar_contacto'))
+        
+        numero = normalizar_numero(numero)
+        contactos_info = cargar_json(CONTACTOS_INFO, {})
+        
+        if numero in contactos_info:
+            flash('❌ El número ya está registrado', 'error')
+        else:
+            contactos_info[numero] = {
+                "nombre": nombre,
+                "ia_activada": True,
+                "etiquetas": etiquetas,
+                "fecha_registro": obtener_timestamp_actual()
+            }
+            guardar_json(CONTACTOS_INFO, contactos_info)
+            flash('✅ Contacto agregado correctamente', 'success')
+            return redirect(url_for('panel_chat.panel_chat'))
+    
+    return render_template('agregar_contacto.html', 
+                         etiquetas_disponibles=cargar_json(ETIQUETAS_DISPONIBLES, []))
+
+@panel_chat_bp.route('/editar-contacto/<numero>', methods=['GET', 'POST'])
+def editar_contacto(numero):
+    contactos_info = cargar_json(CONTACTOS_INFO, {})
+    contacto = contactos_info.get(numero)
+    
+    if not contacto:
+        flash('❌ Contacto no encontrado', 'error')
+        return redirect(url_for('panel_chat.panel_chat'))
+    
+    if request.method == 'POST':
+        nuevo_nombre = request.form.get('nombre', '').strip()
+        nuevas_etiquetas = [e.strip() for e in request.form.get('etiquetas', '').split(',') if e.strip()]
+        
+        if nuevo_nombre:
+            contacto['nombre'] = nuevo_nombre
+        contacto['etiquetas'] = nuevas_etiquetas
+        
+        guardar_json(CONTACTOS_INFO, contactos_info)
+        flash('✅ Contacto actualizado', 'success')
+        return redirect(url_for('panel_chat.panel_chat', numero=numero))
+    
+    return render_template('editar_contacto.html', 
+                         contacto=contacto,
+                         numero=numero,
+                         etiquetas_disponibles=cargar_json(ETIQUETAS_DISPONIBLES, []))
+
+@panel_chat_bp.route('/eliminar-contacto/<numero>', methods=['POST'])
+def eliminar_contacto(numero):
+    contactos_info = cargar_json(CONTACTOS_INFO, {})
+    
+    if numero in contactos_info:
+        del contactos_info[numero]
+        guardar_json(CONTACTOS_INFO, contactos_info)
+        flash('✅ Contacto eliminado', 'success')
+    else:
+        flash('❌ Contacto no encontrado', 'error')
+    
+    return redirect(url_for('panel_chat.panel_chat'))
+
+# ========== FUNCIONES EXISTENTES ==========
 
 @panel_chat_bp.route('/filter_etiquetas', methods=['GET'])
 def filter_etiquetas():
@@ -185,7 +260,7 @@ def actualizar_nombre(numero):
     flash("Nombre actualizado", "success")
     return redirect(url_for('panel_chat.panel_chat', numero=numero))
 
-# --- Funciones auxiliares ---
+# ========== FUNCIONES AUXILIARES ==========
 
 def cargar_json(archivo, default=None):
     try:
@@ -195,6 +270,7 @@ def cargar_json(archivo, default=None):
         return default if default is not None else {}
 
 def guardar_json(archivo, data):
+    os.makedirs(os.path.dirname(archivo), exist_ok=True)
     with open(archivo, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
@@ -214,7 +290,7 @@ def procesar_contactos(historial, contactos_info):
                 nombres[numero] = contactos_info[numero]["nombre"]
             estados_ia[numero] = contactos_info[numero].get("ia_activada", True)
         else:
-            nombres[numero] = remitente  # fallback
+            nombres[numero] = remitente
             estados_ia[numero] = True
 
     return contactos, nombres, estados_ia
@@ -229,4 +305,4 @@ def cargar_notas_modificadas():
     return cargar_json("notas_modificadas.json", {})
 
 def obtener_timestamp_actual():
-    return datetime.now().strftime("%Y-%m-%d %H:%M")
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
