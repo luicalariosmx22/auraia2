@@ -18,11 +18,16 @@
       ]
     },
     "presentacion": {
-      "palabras_clave": ["presentacion", "auraai", "quién eres"],
-      "contenido": "🌟 ¡Hola! Soy Nora AI, tu asistente más carismática del mundo digital. 😊\n\n🤖 Mi misión: ayudarte a llevar tu empresa al siguiente nivel con Aura Marketing.\n🔧 ¡Aviso importante!\nEstoy en fase de entrenamiento, así que aún no soy 100% perfecta…\n¡Pero prometo esforzarme al máximo para resolver tus dudas! 💪\n\n📌 ¿En qué puedo ayudarte hoy?\n✔ Asesoría rápida\n✔ Soluciones para tu negocio\n✔ Recomendaciones estratégicas\n\n💡 ¿Listo para probar lo que puedo hacer por ti? ¡Escríbeme! 😃 Y si quieres hablar con alguien, escribe *humano*",
-      "categoria": "Soporte",
-      "botones": []
-    },
+  "palabras_clave": ["presentacion", "quién eres", "auraai"],
+  "contenido": "Soy Nora AI, tu asistente digital para ayudarte con Aura Marketing.",
+  "categoria": "Inicio",
+  "botones": [
+    { "tipo": "respuesta", "texto": "Conocer servicios" },
+    { "tipo": "respuesta", "texto": "Ver cursos" },
+    { "tipo": "respuesta", "texto": "Hablar con humano" }
+  ]
+}
+,
     "curso": {
       "palabras_clave": ["curso", "cursos", "capacitacion"],
       "contenido": "🎓 Curso de Marketing de Contenidos, IA y Meta Ads\n📅 Fechas: 15 y 16 de Abril\n⏰ Horario: 5:00 PM a 8:00 PM\n📚 Módulos:\n1️⃣ Marketing de Contenidos Estratégico (2 hrs)\n2️⃣ Inteligencia Artificial para Marketing (2 hrs)\n3️⃣ Anuncios en Meta Ads (2 hrs)\n🎁 Bonus: WhatsApp Business para Ventas (2 hrs)\n💰 Inversión: $1,490 MXN\n📲 ¿Te interesa? ¡Aparta tu lugar!",
@@ -34,6 +39,19 @@
       "contenido": "🎥 ¡Agenda una videollamada con Luica Larios!\n¿Necesitas asesoría personalizada, conocer nuestros servicios o resolver un problema técnico?\n🔹 Temas que podemos tratar:\n✔ Asesoría estratégica\n✔ Servicios de la agencia\n✔ Solución a problemas técnicos\n📅 Proceso sencillo:\n1️⃣ Reserva tu horario (nosotros nos contactaremos contigo)\n2️⃣ Recibe la confirmación con los detalles\n3️⃣ Conéctate y hablemos para resolver tus necesidades.",
       "categoria": "Soporte",
       "botones": []
-    }
+    },
+    "menu": {
+  "palabras_clave": ["menú", "menu", "ayuda", "inicio", "opciones"],
+  "contenido": "📋 Aquí tienes algunas opciones para ayudarte:",
+  "categoria": "Navegación",
+  "botones": [
+    { "tipo": "respuesta", "texto": "Conocer servicios" },
+    { "tipo": "respuesta", "texto": "Ver cursos disponibles" },
+    { "tipo": "respuesta", "texto": "Agendar videollamada" },
+    { "tipo": "respuesta", "texto": "Hablar con humano" }
+  ]
+}
+
+    
   }
   
