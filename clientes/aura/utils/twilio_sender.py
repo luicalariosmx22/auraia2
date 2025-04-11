@@ -16,7 +16,7 @@ client = Client(TWILIO_SID, TWILIO_TOKEN)
 
 def enviar_mensaje(numero, mensaje, nombre_contacto=None):
     try:
-        # Asegurar que el número tenga el prefijo correcto
+        # Asegurar formato correcto del número destino
         to_number = numero if numero.startswith("whatsapp:") else f"whatsapp:{numero}"
 
         print("\n📤 Enviando mensaje...")
@@ -24,6 +24,10 @@ def enviar_mensaje(numero, mensaje, nombre_contacto=None):
         print("👉 De:", FROM_NUMBER)
         print("👉 Para:", to_number)
         print("📨 Contenido:", mensaje)
+
+        # Guardar último FROM real utilizado
+        with open("clientes/aura/config/twilio_last_sent.json", "w", encoding="utf-8") as f:
+            json.dump({"from": FROM_NUMBER}, f, indent=2)
 
         message = client.messages.create(
             body=mensaje,
