@@ -2,21 +2,19 @@ from flask import Blueprint, request, render_template
 import os, json
 from clientes.aura.utils.debug_integracion import revisar_todo
 from clientes.aura.utils.twilio_sender import enviar_mensaje
+from clientes.aura.utils.normalize import normalizar_numero
 
 debug_bp = Blueprint("debug", __name__)
 
-# ✅ Diagnóstico general del bot
 @debug_bp.route("/debug/verificar", methods=["GET"])
 def debug_verificacion():
     resultado = revisar_todo()
     return f"<pre>{resultado}</pre>"
 
-# ✅ Diagnóstico visual si tienes plantilla HTML
 @debug_bp.route("/debug/panel", methods=["GET"])
 def debug_verificacion_panel():
     return render_template("debug_verificacion.html")
 
-# ✅ Últimos mensajes de un número
 @debug_bp.route("/debug/info", methods=["GET"])
 def info_contacto():
     numero = request.args.get("numero")
@@ -38,7 +36,6 @@ def info_contacto():
     except Exception as e:
         return f"❌ Error al leer historial: {e}"
 
-# ✅ Eliminar historial de un número
 @debug_bp.route("/debug/reset/historial", methods=["GET"])
 def reset_historial():
     numero = request.args.get("numero")
@@ -51,7 +48,6 @@ def reset_historial():
         return f"✅ Historial de {numero} eliminado."
     return f"❌ No se encontró historial para {numero}"
 
-# ✅ Enviar mensaje de prueba con Twilio
 @debug_bp.route("/debug/enviar-prueba", methods=["GET"])
 def enviar_prueba():
     numero = request.args.get("to")
@@ -66,7 +62,6 @@ def enviar_prueba():
     else:
         return f"❌ Error: El mensaje no se pudo enviar a {numero}. Revisa logs en Railway."
 
-# ✅ Mostrar configuración .env protegida
 @debug_bp.route("/debug/config", methods=["GET"])
 def mostrar_config():
     clave = request.args.get("clave")
@@ -92,7 +87,6 @@ def mostrar_config():
 
     return f"<pre>{resultado}</pre>"
 
-# ✅ Verifica si Twilio reconoce tu número como canal válido
 @debug_bp.route("/debug/twilio-channel-test", methods=["GET"])
 def verificar_canal_twilio():
     from twilio.rest import Client
@@ -123,3 +117,10 @@ def verificar_canal_twilio():
 
     except Exception as e:
         return f"❌ Error al consultar los canales de WhatsApp: {e}"
+
+# ✅ Test del normalizador
+@debug_bp.route("/debug/test-normalizador", methods=["GET"])
+def test_normalizador():
+    entrada = request.args.get("n", "+525593372311")
+    salida = normalizar_numero(entrada)
+    return f"<pre>📞 TEST DEL NORMALIZADOR\nEntrada: {entrada}\nSalida:  {salida}</pre>"
