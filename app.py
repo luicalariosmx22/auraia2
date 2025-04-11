@@ -13,6 +13,7 @@ from clientes.aura.routes.debug import debug_bp
 from clientes.aura.routes.debug_openai import debug_openai_bp
 from clientes.aura.auth.google_login import google_login_bp
 from clientes.aura.routes.debug_login import debug_login_bp
+from clientes.aura.routes.debug_google import debug_google_bp
 from clientes.aura.utils.startup_check import inicializar_nora
 
 # Inicializar entorno y estructura
@@ -30,6 +31,7 @@ app.register_blueprint(debug_bp)
 app.register_blueprint(debug_openai_bp)
 app.register_blueprint(google_login_bp)
 app.register_blueprint(debug_login_bp)
+app.register_blueprint(debug_google_bp)
 
 # Ruta raíz
 @app.route("/")
