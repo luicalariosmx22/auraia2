@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from clientes.aura.routes.webhook import webhook_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
@@ -14,5 +15,4 @@ app.register_blueprint(chat_data_bp)
 def home():
     return "Servidor de Aura AI activo."
 
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+if __name__ == "__main
