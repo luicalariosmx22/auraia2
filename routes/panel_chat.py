@@ -52,6 +52,7 @@ def panel_chat():
         guardar_json(ARCHIVO_HISTORIAL, historial)
         return redirect(url_for('panel_chat.panel_chat', numero=numero))
 
+    # Filtrar contactos si se selecciona una etiqueta
     if etiqueta_seleccionada:
         contactos_info = {
             k: v for k, v in contactos_info.items() 
@@ -134,19 +135,6 @@ def editar_contacto(numero):
                          numero=numero,
                          etiquetas_disponibles=cargar_json(ETIQUETAS_DISPONIBLES, []))
 
-@panel_chat_bp.route('/eliminar-contacto/<numero>', methods=['POST'])
-def eliminar_contacto(numero):
-    contactos_info = cargar_json(CONTACTOS_INFO, {})
-    
-    if numero in contactos_info:
-        del contactos_info[numero]
-        guardar_json(CONTACTOS_INFO, contactos_info)
-        flash('✅ Contacto eliminado', 'success')
-    else:
-        flash('❌ Contacto no encontrado', 'error')
-    
-    return redirect(url_for('panel_chat.panel_chat'))
-
 # ========== FUNCIONES EXISTENTES ==========
 
 @panel_chat_bp.route('/filter_etiquetas', methods=['GET'])
@@ -174,97 +162,6 @@ def toggle_ia(numero):
     except Exception as e:
         flash(f'Error al cambiar estado de IA: {str(e)}', 'error')
         return jsonify({"success": False, "error": str(e)}), 500
-
-@panel_chat_bp.route('/add_etiqueta/<numero>', methods=['POST'])
-def add_etiqueta(numero):
-    nueva_etiqueta = request.form.get('nueva_etiqueta', '').strip().lower()
-    etiquetas_validas = cargar_json(ETIQUETAS_DISPONIBLES, [])
-
-    if not nueva_etiqueta:
-        flash('La etiqueta no puede estar vacía', 'error')
-        return redirect(url_for('panel_chat.panel_chat', numero=numero))
-
-    if nueva_etiqueta not in etiquetas_validas:
-        flash(f'La etiqueta "{nueva_etiqueta}" no es válida.', 'error')
-        return redirect(url_for('panel_chat.panel_chat', numero=numero))
-
-    try:
-        contactos_info = cargar_json(CONTACTOS_INFO, {})
-        numero = normalizar_numero(numero)
-
-        if numero not in contactos_info:
-            contactos_info[numero] = {
-                "ia_activada": True,
-                "etiquetas": []
-            }
-
-        if nueva_etiqueta not in contactos_info[numero].get('etiquetas', []):
-            contactos_info[numero].setdefault('etiquetas', []).append(nueva_etiqueta)
-            flash(f'Etiqueta "{nueva_etiqueta}" agregada', 'success')
-        else:
-            flash('Esta etiqueta ya existe', 'warning')
-
-        guardar_json(CONTACTOS_INFO, contactos_info)
-
-    except Exception as e:
-        flash(f'Error al agregar etiqueta: {str(e)}', 'error')
-
-    return redirect(url_for('panel_chat.panel_chat', numero=numero))
-
-@panel_chat_bp.route('/eliminar_etiqueta/<numero>/<etiqueta>', methods=['POST'])
-def eliminar_etiqueta(numero, etiqueta):
-    try:
-        contactos_info = cargar_json(CONTACTOS_INFO, {})
-        numero = normalizar_numero(numero)
-
-        etiquetas_actuales = contactos_info.get(numero, {}).get("etiquetas", [])
-        if etiqueta in etiquetas_actuales:
-            etiquetas_actuales.remove(etiqueta)
-            contactos_info[numero]["etiquetas"] = etiquetas_actuales
-            flash(f'Etiqueta "{etiqueta}" eliminada', 'success')
-        else:
-            flash('Etiqueta no encontrada en este contacto', 'warning')
-
-        guardar_json(CONTACTOS_INFO, contactos_info)
-
-    except Exception as e:
-        flash(f'Error al eliminar etiqueta: {str(e)}', 'error')
-
-    return redirect(url_for('panel_chat.panel_chat', numero=numero))
-
-@panel_chat_bp.route('/guardar_nota/<numero>', methods=['POST'])
-def guardar_nota(numero):
-    nota = request.form.get('nota', '').strip()
-    numero = normalizar_numero(numero)
-    notas = cargar_notas()
-    notas[numero] = nota
-    guardar_json('notas.json', notas)
-
-    modificaciones = cargar_notas_modificadas()
-    modificaciones[numero] = obtener_timestamp_actual()
-    guardar_json('notas_modificadas.json', modificaciones)
-
-    flash("Nota guardada correctamente", "success")
-    return redirect(url_for('panel_chat.panel_chat', numero=numero))
-
-@panel_chat_bp.route('/actualizar_nombre/<numero>', methods=['POST'])
-def actualizar_nombre(numero):
-    nuevo_nombre = request.form.get('nuevo_nombre', '').strip()
-    if not nuevo_nombre:
-        flash("El nombre no puede estar vacío", "warning")
-        return redirect(url_for('panel_chat.panel_chat', numero=numero))
-
-    contactos_info = cargar_json(CONTACTOS_INFO, {})
-    numero = normalizar_numero(numero)
-
-    if numero not in contactos_info:
-        contactos_info[numero] = {"ia_activada": True, "etiquetas": [], "nombre": nuevo_nombre}
-    else:
-        contactos_info[numero]["nombre"] = nuevo_nombre
-
-    guardar_json(CONTACTOS_INFO, contactos_info)
-    flash("Nombre actualizado", "success")
-    return redirect(url_for('panel_chat.panel_chat', numero=numero))
 
 # ========== FUNCIONES AUXILIARES ==========
 
