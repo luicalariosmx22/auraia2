@@ -22,6 +22,7 @@ def panel_chat():
     numero_seleccionado = request.args.get('numero')
     etiqueta_seleccionada = request.args.get('etiqueta')
 
+    # Cargar los datos de los contactos y del historial
     contactos_info = cargar_json(CONTACTOS_INFO, {})
     historial = cargar_json(ARCHIVO_HISTORIAL, [])
 
