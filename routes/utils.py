@@ -1,5 +1,6 @@
-import json
+import json 
 import os
+import re  # Asegúrate de agregar esta línea para importar re
 
 def cargar_json(archivo, default=None):
     try:
