@@ -45,7 +45,7 @@ def procesar_mensaje(data):
 
     # 7. Enviar mensaje y registrar
     print("🧠 Respuesta generada:", respuesta)
-    enviar_mensaje(numero, respuesta)
+    enviar_mensaje(numero, respuesta, nombre)
     guardar_en_historial(numero, respuesta, "bot", "Aura AI")
 
     return respuesta

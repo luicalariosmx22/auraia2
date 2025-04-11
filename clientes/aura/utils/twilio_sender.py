@@ -1,22 +1,40 @@
+# 📁 Archivo: clientes/aura/utils/twilio_sender.py
+
 import os
-from dotenv import load_dotenv
 from twilio.rest import Client
+from dotenv import load_dotenv
 from clientes.aura.utils.error_logger import registrar_error
 
 load_dotenv()
 
-def enviar_mensaje(numero, mensaje):
+# Configurar cliente Twilio
+TWILIO_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+FROM_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")  # Debe incluir 'whatsapp:'
+
+client = Client(TWILIO_SID, TWILIO_TOKEN)
+
+def enviar_mensaje(numero, mensaje, nombre_contacto=None):
     try:
-        cuenta_sid = os.getenv("TWILIO_ACCOUNT_SID")
-        auth_token = os.getenv("TWILIO_AUTH_TOKEN")
-        numero_twilio = os.getenv("TWILIO_PHONE_NUMBER")
+        # Asegurar que el número tenga el prefijo correcto
+        to_number = numero if numero.startswith("whatsapp:") else f"whatsapp:{numero}"
 
-        cliente = Client(cuenta_sid, auth_token)
+        print("\n📤 Enviando mensaje...")
+        print("👤 Nombre del contacto:", nombre_contacto or "(desconocido)")
+        print("👉 De:", FROM_NUMBER)
+        print("👉 Para:", to_number)
+        print("📨 Contenido:", mensaje)
 
-        cliente.messages.create(
-            from_=f"whatsapp:{numero_twilio}",
+        message = client.messages.create(
             body=mensaje,
-            to=f"whatsapp:{numero}"
+            from_=FROM_NUMBER,
+            to=to_number
         )
+
+        print(f"✅ Mensaje enviado. SID: {message.sid}\n")
+        return message.sid
+
     except Exception as e:
-        registrar_error("Twilio", f"Error al enviar mensaje: {e}")
+        print("❌ Error al enviar mensaje con Twilio:", e)
+        registrar_error("Twilio", f"Error al enviar mensaje a {numero}: {e}")
+        return None
