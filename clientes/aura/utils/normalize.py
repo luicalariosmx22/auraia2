@@ -1,15 +1,19 @@
-import re
+# 📁 Archivo: clientes/aura/utils/normalize.py
 
 def normalizar_numero(numero):
-    if numero:
-        numero = numero.replace("whatsapp:", "")
-        numero = re.sub(r"\D", "", numero)
-        if numero.startswith("521") and len(numero) == 13:
-            numero = "52" + numero[3:]
+    """
+    Asegura que el número venga con el prefijo 'whatsapp:' necesario para Twilio.
+    Si ya lo tiene, lo deja igual.
+    """
+    if numero.startswith("whatsapp:"):
         return numero
-    return ""
+    return f"whatsapp:{numero}"
+
 
 def limpiar_mensaje(mensaje):
-    if mensaje:
-        return mensaje.strip().lower()
-    return ""
+    """
+    Limpia el mensaje recibido: lo convierte a minúsculas, elimina espacios extra y símbolos comunes.
+    """
+    if not mensaje:
+        return ""
+    return mensaje.strip().lower()
