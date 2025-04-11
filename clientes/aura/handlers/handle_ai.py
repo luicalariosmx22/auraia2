@@ -1,14 +1,12 @@
-# 📁 Archivo: clientes/aura/handlers/handle_ai.py
-
 import os
-from openai import OpenAI
+import openai
 from dotenv import load_dotenv
 from clientes.aura.utils.error_logger import registrar_error
 
 load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 RUTA_BASE_CONOCIMIENTO = "clientes/aura/config/servicios_conocimiento.txt"
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def cargar_base_conocimiento():
     try:
@@ -19,28 +17,25 @@ def cargar_base_conocimiento():
         return ""
 
 def manejar_respuesta_ai(mensaje_usuario):
-    usar_ia = os.getenv("USAR_OPENAI", "true").lower() == "true"
-    if not usar_ia:
-        return None
-
     try:
         conocimiento_base = cargar_base_conocimiento()
 
         prompt = f"""
-Eres una asistente virtual llamada Nora AI, que trabaja para una agencia llamada Aura Marketing.
+Eres Nora AI, una asistente profesional de Aura Marketing.
 
-Tu trabajo es responder de forma clara, útil, profesional y con un toque cálido y humano. No inventes respuestas.
+Tu trabajo es responder de forma clara, útil, profesional y humana.
+No inventes información.
 
-Usa esta información como base de conocimiento:
-
+Conocimiento disponible:
 {conocimiento_base}
 
-Pregunta del usuario: {mensaje_usuario}
+Pregunta del usuario:
+{mensaje_usuario}
 
 Respuesta:
         """
 
-        respuesta = client.chat.completions.create(
+        respuesta = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "user", "content": prompt}
