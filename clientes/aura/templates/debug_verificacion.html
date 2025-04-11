@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verificación del Sistema - Nora AI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      color: #111;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+    }
+    h1 {
+      color: #1f2937;
+      margin-bottom: 1.5rem;
+    }
+    h2 {
+      color: #2563eb;
+      margin-top: 2rem;
+    }
+    .item {
+      padding: 0.5rem 0;
+    }
+    .ok { color: green; }
+    .warn { color: orange; }
+    .fail { color: red; }
+    code {
+      background: #e5e7eb;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Verificación del sistema - Nora AI</h1>
+    <div id="resultado">
+      <p>Cargando verificación...</p>
+    </div>
+  </div>
+
+  <script>
+    fetch("/debug/verificar")
+      .then(res => res.text())
+      .then(data => {
+        const lines = data.split("\n");
+        const output = lines.map(line => {
+          if (line.includes("✅")) return `<div class='item ok'>${line}</div>`;
+          if (line.includes("⚠️")) return `<div class='item warn'>${line}</div>`;
+          if (line.includes("❌")) return `<div class='item fail'>${line}</div>`;
+          return `<div class='item'>${line}</div>`;
+        }).join("");
+        document.getElementById("resultado").innerHTML = output;
+      });
+  </script>
+</body>
+</html>
