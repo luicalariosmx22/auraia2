@@ -1,142 +1,167 @@
-# 📁 Archivo: clientes/aura/utils/debug_integracion.py
-
 import os
 import json
 import openai
-from datetime import datetime
 from twilio.rest import Client
 from clientes.aura.handlers.handle_keywords import manejar_respuesta_keywords
 from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
-
-# Utilidades comunes
+from clientes.aura.utils.normalize import normalizar_numero
 
 def check_archivo(path, descripcion):
     if not os.path.exists(path):
-        return f"❌ {descripcion} → No encontrado ({path})"
-    return f"✅ {descripcion} → OK"
+        return f"❌ {descripcion} → No encontrado ({path})\n"
+    return f"✅ {descripcion} → OK\n"
 
-# 1. Verificar archivos y estructura base
-
-def revisar_archivos():
-    resultados = []
-    resultados.append("📁 ARCHIVOS Y CONFIGURACIÓN:")
-    resultados.append(check_archivo("clientes/aura/config/settings.json", "settings.json"))
-    resultados.append(check_archivo("clientes/aura/config/bot_data.json", "bot_data.json"))
-    resultados.append(check_archivo("clientes/aura/config/servicios_conocimiento.txt", "Base de conocimiento IA"))
-    resultados.append(check_archivo("clientes/aura/database/historial", "Carpeta historial"))
-    return resultados
-
-# 2. Verificar settings.json
-
-def revisar_settings():
-    ruta = "clientes/aura/config/settings.json"
-    resultados = ["\n🧠 CONFIGURACIÓN DE NORA:"]
+def revisar_bot_data():
+    ruta = "clientes/aura/config/bot_data.json"
+    resultado = check_archivo(ruta, "bot_data.json")
     try:
         with open(ruta, "r", encoding="utf-8") as f:
             data = json.load(f)
-        for clave in ["usar_ai", "usar_respuestas_automaticas", "usar_manejo_archivos"]:
-            estado = data.get(clave, False)
-            resultados.append(f"{'✅' if estado else '⚠️'} {clave} → {estado}")
+        if any("hola" in v.get("palabras_clave", []) for v in data.values()):
+            resultado += "✅ Palabra clave 'hola' encontrada\n"
+        else:
+            resultado += "⚠️ 'hola' no está entre las palabras clave\n"
     except Exception as e:
-        resultados.append(f"❌ Error al leer settings.json: {e}")
-    return resultados
+        resultado += f"❌ Error al leer bot_data.json: {e}\n"
+    return resultado
 
-# 3. Verificar variables de entorno
+def revisar_conocimiento_txt():
+    ruta = "clientes/aura/config/servicios_conocimiento.txt"
+    resultado = check_archivo(ruta, "Base de conocimiento IA")
+    try:
+        with open(ruta, "r", encoding="utf-8") as f:
+            contenido = f.read()
+        if len(contenido) < 30:
+            resultado += "⚠️ Archivo cargado pero demasiado corto\n"
+        else:
+            resultado += "✅ Contenido de conocimiento cargado correctamente\n"
+    except Exception as e:
+        resultado += f"❌ Error al leer servicios_conocimiento.txt: {e}\n"
+    return resultado
+
+def revisar_settings():
+    ruta = "clientes/aura/config/settings.json"
+    resultado = check_archivo(ruta, "settings.json")
+    try:
+        with open(ruta, "r", encoding="utf-8") as f:
+            settings = json.load(f)
+        for clave in ["usar_ai", "usar_respuestas_automaticas", "usar_manejo_archivos"]:
+            valor = settings.get(clave)
+            resultado += f"{'✅' if valor else '⚠️'} {clave} → {valor}\n"
+    except Exception as e:
+        resultado += f"❌ Error al leer settings.json: {e}\n"
+    return resultado
 
 def revisar_variables_entorno():
-    resultados = ["\n🔐 VARIABLES DE ENTORNO:"]
-    claves = ["OPENAI_API_KEY", "TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER"]
+    claves = [
+        "OPENAI_API_KEY",
+        "TWILIO_ACCOUNT_SID",
+        "TWILIO_AUTH_TOKEN",
+        "TWILIO_PHONE_NUMBER"
+    ]
+    resultado = "🔐 VARIABLES DE ENTORNO:\n"
     for clave in claves:
         valor = os.getenv(clave)
-        if valor:
-            resultados.append(f"✅ {clave} definida")
-        else:
-            resultados.append(f"❌ {clave} FALTANTE")
-    return resultados
+        resultado += f"{'✅' if valor else '❌'} {clave} {'definida' if valor else 'NO definida'}\n"
+    return resultado
 
-# 4. Verificar conexión con OpenAI
-
-def probar_openai():
-    resultados = ["\n🔌 CONEXIÓN CON OPENAI:"]
+def revisar_conexion_openai():
     try:
+        openai.api_key = os.getenv("OPENAI_API_KEY")
         respuesta = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Hola, ¿puedes responderme?"}],
-            max_tokens=10
+            messages=[{"role": "user", "content": "Prueba de conexión"}],
+            temperature=0.0
         )
         if respuesta.choices:
-            resultados.append("✅ OpenAI respondió correctamente")
-        else:
-            resultados.append("❌ OpenAI no devolvió respuesta")
+            return "✅ OpenAI respondió correctamente\n"
+        return "⚠️ OpenAI respondió vacío\n"
     except Exception as e:
-        resultados.append(f"❌ Error al conectar con OpenAI: {e}")
-    return resultados
+        return f"❌ Error al conectar con OpenAI:\n{e}\n"
 
-# 5. Verificar conexión con Twilio
-
-def probar_twilio():
-    resultados = ["\n📞 CONEXIÓN CON TWILIO:"]
+def revisar_conexion_twilio():
     try:
-        account_sid = os.getenv("TWILIO_ACCOUNT_SID")
-        auth_token = os.getenv("TWILIO_AUTH_TOKEN")
-        client = Client(account_sid, auth_token)
-        cuentas = client.api.accounts.list(limit=1)
-        if cuentas:
-            resultados.append("✅ Twilio conectado correctamente")
-        else:
-            resultados.append("❌ Twilio no devolvió cuentas")
+        client = Client(
+            os.getenv("TWILIO_ACCOUNT_SID"),
+            os.getenv("TWILIO_AUTH_TOKEN")
+        )
+        client.api.accounts.list(limit=1)
+        return "✅ Twilio conectado correctamente\n"
     except Exception as e:
-        resultados.append(f"❌ Error al conectar con Twilio: {e}")
-    return resultados
+        return f"❌ Error al conectar con Twilio:\n{e}\n"
 
-# 6. Probar funciones clave de Nora
-
-def probar_funciones_bot():
-    resultados = ["\n⚙️ FUNCIONES CLAVE DEL BOT:"]
-    try:
-        respuesta_kw = manejar_respuesta_keywords("hola")
-        if respuesta_kw:
-            resultados.append("✅ manejar_respuesta_keywords('hola') devolvió respuesta")
-        else:
-            resultados.append("⚠️ manejar_respuesta_keywords('hola') devolvió None")
-    except Exception as e:
-        resultados.append(f"❌ Error en manejar_respuesta_keywords: {e}")
+def revisar_funciones_clave():
+    resultado = "⚙️ FUNCIONES CLAVE DEL BOT:\n"
 
     try:
-        respuesta_ai = manejar_respuesta_ai("¿Qué servicios ofrecen?")
-        if respuesta_ai:
-            resultados.append("✅ manejar_respuesta_ai() devolvió respuesta")
+        resp1 = manejar_respuesta_keywords("hola")
+        if resp1:
+            resultado += "✅ manejar_respuesta_keywords('hola') devolvió respuesta\n"
         else:
-            resultados.append("⚠️ manejar_respuesta_ai() devolvió None")
+            resultado += "⚠️ manejar_respuesta_keywords('hola') devolvió None\n"
     except Exception as e:
-        resultados.append(f"❌ Error en manejar_respuesta_ai: {e}")
+        resultado += f"❌ Error en manejar_respuesta_keywords: {e}\n"
 
-    return resultados
+    try:
+        resp2 = manejar_respuesta_ai("¿Qué servicios ofrecen?")
+        if resp2:
+            resultado += "✅ manejar_respuesta_ai() devolvió respuesta\n"
+        else:
+            resultado += "⚠️ manejar_respuesta_ai() devolvió None\n"
+    except Exception as e:
+        resultado += f"❌ Error en manejar_respuesta_ai: {e}\n"
 
-# 7. Historial
+    return resultado
 
 def revisar_historial():
-    ruta = "clientes/aura/database/historial"
-    resultados = ["\n🕑 HISTORIAL DE CONVERSACIONES:"]
-    try:
-        archivos = os.listdir(ruta)
-        if archivos:
-            resultados.append(f"✅ {len(archivos)} archivos de historial encontrados")
-        else:
-            resultados.append("⚠️ Carpeta de historial vacía")
-    except Exception as e:
-        resultados.append(f"❌ Error al leer historial: {e}")
-    return resultados
+    historial_dir = "clientes/aura/database/historial"
+    if not os.path.exists(historial_dir):
+        return "❌ Carpeta de historial no encontrada\n"
+    archivos = os.listdir(historial_dir)
+    if not archivos:
+        return "⚠️ Carpeta de historial vacía\n"
+    return f"✅ {len(archivos)} archivos de historial encontrados\n"
 
-# Función principal unificada
+def revisar_normalizador():
+    entrada = "whatsapp:+5216621234567"
+    salida = normalizar_numero(entrada)
+
+    if salida != entrada:
+        return (
+            "📞 NORMALIZADOR DE NÚMEROS:\n"
+            f"❌ Error: se perdió el prefijo 'whatsapp:'\n"
+            f"Entrada: {entrada}\nSalida: {salida}\n"
+        )
+    return (
+        "📞 NORMALIZADOR DE NÚMEROS:\n"
+        f"✅ Entrada: {entrada}\n"
+        f"✅ Salida:  {salida}\n"
+    )
 
 def revisar_todo():
-    secciones = []
-    secciones.extend(revisar_archivos())
-    secciones.extend(revisar_settings())
-    secciones.extend(revisar_variables_entorno())
-    secciones.extend(probar_openai())
-    secciones.extend(probar_twilio())
-    secciones.extend(probar_funciones_bot())
-    secciones.extend(revisar_historial())
-    return "\n".join(secciones)
+    salida = ""
+    salida += "📁 ARCHIVOS Y CONFIGURACIÓN:\n"
+    salida += revisar_settings()
+    salida += revisar_bot_data()
+    salida += revisar_conocimiento_txt()
+    salida += check_archivo("clientes/aura/database/historial", "Carpeta historial")
+    salida += "\n"
+    salida += "🧠 CONFIGURACIÓN DE NORA:\n"
+    salida += revisar_settings()
+    salida += "\n"
+    salida += revisar_variables_entorno()
+    salida += "\n"
+    salida += "🔌 CONEXIÓN CON OPENAI:\n"
+    salida += revisar_conexion_openai()
+    salida += "\n"
+    salida += "📞 CONEXIÓN CON TWILIO:\n"
+    salida += revisar_conexion_twilio()
+    salida += "\n"
+    salida += revisar_funciones_clave()
+    salida += "\n"
+    salida += "🕑 HISTORIAL DE CONVERSACIONES:\n"
+    salida += revisar_historial()
+    salida += "\n"
+    salida += revisar_normalizador()
+
+    return salida
