@@ -1,6 +1,6 @@
 import os
 import json
-from openai import OpenAI
+import openai
 from twilio.rest import Client
 from clientes.aura.handlers.handle_keywords import manejar_respuesta_keywords
 from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
@@ -95,8 +95,8 @@ def revisar_todo():
     # Probar conexión OpenAI
     resultado += "\n🔌 CONEXIÓN CON OPENAI:\n"
     try:
-        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        test = client.chat.completions.create(
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+        test = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": "Hola"}],
             max_tokens=5
