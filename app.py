@@ -13,7 +13,6 @@ app.register_blueprint(panel_chat_bp)
 app.register_blueprint(chat_data_bp)
 app.register_blueprint(debug_bp)
 
-
 @app.route("/")
 def home():
     return "Servidor de Aura AI activo."
