@@ -1,12 +1,14 @@
+# 📁 Archivo: clientes/aura/handlers/handle_ai.py
+
 import os
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 from clientes.aura.utils.error_logger import registrar_error
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 RUTA_BASE_CONOCIMIENTO = "clientes/aura/config/servicios_conocimiento.txt"
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def cargar_base_conocimiento():
     try:
@@ -38,7 +40,7 @@ Pregunta del usuario: {mensaje_usuario}
 Respuesta:
         """
 
-        respuesta = openai.ChatCompletion.create(
+        respuesta = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "user", "content": prompt}

@@ -4,6 +4,10 @@ from clientes.aura.routes.webhook import webhook_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.chat_data import chat_data_bp
 from clientes.aura.routes.debug import debug_bp
+from clientes.aura.utils.startup_check import inicializar_nora
+
+# Inicializar entorno y estructura
+inicializar_nora()
 
 app = Flask(__name__, static_url_path="/static", static_folder="clientes/aura/static")
 
