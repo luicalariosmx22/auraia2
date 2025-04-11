@@ -3,6 +3,7 @@ from flask import Flask
 from clientes.aura.routes.webhook import webhook_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.chat_data import chat_data_bp
+from clientes.aura.routes.debug import debug_bp
 
 app = Flask(__name__, static_url_path="/static", static_folder="clientes/aura/static")
 
@@ -10,6 +11,8 @@ app = Flask(__name__, static_url_path="/static", static_folder="clientes/aura/st
 app.register_blueprint(webhook_bp)
 app.register_blueprint(panel_chat_bp)
 app.register_blueprint(chat_data_bp)
+app.register_blueprint(debug_bp)
+
 
 @app.route("/")
 def home():
