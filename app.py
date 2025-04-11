@@ -10,10 +10,9 @@ app.register_blueprint(webhook_bp)
 app.register_blueprint(panel_chat_bp)
 app.register_blueprint(chat_data_bp)
 
-# Ruta raíz
 @app.route("/")
 def home():
-    return "Servidor activo y corriendo."
+    return "Servidor de Aura AI activo."
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
