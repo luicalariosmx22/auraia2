@@ -117,4 +117,3 @@ def procesar_contactos(historial, contactos_info):
 
 def ordenar_mensajes(mensajes):
     return sorted(mensajes, key=lambda x: x.get("timestamp", ""))
-
