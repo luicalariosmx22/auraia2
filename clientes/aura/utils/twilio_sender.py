@@ -1,17 +1,23 @@
 # 📁 Archivo: clientes/aura/utils/twilio_sender.py
 
 import os
+import json
 from twilio.rest import Client
 from dotenv import load_dotenv
 from clientes.aura.utils.error_logger import registrar_error
 
 load_dotenv()
 
+# Cargar y corregir número de envío (FROM)
+FROM_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+
+# Asegurar que tenga el +521 (WhatsApp México)
+if FROM_NUMBER.startswith("whatsapp:+52") and not FROM_NUMBER.startswith("whatsapp:+521"):
+    FROM_NUMBER = FROM_NUMBER.replace("whatsapp:+52", "whatsapp:+521", 1)
+
 # Configurar cliente Twilio
 TWILIO_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-FROM_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")  # Debe incluir 'whatsapp:'
-
 client = Client(TWILIO_SID, TWILIO_TOKEN)
 
 def enviar_mensaje(numero, mensaje, nombre_contacto=None):
@@ -25,7 +31,7 @@ def enviar_mensaje(numero, mensaje, nombre_contacto=None):
         print("👉 Para:", to_number)
         print("📨 Contenido:", mensaje)
 
-        # Guardar último FROM real utilizado
+        # Guardar último FROM usado
         with open("clientes/aura/config/twilio_last_sent.json", "w", encoding="utf-8") as f:
             json.dump({"from": FROM_NUMBER}, f, indent=2)
 
