@@ -6,11 +6,9 @@ panel_chat_bp = Blueprint('panel_chat_aura', __name__)
 
 @panel_chat_bp.route("/panel/chat/aura", methods=["GET"])
 def panel_chat():
-    # Validación de login
     if "user" not in session:
         return redirect(url_for("google_login.login"))
 
-    # Validación de admin
     if not session.get("is_admin"):
         return redirect(url_for("panel_chat_aura.panel_cliente"))
 
@@ -32,7 +30,7 @@ def panel_chat():
                             "hora": mensajes[-1]["hora"]
                         })
 
-    return render_template("panel_chat.html", contactos=contactos)
+    return render_template("panel_chat.html", contactos=contactos, user=session["user"])
 
 @panel_chat_bp.route("/panel_cliente", methods=["GET"])
 def panel_cliente():
