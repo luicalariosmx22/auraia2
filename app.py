@@ -1,5 +1,3 @@
-# app.py
-
 from flask import Flask, session, redirect, url_for
 from flask_session import Session
 from dotenv import load_dotenv
@@ -26,9 +24,9 @@ try:
     from clientes.aura.auth.login import login_bp
     from clientes.aura.routes.webhook import webhook_bp
     from clientes.aura.routes.debug_verificar import debug_verificar_bp
-    from clientes.aura.routes.debug_env import debug_env_bp  # NUEVO
+    from clientes.aura.routes.debug_env import debug_env_bp
     from clientes.aura.routes.debug_google import debug_google_bp
-
+    from clientes.aura.routes.debug_rutas import debug_rutas_bp
 
     # ========= REGISTRAR BLUEPRINTS =========
     app.register_blueprint(login_bp)
@@ -36,8 +34,9 @@ try:
     app.register_blueprint(panel_cliente_bp)
     app.register_blueprint(webhook_bp)
     app.register_blueprint(debug_verificar_bp)
-    app.register_blueprint(debug_env_bp)  # NUEVO
+    app.register_blueprint(debug_env_bp)
     app.register_blueprint(debug_google_bp)
+    app.register_blueprint(debug_rutas_bp)
 
 except Exception as e:
     with open("boot_error.log", "w") as f:
@@ -51,7 +50,7 @@ def home():
         return redirect(url_for("login.login_google"))
 
     if session.get("is_admin"):
-        return redirect(url_for("panel_chat.panel_chat"))
+        return redirect(url_for("panel_chat_aura.panel_chat"))  # 🔧 Corregido
     else:
         return redirect(url_for("panel_cliente.panel_cliente"))
 

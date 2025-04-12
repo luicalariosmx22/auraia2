@@ -70,7 +70,7 @@ def callback():
     session["is_admin"] = is_admin_user(session["user"]["email"])
 
     return redirect(
-        url_for("panel_chat.panel_chat")
+        url_for("panel_chat_aura.panel_chat")
         if session["is_admin"]
         else url_for("panel_cliente.panel_cliente")
     )
