@@ -1,8 +1,10 @@
+print("✅ debug_botdata_test.py cargado correctamente")
+
 from flask import Blueprint, jsonify
 import json
 import os
 
-# 🔧 Esta línea es CLAVE: le da el prefijo /debug
+# Prefijo correcto para que funcione con /debug/test_botdata
 debug_test_bp = Blueprint("debug_test_bp", __name__, url_prefix="/debug")
 
 @debug_test_bp.route("/test_botdata")
