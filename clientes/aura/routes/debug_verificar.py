@@ -1,6 +1,6 @@
 # 📁 Archivo: clientes/aura/routes/debug_verificar.py
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify
 import os
 import openai
 from dotenv import load_dotenv
@@ -14,8 +14,8 @@ from clientes.aura.routes.debug_google import verificar_google_login
 debug_verificar_bp = Blueprint("debug_verificar", __name__)
 load_dotenv()
 
-@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
-def verificar_configuracion():
+
+def generar_resultado_verificacion():
     resultado = {}
 
     # OpenAI
@@ -94,4 +94,18 @@ def verificar_configuracion():
             "estado": "❌ Error al leer bot_data.json"
         }
 
+    return resultado
+
+
+# 🧪 Ruta visual con tabla en HTML
+@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
+def vista_verificacion():
+    resultado = generar_resultado_verificacion()
     return render_template("debug_verificacion.html", resultado=resultado)
+
+
+# 📡 Ruta JSON para JS (fetch en HTML)
+@debug_verificar_bp.route("/debug/verificar", methods=["GET"])
+def api_verificacion():
+    resultado = generar_resultado_verificacion()
+    return jsonify(resultado)
