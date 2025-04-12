@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Respuestas de Nora AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+    <h2>📋 Respuestas configuradas – {{ nombre_nora }}</h2>
+    <p>Usuario: {{ user["email"] }}</p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="mensajes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>🔑 Clave</th>
+                <th>📎 Palabras clave</th>
+                <th>📂 Categoría</th>
+                <th>💬 Contenido</th>
+                <th>✏️ Editar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for clave, data in respuestas.items() %}
+            <tr>
+                <td><strong>{{ clave }}</strong></td>
+                <td>
+                    {% for palabra in data.palabras_clave %}
+                        <code>{{ palabra }}</code>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ data.categoria }}</td>
+                <td>{{ data.contenido }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('panel_cliente_respuestas.panel_respuestas', nombre_nora=nombre_nora) }}">
+                        <input type="hidden" name="clave" value="{{ clave }}">
+                        <textarea name="contenido" rows="2" cols="30">{{ data.contenido }}</textarea><br>
+                        <input type="text" name="categoria" value="{{ data.categoria }}" placeholder="Categoría"><br>
+                        <button type="submit">💾 Guardar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
