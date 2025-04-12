@@ -1,8 +1,10 @@
+# clientes/aura/debug/debug_botdata_test.py
+
 from flask import Blueprint, jsonify
 import json
 import os
 
-# ✅ Ahora con prefijo '/debug'
+# ✅ Prefijo correcto para que funcione con /debug/test_botdata
 debug_test_bp = Blueprint("debug_test_botdata", __name__, url_prefix="/debug")
 
 @debug_test_bp.route("/test_botdata")
