@@ -1,3 +1,5 @@
+# app.py
+
 from flask import Flask, session, redirect, url_for
 from flask_session import Session
 from dotenv import load_dotenv
@@ -34,8 +36,6 @@ try:
     from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
     from clientes.aura.routes.admin_noras import admin_noras_bp
     from clientes.aura.routes.admin_nora import admin_nora_bp
-    from clientes.aura.routes.panel_cliente_contactos import panel_contactos_bp
-    from clientes.aura.routes.panel_cliente_ia import panel_ia_bp
     from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
     from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
@@ -50,11 +50,8 @@ try:
     app.register_blueprint(admin_dashboard_bp)
     app.register_blueprint(admin_noras_bp)
     app.register_blueprint(admin_nora_bp)
-    app.register_blueprint(panel_contactos_bp)
-    app.register_blueprint(panel_ia_bp)
     app.register_blueprint(panel_cliente_contactos_bp)
     app.register_blueprint(panel_cliente_ia_bp)
-
 
 except Exception as e:
     with open("boot_error.log", "w") as f:
