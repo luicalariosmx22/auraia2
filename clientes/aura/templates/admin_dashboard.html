@@ -1,37 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard Administrador - Nora AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+    <meta charset="UTF-8">
+    <title>Panel Administrador - Nora AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
 </head>
 <body>
-  <div class="sidebar">
-    <h2>🧠 Nora AI</h2>
-    <a href="#">📋 Ver Nora’s</a>
-    <a href="#">🛠️ Panel de Errores</a>
-    <a href="#">➕ Agregar nueva Nora</a>
-    <a href="#">🔍 Diagnóstico</a>
-    <a href="#">📦 Logs</a>
-    <a href="#">⚙️ Configuración Global</a>
-  </div>
+    <header>
+        <div class="logo">🧠 Nora AI</div>
+        <div class="logout">
+            <a href="/logout">Cerrar sesión</a>
+        </div>
+    </header>
 
-  <div class="main">
-    <h1>Dashboard de Administrador</h1>
+    <nav class="sidebar">
+        <ul>
+            <li><a href="#">📋 Ver Nora’s</a></li>
+            <li><a href="#">➕ Agregar Nora</a></li>
+            <li><a href="#">🚨 Errores</a></li>
+            <li><a href="#">🛠 Diagnóstico</a></li>
+            <li><a href="#">📦 Logs</a></li>
+            <li><a href="#">⚙️ Configuración</a></li>
+        </ul>
+    </nav>
 
-    <div class="card">
-      <h3>Bienvenido, administrador 👋</h3>
-      <p>Desde aquí puedes gestionar todas las Nora’s activas, ver errores del sistema, monitorear logs y agregar nuevos proyectos fácilmente.</p>
-    </div>
-
-    <div class="card">
-      <h3>📊 Estado del sistema</h3>
-      <ul>
-        <li>{{ total_noras }} Nora’s activas</li>
-        <li>{{ total_errores }} errores registrados</li>
-        <li>Último deployment: {{ ultimo_deployment }}</li>
-      </ul>
-    </div>
-  </div>
+    <main>
+        <h1>Panel de Administrador</h1>
+        <section class="stats">
+            <div class="card">
+                <h2>{{ total_noras }}</h2>
+                <p>Nora’s activas</p>
+            </div>
+            <div class="card">
+                <h2>{{ total_errores }}</h2>
+                <p>Errores registrados</p>
+            </div>
+            <div class="card">
+                <h2>{{ ultimo_deployment }}</h2>
+                <p>Último deployment</p>
+            </div>
+        </section>
+    </main>
 </body>
 </html>

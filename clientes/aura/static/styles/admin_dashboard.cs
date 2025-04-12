@@ -1,50 +1,99 @@
+/* Tipografía y colores base */
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f5f7fa;
+    color: #2a2a2a;
+}
+
+header {
+    background-color: #2A4F8D;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.logout a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
 }
 
 .sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 240px;
-  height: 100vh;
-  background: #2f3e46;
-  padding: 20px;
-  color: white;
+    width: 200px;
+    background-color: #ffffff;
+    height: 100vh;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    padding-top: 1rem;
+    border-right: 1px solid #e0e0e0;
 }
 
-.sidebar h2 {
-  margin-top: 0;
-  font-size: 20px;
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin: 1rem 0;
 }
 
 .sidebar a {
-  display: block;
-  margin: 15px 0;
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
+    color: #2A4F8D;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    display: block;
+    font-weight: 500;
 }
 
 .sidebar a:hover {
-  text-decoration: underline;
+    background-color: #e6ecf5;
+    border-left: 4px solid #2A4F8D;
 }
 
-.main {
-  margin-left: 260px;
-  padding: 30px;
+/* Área principal */
+main {
+    margin-left: 200px;
+    padding: 2rem;
+}
+
+main h1 {
+    margin-bottom: 1.5rem;
+    color: #2A4F8D;
+}
+
+/* Tarjetas de estadísticas */
+.stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
 }
 
 .card {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    min-width: 250px;
+    text-align: center;
 }
 
-.card h3 {
-  margin-top: 0;
+.card h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #2A4F8D;
+}
+
+.card p {
+    font-size: 1rem;
+    color: #666;
 }
