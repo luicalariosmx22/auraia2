@@ -29,7 +29,7 @@ app.register_blueprint(admin_dashboard_bp)
 from clientes.aura.routes.debug_verificar import debug_verificar_bp
 app.register_blueprint(debug_verificar_bp)
 
-from clientes.aura.routes.webhook import webhook_bp  # 👈 Registro fijo del webhook
+from clientes.aura.routes.webhook import webhook_bp
 app.register_blueprint(webhook_bp)
 
 # ========= IMPORTAR Y REGISTRAR BLUEPRINTS RESTANTES =========
@@ -48,7 +48,8 @@ try:
     from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
     from clientes.aura.debug.debug_archivos import debug_archivos_bp
-    from clientes.aura.debug.debug_botdata_test import debug_test_bp  # ✅ IMPORTACIÓN CORRECTA
+    from clientes.aura.debug.debug_botdata_test import debug_test_bp
+    from clientes.aura.routes.debug_test_temp import debug_test_temp_bp  # ✅ NUEVO
 
     # Registrar blueprints restantes
     app.register_blueprint(panel_chat_bp)
@@ -65,7 +66,8 @@ try:
     app.register_blueprint(panel_cliente_ia_bp)
 
     app.register_blueprint(debug_archivos_bp)
-    app.register_blueprint(debug_test_bp)  # ✅ REGISTRO CORRECTO
+    app.register_blueprint(debug_test_bp)
+    app.register_blueprint(debug_test_temp_bp)  # ✅ NUEVO
 
 except Exception as e:
     with open("boot_error.log", "w", encoding="utf-8") as f:
