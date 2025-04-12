@@ -2,13 +2,16 @@ from flask import Flask, session, redirect, url_for
 from flask_session import Session
 from dotenv import load_dotenv
 import os
-import traceback
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
-# Crear la aplicación Flask y especificar la carpeta de plantillas
-app = Flask(__name__, template_folder='clientes/aura/templates')
+# Crear la aplicación Flask, especificando carpetas de plantillas y estáticos
+app = Flask(
+    __name__,
+    template_folder='clientes/aura/templates',
+    static_folder='clientes/aura/static'  # 🔧 Esto asegura que funcione el CSS
+)
 
 # FIX para Flask 2.3+ (evitar error con Flask-Session)
 app.session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
@@ -41,14 +44,15 @@ try:
     app.register_blueprint(admin_dashboard_bp)
 
 except Exception as e:
-    print("\n❌ Error al registrar blueprints:")
-    traceback.print_exc()
+    with open("boot_error.log", "w") as f:
+        f.write("\n❌ Error al registrar blueprints\n")
+        f.write(str(e))
 
 # ========= RUTA INICIAL =========
 @app.route("/")
 def home():
     if "user" not in session:
-        return redirect("/login")  # ✅ Evitamos error de endpoint no cargado
+        return redirect(url_for("login.login_google"))
 
     if session.get("is_admin"):
         return redirect(url_for("admin_dashboard.dashboard_admin"))
@@ -59,7 +63,7 @@ def home():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/login")  # ✅ Evitamos error de endpoint no cargado
+    return redirect(url_for("login.login_google"))
 
 # ========= INICIO LOCAL =========
 if __name__ == "__main__":
