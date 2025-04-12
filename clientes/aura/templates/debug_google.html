@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificación Login Google</title>
+</head>
+<body>
+    <h1>🔐 Verificación Login con Google</h1>
+
+    <h2>🔎 Variables de entorno</h2>
+    <ul>
+        {% for clave, valor in detalles.items() %}
+            <li>
+                {% if "❌" in valor %}
+                    <span style="color: red;">🔴 {{ clave }}: {{ valor }}</span>
+                {% else %}
+                    <span style="color: green;">🟢 {{ clave }}: {{ valor }}</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if errores %}
+        <h2 style="color: red;">⚠️ Errores</h2>
+        <ul>
+            {% for error in errores %}
+                <li style="color: red;">{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <h2>📡 Estado de URL de Autorización</h2>
+    <p>{{ estado }}</p>
+
+    {% if auth_url %}
+        <p>🔗 URL generada:</p>
+        <code style="word-wrap: break-word; display: block; background: #f2f2f2; padding: 10px;">
+            {{ auth_url }}
+        </code>
+    {% endif %}
+</body>
+</html>
