@@ -1,11 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Panel Admin</title>
+    <meta charset="UTF-8">
+    <title>Chat – {{ nombre_nora }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}">
 </head>
 <body>
-    <h2>Bienvenido, {{ user.name }}</h2>
-    <p>Este es el panel completo para administradores.</p>
-    <a href="/logout">Cerrar sesión</a>
+
+<h2>💬 Chat de Nora AI: {{ nombre_nora }}</h2>
+
+<div class="chat-layout">
+    <div class="chat-contactos">
+        <h3>📱 Contactos</h3>
+        <ul>
+            {% for c in contactos %}
+            <li>
+                <a href="#chat-{{ c.numero }}">
+                    {{ c.nombre }}<br>
+                    <small>{{ c.numero }}</small>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="chat-mensajes">
+        {% for c in contactos %}
+        <div id="chat-{{ c.numero }}" class="chat-box">
+            <h3>💬 Chat con {{ c.nombre }} ({{ c.numero }})</h3>
+            <div class="mensajes">
+                {% for m in c.mensajes %}
+                    <div class="mensaje {{ 'enviado' if m.rol == 'user' else 'recibido' }}">
+                        <div class="contenido">{{ m.texto }}</div>
+                        <div class="hora">{{ m.hora }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 </body>
 </html>
