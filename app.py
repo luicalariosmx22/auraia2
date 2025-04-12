@@ -69,10 +69,13 @@ def home():
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    if session.get("is_admin"):
-        return redirect(url_for("admin_dashboard.dashboard_admin"))
-    else:
-        return redirect(url_for("panel_cliente.panel_cliente"))
+    try:
+        if session.get("is_admin"):
+            return redirect(url_for("admin_dashboard.dashboard_admin"))
+        else:
+            return redirect(url_for("panel_cliente.panel_cliente"))
+    except Exception as e:
+        return f"❌ Error de redirección: {str(e)}"
 
 # ========= LOGOUT =========
 @app.route("/logout")
