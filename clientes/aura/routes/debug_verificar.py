@@ -1,4 +1,4 @@
-# 📁 Archivo: clientes/aura/routes/debug_verificar.py
+print("✅ debug_verificar.py cargado correctamente")
 
 from flask import Blueprint, render_template
 import os
@@ -12,9 +12,10 @@ from clientes.aura.routes.debug_oauthlib import verificar_oauthlib
 from clientes.aura.routes.debug_google import verificar_google_login
 
 debug_verificar_bp = Blueprint("debug_verificar", __name__)
+
 load_dotenv()
 
-@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
+@debug_verificar_bp.route("/debug/verificar", methods=["GET"])  # ✅ RUTA CORREGIDA
 def verificar_configuracion():
     resultado = {}
 
@@ -94,7 +95,7 @@ def verificar_configuracion():
             "estado": "❌ Error al leer bot_data.json"
         }
 
-    # Verificar conexión real con Twilio (intentamos leer mensajes)
+    # Verificar conexión real con Twilio
     try:
         from twilio.rest import Client
         client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
@@ -109,7 +110,7 @@ def verificar_configuracion():
             "estado": f"❌ Error: {str(e)}"
         }
 
-    # ✅ CORREGIDO: Verificar webhook emulando POST real
+    # Verificar webhook
     try:
         import requests
         from urllib.parse import urljoin
