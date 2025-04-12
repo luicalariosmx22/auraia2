@@ -1,3 +1,5 @@
+print("🔥 ESTE ES EL APP.PY QUE SE ESTÁ EJECUTANDO")
+
 from flask import Flask, session, redirect, url_for
 from flask_session import Session
 from dotenv import load_dotenv
