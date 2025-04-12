@@ -4,11 +4,69 @@
     <meta charset="UTF-8">
     <title>Panel del Cliente – {{ nombre_visible }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: #f4f6f8;
+            padding: 2rem;
+        }
+
+        h2, h3 {
+            color: #333;
+        }
+
+        .panel-header {
+            margin-bottom: 2rem;
+        }
+
+        .seccion {
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ddd;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secundario {
+            background-color: #6c757d;
+        }
+
+        .btn-secundario:hover {
+            background-color: #4a4a4a;
+        }
+
+        .tag {
+            background: #e0e0e0;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            margin-right: 8px;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
 
-<h2>👤 Bienvenido, {{ user.name }}</h2>
-<h3>🤖 Estás usando: {{ nombre_visible }}</h3>
+<div class="panel-header">
+    <h2>👋 Bienvenido, {{ user.name }}</h2>
+    <h3>🤖 Estás gestionando: <strong>{{ nombre_visible }}</strong></h3>
+</div>
 
 <div class="seccion">
     <h3>⚙️ Módulos activos:</h3>
@@ -40,15 +98,17 @@
 
 {% if "envios" in modulos %}
 <div class="seccion">
-    <h3>📤 Envío Programado de WhatsApps</h3>
-    <a href="#" class="btn">Programar envío</a>
+    <h3>📤 Envío Programado</h3>
+    <a href="#" class="btn">Programar envío de mensajes</a>
 </div>
 {% endif %}
 
+{% if "contactos" in modulos or "ia" in modulos %}
 <div class="seccion">
     <h3>💬 Comunicación</h3>
-    <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nombre_nora) }}" class="btn">Abrir Chat tipo WhatsApp</a>
+    <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nombre_nora) }}" class="btn">WhatsApp Web tipo Panel</a>
 </div>
+{% endif %}
 
 </body>
 </html>

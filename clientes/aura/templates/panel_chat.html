@@ -7,39 +7,50 @@
 </head>
 <body>
 
-<h2>💬 Chat de Nora AI: {{ nombre_nora }}</h2>
+<h2>💬 Panel de Chat – {{ nombre_nora }}</h2>
 
-<div class="chat-layout">
-    <div class="chat-contactos">
-        <h3>📱 Contactos</h3>
-        <ul>
+<div class="chat-contenedor">
+
+    <!-- 📱 COLUMNA 1: Lista de contactos -->
+    <div class="col-contactos">
+        <div class="contactos-header">
+            <input type="text" placeholder="🔍 Buscar contacto..." class="buscador">
+        </div>
+        <ul class="lista-contactos">
             {% for c in contactos %}
-            <li>
-                <a href="#chat-{{ c.numero }}">
-                    {{ c.nombre }}<br>
-                    <small>{{ c.numero }}</small>
-                </a>
+            <li onclick="seleccionarChat('{{ c.numero }}')">
+                <strong>{{ c.nombre }}</strong><br>
+                <small>{{ c.numero }}</small><br>
+                <span class="preview-msg">{{ c.mensajes[-1].texto if c.mensajes|length > 0 else '' }}</span>
             </li>
             {% endfor %}
         </ul>
     </div>
 
-    <div class="chat-mensajes">
-        {% for c in contactos %}
-        <div id="chat-{{ c.numero }}" class="chat-box">
-            <h3>💬 Chat con {{ c.nombre }} ({{ c.numero }})</h3>
-            <div class="mensajes">
-                {% for m in c.mensajes %}
-                    <div class="mensaje {{ 'enviado' if m.rol == 'user' else 'recibido' }}">
-                        <div class="contenido">{{ m.texto }}</div>
-                        <div class="hora">{{ m.hora }}</div>
-                    </div>
-                {% endfor %}
-            </div>
+    <!-- 💬 COLUMNA 2: Chat activo -->
+    <div class="col-chat">
+        <div id="chat-area">
+            <p>Selecciona un contacto para comenzar a chatear.</p>
         </div>
-        {% endfor %}
     </div>
+
+    <!-- ℹ️ COLUMNA 3: Info del contacto -->
+    <div class="col-info">
+        <div id="info-contacto">
+            <p><strong>ℹ️ Info del contacto</strong></p>
+            <p>Selecciona un contacto para ver detalles.</p>
+        </div>
+    </div>
+
 </div>
+
+<script>
+    function seleccionarChat(numero) {
+        // 👉 En versiones siguientes, carga dinámicamente chat e info del contacto
+        document.getElementById("chat-area").innerHTML = "<p>Cargando conversación con " + numero + "...</p>";
+        document.getElementById("info-contacto").innerHTML = "<p><strong>Número:</strong> " + numero + "<br><em>Detalles vendrán pronto...</em></p>";
+    }
+</script>
 
 </body>
 </html>
