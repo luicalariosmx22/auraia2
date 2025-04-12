@@ -1,5 +1,3 @@
-# clientes/aura/auth/login.py
-
 from flask import Blueprint, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
 import os
@@ -70,8 +68,5 @@ def callback():
     from clientes.aura.utils.auth_utils import is_admin_user
     session["is_admin"] = is_admin_user(session["user"]["email"])
 
-    return redirect(
-        url_for("admin_dashboard.dashboard_admin")
-        if session["is_admin"]
-        else url_for("panel_cliente.panel_cliente")
-    )
+    # ✅ Redirección segura usando ruta directa primero
+    return redirect("/admin" if session["is_admin"] else "/panel_cliente")
