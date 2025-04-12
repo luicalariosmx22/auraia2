@@ -4,12 +4,13 @@ from flask import Blueprint, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
 import os
 
+# Blueprint sin prefijo para que funcione /login y /login/google/callback
 login_bp = Blueprint("login", __name__)
 
 # Cargar variables de entorno
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")  # ← Este debe coincidir con el de Google Cloud
+REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 
 SCOPE = [
     "https://www.googleapis.com/auth/userinfo.email",
