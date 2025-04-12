@@ -1,11 +1,11 @@
 # 📁 Archivo: clientes/aura/routes/debug_verificar.py
 
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template
 import os
 import openai
-from dotenv import load_dotenv
 import json
 import pkg_resources
+from dotenv import load_dotenv
 
 from clientes.aura.routes.debug_openai import verificar_openai
 from clientes.aura.routes.debug_oauthlib import verificar_oauthlib
@@ -14,8 +14,8 @@ from clientes.aura.routes.debug_google import verificar_google_login
 debug_verificar_bp = Blueprint("debug_verificar", __name__)
 load_dotenv()
 
-
-def generar_resultado_verificacion():
+@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
+def verificar_configuracion():
     resultado = {}
 
     # OpenAI
@@ -94,18 +94,19 @@ def generar_resultado_verificacion():
             "estado": "❌ Error al leer bot_data.json"
         }
 
-    return resultado
+    # Verificar conexión real con Twilio (intentamos leer mensajes)
+    try:
+        from twilio.rest import Client
+        client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
+        mensajes = client.messages.list(limit=1)  # Pedimos solo 1 para validar conexión
+        resultado["twilio_conexion"] = {
+            "version": None,
+            "estado": "✅ Activa"
+        }
+    except Exception as e:
+        resultado["twilio_conexion"] = {
+            "version": None,
+            "estado": f"❌ Error: {str(e)}"
+        }
 
-
-# 🧪 Ruta visual con tabla en HTML
-@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
-def vista_verificacion():
-    resultado = generar_resultado_verificacion()
     return render_template("debug_verificacion.html", resultado=resultado)
-
-
-# 📡 Ruta JSON para JS (fetch en HTML)
-@debug_verificar_bp.route("/debug/verificar", methods=["GET"])
-def api_verificacion():
-    resultado = generar_resultado_verificacion()
-    return jsonify(resultado)
