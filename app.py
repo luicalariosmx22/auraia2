@@ -53,7 +53,7 @@ try:
     app.register_blueprint(panel_contactos_bp)
     app.register_blueprint(panel_ia_bp)
     app.register_blueprint(panel_cliente_contactos_bp)
-app.register_blueprint(panel_cliente_ia_bp)
+    app.register_blueprint(panel_cliente_ia_bp)
 
 
 except Exception as e:
