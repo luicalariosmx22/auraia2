@@ -25,4 +25,10 @@ def mostrar_entorno():
         valor = os.getenv(clave)
         resultado[clave] = "✅ OK" if valor else "❌ FALTANTE"
 
-    return render_template("debug_env.html", resultado=resultado)
+    # Obtener y dividir ADMIN_EMAILS si está presente
+    admin_correos = []
+    admin_raw = os.getenv("ADMIN_EMAILS")
+    if admin_raw:
+        admin_correos = [correo.strip() for correo in admin_raw.split(",")]
+
+    return render_template("debug_env.html", resultado=resultado, admin_correos=admin_correos)

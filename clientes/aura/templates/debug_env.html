@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Verificación de Variables</title>
-    <link rel="stylesheet" href="/static/css/debug.css">
 </head>
 <body>
     <h1>🔍 Variables de entorno críticas</h1>
@@ -18,5 +17,14 @@
             </li>
         {% endfor %}
     </ul>
+
+    {% if admin_correos %}
+        <h2>👑 Correos autorizados como administradores:</h2>
+        <ul>
+            {% for correo in admin_correos %}
+                <li style="color: green;">✅ {{ correo }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </body>
 </html>
