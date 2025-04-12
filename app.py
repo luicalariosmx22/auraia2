@@ -1,3 +1,5 @@
+# 📁 app.py
+
 from flask import Flask, session, redirect, url_for
 from flask_session import Session
 from dotenv import load_dotenv
@@ -37,7 +39,7 @@ try:
     from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
     from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
-    # Registro de todos los blueprints activos
+    # Registrar todos los blueprints dentro del try:
     app.register_blueprint(login_bp)
     app.register_blueprint(panel_chat_bp)
     app.register_blueprint(panel_cliente_bp)
