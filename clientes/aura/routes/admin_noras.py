@@ -1,13 +1,14 @@
 print("✅ admin_noras.py cargado correctamente")
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, redirect, url_for
 import os
 import json
 from datetime import datetime
 
 admin_noras_bp = Blueprint("admin_noras", __name__)
 
-@admin_noras_bp.route("/admin")
+# ✅ Ruta oficial
+@admin_noras_bp.route("/admin/noras")
 def vista_admin():
     directorio_clientes = "clientes"
     lista_noras = []
@@ -29,3 +30,8 @@ def vista_admin():
                 pass
 
     return render_template("admin_noras.html", noras=lista_noras)
+
+# ✅ Redirección desde /admin → /admin/noras
+@admin_noras_bp.route("/admin")
+def redireccionar_a_noras():
+    return redirect(url_for("admin_noras.vista_admin"))
