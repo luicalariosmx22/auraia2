@@ -1,5 +1,3 @@
-# app.py
-
 from flask import Flask, session, redirect, url_for
 from flask_session import Session
 from dotenv import load_dotenv
@@ -23,19 +21,21 @@ Session(app)
 
 # ========= BLUEPRINTS OBLIGATORIOS =========
 from clientes.aura.auth.login import login_bp
-app.register_blueprint(login_bp)  # ✅ Login nunca debe fallar
+app.register_blueprint(login_bp)
 
 from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
-app.register_blueprint(admin_dashboard_bp)  # ✅ Dashboard debe estar fijo
+app.register_blueprint(admin_dashboard_bp)
 
 from clientes.aura.routes.debug_verificar import debug_verificar_bp
-app.register_blueprint(debug_verificar_bp)  # ✅ Este blueprint debe estar siempre activo
+app.register_blueprint(debug_verificar_bp)
 
-# ========= IMPORTAR BLUEPRINTS RESTANTES =========
+from clientes.aura.routes.webhook import webhook_bp  # 👈 Registro fijo del webhook
+app.register_blueprint(webhook_bp)
+
+# ========= IMPORTAR Y REGISTRAR BLUEPRINTS RESTANTES =========
 try:
     from clientes.aura.routes.panel_chat import panel_chat_bp
     from clientes.aura.routes.panel_cliente import panel_cliente_bp
-    from clientes.aura.routes.webhook import webhook_bp
 
     from clientes.aura.routes.debug_env import debug_env_bp
     from clientes.aura.routes.debug_google import debug_google_bp
@@ -47,9 +47,9 @@ try:
     from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
     from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
+    # Registrar blueprints restantes
     app.register_blueprint(panel_chat_bp)
     app.register_blueprint(panel_cliente_bp)
-    app.register_blueprint(webhook_bp)
 
     app.register_blueprint(debug_env_bp)
     app.register_blueprint(debug_google_bp)
