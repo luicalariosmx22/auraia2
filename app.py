@@ -26,8 +26,7 @@ try:
     from clientes.aura.routes.debug_verificar import debug_verificar_bp
     from clientes.aura.routes.debug_env import debug_env_bp
     from clientes.aura.routes.debug_google import debug_google_bp
-    from clientes.aura.routes.debug_rutas import debug_rutas_bp
-    from clientes.aura.routes.debug_routes import debug_routes_bp
+    from clientes.aura.routes.debug_routes import debug_routes_bp  # ✅ Consolidado
 
     # ========= REGISTRAR BLUEPRINTS =========
     app.register_blueprint(login_bp)
@@ -37,7 +36,6 @@ try:
     app.register_blueprint(debug_verificar_bp)
     app.register_blueprint(debug_env_bp)
     app.register_blueprint(debug_google_bp)
-    app.register_blueprint(debug_rutas_bp)
     app.register_blueprint(debug_routes_bp)
 
 except Exception as e:
@@ -52,7 +50,7 @@ def home():
         return redirect(url_for("login.login_google"))
 
     if session.get("is_admin"):
-        return redirect(url_for("panel_chat_aura.panel_chat"))  # 🔧 Corregido
+        return redirect(url_for("panel_chat_aura.panel_chat"))  # 🔧 Endpoint correcto
     else:
         return redirect(url_for("panel_cliente.panel_cliente"))
 
