@@ -17,7 +17,7 @@ app.secret_key = os.getenv("SECRET_KEY", "clave-secreta-por-defecto")
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# ========= IMPORTAR BLUEPRINTS =========
+# ========= IMPORTAR Y REGISTRAR BLUEPRINTS =========
 try:
     from clientes.aura.routes.panel_chat import panel_chat_bp
     from clientes.aura.routes.panel_cliente import panel_cliente_bp
@@ -26,11 +26,9 @@ try:
     from clientes.aura.routes.debug_verificar import debug_verificar_bp
     from clientes.aura.routes.debug_env import debug_env_bp
     from clientes.aura.routes.debug_google import debug_google_bp
-    from clientes.aura.routes.debug_routes import debug_routes_bp  # ✅ Consolidado
+    from clientes.aura.routes.debug_routes import debug_routes_bp
     from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
 
-
-    # ========= REGISTRAR BLUEPRINTS =========
     app.register_blueprint(login_bp)
     app.register_blueprint(panel_chat_bp)
     app.register_blueprint(panel_cliente_bp)
@@ -43,7 +41,7 @@ try:
 
 except Exception as e:
     with open("boot_error.log", "w") as f:
-        f.write("❌ Error al registrar blueprints\n")
+        f.write("\n❌ Error al registrar blueprints\n")
         f.write(str(e))
 
 # ========= RUTA INICIAL =========
