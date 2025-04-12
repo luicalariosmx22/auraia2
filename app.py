@@ -10,7 +10,7 @@ load_dotenv()
 app = Flask(
     __name__,
     template_folder='clientes/aura/templates',
-    static_folder='clientes/aura/static'  # 🔧 Esto asegura que funcione el CSS
+    static_folder='clientes/aura/static'
 )
 
 # FIX para Flask 2.3+ (evitar error con Flask-Session)
@@ -34,11 +34,12 @@ try:
     from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
     from clientes.aura.routes.admin_noras import admin_noras_bp
     from clientes.aura.routes.admin_nora import admin_nora_bp
-    from clientes.aura.routes.panel_cliente_contactos import panel_contactos_bp
-    from clientes.aura.routes.panel_cliente_ia import panel_ia_bp
-    from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
-    from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
+    # ✅ Versión unificada y correcta para contactos e IA del cliente
+    from clientes.aura.routes.panel_cliente_contactos import panel_contactos_bp as panel_cliente_contactos_bp
+    from clientes.aura.routes.panel_cliente_ia import panel_ia_bp as panel_cliente_ia_bp
+
+    # Registro de Blueprints
     app.register_blueprint(login_bp)
     app.register_blueprint(panel_chat_bp)
     app.register_blueprint(panel_cliente_bp)
@@ -50,11 +51,8 @@ try:
     app.register_blueprint(admin_dashboard_bp)
     app.register_blueprint(admin_noras_bp)
     app.register_blueprint(admin_nora_bp)
-    app.register_blueprint(panel_contactos_bp)
-    app.register_blueprint(panel_ia_bp)
     app.register_blueprint(panel_cliente_contactos_bp)
     app.register_blueprint(panel_cliente_ia_bp)
-
 
 except Exception as e:
     with open("boot_error.log", "w") as f:
