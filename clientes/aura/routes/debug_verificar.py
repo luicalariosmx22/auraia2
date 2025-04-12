@@ -1,29 +1,33 @@
 # 📁 Archivo: clientes/aura/routes/debug_verificar.py
 
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template
 import os
 import openai
 from dotenv import load_dotenv
+import json
+import pkg_resources
 
-# Auxiliares
 from clientes.aura.routes.debug_openai import verificar_openai
 from clientes.aura.routes.debug_oauthlib import verificar_oauthlib
+from clientes.aura.routes.debug_google import verificar_google_login
 
 debug_verificar_bp = Blueprint("debug_verificar", __name__)
 load_dotenv()
 
-# Ruta que regresa JSON para el HTML dinámico
-@debug_verificar_bp.route("/debug/verificar", methods=["GET"])
+@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
 def verificar_configuracion():
     resultado = {}
 
-    # Verificar versión de OpenAI (versión y estado)
+    # OpenAI
     resultado["openai"] = verificar_openai()
 
-    # Verificar requests-oauthlib
+    # OAuthLib
     resultado["requests-oauthlib"] = verificar_oauthlib()
 
-    # Verificar variables de entorno
+    # Google Login
+    resultado["login_google"] = verificar_google_login()
+
+    # Variables de entorno necesarias
     required_env = [
         "OPENAI_API_KEY",
         "TWILIO_ACCOUNT_SID",
@@ -36,26 +40,28 @@ def verificar_configuracion():
     ]
     faltantes = [var for var in required_env if not os.getenv(var)]
     resultado["env"] = {
+        "version": None,
         "estado": "✅ Completo" if not faltantes else f"❌ Faltan: {', '.join(faltantes)}"
     }
 
-    # Verificar archivos clave
+    # Archivos clave
     archivos = {
         "bot_data.json": os.path.exists("bot_data.json"),
         "servicios_conocimiento.txt": os.path.exists("servicios_conocimiento.txt")
     }
     resultado["archivos"] = {
-        nombre: "✅ OK" if existe else "❌ Faltante"
-        for nombre, existe in archivos.items()
+        "version": None,
+        "estado": "✅ OK" if all(archivos.values()) else "❌ Faltante(s)"
     }
 
-    # Verificar carpeta historial
+    # Historial
     historial_path = "clientes/aura/database/historial"
     resultado["historial"] = {
+        "version": None,
         "estado": "✅ Accesible" if os.path.isdir(historial_path) else "❌ No encontrada"
     }
 
-    # Verificar conexión a OpenAI
+    # Conexión real a OpenAI
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
         openai.ChatCompletion.create(
@@ -63,16 +69,29 @@ def verificar_configuracion():
             messages=[{"role": "user", "content": "ping"}],
             max_tokens=1
         )
-        resultado["conexion_openai"] = {"estado": "✅ Activa"}
+        resultado["conexion_openai"] = {
+            "version": None,
+            "estado": "✅ Activa"
+        }
     except Exception as e:
-        resultado["conexion_openai"] = {"estado": f"❌ Error: {str(e)}"}
+        resultado["conexion_openai"] = {
+            "version": None,
+            "estado": f"❌ Error: {str(e)}"
+        }
 
-    return jsonify(resultado)
+    # Verificación de palabra clave "hola" en bot_data.json
+    try:
+        with open("bot_data.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+        hay_hola = any(item.get("keyword") == "hola" for item in data)
+        resultado["mensaje_hola"] = {
+            "version": None,
+            "estado": "✅ Existe" if hay_hola else "❌ No configurado"
+        }
+    except:
+        resultado["mensaje_hola"] = {
+            "version": None,
+            "estado": "❌ Error al leer bot_data.json"
+        }
 
-# Ruta que carga la vista HTML
-@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
-def vista_html_verificacion():
-    return render_template("debug_verificacion.html")
-
-# DEBUG INICIAL PARA VERIFICAR QUE SE CARGÓ EL MODULO
-print("✅ Módulo debug_verificar.py cargado correctamente.")
+    return render_template("debug_verificacion.html", resultado=resultado)
