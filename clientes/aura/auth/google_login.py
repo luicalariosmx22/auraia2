@@ -1,81 +1,70 @@
+# clientes/aura/auth/google_login.py
+
+from flask import Blueprint, redirect, request, session, url_for
+from requests_oauthlib import OAuth2Session
 import os
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # ⚠️ Solo para pruebas (Railway, local, etc.)
-
-import json
-import requests
-from flask import Blueprint, redirect, url_for, session, request
-from oauthlib.oauth2 import WebApplicationClient
-from dotenv import load_dotenv
-
-load_dotenv()
 
 google_login_bp = Blueprint("google_login", __name__)
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
+SCOPE = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "openid"
+]
 
-def get_google_provider_cfg():
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
+AUTHORIZATION_BASE_URL = "https://accounts.google.com/o/oauth2/auth"
+TOKEN_URL = "https://accounts.google.com/o/oauth2/token"
+USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
-@google_login_bp.route("/login/google")
+@google_login_bp.route("/login")
 def login():
-    google_provider_cfg = get_google_provider_cfg()
-    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-
-    redirect_uri = "https://app.soynoraai.com/login/google/callback"
-
-    request_uri = client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=redirect_uri,
-        scope=["openid", "email", "profile"],
+    oauth = OAuth2Session(
+        GOOGLE_CLIENT_ID,
+        redirect_uri=REDIRECT_URI,
+        scope=SCOPE
     )
-    return redirect(request_uri)
+
+    authorization_url, state = oauth.authorization_url(
+        AUTHORIZATION_BASE_URL,
+        access_type="offline",
+        prompt="select_account"
+    )
+
+    session["oauth_state"] = state
+    return redirect(authorization_url)
 
 @google_login_bp.route("/login/google/callback")
 def callback():
-    code = request.args.get("code")
-    google_provider_cfg = get_google_provider_cfg()
-    token_endpoint = google_provider_cfg["token_endpoint"]
-    redirect_uri = "https://app.soynoraai.com/login/google/callback"
+    oauth = OAuth2Session(
+        GOOGLE_CLIENT_ID,
+        redirect_uri=REDIRECT_URI,
+        state=session.get("oauth_state")
+    )
 
-    token_url, headers, body = client.prepare_token_request(
-        token_endpoint,
+    token = oauth.fetch_token(
+        TOKEN_URL,
+        client_secret=GOOGLE_CLIENT_SECRET,
         authorization_response=request.url,
-        redirect_url=redirect_uri,
-        code=code,
-    )
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
     )
 
-    client.parse_request_body_response(json.dumps(token_response.json()))
-    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
-    userinfo_response = requests.get(uri, headers=headers, data=body)
+    resp = oauth.get(USER_INFO_URL)
+    user_info = resp.json()
 
-    if userinfo_response.json().get("email_verified"):
-        user_email = userinfo_response.json()["email"]
+    session["user"] = {
+        "name": user_info.get("name"),
+        "email": user_info.get("email"),
+        "picture": user_info.get("picture")
+    }
 
-        session["user"] = {
-            "email": user_email,
-            "name": userinfo_response.json()["name"],
-            "picture": userinfo_response.json()["picture"],
-        }
+    from clientes.aura.utils.auth_utils import is_admin_user
+    session["is_admin"] = is_admin_user(session["user"]["email"])
 
-        admin_emails = ["bluetiemx@gmail.com", "soynoraai@gmail.com"]
-        session["is_admin"] = user_email in admin_emails
-
-        return redirect(url_for("panel_chat_aura.panel_chat"))  # 👈 corregido
-    else:
-        return "Usuario no verificado", 400
-
-@google_login_bp.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("login_page"))
+    return redirect(
+        url_for("admin_dashboard.dashboard_admin")
+        if session["is_admin"]
+        else url_for("panel_cliente.panel_cliente")
+    )
