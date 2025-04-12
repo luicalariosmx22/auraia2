@@ -15,49 +15,51 @@ app = Flask(
     static_folder='clientes/aura/static'
 )
 
-# Configurar sesión
+# Configurar sesión (fix para Flask-Session)
 app.session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
 app.secret_key = os.getenv("SECRET_KEY", "clave-secreta-por-defecto")
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# ========= BLUEPRINT OBLIGATORIO PARA LOGIN =========
-from clientes.aura.auth.google_login import google_login_bp
-app.register_blueprint(google_login_bp)
+# ========= BLUEPRINTS OBLIGATORIOS =========
+from clientes.aura.auth.login import login_bp
+app.register_blueprint(login_bp)  # ✅ Login no puede fallar
 
-# ========= OTROS BLUEPRINTS =========
+from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
+app.register_blueprint(admin_dashboard_bp)  # ✅ Aseguramos que funcione url_for("admin_dashboard.dashboard_admin")
+
+# ========= IMPORTAR BLUEPRINTS RESTANTES =========
 try:
     from clientes.aura.routes.panel_chat import panel_chat_bp
     from clientes.aura.routes.panel_cliente import panel_cliente_bp
     from clientes.aura.routes.webhook import webhook_bp
-
-    from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
-    from clientes.aura.routes.admin_noras import admin_noras_bp
-    from clientes.aura.routes.admin_nora import admin_nora_bp
-
-    from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
-    from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
     from clientes.aura.routes.debug_verificar import debug_verificar_bp
     from clientes.aura.routes.debug_env import debug_env_bp
     from clientes.aura.routes.debug_google import debug_google_bp
     from clientes.aura.routes.debug_routes import debug_routes_bp
 
+    from clientes.aura.routes.admin_noras import admin_noras_bp
+    from clientes.aura.routes.admin_nora import admin_nora_bp
+
+    from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
+    from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
+
+    # Registro de todos los demás blueprints
     app.register_blueprint(panel_chat_bp)
     app.register_blueprint(panel_cliente_bp)
     app.register_blueprint(webhook_bp)
-
-    app.register_blueprint(admin_dashboard_bp)
-    app.register_blueprint(admin_noras_bp)
-    app.register_blueprint(admin_nora_bp)
-
-    app.register_blueprint(panel_cliente_contactos_bp)
-    app.register_blueprint(panel_cliente_ia_bp)
 
     app.register_blueprint(debug_verificar_bp)
     app.register_blueprint(debug_env_bp)
     app.register_blueprint(debug_google_bp)
     app.register_blueprint(debug_routes_bp)
+
+    app.register_blueprint(admin_noras_bp)
+    app.register_blueprint(admin_nora_bp)
+
+    app.register_blueprint(panel_cliente_contactos_bp)
+    app.register_blueprint(panel_cliente_ia_bp)
 
 except Exception as e:
     with open("boot_error.log", "w") as f:
@@ -68,7 +70,7 @@ except Exception as e:
 @app.route("/")
 def home():
     if "user" not in session:
-        return redirect(url_for("google_login.login"))
+        return redirect(url_for("login.login_google"))
 
     if session.get("is_admin"):
         return redirect(url_for("admin_dashboard.dashboard_admin"))
@@ -79,7 +81,7 @@ def home():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for("google_login.login"))
+    return redirect(url_for("login.login_google"))
 
 # ========= INICIO =========
 if __name__ == "__main__":
