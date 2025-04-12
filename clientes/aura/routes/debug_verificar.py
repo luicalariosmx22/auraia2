@@ -94,7 +94,7 @@ def verificar_configuracion():
             "estado": "❌ Error al leer bot_data.json"
         }
 
-    # Verificar conexión real con Twilio
+    # Verificar conexión real con Twilio (intentamos leer mensajes)
     try:
         from twilio.rest import Client
         client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
@@ -109,7 +109,7 @@ def verificar_configuracion():
             "estado": f"❌ Error: {str(e)}"
         }
 
-    # Verificar que el webhook responda correctamente
+    # ✅ CORREGIDO: Verificar webhook emulando POST real
     try:
         import requests
         from urllib.parse import urljoin
@@ -117,14 +117,15 @@ def verificar_configuracion():
         base_url = os.getenv("BASE_URL", "https://app.soynoraai.com/")
         webhook_url = urljoin(base_url, "/webhook")
 
-        # Simular mensaje válido
-        fake_data = {
-            "From": "whatsapp:+5211111111111",
-            "Body": "Hola",
-            "ProfileName": "Verificacion Nora"
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        payload = {
+            "From": "whatsapp:+521234567890",
+            "Body": "hola",
+            "ProfileName": "Prueba Webhook",
+            "WaId": "1234567890"
         }
 
-        response = requests.post(webhook_url, data=fake_data)
+        response = requests.post(webhook_url, data=payload, headers=headers)
 
         if response.status_code == 200:
             resultado["webhook"] = {
@@ -136,7 +137,6 @@ def verificar_configuracion():
                 "version": None,
                 "estado": f"⚠️ Código {response.status_code}"
             }
-
     except Exception as e:
         resultado["webhook"] = {
             "version": None,
