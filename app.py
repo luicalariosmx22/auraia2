@@ -34,12 +34,9 @@ try:
     from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
     from clientes.aura.routes.admin_noras import admin_noras_bp
     from clientes.aura.routes.admin_nora import admin_nora_bp
+    from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
+    from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
-    # ✅ Versión unificada y correcta para contactos e IA del cliente
-    from clientes.aura.routes.panel_cliente_contactos import panel_contactos_bp as panel_cliente_contactos_bp
-    from clientes.aura.routes.panel_cliente_ia import panel_ia_bp as panel_cliente_ia_bp
-
-    # Registro de Blueprints
     app.register_blueprint(login_bp)
     app.register_blueprint(panel_chat_bp)
     app.register_blueprint(panel_cliente_bp)
