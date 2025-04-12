@@ -51,7 +51,9 @@ try:
 
     from clientes.aura.debug.debug_archivos import debug_archivos_bp
     from clientes.aura.debug.debug_botdata_test import debug_test_bp
-    from clientes.aura.routes.debug_test_temp import debug_test_temp_bp  # Blueprint de prueba
+
+    # ✅ NUEVO MÓDULO EJEMPLO
+    from clientes.aura.routes.ejemplo_nuevo import ejemplo_nuevo_bp
 
     # Registrar blueprints
     app.register_blueprint(panel_chat_bp)
@@ -69,11 +71,13 @@ try:
 
     app.register_blueprint(debug_archivos_bp)
     app.register_blueprint(debug_test_bp)
-    app.register_blueprint(debug_test_temp_bp)
+
+    # ✅ Registro del nuevo módulo
+    app.register_blueprint(ejemplo_nuevo_bp)
 
 except Exception as e:
     error_msg = f"❌ Error al registrar blueprints: {str(e)}"
-    print(error_msg)  # ✅ Lo verás en los logs de Railway
+    print(error_msg)
     with open("boot_error.log", "w", encoding="utf-8") as f:
         f.write(error_msg)
 
