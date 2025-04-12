@@ -18,7 +18,6 @@
             <li><a href="/admin">🏠 Panel</a></li>
             <li><a href="/admin/noras" class="active">📋 Ver Nora’s</a></li>
             <li><a href="#">➕ Agregar Nora</a></li>
-            <li><a href="#">🚨 Errores</a></li>
         </ul>
     </nav>
 
@@ -56,7 +55,7 @@
                             🟡 Inactiva
                         {% endif %}
                     </td>
-                    <td><a href="#">Editar</a></td>
+                    <td><a href="/admin/nora/{{ nora.carpeta }}">Editar</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

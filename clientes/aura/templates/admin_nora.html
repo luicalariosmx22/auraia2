@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ nora.nombre }} - Nora AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">🧠 Nora AI</div>
+        <div class="logout">
+            <a href="/logout">Cerrar sesión</a>
+        </div>
+    </header>
+
+    <nav class="sidebar">
+        <ul>
+            <li><a href="/admin">🏠 Panel</a></li>
+            <li><a href="/admin/noras">📋 Ver Nora’s</a></li>
+            <li><a href="#">⚙️ Configuración</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <h1>{{ nora.nombre }}</h1>
+        <p><strong>Carpeta:</strong> {{ carpeta }}</p>
+        <p><strong>Teléfono:</strong> {{ nora.telefono }}</p>
+        <p><strong>Estado:</strong> 
+            {% if nora.estado == "activo" %}
+                🟢 Activa
+            {% elif nora.estado == "error" %}
+                🔴 Con errores
+            {% else %}
+                🟡 Inactiva
+            {% endif %}
+        </p>
+
+        <h3>Módulos activos:</h3>
+        {% for m in nora.modulos %}
+            <span class="badge">{{ m }}</span>
+        {% else %}
+            <p><em>Sin módulos registrados.</em></p>
+        {% endfor %}
+
+        <hr>
+        <p><a href="/admin/noras">← Volver al listado</a></p>
+    </main>
+</body>
+</html>
