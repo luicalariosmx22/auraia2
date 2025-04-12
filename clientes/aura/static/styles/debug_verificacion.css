@@ -1,0 +1,44 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f5f7fa;
+    padding: 40px;
+    color: #333;
+}
+
+h1 {
+    color: #2a2a2a;
+    margin-bottom: 30px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+th, td {
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+}
+
+th {
+    background-color: #f1f4f9;
+}
+
+.status {
+    font-weight: bold;
+}
+
+.ok {
+    color: green;
+}
+
+.warn {
+    color: orange;
+}
+
+.fail {
+    color: red;
+}
