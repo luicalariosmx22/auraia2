@@ -8,39 +8,50 @@
 <body>
     <header>
         <div class="logo">🧠 Nora AI</div>
-        <div class="logout">
-            <a href="/logout">Cerrar sesión</a>
-        </div>
+        <div class="logout"><a href="/logout">Cerrar sesión</a></div>
     </header>
 
     <nav class="sidebar">
         <ul>
             <li><a href="/admin">🏠 Panel</a></li>
             <li><a href="/admin/noras">📋 Ver Nora’s</a></li>
-            <li><a href="#">⚙️ Configuración</a></li>
         </ul>
     </nav>
 
     <main>
-        <h1>{{ nora.nombre }}</h1>
-        <p><strong>Carpeta:</strong> {{ carpeta }}</p>
-        <p><strong>Teléfono:</strong> {{ nora.telefono }}</p>
-        <p><strong>Estado:</strong> 
-            {% if nora.estado == "activo" %}
-                🟢 Activa
-            {% elif nora.estado == "error" %}
-                🔴 Con errores
-            {% else %}
-                🟡 Inactiva
-            {% endif %}
-        </p>
+        <h1>Editar Nora: {{ nora.nombre }}</h1>
 
-        <h3>Módulos activos:</h3>
-        {% for m in nora.modulos %}
-            <span class="badge">{{ m }}</span>
-        {% else %}
-            <p><em>Sin módulos registrados.</em></p>
-        {% endfor %}
+        {% with mensajes = get_flashed_messages() %}
+            {% if mensajes %}
+                <div class="flash">{{ mensajes[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" value="{{ nora.nombre }}" required>
+
+            <label>Teléfono:</label>
+            <input type="text" name="telefono" value="{{ nora.telefono }}" required>
+
+            <label>Estado:</label>
+            <select name="estado">
+                <option value="activo" {% if nora.estado == "activo" %}selected{% endif %}>🟢 Activo</option>
+                <option value="inactivo" {% if nora.estado == "inactivo" %}selected{% endif %}>🟡 Inactivo</option>
+                <option value="error" {% if nora.estado == "error" %}selected{% endif %}>🔴 Con errores</option>
+            </select>
+
+            <label>Módulos activos:</label>
+            <div class="checkbox-group">
+                {% set modulos_disponibles = ["ia", "categorias", "webhook", "citas"] %}
+                {% for mod in modulos_disponibles %}
+                    <label><input type="checkbox" name="modulos" value="{{ mod }}"
+                        {% if mod in nora.modulos %}checked{% endif %}> {{ mod }}</label>
+                {% endfor %}
+            </div>
+
+            <button type="submit">💾 Guardar cambios</button>
+        </form>
 
         <hr>
         <p><a href="/admin/noras">← Volver al listado</a></p>
