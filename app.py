@@ -23,10 +23,13 @@ Session(app)
 
 # ========= BLUEPRINTS OBLIGATORIOS =========
 from clientes.aura.auth.login import login_bp
-app.register_blueprint(login_bp)  # ✅ Login no puede fallar
+app.register_blueprint(login_bp)  # ✅ Login nunca debe fallar
 
 from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
-app.register_blueprint(admin_dashboard_bp)  # ✅ Aseguramos que funcione url_for("admin_dashboard.dashboard_admin")
+app.register_blueprint(admin_dashboard_bp)  # ✅ Dashboard debe estar fijo
+
+from clientes.aura.routes.debug_verificar import debug_verificar_bp
+app.register_blueprint(debug_verificar_bp)  # ✅ Este blueprint debe estar siempre activo
 
 # ========= IMPORTAR BLUEPRINTS RESTANTES =========
 try:
@@ -34,7 +37,6 @@ try:
     from clientes.aura.routes.panel_cliente import panel_cliente_bp
     from clientes.aura.routes.webhook import webhook_bp
 
-    from clientes.aura.routes.debug_verificar import debug_verificar_bp
     from clientes.aura.routes.debug_env import debug_env_bp
     from clientes.aura.routes.debug_google import debug_google_bp
     from clientes.aura.routes.debug_routes import debug_routes_bp
@@ -45,12 +47,10 @@ try:
     from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
     from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
-    # Registro de todos los demás blueprints
     app.register_blueprint(panel_chat_bp)
     app.register_blueprint(panel_cliente_bp)
     app.register_blueprint(webhook_bp)
 
-    app.register_blueprint(debug_verificar_bp)
     app.register_blueprint(debug_env_bp)
     app.register_blueprint(debug_google_bp)
     app.register_blueprint(debug_routes_bp)
@@ -62,7 +62,7 @@ try:
     app.register_blueprint(panel_cliente_ia_bp)
 
 except Exception as e:
-    with open("boot_error.log", "w") as f:
+    with open("boot_error.log", "w", encoding="utf-8") as f:
         f.write("❌ Error al registrar blueprints\n")
         f.write(str(e))
 
