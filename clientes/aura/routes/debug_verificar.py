@@ -18,8 +18,6 @@ load_dotenv()
 def verificar_configuracion():
     resultado = {}
 
-    cliente = "aura"  # más adelante lo haremos dinámico
-
     # OpenAI
     resultado["openai"] = verificar_openai()
 
@@ -48,8 +46,8 @@ def verificar_configuracion():
 
     # Archivos clave
     archivos = {
-        "bot_data.json": os.path.exists(f"clientes/{cliente}/bot_data.json"),
-        "servicios_conocimiento.txt": os.path.exists(f"clientes/{cliente}/servicios_conocimiento.txt")
+        "bot_data.json": os.path.exists("bot_data.json"),
+        "servicios_conocimiento.txt": os.path.exists("servicios_conocimiento.txt")
     }
     resultado["archivos"] = {
         "version": None,
@@ -57,7 +55,7 @@ def verificar_configuracion():
     }
 
     # Historial
-    historial_path = f"clientes/{cliente}/database/historial"
+    historial_path = "clientes/aura/database/historial"
     resultado["historial"] = {
         "version": None,
         "estado": "✅ Accesible" if os.path.isdir(historial_path) else "❌ No encontrada"
@@ -83,7 +81,7 @@ def verificar_configuracion():
 
     # Verificación de palabra clave "hola" en bot_data.json
     try:
-        with open(f"clientes/{cliente}/bot_data.json", "r", encoding="utf-8") as f:
+        with open("bot_data.json", "r", encoding="utf-8") as f:
             data = json.load(f)
         hay_hola = any(item.get("keyword") == "hola" for item in data)
         resultado["mensaje_hola"] = {
@@ -111,14 +109,22 @@ def verificar_configuracion():
             "estado": f"❌ Error: {str(e)}"
         }
 
-    # Verificar que el webhook esté activo
+    # Verificar que el webhook responda correctamente
     try:
         import requests
         from urllib.parse import urljoin
 
         base_url = os.getenv("BASE_URL", "https://app.soynoraai.com/")
         webhook_url = urljoin(base_url, "/webhook")
-        response = requests.post(webhook_url, data={})
+
+        # Simular mensaje válido
+        fake_data = {
+            "From": "whatsapp:+5211111111111",
+            "Body": "Hola",
+            "ProfileName": "Verificacion Nora"
+        }
+
+        response = requests.post(webhook_url, data=fake_data)
 
         if response.status_code == 200:
             resultado["webhook"] = {
@@ -130,6 +136,7 @@ def verificar_configuracion():
                 "version": None,
                 "estado": f"⚠️ Código {response.status_code}"
             }
+
     except Exception as e:
         resultado["webhook"] = {
             "version": None,
