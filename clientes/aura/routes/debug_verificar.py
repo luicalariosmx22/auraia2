@@ -1,53 +1,58 @@
-from flask import Blueprint, jsonify, render_template
-import pkg_resources
+# 📁 Archivo: clientes/aura/routes/debug_verificar.py
+
+from flask import Blueprint, render_template
 import os
 import openai
 from dotenv import load_dotenv
-
 from clientes.aura.routes.debug_openai import verificar_openai
 from clientes.aura.routes.debug_oauthlib import verificar_oauthlib
 
 debug_verificar_bp = Blueprint("debug_verificar", __name__)
-
 load_dotenv()
 
 @debug_verificar_bp.route("/debug/verificar", methods=["GET"])
 def verificar_configuracion():
     resultado = {}
 
-    # Verificar versión de openai
+    # Verificar versión de OpenAI (versión y estado)
     resultado["openai"] = verificar_openai()
 
     # Verificar requests-oauthlib
     resultado["requests-oauthlib"] = verificar_oauthlib()
 
-    # Verificar .env
+    # Verificar variables de entorno
     required_env = [
-        "OPENAI_API_KEY", "TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN",
-        "TWILIO_PHONE_NUMBER", "TWILIO_WHATSAPP_NUMBER"
+        "OPENAI_API_KEY",
+        "TWILIO_ACCOUNT_SID",
+        "TWILIO_AUTH_TOKEN",
+        "TWILIO_PHONE_NUMBER",
+        "TWILIO_WHATSAPP_NUMBER",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "GOOGLE_REDIRECT_URI"
     ]
-    env_faltantes = [var for var in required_env if not os.getenv(var)]
+    faltantes = [var for var in required_env if not os.getenv(var)]
     resultado["env"] = {
-        "estado": "✅ Completo" if not env_faltantes else f"❌ Faltan: {', '.join(env_faltantes)}"
+        "estado": "✅ Completo" if not faltantes else f"❌ Faltan: {', '.join(faltantes)}"
     }
 
-    # Archivos obligatorios
-    archivos_obligatorios = {
+    # Verificar archivos clave
+    archivos = {
         "bot_data.json": os.path.exists("bot_data.json"),
         "servicios_conocimiento.txt": os.path.exists("servicios_conocimiento.txt")
     }
     resultado["archivos"] = {
         nombre: "✅ OK" if existe else "❌ Faltante"
-        for nombre, existe in archivos_obligatorios.items()
+        for nombre, existe in archivos.items()
     }
 
-    # Carpeta historial
+    # Verificar carpeta historial
     historial_path = "clientes/aura/database/historial"
     resultado["historial"] = {
         "estado": "✅ Accesible" if os.path.isdir(historial_path) else "❌ No encontrada"
     }
 
-    # Conexión OpenAI
+    # Verificar conexión a OpenAI
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
         openai.ChatCompletion.create(
@@ -59,8 +64,4 @@ def verificar_configuracion():
     except Exception as e:
         resultado["conexion_openai"] = {"estado": f"❌ Error: {str(e)}"}
 
-    return jsonify(resultado)
-
-@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
-def vista_html_verificacion():
-    return render_template("debug_verificacion.html")
+    return render_template("debug_verificacion.html", resultado=resultado)
