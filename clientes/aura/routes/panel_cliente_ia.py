@@ -1,10 +1,13 @@
+print("✅ panel_cliente_ia.py cargado correctamente")
+
 from flask import Blueprint, render_template, request, redirect, url_for, session
 import os
 import json
 
-panel_ia_bp = Blueprint("panel_ia", __name__)
+# ✅ Nombre corregido
+panel_cliente_ia_bp = Blueprint("panel_cliente_ia", __name__)
 
-@panel_ia_bp.route("/panel_cliente/ia/<nombre_nora>", methods=["GET", "POST"])
+@panel_cliente_ia_bp.route("/panel_cliente/ia/<nombre_nora>", methods=["GET", "POST"])
 def panel_ia(nombre_nora):
     user = session.get("user")
     if not user:
