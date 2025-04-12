@@ -1,41 +1,49 @@
 # clientes/aura/auth/login.py
 
 from flask import Blueprint, redirect, request, session, url_for
-import os
-import requests
 from requests_oauthlib import OAuth2Session
-from clientes.aura.utils.auth_utils import is_admin_user
+import os
 
 login_bp = Blueprint("login", __name__)
 
-# Configuración de Google OAuth
+# Cargar variables de entorno necesarias
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
+REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")  # Ej: https://app.soynoraai.com/callback
 
+# Scopes solicitados para acceder al perfil del usuario
+SCOPE = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "openid"
+]
+
+# URLs de endpoints de Google OAuth
 AUTHORIZATION_BASE_URL = "https://accounts.google.com/o/oauth2/auth"
-TOKEN_URL = "https://oauth2.googleapis.com/token"
+TOKEN_URL = "https://accounts.google.com/o/oauth2/token"
 USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
-SCOPE = ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"]
-
-# Ruta para iniciar login
+# ========= Ruta para iniciar sesión =========
 @login_bp.route("/login")
 def login_google():
-    google = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE, redirect_uri=REDIRECT_URI)
-    authorization_url, state = google.authorization_url(AUTHORIZATION_BASE_URL, access_type="offline", prompt="select_account")
+    oauth = OAuth2Session(GOOGLE_CLIENT_ID, redirect_uri=REDIRECT_URI, scope=SCOPE)
+    authorization_url, state = oauth.authorization_url(AUTHORIZATION_BASE_URL, access_type="offline", prompt="select_account")
+
     session["oauth_state"] = state
     return redirect(authorization_url)
 
-# Callback
-@login_bp.route("/login/callback")
+# ========= Callback después del login =========
+@login_bp.route("/callback")
 def callback():
-    google = OAuth2Session(GOOGLE_CLIENT_ID, state=session["oauth_state"], redirect_uri=REDIRECT_URI)
-    token = google.fetch_token(TOKEN_URL, client_secret=GOOGLE_CLIENT_SECRET, authorization_response=request.url)
-    session["oauth_token"] = token
+    oauth = OAuth2Session(GOOGLE_CLIENT_ID, redirect_uri=REDIRECT_URI, state=session.get("oauth_state"))
+    token = oauth.fetch_token(
+        TOKEN_URL,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        authorization_response=request.url,
+    )
 
     # Obtener información del usuario
-    resp = google.get(USER_INFO_URL)
+    resp = oauth.get(USER_INFO_URL)
     user_info = resp.json()
 
     session["user"] = {
@@ -44,7 +52,8 @@ def callback():
         "picture": user_info.get("picture")
     }
 
-    # Aquí usamos la función modular
-    session["is_admin"] = is_admin_user(user_info.get("email"))
+    # Dar acceso de admin si el correo está en la lista
+    from clientes.aura.utils.auth_utils import is_admin_user
+    session["is_admin"] = is_admin_user(session["user"]["email"])
 
-    return redirect(url_for("home"))
+    return redirect(url_for("panel_chat.panel_chat") if session["is_admin"] else url_for("panel_cliente.panel_cliente"))
