@@ -10,7 +10,7 @@ load_dotenv()
 app = Flask(
     __name__,
     template_folder='clientes/aura/templates',
-    static_folder='clientes/aura/static'
+    static_folder='clientes/aura/static'  # 🔧 Esto asegura que funcione el CSS
 )
 
 # FIX para Flask 2.3+ (evitar error con Flask-Session)
@@ -37,6 +37,7 @@ try:
     from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
     from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
+    # Registro de todos los blueprints activos
     app.register_blueprint(login_bp)
     app.register_blueprint(panel_chat_bp)
     app.register_blueprint(panel_cliente_bp)
