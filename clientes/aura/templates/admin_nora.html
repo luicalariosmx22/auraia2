@@ -15,6 +15,8 @@
         <ul>
             <li><a href="/admin">🏠 Panel</a></li>
             <li><a href="/admin/noras">📋 Ver Nora’s</a></li>
+            <li><a href="/panel_cliente/contactos">📇 Contactos</a></li>
+            <li><a href="/panel_cliente/ia">🧠 Control IA</a></li>
         </ul>
     </nav>
 
@@ -54,6 +56,12 @@
         </form>
 
         <hr>
+        <div class="acciones-rapidas">
+            <h3>⚡ Acciones rápidas para {{ nora.nombre }}</h3>
+            <p><a href="/panel_cliente/contactos" class="boton">📇 Ver contactos</a></p>
+            <p><a href="/panel_cliente/ia" class="boton">🔌 Control de IA</a></p>
+        </div>
+
         <p><a href="/admin/noras">← Volver al listado</a></p>
     </main>
 </body>
