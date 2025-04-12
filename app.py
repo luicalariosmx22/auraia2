@@ -27,6 +27,8 @@ try:
     from clientes.aura.routes.debug_env import debug_env_bp
     from clientes.aura.routes.debug_google import debug_google_bp
     from clientes.aura.routes.debug_routes import debug_routes_bp  # ✅ Consolidado
+    from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
+
 
     # ========= REGISTRAR BLUEPRINTS =========
     app.register_blueprint(login_bp)
@@ -37,6 +39,7 @@ try:
     app.register_blueprint(debug_env_bp)
     app.register_blueprint(debug_google_bp)
     app.register_blueprint(debug_routes_bp)
+    app.register_blueprint(admin_dashboard_bp)
 
 except Exception as e:
     with open("boot_error.log", "w") as f:
