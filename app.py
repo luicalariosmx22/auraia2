@@ -32,6 +32,7 @@ try:
     from clientes.aura.routes.debug_google import debug_google_bp
     from clientes.aura.routes.debug_routes import debug_routes_bp
     from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
+    from clientes.aura.routes.admin_noras import admin_noras_bp
 
     app.register_blueprint(login_bp)
     app.register_blueprint(panel_chat_bp)
@@ -42,6 +43,7 @@ try:
     app.register_blueprint(debug_google_bp)
     app.register_blueprint(debug_routes_bp)
     app.register_blueprint(admin_dashboard_bp)
+    app.register_blueprint(admin_noras_bp)
 
 except Exception as e:
     with open("boot_error.log", "w") as f:
