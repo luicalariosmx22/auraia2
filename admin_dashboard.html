@@ -1,25 +1,37 @@
-# clientes/aura/routes/admin_dashboard.py
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Administrador - Nora AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>🧠 Nora AI</h2>
+    <a href="#">📋 Ver Nora’s</a>
+    <a href="#">🛠️ Panel de Errores</a>
+    <a href="#">➕ Agregar nueva Nora</a>
+    <a href="#">🔍 Diagnóstico</a>
+    <a href="#">📦 Logs</a>
+    <a href="#">⚙️ Configuración Global</a>
+  </div>
 
-from flask import Blueprint, render_template
-import os
-import json
+  <div class="main">
+    <h1>Dashboard de Administrador</h1>
 
-admin_dashboard_bp = Blueprint("admin_dashboard", __name__)
+    <div class="card">
+      <h3>Bienvenido, administrador 👋</h3>
+      <p>Desde aquí puedes gestionar todas las Nora’s activas, ver errores del sistema, monitorear logs y agregar nuevos proyectos fácilmente.</p>
+    </div>
 
-@admin_dashboard_bp.route("/admin")
-def dashboard_admin():
-    # Simulación de datos reales
-    base_path = "clientes"
-    total_noras = len([nombre for nombre in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, nombre))])
-
-    errores_path = "logs_errores.json"
-    errores = []
-    if os.path.exists(errores_path):
-        with open(errores_path, "r", encoding="utf-8") as f:
-            errores = json.load(f)
-
-    return render_template("admin_dashboard.html", 
-        total_noras=total_noras,
-        total_errores=len(errores),
-        ultimo_deployment="hace 5 minutos"  # Luego lo conectamos a Git o Railway si quieres
-    )
+    <div class="card">
+      <h3>📊 Estado del sistema</h3>
+      <ul>
+        <li>{{ total_noras }} Nora’s activas</li>
+        <li>{{ total_errores }} errores registrados</li>
+        <li>Último deployment: {{ ultimo_deployment }}</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
