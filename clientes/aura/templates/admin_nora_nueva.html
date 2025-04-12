@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear nueva Nora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
+</head>
+<body>
+
+<h2>➕ Crear nueva Nora AI</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul>
+      {% for category, message in messages %}
+        <li class="estado {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form method="POST">
+    <div class="seccion">
+        <label for="nombre_interno">Nombre interno (sin espacios, solo letras o números):</label><br>
+        <input type="text" id="nombre_interno" name="nombre_interno" placeholder="ej. dani2" required>
+    </div>
+
+    <div class="seccion">
+        <label for="nombre_visible">Nombre visible (lo que verá el cliente):</label><br>
+        <input type="text" id="nombre_visible" name="nombre_visible" placeholder="ej. Dani 2.0" required>
+    </div>
+
+    <div class="seccion">
+        <strong>Módulos iniciales:</strong><br><br>
+        {% for modulo in modulos_disponibles %}
+            <label>
+                <input type="checkbox" name="modulos" value="{{ modulo }}"> {{ modulo }}
+            </label><br>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn">💾 Crear Nora</button>
+    <a href="{{ url_for('admin_noras.vista_admin') }}" class="btn btn-secundario">🔙 Cancelar</a>
+</form>
+
+</body>
+</html>

@@ -10,9 +10,9 @@ def registrar_blueprints_admin(app):
         from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp
         app.register_blueprint(admin_nora_dashboard_bp)  # /admin/nora/<nombre_nora>/dashboard
 
-        # 🛠️ Futuro: edición directa de cada Nora
-        # from clientes.aura.routes.admin_nora import admin_nora_bp
-        # app.register_blueprint(admin_nora_bp)
+        # ✏️ Editor de configuración de cada Nora
+        from clientes.aura.routes.admin_nora import admin_nora_bp
+        app.register_blueprint(admin_nora_bp)  # /admin/nora/<nombre_nora>/editar
 
         print("✅ Admin blueprints registrados")
 

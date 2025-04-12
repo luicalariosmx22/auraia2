@@ -9,15 +9,21 @@
 
 <h2>🤖 Noras activas en el sistema ({{ noras|length }})</h2>
 
+<div style="margin-bottom: 2rem;">
+    <a href="{{ url_for('admin_nora.crear_nora') }}" class="btn">➕ Crear nueva Nora AI</a>
+</div>
+
 <div class="grid">
     {% for nora in noras %}
     <div class="card">
         <h3>
-            {{ nora.nombre }}
+            {{ nora.nombre_visible }}
             {% if nora.tickets_pendientes > 0 %}
                 <span class="estado rojo">🔔 {{ nora.tickets_pendientes }}</span>
             {% endif %}
         </h3>
+        <small class="tag">ID: {{ nora.nombre }}</small>
+
         <p>
             {% if nora.ia_activada %}
                 <span class="estado verde">🟢 IA activa</span>
@@ -25,14 +31,18 @@
                 <span class="estado rojo">🔴 IA desactivada</span>
             {% endif %}
         </p>
+
         <div class="modulos">
             <strong>Módulos:</strong><br>
             {% for m in nora.modulos %}
                 <span class="tag">{{ m }}</span>
             {% endfor %}
         </div>
+
         <p><small>Última actualización: {{ nora.ultima_actualizacion }}</small></p>
+
         <a href="{{ url_for('admin_nora_dashboard.dashboard_nora', nombre_nora=nora.nombre) }}" class="btn">📊 Ver dashboard</a>
+        <a href="{{ url_for('admin_nora.editar_nora', nombre_nora=nora.nombre) }}" class="btn btn-secundario">✏️ Editar</a>
     </div>
     {% endfor %}
 </div>

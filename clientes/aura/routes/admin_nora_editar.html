@@ -9,10 +9,20 @@
 
 <h2>✏️ Editar Nora: {{ nombre_nora }}</h2>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul>
+      {% for category, message in messages %}
+        <li class="estado {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 <form method="POST">
     <div class="seccion">
-        <label for="nuevo_nombre">Nuevo nombre de la Nora:</label><br>
-        <input type="text" id="nuevo_nombre" name="nuevo_nombre" value="{{ nombre_nora }}" required>
+        <label for="nuevo_nombre">Nuevo nombre visible de la Nora:</label><br>
+        <input type="text" id="nuevo_nombre" name="nuevo_nombre" value="{{ config.nombre_visible or nombre_nora }}" required>
     </div>
 
     <div class="seccion">
