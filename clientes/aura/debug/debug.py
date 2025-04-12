@@ -58,8 +58,9 @@ def verificar_sistema():
     else:
         resultados.append(("archivos", "N/A", "✅ Todos encontrados"))
 
-    # 6. Verificar carpeta historial
-    if os.path.exists("clientes/aura/database/historial"):
+    # 6. Verificar carpeta historial (aunque esté vacía)
+    ruta_historial = "clientes/aura/database/historial"
+    if os.path.exists(ruta_historial) and os.path.isdir(ruta_historial):
         resultados.append(("historial", "N/A", "✅ Accesible"))
     else:
         resultados.append(("historial", "N/A", "❌ No encontrada"))
