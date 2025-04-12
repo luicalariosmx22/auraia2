@@ -43,7 +43,7 @@ def login_google():
     session["oauth_state"] = state
     return redirect(authorization_url)
 
-# ========= Callback =========
+# ========= Callback corregido =========
 @login_bp.route("/login/google/callback")
 def callback():
     oauth = OAuth2Session(
@@ -71,7 +71,7 @@ def callback():
     session["is_admin"] = is_admin_user(session["user"]["email"])
 
     return redirect(
-        url_for("panel_chat.panel_chat")
+        url_for("admin_dashboard.dashboard_admin")
         if session["is_admin"]
         else url_for("panel_cliente.panel_cliente")
     )
