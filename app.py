@@ -5,14 +5,14 @@ from flask_session import Session
 from dotenv import load_dotenv
 import os
 
-# Cargar variables de entorno
+# Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
-# Crear la app Flask
-app = Flask(__name__)
+# Crear la aplicación Flask y especificar la carpeta de plantillas
+app = Flask(__name__, template_folder='clientes/aura/templates')
 app.secret_key = os.getenv("SECRET_KEY", "clave-secreta-por-defecto")
 
-# Configurar sesión en servidor
+# Configurar la sesión en el servidor
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
@@ -37,7 +37,7 @@ def home():
         return redirect(url_for("login.login_google"))
 
     if session.get("is_admin"):
-        return redirect(url_for("panel_chat_aura.panel_chat"))
+        return redirect(url_for("panel_chat.panel_chat"))
     else:
         return redirect(url_for("panel_cliente.panel_cliente"))
 
