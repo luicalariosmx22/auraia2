@@ -162,3 +162,62 @@ button {
     border-radius: 6px;
     margin-bottom: 1rem;
 }
+.boton {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #0046ad;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.boton:hover {
+    background-color: #003080;
+}
+
+.boton.rojo {
+    background-color: #d9534f;
+}
+
+.boton.verde {
+    background-color: #5cb85c;
+}
+
+.boton.gris {
+    background-color: #6c757d;
+}
+.btn-activar {
+    background-color: #5cb85c; /* Verde bonito */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-activar:hover {
+    background-color: #449d44;
+}
+
+.btn-desactivar {
+    background-color: #d9534f; /* Rojo bonito */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-desactivar:hover {
+    background-color: #c9302c;
+}

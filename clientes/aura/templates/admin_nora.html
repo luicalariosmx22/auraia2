@@ -15,8 +15,6 @@
         <ul>
             <li><a href="/admin">🏠 Panel</a></li>
             <li><a href="/admin/noras">📋 Ver Nora’s</a></li>
-            <li><a href="/panel_cliente/contactos">📇 Contactos</a></li>
-            <li><a href="/panel_cliente/ia">🧠 Control IA</a></li>
         </ul>
     </nav>
 
@@ -47,8 +45,10 @@
             <div class="checkbox-group">
                 {% set modulos_disponibles = ["ia", "categorias", "webhook", "citas"] %}
                 {% for mod in modulos_disponibles %}
-                    <label><input type="checkbox" name="modulos" value="{{ mod }}"
-                        {% if mod in nora.modulos %}checked{% endif %}> {{ mod }}</label>
+                    <label>
+                        <input type="checkbox" name="modulos" value="{{ mod }}"
+                            {% if mod in nora.modulos %}checked{% endif %}> {{ mod }}
+                    </label>
                 {% endfor %}
             </div>
 
@@ -56,13 +56,20 @@
         </form>
 
         <hr>
-        <div class="acciones-rapidas">
-            <h3>⚡ Acciones rápidas para {{ nora.nombre }}</h3>
-            <p><a href="/panel_cliente/contactos" class="boton">📇 Ver contactos</a></p>
-            <p><a href="/panel_cliente/ia" class="boton">🔌 Control de IA</a></p>
-        </div>
-
-        <p><a href="/admin/noras">← Volver al listado</a></p>
+        <h3>⚡ Acciones rápidas para {{ nora.nombre }}</h3>
+        <ul>
+            <li>
+                <a href="{{ url_for('panel_cliente_contactos.panel_contactos', nombre_nora=nora.nombre|lower|replace(' ', '-') ) }}">
+                    🗂 Ver contactos
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('panel_cliente_ia.panel_ia', nombre_nora=nora.nombre|lower|replace(' ', '-') ) }}">
+                    🧠 Control de IA
+                </a>
+            </li>
+        </ul>
+        <p><a href="{{ url_for('admin_noras.ver_noras') }}">← Volver al listado</a></p>
     </main>
 </body>
 </html>

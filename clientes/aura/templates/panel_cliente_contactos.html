@@ -2,18 +2,24 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Contactos - Nora {{ nombre_nora }}</title>
+    <title>Contactos - Nora AI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
 </head>
 <body>
     <header>
-        <div class="logo">📇 Contactos - Nora: {{ nombre_nora }}</div>
+        <div class="logo">📇 Contactos - Nora AI</div>
         <div class="logout"><a href="/logout">Cerrar sesión</a></div>
     </header>
 
     <main>
         <h2>Contactos registrados</h2>
-        {% if contactos %}
+
+        {% with mensajes = get_flashed_messages() %}
+            {% if mensajes %}
+                <div class="flash">{{ mensajes[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
         <table class="noras-table">
             <thead>
                 <tr>
@@ -21,7 +27,7 @@
                     <th>Teléfono</th>
                     <th>Etiquetas</th>
                     {% if modulo_ia_activo %}
-                    <th>IA activa</th>
+                        <th>IA</th>
                     {% endif %}
                 </tr>
             </thead>
@@ -39,9 +45,11 @@
                     <td>
                         <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/toggle_ia">
                             <input type="hidden" name="numero" value="{{ c.numero }}">
-                            <button class="boton {% if c.ia_activada %}verde{% else %}rojo{% endif %}" type="submit">
-                                {% if c.ia_activada %}🟢 Activada{% else %}🔴 Desactivada{% endif %}
-                            </button>
+                            {% if c.ia_activada %}
+                                <button type="submit" class="btn-desactivar">Desactivar IA</button>
+                            {% else %}
+                                <button type="submit" class="btn-activar">Activar IA</button>
+                            {% endif %}
                         </form>
                     </td>
                     {% endif %}
@@ -49,20 +57,16 @@
                 {% endfor %}
             </tbody>
         </table>
-        {% else %}
-            <p>No hay contactos aún.</p>
-        {% endif %}
 
         <h3>➕ Agregar nuevo contacto</h3>
-        <form method="POST">
+        <form method="POST" class="form-contacto">
             <input type="text" name="nombre" placeholder="Nombre completo" required>
             <input type="text" name="numero" placeholder="Número WhatsApp" required>
             <input type="text" name="etiquetas" placeholder="Ej: cliente, vip, interesado">
-            <button type="submit" class="boton">Guardar</button>
+            <button type="submit">💾 Guardar</button>
         </form>
 
-        <br><br>
-        <a href="/admin/nora/{{ nombre_nora }}" class="boton gris">← Volver a Nora</a>
+        <p><a href="/panel_cliente?forzar_cliente=1">← Volver al panel</a></p>
     </main>
 </body>
 </html>
