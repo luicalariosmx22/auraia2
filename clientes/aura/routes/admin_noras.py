@@ -1,37 +1,31 @@
-# 📁 clientes/aura/routes/admin_noras.py
+print("✅ admin_noras.py cargado correctamente")
 
 from flask import Blueprint, render_template
 import os
 import json
+from datetime import datetime
 
 admin_noras_bp = Blueprint("admin_noras", __name__)
 
-@admin_noras_bp.route("/admin/noras")
-def ver_noras():
-    base_path = "clientes"
-    noras_info = []
+@admin_noras_bp.route("/admin")
+def vista_admin():
+    directorio_clientes = "clientes"
+    lista_noras = []
 
-    if os.path.exists(base_path):
-        for carpeta in os.listdir(base_path):
-            ruta_config = os.path.join(base_path, carpeta, "config.json")
-
-            if os.path.isfile(ruta_config):
+    for nombre in os.listdir(directorio_clientes):
+        ruta_config = os.path.join(directorio_clientes, nombre, "config.json")
+        if os.path.exists(ruta_config):
+            try:
                 with open(ruta_config, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-
-                nombre = data.get("nombre", carpeta)
-                telefono = data.get("telefono", "No asignado")
-                modulos = data.get("modulos", [])
-                estado = data.get("estado", "desconocido")
-                ultima_actividad = "Simulado"  # Aquí puedes integrar lectura real
-
-                noras_info.append({
+                    config = json.load(f)
+                fecha_mod = datetime.fromtimestamp(os.path.getmtime(ruta_config)).strftime("%Y-%m-%d %H:%M")
+                lista_noras.append({
                     "nombre": nombre,
-                    "telefono": telefono,
-                    "modulos": modulos,
-                    "estado": estado,
-                    "ultima_actividad": ultima_actividad,
-                    "carpeta": carpeta
+                    "ia_activada": config.get("ia_activada", False),
+                    "modulos": config.get("modulos", []),
+                    "ultima_actualizacion": fecha_mod
                 })
+            except:
+                pass
 
-    return render_template("admin_noras.html", noras=noras_info)
+    return render_template("admin_noras.html", noras=lista_noras)

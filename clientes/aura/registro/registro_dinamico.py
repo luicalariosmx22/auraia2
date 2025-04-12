@@ -33,6 +33,31 @@ def registrar_blueprints_por_nora(app, nombre_nora):
             app.register_blueprint(panel_cliente_respuestas_bp)
             print("✅ Módulo: respuestas")
 
-        # Aquí puedes seguir agregando nuevos módulos como "crm", "envios", "soporte", etc.
+        if "envios" in modulos:
+            from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
+            app.register_blueprint(panel_cliente_envios_bp)
+            print("✅ Módulo: envios programados")
+
+        if "qr_whatsapp_web" in modulos:
+            print("🕐 Módulo QR WhatsApp Web (aún no implementado)")
+
+        if "multi_nora" in modulos:
+            print("🕐 Módulo multi_nora (aún no implementado)")
+
+        if "pagos" in modulos:
+            print("🕐 Módulo pagos (MercadoPago/PayPal) aún no implementado")
+
+        if "redes_sociales" in modulos:
+            print("🕐 Módulo integración Facebook/Instagram (futuro)")
+
+        if "diseño_personalizado" in modulos:
+            print("🕐 Módulo de personalización visual (futuro)")
+
+        if "open_table" in modulos:
+            print("🕐 Módulo integración con OpenTable (futuro)")
+
+        if "google_calendar" in modulos:
+            print("🕐 Módulo integración con Google Calendar (futuro)")
+
     except Exception as e:
         print(f"❌ Error al registrar módulos dinámicos: {str(e)}")

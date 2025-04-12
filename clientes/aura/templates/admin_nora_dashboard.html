@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard – Nora: {{ datos.nombre_nora }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
+</head>
+<body>
+
+<h2>📊 Dashboard – Nora AI: <strong>{{ datos.nombre_nora }}</strong></h2>
+
+<div class="seccion">
+    <h3>🧠 Estado de IA</h3>
+    {% if datos.config.ia_activada %}
+        <span class="estado verde">🟢 Activada</span>
+    {% else %}
+        <span class="estado rojo">🔴 Desactivada</span>
+    {% endif %}
+</div>
+
+<div class="seccion">
+    <h3>⚙️ Módulos activos</h3>
+    {% if datos.config.modulos %}
+        {% for modulo in datos.config.modulos %}
+            <span class="tag">{{ modulo }}</span>
+        {% endfor %}
+    {% else %}
+        <span class="estado rojo">No hay módulos configurados</span>
+    {% endif %}
+</div>
+
+<div class="seccion">
+    <h3>👥 Contactos</h3>
+    <p>Total: <strong>{{ datos.contactos|length }}</strong></p>
+    <p>Con IA desactivada: 
+        <strong>
+            {{ datos.contactos | selectattr("ia", "equalto", false) | list | length }}
+        </strong>
+    </p>
+    <p>Sin etiquetas:
+        <strong>
+            {{ datos.contactos | selectattr("etiquetas", "equalto", []) | list | length }}
+        </strong>
+    </p>
+</div>
+
+<div class="seccion">
+    <h3>💬 Respuestas del Bot</h3>
+    <p>Total: <strong>{{ datos.respuestas | length }}</strong></p>
+    <p>
+        {% if 'hola' in datos.respuestas %}
+            <span class="estado verde">👋 Palabra clave "hola" está configurada</span>
+        {% else %}
+            <span class="estado rojo">🚫 Falta la palabra clave "hola"</span>
+        {% endif %}
+    </p>
+</div>
+
+<div class="seccion">
+    <h3>🧾 Tickets de Soporte</h3>
+    {% if datos.tickets %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Estado</th>
+                    <th>Asunto</th>
+                    <th>Creado por</th>
+                    <th>Fecha</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in datos.tickets %}
+                <tr>
+                    <td>{{ t.id }}</td>
+                    <td>
+                        {% if t.estado == 'pendiente' %}
+                            <span class="estado amarillo">🟡 Pendiente</span>
+                        {% elif t.estado == 'resuelto' %}
+                            <span class="estado verde">🟢 Resuelto</span>
+                        {% else %}
+                            <span class="estado rojo">🔴 {{ t.estado }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ t.asunto }}</td>
+                    <td>{{ t.creado_por }}</td>
+                    <td>{{ t.fecha[:10] }}</td>
+                    <td>
+                        {% if t.estado != 'resuelto' %}
+                        <form method="POST" action="{{ url_for('admin_nora_dashboard.resolver_ticket', nombre_nora=datos.nombre_nora, ticket_id=t.id) }}">
+                            <button>Marcar como resuelto</button>
+                        </form>
+                        {% else %}
+                        ✔️
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay tickets registrados.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

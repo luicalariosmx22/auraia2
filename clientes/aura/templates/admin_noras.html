@@ -2,64 +2,66 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ver Nora’s - Panel Admin</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+    <title>Panel de Administración – Noras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 0 10px #ddd;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        .card .modulos {
+            margin: 10px 0;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <div class="logo">🧠 Nora AI</div>
-        <div class="logout">
-            <a href="/logout">Cerrar sesión</a>
+
+<h2>🤖 Noras activas en el sistema</h2>
+
+<div class="grid">
+    {% for nora in noras %}
+    <div class="card">
+        <h3>{{ nora.nombre }}</h3>
+        <p>
+            {% if nora.ia_activada %}
+                <span class="estado verde">🟢 IA activa</span>
+            {% else %}
+                <span class="estado rojo">🔴 IA desactivada</span>
+            {% endif %}
+        </p>
+        <div class="modulos">
+            <strong>Módulos:</strong><br>
+            {% for m in nora.modulos %}
+                <span class="tag">{{ m }}</span>
+            {% endfor %}
         </div>
-    </header>
+        <p><small>Última actualización: {{ nora.ultima_actualizacion }}</small></p>
+        <a href="{{ url_for('admin_nora_dashboard.dashboard_nora', nombre_nora=nora.nombre) }}" class="btn">📊 Ver dashboard</a>
+    </div>
+    {% endfor %}
+</div>
 
-    <nav class="sidebar">
-        <ul>
-            <li><a href="/admin">🏠 Panel</a></li>
-            <li><a href="/admin/noras" class="active">📋 Ver Nora’s</a></li>
-            <li><a href="#">➕ Agregar Nora</a></li>
-        </ul>
-    </nav>
-
-    <main>
-        <h1>Proyectos activos (Nora’s)</h1>
-
-        <table class="noras-table">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Teléfono</th>
-                    <th>Módulos activos</th>
-                    <th>Última actividad</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for nora in noras %}
-                <tr>
-                    <td>{{ nora.nombre }}</td>
-                    <td>{{ nora.telefono }}</td>
-                    <td>
-                        {% for m in nora.modulos %}
-                            <span class="badge">{{ m }}</span>
-                        {% endfor %}
-                    </td>
-                    <td>{{ nora.ultima_actividad }}</td>
-                    <td>
-                        {% if nora.estado == 'activo' %}
-                            🟢 Activa
-                        {% elif nora.estado == 'error' %}
-                            🔴 Con errores
-                        {% else %}
-                            🟡 Inactiva
-                        {% endif %}
-                    </td>
-                    <td><a href="/admin/nora/{{ nora.carpeta }}">Editar</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </main>
 </body>
 </html>
