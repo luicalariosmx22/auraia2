@@ -109,4 +109,29 @@ def verificar_configuracion():
             "estado": f"❌ Error: {str(e)}"
         }
 
+        # Verificar que el webhook esté activo
+    try:
+        import requests
+        from urllib.parse import urljoin
+
+        base_url = os.getenv("BASE_URL", "https://app.soynoraai.com/")
+        webhook_url = urljoin(base_url, "/webhook")
+        response = requests.post(webhook_url, data={})
+
+        if response.status_code == 200:
+            resultado["webhook"] = {
+                "version": None,
+                "estado": "✅ Responde correctamente (200 OK)"
+            }
+        else:
+            resultado["webhook"] = {
+                "version": None,
+                "estado": f"⚠️ Código {response.status_code}"
+            }
+    except Exception as e:
+        resultado["webhook"] = {
+            "version": None,
+            "estado": f"❌ Error: {str(e)}"
+        }
+
     return render_template("debug_verificacion.html", resultado=resultado)
