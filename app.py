@@ -2,6 +2,7 @@ from flask import Flask, session, redirect, url_for
 from flask_session import Session
 from dotenv import load_dotenv
 import os
+import traceback
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
@@ -40,18 +41,17 @@ try:
     app.register_blueprint(admin_dashboard_bp)
 
 except Exception as e:
-    with open("boot_error.log", "w") as f:
-        f.write("\n❌ Error al registrar blueprints\n")
-        f.write(str(e))
+    print("\n❌ Error al registrar blueprints:")
+    traceback.print_exc()
 
 # ========= RUTA INICIAL =========
 @app.route("/")
 def home():
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect("/login")  # ✅ Evitamos error de endpoint no cargado
 
     if session.get("is_admin"):
-        return redirect(url_for("panel_chat_aura.panel_chat"))  # 🔧 Endpoint correcto
+        return redirect(url_for("admin_dashboard.dashboard_admin"))
     else:
         return redirect(url_for("panel_cliente.panel_cliente"))
 
@@ -59,7 +59,7 @@ def home():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for("login.login_google"))
+    return redirect("/login")  # ✅ Evitamos error de endpoint no cargado
 
 # ========= INICIO LOCAL =========
 if __name__ == "__main__":
