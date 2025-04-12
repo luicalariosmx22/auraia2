@@ -1,5 +1,5 @@
 import os
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # ⚠️ Solo para pruebas en Railway o localhost
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # ⚠️ Solo para pruebas (Railway, local, etc.)
 
 import json
 import requests
@@ -25,7 +25,6 @@ def login():
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    # 🔒 Redirección con HTTPS forzada
     redirect_uri = "https://app.soynoraai.com/login/google/callback"
 
     request_uri = client.prepare_request_uri(
@@ -40,7 +39,6 @@ def callback():
     code = request.args.get("code")
     google_provider_cfg = get_google_provider_cfg()
     token_endpoint = google_provider_cfg["token_endpoint"]
-
     redirect_uri = "https://app.soynoraai.com/login/google/callback"
 
     token_url, headers, body = client.prepare_token_request(
@@ -73,7 +71,7 @@ def callback():
         admin_emails = ["bluetiemx@gmail.com", "soynoraai@gmail.com"]
         session["is_admin"] = user_email in admin_emails
 
-        return redirect(url_for("panel_chat.panel_chat"))
+        return redirect(url_for("panel_chat_aura.panel_chat"))  # 👈 corregido
     else:
         return "Usuario no verificado", 400
 

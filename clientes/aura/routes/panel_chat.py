@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, session, redirect, url_for
 import os
 import json
 
@@ -6,6 +6,14 @@ panel_chat_bp = Blueprint('panel_chat_aura', __name__)
 
 @panel_chat_bp.route("/panel/chat/aura", methods=["GET"])
 def panel_chat():
+    # Validación de login
+    if "user" not in session:
+        return redirect(url_for("google_login.login"))
+
+    # Validación de admin
+    if not session.get("is_admin"):
+        return redirect(url_for("panel_chat_aura.panel_cliente"))
+
     historial_dir = "clientes/aura/database/historial"
     contactos = []
 
@@ -24,4 +32,11 @@ def panel_chat():
                             "hora": mensajes[-1]["hora"]
                         })
 
-    return render_template("clientes/aura/templates/panel_chat.html", contactos=contactos)
+    return render_template("panel_chat.html", contactos=contactos)
+
+@panel_chat_bp.route("/panel_cliente", methods=["GET"])
+def panel_cliente():
+    if "user" not in session:
+        return redirect(url_for("google_login.login"))
+
+    return render_template("panel_cliente.html", user=session["user"])
