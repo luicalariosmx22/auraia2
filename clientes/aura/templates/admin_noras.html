@@ -101,4 +101,34 @@
 
 <h2>🤖 Noras activas en el sistema ({{ noras|length }})</h2>
 
-<a href="/admin/crear"
+<a href="{{ url_for('admin_nora.crear_nora') }}" class="btn">➕ Crear nueva Nora AI</a>
+
+{% for nora in noras %}
+<div class="card">
+    <h4>ID: {{ nora.nombre }}</h4>
+
+    <div class="estado-ia">
+        {% if nora.config.get("ia_activada") %}
+            <span class="verde">🟢 IA activada</span>
+        {% else %}
+            <span class="rojo">🔴 IA desactivada</span>
+        {% endif %}
+    </div>
+
+    <strong>Módulos:</strong><br>
+    {% for m in nora.config.get("modulos", []) %}
+        <span class="tag">{{ m }}</span>
+    {% endfor %}
+
+    <p><small>Última actualización: {{ nora.fecha_actualizacion }}</small></p>
+
+    <div class="botones">
+        <a href="{{ url_for('admin_nora_dashboard.dashboard_nora', nombre_nora=nora.nombre) }}">📊 Ver dashboard</a>
+        <a href="{{ url_for('admin_nora.editar_nora', nombre_nora=nora.nombre) }}" class="editar">✏️ Editar</a>
+        <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nora.nombre) }}" class="chat" target="_blank">🟩 Panel tipo WhatsApp</a>
+    </div>
+</div>
+{% endfor %}
+
+</body>
+</html>
