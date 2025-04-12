@@ -46,6 +46,7 @@ try:
 
     from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
     from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
+    from clientes.aura.debug.debug_archivos import debug_archivos_bp
 
     # Registrar blueprints restantes
     app.register_blueprint(panel_chat_bp)
@@ -60,6 +61,7 @@ try:
 
     app.register_blueprint(panel_cliente_contactos_bp)
     app.register_blueprint(panel_cliente_ia_bp)
+    app.register_blueprint(debug_archivos_bp)
 
 except Exception as e:
     with open("boot_error.log", "w", encoding="utf-8") as f:
