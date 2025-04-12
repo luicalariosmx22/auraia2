@@ -1,15 +1,18 @@
 # 📁 Archivo: clientes/aura/routes/debug_verificar.py
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify
 import os
 import openai
 from dotenv import load_dotenv
+
+# Auxiliares
 from clientes.aura.routes.debug_openai import verificar_openai
 from clientes.aura.routes.debug_oauthlib import verificar_oauthlib
 
 debug_verificar_bp = Blueprint("debug_verificar", __name__)
 load_dotenv()
 
+# Ruta que regresa JSON para el HTML dinámico
 @debug_verificar_bp.route("/debug/verificar", methods=["GET"])
 def verificar_configuracion():
     resultado = {}
@@ -64,4 +67,12 @@ def verificar_configuracion():
     except Exception as e:
         resultado["conexion_openai"] = {"estado": f"❌ Error: {str(e)}"}
 
-    return render_template("debug_verificacion.html", resultado=resultado)
+    return jsonify(resultado)
+
+# Ruta que carga la vista HTML
+@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
+def vista_html_verificacion():
+    return render_template("debug_verificacion.html")
+
+# DEBUG INICIAL PARA VERIFICAR QUE SE CARGÓ EL MODULO
+print("✅ Módulo debug_verificar.py cargado correctamente.")
