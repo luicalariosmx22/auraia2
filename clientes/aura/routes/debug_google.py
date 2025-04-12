@@ -1,6 +1,5 @@
-# clientes/aura/routes/debug_google.py
 import os
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 
@@ -17,9 +16,13 @@ def google_status():
             return jsonify({"error": "GOOGLE_CLIENT_ID no está definido en el entorno"}), 500
 
         provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+
+        # 🔒 Usar siempre HTTPS
+        redirect_uri = "https://app.soynoraai.com/login/google/callback"
+
         auth_url = client.prepare_request_uri(
             provider_cfg["authorization_endpoint"],
-            redirect_uri=request.url_root + "login/google/callback",
+            redirect_uri=redirect_uri,
             scope=["openid", "email", "profile"]
         )
 
@@ -27,7 +30,7 @@ def google_status():
             "google_discovery_url_status": "ok",
             "authorization_endpoint": provider_cfg["authorization_endpoint"],
             "generated_login_url": auth_url,
-            "redirect_uri": request.url_root + "login/google/callback"
+            "redirect_uri": redirect_uri
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
