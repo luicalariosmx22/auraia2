@@ -80,3 +80,28 @@ def verificar_login_google():
         estado=estado,
         callback_status=callback_status
     )
+def verificar_google_login():
+    try:
+        from dotenv import load_dotenv
+        import os
+        load_dotenv()
+
+        client_id = os.getenv("GOOGLE_CLIENT_ID")
+        client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+        redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
+
+        if not client_id or not client_secret or not redirect_uri:
+            return {
+                "version": "N/A",
+                "estado": "❌ Faltan variables de entorno"
+            }
+
+        return {
+            "version": "Detectado",
+            "estado": "✅ Configurado correctamente"
+        }
+    except Exception as e:
+        return {
+            "version": "Error",
+            "estado": f"❌ Error: {str(e)}"
+        }
