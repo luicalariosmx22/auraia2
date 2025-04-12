@@ -3,6 +3,7 @@
 from flask import Blueprint, render_template, session
 from requests_oauthlib import OAuth2Session
 import os
+import requests
 
 debug_google_bp = Blueprint("debug_google", __name__)
 
@@ -14,6 +15,7 @@ def verificar_login_google():
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
     GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
+    URI_ESPERADO = "https://app.soynoraai.com/login/google/callback"
 
     if not GOOGLE_CLIENT_ID:
         errores.append("❌ Falta GOOGLE_CLIENT_ID")
@@ -24,9 +26,12 @@ def verificar_login_google():
 
     detalles["GOOGLE_CLIENT_ID"] = GOOGLE_CLIENT_ID or "❌ No definido"
     detalles["GOOGLE_REDIRECT_URI"] = GOOGLE_REDIRECT_URI or "❌ No definido"
+    detalles["URI Esperado"] = URI_ESPERADO
+    detalles["Coincide con URI esperado"] = "✅ Sí" if GOOGLE_REDIRECT_URI == URI_ESPERADO else "❌ No coincide"
 
     url_generada = None
     estado = "⚠️ No generada"
+    callback_status = "⚠️ No probado"
 
     if not errores:
         try:
@@ -50,6 +55,20 @@ def verificar_login_google():
             url_generada = auth_url
             estado = "✅ Generada correctamente"
 
+            # Verificar si la ruta de callback está activa
+            try:
+                ping = requests.get(URI_ESPERADO, timeout=5)
+                if ping.status_code == 200:
+                    callback_status = "✅ Callback activa (200 OK)"
+                elif ping.status_code == 302:
+                    callback_status = "🟡 Callback redirecciona (302)"
+                elif ping.status_code == 404:
+                    callback_status = "❌ Callback no encontrada (404)"
+                else:
+                    callback_status = f"⚠️ Callback responde con código {ping.status_code}"
+            except Exception as e:
+                callback_status = f"❌ Error al hacer ping: {str(e)}"
+
         except Exception as e:
             errores.append(f"❌ Error generando URL de login: {str(e)}")
 
@@ -58,5 +77,6 @@ def verificar_login_google():
         detalles=detalles,
         errores=errores,
         auth_url=url_generada,
-        estado=estado
+        estado=estado,
+        callback_status=callback_status
     )

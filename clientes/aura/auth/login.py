@@ -9,7 +9,7 @@ login_bp = Blueprint("login", __name__)
 # Cargar variables de entorno
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")  # ← Este debe existir y estar bien configurado
+REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")  # ← Este debe coincidir con el de Google Cloud
 
 SCOPE = [
     "https://www.googleapis.com/auth/userinfo.email",
@@ -42,8 +42,8 @@ def login_google():
     session["oauth_state"] = state
     return redirect(authorization_url)
 
-# ========= Callback =========
-@login_bp.route("/callback")
+# ========= Callback corregido =========
+@login_bp.route("/login/google/callback")
 def callback():
     oauth = OAuth2Session(
         GOOGLE_CLIENT_ID,
@@ -69,4 +69,8 @@ def callback():
     from clientes.aura.utils.auth_utils import is_admin_user
     session["is_admin"] = is_admin_user(session["user"]["email"])
 
-    return redirect(url_for("panel_chat.panel_chat") if session["is_admin"] else url_for("panel_cliente.panel_cliente"))
+    return redirect(
+        url_for("panel_chat.panel_chat")
+        if session["is_admin"]
+        else url_for("panel_cliente.panel_cliente")
+    )
