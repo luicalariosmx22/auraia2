@@ -2,55 +2,72 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Respuestas de Nora AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+    <title>Respuestas automáticas – {{ nombre_nora }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
+    <script>
+        function editarRespuesta(index, keyword, respuesta) {
+            document.getElementById('palabra_clave').value = keyword;
+            document.getElementById('respuesta').value = respuesta;
+            document.getElementById('index').value = index;
+            document.getElementById('submit-btn').innerText = "✏️ Guardar cambios";
+        }
+    </script>
 </head>
 <body>
-    <h2>📋 Respuestas configuradas – {{ nombre_nora }}</h2>
-    <p>Usuario: {{ user["email"] }}</p>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class="mensajes">
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+<h2>💬 Respuestas automáticas – {{ user.name }}</h2>
 
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>🔑 Clave</th>
-                <th>📎 Palabras clave</th>
-                <th>📂 Categoría</th>
-                <th>💬 Contenido</th>
-                <th>✏️ Editar</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for clave, data in respuestas.items() %}
-            <tr>
-                <td><strong>{{ clave }}</strong></td>
-                <td>
-                    {% for palabra in data.palabras_clave %}
-                        <code>{{ palabra }}</code>{% if not loop.last %}, {% endif %}
-                    {% endfor %}
-                </td>
-                <td>{{ data.categoria }}</td>
-                <td>{{ data.contenido }}</td>
-                <td>
-                    <form method="POST" action="{{ url_for('panel_cliente_respuestas.panel_respuestas', nombre_nora=nombre_nora) }}">
-                        <input type="hidden" name="clave" value="{{ clave }}">
-                        <textarea name="contenido" rows="2" cols="30">{{ data.contenido }}</textarea><br>
-                        <input type="text" name="categoria" value="{{ data.categoria }}" placeholder="Categoría"><br>
-                        <button type="submit">💾 Guardar</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul>
+      {% for category, message in messages %}
+        <li class="estado {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<div class="seccion">
+    <form method="POST">
+        <input type="hidden" name="index" id="index">
+        <label for="palabra_clave">Palabra clave:</label><br>
+        <input type="text" name="palabra_clave" id="palabra_clave" required><br><br>
+
+        <label for="respuesta">Respuesta:</label><br>
+        <textarea name="respuesta" id="respuesta" rows="3" required></textarea><br><br>
+
+        <button type="submit" class="btn" id="submit-btn">➕ Agregar respuesta</button>
+    </form>
+</div>
+
+<div class="seccion">
+    <h3>📋 Lista de respuestas</h3>
+    {% if respuestas %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Palabra clave</th>
+                    <th>Respuesta</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in respuestas %}
+                    <tr>
+                        <td><strong>{{ item.keyword }}</strong></td>
+                        <td>{{ item.respuesta }}</td>
+                        <td>
+                            <button type="button" class="btn btn-secundario" onclick="editarRespuesta({{ loop.index0 }}, '{{ item.keyword }}', `{{ item.respuesta }}`)">✏️ Editar</button>
+                            <a href="{{ url_for('panel_cliente_respuestas.panel_respuestas', nombre_nora=nombre_nora) }}?eliminar={{ loop.index0 }}" class="btn rojo" onclick="return confirm('¿Eliminar esta respuesta?')">❌</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay respuestas registradas.</p>
+    {% endif %}
+</div>
+
 </body>
 </html>

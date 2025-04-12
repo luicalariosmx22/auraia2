@@ -1,6 +1,6 @@
 print("✅ panel_cliente_respuestas.py cargado correctamente")
 
-from flask import Blueprint, render_template, session, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 import os
 import json
 
@@ -11,39 +11,62 @@ def panel_respuestas(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    ruta_json = f"clientes/{nombre_nora}/database/bot_data.json"
-    os.makedirs(os.path.dirname(ruta_json), exist_ok=True)
+    ruta_archivo = f"clientes/{nombre_nora}/database/bot_data.json"
+    if not os.path.exists(ruta_archivo):
+        with open(ruta_archivo, "w", encoding="utf-8") as f:
+            json.dump([], f)
 
-    # Si no existe el archivo, se crea vacío
-    if not os.path.exists(ruta_json):
-        with open(ruta_json, "w", encoding="utf-8") as f:
-            json.dump({}, f)
-
-    # Leer las respuestas actuales
-    with open(ruta_json, "r", encoding="utf-8") as f:
-        respuestas = json.load(f)
-
-    # POST: actualizar contenido de una respuesta
+    # POST: agregar o actualizar
     if request.method == "POST":
-        clave = request.form.get("clave")
-        nuevo_contenido = request.form.get("contenido")
-        nueva_categoria = request.form.get("categoria")
+        palabra_clave = request.form.get("palabra_clave", "").strip().lower()
+        respuesta = request.form.get("respuesta", "").strip()
+        index = request.form.get("index")
 
-        if clave in respuestas:
-            respuestas[clave]["contenido"] = nuevo_contenido
-            respuestas[clave]["categoria"] = nueva_categoria
-            flash(f"Respuesta '{clave}' actualizada correctamente ✅")
-        else:
-            flash(f"❌ No se encontró la clave '{clave}' en el archivo.")
+        if not palabra_clave or not respuesta:
+            flash("❌ Completa ambos campos", "error")
+            return redirect(request.url)
 
-        with open(ruta_json, "w", encoding="utf-8") as f:
-            json.dump(respuestas, f, indent=4, ensure_ascii=False)
+        with open(ruta_archivo, "r", encoding="utf-8") as f:
+            data = json.load(f)
 
-        return redirect(url_for("panel_cliente_respuestas.panel_respuestas", nombre_nora=nombre_nora))
+        if index:  # editar existente
+            try:
+                idx = int(index)
+                data[idx] = {"keyword": palabra_clave, "respuesta": respuesta}
+                flash("✅ Respuesta actualizada", "success")
+            except:
+                flash("❌ No se pudo editar", "error")
+        else:  # agregar nueva
+            data.append({"keyword": palabra_clave, "respuesta": respuesta})
+            flash("✅ Respuesta agregada", "success")
+
+        with open(ruta_archivo, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+
+        return redirect(request.url)
+
+    # GET: eliminar
+    eliminar = request.args.get("eliminar")
+    if eliminar is not None:
+        try:
+            idx = int(eliminar)
+            with open(ruta_archivo, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if 0 <= idx < len(data):
+                eliminada = data.pop(idx)
+                with open(ruta_archivo, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=4, ensure_ascii=False)
+                flash(f"❌ Respuesta eliminada: '{eliminada['keyword']}'", "success")
+        except:
+            flash("❌ No se pudo eliminar", "error")
+        return redirect(request.url)
+
+    with open(ruta_archivo, "r", encoding="utf-8") as f:
+        respuestas = json.load(f)
 
     return render_template(
         "panel_cliente_respuestas.html",
-        user=session["user"],
         nombre_nora=nombre_nora,
-        respuestas=respuestas
+        respuestas=respuestas,
+        user=session["user"]
     )

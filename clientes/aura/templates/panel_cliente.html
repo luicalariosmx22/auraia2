@@ -1,11 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Panel del Cliente</title>
+    <meta charset="UTF-8">
+    <title>Panel del Cliente – {{ nombre_visible }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
 </head>
 <body>
-    <h2>Bienvenido {{ user.name }}</h2>
-    <p>Este es tu panel personalizado.</p>
-    <a href="/logout">Cerrar sesión</a>
+
+<h2>👤 Bienvenido, {{ user.name }}</h2>
+<h3>🤖 Estás usando: {{ nombre_visible }}</h3>
+
+<div class="seccion">
+    <h3>⚙️ Módulos activos:</h3>
+    {% for modulo in modulos %}
+        <span class="tag">{{ modulo }}</span>
+    {% endfor %}
+</div>
+
+{% if "contactos" in modulos %}
+<div class="seccion">
+    <h3>👥 Gestión de Contactos</h3>
+    <a href="{{ url_for('panel_cliente_contactos.panel_contactos', nombre_nora=nombre_nora) }}" class="btn">Ver contactos</a>
+</div>
+{% endif %}
+
+{% if "ia" in modulos %}
+<div class="seccion">
+    <h3>🤖 Control de IA</h3>
+    <a href="{{ url_for('panel_ia.panel_ia', nombre_nora=nombre_nora) }}" class="btn">Activar / Desactivar IA</a>
+</div>
+{% endif %}
+
+{% if "respuestas" in modulos %}
+<div class="seccion">
+    <h3>💬 Respuestas Automáticas</h3>
+    <a href="{{ url_for('panel_cliente_respuestas.panel_respuestas', nombre_nora=nombre_nora) }}" class="btn">Configurar respuestas</a>
+</div>
+{% endif %}
+
+{% if "envios" in modulos %}
+<div class="seccion">
+    <h3>📤 Envío Programado de WhatsApps</h3>
+    <a href="#" class="btn">Programar envío</a>
+</div>
+{% endif %}
+
+<div class="seccion">
+    <h3>💬 Comunicación</h3>
+    <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nombre_nora) }}" class="btn">Abrir Chat tipo WhatsApp</a>
+</div>
+
 </body>
 </html>
