@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, render_template
 import pkg_resources
 import os
 import openai
@@ -10,7 +10,7 @@ from clientes.aura.routes.debug_oauthlib import verificar_oauthlib
 # Crear blueprint general de debug
 debug_verificar_bp = Blueprint("debug_verificar", __name__)
 
-# Cargar variables de entorno
+# Cargar .env para poder hacer verificaciones
 load_dotenv()
 
 @debug_verificar_bp.route("/debug/verificar", methods=["GET"])
@@ -55,7 +55,7 @@ def verificar_configuracion():
     # Probar conexión a OpenAI
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
-        respuesta = openai.ChatCompletion.create(
+        openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": "ping"}],
             max_tokens=1
@@ -65,3 +65,7 @@ def verificar_configuracion():
         resultado["conexion_openai"] = {"estado": f"❌ Error: {str(e)}"}
 
     return jsonify(resultado)
+
+@debug_verificar_bp.route("/debug/verificacion", methods=["GET"])
+def vista_html_verificacion():
+    return render_template("debug_verificacion.html")
