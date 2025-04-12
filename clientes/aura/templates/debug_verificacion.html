@@ -16,10 +16,21 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Datos se insertan con JS -->
+            {% if resultado %}
+                {% for nombre, info in resultado.items() %}
+                    <tr>
+                        <td>{{ nombre }}</td>
+                        <td>{{ info.version or 'N/A' }}</td>
+                        <td class="status {{ 'ok' if '✅' in info.estado else ('fail' if '❌' in info.estado else 'warn') }}">{{ info.estado }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <!-- Si no hay resultado, lo llenamos con JS -->
+            {% endif %}
         </tbody>
     </table>
 
+    {% if not resultado %}
     <script>
         fetch('/debug/verificar')
             .then(res => res.json())
@@ -42,5 +53,6 @@
             return 'fail';
         }
     </script>
+    {% endif %}
 </body>
 </html>
