@@ -4,46 +4,20 @@
     <meta charset="UTF-8">
     <title>Panel de Administración – Noras</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
-    <style>
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 0 10px #ddd;
-        }
-        .card h3 {
-            margin-top: 0;
-        }
-        .card .modulos {
-            margin: 10px 0;
-        }
-        .btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 6px 12px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-        }
-        .btn:hover {
-            background: #0056b3;
-        }
-    </style>
 </head>
 <body>
 
-<h2>🤖 Noras activas en el sistema</h2>
+<h2>🤖 Noras activas en el sistema ({{ noras|length }})</h2>
 
 <div class="grid">
     {% for nora in noras %}
     <div class="card">
-        <h3>{{ nora.nombre }}</h3>
+        <h3>
+            {{ nora.nombre }}
+            {% if nora.tickets_pendientes > 0 %}
+                <span class="estado rojo">🔔 {{ nora.tickets_pendientes }}</span>
+            {% endif %}
+        </h3>
         <p>
             {% if nora.ia_activada %}
                 <span class="estado verde">🟢 IA activa</span>
