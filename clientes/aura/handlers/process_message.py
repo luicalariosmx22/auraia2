@@ -1,5 +1,7 @@
 # 📁 Archivo: clientes/aura/handlers/process_message.py
 
+import os
+import json
 from clientes.aura.utils.normalize import normalizar_numero, limpiar_mensaje
 from clientes.aura.utils.history import guardar_en_historial
 from clientes.aura.utils.twilio_sender import enviar_mensaje
@@ -15,6 +17,19 @@ def procesar_mensaje(data):
     nombre = data.get("ProfileName", "Usuario")
 
     guardar_en_historial(numero, mensaje, "usuario", nombre)
+
+    # 🔌 Revisar si la IA está activada en config.json
+    config_path = "clientes/aura/config.json"
+    if os.path.exists(config_path):
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+
+        if not config.get("ia_activada", True):
+            mensaje_manual = "🔕 Nora AI está en modo manual. El cliente tomará el control del chat."
+            print("🛑 IA desactivada. No se procesará el mensaje automáticamente.")
+            enviar_mensaje(numero, mensaje_manual, nombre)
+            guardar_en_historial(numero, mensaje_manual, "bot", "Aura AI")
+            return mensaje_manual
 
     settings = cargar_settings()
     respuesta = None

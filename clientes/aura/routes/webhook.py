@@ -1,3 +1,5 @@
+# clientes/aura/routes/webhook.py
+
 from flask import Blueprint, request
 from clientes.aura.handlers.process_message import procesar_mensaje
 
@@ -11,7 +13,8 @@ def webhook():
 
         respuesta = procesar_mensaje(data)
 
-        return "OK", 200
+        # Se puede retornar aquí la respuesta al cliente si es texto plano
+        return respuesta, 200
 
     except Exception as e:
         print(f"❌ Error en webhook: {e}")

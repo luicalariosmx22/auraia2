@@ -34,6 +34,8 @@ try:
     from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
     from clientes.aura.routes.admin_noras import admin_noras_bp
     from clientes.aura.routes.admin_nora import admin_nora_bp
+    from clientes.aura.routes.panel_cliente_contactos import panel_contactos_bp
+    from clientes.aura.routes.panel_cliente_ia import panel_ia_bp
 
 
     app.register_blueprint(login_bp)
@@ -47,6 +49,8 @@ try:
     app.register_blueprint(admin_dashboard_bp)
     app.register_blueprint(admin_noras_bp)
     app.register_blueprint(admin_nora_bp)
+    app.register_blueprint(panel_contactos_bp)
+    app.register_blueprint(panel_ia_bp)
 
 
 except Exception as e:

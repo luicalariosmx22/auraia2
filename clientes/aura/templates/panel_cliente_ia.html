@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Control IA - Nora AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">⚙️ Control de IA - Nora AI</div>
+        <div class="logout"><a href="/logout">Cerrar sesión</a></div>
+    </header>
+
+    <main>
+        <h2>Estado actual de la Inteligencia Artificial</h2>
+
+        {% if ia_activada %}
+            <p>🤖 <strong>La IA está ACTIVADA.</strong> Nora responderá automáticamente.</p>
+        {% else %}
+            <p>🛑 <strong>La IA está DESACTIVADA.</strong> El cliente tomará control manual del chat.</p>
+        {% endif %}
+
+        <form method="POST">
+            <input type="hidden" name="ia_activada" value="{{ not ia_activada }}">
+            <button type="submit">
+                {% if ia_activada %}
+                    🔌 Desactivar IA
+                {% else %}
+                    ⚡ Activar IA
+                {% endif %}
+            </button>
+        </form>
+    </main>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Contactos - Nora AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">📇 Contactos - Nora AI</div>
+        <div class="logout"><a href="/logout">Cerrar sesión</a></div>
+    </header>
+
+    <main>
+        <h2>Contactos registrados</h2>
+        <table class="noras-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Etiquetas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in contactos %}
+                <tr>
+                    <td>{{ c.nombre }}</td>
+                    <td>{{ c.telefono }}</td>
+                    <td>
+                        {% for et in c.etiquetas %}
+                            <span class="badge">{{ et }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>➕ Agregar nuevo contacto</h3>
+        <form method="POST">
+            <input type="text" name="nombre" placeholder="Nombre completo" required>
+            <input type="text" name="telefono" placeholder="Número WhatsApp" required>
+            <input type="text" name="etiquetas" placeholder="Ej: cliente, vip, interesado">
+            <button type="submit">Guardar</button>
+        </form>
+    </main>
+</body>
+</html>
