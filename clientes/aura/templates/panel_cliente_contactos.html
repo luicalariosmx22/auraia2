@@ -20,6 +20,9 @@
                     <th>Nombre</th>
                     <th>Teléfono</th>
                     <th>Etiquetas</th>
+                    {% if modulo_ia_activo %}
+                    <th>IA activa</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +35,16 @@
                             <span class="badge">{{ et }}</span>
                         {% endfor %}
                     </td>
+                    {% if modulo_ia_activo %}
+                    <td>
+                        <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/toggle_ia">
+                            <input type="hidden" name="numero" value="{{ c.numero }}">
+                            <button class="boton {% if c.ia_activada %}verde{% else %}rojo{% endif %}" type="submit">
+                                {% if c.ia_activada %}🟢 Activada{% else %}🔴 Desactivada{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
@@ -45,11 +58,11 @@
             <input type="text" name="nombre" placeholder="Nombre completo" required>
             <input type="text" name="numero" placeholder="Número WhatsApp" required>
             <input type="text" name="etiquetas" placeholder="Ej: cliente, vip, interesado">
-            <button type="submit">Guardar</button>
+            <button type="submit" class="boton">Guardar</button>
         </form>
 
         <br><br>
-        <a href="/admin/nora/{{ nombre_nora }}" class="boton">← Volver a Nora</a>
+        <a href="/admin/nora/{{ nombre_nora }}" class="boton gris">← Volver a Nora</a>
     </main>
 </body>
 </html>

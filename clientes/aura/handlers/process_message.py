@@ -1,4 +1,4 @@
-# 📁 Archivo: clientes/aura/handlers/process_message.py
+# 📁 clientes/aura/handlers/process_message.py
 
 import os
 import json
@@ -11,6 +11,7 @@ from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
 from clientes.aura.handlers.handle_files import manejar_archivos_adjuntos
 from clientes.aura.utils.comunicacion_contextual import debe_saludar, debe_preguntar_si_hay_duda
 
+
 def procesar_mensaje(data):
     numero = normalizar_numero(data.get("From"))
     mensaje = limpiar_mensaje(data.get("Body"))
@@ -18,47 +19,47 @@ def procesar_mensaje(data):
 
     guardar_en_historial(numero, mensaje, "usuario", nombre)
 
-    # 🔌 Revisar si la IA está activada en config.json
-    config_path = "clientes/aura/config.json"
-    if os.path.exists(config_path):
-        with open(config_path, "r", encoding="utf-8") as f:
-            config = json.load(f)
-
-        if not config.get("ia_activada", True):
-            mensaje_manual = "🔕 Nora AI está en modo manual. El cliente tomará el control del chat."
-            print("🛑 IA desactivada. No se procesará el mensaje automáticamente.")
-            enviar_mensaje(numero, mensaje_manual, nombre)
-            guardar_en_historial(numero, mensaje_manual, "bot", "Aura AI")
-            return mensaje_manual
-
     settings = cargar_settings()
     respuesta = None
 
-    # 1. Intentar respuestas automáticas
+    # === NUEVO: Detectar si IA está desactivada por contacto ===
+    contacto_path = "clientes/aura/contactos.json"
+    if os.path.exists(contacto_path):
+        with open(contacto_path, "r", encoding="utf-8") as f:
+            contactos = json.load(f)
+            for c in contactos:
+                if normalizar_numero(c.get("numero", "")) == numero:
+                    if c.get("ia_activada") is False:
+                        mensaje_manual = "🔕 Nora AI está en modo manual. El cliente tomará el control del chat."
+                        enviar_mensaje(numero, mensaje_manual, nombre)
+                        guardar_en_historial(numero, mensaje_manual, "bot", "Aura AI")
+                        return mensaje_manual
+
+    # === 1. Respuesta automática ===
     if settings.get("usar_respuestas_automaticas"):
         respuesta = manejar_respuesta_keywords(mensaje)
 
-    # 2. Intentar manejo por archivo
+    # === 2. Archivos ===
     if not respuesta and settings.get("usar_manejo_archivos"):
         respuesta = manejar_archivos_adjuntos(mensaje)
 
-    # 3. Intentar respuesta con IA
+    # === 3. Inteligencia Artificial ===
     if not respuesta and settings.get("usar_ai"):
         respuesta = manejar_respuesta_ai(mensaje)
 
-    # 4. Si IA también falla, usar último recurso (opcional)
+    # === 4. Último recurso
     if not respuesta:
         respuesta = "Estoy pensando... ¿puedes darme un poco más de contexto? 🧠"
 
-    # 5. Añadir saludo si aplica
+    # === 5. Saludo contextual
     if debe_saludar(numero):
         respuesta = "¡Hola! Soy Nora AI 🤖 " + respuesta
 
-    # 6. Agregar seguimiento si pasó mucho tiempo sin respuesta
+    # === 6. Preguntar si tiene dudas
     if debe_preguntar_si_hay_duda(numero):
         respuesta += "\n\n¿Quedaste con alguna duda que te pueda ayudar a resolver?"
 
-    # 7. Enviar mensaje y registrar
+    # === 7. Enviar y guardar
     print("🧠 Respuesta generada:", respuesta)
     enviar_mensaje(numero, respuesta, nombre)
     guardar_en_historial(numero, respuesta, "bot", "Aura AI")
