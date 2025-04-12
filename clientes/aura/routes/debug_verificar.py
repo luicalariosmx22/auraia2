@@ -7,10 +7,8 @@ from dotenv import load_dotenv
 from clientes.aura.routes.debug_openai import verificar_openai
 from clientes.aura.routes.debug_oauthlib import verificar_oauthlib
 
-# Crear blueprint general de debug
 debug_verificar_bp = Blueprint("debug_verificar", __name__)
 
-# Cargar .env para poder hacer verificaciones
 load_dotenv()
 
 @debug_verificar_bp.route("/debug/verificar", methods=["GET"])
@@ -23,20 +21,17 @@ def verificar_configuracion():
     # Verificar requests-oauthlib
     resultado["requests-oauthlib"] = verificar_oauthlib()
 
-    # Verificar variables de entorno importantes
+    # Verificar .env
     required_env = [
-        "OPENAI_API_KEY",
-        "TWILIO_ACCOUNT_SID",
-        "TWILIO_AUTH_TOKEN",
-        "TWILIO_PHONE_NUMBER",
-        "TWILIO_WHATSAPP_NUMBER"
+        "OPENAI_API_KEY", "TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN",
+        "TWILIO_PHONE_NUMBER", "TWILIO_WHATSAPP_NUMBER"
     ]
     env_faltantes = [var for var in required_env if not os.getenv(var)]
     resultado["env"] = {
         "estado": "✅ Completo" if not env_faltantes else f"❌ Faltan: {', '.join(env_faltantes)}"
     }
 
-    # Verificar archivos obligatorios
+    # Archivos obligatorios
     archivos_obligatorios = {
         "bot_data.json": os.path.exists("bot_data.json"),
         "servicios_conocimiento.txt": os.path.exists("servicios_conocimiento.txt")
@@ -46,13 +41,13 @@ def verificar_configuracion():
         for nombre, existe in archivos_obligatorios.items()
     }
 
-    # Verificar carpeta historial
+    # Carpeta historial
     historial_path = "clientes/aura/database/historial"
     resultado["historial"] = {
         "estado": "✅ Accesible" if os.path.isdir(historial_path) else "❌ No encontrada"
     }
 
-    # Probar conexión a OpenAI
+    # Conexión OpenAI
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
         openai.ChatCompletion.create(

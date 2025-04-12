@@ -3,42 +3,43 @@ body {
     background-color: #f5f7fa;
     padding: 40px;
     color: #333;
-}
-
-h1 {
+  }
+  
+  h1 {
     color: #2a2a2a;
     margin-bottom: 30px;
-}
-
-table {
+  }
+  
+  table {
     width: 100%;
     border-collapse: collapse;
     background-color: #fff;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
-}
-
-th, td {
+  }
+  
+  th, td {
     padding: 14px 20px;
     text-align: left;
     border-bottom: 1px solid #eaeaea;
-}
-
-th {
+  }
+  
+  th {
     background-color: #f1f4f9;
-}
-
-.status {
+  }
+  
+  .status {
     font-weight: bold;
-}
-
-.ok {
+  }
+  
+  .ok {
     color: green;
-}
-
-.warn {
+  }
+  
+  .warn {
     color: orange;
-}
-
-.fail {
+  }
+  
+  .fail {
     color: red;
-}
+  }
+  

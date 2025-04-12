@@ -1,65 +1,56 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Verificación del Sistema | Nora AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/debug_verificacion.css') }}">
+  <meta charset="UTF-8">
+  <title>Verificación del Sistema | Nora AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/debug_verificacion.css') }}">
 </head>
 <body>
-    <h1>🛠️ Verificación del Sistema - Nora AI</h1>
-    <table id="tabla-verificacion">
-        <thead>
-            <tr>
-                <th>Componente</th>
-                <th>Detalle</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- JavaScript insertará aquí las filas -->
-        </tbody>
-    </table>
+  <h1>🛠️ Verificación del Sistema - Nora AI</h1>
+  <table id="tabla-verificacion">
+    <thead>
+      <tr>
+        <th>Componente</th>
+        <th>Detalle</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    <script>
-        function crearFila(nombre, valor, estado) {
-            const fila = document.createElement('tr');
-            fila.innerHTML = `
-                <td>${nombre}</td>
-                <td>${valor}</td>
-                <td class="status ${estadoClase(estado)}">${estado}</td>
-            `;
-            return fila;
-        }
+  <script>
+    function crearFila(nombre, valor, estado) {
+      const fila = document.createElement('tr');
+      fila.innerHTML = `
+        <td>${nombre}</td>
+        <td>${valor}</td>
+        <td class="status ${estadoClase(estado)}">${estado}</td>
+      `;
+      return fila;
+    }
 
-        function estadoClase(estado) {
-            if (estado.includes('✅')) return 'ok';
-            if (estado.includes('⚠️')) return 'warn';
-            return 'fail';
-        }
+    function estadoClase(estado) {
+      if (estado.includes('✅')) return 'ok';
+      if (estado.includes('⚠️')) return 'warn';
+      return 'fail';
+    }
 
-        fetch('/debug/verificar')
-            .then(res => res.json())
-            .then(data => {
-                const tbody = document.querySelector('#tabla-verificacion tbody');
-
-                // Módulos como openai y oauthlib
-                Object.entries(data).forEach(([clave, valor]) => {
-                    if (clave === 'archivos') {
-                        Object.entries(valor).forEach(([archivo, estado]) => {
-                            tbody.appendChild(crearFila(`Archivo: ${archivo}`, '-', estado));
-                        });
-                    } else if (clave === 'env') {
-                        tbody.appendChild(crearFila('Variables de entorno', '-', valor.estado));
-                    } else if (clave === 'historial') {
-                        tbody.appendChild(crearFila('Directorio historial', '-', valor.estado));
-                    } else if (clave === 'conexion_openai') {
-                        tbody.appendChild(crearFila('Conexión OpenAI', '-', valor.estado));
-                    } else {
-                        // General para módulos
-                        tbody.appendChild(crearFila(clave, valor.version || '-', valor.estado));
-                    }
-                });
+    fetch('/debug/verificar')
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector('#tabla-verificacion tbody');
+        Object.entries(data).forEach(([clave, valor]) => {
+          if (clave === 'archivos') {
+            Object.entries(valor).forEach(([archivo, estado]) => {
+              tbody.appendChild(crearFila(`Archivo: ${archivo}`, '-', estado));
             });
-    </script>
+          } else if (clave === 'env' || clave === 'historial' || clave === 'conexion_openai') {
+            tbody.appendChild(crearFila(clave, '-', valor.estado));
+          } else {
+            tbody.appendChild(crearFila(clave, valor.version || '-', valor.estado));
+          }
+        });
+      });
+  </script>
 </body>
 </html>
