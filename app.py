@@ -62,6 +62,7 @@ try:
     app.register_blueprint(panel_cliente_contactos_bp)
     app.register_blueprint(panel_cliente_ia_bp)
     app.register_blueprint(debug_archivos_bp)
+    app.register_blueprint(debug_test_bp)
 
 except Exception as e:
     with open("boot_error.log", "w", encoding="utf-8") as f:
