@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Nora: {{ nombre_nora }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
+</head>
+<body>
+
+<h2>✏️ Editar Nora: {{ nombre_nora }}</h2>
+
+<form method="POST">
+    <div class="seccion">
+        <label for="nuevo_nombre">Nuevo nombre de la Nora:</label><br>
+        <input type="text" id="nuevo_nombre" name="nuevo_nombre" value="{{ nombre_nora }}" required>
+    </div>
+
+    <div class="seccion">
+        <strong>Selecciona los módulos a activar:</strong><br><br>
+        {% for modulo in modulos_disponibles %}
+            <label>
+                <input type="checkbox" name="modulos" value="{{ modulo }}"
+                    {% if modulo in config.modulos %}checked{% endif %}>
+                {{ modulo }}
+            </label><br>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn">💾 Guardar cambios</button>
+    <a href="{{ url_for('admin_noras.vista_admin') }}" class="btn btn-secundario">🔙 Regresar</a>
+</form>
+
+</body>
+</html>
