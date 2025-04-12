@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificación de Variables</title>
+    <link rel="stylesheet" href="/static/css/debug.css">
+</head>
+<body>
+    <h1>🔍 Variables de entorno críticas</h1>
+    <ul>
+        {% for clave, estado in resultado.items() %}
+            <li>
+                {% if estado == "✅ OK" %}
+                    <span style="color: green;">🟢 {{ clave }}: {{ estado }}</span>
+                {% else %}
+                    <span style="color: red;">🔴 {{ clave }}: {{ estado }}</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

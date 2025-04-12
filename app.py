@@ -11,7 +11,7 @@ load_dotenv()
 # Crear la aplicación Flask y especificar la carpeta de plantillas
 app = Flask(__name__, template_folder='clientes/aura/templates')
 
-# 🔧 FIX: para compatibilidad con Flask 2.3+
+# FIX para Flask 2.3+ (evitar error con Flask-Session)
 app.session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
 
 # Configurar la sesión en el servidor
@@ -26,6 +26,7 @@ try:
     from clientes.aura.auth.login import login_bp
     from clientes.aura.routes.webhook import webhook_bp
     from clientes.aura.routes.debug_verificar import debug_verificar_bp
+    from clientes.aura.routes.debug_env import debug_env_bp  # NUEVO
 
     # ========= REGISTRAR BLUEPRINTS =========
     app.register_blueprint(login_bp)
@@ -33,6 +34,7 @@ try:
     app.register_blueprint(panel_cliente_bp)
     app.register_blueprint(webhook_bp)
     app.register_blueprint(debug_verificar_bp)
+    app.register_blueprint(debug_env_bp)  # NUEVO
 
 except Exception as e:
     with open("boot_error.log", "w") as f:
