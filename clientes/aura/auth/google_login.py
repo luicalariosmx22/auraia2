@@ -1,4 +1,6 @@
 import os
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # ⚠️ Solo para pruebas en Railway o localhost
+
 import json
 import requests
 from flask import Blueprint, redirect, url_for, session, request
@@ -23,7 +25,7 @@ def login():
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    # 🔒 Forzar HTTPS en producción
+    # 🔒 Redirección con HTTPS forzada
     redirect_uri = "https://app.soynoraai.com/login/google/callback"
 
     request_uri = client.prepare_request_uri(
