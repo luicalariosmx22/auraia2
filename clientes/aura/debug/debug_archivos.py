@@ -1,40 +1,34 @@
-# clientes/aura/debug/debug_archivos.py
+print("✅ debug_archivos.py cargado correctamente")
 
+from flask import Blueprint, jsonify
 import os
-from flask import Blueprint, render_template_string
 
-debug_archivos_bp = Blueprint("debug_archivos", __name__)
+debug_archivos_bp = Blueprint("debug_archivos", __name__, url_prefix="/debug")
 
-ARCHIVOS_REQUERIDOS = [
-    "clientes/aura/database/bot_data.json",
-    "clientes/aura/database/categorias.json",
-    "clientes/aura/database/contactos.json",
-    "clientes/aura/database/config.json",
-]
-
-@debug_archivos_bp.route("/debug/archivos")
+@debug_archivos_bp.route("/archivos")
 def verificar_archivos():
-    resultados = []
+    archivos_esperados = [
+        "clientes/aura/database/bot_data.json",
+        "clientes/aura/database/historial/",
+        "clientes/aura/config.json",
+        "clientes/aura/categorias.json",
+        "clientes/aura/servicios_conocimiento.txt",
+    ]
 
-    for archivo in ARCHIVOS_REQUERIDOS:
-        nombre = os.path.basename(archivo)
-        if os.path.exists(archivo):
-            resultados.append((nombre, "✅ Encontrado"))
-        else:
-            resultados.append((nombre, "❌ No encontrado"))
+    faltantes = []
+    for ruta in archivos_esperados:
+        if not os.path.exists(ruta):
+            faltantes.append(ruta)
 
-    # Plantilla HTML simple para mostrar los resultados (puedes luego mover esto a un template si prefieres)
-    html = """
-    <h3>🗃️ Verificación de Archivos Requeridos</h3>
-    <table border="1" cellpadding="6" cellspacing="0">
-        <tr><th>Archivo</th><th>Estado</th></tr>
-        {% for archivo, estado in resultados %}
-            <tr>
-                <td>{{ archivo }}</td>
-                <td>{{ estado }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-    """
+    if faltantes:
+        print("❌ Archivos faltantes:", faltantes)
+        return jsonify({
+            "ok": False,
+            "faltantes": faltantes
+        })
 
-    return render_template_string(html, resultados=resultados)
+    print("✅ Todos los archivos requeridos están presentes")
+    return jsonify({
+        "ok": True,
+        "mensaje": "Todos los archivos están presentes"
+    })

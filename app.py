@@ -50,10 +50,8 @@ try:
     from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 
     from clientes.aura.debug.debug_archivos import debug_archivos_bp
-    from clientes.aura.debug.debug_botdata_test import debug_test_bp
-
-    # ✅ NUEVO MÓDULO EJEMPLO
-    from clientes.aura.routes.ejemplo_nuevo import ejemplo_nuevo_bp
+    from clientes.aura.debug.debug_mensaje_hola import debug_mensaje_hola_bp
+    from clientes.aura.debug.debug_botdata_test import debug_test_bp  # lo puedes quitar si ya no lo usas
 
     # Registrar blueprints
     app.register_blueprint(panel_chat_bp)
@@ -70,10 +68,8 @@ try:
     app.register_blueprint(panel_cliente_ia_bp)
 
     app.register_blueprint(debug_archivos_bp)
+    app.register_blueprint(debug_mensaje_hola_bp)
     app.register_blueprint(debug_test_bp)
-
-    # ✅ Registro del nuevo módulo
-    app.register_blueprint(ejemplo_nuevo_bp)
 
 except Exception as e:
     error_msg = f"❌ Error al registrar blueprints: {str(e)}"
