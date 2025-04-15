@@ -2,6 +2,7 @@
 
 from flask import Blueprint, request
 from clientes.aura.handlers.process_message import procesar_mensaje
+from utils.db.historial import guardar_mensaje  # ✅ Agregado
 
 webhook_bp = Blueprint("webhook", __name__)
 
@@ -11,9 +12,18 @@ def webhook():
         data = request.form.to_dict()
         print("📩 Mensaje recibido de Twilio:", data)
 
+        mensaje_usuario = data.get("Body", "")
+        telefono = data.get("From", "").replace("whatsapp:", "")
+
+        # ✅ Guardar mensaje del usuario
+        guardar_mensaje(telefono, mensaje_usuario, "usuario")
+
+        # Obtener respuesta del bot
         respuesta = procesar_mensaje(data)
 
-        # Se puede retornar aquí la respuesta al cliente si es texto plano
+        # ✅ Guardar respuesta del bot
+        guardar_mensaje(telefono, respuesta, "bot")
+
         return respuesta, 200
 
     except Exception as e:
