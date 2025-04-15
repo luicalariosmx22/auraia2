@@ -2,43 +2,43 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Chat – {{ nombre_nora | default("Desconocida") }}</title>
+    <title>Chat – {{ nombre_nora }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}">
 </head>
 <body>
 
-<h2>💬 Panel de Chat – {{ nombre_nora | default("Desconocida") }}</h2>
+<h2>💬 Chat de Nora – {{ nombre_nora }}</h2>
 
 <div class="chat-contenedor">
 
-    <!-- 📱 COLUMNA 1: Lista de contactos -->
+    <!-- 📱 Columna 1: Lista de contactos -->
     <div class="col-contactos">
-        <div class="contactos-header">
-            <input type="text" placeholder="🔍 Buscar contacto..." class="buscador">
-        </div>
-        <ul class="lista-contactos">
+        <input type="text" placeholder="🔍 Buscar contacto..." class="buscador" id="buscador">
+        <ul class="lista-contactos" id="lista-contactos">
             {% for c in contactos %}
-            <li onclick="seleccionarChat('{{ c.get('numero', '') }}', '{{ c.get('nombre', '') }}')">
-                <strong>{{ c.get("nombre", "Sin nombre") }}</strong><br>
-                <small>{{ c.get("numero", "Sin número") }}</small><br>
+            <li onclick="cargarChat('{{ c.numero }}')">
+                <strong>{{ c.nombre }}</strong><br>
+                <small>{{ c.numero }}</small><br>
                 <span class="preview-msg">
-                    {{ c.get("mensajes", [])[-1].get("texto") if c.get("mensajes") and c.get("mensajes")|length > 0 else '' }}
+                    {{ c.mensajes[-1].texto if c.mensajes|length > 0 else '' }}
                 </span>
             </li>
-            {% else %}
-            <li><em>No hay contactos disponibles.</em></li>
             {% endfor %}
         </ul>
     </div>
 
-    <!-- 💬 COLUMNA 2: Chat activo -->
+    <!-- 💬 Columna 2: Chat -->
     <div class="col-chat">
-        <div id="chat-area">
+        <div id="chat-area" class="chat-area">
             <p>Selecciona un contacto para comenzar a chatear.</p>
         </div>
+        <form id="form-mensaje" onsubmit="enviarMensaje(event)">
+            <input type="text" id="mensaje" placeholder="Escribe un mensaje..." autocomplete="off">
+            <button type="submit">Enviar</button>
+        </form>
     </div>
 
-    <!-- ℹ️ COLUMNA 3: Info del contacto -->
+    <!-- ℹ️ Columna 3: Info del contacto -->
     <div class="col-info">
         <div id="info-contacto">
             <p><strong>ℹ️ Info del contacto</strong></p>
@@ -48,14 +48,9 @@
 
 </div>
 
+<script src="{{ url_for('static', filename='js/panel_chat.js') }}"></script>
 <script>
-    function seleccionarChat(numero, nombre) {
-        document.getElementById("chat-area").innerHTML =
-            "<p><strong>Chat con:</strong> " + nombre + " (" + numero + ")</p><p>Cargando conversación...</p>";
-        document.getElementById("info-contacto").innerHTML =
-            "<p><strong>Número:</strong> " + numero + "<br><strong>Nombre:</strong> " + nombre + "</p>";
-    }
+    const nombreNora = "{{ nombre_nora }}";
 </script>
-
 </body>
 </html>
