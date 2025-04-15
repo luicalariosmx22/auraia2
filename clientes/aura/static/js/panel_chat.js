@@ -11,22 +11,35 @@ function cargarChat(numero) {
             const chatArea = document.getElementById("chat-area");
             chatArea.innerHTML = "";
 
-            data.mensajes.forEach(m => {
-                const div = document.createElement("div");
-                div.className = m.origen === "usuario" ? "burbuja-usuario" : "burbuja-nora";
-                div.innerHTML = `<strong>${m.origen}</strong><br>${m.texto}<br><small>${m.hora}</small>`;
-                chatArea.appendChild(div);
-            });
+            if (!data.mensajes || data.mensajes.length === 0) {
+                chatArea.innerHTML = '<p class="placeholder">Sin mensajes aún.</p>';
+            } else {
+                data.mensajes.forEach(m => {
+                    const div = document.createElement("div");
+                    const clase = m.origen === "usuario" ? "burbuja-usuario" : "burbuja-nora";
+                    div.className = `burbuja ${clase}`;
+                    div.innerHTML = `
+                        <div class="texto">${m.texto}</div>
+                        <div class="hora">${m.hora || ''}</div>
+                    `;
+                    chatArea.appendChild(div);
+                });
+            }
 
             const info = document.getElementById("info-contacto");
+            const etiquetas = data.contacto.etiquetas && data.contacto.etiquetas.length > 0 ? data.contacto.etiquetas.join(", ") : "Sin etiquetas";
+            const resumen = data.resumen_ia || "Sin resumen disponible.";
+
             info.innerHTML = `
                 <h3>${data.contacto.nombre}</h3>
                 <p><strong>Número:</strong> ${data.contacto.numero}</p>
-                <p><strong>Etiquetas:</strong> ${data.contacto.etiquetas.join(", ") || 'Sin etiquetas'}</p>
+                <p><strong>Etiquetas:</strong> ${etiquetas}</p>
                 <p><strong>IA:</strong> ${data.contacto.ia_activada ? '🟢 Activada' : '🔴 Desactivada'}</p>
-                <button onclick="toggleIA('${data.contacto.numero}')">${data.contacto.ia_activada ? 'Desactivar IA' : 'Activar IA'}</button>
+                <button onclick="toggleIA('${data.contacto.numero}')">
+                    ${data.contacto.ia_activada ? 'Desactivar IA' : 'Activar IA'}
+                </button>
                 <hr>
-                <p><strong>🧠 Resumen IA:</strong><br>${data.resumen_ia}</p>
+                <p><strong>🧠 Resumen IA:</strong><br>${resumen}</p>
                 <hr>
                 <h4>📆 Programar envío</h4>
                 <form onsubmit="programarEnvio(event, '${data.contacto.numero}')">
@@ -36,6 +49,8 @@ function cargarChat(numero) {
                     <button type="submit">Programar</button>
                 </form>
             `;
+
+            chatArea.scrollTop = chatArea.scrollHeight;
         });
 }
 

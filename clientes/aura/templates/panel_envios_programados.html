@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Envíos Programados</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_envios_programados.css') }}">
+</head>
+<body>
+  <header>
+    <h2>📤 Envíos Programados por Etiqueta</h2>
+  </header>
+
+  <main>
+    <form id="form-envio-masivo" onsubmit="programarMasivo(event)">
+      <label for="mensaje">Mensaje:</label>
+      <textarea id="mensaje" required></textarea>
+
+      <label for="fecha">Fecha:</label>
+      <input type="date" id="fecha" required>
+
+      <label for="hora">Hora:</label>
+      <input type="time" id="hora" required>
+
+      <label for="etiquetas">Enviar a:</label>
+      <div id="etiquetas-contenedor"></div>
+
+      <button type="submit">Programar envío</button>
+      <div id="errores" style="color: red; margin-top: 10px;"></div>
+    </form>
+
+    <section>
+      <h3>👥 Contactos por etiqueta</h3>
+      <div id="contactos-etiquetas"></div>
+    </section>
+
+    <section>
+      <h3>📋 Historial de envíos programados</h3>
+      <table border="1" cellspacing="0" cellpadding="5">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Mensaje</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Programado por</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-envios"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    let contactos = [];
+
+    fetch("/api/contactos")
+      .then(r => r.json())
+      .then(data => {
+        contactos = data;
+        renderEtiquetas();
+        renderContactosAgrupados();
+      });
+
+    function renderEtiquetas() {
+      const etiquetas = [...new Set(contactos.flatMap(c => c.etiquetas))];
+      const cont = document.getElementById("etiquetas-contenedor");
+      etiquetas.forEach(e => {
+        const el = document.createElement("label");
+        el.innerHTML = `<input type="checkbox" value="${e}"> ${e}`;
+        cont.appendChild(el);
+      });
+    }
+
+    function renderContactosAgrupados() {
+      const cont = document.getElementById("contactos-etiquetas");
+      const etiquetas = [...new Set(contactos.flatMap(c => c.etiquetas))];
+      etiquetas.forEach(et => {
+        const div = document.createElement("div");
+        div.innerHTML = `<h4>${et}</h4>`;
+        const ul = document.createElement("ul");
+        contactos.filter(c => c.etiquetas.includes(et)).forEach(c => {
+          const li = document.createElement("li");
+          li.textContent = `${c.nombre} (${c.numero})`;
+          ul.appendChild(li);
+        });
+        div.appendChild(ul);
+        cont.appendChild(div);
+      });
+    }
+
+    function programarMasivo(e) {
+      e.preventDefault();
+      const mensaje = document.getElementById("mensaje").value.trim();
+      const fecha = document.getElementById("fecha").value;
+      const hora = document.getElementById("hora").value;
+      const etiquetasSeleccionadas = [...document.querySelectorAll("#etiquetas-contenedor input:checked")].map(i => i.value);
+      const errorDiv = document.getElementById("errores");
+      errorDiv.innerHTML = "";
+
+      if (!mensaje || !fecha || !hora || etiquetasSeleccionadas.length === 0) {
+        errorDiv.textContent = "Completa todos los campos y selecciona al menos una etiqueta.";
+        return;
+      }
+
+      const destinatarios = contactos
+        .filter(c => c.etiquetas.some(e => etiquetasSeleccionadas.includes(e)))
+        .map(c => c.numero);
+
+      fetch("/api/programar-envio-masivo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensaje, fecha, hora, destinatarios })
+      })
+      .then(res => res.json().then(data => ({ status: res.status, body: data })))
+      .then(({ status, body }) => {
+        if (status === 200) {
+          alert("✅ Envíos programados con éxito");
+          document.getElementById("form-envio-masivo").reset();
+          cargarHistorial();
+        } else {
+          errorDiv.innerHTML = body.detalles ? body.detalles.join("<br>") : "Ocurrió un error.";
+        }
+      });
+    }
+
+    function cargarHistorial() {
+      fetch("/api/envios-programados")
+        .then(res => res.json())
+        .then(data => {
+          const tabla = document.getElementById("tabla-envios");
+          tabla.innerHTML = "";
+          data.slice().reverse().forEach(envio => {
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+              <td>${envio.numero}</td>
+              <td>${envio.mensaje}</td>
+              <td>${envio.fecha}</td>
+              <td>${envio.hora}</td>
+              <td>${envio.programado_por}</td>
+              <td>${envio.estado}</td>
+            `;
+            tabla.appendChild(fila);
+          });
+        });
+    }
+
+    cargarHistorial();
+  </script>
+</body>
+</html>
