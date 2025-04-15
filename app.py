@@ -29,12 +29,16 @@ from clientes.aura.registro.registro_admin import registrar_blueprints_admin
 from clientes.aura.registro.registro_debug import registrar_blueprints_debug
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 
+from clientes.aura.routes.panel_chat import panel_chat_bp
+
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
 registrar_blueprints_cliente(app)
 registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
-registrar_blueprints_por_nora(app, "aura")  # 👈 Cambiar por el nombre real de la Nora si es necesario
+registrar_blueprints_por_nora(app, "aura")
+
+app.register_blueprint(panel_chat_bp)
 
 # ========= RUTA INICIAL =========
 @app.route("/")
