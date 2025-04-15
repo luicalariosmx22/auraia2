@@ -44,7 +44,6 @@ def panel_contactos(nombre_nora):
         with open(ruta_contactos, "w", encoding="utf-8") as f:
             json.dump(contactos, f, indent=4, ensure_ascii=False)
 
-        # 🔧 Corrección aquí: se eliminó el prefijo incorrecto del endpoint
         return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
 
     with open(ruta_contactos, "r", encoding="utf-8") as f:

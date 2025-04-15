@@ -47,7 +47,7 @@ def dashboard_nora(nombre_nora):
     sin_ia = len([c for c in datos["contactos"] if not c.get("ia", True)])
     sin_etiquetas = len([c for c in datos["contactos"] if not c.get("etiquetas")])
 
-    respuestas_claves = [r["keyword"] for r in datos["respuestas"] if "keyword" in r]
+    respuestas_claves = [r.get("keyword") for r in datos["respuestas"] if isinstance(r, dict) and "keyword" in r]
 
     return render_template("admin_nora_dashboard.html",
         nombre_nora=nombre_nora,
