@@ -1,56 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Chat – {{ nombre_nora }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}">
+  <meta charset="UTF-8">
+  <title>Chat de Nora – {{ nombre_nora }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}">
+  <script>
+    const nombreNora = "{{ nombre_nora }}";
+  </script>
 </head>
 <body>
+  <div class="chat-wrapper">
 
-<h2>💬 Chat de Nora – {{ nombre_nora }}</h2>
+    <!-- COL 1: Lista de contactos -->
+    <aside class="col-izquierda">
+      <div class="buscador">
+        <input type="text" placeholder="🔍 Buscar contacto...">
+      </div>
+      <ul class="lista-contactos">
+        {% for c in contactos %}
+        <li onclick="cargarChat('{{ c.numero }}')">
+          <div class="nombre">{{ c.nombre }}</div>
+          <div class="numero">{{ c.numero }}</div>
+          <div class="preview">{{ c.mensajes[-1].texto if c.mensajes|length > 0 else '...' }}</div>
+        </li>
+        {% endfor %}
+      </ul>
+    </aside>
 
-<div class="chat-contenedor">
+    <!-- COL 2: Conversación -->
+    <section class="col-central">
+      <div class="chat-area" id="chat-area">
+        <p class="placeholder">Selecciona un contacto para comenzar a chatear.</p>
+      </div>
+      <form class="form-envio" onsubmit="enviarMensaje(event)">
+        <input type="text" id="mensaje" placeholder="Escribe un mensaje...">
+        <button type="submit">Enviar</button>
+      </form>
+    </section>
 
-    <!-- 📱 Columna 1: Lista de contactos -->
-    <div class="col-contactos">
-        <input type="text" placeholder="🔍 Buscar contacto..." class="buscador" id="buscador">
-        <ul class="lista-contactos" id="lista-contactos">
-            {% for c in contactos %}
-            <li onclick="cargarChat('{{ c.numero }}')">
-                <strong>{{ c.nombre }}</strong><br>
-                <small>{{ c.numero }}</small><br>
-                <span class="preview-msg">
-                    {{ c.mensajes[-1].texto if c.mensajes|length > 0 else '' }}
-                </span>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
+    <!-- COL 3: Info del contacto -->
+    <aside class="col-derecha">
+      <div class="info-contacto" id="info-contacto">
+        <p>Selecciona un contacto para ver detalles.</p>
+      </div>
+    </aside>
 
-    <!-- 💬 Columna 2: Chat -->
-    <div class="col-chat">
-        <div id="chat-area" class="chat-area">
-            <p>Selecciona un contacto para comenzar a chatear.</p>
-        </div>
-        <form id="form-mensaje" onsubmit="enviarMensaje(event)">
-            <input type="text" id="mensaje" placeholder="Escribe un mensaje..." autocomplete="off">
-            <button type="submit">Enviar</button>
-        </form>
-    </div>
-
-    <!-- ℹ️ Columna 3: Info del contacto -->
-    <div class="col-info">
-        <div id="info-contacto">
-            <p><strong>ℹ️ Info del contacto</strong></p>
-            <p>Selecciona un contacto para ver detalles.</p>
-        </div>
-    </div>
-
-</div>
-
-<script src="{{ url_for('static', filename='js/panel_chat.js') }}"></script>
-<script>
-    const nombreNora = "{{ nombre_nora }}";
-</script>
+  </div>
+  <script src="{{ url_for('static', filename='js/panel_chat.js') }}"></script>
 </body>
 </html>

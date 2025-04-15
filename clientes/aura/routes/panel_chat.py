@@ -1,6 +1,6 @@
 print("✅ panel_chat.py cargado correctamente")
 
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 import os, json, datetime
 import openai
 from dotenv import load_dotenv
@@ -35,7 +35,7 @@ def generar_resumen_ia(mensajes):
     if not mensajes:
         return "No hay suficientes mensajes para generar un resumen."
 
-    texto = "\n".join([f"{m['origen']}: {m['texto']}" for m in mensajes[-20:]])  # solo los últimos 20
+    texto = "\n".join([f"{m['origen']}: {m['texto']}" for m in mensajes[-20:]])
 
     prompt = f"""
 Eres un asistente profesional. Resume brevemente esta conversación entre un cliente y una IA llamada Nora. El resumen debe identificar si el cliente está interesado en algo, si ya fue atendido, y si hay seguimiento pendiente:
@@ -58,6 +58,9 @@ Resumen:
 
 @panel_chat_bp.route("/panel/chat/<nombre_nora>")
 def panel_chat(nombre_nora):
+    if "user" not in session:
+        return redirect(url_for("login.login_google"))
+
     contactos = leer_contactos()
     historial_path = f"clientes/{nombre_nora}/database/historial"
     lista = []
@@ -116,4 +119,28 @@ def api_toggle_ia(numero):
         if c["numero"] == numero:
             c["ia_activada"] = not c.get("ia_activada", True)
     guardar_contactos(contactos)
+    return jsonify({"success": True})
+
+@panel_chat_bp.route("/api/programar-envio", methods=["POST"])
+def api_programar_envio():
+    data = request.json
+    ruta = f"clientes/{data['nombre_nora']}/database/envios/envios_programados.json"
+    os.makedirs(os.path.dirname(ruta), exist_ok=True)
+
+    envios = []
+    if os.path.exists(ruta):
+        with open(ruta, "r", encoding="utf-8") as f:
+            envios = json.load(f)
+
+    envios.append({
+        "numero": data["numero"],
+        "mensaje": data["mensaje"],
+        "fecha": data["fecha"],
+        "hora": data["hora"],
+        "nombre_nora": data["nombre_nora"]
+    })
+
+    with open(ruta, "w", encoding="utf-8") as f:
+        json.dump(envios, f, indent=2, ensure_ascii=False)
+
     return jsonify({"success": True})
