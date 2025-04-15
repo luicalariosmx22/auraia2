@@ -1,8 +1,9 @@
+print("✅ panel_cliente_contactos.py cargado correctamente")
+
 from flask import Blueprint, render_template, session, request, redirect, url_for
 import os
 import json
 
-# ✅ Nombre corregido del blueprint
 panel_cliente_contactos_bp = Blueprint("panel_cliente_contactos", __name__)
 
 @panel_cliente_contactos_bp.route("/panel_cliente/contactos/<nombre_nora>", methods=["GET", "POST"])
@@ -43,7 +44,7 @@ def panel_contactos(nombre_nora):
         with open(ruta_contactos, "w", encoding="utf-8") as f:
             json.dump(contactos, f, indent=4, ensure_ascii=False)
 
-        return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
+        return redirect(url_for("panel_cliente.panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
 
     with open(ruta_contactos, "r", encoding="utf-8") as f:
         contactos = json.load(f)

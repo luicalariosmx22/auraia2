@@ -16,7 +16,6 @@ def panel_respuestas(nombre_nora):
         with open(ruta_archivo, "w", encoding="utf-8") as f:
             json.dump([], f)
 
-    # POST: agregar o actualizar
     if request.method == "POST":
         palabra_clave = request.form.get("palabra_clave", "").strip().lower()
         respuesta = request.form.get("respuesta", "").strip()
@@ -29,23 +28,22 @@ def panel_respuestas(nombre_nora):
         with open(ruta_archivo, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        if index:  # editar existente
+        if index:
             try:
                 idx = int(index)
                 data[idx] = {"keyword": palabra_clave, "respuesta": respuesta}
                 flash("✅ Respuesta actualizada", "success")
             except:
                 flash("❌ No se pudo editar", "error")
-        else:  # agregar nueva
+        else:
             data.append({"keyword": palabra_clave, "respuesta": respuesta})
             flash("✅ Respuesta agregada", "success")
 
         with open(ruta_archivo, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
 
-        return redirect(request.url)
+        return redirect(url_for("panel_cliente.panel_cliente_respuestas.panel_respuestas", nombre_nora=nombre_nora))
 
-    # GET: eliminar
     eliminar = request.args.get("eliminar")
     if eliminar is not None:
         try:
@@ -59,7 +57,7 @@ def panel_respuestas(nombre_nora):
                 flash(f"❌ Respuesta eliminada: '{eliminada['keyword']}'", "success")
         except:
             flash("❌ No se pudo eliminar", "error")
-        return redirect(request.url)
+        return redirect(url_for("panel_cliente.panel_cliente_respuestas.panel_respuestas", nombre_nora=nombre_nora))
 
     with open(ruta_archivo, "r", encoding="utf-8") as f:
         respuestas = json.load(f)

@@ -1,40 +1,58 @@
-print("✅ panel_cliente_envios.py cargado correctamente")
+print("✅ panel_cliente_contactos.py cargado correctamente")
 
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, session, request, redirect, url_for
 import os
 import json
 
-panel_cliente_envios_bp = Blueprint("panel_cliente_envios", __name__)
+panel_cliente_contactos_bp = Blueprint("panel_cliente_contactos", __name__)
 
-# ✅ Registra el endpoint con name explícito para evitar errores
-@panel_cliente_envios_bp.route("/panel/cliente/<nombre_nora>/envios", methods=["GET", "POST"])
-def panel_envios(nombre_nora):
+@panel_cliente_contactos_bp.route("/panel_cliente/contactos/<nombre_nora>", methods=["GET", "POST"])
+def panel_contactos(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    ruta_envios = f"clientes/{nombre_nora}/envios_programados.json"
+    carpeta = f"clientes/{nombre_nora}"
+    ruta_contactos = f"{carpeta}/crm/contactos.json"
+    ruta_config = f"{carpeta}/config.json"
 
-    if not os.path.exists(ruta_envios):
-        with open(ruta_envios, "w", encoding="utf-8") as f:
+    os.makedirs(os.path.dirname(ruta_contactos), exist_ok=True)
+
+    if not os.path.exists(ruta_contactos):
+        with open(ruta_contactos, "w", encoding="utf-8") as f:
             json.dump([], f)
 
-    with open(ruta_envios, "r", encoding="utf-8") as f:
-        envios = json.load(f)
+    ia_permitida = False
+    if os.path.exists(ruta_config):
+        with open(ruta_config, "r", encoding="utf-8") as f:
+            config = json.load(f)
+            modulos = config.get("modulos", [])
+            ia_permitida = "ia" in modulos
 
     if request.method == "POST":
-        nuevo_envio = {
-            "mensaje": request.form.get("mensaje"),
-            "fecha": request.form.get("fecha"),
-            "hora": request.form.get("hora")
+        nuevo = {
+            "nombre": request.form.get("nombre").strip(),
+            "telefono": request.form.get("telefono").strip(),
+            "etiquetas": [et.strip() for et in request.form.get("etiquetas", "").split(",") if et.strip()],
+            "ia": True
         }
-        envios.append(nuevo_envio)
-        with open(ruta_envios, "w", encoding="utf-8") as f:
-            json.dump(envios, f, indent=4, ensure_ascii=False)
-        return redirect(url_for("panel_cliente_envios.panel_envios", nombre_nora=nombre_nora))
+
+        with open(ruta_contactos, "r", encoding="utf-8") as f:
+            contactos = json.load(f)
+
+        contactos.append(nuevo)
+
+        with open(ruta_contactos, "w", encoding="utf-8") as f:
+            json.dump(contactos, f, indent=4, ensure_ascii=False)
+
+        return redirect(url_for("panel_cliente.panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
+
+    with open(ruta_contactos, "r", encoding="utf-8") as f:
+        contactos = json.load(f)
 
     return render_template(
-        "panel_cliente_envios.html",
-        envios=envios,
+        "panel_cliente_contactos.html",
+        user=session["user"],
+        contactos=contactos,
         nombre_nora=nombre_nora,
-        user=session["user"]
+        ia_permitida=ia_permitida
     )
