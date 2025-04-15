@@ -29,7 +29,7 @@
 {% if "ia" in modulos %}
 <div class="seccion">
     <h3>🧠 Control de Inteligencia Artificial</h3>
-    <a href="{{ url_for('panel_ia.panel_ia', nombre_nora=nombre_nora) }}" class="btn">⚙️ Activar / Desactivar IA</a>
+    <a href="{{ url_for('panel_cliente_ia.panel_ia', nombre_nora=nombre_nora) }}" class="btn">⚙️ Activar / Desactivar IA</a>
 </div>
 {% endif %}
 
@@ -43,7 +43,7 @@
 {% if "envios" in modulos %}
 <div class="seccion">
     <h3>📤 Envíos programados</h3>
-    <a href="/panel/envios-programados" class="btn">⏰ Programar mensajes</a>
+    <a href="{{ url_for('panel_cliente_envios.panel_envios', nombre_nora=nombre_nora) }}" class="btn">⏰ Programar mensajes</a>
 </div>
 {% endif %}
 

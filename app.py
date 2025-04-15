@@ -44,7 +44,7 @@ def home():
     if session.get("is_admin"):
         return redirect(url_for("admin_dashboard.dashboard_admin"))
     else:
-        return redirect(url_for("panel_cliente.panel_cliente"))
+        return redirect(url_for("panel_cliente.panel_cliente", nombre_nora="aura"))
 
 @app.route("/logout")
 def logout():

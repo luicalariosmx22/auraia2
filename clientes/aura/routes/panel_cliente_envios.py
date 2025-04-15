@@ -6,6 +6,7 @@ import json
 
 panel_cliente_envios_bp = Blueprint("panel_cliente_envios", __name__)
 
+# ✅ Registra el endpoint con name explícito para evitar errores
 @panel_cliente_envios_bp.route("/panel/cliente/<nombre_nora>/envios", methods=["GET", "POST"])
 def panel_envios(nombre_nora):
     if "user" not in session:
