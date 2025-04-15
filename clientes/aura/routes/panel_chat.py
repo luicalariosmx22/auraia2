@@ -1,5 +1,12 @@
+print("✅ panel_chat.py cargado correctamente")
+
 from flask import Blueprint, render_template, request, jsonify
 import os, json, datetime
+import openai
+from dotenv import load_dotenv
+
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 panel_chat_bp = Blueprint("panel_chat_aura", __name__)
 
@@ -24,6 +31,31 @@ def guardar_contactos(data):
     with open("clientes/aura/database/contactos.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
+def generar_resumen_ia(mensajes):
+    if not mensajes:
+        return "No hay suficientes mensajes para generar un resumen."
+
+    texto = "\n".join([f"{m['origen']}: {m['texto']}" for m in mensajes[-20:]])  # solo los últimos 20
+
+    prompt = f"""
+Eres un asistente profesional. Resume brevemente esta conversación entre un cliente y una IA llamada Nora. El resumen debe identificar si el cliente está interesado en algo, si ya fue atendido, y si hay seguimiento pendiente:
+
+{texto}
+
+Resumen:
+"""
+
+    try:
+        respuesta = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4
+        )
+        return respuesta.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"❌ Error al generar resumen con IA: {e}")
+        return "No se pudo generar el resumen con IA."
+
 @panel_chat_bp.route("/panel/chat/<nombre_nora>")
 def panel_chat(nombre_nora):
     contactos = leer_contactos()
@@ -43,9 +75,11 @@ def api_chat(numero):
     contactos = leer_contactos()
     contacto = next((c for c in contactos if c["numero"] == numero), {})
     historial = leer_historial("aura", numero)
+    resumen = generar_resumen_ia(historial)
     return jsonify({
         "contacto": contacto,
-        "mensajes": historial
+        "mensajes": historial,
+        "resumen_ia": resumen
     })
 
 @panel_chat_bp.route("/api/enviar-mensaje", methods=["POST"])
