@@ -6,15 +6,15 @@ def registrar_blueprints_cliente(app):
         from clientes.aura.routes.panel_cliente import panel_cliente_bp
         app.register_blueprint(panel_cliente_bp)
 
-        # Contactos
+        # Contactos del cliente
         from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
         app.register_blueprint(panel_cliente_contactos_bp)
 
         # IA
-        from clientes.aura.routes.panel_cliente_ia import panel_ia_bp
-        app.register_blueprint(panel_ia_bp)
+        from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
+        app.register_blueprint(panel_cliente_ia_bp)
 
-        # Respuestas
+        # Respuestas automáticas
         from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
         app.register_blueprint(panel_cliente_respuestas_bp)
 
@@ -23,5 +23,6 @@ def registrar_blueprints_cliente(app):
         app.register_blueprint(panel_cliente_envios_bp)
 
         print("✅ Blueprints cliente registrados")
+
     except Exception as e:
         print("❌ Error en registrar_blueprints_cliente:", str(e))

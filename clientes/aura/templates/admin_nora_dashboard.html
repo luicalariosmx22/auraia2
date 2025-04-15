@@ -33,8 +33,7 @@
             <p>Total: <strong>{{ total_contactos }}</strong></p>
             <p>Con IA desactivada: <strong>{{ sin_ia }}</strong></p>
             <p>Sin etiquetas: <strong>{{ sin_etiquetas }}</strong></p>
-            <a class="boton" href="{{ url_for('panel_contactos.panel_contactos', nombre_nora=nombre_nora) }}">👥 Ver contactos</a>
-
+            <a class="boton" href="{{ url_for('panel_cliente_contactos.panel_contactos', nombre_nora=nombre_nora) }}">👥 Ver contactos</a>
         </section>
 
         <section>
@@ -62,7 +61,7 @@
 
         <section>
             <h3>📤 Envíos Programados</h3>
-            <a class="boton" href="{{ url_for('panel_envios_programados.panel_envios', nombre_nora=nombre_nora) }}">⏰ Ver / Programar envíos</a>
+            <a class="boton" href="{{ url_for('panel_cliente_envios.panel_envios', nombre_nora=nombre_nora) }}">⏰ Ver / Programar envíos</a>
         </section>
 
         <section>

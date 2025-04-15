@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Envíos Programados – Nora {{ nombre_nora }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">📤 Envíos Programados – Nora: {{ nombre_nora }}</div>
+        <div class="logout"><a href="/logout">Cerrar sesión</a></div>
+    </header>
+
+    <main>
+        <h2>📋 Lista de Envíos Programados</h2>
+        {% if envios %}
+            <ul>
+                {% for envio in envios %}
+                    <li>{{ envio.fecha }} {{ envio.hora }} – {{ envio.mensaje }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hay envíos programados.</p>
+        {% endif %}
+
+        <h3>➕ Programar nuevo envío</h3>
+        <form method="POST">
+            <label for="mensaje">Mensaje:</label><br>
+            <textarea name="mensaje" required></textarea><br>
+            <label for="fecha">Fecha:</label><br>
+            <input type="date" name="fecha" required><br>
+            <label for="hora">Hora:</label><br>
+            <input type="time" name="hora" required><br><br>
+            <button type="submit">Programar</button>
+        </form>
+
+        <br><br>
+        <a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}" class="boton">← Volver al panel del cliente</a>
+    </main>
+</body>
+</html>

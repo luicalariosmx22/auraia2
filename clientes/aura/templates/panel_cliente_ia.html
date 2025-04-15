@@ -32,7 +32,7 @@
         </form>
 
         <br><br>
-        <a href="/admin/nora/{{ nombre_nora | default('') }}" class="boton">← Volver a Nora</a>
+        <a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}" class="boton">← Volver al panel del cliente</a>
     </main>
 </body>
 </html>

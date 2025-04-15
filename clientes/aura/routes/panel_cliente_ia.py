@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 import os
 import json
 
-# ✅ Nombre corregido
+# ✅ Nombre de blueprint corregido
 panel_cliente_ia_bp = Blueprint("panel_cliente_ia", __name__)
 
 @panel_cliente_ia_bp.route("/panel_cliente/ia/<nombre_nora>", methods=["GET", "POST"])
@@ -28,7 +28,7 @@ def panel_ia(nombre_nora):
         with open(config_path, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=4, ensure_ascii=False)
 
-        return redirect(url_for("panel_ia.panel_ia", nombre_nora=nombre_nora))
+        return redirect(url_for("panel_cliente_ia.panel_ia", nombre_nora=nombre_nora))
 
     return render_template(
         "panel_cliente_ia.html",
