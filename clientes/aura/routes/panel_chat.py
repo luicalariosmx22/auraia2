@@ -17,8 +17,8 @@ def panel_chat(nombre_nora):
                 ruta = os.path.join(historial_dir, archivo)
                 with open(ruta, "r", encoding="utf-8") as f:
                     mensajes = json.load(f)
-                    if mensajes:
-                        ultimo = mensajes[-1]
+                    if mensajes and isinstance(mensajes, list):
+                        ultimo = mensajes[-1] if len(mensajes) > 0 else {}
                         contactos.append({
                             "numero": archivo.replace(".json", ""),
                             "nombre": ultimo.get("ProfileName", archivo.replace(".json", "")),
