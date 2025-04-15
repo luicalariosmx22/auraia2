@@ -105,10 +105,10 @@
 
 {% for nora in noras %}
 <div class="card">
-    <h4>ID: {{ nora.nombre }}</h4>
+    <h4>ID: {{ nora.get("nombre", "Sin nombre") }}</h4>
 
     <div class="estado-ia">
-        {% if nora.config.get("ia_activada") %}
+        {% if nora.get("config", {}).get("ia_activada") %}
             <span class="verde">🟢 IA activada</span>
         {% else %}
             <span class="rojo">🔴 IA desactivada</span>
@@ -116,16 +116,18 @@
     </div>
 
     <strong>Módulos:</strong><br>
-    {% for m in nora.config.get("modulos", []) %}
+    {% for m in nora.get("config", {}).get("modulos", []) %}
         <span class="tag">{{ m }}</span>
+    {% else %}
+        <span class="tag">Sin módulos</span>
     {% endfor %}
 
-    <p><small>Última actualización: {{ nora.fecha_actualizacion }}</small></p>
+    <p><small>Última actualización: {{ nora.get("config", {}).get("ultima_actualizacion", "Sin fecha") }}</small></p>
 
     <div class="botones">
-        <a href="{{ url_for('admin_nora_dashboard.dashboard_nora', nombre_nora=nora.nombre) }}">📊 Ver dashboard</a>
-        <a href="{{ url_for('admin_nora.editar_nora', nombre_nora=nora.nombre) }}" class="editar">✏️ Editar</a>
-        <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nora.nombre) }}" class="chat" target="_blank">🟩 Panel tipo WhatsApp</a>
+        <a href="{{ url_for('admin_nora_dashboard.dashboard_nora', nombre_nora=nora.get('nombre')) }}">📊 Ver dashboard</a>
+        <a href="{{ url_for('admin_nora.editar_nora', nombre_nora=nora.get('nombre')) }}" class="editar">✏️ Editar</a>
+        <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nora.get('nombre')) }}" class="chat" target="_blank">🟩 Panel tipo WhatsApp</a>
     </div>
 </div>
 {% endfor %}

@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Chat – {{ nombre_nora }}</title>
+    <title>Chat – {{ nombre_nora | default("Desconocida") }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}">
 </head>
 <body>
 
-<h2>💬 Panel de Chat – {{ nombre_nora }}</h2>
+<h2>💬 Panel de Chat – {{ nombre_nora | default("Desconocida") }}</h2>
 
 <div class="chat-contenedor">
 
@@ -18,11 +18,15 @@
         </div>
         <ul class="lista-contactos">
             {% for c in contactos %}
-            <li onclick="seleccionarChat('{{ c.numero }}')">
-                <strong>{{ c.nombre }}</strong><br>
-                <small>{{ c.numero }}</small><br>
-                <span class="preview-msg">{{ c.mensajes[-1].texto if c.mensajes|length > 0 else '' }}</span>
+            <li onclick="seleccionarChat('{{ c.get('numero', '') }}')">
+                <strong>{{ c.get("nombre", "Sin nombre") }}</strong><br>
+                <small>{{ c.get("numero", "Sin número") }}</small><br>
+                <span class="preview-msg">
+                    {{ c.get("mensajes", [])[-1].get("texto") if c.get("mensajes") and c.get("mensajes")|length > 0 else '' }}
+                </span>
             </li>
+            {% else %}
+            <li><em>No hay contactos disponibles.</em></li>
             {% endfor %}
         </ul>
     </div>

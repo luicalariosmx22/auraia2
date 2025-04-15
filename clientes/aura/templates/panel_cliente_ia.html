@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Control IA - Nora {{ nombre_nora }}</title>
+    <title>Control IA - Nora {{ nombre_nora | default("Desconocida") }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
 </head>
 <body>
     <header>
-        <div class="logo">⚙️ Control de IA - Nora: {{ nombre_nora }}</div>
+        <div class="logo">⚙️ Control de IA - Nora: {{ nombre_nora | default("Desconocida") }}</div>
         <div class="logout"><a href="/logout">Cerrar sesión</a></div>
     </header>
 
@@ -32,7 +32,7 @@
         </form>
 
         <br><br>
-        <a href="/admin/nora/{{ nombre_nora }}" class="boton">← Volver a Nora</a>
+        <a href="/admin/nora/{{ nombre_nora | default('') }}" class="boton">← Volver a Nora</a>
     </main>
 </body>
 </html>

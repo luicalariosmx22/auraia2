@@ -34,18 +34,20 @@
             <tbody>
                 {% for c in contactos %}
                 <tr>
-                    <td>{{ c.nombre }}</td>
-                    <td>{{ c.numero }}</td>
+                    <td>{{ c.get("nombre", "Sin nombre") }}</td>
+                    <td>{{ c.get("numero", "Sin número") }}</td>
                     <td>
-                        {% for et in c.etiquetas %}
+                        {% for et in c.get("etiquetas", []) %}
                             <span class="badge">{{ et }}</span>
+                        {% else %}
+                            <span class="badge">Sin etiquetas</span>
                         {% endfor %}
                     </td>
                     {% if modulo_ia_activo %}
                     <td>
                         <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/toggle_ia">
-                            <input type="hidden" name="numero" value="{{ c.numero }}">
-                            {% if c.ia_activada %}
+                            <input type="hidden" name="numero" value="{{ c.get('numero') }}">
+                            {% if c.get("ia_activada") %}
                                 <button type="submit" class="btn-desactivar">Desactivar IA</button>
                             {% else %}
                                 <button type="submit" class="btn-activar">Activar IA</button>
