@@ -11,7 +11,7 @@ def panel_cliente(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    session["nombre_nora"] = nombre_nora
+    session["nombre_nora"] = nombre_nora  # para rutas dinámicas
     ruta_config = f"clientes/{nombre_nora}/config.json"
 
     if not os.path.exists(ruta_config):
@@ -32,19 +32,3 @@ def panel_cliente(nombre_nora):
         nombre_visible=nombre_visible,
         modulos=modulos
     )
-
-# Blueprint para contactos del cliente
-from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
-panel_cliente_bp.register_blueprint(panel_cliente_contactos_bp)
-
-# ✅ CORREGIDO: Blueprint para IA del cliente
-from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
-panel_cliente_bp.register_blueprint(panel_cliente_ia_bp)
-
-# Blueprint para respuestas automáticas
-from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
-panel_cliente_bp.register_blueprint(panel_cliente_respuestas_bp)
-
-# Blueprint para envíos programados
-from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
-panel_cliente_bp.register_blueprint(panel_cliente_envios_bp)
