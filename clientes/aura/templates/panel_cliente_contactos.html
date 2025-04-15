@@ -26,7 +26,7 @@
                     <th>Nombre</th>
                     <th>Teléfono</th>
                     <th>Etiquetas</th>
-                    {% if modulo_ia_activo %}
+                    {% if ia_permitida %}
                         <th>IA</th>
                     {% endif %}
                 </tr>
@@ -34,20 +34,18 @@
             <tbody>
                 {% for c in contactos %}
                 <tr>
-                    <td>{{ c.get("nombre", "Sin nombre") }}</td>
-                    <td>{{ c.get("numero", "Sin número") }}</td>
+                    <td>{{ c.nombre }}</td>
+                    <td>{{ c.numero }}</td>
                     <td>
-                        {% for et in c.get("etiquetas", []) %}
+                        {% for et in c.etiquetas %}
                             <span class="badge">{{ et }}</span>
-                        {% else %}
-                            <span class="badge">Sin etiquetas</span>
                         {% endfor %}
                     </td>
-                    {% if modulo_ia_activo %}
+                    {% if ia_permitida %}
                     <td>
                         <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/toggle_ia">
-                            <input type="hidden" name="numero" value="{{ c.get('numero') }}">
-                            {% if c.get("ia_activada") %}
+                            <input type="hidden" name="numero" value="{{ c.numero }}">
+                            {% if c.ia %}
                                 <button type="submit" class="btn-desactivar">Desactivar IA</button>
                             {% else %}
                                 <button type="submit" class="btn-activar">Activar IA</button>
@@ -63,12 +61,12 @@
         <h3>➕ Agregar nuevo contacto</h3>
         <form method="POST" class="form-contacto">
             <input type="text" name="nombre" placeholder="Nombre completo" required>
-            <input type="text" name="numero" placeholder="Número WhatsApp" required>
+            <input type="text" name="telefono" placeholder="Número WhatsApp" required>
             <input type="text" name="etiquetas" placeholder="Ej: cliente, vip, interesado">
             <button type="submit">💾 Guardar</button>
         </form>
 
-        <p><a href="/panel_cliente?forzar_cliente=1">← Volver al panel</a></p>
+        <p><a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}">← Volver al panel</a></p>
     </main>
 </body>
 </html>

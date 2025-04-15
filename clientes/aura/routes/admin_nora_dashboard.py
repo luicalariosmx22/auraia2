@@ -19,35 +19,47 @@ def dashboard_nora(nombre_nora):
         "nombre_nora": nombre_nora,
         "config": {},
         "contactos": [],
-        "respuestas": {},
+        "respuestas": [],
         "tickets": []
     }
 
-    # Configuración
     if os.path.exists(ruta_config):
         with open(ruta_config, "r", encoding="utf-8") as f:
             datos["config"] = json.load(f)
 
-    # Contactos
     if os.path.exists(ruta_contactos):
         with open(ruta_contactos, "r", encoding="utf-8") as f:
             datos["contactos"] = json.load(f)
 
-    # Respuestas del bot
     if os.path.exists(ruta_respuestas):
         with open(ruta_respuestas, "r", encoding="utf-8") as f:
             datos["respuestas"] = json.load(f)
 
-    # Tickets de soporte
     os.makedirs(os.path.dirname(ruta_tickets), exist_ok=True)
     if not os.path.exists(ruta_tickets):
         with open(ruta_tickets, "w", encoding="utf-8") as f:
             json.dump([], f)
+
     with open(ruta_tickets, "r", encoding="utf-8") as f:
         datos["tickets"] = json.load(f)
 
-    return render_template("admin_nora_dashboard.html", datos=datos)
+    total_contactos = len(datos["contactos"])
+    sin_ia = len([c for c in datos["contactos"] if not c.get("ia", True)])
+    sin_etiquetas = len([c for c in datos["contactos"] if not c.get("etiquetas")])
 
+    respuestas_claves = [r["keyword"] for r in datos["respuestas"] if "keyword" in r]
+
+    return render_template("admin_nora_dashboard.html",
+        nombre_nora=nombre_nora,
+        ia_activada=datos["config"].get("ia_activada", False),
+        modulos=datos["config"].get("modulos", []),
+        total_contactos=total_contactos,
+        sin_ia=sin_ia,
+        sin_etiquetas=sin_etiquetas,
+        total_respuestas=len(datos["respuestas"]),
+        respuestas_claves=respuestas_claves,
+        tickets=datos["tickets"]
+    )
 
 @admin_nora_dashboard_bp.route("/admin/nora/<nombre_nora>/ticket/<ticket_id>/resolver", methods=["POST"])
 def resolver_ticket(nombre_nora, ticket_id):
