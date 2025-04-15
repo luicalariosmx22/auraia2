@@ -127,7 +127,7 @@
     <div class="botones">
         <a href="{{ url_for('admin_nora_dashboard.dashboard_nora', nombre_nora=nora.get('nombre')) }}">📊 Ver dashboard</a>
         <a href="{{ url_for('admin_nora.editar_nora', nombre_nora=nora.get('nombre')) }}" class="editar">✏️ Editar</a>
-        <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nora.get('nombre')) }}" class="chat" target="_blank">🟩 Panel tipo WhatsApp</a>
+        <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nora.get('nombre', '')) }}" class="chat" target="_blank">🟩 Panel tipo WhatsApp</a>
     </div>
 </div>
 {% endfor %}
