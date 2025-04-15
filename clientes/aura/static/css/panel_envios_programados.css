@@ -1,0 +1,114 @@
+/* ✅ panel_envios_programados.css cargado correctamente */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background-color: #f5f7fb;
+    padding: 20px;
+    color: #333;
+  }
+  
+  header h2 {
+    margin-bottom: 10px;
+  }
+  
+  form, section {
+    margin-bottom: 30px;
+  }
+  
+  textarea, input[type="date"], input[type="time"] {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  
+  button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  
+  #etiquetas-contenedor label {
+    display: inline-block;
+    margin-right: 10px;
+    font-weight: normal;
+  }
+  
+  ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  ul li {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  
+  ul li .estado {
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  
+  .estado-pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .estado-cancelado {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .estado-enviado {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .tabs-envios {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .tabs-envios a {
+    padding: 8px 14px;
+    border-radius: 6px;
+    background-color: #e9ecef;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .tabs-envios a.active {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .tabs-envios a:hover {
+    background-color: #d0d6dc;
+  }

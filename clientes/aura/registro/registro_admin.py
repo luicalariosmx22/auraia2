@@ -14,6 +14,10 @@ def registrar_blueprints_admin(app):
         from clientes.aura.routes.admin_nora import admin_nora_bp
         app.register_blueprint(admin_nora_bp)  # /admin/nora/<nombre_nora>/editar
 
+        # 📤 Módulo de envíos programados por etiqueta
+        from clientes.aura.routes.envios_programados import envios_programados_bp
+        app.register_blueprint(envios_programados_bp)  # /panel/envios-programados y /api/envios-programados
+
         print("✅ Admin blueprints registrados")
 
     except Exception as e:

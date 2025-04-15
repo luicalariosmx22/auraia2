@@ -4,62 +4,6 @@
     <meta charset="UTF-8">
     <title>Panel del Cliente – {{ nombre_visible }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
-    <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background: #f4f6f8;
-            padding: 2rem;
-        }
-
-        h2, h3 {
-            color: #333;
-        }
-
-        .panel-header {
-            margin-bottom: 2rem;
-        }
-
-        .seccion {
-            background: #ffffff;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px #ddd;
-            margin-bottom: 1.5rem;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 16px;
-            margin-top: 10px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: background 0.2s;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-verde {
-            background-color: #28a745;
-        }
-
-        .btn-verde:hover {
-            background-color: #218838;
-        }
-
-        .tag {
-            background: #e0e0e0;
-            border-radius: 20px;
-            padding: 5px 12px;
-            font-size: 0.85rem;
-            margin: 3px 8px 3px 0;
-            display: inline-block;
-        }
-    </style>
 </head>
 <body>
 
@@ -99,7 +43,7 @@
 {% if "envios" in modulos %}
 <div class="seccion">
     <h3>📤 Envíos programados</h3>
-    <a href="#" class="btn">⏰ Programar mensajes</a>
+    <a href="/panel/envios-programados" class="btn">⏰ Programar mensajes</a>
 </div>
 {% endif %}
 

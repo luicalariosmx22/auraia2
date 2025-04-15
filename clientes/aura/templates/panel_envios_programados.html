@@ -34,20 +34,13 @@
     </section>
 
     <section>
-      <h3>📋 Historial de envíos programados</h3>
-      <table border="1" cellspacing="0" cellpadding="5">
-        <thead>
-          <tr>
-            <th>Número</th>
-            <th>Mensaje</th>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Programado por</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody id="tabla-envios"></tbody>
-      </table>
+      <h3>🗂️ Historial de envíos programados</h3>
+      <nav class="tabs-envios">
+        <a href="/panel/envios-programados" class="{{ 'active' if not estado else '' }}">Todos</a>
+        <a href="/panel/envios-programados/pendiente" class="{{ 'active' if estado == 'pendiente' else '' }}">Pendientes</a>
+        <a href="/panel/envios-programados/cancelado" class="{{ 'active' if estado == 'cancelado' else '' }}">Cancelados</a>
+      </nav>
+      <div id="lista-envios"></div>
     </section>
   </main>
 
@@ -61,6 +54,12 @@
         renderEtiquetas();
         renderContactosAgrupados();
       });
+
+    const estadoActual = "{{ estado or '' }}";
+    const urlEnvios = estadoActual ? `/api/envios-programados?estado=${estadoActual}` : "/api/envios-programados";
+    fetch(urlEnvios)
+      .then(r => r.json())
+      .then(envios => renderHistorial(envios));
 
     function renderEtiquetas() {
       const etiquetas = [...new Set(contactos.flatMap(c => c.etiquetas))];
@@ -117,35 +116,42 @@
         if (status === 200) {
           alert("✅ Envíos programados con éxito");
           document.getElementById("form-envio-masivo").reset();
-          cargarHistorial();
+          fetch(urlEnvios).then(r => r.json()).then(envios => renderHistorial(envios));
         } else {
           errorDiv.innerHTML = body.detalles ? body.detalles.join("<br>") : "Ocurrió un error.";
         }
       });
     }
 
-    function cargarHistorial() {
-      fetch("/api/envios-programados")
-        .then(res => res.json())
-        .then(data => {
-          const tabla = document.getElementById("tabla-envios");
-          tabla.innerHTML = "";
-          data.slice().reverse().forEach(envio => {
-            const fila = document.createElement("tr");
-            fila.innerHTML = `
-              <td>${envio.numero}</td>
-              <td>${envio.mensaje}</td>
-              <td>${envio.fecha}</td>
-              <td>${envio.hora}</td>
-              <td>${envio.programado_por}</td>
-              <td>${envio.estado}</td>
-            `;
-            tabla.appendChild(fila);
-          });
-        });
+    function renderHistorial(envios) {
+      window.listaEnviosActual = envios;
+      const cont = document.getElementById("lista-envios");
+      cont.innerHTML = "";
+      if (!envios.length) {
+        cont.innerHTML = "<p>No hay envíos programados.</p>";
+        return;
+      }
+      const lista = document.createElement("ul");
+      envios.forEach(e => {
+        const li = document.createElement("li");
+        li.innerHTML = `📤 <strong>${e.numero}</strong> – ${e.fecha} ${e.hora} – <em>${e.estado}</em><br>${e.mensaje}<br><button onclick=\"cancelarEnvio('${e.numero}', '${e.fecha}', '${e.hora}')\">🗑️ Cancelar</button>`;
+        lista.appendChild(li);
+      });
+      cont.appendChild(lista);
     }
 
-    cargarHistorial();
+    function cancelarEnvio(numero, fecha, hora) {
+      if (!confirm("¿Estás seguro que quieres cancelar este envío?")) return;
+      fetch("/api/cancelar-envio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ numero, fecha, hora })
+      }).then(res => res.json())
+        .then(() => {
+          alert("🚫 Envío cancelado");
+          fetch(urlEnvios).then(r => r.json()).then(envios => renderHistorial(envios));
+        });
+    }
   </script>
 </body>
 </html>
