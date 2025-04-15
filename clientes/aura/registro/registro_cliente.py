@@ -1,4 +1,3 @@
-```python
 print("✅ registro_cliente.py cargado correctamente")
 
 def registrar_blueprints_cliente(app):
@@ -11,4 +10,3 @@ def registrar_blueprints_cliente(app):
 
     except Exception as e:
         print("❌ Error en registrar_blueprints_cliente:", str(e))
-```
