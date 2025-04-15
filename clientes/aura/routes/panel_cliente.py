@@ -11,7 +11,7 @@ def panel_cliente(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    session["nombre_nora"] = nombre_nora  # para rutas dinámicas
+    session["nombre_nora"] = nombre_nora
     ruta_config = f"clientes/{nombre_nora}/config.json"
 
     if not os.path.exists(ruta_config):
