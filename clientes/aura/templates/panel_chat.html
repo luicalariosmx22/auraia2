@@ -18,7 +18,7 @@
         </div>
         <ul class="lista-contactos">
             {% for c in contactos %}
-            <li onclick="seleccionarChat('{{ c.get('numero', '') }}')">
+            <li onclick="seleccionarChat('{{ c.get('numero', '') }}', '{{ c.get('nombre', '') }}')">
                 <strong>{{ c.get("nombre", "Sin nombre") }}</strong><br>
                 <small>{{ c.get("numero", "Sin número") }}</small><br>
                 <span class="preview-msg">
@@ -49,10 +49,11 @@
 </div>
 
 <script>
-    function seleccionarChat(numero) {
-        // 👉 En versiones siguientes, carga dinámicamente chat e info del contacto
-        document.getElementById("chat-area").innerHTML = "<p>Cargando conversación con " + numero + "...</p>";
-        document.getElementById("info-contacto").innerHTML = "<p><strong>Número:</strong> " + numero + "<br><em>Detalles vendrán pronto...</em></p>";
+    function seleccionarChat(numero, nombre) {
+        document.getElementById("chat-area").innerHTML =
+            "<p><strong>Chat con:</strong> " + nombre + " (" + numero + ")</p><p>Cargando conversación...</p>";
+        document.getElementById("info-contacto").innerHTML =
+            "<p><strong>Número:</strong> " + numero + "<br><strong>Nombre:</strong> " + nombre + "</p>";
     }
 </script>
 
