@@ -8,7 +8,6 @@ def registrar_blueprints_cliente(app):
 
         # Módulos separados
         from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
-        from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
         from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
         from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
 
