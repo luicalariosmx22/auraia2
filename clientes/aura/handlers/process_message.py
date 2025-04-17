@@ -1,7 +1,5 @@
 # 📁 clientes/aura/handlers/process_message.py
 
-import os
-import json
 from clientes.aura.utils.normalize import normalizar_numero, limpiar_mensaje
 from clientes.aura.utils.history import guardar_en_historial
 from clientes.aura.utils.twilio_sender import enviar_mensaje
@@ -11,6 +9,8 @@ from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
 from clientes.aura.handlers.handle_files import manejar_archivos_adjuntos
 from clientes.aura.utils.comunicacion_contextual import debe_saludar, debe_preguntar_si_hay_duda
 
+# ✅ NUEVO: importar desde Supabase
+from utils.db.contactos import obtener_contacto
 
 def procesar_mensaje(data):
     numero = normalizar_numero(data.get("From"))
@@ -22,18 +22,13 @@ def procesar_mensaje(data):
     settings = cargar_settings()
     respuesta = None
 
-    # === NUEVO: Detectar si IA está desactivada por contacto ===
-    contacto_path = "clientes/aura/contactos.json"
-    if os.path.exists(contacto_path):
-        with open(contacto_path, "r", encoding="utf-8") as f:
-            contactos = json.load(f)
-            for c in contactos:
-                if normalizar_numero(c.get("numero", "")) == numero:
-                    if c.get("ia_activada") is False:
-                        mensaje_manual = "🔕 Nora AI está en modo manual. El cliente tomará el control del chat."
-                        enviar_mensaje(numero, mensaje_manual, nombre)
-                        guardar_en_historial(numero, mensaje_manual, "bot", "Aura AI")
-                        return mensaje_manual
+    # ✅ Consultar si el contacto tiene IA desactivada
+    contacto = obtener_contacto(numero)
+    if contacto and contacto.get("ia_activada") is False:
+        mensaje_manual = "🔕 Nora AI está en modo manual. El cliente tomará el control del chat."
+        enviar_mensaje(numero, mensaje_manual, nombre)
+        guardar_en_historial(numero, mensaje_manual, "bot", "Aura AI")
+        return mensaje_manual
 
     # === 1. Respuesta automática ===
     if settings.get("usar_respuestas_automaticas"):

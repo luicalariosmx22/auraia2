@@ -2,18 +2,19 @@ import os
 import openai
 from dotenv import load_dotenv
 from clientes.aura.utils.error_logger import registrar_error
+from utils.supabase_client import supabase
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-RUTA_BASE_CONOCIMIENTO = "clientes/aura/config/servicios_conocimiento.txt"
-
 def cargar_base_conocimiento():
     try:
-        with open(RUTA_BASE_CONOCIMIENTO, "r", encoding="utf-8") as f:
-            return f.read()
+        res = supabase.table("base_conocimiento").select("contenido").limit(1).execute()
+        if res.data:
+            return res.data[0]["contenido"]
+        return ""
     except Exception as e:
-        registrar_error("IA", f"No se pudo cargar el archivo de conocimiento: {e}")
+        registrar_error("IA", f"No se pudo cargar el conocimiento desde Supabase: {e}")
         return ""
 
 def manejar_respuesta_ai(mensaje_usuario):

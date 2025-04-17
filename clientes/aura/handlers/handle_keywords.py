@@ -1,11 +1,11 @@
-def manejar_respuesta_keywords(mensaje):
-    if "diseño web" in mensaje:
-        return "Claro, hacemos diseño y desarrollo web personalizado. ¿Qué tipo de página necesitas?"
+from utils.db.bot_data import obtener_respuestas
 
-    if "anuncios" in mensaje:
-        return "Te ayudamos con anuncios en Facebook, Instagram, Google y más. ¿En qué plataforma estás interesado?"
+def manejar_respuesta_keywords(mensaje_usuario):
+    respuestas = obtener_respuestas()
 
-    if "asesoría" in mensaje:
-        return "Ofrecemos asesoría personalizada en marketing digital. ¿Te gustaría agendar una llamada?"
+    for r in respuestas:
+        palabra = r.get("palabra_clave", "").lower()
+        if palabra and palabra in mensaje_usuario.lower():
+            return r.get("respuesta")
 
     return None
