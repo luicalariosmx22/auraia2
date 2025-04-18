@@ -45,7 +45,7 @@ def leer_historial(telefono):
             .table("historial_conversaciones")
             .select("*")
             .eq("telefono", telefono)
-            .order("hora", desc=False)
+            .order("hora", ascending=True)  # ✅ Corrección aquí
             .execute()
         )
         if not response.data:
