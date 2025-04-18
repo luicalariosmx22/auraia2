@@ -68,5 +68,8 @@ def callback():
     from clientes.aura.utils.auth_utils import is_admin_user
     session["is_admin"] = is_admin_user(session["user"]["email"])
 
+    # Depuración: Verifica el contenido de la sesión
+    print(f"✅ Sesión configurada: {session}")
+
     # ✅ Redirección segura usando ruta directa primero
     return redirect("/admin" if session["is_admin"] else "/panel_cliente")

@@ -28,24 +28,25 @@ def leer_contactos():
         print(f"❌ Error al cargar contactos: {str(e)}")
         return []
 
-def leer_historial(nombre_nora, telefono):
+def leer_historial(telefono):
     try:
-        response = supabase.table("historial_conversaciones").select("*").eq("nombre_nora", nombre_nora).eq("telefono", telefono).execute()
+        # Eliminamos el filtro por "nombre_nora" ya que no existe en la tabla
+        response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("hora", ascending=True).execute()
         if not response.data:
-            print(f"❌ Error al cargar historial: {not response.data}")
+            print(f"⚠️ No se encontró historial para {telefono}.")
             return []
+        print(f"✅ Historial cargado para {telefono}: {response.data}")
         return response.data
     except Exception as e:
         print(f"❌ Error al cargar historial: {str(e)}")
         return []
 
-def guardar_historial(nombre_nora, telefono, mensajes):
+def guardar_historial(telefono, mensajes):
     registros = [
         {
-            "nombre_nora": nombre_nora,
             "telefono": telefono,
             "mensaje": mensaje["texto"],
-            "origen": mensaje["origen"],
+            "emisor": mensaje["origen"],  # Cambiado de "origen" a "emisor" para coincidir con la tabla
             "hora": mensaje["hora"]
         }
         for mensaje in mensajes
@@ -61,7 +62,7 @@ def generar_resumen_ia(mensajes):
     if not mensajes:
         return "No hay suficientes mensajes para generar un resumen."
 
-    texto = "\n".join([f"{m['origen']}: {m['mensaje']}" for m in mensajes[-20:]])
+    texto = "\n".join([f"{m['emisor']}: {m['mensaje']}" for m in mensajes[-20:]])
 
     prompt = f"""
 Eres un asistente profesional. Resume brevemente esta conversación entre un cliente y una IA llamada Nora. El resumen debe identificar si el cliente está interesado en algo, si ya fue atendido, y si hay seguimiento pendiente:
@@ -90,7 +91,7 @@ def panel_chat(nombre_nora):
     contactos = leer_contactos()
     lista = []
     for c in contactos:
-        mensajes = leer_historial(nombre_nora, c["telefono"])
+        mensajes = leer_historial(c["telefono"])
         lista.append({**c, "mensajes": mensajes})
     return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
 
@@ -98,7 +99,7 @@ def panel_chat(nombre_nora):
 def api_chat(telefono):
     contactos = leer_contactos()
     contacto = next((c for c in contactos if c["telefono"] == telefono), {})
-    historial = leer_historial("aura", telefono)
+    historial = leer_historial(telefono)
     resumen = generar_resumen_ia(historial)
     return jsonify({
         "success": True,
@@ -112,15 +113,14 @@ def api_enviar_mensaje():
     data = request.json
     telefono = data.get("numero")
     texto = data.get("mensaje")
-    nombre_nora = data.get("nombre_nora")
 
-    if not all([telefono, texto, nombre_nora]):
+    if not all([telefono, texto]):
         return jsonify({"success": False, "error": "Datos incompletos"}), 400
 
-    historial = leer_historial(nombre_nora, telefono)
+    historial = leer_historial(telefono)
     historial.append({
         "origen": "usuario",
-        "mensaje": texto,
+        "texto": texto,
         "hora": datetime.datetime.now().strftime("%H:%M")
     })
 
@@ -129,12 +129,12 @@ def api_enviar_mensaje():
     if contacto.get("ia_activada"):
         respuesta = f"Respuesta IA a: {texto}"
         historial.append({
-            "origen": "nora",
-            "mensaje": respuesta,
+            "origen": "bot",
+            "texto": respuesta,
             "hora": datetime.datetime.now().strftime("%H:%M")
         })
 
-    guardar_historial(nombre_nora, telefono, historial)
+    guardar_historial(telefono, historial)
     return jsonify({"success": True})
 
 @panel_chat_bp.route("/api/toggle-ia/<telefono>", methods=["POST"])
@@ -162,8 +162,7 @@ def api_programar_envio():
             "numero": data.get("numero"),
             "mensaje": data.get("mensaje"),
             "fecha": data.get("fecha"),
-            "hora": data.get("hora"),
-            "nombre_nora": data.get("nombre_nora")
+            "hora": data.get("hora")
         }).execute()
         if not response.data:
             print(f"❌ Error al programar envío: {not response.data}")
