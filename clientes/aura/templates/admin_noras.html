@@ -1,136 +1,33 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Noras activas</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
-    <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background: #f8f9fa;
-            padding: 2rem;
-        }
-
-        h2 {
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 8px 14px;
-            background: #007bff;
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .btn i {
-            margin-right: 4px;
-        }
-
-        .card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
-        }
-
-        .card h4 {
-            margin-top: 0;
-            color: #444;
-        }
-
-        .tag {
-            display: inline-block;
-            background: #e9ecef;
-            color: #333;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            margin: 3px;
-        }
-
-        .estado-ia {
-            margin: 10px 0;
-            font-weight: bold;
-        }
-
-        .estado-ia span {
-            padding: 5px 10px;
-            border-radius: 6px;
-        }
-
-        .verde {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .rojo {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .botones {
-            margin-top: 1rem;
-        }
-
-        .botones a {
-            margin-right: 10px;
-            background: #007bff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            color: white;
-            font-size: 0.9rem;
-            text-decoration: none;
-        }
-
-        .botones a.editar {
-            background: #fd7e14;
-        }
-
-        .botones a.chat {
-            background: #28a745;
-        }
-    </style>
-</head>
-<body>
-
 <h2>🤖 Noras activas en el sistema ({{ noras|length }})</h2>
+<button class="btn-nueva-nora">+ Crear nueva Nora AI</button>
 
-<a href="{{ url_for('admin_nora.crear_nora') }}" class="btn">➕ Crear nueva Nora AI</a>
-
-{% for nora in noras %}
-<div class="card">
-    <h4>ID: {{ nora.get("nombre", "Sin nombre") }}</h4>
-
-    <div class="estado-ia">
-        {% if nora.get("config", {}).get("ia_activada") %}
-            <span class="verde">🟢 IA activada</span>
-        {% else %}
-            <span class="rojo">🔴 IA desactivada</span>
-        {% endif %}
+<div class="grid-noras">
+  {% for nora in noras %}
+  <div class="card-nora">
+    <div class="nora-header">
+      <span class="nora-id">🧠 {{ nora.id }}</span>
+      <span class="estado-ia {{ 'ia-activa' if nora.ia else 'ia-inactiva' }}">
+        ● IA {{ 'activada' if nora.ia else 'desactivada' }}
+      </span>
     </div>
-
-    <strong>Módulos:</strong><br>
-    {% for m in nora.get("config", {}).get("modulos", []) %}
-        <span class="tag">{{ m }}</span>
-    {% else %}
-        <span class="tag">Sin módulos</span>
-    {% endfor %}
-
-    <p><small>Última actualización: {{ nora.get("config", {}).get("ultima_actualizacion", "Sin fecha") }}</small></p>
-
-    <div class="botones">
-        <a href="{{ url_for('admin_nora_dashboard.dashboard_nora', nombre_nora=nora.get('nombre')) }}">📊 Ver dashboard</a>
-        <a href="{{ url_for('admin_nora.editar_nora', nombre_nora=nora.get('nombre')) }}" class="editar">✏️ Editar</a>
-        <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nora.get('nombre', '')) }}" class="chat" target="_blank">🟩 Panel tipo WhatsApp</a>
+    <div class="nora-modulos">
+      <strong>Módulos:</strong>
+      {% if nora.modulos %}
+        {{ nora.modulos|join(", ") }}
+      {% else %}
+        <span class="sin-modulos">Sin módulos</span>
+      {% endif %}
     </div>
+    <div class="nora-footer">
+      <span class="nora-fecha">
+        Última actualización: {{ nora.actualizacion or "Sin fecha" }}
+      </span>
+      <div class="nora-actions">
+        <a href="/panel/{{ nora.id }}" class="btn-panel">Panel tipo WhatsApp</a>
+        <a href="/dashboard/{{ nora.id }}" class="btn-dashboard">Dashboard</a>
+        <a href="/editar/{{ nora.id }}" class="btn-editar">Editar</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
 </div>
-{% endfor %}
-
-</body>
-</html>

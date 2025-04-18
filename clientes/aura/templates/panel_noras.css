@@ -1,0 +1,103 @@
+.btn-nueva-nora {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.grid-noras {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.card-nora {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.nora-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.nora-id {
+  font-weight: bold;
+}
+
+.estado-ia {
+  font-size: 0.9em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.ia-activa {
+  background-color: #dcf8c6;
+  color: #34a853;
+}
+
+.ia-inactiva {
+  background-color: #fddede;
+  color: #d93025;
+}
+
+.nora-modulos {
+  font-size: 0.9em;
+  margin-bottom: 12px;
+}
+
+.sin-modulos {
+  color: #888;
+  font-style: italic;
+}
+
+.nora-footer {
+  font-size: 0.8em;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+}
+
+.nora-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.nora-actions a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.btn-panel {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-dashboard {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-editar {
+  background-color: #fd7e14;
+  color: white;
+}
