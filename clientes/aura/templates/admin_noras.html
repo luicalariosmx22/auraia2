@@ -2,47 +2,51 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Noras activas en el sistema</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
+  <title>Administrador de Noras – Nora AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/meta_style_panel.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <main style="padding: 30px; max-width: 1200px; margin: auto;">
-    <h2>🤖 Noras activas en el sistema ({{ noras|length }})</h2>
+  <div class="meta-container">
+    <header class="meta-header">
+      <h1>🤖 Noras activas</h1>
+      <button class="btn-primary" onclick="location.href='/crear_nora'">+ Nueva Nora AI</button>
+    </header>
 
-    <button class="btn-nueva-nora" onclick="location.href='/crear_nora'">
-      + Crear nueva Nora AI
-    </button>
-
-    <div class="grid-noras">
+    <section class="meta-grid">
       {% for nora in noras %}
-      <div class="card-nora">
-        <div class="nora-header">
-          <span class="nora-id">🧠 {{ nora.id }}</span>
-          <span class="estado-ia {{ 'ia-activa' if nora.ia else 'ia-inactiva' }}">
-            ● IA {{ 'activada' if nora.ia else 'desactivada' }}
-          </span>
-        </div>
-        <div class="nora-modulos">
-          <strong>Módulos:</strong>
-          {% if nora.modulos %}
-            {{ nora.modulos|join(", ") }}
-          {% else %}
-            <span class="sin-modulos">Sin módulos</span>
-          {% endif %}
-        </div>
-        <div class="nora-footer">
-          <span class="nora-fecha">
-            Última actualización: {{ nora.actualizacion or "Sin fecha" }}
-          </span>
-          <div class="nora-actions">
-            <a href="/panel/{{ nora.id }}" class="btn-panel">Panel tipo WhatsApp</a>
-            <a href="/dashboard/{{ nora.id }}" class="btn-dashboard">Dashboard</a>
-            <a href="/editar/{{ nora.id }}" class="btn-editar">Editar</a>
+      <div class="meta-card">
+        <div class="meta-card-header">
+          <div>
+            <div class="nora-id">{{ nora.id }}</div>
+            <div class="nora-status {{ 'status-on' if nora.ia else 'status-off' }}">
+              ● IA {{ 'activada' if nora.ia else 'desactivada' }}
+            </div>
           </div>
+          <span class="nora-date">Actualizado: {{ nora.actualizacion or 'Sin fecha' }}</span>
+        </div>
+
+        <div class="meta-card-body">
+          <div class="nora-modulos">
+            {% if nora.modulos %}
+              {% for m in nora.modulos %}
+                <span class="badge">{{ m }}</span>
+              {% endfor %}
+            {% else %}
+              <span class="badge badge-muted">Sin módulos</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="meta-card-actions">
+          <a href="/panel/{{ nora.id }}" class="btn-neutral">💬 Panel Chat</a>
+          <a href="/dashboard/{{ nora.id }}" class="btn-neutral">📊 Dashboard</a>
+          <a href="/editar/{{ nora.id }}" class="btn-outline">✏️ Editar</a>
         </div>
       </div>
       {% endfor %}
-    </div>
-  </main>
+    </section>
+  </div>
 </body>
 </html>

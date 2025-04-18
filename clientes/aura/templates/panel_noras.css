@@ -1,103 +1,134 @@
-.btn-nueva-nora {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  cursor: pointer;
-}
-
-.grid-noras {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
-}
-
-.card-nora {
-  background: white;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.nora-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1rem;
-  margin-bottom: 8px;
-}
-
-.nora-id {
-  font-weight: bold;
-}
-
-.estado-ia {
-  font-size: 0.9em;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-.ia-activa {
-  background-color: #dcf8c6;
-  color: #34a853;
-}
-
-.ia-inactiva {
-  background-color: #fddede;
-  color: #d93025;
-}
-
-.nora-modulos {
-  font-size: 0.9em;
-  margin-bottom: 12px;
-}
-
-.sin-modulos {
-  color: #888;
-  font-style: italic;
-}
-
-.nora-footer {
-  font-size: 0.8em;
-  color: #666;
-  display: flex;
-  flex-direction: column;
-}
-
-.nora-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.nora-actions a {
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85em;
-  text-decoration: none;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.btn-panel {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-dashboard {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-editar {
-  background-color: #fd7e14;
-  color: white;
-}
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #f6f7fb;
+    color: #1c1e21;
+  }
+  
+  .meta-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 40px 20px;
+  }
+  
+  .meta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .meta-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+  
+  .btn-primary {
+    background-color: #1877f2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .btn-primary:hover {
+    background-color: #165fda;
+  }
+  
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+  
+  .meta-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .meta-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  
+  .nora-id {
+    font-weight: 600;
+    font-size: 1.1em;
+  }
+  
+  .nora-status {
+    font-size: 0.9em;
+    margin-top: 4px;
+  }
+  
+  .status-on {
+    color: #1a7f37;
+  }
+  
+  .status-off {
+    color: #e53935;
+  }
+  
+  .nora-date {
+    font-size: 0.8em;
+    color: #777;
+  }
+  
+  .meta-card-body {
+    margin: 12px 0;
+  }
+  
+  .badge {
+    background-color: #e4e6eb;
+    color: #050505;
+    font-size: 0.8em;
+    padding: 5px 10px;
+    border-radius: 999px;
+    margin-right: 6px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  
+  .badge-muted {
+    background-color: #f0f0f0;
+    color: #888;
+  }
+  
+  .meta-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .btn-neutral {
+    background-color: #f0f2f5;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    color: #050505;
+  }
+  
+  .btn-outline {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background-color: white;
+    color: #050505;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
