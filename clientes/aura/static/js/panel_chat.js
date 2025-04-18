@@ -11,46 +11,43 @@ function manejarError(err, mensaje) {
     mostrarError(mensaje);
 }
 
-function mostrarMensajes(mensajes) {
-    const chatArea = document.getElementById("chat-area");
-    const debugChat = document.getElementById("debug-chat");
-    chatArea.innerHTML = ""; // Limpia el área de chat
-    debugChat.textContent = JSON.stringify(mensajes, null, 2); // Muestra los mensajes en formato JSON
+// Nueva implementación de cargarChat con async/await
+async function cargarChat(numero) {
+    try {
+        const response = await fetch(`/api/chat/${numero}`);
+        const data = await response.json();
 
-    mensajes.forEach(mensaje => {
-        const mensajeDiv = document.createElement("div");
-        mensajeDiv.classList.add("mensaje");
+        const chatArea = document.getElementById("chat-area");
+        chatArea.innerHTML = ""; // Limpiar
 
-        // Diferenciar entre mensajes del usuario y de Nora
-        if (mensaje.emisor === "usuario") {
-            mensajeDiv.classList.add("usuario");
-            mensajeDiv.innerHTML = `<div class="texto">${mensaje.mensaje}</div>`;
-        } else if (mensaje.emisor === "bot") {
-            mensajeDiv.classList.add("nora");
-            mensajeDiv.innerHTML = `<div class="texto">${mensaje.mensaje}</div>`;
+        if (!data.success || !data.mensajes) {
+            chatArea.innerHTML = "<p>Error al cargar el historial.</p>";
+            return;
         }
 
-        chatArea.appendChild(mensajeDiv);
-    });
+        data.mensajes.forEach(m => {
+            const burbuja = document.createElement("div");
+            burbuja.classList.add("burbuja");
+            burbuja.classList.add(m.emisor === "bot" ? "nora" : "usuario");
 
-    // Desplazar hacia abajo automáticamente
-    chatArea.scrollTop = chatArea.scrollHeight;
-}
+            const hora = document.createElement("span");
+            hora.classList.add("hora");
+            hora.innerText = m.hora.slice(11, 16); // solo HH:MM
 
-function cargarChat(telefono) {
-    contactoActual = telefono;
-    fetch(`/api/chat/${telefono}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log("Datos del chat:", data);
-            if (data.success) {
-                mostrarMensajes(data.mensajes);
-                mostrarInfoContacto(data.contacto);
-            } else {
-                console.error("Error al cargar el chat:", data.error);
-            }
-        })
-        .catch(error => console.error("Error al cargar el chat:", error));
+            burbuja.innerText = m.mensaje;
+            burbuja.appendChild(hora);
+            chatArea.appendChild(burbuja);
+        });
+
+        // También actualiza los detalles del contacto a la derecha
+        document.getElementById("nombre-contacto").innerText = data.contacto.nombre;
+        document.getElementById("numero-contacto").innerText = data.contacto.telefono;
+        document.getElementById("resumen-contacto").innerText = data.resumen_ia || "Sin resumen.";
+    } catch (error) {
+        console.error("Error al cargar el chat:", error);
+        const chatArea = document.getElementById("chat-area");
+        chatArea.innerHTML = "<p>Error al cargar el historial.</p>";
+    }
 }
 
 function enviarMensaje(e) {
