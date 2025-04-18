@@ -8,12 +8,10 @@
     const nombreNora = "{{ nombre_nora }}";
   </script>
   <style>
-    /* Estilo general */
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: #e6f0ff; /* Fondo azul claro */
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f0f2f5;
     }
 
     .chat-wrapper {
@@ -21,119 +19,143 @@
       height: 100vh;
     }
 
-    /* Columna izquierda: Lista de contactos */
     .col-izquierda {
       width: 30%;
-      background-color: #004080; /* Azul oscuro */
-      color: white;
+      background-color: #fff;
+      border-right: 1px solid #ddd;
       display: flex;
       flex-direction: column;
     }
 
     .buscador {
       padding: 10px;
-      background-color: #003366; /* Azul más oscuro */
+      border-bottom: 1px solid #ddd;
     }
 
     .buscador input {
       width: 100%;
       padding: 10px;
       border: none;
-      border-radius: 5px;
-      outline: none;
+      border-radius: 10px;
+      background-color: #f0f2f5;
     }
 
     .lista-contactos {
+      flex-grow: 1;
+      overflow-y: auto;
       list-style: none;
       margin: 0;
       padding: 0;
-      overflow-y: auto;
-      flex-grow: 1;
     }
 
     .lista-contactos li {
       padding: 15px;
-      border-bottom: 1px solid #00509e; /* Azul intermedio */
+      border-bottom: 1px solid #eee;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.2s;
     }
 
     .lista-contactos li:hover {
-      background-color: #00509e; /* Azul intermedio */
+      background-color: #f5f5f5;
     }
 
-    .lista-contactos .nombre {
-      font-weight: bold;
+    .nombre {
+      font-weight: 600;
+      font-size: 1em;
+      color: #111;
     }
 
-    .lista-contactos .numero {
-      font-size: 0.9em;
-      color: #cce0ff; /* Azul claro */
+    .numero {
+      font-size: 0.85em;
+      color: #777;
     }
 
-    .lista-contactos .preview {
+    .preview {
       font-size: 0.8em;
-      color: #99c2ff; /* Azul más claro */
+      color: #aaa;
+      margin-top: 4px;
     }
 
-    /* Columna central: Conversación */
     .col-central {
       width: 50%;
       display: flex;
       flex-direction: column;
-      background-color: #f0f8ff; /* Fondo azul claro */
+      background-color: #e5ddd5;
+      position: relative;
     }
 
     .chat-area {
       flex-grow: 1;
       padding: 20px;
       overflow-y: auto;
-      background-color: #ffffff; /* Blanco */
-      border-left: 1px solid #cce0ff; /* Azul claro */
-      border-right: 1px solid #cce0ff; /* Azul claro */
+      background-color: #efeae2;
+      display: flex;
+      flex-direction: column;
     }
 
     .chat-area .placeholder {
-      color: #99c2ff; /* Azul más claro */
       text-align: center;
-      margin-top: 50px;
+      margin-top: 100px;
+      color: #999;
+    }
+
+    .mensaje {
+      max-width: 60%;
+      padding: 10px 15px;
+      margin: 5px 0;
+      border-radius: 8px;
+      font-size: 0.95em;
+      position: relative;
+    }
+
+    .mensaje.recibido {
+      background-color: #fff;
+      align-self: flex-start;
+      border: 1px solid #ddd;
+    }
+
+    .mensaje.enviado {
+      background-color: #dcf8c6;
+      align-self: flex-end;
     }
 
     .form-envio {
       display: flex;
       padding: 10px;
-      background-color: #e6f0ff; /* Fondo azul claro */
-      border-top: 1px solid #cce0ff; /* Azul claro */
+      background-color: #f0f0f0;
+      border-top: 1px solid #ddd;
     }
 
     .form-envio input {
       flex-grow: 1;
-      padding: 10px;
-      border: 1px solid #cce0ff; /* Azul claro */
-      border-radius: 5px;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
       outline: none;
+      font-size: 1em;
+      background-color: white;
     }
 
     .form-envio button {
-      margin-left: 10px;
-      padding: 10px 20px;
-      background-color: #004080; /* Azul oscuro */
+      background-color: #00bfa5;
       color: white;
       border: none;
-      border-radius: 5px;
+      padding: 12px 20px;
+      border-radius: 25px;
+      margin-left: 10px;
+      font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.2s;
     }
 
     .form-envio button:hover {
-      background-color: #00509e; /* Azul intermedio */
+      background-color: #009688;
     }
 
-    /* Columna derecha: Info del contacto */
     .col-derecha {
       width: 20%;
-      background-color: #004080; /* Azul oscuro */
-      color: white;
+      background-color: #fff;
+      border-left: 1px solid #ddd;
       display: flex;
       flex-direction: column;
       padding: 20px;
@@ -149,13 +171,12 @@
     }
 
     .info-contacto p {
-      color: #cce0ff; /* Azul claro */
+      color: #555;
     }
   </style>
 </head>
 <body>
   <div class="chat-wrapper">
-
     <!-- COL 1: Lista de contactos -->
     <aside class="col-izquierda">
       <div class="buscador">
@@ -176,6 +197,11 @@
     <section class="col-central">
       <div class="chat-area" id="chat-area">
         <p class="placeholder">Selecciona un contacto para comenzar a chatear.</p>
+        <!-- Aquí irán los mensajes -->
+        <!-- Ejemplo:
+        <div class="mensaje recibido">Hola, ¿cómo estás?</div>
+        <div class="mensaje enviado">Todo bien, gracias!</div>
+        -->
       </div>
       <form class="form-envio" onsubmit="enviarMensaje(event)">
         <input type="text" id="mensaje" placeholder="Escribe un mensaje...">
@@ -189,8 +215,8 @@
         <p>Selecciona un contacto para ver detalles.</p>
       </div>
     </aside>
-
   </div>
+
   <script src="{{ url_for('static', filename='js/panel_chat.js') }}"></script>
 </body>
 </html>
