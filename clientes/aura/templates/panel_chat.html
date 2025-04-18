@@ -10,64 +10,51 @@
 </head>
 <body>
   <div class="chat-wrapper">
-    
-    <!-- Columna izquierda -->
-    <div class="sidebar">
-      <div class="search-bar">
+
+    <!-- 📍 Panel izquierdo (Contactos) -->
+    <div class="col-izquierda">
+      <div class="buscador">
         <input type="text" placeholder="🔍 Buscar contacto..." oninput="filtrarContactosPorNombre(this.value)">
       </div>
-      <div class="filter-bar">
+      <div class="buscador">
         <select onchange="filtrarContactosPorEtiqueta(this.value)">
           <option value="">Todos</option>
-          <option value="Clientes">Clientes</option>
-          <option value="VIP">VIP</option>
+          <option value="cliente">Clientes</option>
+          <option value="vip">VIP</option>
         </select>
       </div>
-      <div class="contact-list" id="lista-contactos">
-        <!-- Los contactos se renderizan dinámicamente -->
-      </div>
+      <ul class="lista-contactos" id="lista-contactos"></ul>
     </div>
 
-    <!-- Chat principal -->
-    <div class="chat-main">
-      <div class="chat-header">
-        <h3 id="contacto-nombre">Selecciona un contacto</h3>
-        <span id="contacto-etiquetas"></span>
+    <!-- 📍 Panel central (Mensajes) -->
+    <div class="col-central">
+      <div id="chat-area">
+        <p class="placeholder">Selecciona un contacto para ver la conversación</p>
       </div>
-      <div class="chat-body" id="chat-mensajes">
-        <p class="placeholder">Selecciona un contacto</p>
-      </div>
-      <div class="chat-input">
-        <input type="text" placeholder="Escribe un mensaje..." id="input-mensaje">
-        <button id="btn-enviar">Enviar</button>
-      </div>
-    </div>
-
-    <!-- Información del contacto -->
-    <div class="contact-info">
-      <h4>Atributos</h4>
-      <p><strong>Teléfono:</strong> <span id="contacto-telefono"></span></p>
-      <p><strong>Etiquetas:</strong> <span id="contacto-tags"></span></p>
-      <div class="toggle-ia">
-        <label>IA Activada:</label>
-        <input type="checkbox" id="toggle-ia">
-      </div>
-
-      <!-- Formulario de envío de mensajes -->
-      <h4>Enviar mensaje</h4>
-      <form class="form-envio">
-        <input type="text" name="mensaje" placeholder="Escribe un mensaje..." />
+      <form class="form-envio" onsubmit="enviarMensaje(event)">
+        <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
         <button type="submit">Enviar</button>
       </form>
+    </div>
+
+    <!-- 📍 Panel derecho (Info del contacto) -->
+    <div class="col-derecha">
+      <div class="info-contacto">
+        <h4 id="contacto-nombre">Contacto</h4>
+        <p><strong>Teléfono:</strong> <span id="contacto-telefono">---</span></p>
+        <p><strong>Etiquetas:</strong> <span id="contacto-etiquetas">---</span></p>
+        <p><strong>IA activada:</strong>
+          <input type="checkbox" id="toggle-ia" onchange="toggleIA(this)">
+        </p>
+      </div>
     </div>
 
   </div>
 
   <script>
-    // Lista de contactos desde el backend
     const contactos = {{ contactos | tojson }};
+    let contactoSeleccionado = null;
 
-    // Renderiza la lista de contactos
     function renderizarContactos() {
       const contenedor = document.getElementById('lista-contactos');
       contenedor.innerHTML = "";
@@ -77,48 +64,87 @@
           ? c.mensajes[c.mensajes.length - 1].mensaje.slice(0, 30) + "..."
           : "Sin mensajes aún";
 
-        const item = document.createElement('div');
-        item.className = "contacto-item";
-        item.innerHTML = `
-          <div onclick="seleccionarContacto('${c.telefono}')">
-            <strong>${c.nombre || c.telefono}</strong><br>
-            <span class="ultimo-mensaje">${ultimoMensaje}</span>
-          </div>
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <div class="nombre">${c.nombre || c.telefono}</div>
+          <div class="preview">${ultimoMensaje}</div>
         `;
-        contenedor.appendChild(item);
+        li.onclick = () => seleccionarContacto(c.telefono);
+        contenedor.appendChild(li);
       });
     }
 
-    // Función para manejar clic en contacto
     function seleccionarContacto(telefono) {
+      contactoSeleccionado = telefono;
       fetch(`/api/chat/${telefono}`)
         .then(res => res.json())
         .then(data => {
-          if (data.success) {
-            renderizarChat(data.mensajes);
-            document.getElementById('contacto-nombre').innerText = data.contacto.nombre || telefono;
-            document.getElementById('contacto-telefono').innerText = data.contacto.telefono;
-            document.getElementById('contacto-tags').innerText = (data.contacto.etiquetas || []).join(', ');
-            document.getElementById('toggle-ia').checked = !!data.contacto.ia_activada;
-          } else {
-            document.getElementById('chat-mensajes').innerHTML = "<p class='placeholder'>Error al cargar el historial.</p>";
-          }
+          if (!data.success) throw new Error("No se pudo cargar historial.");
+          renderizarMensajes(data.mensajes);
+          document.getElementById("contacto-nombre").innerText = data.contacto.nombre || telefono;
+          document.getElementById("contacto-telefono").innerText = data.contacto.telefono;
+          document.getElementById("contacto-etiquetas").innerText = (data.contacto.etiquetas || []).join(", ");
+          document.getElementById("toggle-ia").checked = !!data.contacto.ia_activada;
+        })
+        .catch(() => {
+          document.getElementById("chat-area").innerHTML = "<p class='error'>Error al cargar el historial.</p>";
         });
     }
 
-    // Renderizar mensajes
-    function renderizarChat(mensajes) {
-      const contenedor = document.getElementById('chat-mensajes');
-      contenedor.innerHTML = "";
+    function renderizarMensajes(mensajes) {
+      const area = document.getElementById("chat-area");
+      area.innerHTML = "";
       mensajes.forEach(m => {
-        const msg = document.createElement('div');
-        msg.className = m.emisor === "usuario" ? "mensaje usuario" : "mensaje bot";
-        msg.innerText = m.mensaje;
-        contenedor.appendChild(msg);
+        const div = document.createElement("div");
+        div.className = `burbuja ${m.emisor === "usuario" ? "usuario" : "nora"}`;
+        div.innerText = m.mensaje;
+        area.appendChild(div);
       });
     }
 
-    // Inicializar
+    function enviarMensaje(e) {
+      e.preventDefault();
+      const texto = document.getElementById("mensaje-input").value.trim();
+      if (!texto || !contactoSeleccionado) return;
+
+      fetch("/api/enviar-mensaje", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          numero: contactoSeleccionado,
+          mensaje: texto
+        })
+      }).then(() => {
+        seleccionarContacto(contactoSeleccionado); // Recargar historial
+        document.getElementById("mensaje-input").value = "";
+      });
+    }
+
+    function toggleIA(checkbox) {
+      if (!contactoSeleccionado) return;
+      fetch(`/api/toggle-ia/${contactoSeleccionado}`, { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+          if (!data.success) alert("Error al cambiar el estado de la IA.");
+        });
+    }
+
+    function filtrarContactosPorNombre(nombre) {
+      const nombreLimpio = nombre.toLowerCase();
+      document.querySelectorAll("#lista-contactos li").forEach(el => {
+        const texto = el.innerText.toLowerCase();
+        el.style.display = texto.includes(nombreLimpio) ? "block" : "none";
+      });
+    }
+
+    function filtrarContactosPorEtiqueta(etiqueta) {
+      document.querySelectorAll("#lista-contactos li").forEach(el => {
+        const contacto = contactos.find(c => el.innerText.includes(c.nombre || c.telefono));
+        const tieneEtiqueta = contacto.etiquetas.includes(etiqueta);
+        el.style.display = (etiqueta === "" || tieneEtiqueta) ? "block" : "none";
+      });
+    }
+
     renderizarContactos();
   </script>
 </body>
