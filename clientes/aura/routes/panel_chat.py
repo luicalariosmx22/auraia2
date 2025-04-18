@@ -38,7 +38,8 @@ def leer_contactos():
 def leer_historial(telefono):
     try:
         print(f"🔍 Leyendo historial para el teléfono: {telefono}...")
-        response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("hora", ascending=True).execute()
+        response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("hora", desc=False)  # ✅ orden ascendente correcto
+.execute()
         if not response.data:
             print(f"⚠️ No se encontró historial para {telefono}.")
             return []
