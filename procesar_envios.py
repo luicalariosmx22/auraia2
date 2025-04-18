@@ -92,7 +92,7 @@ def procesar_envios():
                     print(f"📤 Enviando mensaje programado a {envio['numero']}")
                     historial = leer_historial(envio["nombre_nora"], envio["numero"])
                     historial.append({
-                        "origen": "nora",
+                        "origen": "nora",  # Cambiado a 'emisor' en guardar_historial
                         "texto": envio["mensaje"],
                         "hora": ahora.strftime("%H:%M")
                     })
@@ -103,7 +103,7 @@ def procesar_envios():
                     if contacto.get("ia", False):
                         respuesta = f"Respuesta automática a: {envio['mensaje']}"
                         historial.append({
-                            "origen": "nora",
+                            "origen": "nora",  # Cambiado a 'emisor' en guardar_historial
                             "texto": respuesta,
                             "hora": ahora.strftime("%H:%M")
                         })

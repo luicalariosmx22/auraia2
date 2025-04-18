@@ -13,6 +13,11 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("❌ Error: SUPABASE_URL o SUPABASE_KEY no están configurados.")
+else:
+    print("✅ Conexión con Supabase configurada correctamente.")
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 panel_chat_bp = Blueprint("panel_chat_aura", __name__)
@@ -20,9 +25,10 @@ panel_chat_bp = Blueprint("panel_chat_aura", __name__)
 def leer_contactos():
     try:
         response = supabase.table("contactos").select("*").execute()
-        if not response.data:
-            print(f"❌ Error al cargar contactos: {not response.data}")
+        if not response.data:  # Si no hay datos, imprime un mensaje
+            print(f"⚠️ No se encontraron contactos en la tabla 'contactos'.")
             return []
+        print(f"✅ Contactos cargados: {response.data}")
         return response.data
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
