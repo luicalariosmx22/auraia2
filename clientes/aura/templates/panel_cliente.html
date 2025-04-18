@@ -1,58 +1,79 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Panel del Cliente – {{ nombre_visible }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
+  <meta charset="UTF-8">
+  <title>Panel del Cliente – {{ nombre_visible }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="meta-container">
+    <header class="meta-header">
+      <div>
+        <h1>👋 Hola {{ user.name }}</h1>
+        <p style="font-size: 1.2rem;">Gestionando: <strong>{{ nombre_visible }}</strong></p>
+      </div>
+    </header>
 
-<div class="panel-header">
-    <h2>👋 Hola {{ user.name }}</h2>
-    <h3>🤖 Gestionando: <strong>{{ nombre_visible }}</strong></h3>
-</div>
+    <section class="seccion">
+      <h3>⚙️ Módulos activos:</h3>
+      {% for modulo in modulos %}
+        <span class="badge">{{ modulo }}</span>
+      {% endfor %}
+    </section>
 
-<div class="seccion">
-    <h3>⚙️ Módulos activos:</h3>
-    {% for modulo in modulos %}
-        <span class="tag">{{ modulo }}</span>
-    {% endfor %}
-</div>
+    <section class="meta-grid">
 
-{% if "contactos" in modulos %}
-<div class="seccion">
-    <h3>👥 Gestión de Contactos</h3>
-    <a href="{{ url_for('panel_cliente_contactos.panel_contactos', nombre_nora=nombre_nora) }}" class="btn">📂 Ver contactos</a>
-</div>
-{% endif %}
+      {% if "contactos" in modulos %}
+      <div class="meta-card">
+        <h3>👥 Gestión de Contactos</h3>
+        <p>Visualiza y administra tu base de clientes o leads.</p>
+        <a href="{{ url_for('panel_cliente_contactos.panel_contactos', nombre_nora=nombre_nora) }}" class="btn-neutral">📂 Ver contactos</a>
+      </div>
+      {% endif %}
 
-{% if "ia" in modulos %}
-<div class="seccion">
-    <h3>🧠 Control de Inteligencia Artificial</h3>
-    <a href="{{ url_for('panel_cliente_ia.panel_ia', nombre_nora=nombre_nora) }}" class="btn">⚙️ Activar / Desactivar IA</a>
-</div>
-{% endif %}
+      {% if "etiquetas" in modulos %}
+      <div class="meta-card">
+        <h3>🏷️ Etiquetas</h3>
+        <p>Categoriza tus contactos con etiquetas personalizadas.</p>
+        <a href="{{ url_for('panel_cliente_etiquetas.panel_etiquetas', nombre_nora=nombre_nora) }}" class="btn-neutral">🔖 Ver etiquetas</a>
+      </div>
+      {% endif %}
 
-{% if "respuestas" in modulos %}
-<div class="seccion">
-    <h3>💬 Respuestas automáticas</h3>
-    <a href="{{ url_for('panel_cliente_respuestas.panel_respuestas', nombre_nora=nombre_nora) }}" class="btn">📝 Configurar respuestas</a>
-</div>
-{% endif %}
+      {% if "respuestas" in modulos %}
+      <div class="meta-card">
+        <h3>💬 Respuestas automáticas</h3>
+        <p>Configura tus respuestas rápidas.</p>
+        <a href="{{ url_for('panel_cliente_respuestas.panel_respuestas', nombre_nora=nombre_nora) }}" class="btn-neutral">📝 Configurar respuestas</a>
+      </div>
+      {% endif %}
 
-{% if "envios" in modulos %}
-<div class="seccion">
-    <h3>📤 Envíos programados</h3>
-    <a href="{{ url_for('panel_cliente_envios.panel_envios', nombre_nora=nombre_nora) }}" class="btn">⏰ Programar mensajes</a>
-</div>
-{% endif %}
+      {% if "envios" in modulos %}
+      <div class="meta-card">
+        <h3>📤 Envíos programados</h3>
+        <p>Programa mensajes automáticos por fecha.</p>
+        <a href="{{ url_for('panel_cliente_envios.panel_envios', nombre_nora=nombre_nora) }}" class="btn-neutral">⏰ Gestionar envíos</a>
+      </div>
+      {% endif %}
 
-{% if "contactos" in modulos or "ia" in modulos %}
-<div class="seccion">
-    <h3>🟢 Comunicación en vivo</h3>
-    <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nombre_nora) }}" class="btn btn-verde">💬 Panel tipo WhatsApp</a>
-</div>
-{% endif %}
+      {% if "ia" in modulos %}
+      <div class="meta-card">
+        <h3>🧠 Control de Inteligencia Artificial</h3>
+        <p>Activa o desactiva la IA en conversaciones.</p>
+        <a href="{{ url_for('panel_cliente_ia.panel_ia', nombre_nora=nombre_nora) }}" class="btn-neutral">⚙️ Control de IA</a>
+      </div>
+      {% endif %}
 
+      {% if "contactos" in modulos or "ia" in modulos %}
+      <div class="meta-card">
+        <h3>🟢 Comunicación en vivo</h3>
+        <p>Abre el panel tipo WhatsApp para hablar en tiempo real.</p>
+        <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nombre_nora) }}" class="btn-neutral">💬 Panel tipo WhatsApp</a>
+      </div>
+      {% endif %}
+
+    </section>
+  </div>
 </body>
 </html>
