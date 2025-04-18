@@ -11,20 +11,20 @@
   <div class="meta-container">
     <header class="meta-header">
       <h1>🤖 Noras activas</h1>
-      <div class="botones-globales">
-        <a href="/crear_nora" class="btn-primary">+ Nueva Nora</a>
-        <a href="/admin/contactos" class="btn-secondary">👥 Contactos</a>
-        <a href="/admin/etiquetas" class="btn-secondary">🏷️ Etiquetas</a>
-        <a href="/admin/respuestas" class="btn-secondary">⚡ Respuestas Rápidas</a>
-      </div>
+      <a href="/admin/nora/nueva" class="btn-primary">+ Nueva Nora</a>
     </header>
 
     <section class="meta-grid">
       {% for nora in noras %}
-      <div class="meta-card">
+      <div class="meta-card {% if nora.nombre in ['noraai', 'dani20'] %}nora-demo{% endif %}">
         <div class="meta-card-header">
           <div>
-            <div class="nora-id">{{ nora.nombre }}</div>
+            <div class="nora-id">
+              {{ nora.nombre }}
+              {% if nora.nombre in ['noraai', 'dani20'] %}
+                <span class="badge badge-demo">DEMO</span>
+              {% endif %}
+            </div>
             <div class="nora-status {{ 'status-on' if nora.ia_activada else 'status-off' }}">
               ● IA {{ 'activada' if nora.ia_activada else 'desactivada' }}
             </div>
@@ -48,7 +48,7 @@
         <div class="meta-card-actions">
           <a href="/panel/{{ nora.nombre }}" class="btn-neutral">💬 Panel Chat</a>
           <a href="/dashboard/{{ nora.nombre }}" class="btn-neutral">📊 Dashboard</a>
-          <a href="/editar/{{ nora.nombre }}" class="btn-outline">✏️ Editar</a>
+          <a href="/admin/nora/{{ nora.nombre }}/editar" class="btn-outline">✏️ Editar</a>
         </div>
       </div>
       {% endfor %}

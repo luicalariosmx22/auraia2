@@ -21,7 +21,7 @@ def vista_admin():
     # Consultar todas las Noras desde Supabase
     try:
         response = supabase.table("configuracion_bot").select("*").execute()
-        if not response.data:
+        if not response or not response.data:
             print(f"❌ No se encontraron Noras en la tabla configuracion_bot.")
             return render_template("admin_noras.html", noras=lista_noras)
 
@@ -29,11 +29,7 @@ def vista_admin():
 
         # Consultar tickets pendientes desde Supabase
         tickets_response = supabase.table("tickets").select("*").eq("estado", "pendiente").execute()
-        if not tickets_response.data:
-            print(f"⚠️ No se encontraron tickets pendientes.")
-            tickets_pendientes = []
-        else:
-            tickets_pendientes = tickets_response.data
+        tickets_pendientes = tickets_response.data if tickets_response and tickets_response.data else []
 
         # Procesar cada Nora
         for config in configuraciones:
@@ -55,6 +51,23 @@ def vista_admin():
 
     except Exception as e:
         print(f"❌ Error al procesar Noras: {str(e)}")
+
+    # ✅ Agregar Noras falsas para vista previa
+    lista_noras.append({
+        "nombre": "noraai",
+        "ia_activada": True,
+        "modulos": ["contactos", "respuestas", "ia"],
+        "ultima_actualizacion": datetime.now().isoformat(),
+        "tickets_pendientes": 0
+    })
+
+    lista_noras.append({
+        "nombre": "dani20",
+        "ia_activada": False,
+        "modulos": ["diseño_personalizado"],
+        "ultima_actualizacion": datetime.now().isoformat(),
+        "tickets_pendientes": 0
+    })
 
     return render_template("admin_noras.html", noras=lista_noras)
 
