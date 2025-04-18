@@ -5,7 +5,14 @@ def obtener_contacto(telefono):
     return res.data[0] if res.data else None
 
 def insertar_contacto(contacto):
-    return supabase.table("contactos").insert(contacto).execute()
+    try:
+        print(f"Intentando insertar contacto: {contacto}")
+        response = supabase.table("contactos").insert(contacto).execute()
+        print(f"Respuesta de Supabase: {response}")
+        return response
+    except Exception as e:
+        print(f"❌ Error al insertar contacto: {str(e)}")
+        return None
 
 def actualizar_contacto(telefono, data):
     return supabase.table("contactos").update(data).eq("telefono", telefono).execute()
