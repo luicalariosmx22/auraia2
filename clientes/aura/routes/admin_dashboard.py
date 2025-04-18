@@ -21,8 +21,8 @@ def dashboard_admin():
     # Contar Noras desde Supabase
     try:
         response = supabase.table("configuracion_bot").select("id").execute()
-        if not response.data:
-            print(f"❌ Error al contar Noras: {not response.data}")
+        if not response.data:  # Verifica si no hay datos
+            print("⚠️ No se encontraron Noras en la tabla 'configuracion_bot'.")
         else:
             total_noras = len(response.data)
     except Exception as e:
@@ -31,8 +31,8 @@ def dashboard_admin():
     # Contar errores desde Supabase
     try:
         response = supabase.table("logs_errores").select("id").execute()
-        if not response.data:
-            print(f"❌ Error al contar errores: {not response.data}")
+        if not response.data:  # Verifica si no hay datos
+            print("⚠️ No se encontraron errores en la tabla 'logs_errores'.")
         else:
             total_errores = len(response.data)
     except Exception as e:

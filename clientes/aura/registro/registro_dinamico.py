@@ -14,7 +14,7 @@ def registrar_blueprints_por_nora(app, nombre_nora):
     # Consultar módulos activos desde Supabase
     try:
         response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
-        if not response.data:
+        if not response.data:  # Verifica si no hay datos
             print(f"❌ No se encontraron módulos para {nombre_nora} en Supabase")
             return
 
