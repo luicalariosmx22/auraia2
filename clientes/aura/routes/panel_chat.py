@@ -3,6 +3,7 @@ print("✅ panel_chat.py cargado correctamente")
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from supabase import create_client
 from dotenv import load_dotenv
+from clientes.aura.utils.normalizador import normalizar_numero  # ✅ IMPORTADO
 import os
 import datetime
 import openai
@@ -36,6 +37,7 @@ def leer_contactos():
         return []
 
 def leer_historial(telefono):
+    telefono = normalizar_numero(telefono)
     try:
         print(f"🔍 Leyendo historial para el teléfono: {telefono}...")
         response = (
@@ -119,10 +121,10 @@ def panel_chat(nombre_nora):
 
 @panel_chat_bp.route("/api/chat/<telefono>")
 def api_chat(telefono):
-    telefono = normalizar_numero(telefono)  # ✅ Normalizar entrada
+    telefono = normalizar_numero(telefono)
     print(f"🔍 API Chat - Cargando datos para el teléfono: {telefono}...")
     contactos = leer_contactos()
-    contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})  # ✅ Comparación normalizada
+    contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
     historial = leer_historial(telefono)
     resumen = generar_resumen_ia(historial)
     print(f"✅ API Chat - Datos cargados para {telefono}: {historial}")
@@ -137,7 +139,7 @@ def api_chat(telefono):
 def api_enviar_mensaje():
     data = request.json
     print(f"🔍 API Enviar Mensaje - Datos recibidos: {data}")
-    telefono = data.get("numero")
+    telefono = normalizar_numero(data.get("numero"))
     texto = data.get("mensaje")
 
     if not all([telefono, texto]):
@@ -152,7 +154,7 @@ def api_enviar_mensaje():
     })
 
     contactos = leer_contactos()
-    contacto = next((c for c in contactos if c["telefono"] == telefono), {})
+    contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
     print(f"✅ Contacto encontrado: {contacto}")
 
     if contacto.get("ia_activada"):
@@ -172,6 +174,7 @@ def api_enviar_mensaje():
 
 @panel_chat_bp.route("/api/toggle-ia/<telefono>", methods=["POST"])
 def api_toggle_ia(telefono):
+    telefono = normalizar_numero(telefono)
     try:
         print(f"🔍 API Toggle IA - Cambiando estado de IA para {telefono}...")
         response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
