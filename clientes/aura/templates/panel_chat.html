@@ -11,14 +11,20 @@
 <body>
   <div class="chat-wrapper">
     
-    <!-- COL 1: Lista de contactos -->
+    <!-- Columna izquierda: Lista de contactos -->
     <aside class="col-izquierda">
       <div class="buscador">
-        <input type="text" placeholder="🔍 Buscar contacto..." id="busqueda-contactos" oninput="filtrarContactos()">
+        <input type="text" placeholder="🔍 Buscar contacto..." oninput="filtrarContactosPorNombre(this.value)">
+        <select onchange="filtrarContactosPorEtiqueta(this.value)">
+          <option value="">🎯 Filtrar por etiqueta</option>
+          {% for et in etiquetas %}
+          <option value="{{ et }}">{{ et }}</option>
+          {% endfor %}
+        </select>
       </div>
       <ul class="lista-contactos" id="lista-contactos">
         {% for c in contactos %}
-        <li onclick="cargarChat('{{ c.telefono }}')">
+        <li onclick="cargarChat('{{ c.telefono }}')" data-etiquetas="{{ c.etiquetas|join(',') }}">
           <div class="nombre">{{ c.nombre }}</div>
           <div class="numero">{{ c.telefono }}</div>
           <div class="preview">{{ c.mensajes[-1].texto if c.mensajes|length > 0 else '...' }}</div>
@@ -27,22 +33,43 @@
       </ul>
     </aside>
 
-    <!-- COL 2: Conversación -->
+    <!-- Columna central: Conversación -->
     <section class="col-central">
       <div class="chat-area" id="chat-area">
         <p class="placeholder">Selecciona un contacto para comenzar a chatear.</p>
-        <pre id="debug-chat"></pre> <!-- Bloque de depuración -->
       </div>
       <form class="form-envio" onsubmit="enviarMensaje(event)">
-        <input type="text" id="mensaje" placeholder="Escribe un mensaje..." autocomplete="off">
+        <input type="text" id="mensaje" placeholder="Escribe un mensaje...">
         <button type="submit">Enviar</button>
       </form>
     </section>
 
-    <!-- COL 3: Info del contacto -->
-    <aside class="col-derecha">
+    <!-- Columna derecha: Información del contacto -->
+    <aside class="col-derecha" id="col-derecha">
       <div class="info-contacto" id="info-contacto">
         <p>Selecciona un contacto para ver detalles.</p>
+      </div>
+      <div id="detalles-contacto" style="display: none; padding: 10px;">
+        <h3 id="nombre-contacto">Nombre</h3>
+        <p id="numero-contacto" class="subinfo"></p>
+
+        <h4>🏷️ Etiquetas:</h4>
+        <div id="etiquetas-contacto"></div>
+        <form onsubmit="agregarEtiqueta(event)">
+          <input type="text" id="nueva-etiqueta" placeholder="Agregar etiqueta...">
+          <button type="submit">➕</button>
+        </form>
+
+        <h4>📝 Notas:</h4>
+        <textarea id="notas-contacto" placeholder="Agregar nota..."></textarea>
+        <button onclick="guardarNota()" class="btn-outline" style="margin-top: 6px;">💾 Guardar nota</button>
+
+        <h4>🧠 Resumen:</h4>
+        <p id="resumen-contacto" class="resumen-box">Cargando resumen...</p>
+
+        <div style="margin-top: 10px;">
+          <button onclick="toggleIAContacto()" id="btn-toggle-ia" class="btn-neutral">Desactivar IA</button>
+        </div>
       </div>
     </aside>
 

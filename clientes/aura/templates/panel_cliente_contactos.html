@@ -1,72 +1,89 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Contactos - Nora AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+  <meta charset="UTF-8">
+  <title>Contactos – {{ nombre_visible or nombre_nora }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <div class="logo">📇 Contactos - Nora AI</div>
-        <div class="logout"><a href="/logout">Cerrar sesión</a></div>
+  <div class="meta-container">
+    <header class="meta-header">
+      <div>
+        <h1>📇 Contactos – {{ nombre_visible or nombre_nora }}</h1>
+      </div>
+      <div>
+        <a href="/logout" class="btn-outline">Cerrar sesión</a>
+      </div>
     </header>
 
-    <main>
-        <h2>Contactos registrados</h2>
+    {% with mensajes = get_flashed_messages() %}
+      {% if mensajes %}
+      <div class="flash" style="margin-bottom: 20px; background: #e0f4ff; padding: 12px; border-radius: 8px; color: #1877f2;">
+        {{ mensajes[0] }}
+      </div>
+      {% endif %}
+    {% endwith %}
 
-        {% with mensajes = get_flashed_messages() %}
-            {% if mensajes %}
-                <div class="flash">{{ mensajes[0] }}</div>
+    <section class="seccion">
+      <h2>👥 Contactos registrados</h2>
+      <table class="noras-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Etiquetas</th>
+            {% if ia_permitida %}
+              <th>IA</th>
             {% endif %}
-        {% endwith %}
-
-        <table class="noras-table">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Teléfono</th>
-                    <th>Etiquetas</th>
-                    {% if ia_permitida %}
-                        <th>IA</th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for c in contactos %}
-                <tr>
-                    <td>{{ c.nombre }}</td>
-                    <td>{{ c.numero }}</td>
-                    <td>
-                        {% for et in c.etiquetas %}
-                            <span class="badge">{{ et }}</span>
-                        {% endfor %}
-                    </td>
-                    {% if ia_permitida %}
-                    <td>
-                        <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/toggle_ia">
-                            <input type="hidden" name="numero" value="{{ c.numero }}">
-                            {% if c.ia %}
-                                <button type="submit" class="btn-desactivar">Desactivar IA</button>
-                            {% else %}
-                                <button type="submit" class="btn-activar">Activar IA</button>
-                            {% endif %}
-                        </form>
-                    </td>
-                    {% endif %}
-                </tr>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in contactos %}
+          <tr>
+            <td>{{ c.nombre }}</td>
+            <td>{{ c.numero }}</td>
+            <td>
+              {% if c.etiquetas %}
+                {% for et in c.etiquetas %}
+                  <span class="badge">{{ et }}</span>
                 {% endfor %}
-            </tbody>
-        </table>
+              {% else %}
+                <span class="badge badge-muted">Sin etiquetas</span>
+              {% endif %}
+            </td>
+            {% if ia_permitida %}
+            <td>
+              <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/toggle_ia">
+                <input type="hidden" name="numero" value="{{ c.numero }}">
+                {% if c.ia %}
+                  <button type="submit" class="btn-outline">Desactivar IA</button>
+                {% else %}
+                  <button type="submit" class="btn-neutral">Activar IA</button>
+                {% endif %}
+              </form>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
 
-        <h3>➕ Agregar nuevo contacto</h3>
-        <form method="POST" class="form-contacto">
-            <input type="text" name="nombre" placeholder="Nombre completo" required>
-            <input type="text" name="telefono" placeholder="Número WhatsApp" required>
-            <input type="text" name="etiquetas" placeholder="Ej: cliente, vip, interesado">
-            <button type="submit">💾 Guardar</button>
-        </form>
+    <section class="seccion" style="margin-top: 40px;">
+      <h3>➕ Agregar nuevo contacto</h3>
+      <form method="POST" class="meta-card" style="max-width: 480px;">
+        <input type="text" name="nombre" placeholder="Nombre completo" required class="input-text">
+        <input type="text" name="telefono" placeholder="Número WhatsApp" required class="input-text">
+        <input type="text" name="etiquetas" placeholder="Ej: cliente, vip, interesado" class="input-text">
+        <button type="submit" class="btn-primary">💾 Guardar</button>
+      </form>
+    </section>
 
-        <p><a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}">← Volver al panel</a></p>
-    </main>
+    <div style="margin-top: 40px;">
+      <a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}" class="btn-neutral">← Volver al panel</a>
+    </div>
+  </div>
 </body>
 </html>
