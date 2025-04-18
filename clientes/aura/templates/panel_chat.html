@@ -35,9 +35,23 @@
 
     <!-- Columna central: Conversación -->
     <section class="col-central">
-      <div class="chat-area" id="chat-area">
+      <!-- Encabezado del chat -->
+      <div class="chat-header">
+        <h2 id="nombre-contacto">Selecciona un contacto</h2>
+        <p id="numero-contacto"></p>
+      </div>
+
+      <!-- Área de chat -->
+      <div id="chat-area">
         <p class="placeholder">Selecciona un contacto para comenzar a chatear.</p>
       </div>
+
+      <!-- Pie del chat -->
+      <div class="chat-footer">
+        <p id="resumen-contacto" class="resumen-contacto"></p>
+      </div>
+
+      <!-- Formulario de envío -->
       <form class="form-envio" onsubmit="enviarMensaje(event)">
         <input type="text" id="mensaje" placeholder="Escribe un mensaje...">
         <button type="submit">Enviar</button>
@@ -78,3 +92,4 @@
   <script src="{{ url_for('static', filename='js/panel_chat.js') }}"></script>
 </body>
 </html>
+``` 
