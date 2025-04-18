@@ -15,9 +15,9 @@ chat_data_bp = Blueprint('chat_data_aura', __name__)
 def chat_historial(numero):
     try:
         # Consultar historial desde la tabla historial_conversaciones
-        response = supabase.table("historial_conversaciones").select("*").eq("telefono", numero).execute()
+        response = supabase.table("historial_conversaciones").select("*").eq("telefono", numero).order("timestamp", desc=True).execute()
         if not response.data:
-            print(f"❌ Error al cargar historial para {numero}: {not response.data}")
+            print(f"❌ Error al cargar historial para {numero}: No se encontraron datos.")
             return jsonify({"nombre": "Desconocido", "historial": []})
 
         historial = response.data
