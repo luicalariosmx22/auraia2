@@ -119,9 +119,10 @@ def panel_chat(nombre_nora):
 
 @panel_chat_bp.route("/api/chat/<telefono>")
 def api_chat(telefono):
+    telefono = normalizar_numero(telefono)  # ✅ Normalizar entrada
     print(f"🔍 API Chat - Cargando datos para el teléfono: {telefono}...")
     contactos = leer_contactos()
-    contacto = next((c for c in contactos if c["telefono"] == telefono), {})
+    contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})  # ✅ Comparación normalizada
     historial = leer_historial(telefono)
     resumen = generar_resumen_ia(historial)
     print(f"✅ API Chat - Datos cargados para {telefono}: {historial}")
