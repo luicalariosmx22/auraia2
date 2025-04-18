@@ -36,7 +36,10 @@ registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
 registrar_blueprints_por_nora(app, "aura")
 app.register_blueprint(panel_chat_bp)
-app.register_blueprint(webhook_bp)  # Registrar el blueprint del webhook
+
+# Verificar si el blueprint 'webhook' ya está registrado
+if "webhook" not in app.blueprints:
+    app.register_blueprint(webhook_bp)  # Registrar el blueprint del webhook
 
 # ========= RUTA INICIAL =========
 @app.route("/")
