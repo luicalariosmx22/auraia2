@@ -1,33 +1,48 @@
-<h2>🤖 Noras activas en el sistema ({{ noras|length }})</h2>
-<button class="btn-nueva-nora">+ Crear nueva Nora AI</button>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Noras activas en el sistema</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
+</head>
+<body>
+  <main style="padding: 30px; max-width: 1200px; margin: auto;">
+    <h2>🤖 Noras activas en el sistema ({{ noras|length }})</h2>
 
-<div class="grid-noras">
-  {% for nora in noras %}
-  <div class="card-nora">
-    <div class="nora-header">
-      <span class="nora-id">🧠 {{ nora.id }}</span>
-      <span class="estado-ia {{ 'ia-activa' if nora.ia else 'ia-inactiva' }}">
-        ● IA {{ 'activada' if nora.ia else 'desactivada' }}
-      </span>
-    </div>
-    <div class="nora-modulos">
-      <strong>Módulos:</strong>
-      {% if nora.modulos %}
-        {{ nora.modulos|join(", ") }}
-      {% else %}
-        <span class="sin-modulos">Sin módulos</span>
-      {% endif %}
-    </div>
-    <div class="nora-footer">
-      <span class="nora-fecha">
-        Última actualización: {{ nora.actualizacion or "Sin fecha" }}
-      </span>
-      <div class="nora-actions">
-        <a href="/panel/{{ nora.id }}" class="btn-panel">Panel tipo WhatsApp</a>
-        <a href="/dashboard/{{ nora.id }}" class="btn-dashboard">Dashboard</a>
-        <a href="/editar/{{ nora.id }}" class="btn-editar">Editar</a>
+    <button class="btn-nueva-nora" onclick="location.href='/crear_nora'">
+      + Crear nueva Nora AI
+    </button>
+
+    <div class="grid-noras">
+      {% for nora in noras %}
+      <div class="card-nora">
+        <div class="nora-header">
+          <span class="nora-id">🧠 {{ nora.id }}</span>
+          <span class="estado-ia {{ 'ia-activa' if nora.ia else 'ia-inactiva' }}">
+            ● IA {{ 'activada' if nora.ia else 'desactivada' }}
+          </span>
+        </div>
+        <div class="nora-modulos">
+          <strong>Módulos:</strong>
+          {% if nora.modulos %}
+            {{ nora.modulos|join(", ") }}
+          {% else %}
+            <span class="sin-modulos">Sin módulos</span>
+          {% endif %}
+        </div>
+        <div class="nora-footer">
+          <span class="nora-fecha">
+            Última actualización: {{ nora.actualizacion or "Sin fecha" }}
+          </span>
+          <div class="nora-actions">
+            <a href="/panel/{{ nora.id }}" class="btn-panel">Panel tipo WhatsApp</a>
+            <a href="/dashboard/{{ nora.id }}" class="btn-dashboard">Dashboard</a>
+            <a href="/editar/{{ nora.id }}" class="btn-editar">Editar</a>
+          </div>
+        </div>
       </div>
+      {% endfor %}
     </div>
-  </div>
-  {% endfor %}
-</div>
+  </main>
+</body>
+</html>
