@@ -177,7 +177,7 @@ function cargarChat(telefono) {
     fetch(`/api/chat/${telefono}`)
         .then(response => response.json())
         .then(data => {
-            console.log("Datos del chat:", data); // Verifica los datos en la consola
+            console.log("Datos del chat:", data);
             if (data.success) {
                 mostrarMensajes(data.mensajes);
             } else {
