@@ -63,7 +63,7 @@ def verificar_sistema():
     tablas_faltantes = []
     for tabla, descripcion in tablas_requeridas.items():
         response = supabase.table(tabla).select("*").limit(1).execute()
-        if response.error or not response.data:
+        if not response.data:
             tablas_faltantes.append((tabla, descripcion, "❌ Faltante"))
         else:
             resultados.append((tabla, descripcion, "✅ Encontrada"))

@@ -18,8 +18,8 @@ def leer_contactos(nombre_nora):
     """
     try:
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error:
-            print(f"❌ Error al cargar contactos: {response.error}")
+        if not response.data:  # Verifica si no hay datos
+            print(f"⚠️ No se encontraron contactos para {nombre_nora}.")
             return []
         return response.data
     except Exception as e:
@@ -42,8 +42,8 @@ def guardar_historial(nombre_nora, numero, mensajes):
     ]
     try:
         response = supabase.table("historial_conversaciones").insert(registros).execute()
-        if response.error:
-            print(f"❌ Error al guardar historial: {response.error}")
+        if not response.data:  # Verifica si no se insertaron datos
+            print(f"⚠️ No se pudo guardar el historial para {numero}.")
         else:
             print(f"✅ Historial guardado para {numero}")
     except Exception as e:
@@ -55,8 +55,8 @@ def leer_historial(nombre_nora, numero):
     """
     try:
         response = supabase.table("historial_conversaciones").select("*").eq("nombre_nora", nombre_nora).eq("telefono", numero).execute()
-        if response.error:
-            print(f"❌ Error al cargar historial: {response.error}")
+        if not response.data:  # Verifica si no hay datos
+            print(f"⚠️ No se encontró historial para {numero}.")
             return []
         return [
             {
@@ -77,8 +77,8 @@ def procesar_envios():
     while True:
         try:
             response = supabase.table("envios_programados").select("*").execute()
-            if response.error:
-                print(f"❌ Error al cargar envíos programados: {response.error}")
+            if not response.data:  # Verifica si no hay datos
+                print("⚠️ No hay envíos programados.")
                 time.sleep(30)
                 continue
 

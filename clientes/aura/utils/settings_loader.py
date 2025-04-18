@@ -18,7 +18,7 @@ def cargar_settings():
     """
     try:
         response = supabase.table("settings").select("*").limit(1).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"⚠️ Configuración no encontrada en Supabase. Usando valores predeterminados.")
             return {
                 "usar_ai": False,

@@ -48,7 +48,7 @@ def login():
 def toggle_ia():
     try:
         response = supabase.table("bot_data").select("*").execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar configuración: {response.error}")
             return redirect(url_for('main.index'))
 

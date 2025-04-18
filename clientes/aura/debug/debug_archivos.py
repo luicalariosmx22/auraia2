@@ -29,7 +29,7 @@ def verificar_archivos():
     # Verificar si las tablas contienen datos
     for tabla, descripcion in tablas_esperadas.items():
         response = supabase.table(tabla).select("*").limit(1).execute()
-        if response.error or not response.data:
+        if not response.data:
             faltantes.append({"tabla": tabla, "descripcion": descripcion})
 
     if faltantes:

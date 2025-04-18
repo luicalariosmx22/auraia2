@@ -17,7 +17,7 @@ def cargar_configuracion(nombre_nora):
     """
     try:
         response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar configuración: {response.error}")
             return {"usar_openai": False}  # Valor predeterminado
         return response.data[0]  # Devuelve la configuración encontrada

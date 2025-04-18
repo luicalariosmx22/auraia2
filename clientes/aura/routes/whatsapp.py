@@ -24,7 +24,7 @@ def obtener_contacto(numero_usuario):
     """
     try:
         response = supabase.table("contactos").select("*").eq("numero", numero_usuario).execute()
-        if response.error or not response.data:
+        if not response.data:
             # Crear contacto si no existe
             nuevo_contacto = {
                 "numero": numero_usuario,

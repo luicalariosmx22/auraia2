@@ -26,7 +26,7 @@ def editar_nora(nombre_nora):
     # Cargar configuración desde Supabase
     try:
         response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error or not response.data:
+        if not response.data:
             return f"❌ No se encontró la configuración para {nombre_nora}", 404
         config = response.data[0]
     except Exception as e:

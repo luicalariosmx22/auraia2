@@ -24,7 +24,7 @@ def panel_contactos(nombre_nora):
     # Verificar si el módulo de IA está habilitado
     try:
         response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar configuración: {response.error}")
         else:
             modulos = response.data[0].get("modulos", [])
@@ -35,7 +35,7 @@ def panel_contactos(nombre_nora):
     # Cargar contactos desde Supabase
     try:
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar contactos: {response.error}")
         else:
             contactos = response.data

@@ -18,7 +18,7 @@ def verificar_tabla(tabla, descripcion):
     """
     try:
         response = supabase.table(tabla).select("*").limit(1).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"⚠️ Tabla '{tabla}' ({descripcion}) no encontrada o vacía.")
         else:
             print(f"✅ Tabla '{tabla}' ({descripcion}) verificada.")

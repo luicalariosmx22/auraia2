@@ -27,7 +27,7 @@ def dashboard_nora(nombre_nora):
     # Cargar configuración desde Supabase
     try:
         response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar configuración: {response.error}")
         else:
             datos["config"] = response.data[0]
@@ -37,7 +37,7 @@ def dashboard_nora(nombre_nora):
     # Cargar contactos desde Supabase
     try:
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar contactos: {response.error}")
         else:
             datos["contactos"] = response.data
@@ -47,7 +47,7 @@ def dashboard_nora(nombre_nora):
     # Cargar respuestas desde Supabase
     try:
         response = supabase.table("respuestas_bot").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar respuestas: {response.error}")
         else:
             datos["respuestas"] = response.data
@@ -57,7 +57,7 @@ def dashboard_nora(nombre_nora):
     # Cargar tickets desde Supabase
     try:
         response = supabase.table("tickets").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar tickets: {response.error}")
         else:
             datos["tickets"] = response.data

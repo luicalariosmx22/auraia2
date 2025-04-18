@@ -16,7 +16,7 @@ def chat_historial(numero):
     try:
         # Consultar historial desde la tabla historial_conversaciones
         response = supabase.table("historial_conversaciones").select("*").eq("telefono", numero).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar historial para {numero}: {response.error}")
             return jsonify({"nombre": "Desconocido", "historial": []})
 

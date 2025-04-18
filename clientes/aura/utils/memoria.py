@@ -14,7 +14,7 @@ def obtener_memoria(usuario_id):
     """
     try:
         response = supabase.table("memoria_usuarios").select("*").eq("usuario_id", usuario_id).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"⚠️ Memoria no encontrada para el usuario {usuario_id}.")
             return {}
         return response.data[0].get("data", {})

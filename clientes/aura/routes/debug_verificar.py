@@ -54,21 +54,21 @@ def verificar_configuracion():
     try:
         # Verificar tabla bot_data
         response = supabase.table("bot_data").select("*").execute()
-        if response.error or not response.data:
+        if not response.data:
             resultado["bot_data"] = {"estado": "❌ Faltante"}
         else:
             resultado["bot_data"] = {"estado": "✅ OK"}
 
         # Verificar tabla servicios_conocimiento
         response = supabase.table("servicios_conocimiento").select("*").execute()
-        if response.error or not response.data:
+        if not response.data:
             resultado["servicios_conocimiento"] = {"estado": "❌ Faltante"}
         else:
             resultado["servicios_conocimiento"] = {"estado": "✅ OK"}
 
         # Verificar tabla historial_conversaciones
         response = supabase.table("historial_conversaciones").select("*").limit(1).execute()
-        if response.error or not response.data:
+        if not response.data:
             resultado["historial"] = {"estado": "❌ No encontrada"}
         else:
             resultado["historial"] = {"estado": "✅ Accesible"}

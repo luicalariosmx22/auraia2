@@ -36,7 +36,7 @@ def cargar_datos_supabase(tabla, filtro=None, default=None):
             for key, value in filtro.items():
                 query = query.eq(key, value)
         response = query.execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar datos de {tabla}: {response.error}")
             return default
         return response.data

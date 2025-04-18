@@ -18,7 +18,7 @@ def verificar_mensaje_hola():
     try:
         # Consultar datos desde la tabla bot_data en Supabase
         response = supabase.table("bot_data").select("*").execute()
-        if response.error or not response.data:
+        if not response.data:
             print("❌ No se encontraron datos en la tabla bot_data")
             return jsonify({"ok": False, "error": "No se encontraron datos en la tabla bot_data"})
 

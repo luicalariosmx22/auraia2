@@ -141,7 +141,7 @@ def api_enviar_mensaje():
 def api_toggle_ia(numero):
     try:
         response = supabase.table("contactos").select("*").eq("numero", numero).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"❌ Error al cargar contacto: {response.error}")
             return jsonify({"success": False})
 

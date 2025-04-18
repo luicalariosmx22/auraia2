@@ -25,7 +25,7 @@ def revisar_todo():
     for tabla, descripcion in tablas.items():
         try:
             response = supabase.table(tabla).select("*").limit(1).execute()
-            if response.error or not response.data:
+            if not response.data:
                 resultado += f"❌ {descripcion} → Tabla '{tabla}' vacía o no encontrada.\n"
             else:
                 resultado += f"✅ {descripcion} → Tabla '{tabla}' contiene datos.\n"

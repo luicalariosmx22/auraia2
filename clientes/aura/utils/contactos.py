@@ -17,7 +17,7 @@ def obtener_datos_contacto(numero):
     """
     try:
         response = supabase.table("contactos").select("*").eq("numero", numero).execute()
-        if response.error or not response.data:
+        if not response.data:
             print(f"⚠️ Contacto no encontrado. Inicializando datos predeterminados para {numero}.")
             return {
                 "numero": numero,

@@ -31,7 +31,7 @@ def info_contacto():
 
     try:
         response = supabase.table("historial_conversaciones").select("*").eq("telefono", numero).execute()
-        if response.error or not response.data:
+        if not response.data:
             return f"❌ No hay historial para {numero}"
 
         historial = response.data[-5:]  # Últimos 5 mensajes
