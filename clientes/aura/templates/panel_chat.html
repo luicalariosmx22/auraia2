@@ -7,6 +7,151 @@
   <script>
     const nombreNora = "{{ nombre_nora }}";
   </script>
+  <style>
+    /* Estilo general */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #e6f0ff; /* Fondo azul claro */
+    }
+
+    .chat-wrapper {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Columna izquierda: Lista de contactos */
+    .col-izquierda {
+      width: 30%;
+      background-color: #004080; /* Azul oscuro */
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .buscador {
+      padding: 10px;
+      background-color: #003366; /* Azul más oscuro */
+    }
+
+    .buscador input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    .lista-contactos {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .lista-contactos li {
+      padding: 15px;
+      border-bottom: 1px solid #00509e; /* Azul intermedio */
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .lista-contactos li:hover {
+      background-color: #00509e; /* Azul intermedio */
+    }
+
+    .lista-contactos .nombre {
+      font-weight: bold;
+    }
+
+    .lista-contactos .numero {
+      font-size: 0.9em;
+      color: #cce0ff; /* Azul claro */
+    }
+
+    .lista-contactos .preview {
+      font-size: 0.8em;
+      color: #99c2ff; /* Azul más claro */
+    }
+
+    /* Columna central: Conversación */
+    .col-central {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      background-color: #f0f8ff; /* Fondo azul claro */
+    }
+
+    .chat-area {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #ffffff; /* Blanco */
+      border-left: 1px solid #cce0ff; /* Azul claro */
+      border-right: 1px solid #cce0ff; /* Azul claro */
+    }
+
+    .chat-area .placeholder {
+      color: #99c2ff; /* Azul más claro */
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    .form-envio {
+      display: flex;
+      padding: 10px;
+      background-color: #e6f0ff; /* Fondo azul claro */
+      border-top: 1px solid #cce0ff; /* Azul claro */
+    }
+
+    .form-envio input {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #cce0ff; /* Azul claro */
+      border-radius: 5px;
+      outline: none;
+    }
+
+    .form-envio button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      background-color: #004080; /* Azul oscuro */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .form-envio button:hover {
+      background-color: #00509e; /* Azul intermedio */
+    }
+
+    /* Columna derecha: Info del contacto */
+    .col-derecha {
+      width: 20%;
+      background-color: #004080; /* Azul oscuro */
+      color: white;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .info-contacto {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .info-contacto p {
+      color: #cce0ff; /* Azul claro */
+    }
+  </style>
 </head>
 <body>
   <div class="chat-wrapper">
@@ -18,9 +163,9 @@
       </div>
       <ul class="lista-contactos">
         {% for c in contactos %}
-        <li onclick="cargarChat('{{ c.numero }}')">
+        <li onclick="cargarChat('{{ c.telefono }}')">
           <div class="nombre">{{ c.nombre }}</div>
-          <div class="numero">{{ c.numero }}</div>
+          <div class="numero">{{ c.telefono }}</div>
           <div class="preview">{{ c.mensajes[-1].texto if c.mensajes|length > 0 else '...' }}</div>
         </li>
         {% endfor %}
