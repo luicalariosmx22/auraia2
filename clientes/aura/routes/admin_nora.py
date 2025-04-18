@@ -51,7 +51,6 @@ def editar_nora(nombre_nora):
             config["modulos"] = nuevos_modulos
             response = supabase.table("configuracion_bot").update(config).eq("nombre_nora", nombre_nora).execute()
             if not response.data:
-                print(f"❌ Error al actualizar configuración: {not response.data}")
                 flash("❌ Error al actualizar configuración", "error")
                 return redirect(request.url)
         except Exception as e:
@@ -64,7 +63,7 @@ def editar_nora(nombre_nora):
         print(f"    ➤ Módulos activos: {', '.join(nuevos_modulos)}")
 
         flash("✅ Configuración actualizada correctamente", "success")
-        return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=nombre_nora))
+        return redirect(url_for("admin_nora.editar_nora", nombre_nora=nombre_nora))
 
     return render_template(
         "admin_nora_editar.html",
@@ -113,7 +112,6 @@ def crear_nora():
             }
             response = supabase.table("configuracion_bot").insert(config).execute()
             if not response.data:
-                print(f"❌ Error al crear Nora: {not response.data}")
                 flash("❌ Error al crear Nora", "error")
                 return redirect(request.url)
         except Exception as e:
