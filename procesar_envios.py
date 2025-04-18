@@ -77,8 +77,9 @@ def procesar_envios():
     """
     while True:
         try:
+            # Obtén los envíos pendientes desde Supabase
             response = supabase.table("envios_programados").select("*").execute()
-            if not response.data:  # Verifica si no hay datos
+            if not response.data:  # Si no hay datos, imprime un mensaje
                 print("⚠️ No hay envíos programados.")
                 time.sleep(30)
                 continue
@@ -87,35 +88,52 @@ def procesar_envios():
             ahora = datetime.now()
 
             for envio in pendientes:
+                # Verifica la fecha y hora del envío
                 fecha_hora = datetime.strptime(f"{envio['fecha']} {envio['hora']}", "%Y-%m-%d %H:%M")
                 if fecha_hora <= ahora:
                     print(f"📤 Enviando mensaje programado a {envio['numero']}")
+
+                    # Leer historial existente
                     historial = leer_historial(envio["nombre_nora"], envio["numero"])
+                    print(f"✅ Historial actual para {envio['numero']}: {historial}")
+
+                    # Agregar el mensaje al historial
                     historial.append({
-                        "origen": "nora",  # Cambiado a 'emisor' en guardar_historial
+                        "emisor": "nora",  # Cambiado de 'origen' a 'emisor'
                         "texto": envio["mensaje"],
                         "hora": ahora.strftime("%H:%M")
                     })
 
+                    # Verificar y manejar el contacto
                     contactos = leer_contactos(envio["nombre_nora"])
                     contacto = next((c for c in contactos if c["telefono"] == envio["numero"]), {})
+                    print(f"✅ Contacto encontrado: {contacto}")
 
+                    # Generar respuesta automática si IA está activada
                     if contacto.get("ia", False):
                         respuesta = f"Respuesta automática a: {envio['mensaje']}"
                         historial.append({
-                            "origen": "nora",  # Cambiado a 'emisor' en guardar_historial
+                            "emisor": "nora",  # Cambiado de 'origen' a 'emisor'
                             "texto": respuesta,
                             "hora": ahora.strftime("%H:%M")
                         })
+                        print(f"🤖 Respuesta automática generada: {respuesta}")
 
-                    guardar_historial(envio["nombre_nora"], envio["numero"], historial)
+                    # Verificar y manejar el campo nombre_nora
+                    nombre_nora = envio.get("nombre_nora", "Nora")  # Valor predeterminado si no existe
+                    print(f"Verificando nombre_nora: {nombre_nora}")
+
+                    # Guardar el historial en la base de datos
+                    guardar_historial(nombre_nora, envio["numero"], historial)
 
                     # Marcar el envío como completado
                     supabase.table("envios_programados").delete().eq("id", envio["id"]).execute()
+                    print(f"✅ Envío completado y eliminado de la tabla: {envio['id']}")
 
         except Exception as e:
             print(f"❌ Error al procesar envíos: {str(e)}")
 
+        # Esperar antes de procesar nuevamente
         time.sleep(30)
 
 if __name__ == "__main__":

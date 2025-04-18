@@ -24,8 +24,9 @@ panel_chat_bp = Blueprint("panel_chat_aura", __name__)
 
 def leer_contactos():
     try:
+        print("🔍 Leyendo contactos desde la tabla 'contactos'...")
         response = supabase.table("contactos").select("*").execute()
-        if not response.data:  # Si no hay datos, imprime un mensaje
+        if not response.data:
             print(f"⚠️ No se encontraron contactos en la tabla 'contactos'.")
             return []
         print(f"✅ Contactos cargados: {response.data}")
@@ -36,7 +37,7 @@ def leer_contactos():
 
 def leer_historial(telefono):
     try:
-        # Eliminamos el filtro por "nombre_nora" ya que no existe en la tabla
+        print(f"🔍 Leyendo historial para el teléfono: {telefono}...")
         response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("hora", ascending=True).execute()
         if not response.data:
             print(f"⚠️ No se encontró historial para {telefono}.")
@@ -44,23 +45,23 @@ def leer_historial(telefono):
         print(f"✅ Historial cargado para {telefono}: {response.data}")
         return response.data
     except Exception as e:
-        print(f"❌ Error al cargar historial: {str(e)}")
+        print(f"❌ Error al cargar historial para {telefono}: {str(e)}")
         return []
 
 def guardar_historial(nombre_nora, telefono, mensajes):
     registros = [
         {
-            "nombre_nora": nombre_nora,  # Incluye el campo 'nombre_nora'
+            "nombre_nora": nombre_nora,
             "telefono": telefono,
             "mensaje": mensaje["texto"],
-            "emisor": mensaje["origen"],  # Cambiado de "origen" a "emisor" para coincidir con la tabla
-            "hora": mensaje["hora"],  # Asegúrate de que 'hora' sea un timestamp válido
-            "timestamp": datetime.datetime.now()  # Agrega un timestamp actual
+            "emisor": mensaje["emisor"],  # Cambiado de "origen" a "emisor"
+            "hora": mensaje["hora"],
+            "timestamp": datetime.datetime.now()
         }
         for mensaje in mensajes
     ]
     try:
-        print(f"Datos a insertar en historial_conversaciones: {registros}")
+        print(f"🔍 Guardando historial en la tabla 'historial_conversaciones': {registros}")
         response = supabase.table("historial_conversaciones").insert(registros).execute()
         if not response.data:
             print(f"❌ Error al guardar historial: {not response.data}")
@@ -69,10 +70,10 @@ def guardar_historial(nombre_nora, telefono, mensajes):
 
 def generar_resumen_ia(mensajes):
     if not mensajes:
+        print("⚠️ No hay suficientes mensajes para generar un resumen.")
         return "No hay suficientes mensajes para generar un resumen."
 
     texto = "\n".join([f"{m['emisor']}: {m['mensaje']}" for m in mensajes[-20:]])
-
     prompt = f"""
 Eres un asistente profesional. Resume brevemente esta conversación entre un cliente y una IA llamada Nora. El resumen debe identificar si el cliente está interesado en algo, si ya fue atendido, y si hay seguimiento pendiente:
 
@@ -80,14 +81,16 @@ Eres un asistente profesional. Resume brevemente esta conversación entre un cli
 
 Resumen:
 """
-
     try:
+        print("🔍 Generando resumen con IA...")
         respuesta = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.4
         )
-        return respuesta.choices[0].message.content.strip()
+        resumen = respuesta.choices[0].message.content.strip()
+        print(f"✅ Resumen generado: {resumen}")
+        return resumen
     except Exception as e:
         print(f"❌ Error al generar resumen con IA: {e}")
         return "No se pudo generar el resumen con IA."
@@ -95,22 +98,26 @@ Resumen:
 @panel_chat_bp.route("/panel/chat/<nombre_nora>")
 def panel_chat(nombre_nora):
     if "user" not in session:
+        print("⚠️ Usuario no autenticado. Redirigiendo al login.")
         return redirect(url_for("login.login_google"))
 
+    print(f"🔍 Cargando panel de chat para {nombre_nora}...")
     contactos = leer_contactos()
     lista = []
     for c in contactos:
         mensajes = leer_historial(c["telefono"])
         lista.append({**c, "mensajes": mensajes})
+    print(f"✅ Contactos y mensajes cargados: {lista}")
     return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
 
 @panel_chat_bp.route("/api/chat/<telefono>")
 def api_chat(telefono):
+    print(f"🔍 API Chat - Cargando datos para el teléfono: {telefono}...")
     contactos = leer_contactos()
     contacto = next((c for c in contactos if c["telefono"] == telefono), {})
     historial = leer_historial(telefono)
     resumen = generar_resumen_ia(historial)
-    print(f"✅ API Chat - Historial para {telefono}: {historial}")
+    print(f"✅ API Chat - Datos cargados para {telefono}: {historial}")
     return jsonify({
         "success": True,
         "contacto": contacto,
@@ -121,31 +128,36 @@ def api_chat(telefono):
 @panel_chat_bp.route("/api/enviar-mensaje", methods=["POST"])
 def api_enviar_mensaje():
     data = request.json
+    print(f"🔍 API Enviar Mensaje - Datos recibidos: {data}")
     telefono = data.get("numero")
     texto = data.get("mensaje")
 
     if not all([telefono, texto]):
+        print("❌ Datos incompletos para enviar mensaje.")
         return jsonify({"success": False, "error": "Datos incompletos"}), 400
 
     historial = leer_historial(telefono)
     historial.append({
-        "origen": "usuario",  # Cambiar a 'emisor' en guardar_historial
+        "emisor": "usuario",
         "texto": texto,
         "hora": datetime.datetime.now().strftime("%H:%M")
     })
 
     contactos = leer_contactos()
     contacto = next((c for c in contactos if c["telefono"] == telefono), {})
+    print(f"✅ Contacto encontrado: {contacto}")
+
     if contacto.get("ia_activada"):
         respuesta = f"Respuesta IA a: {texto}"
         historial.append({
-            "origen": "bot",  # Cambiar a 'emisor' en guardar_historial
+            "emisor": "bot",
             "texto": respuesta,
             "hora": datetime.datetime.now().strftime("%H:%M")
         })
+        print(f"🤖 Respuesta generada por IA: {respuesta}")
 
-    # Asegúrate de que 'nombre_nora' esté presente y sea válido
     nombre_nora = contacto.get("nombre_nora", "Nora")
+    print(f"🔍 Guardando historial para {telefono} con nombre_nora: {nombre_nora}")
     guardar_historial(nombre_nora, telefono, historial)
 
     return jsonify({"success": True})
@@ -153,23 +165,25 @@ def api_enviar_mensaje():
 @panel_chat_bp.route("/api/toggle-ia/<telefono>", methods=["POST"])
 def api_toggle_ia(telefono):
     try:
+        print(f"🔍 API Toggle IA - Cambiando estado de IA para {telefono}...")
         response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
         if not response.data:
-            print(f"❌ Error al cargar contacto: {not response.data}")
+            print(f"❌ Error al cargar contacto para {telefono}.")
             return jsonify({"success": False})
 
         contacto = response.data[0]
         nuevo_estado = not contacto.get("ia_activada", True)
-
         supabase.table("contactos").update({"ia_activada": nuevo_estado}).eq("telefono", telefono).execute()
+        print(f"✅ Estado de IA cambiado para {telefono}: {nuevo_estado}")
         return jsonify({"success": True})
     except Exception as e:
-        print(f"❌ Error al cambiar estado de IA: {str(e)}")
+        print(f"❌ Error al cambiar estado de IA para {telefono}: {str(e)}")
         return jsonify({"success": False})
 
 @panel_chat_bp.route("/api/programar-envio", methods=["POST"])
 def api_programar_envio():
     data = request.json
+    print(f"🔍 API Programar Envío - Datos recibidos: {data}")
     try:
         response = supabase.table("envios_programados").insert({
             "numero": data.get("numero"),
@@ -180,6 +194,7 @@ def api_programar_envio():
         if not response.data:
             print(f"❌ Error al programar envío: {not response.data}")
             return jsonify({"success": False})
+        print(f"✅ Envío programado: {response.data}")
         return jsonify({"success": True})
     except Exception as e:
         print(f"❌ Error al programar envío: {str(e)}")
