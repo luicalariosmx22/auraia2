@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from supabase import create_client
 from dotenv import load_dotenv
+from utils.normalizador import normalizar_numero  # ✅ Importado
 import os
 
 # Configurar Supabase
@@ -18,9 +19,6 @@ else:
     print("✅ Conexión con Supabase configurada correctamente.")
 
 def leer_contactos(nombre_nora):
-    """
-    Leer contactos desde Supabase.
-    """
     print(f"🔍 Intentando leer contactos para {nombre_nora}...")
     try:
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
@@ -34,9 +32,6 @@ def leer_contactos(nombre_nora):
         return []
 
 def guardar_historial(nombre_nora, numero, mensajes):
-    """
-    Guardar historial en Supabase.
-    """
     print(f"🔍 Intentando guardar historial para {numero} en {nombre_nora}...")
     registros = [
         {
@@ -60,12 +55,17 @@ def guardar_historial(nombre_nora, numero, mensajes):
         print(f"❌ Error al guardar historial: {str(e)}")
 
 def leer_historial(nombre_nora, numero):
-    """
-    Leer historial desde Supabase.
-    """
+    numero = normalizar_numero(numero)  # ✅ Normalización agregada
     print(f"🔍 Intentando leer historial para {numero} en {nombre_nora}...")
     try:
-        response = supabase.table("historial_conversaciones").select("*").eq("nombre_nora", nombre_nora).eq("telefono", numero).execute()
+        response = (
+            supabase.table("historial_conversaciones")
+            .select("*")
+            .eq("nombre_nora", nombre_nora)
+            .eq("telefono", numero)
+            .order("hora", desc=False)
+            .execute()
+        )
         if not response.data:
             print(f"⚠️ No se encontró historial para {numero}.")
             return []
@@ -83,9 +83,6 @@ def leer_historial(nombre_nora, numero):
         return []
 
 def procesar_envios():
-    """
-    Procesar envíos programados desde Supabase.
-    """
     print("🕒 Iniciando procesamiento de envíos programados...")
     while True:
         try:
@@ -101,35 +98,26 @@ def procesar_envios():
             ahora = datetime.now()
 
             for envio in pendientes:
-                print(f"📦 Procesando envío: {envio}")
                 try:
-                    # Verifica la fecha y hora del envío
+                    numero = normalizar_numero(envio["numero"])  # ✅ Normalizar número
                     fecha_hora = datetime.strptime(f"{envio['fecha']} {envio['hora']}", "%Y-%m-%d %H:%M")
-                    print(f"🕒 Fecha y hora del envío: {fecha_hora}, ahora: {ahora}")
                     if fecha_hora > ahora:
                         print(f"⏳ Envío programado para el futuro. Saltando: {envio['id']}")
                         continue
 
-                    print(f"📤 Enviando mensaje programado a {envio['numero']}")
-
-                    # Leer historial existente
-                    historial = leer_historial(envio["nombre_nora"], envio["numero"])
-                    print(f"✅ Historial actual para {envio['numero']}: {historial}")
-
-                    # Agregar el mensaje al historial
+                    print(f"📤 Enviando mensaje programado a {numero}")
+                    historial = leer_historial(envio["nombre_nora"], numero)
                     historial.append({
                         "emisor": "nora",
                         "texto": envio["mensaje"],
                         "hora": ahora.strftime("%H:%M")
                     })
 
-                    # Verificar y manejar el contacto
                     contactos = leer_contactos(envio["nombre_nora"])
-                    contacto = next((c for c in contactos if c["telefono"] == envio["numero"]), {})
+                    contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == numero), {})
                     print(f"✅ Contacto encontrado: {contacto}")
 
-                    # Generar respuesta automática si IA está activada
-                    if contacto.get("ia", False):
+                    if contacto.get("ia_activada", False):  # ✅ Campo correcto
                         respuesta = f"Respuesta automática a: {envio['mensaje']}"
                         historial.append({
                             "emisor": "nora",
@@ -138,15 +126,9 @@ def procesar_envios():
                         })
                         print(f"🤖 Respuesta automática generada: {respuesta}")
 
-                    # Verificar y manejar el campo nombre_nora
                     nombre_nora = envio.get("nombre_nora", "Nora")
-                    print(f"🔍 Verificando nombre_nora: {nombre_nora}")
+                    guardar_historial(nombre_nora, numero, historial)
 
-                    # Guardar el historial en la base de datos
-                    guardar_historial(nombre_nora, envio["numero"], historial)
-
-                    # Marcar el envío como completado
-                    print(f"🗑️ Eliminando envío completado: {envio['id']}")
                     supabase.table("envios_programados").delete().eq("id", envio["id"]).execute()
                     print(f"✅ Envío completado y eliminado: {envio['id']}")
 
@@ -156,7 +138,6 @@ def procesar_envios():
         except Exception as e:
             print(f"❌ Error general al procesar envíos: {str(e)}")
 
-        # Esperar antes de procesar nuevamente
         print("⏳ Esperando 30 segundos antes de la próxima iteración...")
         time.sleep(30)
 

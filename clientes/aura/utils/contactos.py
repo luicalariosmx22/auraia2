@@ -2,6 +2,7 @@ from datetime import datetime
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+from utils.normalizador import normalizar_numero  # ✅ Importado
 
 # Configurar Supabase
 load_dotenv()
@@ -11,16 +12,14 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Función para obtener los datos de un contacto
 def obtener_datos_contacto(numero):
-    """
-    Obtiene los datos de un contacto desde la tabla `contactos` en Supabase.
-    Si el contacto no existe, lo inicializa con valores predeterminados.
-    """
+    numero = normalizar_numero(numero)  # ✅ Normalizar antes de consultar
+
     try:
-        response = supabase.table("contactos").select("*").eq("numero", numero).execute()
+        response = supabase.table("contactos").select("*").eq("telefono", numero).execute()
         if not response.data:
             print(f"⚠️ Contacto no encontrado. Inicializando datos predeterminados para {numero}.")
             return {
-                "numero": numero,
+                "telefono": numero,
                 "nombre": "",
                 "foto_perfil": "",
                 "ia_activada": True,
@@ -36,15 +35,11 @@ def obtener_datos_contacto(numero):
 
 # Función para actualizar los datos de un contacto
 def actualizar_datos_contacto(numero, nombre=None, foto_perfil=None, ia_activada=None, etiquetas=None):
-    """
-    Actualiza los datos de un contacto en la tabla `contactos` en Supabase.
-    Si el contacto no existe, lo crea con los valores proporcionados.
-    """
+    numero = normalizar_numero(numero)  # ✅ Normalizar también aquí
+
     try:
-        # Obtener los datos actuales del contacto
         contacto = obtener_datos_contacto(numero)
 
-        # Actualizar los valores
         if nombre:
             contacto["nombre"] = nombre
         if foto_perfil:
@@ -54,15 +49,12 @@ def actualizar_datos_contacto(numero, nombre=None, foto_perfil=None, ia_activada
         if etiquetas:
             contacto["etiquetas"] = etiquetas
 
-        # Actualizar la cantidad de mensajes y las fechas de los mensajes
         contacto["cantidad_mensajes"] += 1
         contacto["ultimo_mensaje"] = datetime.now().isoformat()
 
-        # Si es el primer mensaje, actualizar la fecha del primer mensaje
         if contacto["cantidad_mensajes"] == 1:
             contacto["primer_mensaje"] = datetime.now().isoformat()
 
-        # Guardar los datos actualizados en Supabase
         response = supabase.table("contactos").upsert(contacto).execute()
         if not response.data:
             print(f"❌ Error al actualizar datos del contacto {numero}: {not response.data}")

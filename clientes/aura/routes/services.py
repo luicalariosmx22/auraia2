@@ -44,7 +44,7 @@ def agregar_contacto_service(request):
 
         try:
             print(f"🔍 Verificando si el contacto ya existe: {numero}")
-            response = supabase.table("contactos").select("*").eq("numero", numero).execute()
+            response = supabase.table("contactos").select("*").eq("telefono", numero).execute()
             if response.data:
                 print("⚠️ El número ya está registrado.")
                 flash('❌ El número ya está registrado', 'error')
@@ -52,7 +52,7 @@ def agregar_contacto_service(request):
 
             print(f"🔍 Insertando nuevo contacto: {nombre}, {numero}")
             response = supabase.table("contactos").insert({
-                "numero": numero,
+                "telefono": numero,
                 "nombre": nombre,
                 "ia_activada": True,
                 "etiquetas": etiquetas,
@@ -78,7 +78,7 @@ def editar_contacto_service(numero, request):
 
     try:
         print(f"🔍 Buscando contacto en la tabla 'contactos': {numero}")
-        response = supabase.table("contactos").select("*").eq("numero", numero).execute()
+        response = supabase.table("contactos").select("*").eq("telefono", numero).execute()
         if not response.data:
             print("⚠️ Contacto no encontrado.")
             flash('❌ Contacto no encontrado', 'error')
@@ -95,7 +95,7 @@ def editar_contacto_service(numero, request):
             response = supabase.table("contactos").update({
                 "nombre": nuevo_nombre or contacto["nombre"],
                 "etiquetas": nuevas_etiquetas
-            }).eq("numero", numero).execute()
+            }).eq("telefono", numero).execute()
             if not response.data:
                 print("⚠️ No se pudo actualizar el contacto.")
                 flash('❌ Error al actualizar contacto', 'error')
@@ -117,7 +117,7 @@ def eliminar_contacto_service(numero):
 
     try:
         print(f"🔍 Intentando eliminar contacto: {numero}")
-        response = supabase.table("contactos").delete().eq("numero", numero).execute()
+        response = supabase.table("contactos").delete().eq("telefono", numero).execute()
         if not response.data:
             print("⚠️ No se pudo eliminar el contacto.")
             flash('❌ Error al eliminar contacto', 'error')
@@ -136,7 +136,7 @@ def toggle_ia_service(numero):
 
     try:
         print(f"🔍 Buscando contacto en la tabla 'contactos': {numero}")
-        response = supabase.table("contactos").select("*").eq("numero", numero).execute()
+        response = supabase.table("contactos").select("*").eq("telefono", numero).execute()
         if not response.data:
             print("⚠️ Contacto no encontrado.")
             flash('❌ Contacto no encontrado', 'error')
@@ -146,7 +146,7 @@ def toggle_ia_service(numero):
         nuevo_estado = not contacto.get("ia_activada", True)
         print(f"🔍 Nuevo estado de IA: {'Activado' if nuevo_estado else 'Desactivado'}")
 
-        response = supabase.table("contactos").update({"ia_activada": nuevo_estado}).eq("numero", numero).execute()
+        response = supabase.table("contactos").update({"ia_activada": nuevo_estado}).eq("telefono", numero).execute()
         if not response.data:
             print("⚠️ No se pudo cambiar el estado de IA.")
             return jsonify({"success": False, "error": "Error al cambiar estado de IA"}), 500
