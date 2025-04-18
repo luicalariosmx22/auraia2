@@ -11,7 +11,12 @@
   <div class="meta-container">
     <header class="meta-header">
       <h1>🤖 Noras activas</h1>
-      <button class="btn-primary" onclick="location.href='/crear_nora'">+ Nueva Nora AI</button>
+      <div class="botones-globales">
+        <a href="/crear_nora" class="btn-primary">+ Nueva Nora</a>
+        <a href="/admin/contactos" class="btn-secondary">👥 Contactos</a>
+        <a href="/admin/etiquetas" class="btn-secondary">🏷️ Etiquetas</a>
+        <a href="/admin/respuestas" class="btn-secondary">⚡ Respuestas Rápidas</a>
+      </div>
     </header>
 
     <section class="meta-grid">
@@ -19,30 +24,31 @@
       <div class="meta-card">
         <div class="meta-card-header">
           <div>
-            <div class="nora-id">{{ nora.id }}</div>
-            <div class="nora-status {{ 'status-on' if nora.ia else 'status-off' }}">
-              ● IA {{ 'activada' if nora.ia else 'desactivada' }}
+            <div class="nora-id">{{ nora.nombre }}</div>
+            <div class="nora-status {{ 'status-on' if nora.ia_activada else 'status-off' }}">
+              ● IA {{ 'activada' if nora.ia_activada else 'desactivada' }}
             </div>
           </div>
-          <span class="nora-date">Actualizado: {{ nora.actualizacion or 'Sin fecha' }}</span>
+          <span class="nora-date">Actualizado: {{ nora.ultima_actualizacion[:10] }}</span>
         </div>
 
         <div class="meta-card-body">
-          <div class="nora-modulos">
-            {% if nora.modulos %}
-              {% for m in nora.modulos %}
-                <span class="badge">{{ m }}</span>
-              {% endfor %}
-            {% else %}
-              <span class="badge badge-muted">Sin módulos</span>
-            {% endif %}
-          </div>
+          {% if nora.modulos %}
+            {% for m in nora.modulos %}
+              <span class="badge">{{ m }}</span>
+            {% endfor %}
+          {% else %}
+            <span class="badge badge-muted">Sin módulos</span>
+          {% endif %}
+          {% if nora.tickets_pendientes > 0 %}
+            <div class="badge badge-alert">🎫 {{ nora.tickets_pendientes }} tickets pendientes</div>
+          {% endif %}
         </div>
 
         <div class="meta-card-actions">
-          <a href="/panel/{{ nora.id }}" class="btn-neutral">💬 Panel Chat</a>
-          <a href="/dashboard/{{ nora.id }}" class="btn-neutral">📊 Dashboard</a>
-          <a href="/editar/{{ nora.id }}" class="btn-outline">✏️ Editar</a>
+          <a href="/panel/{{ nora.nombre }}" class="btn-neutral">💬 Panel Chat</a>
+          <a href="/dashboard/{{ nora.nombre }}" class="btn-neutral">📊 Dashboard</a>
+          <a href="/editar/{{ nora.nombre }}" class="btn-outline">✏️ Editar</a>
         </div>
       </div>
       {% endfor %}
