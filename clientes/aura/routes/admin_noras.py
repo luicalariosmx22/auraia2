@@ -22,15 +22,15 @@ def vista_admin():
     try:
         response = supabase.table("configuracion_bot").select("*").execute()
         if not response.data:
-            print(f"❌ Error al cargar Noras: {not response.data}")
+            print(f"❌ No se encontraron Noras en la tabla configuracion_bot.")
             return render_template("admin_noras.html", noras=lista_noras)
 
         configuraciones = response.data
 
         # Consultar tickets pendientes desde Supabase
         tickets_response = supabase.table("tickets").select("*").eq("estado", "pendiente").execute()
-        if tickets_not response.data:
-            print(f"❌ Error al cargar tickets: {tickets_not response.data}")
+        if not tickets_response.data:
+            print(f"⚠️ No se encontraron tickets pendientes.")
             tickets_pendientes = []
         else:
             tickets_pendientes = tickets_response.data
