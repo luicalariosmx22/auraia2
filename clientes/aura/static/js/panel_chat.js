@@ -50,6 +50,71 @@ async function cargarChat(numero) {
     }
 }
 
+// Nueva implementación: Manejo de contactos y carga inicial
+document.addEventListener("DOMContentLoaded", function () {
+    const contactos = document.querySelectorAll(".contacto");
+    const chatArea = document.getElementById("chat-area");
+
+    contactos.forEach((item) => {
+        item.addEventListener("click", () => {
+            const numero = item.getAttribute("data-numero");
+            const nombre = item.getAttribute("data-nombre");
+            seleccionarContacto(nombre, numero);
+        });
+    });
+
+    async function seleccionarContacto(nombre, numero) {
+        // Actualiza visualmente contacto activo
+        document.querySelectorAll(".contacto").forEach(c => c.classList.remove("activo"));
+        const activo = document.querySelector(`.contacto[data-numero="${numero}"]`);
+        if (activo) activo.classList.add("activo");
+
+        // Limpia y muestra un "cargando"
+        chatArea.innerHTML = "<p class='cargando'>⏳ Cargando conversación...</p>";
+
+        // Carga datos del backend
+        const res = await fetch(`/api/chat/${numero}`);
+        const data = await res.json();
+
+        if (!data.success || !data.mensajes) {
+            chatArea.innerHTML = "<p class='error'>❌ No se pudo cargar el historial.</p>";
+            return;
+        }
+
+        renderizarMensajes(data.mensajes);
+        actualizarInfoContacto(data.contacto, data.resumen_ia);
+    }
+
+    function renderizarMensajes(mensajes) {
+        chatArea.innerHTML = ""; // limpia
+
+        mensajes.forEach((msg) => {
+            const burbuja = document.createElement("div");
+            burbuja.classList.add("burbuja", msg.emisor === "bot" ? "nora" : "usuario");
+
+            const texto = document.createElement("p");
+            texto.innerText = msg.mensaje;
+            burbuja.appendChild(texto);
+
+            const hora = document.createElement("span");
+            hora.classList.add("hora");
+            hora.innerText = msg.hora?.slice(11, 16) || "";
+            burbuja.appendChild(hora);
+
+            chatArea.appendChild(burbuja);
+        });
+
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function actualizarInfoContacto(contacto, resumen) {
+        document.getElementById("nombre-contacto").innerText = contacto.nombre || "Sin nombre";
+        document.getElementById("numero-contacto").innerText = contacto.telefono || "";
+        document.getElementById("resumen-contacto").innerText = resumen || "Sin resumen aún.";
+    }
+});
+
+// Funciones adicionales...
 function enviarMensaje(e) {
     e.preventDefault();
     const input = document.getElementById("mensaje");
@@ -61,28 +126,27 @@ function enviarMensaje(e) {
 
     fetch("/api/enviar-mensaje", {
         method: "POST",
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             numero: contactoActual,
             mensaje: texto,
             nombre_nora: nombreNora
         })
     })
-    .then(res => {
-        if (!res.ok) throw new Error("Error al enviar el mensaje");
-        return res.json();
-    })
-    .then(() => {
-        input.value = "";
-        cargarChat(contactoActual);
-    })
-    .catch(err => manejarError(err, "Error al enviar el mensaje."))
-    .finally(() => {
-        botonEnviar.disabled = false;
-    });
+        .then(res => {
+            if (!res.ok) throw new Error("Error al enviar el mensaje");
+            return res.json();
+        })
+        .then(() => {
+            input.value = "";
+            cargarChat(contactoActual);
+        })
+        .catch(err => manejarError(err, "Error al enviar el mensaje."))
+        .finally(() => {
+            botonEnviar.disabled = false;
+        });
 }
 
-// Funciones nuevas integradas
 function filtrarContactosPorEtiqueta(etiqueta) {
     const lista = document.getElementById("lista-contactos").children;
     for (let li of lista) {
