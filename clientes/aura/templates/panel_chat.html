@@ -35,28 +35,24 @@
 
     <!-- Columna central: Conversación -->
     <section class="col-central">
-      <!-- Encabezado del chat -->
-      <div class="chat-header">
-        <h2 id="nombre-contacto">Selecciona un contacto</h2>
-        <p id="numero-contacto"></p>
-      </div>
-
-      <!-- Área de chat -->
       <div id="chat-area">
-        <p class="placeholder">Selecciona un contacto para comenzar a chatear.</p>
+        {% if contactos %}
+          {% for contacto in contactos %}
+            {% for mensaje in contacto.mensajes %}
+              <div class="burbuja {{ 'usuario' if mensaje.emisor == 'usuario' else 'nora' }}">
+                {{ mensaje.mensaje }}
+                <span class="hora">{{ mensaje.hora or '' }}</span>
+              </div>
+            {% endfor %}
+          {% endfor %}
+        {% else %}
+          <p class="placeholder">Selecciona un contacto para ver el historial.</p>
+        {% endif %}
       </div>
 
-      <!-- Botón para cargar más mensajes -->
-      <button id="cargar-mas" style="display:none; margin: 10px auto;">🔁 Cargar más mensajes</button>
-
-      <!-- Pie del chat -->
-      <div class="chat-footer">
-        <p id="resumen-contacto" class="resumen-contacto"></p>
-      </div>
-
-      <!-- Formulario de envío -->
-      <form class="form-envio" onsubmit="enviarMensaje(event)">
-        <input type="text" id="mensaje" placeholder="Escribe un mensaje...">
+      <!-- Formulario de envío de mensajes -->
+      <form class="form-envio" method="post">
+        <input type="text" name="mensaje" placeholder="Escribe un mensaje..." />
         <button type="submit">Enviar</button>
       </form>
     </section>
