@@ -15,9 +15,10 @@ from utils.db.contactos import obtener_contacto
 def procesar_mensaje(data):
     numero = normalizar_numero(data.get("From"))
     mensaje = limpiar_mensaje(data.get("Body"))
-    nombre = data.get("ProfileName", "Usuario")
+    nombre_usuario = data.get("ProfileName", "Usuario")  # Renombrado para evitar confusión
+    nombre_nora = "Aura AI"  # Asegúrate de obtener este valor dinámicamente si es necesario
 
-    guardar_en_historial(numero, mensaje, "usuario", nombre)
+    guardar_en_historial(numero, mensaje, "usuario", nombre_nora)
 
     settings = cargar_settings()
     respuesta = None
@@ -26,8 +27,8 @@ def procesar_mensaje(data):
     contacto = obtener_contacto(numero)
     if contacto and contacto.get("ia_activada") is False:
         mensaje_manual = "🔕 Nora AI está en modo manual. El cliente tomará el control del chat."
-        enviar_mensaje(numero, mensaje_manual, nombre)
-        guardar_en_historial(numero, mensaje_manual, "bot", "Aura AI")
+        enviar_mensaje(numero, mensaje_manual, nombre_usuario)
+        guardar_en_historial(numero, mensaje_manual, "bot", nombre_nora)
         return mensaje_manual
 
     # === 1. Respuesta automática ===
@@ -56,7 +57,7 @@ def procesar_mensaje(data):
 
     # === 7. Enviar y guardar
     print("🧠 Respuesta generada:", respuesta)
-    enviar_mensaje(numero, respuesta, nombre)
-    guardar_en_historial(numero, respuesta, "bot", "Aura AI")
+    enviar_mensaje(numero, respuesta, nombre_usuario)
+    guardar_en_historial(numero, respuesta, "bot", nombre_nora)
 
     return respuesta
