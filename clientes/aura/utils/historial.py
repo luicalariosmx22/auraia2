@@ -3,6 +3,7 @@
 from datetime import datetime
 from supabase import create_client
 from dotenv import load_dotenv
+from clientes.aura.utils.normalizador import normalizar_numero  # ✅ Importado
 import os
 
 # Configurar Supabase
@@ -16,14 +17,15 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
     Guarda un mensaje en el historial de conversaciones y actualiza la información del contacto en Supabase.
     """
     print(f"🔍 Iniciando guardado en historial para {remitente}...")
+    telefono = normalizar_numero(remitente)  # ✅ Asegurar formato correcto
 
     try:
         historial_entry = {
-            "telefono": remitente,
+            "telefono": telefono,
             "mensaje": mensaje,
             "emisor": tipo,
             "timestamp": datetime.now().isoformat(),
-            "hora": datetime.now().isoformat(),  # corregido para formato timestamp
+            "hora": datetime.now().isoformat(),
             "nombre_nora": "aura"
         }
         print(f"📋 Datos a guardar en historial_conversaciones: {historial_entry}")
@@ -38,14 +40,14 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
 
     # Actualizar o crear contacto
     try:
-        print(f"🔍 Buscando contacto existente para {remitente}...")
-        response = supabase.table("contactos").select("*").eq("telefono", remitente).execute()  # CORREGIDO
+        print(f"🔍 Buscando contacto existente para {telefono}...")
+        response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
         contacto = response.data[0] if response.data else None
 
         if not contacto:
-            print(f"⚠️ Contacto no encontrado. Creando nuevo contacto para {remitente}...")
+            print(f"⚠️ Contacto no encontrado. Creando nuevo contacto para {telefono}...")
             nuevo_contacto = {
-                "telefono": remitente,
+                "telefono": telefono,
                 "nombre": nombre,
                 "ia_activada": ia_activada,
                 "etiquetas": etiquetas,
@@ -60,14 +62,14 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
             else:
                 print(f"✅ Nuevo contacto creado: {nuevo_contacto}")
         else:
-            print(f"✅ Contacto encontrado. Actualizando información para {remitente}...")
+            print(f"✅ Contacto encontrado. Actualizando información para {telefono}...")
             contacto_actualizado = {
                 "ultimo_mensaje": datetime.now().isoformat(),
                 "mensaje_count": contacto.get("mensaje_count", 0) + 1,
                 "ia_activada": ia_activada
             }
             print(f"📋 Datos a actualizar en contacto: {contacto_actualizado}")
-            response = supabase.table("contactos").update(contacto_actualizado).eq("telefono", remitente).execute()  # CORREGIDO
+            response = supabase.table("contactos").update(contacto_actualizado).eq("telefono", telefono).execute()
             if not response.data:
                 print(f"❌ Error al actualizar contacto: {response}")
             else:
