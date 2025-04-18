@@ -38,20 +38,22 @@ def leer_contactos():
 
 def leer_historial(telefono):
     telefono = normalizar_numero(telefono)
+    numero_simplificado = telefono[-10:]  # Extraer los últimos 10 dígitos para simplificar la búsqueda
+
     try:
-        print(f"🔍 Leyendo historial para el teléfono: {telefono}...")
+        print(f"🔍 Buscando historial para número simplificado: {numero_simplificado}")
         response = (
             supabase
             .table("historial_conversaciones")
             .select("*")
-            .eq("telefono", telefono)
-            .order("hora", ascending=True)  # ✅ Corrección aquí
+            .like("telefono", f"%{numero_simplificado}")  # 🧠 Busca coincidencia parcial
+            .order("hora", ascending=True)
             .execute()
         )
         if not response.data:
             print(f"⚠️ No se encontró historial para {telefono}.")
             return []
-        print(f"✅ Historial cargado para {telefono}: {response.data}")
+        print(f"✅ Historial cargado: {len(response.data)} registros.")
         return response.data
     except Exception as e:
         print(f"❌ Error al cargar historial para {telefono}: {str(e)}")
