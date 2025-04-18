@@ -19,15 +19,20 @@ def webhook():
         nombre_nora = "aura"  # Asegúrate de obtener este valor dinámicamente si es necesario
 
         # ✅ Guardar mensaje del usuario en historial_conversaciones
+        print(f"🔍 Guardando mensaje del usuario: {mensaje_usuario}")
         guardar_mensaje(telefono, mensaje_usuario, "usuario", nombre_nora)
 
         # Obtener respuesta del bot
+        print("🔍 Procesando mensaje para generar respuesta...")
         respuesta = procesar_mensaje(data)
+        print(f"✅ Respuesta generada: {respuesta}")
 
         # ✅ Guardar respuesta del bot en historial_conversaciones
+        print(f"🔍 Guardando respuesta del bot: {respuesta}")
         guardar_mensaje(telefono, respuesta, "bot", nombre_nora)
 
         # ✅ Guardar envío en otra tabla (si es necesario)
+        print("🔍 Guardando envío en la tabla 'envios'...")
         guardar_envio({
             "numero": telefono,
             "mensaje": respuesta,
@@ -36,6 +41,7 @@ def webhook():
             "nombre_nora": nombre_nora
         })
 
+        print("✅ Webhook procesado correctamente.")
         return respuesta, 200
 
     except Exception as e:
