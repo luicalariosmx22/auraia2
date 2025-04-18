@@ -60,8 +60,8 @@ def insertar_en_supabase(registros):
     """
     try:
         response = supabase.table("historial_conversaciones").insert(registros).execute()
-        if response.error:
-            print(f"❌ Error al insertar registros en Supabase: {response.error}")
+        if not response.data:
+            print(f"❌ Error al insertar registros en Supabase: {not response.data}")
         else:
             print(f"✅ {len(registros)} registros insertados correctamente en Supabase")
     except Exception as e:

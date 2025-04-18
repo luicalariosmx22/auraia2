@@ -26,7 +26,7 @@ def cargar_configuracion():
     try:
         response = supabase.table("configuracion_bot").select("*").limit(1).execute()
         if not response.data:
-            print(f"❌ Error al cargar configuración: {response.error}")
+            print(f"❌ Error al cargar configuración: {not response.data}")
             return {"usar_openai": False}  # Valor predeterminado
         return response.data[0]  # Devuelve la primera configuración encontrada
     except Exception as e:
@@ -37,8 +37,8 @@ def cargar_configuracion():
 def guardar_configuracion(data):
     try:
         response = supabase.table("configuracion_bot").upsert(data).execute()
-        if response.error:
-            print(f"❌ Error al guardar configuración: {response.error}")
+        if not response.data:
+            print(f"❌ Error al guardar configuración: {not response.data}")
         else:
             print("✅ Configuración guardada correctamente en Supabase")
     except Exception as e:

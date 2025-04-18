@@ -50,8 +50,8 @@ def reset_historial():
 
     try:
         response = supabase.table("historial_conversaciones").delete().eq("telefono", numero).execute()
-        if response.error:
-            return f"❌ Error al eliminar historial para {numero}: {response.error}"
+        if not response.data:
+            return f"❌ Error al eliminar historial para {numero}: {not response.data}"
         return f"✅ Historial de {numero} eliminado."
     except Exception as e:
         return f"❌ Error al eliminar historial: {e}"

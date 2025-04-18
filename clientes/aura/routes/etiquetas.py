@@ -18,8 +18,8 @@ etiquetas_bp = Blueprint("etiquetas", __name__)
 def mostrar_etiquetas():
     try:
         response = supabase.table("etiquetas").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar etiquetas: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar etiquetas: {not response.data}")
             etiquetas = []
         else:
             etiquetas = [e["nombre"] for e in response.data]
@@ -47,8 +47,8 @@ def agregar_etiqueta():
 
         # Insertar nueva etiqueta
         response = supabase.table("etiquetas").insert({"nombre": nueva}).execute()
-        if response.error:
-            print(f"❌ Error al agregar etiqueta: {response.error}")
+        if not response.data:
+            print(f"❌ Error al agregar etiqueta: {not response.data}")
             flash("Error al agregar etiqueta", "danger")
         else:
             flash("Etiqueta agregada correctamente", "success")
@@ -77,8 +77,8 @@ def editar_etiqueta(nombre):
 
             # Actualizar etiqueta
             response = supabase.table("etiquetas").update({"nombre": nueva}).eq("nombre", nombre).execute()
-            if response.error:
-                print(f"❌ Error al editar etiqueta: {response.error}")
+            if not response.data:
+                print(f"❌ Error al editar etiqueta: {not response.data}")
                 flash("Error al editar etiqueta", "danger")
             else:
                 flash("Etiqueta editada correctamente", "success")
@@ -96,8 +96,8 @@ def editar_etiqueta(nombre):
 def eliminar_etiqueta(nombre):
     try:
         response = supabase.table("etiquetas").delete().eq("nombre", nombre).execute()
-        if response.error:
-            print(f"❌ Error al eliminar etiqueta: {response.error}")
+        if not response.data:
+            print(f"❌ Error al eliminar etiqueta: {not response.data}")
             flash("Error al eliminar etiqueta", "danger")
         else:
             flash("Etiqueta eliminada correctamente", "success")

@@ -48,8 +48,8 @@ def actualizar_contacto(numero_usuario, datos_actualizados):
     """
     try:
         response = supabase.table("contactos").update(datos_actualizados).eq("numero", numero_usuario).execute()
-        if response.error:
-            print(f"❌ Error al actualizar contacto: {response.error}")
+        if not response.data:
+            print(f"❌ Error al actualizar contacto: {not response.data}")
     except Exception as e:
         print(f"❌ Error al actualizar contacto: {str(e)}")
 

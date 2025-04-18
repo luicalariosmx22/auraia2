@@ -29,23 +29,23 @@ def guardar_memoria(usuario_id, data):
     try:
         # Verificar si ya existe una memoria para el usuario
         response = supabase.table("memoria_usuarios").select("*").eq("usuario_id", usuario_id).execute()
-        if response.error:
-            print(f"❌ Error al verificar memoria existente: {response.error}")
+        if not response.data:
+            print(f"❌ Error al verificar memoria existente: {not response.data}")
             return
 
         if response.data:
             # Actualizar memoria existente
             response = supabase.table("memoria_usuarios").update({"data": data}).eq("usuario_id", usuario_id).execute()
-            if response.error:
-                print(f"❌ Error al actualizar memoria para el usuario {usuario_id}: {response.error}")
+            if not response.data:
+                print(f"❌ Error al actualizar memoria para el usuario {usuario_id}: {not response.data}")
             else:
                 print(f"✅ Memoria actualizada para el usuario {usuario_id}.")
         else:
             # Crear nueva memoria
             nueva_memoria = {"usuario_id": usuario_id, "data": data}
             response = supabase.table("memoria_usuarios").insert(nueva_memoria).execute()
-            if response.error:
-                print(f"❌ Error al guardar nueva memoria para el usuario {usuario_id}: {response.error}")
+            if not response.data:
+                print(f"❌ Error al guardar nueva memoria para el usuario {usuario_id}: {not response.data}")
             else:
                 print(f"✅ Nueva memoria guardada para el usuario {usuario_id}.")
     except Exception as e:
@@ -57,8 +57,8 @@ def limpiar_memoria(usuario_id):
     """
     try:
         response = supabase.table("memoria_usuarios").delete().eq("usuario_id", usuario_id).execute()
-        if response.error:
-            print(f"❌ Error al eliminar memoria para el usuario {usuario_id}: {response.error}")
+        if not response.data:
+            print(f"❌ Error al eliminar memoria para el usuario {usuario_id}: {not response.data}")
         else:
             print(f"✅ Memoria eliminada para el usuario {usuario_id}.")
     except Exception as e:

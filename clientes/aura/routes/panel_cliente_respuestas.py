@@ -35,7 +35,7 @@ def panel_respuestas(nombre_nora):
                     "keyword": palabra_clave,
                     "respuesta": respuesta
                 }).eq("id", idx).execute()
-                if response.error:
+                if not response.data:
                     flash("❌ No se pudo editar", "error")
                 else:
                     flash("✅ Respuesta actualizada", "success")
@@ -46,7 +46,7 @@ def panel_respuestas(nombre_nora):
                     "keyword": palabra_clave,
                     "respuesta": respuesta
                 }).execute()
-                if response.error:
+                if not response.data:
                     flash("❌ No se pudo agregar la respuesta", "error")
                 else:
                     flash("✅ Respuesta agregada", "success")
@@ -61,7 +61,7 @@ def panel_respuestas(nombre_nora):
         try:
             idx = int(eliminar)
             response = supabase.table("bot_data").delete().eq("id", idx).execute()
-            if response.error:
+            if not response.data:
                 flash("❌ No se pudo eliminar", "error")
             else:
                 flash("✅ Respuesta eliminada", "success")
@@ -73,8 +73,8 @@ def panel_respuestas(nombre_nora):
     try:
         # Cargar respuestas desde Supabase
         response = supabase.table("bot_data").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error:
-            print(f"❌ Error al cargar respuestas: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar respuestas: {not response.data}")
             respuestas = []
         else:
             respuestas = response.data

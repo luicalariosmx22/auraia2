@@ -16,8 +16,8 @@ respuestas_bp = Blueprint('respuestas', __name__)
 def cargar_respuestas():
     try:
         response = supabase.table("bot_data").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar respuestas: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar respuestas: {not response.data}")
             return {}
         return {r["id"]: r for r in response.data}
     except Exception as e:
@@ -27,8 +27,8 @@ def cargar_respuestas():
 def cargar_categorias():
     try:
         response = supabase.table("categorias").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar categorías: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar categorías: {not response.data}")
             return []
         return [c["nombre"] for c in response.data]
     except Exception as e:
@@ -69,8 +69,8 @@ def guardar():
             "categoria": categoria,
             "botones": botones
         }).execute()
-        if response.error:
-            print(f"❌ Error al guardar respuesta: {response.error}")
+        if not response.data:
+            print(f"❌ Error al guardar respuesta: {not response.data}")
             flash("❌ Error al guardar respuesta", "danger")
         else:
             flash("✅ Respuesta guardada correctamente", "success")
@@ -109,8 +109,8 @@ def editar(clave):
                 "categoria": nueva_categoria,
                 "botones": botones
             }).eq("id", clave).execute()
-            if response.error:
-                print(f"❌ Error al editar respuesta: {response.error}")
+            if not response.data:
+                print(f"❌ Error al editar respuesta: {not response.data}")
                 flash("❌ Error al editar respuesta", "danger")
             else:
                 flash("✅ Respuesta actualizada correctamente", "success")
@@ -143,8 +143,8 @@ def eliminar(clave):
     clave = clave.lower()
     try:
         response = supabase.table("bot_data").delete().eq("id", clave).execute()
-        if response.error:
-            print(f"❌ Error al eliminar respuesta: {response.error}")
+        if not response.data:
+            print(f"❌ Error al eliminar respuesta: {not response.data}")
             flash("❌ Error al eliminar respuesta", "danger")
         else:
             flash("✅ Respuesta eliminada correctamente", "success")

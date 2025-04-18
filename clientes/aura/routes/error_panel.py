@@ -18,8 +18,8 @@ def ver_errores():
     """
     try:
         response = supabase.table("logs_errores").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar errores: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar errores: {not response.data}")
             errores = []
         else:
             errores = response.data
@@ -36,8 +36,8 @@ def limpiar_errores():
     """
     try:
         response = supabase.table("logs_errores").delete().execute()
-        if response.error:
-            print(f"❌ Error al limpiar errores: {response.error}")
+        if not response.data:
+            print(f"❌ Error al limpiar errores: {not response.data}")
     except Exception as e:
         print(f"❌ Error al limpiar errores: {str(e)}")
 
@@ -50,8 +50,8 @@ def contar_errores():
     """
     try:
         response = supabase.table("logs_errores").select("id").execute()
-        if response.error:
-            print(f"❌ Error al contar errores: {response.error}")
+        if not response.data:
+            print(f"❌ Error al contar errores: {not response.data}")
             return 0
         return len(response.data)
     except Exception as e:

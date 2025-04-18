@@ -25,7 +25,7 @@ def panel_contactos(nombre_nora):
     try:
         response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar configuración: {response.error}")
+            print(f"❌ Error al cargar configuración: {not response.data}")
         else:
             modulos = response.data[0].get("modulos", [])
             ia_permitida = "ia" in modulos
@@ -36,7 +36,7 @@ def panel_contactos(nombre_nora):
     try:
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar contactos: {response.error}")
+            print(f"❌ Error al cargar contactos: {not response.data}")
         else:
             contactos = response.data
     except Exception as e:
@@ -54,8 +54,8 @@ def panel_contactos(nombre_nora):
         # Insertar nuevo contacto en Supabase
         try:
             response = supabase.table("contactos").insert(nuevo).execute()
-            if response.error:
-                print(f"❌ Error al guardar contacto: {response.error}")
+            if not response.data:
+                print(f"❌ Error al guardar contacto: {not response.data}")
             else:
                 print(f"✅ Contacto guardado: {nuevo}")
         except Exception as e:

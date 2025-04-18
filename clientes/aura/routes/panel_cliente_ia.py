@@ -23,7 +23,7 @@ def panel_ia(nombre_nora):
     try:
         response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar configuración: {response.error}")
+            print(f"❌ Error al cargar configuración: {not response.data}")
             return f"❌ No se encontró la configuración para {nombre_nora}"
         config = response.data[0]
     except Exception as e:
@@ -37,8 +37,8 @@ def panel_ia(nombre_nora):
         # Guardar configuración en Supabase
         try:
             response = supabase.table("configuracion_bot").update({"ia_activada": estado_nuevo}).eq("nombre_nora", nombre_nora).execute()
-            if response.error:
-                print(f"❌ Error al actualizar configuración: {response.error}")
+            if not response.data:
+                print(f"❌ Error al actualizar configuración: {not response.data}")
                 return f"❌ Error al actualizar configuración para {nombre_nora}"
         except Exception as e:
             print(f"❌ Error al actualizar configuración: {str(e)}")

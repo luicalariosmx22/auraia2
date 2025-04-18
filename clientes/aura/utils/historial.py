@@ -30,8 +30,8 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
             **({"nombre": nombre} if nombre else {})
         }
         response = supabase.table("historial_conversaciones").insert(historial_entry).execute()
-        if response.error:
-            print(f"❌ Error al guardar en historial_conversaciones: {response.error}")
+        if not response.data:
+            print(f"❌ Error al guardar en historial_conversaciones: {not response.data}")
         else:
             print(f"✅ Mensaje guardado en historial_conversaciones: {historial_entry}")
     except Exception as e:
@@ -41,8 +41,8 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
     try:
         # Obtener el contacto actual
         response = supabase.table("contactos").select("*").eq("numero", remitente).execute()
-        if response.error:
-            print(f"❌ Error al obtener contacto: {response.error}")
+        if not response.data:
+            print(f"❌ Error al obtener contacto: {not response.data}")
             return
 
         contacto = response.data[0] if response.data else None
@@ -59,8 +59,8 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
                 "ultimo_mensaje": datetime.now().isoformat()
             }
             response = supabase.table("contactos").insert(nuevo_contacto).execute()
-            if response.error:
-                print(f"❌ Error al crear nuevo contacto: {response.error}")
+            if not response.data:
+                print(f"❌ Error al crear nuevo contacto: {not response.data}")
             else:
                 print(f"✅ Nuevo contacto creado: {nuevo_contacto}")
         else:
@@ -71,8 +71,8 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
                 "ia_activada": ia_activada
             }
             response = supabase.table("contactos").update(contacto_actualizado).eq("numero", remitente).execute()
-            if response.error:
-                print(f"❌ Error al actualizar contacto: {response.error}")
+            if not response.data:
+                print(f"❌ Error al actualizar contacto: {not response.data}")
             else:
                 print(f"✅ Contacto actualizado: {contacto_actualizado}")
     except Exception as e:

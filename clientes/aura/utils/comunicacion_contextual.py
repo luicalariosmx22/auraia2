@@ -15,8 +15,8 @@ def cargar_historial(numero):
     """
     try:
         response = supabase.table("historial_conversaciones").select("*").eq("telefono", numero).order("hora", desc=True).execute()
-        if response.error:
-            print(f"❌ Error al cargar historial para {numero}: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar historial para {numero}: {not response.data}")
             return []
         return response.data
     except Exception as e:

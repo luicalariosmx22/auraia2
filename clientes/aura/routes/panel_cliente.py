@@ -24,7 +24,7 @@ def panel_cliente(nombre_nora):
     try:
         response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar configuración: {response.error}")
+            print(f"❌ Error al cargar configuración: {not response.data}")
             return f"❌ No se encontró la configuración de la Nora {nombre_nora}"
         config = response.data[0]
     except Exception as e:

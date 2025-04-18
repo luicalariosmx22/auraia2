@@ -28,7 +28,7 @@ def dashboard_nora(nombre_nora):
     try:
         response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar configuración: {response.error}")
+            print(f"❌ Error al cargar configuración: {not response.data}")
         else:
             datos["config"] = response.data[0]
     except Exception as e:
@@ -38,7 +38,7 @@ def dashboard_nora(nombre_nora):
     try:
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar contactos: {response.error}")
+            print(f"❌ Error al cargar contactos: {not response.data}")
         else:
             datos["contactos"] = response.data
     except Exception as e:
@@ -48,7 +48,7 @@ def dashboard_nora(nombre_nora):
     try:
         response = supabase.table("respuestas_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar respuestas: {response.error}")
+            print(f"❌ Error al cargar respuestas: {not response.data}")
         else:
             datos["respuestas"] = response.data
     except Exception as e:
@@ -58,7 +58,7 @@ def dashboard_nora(nombre_nora):
     try:
         response = supabase.table("tickets").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar tickets: {response.error}")
+            print(f"❌ Error al cargar tickets: {not response.data}")
         else:
             datos["tickets"] = response.data
     except Exception as e:
@@ -87,8 +87,8 @@ def resolver_ticket(nombre_nora, ticket_id):
     # Resolver ticket en Supabase
     try:
         response = supabase.table("tickets").update({"estado": "resuelto", "resuelto_en": datetime.now().isoformat()}).eq("id", ticket_id).execute()
-        if response.error:
-            print(f"❌ Error al resolver ticket: {response.error}")
+        if not response.data:
+            print(f"❌ Error al resolver ticket: {not response.data}")
     except Exception as e:
         print(f"❌ Error al resolver ticket: {str(e)}")
 

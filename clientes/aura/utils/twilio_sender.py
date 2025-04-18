@@ -38,8 +38,8 @@ def registrar_envio(numero, mensaje, sid, estado):
             "from_number": FROM_NUMBER
         }
         response = supabase.table("twilio_logs").insert(log_entry).execute()
-        if response.error:
-            print(f"❌ Error al registrar el envío en Supabase: {response.error}")
+        if not response.data:
+            print(f"❌ Error al registrar el envío en Supabase: {not response.data}")
         else:
             print(f"✅ Envío registrado en Supabase: {log_entry}")
     except Exception as e:

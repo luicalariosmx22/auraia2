@@ -17,8 +17,8 @@ categorias_bp = Blueprint('categorias', __name__)
 def mostrar_categorias():
     try:
         response = supabase.table("categorias").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar categorías: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar categorías: {not response.data}")
             categorias = []
         else:
             categorias = [cat["nombre"] for cat in response.data]
@@ -36,8 +36,8 @@ def agregar_categoria():
     if nueva:
         try:
             response = supabase.table("categorias").insert({"nombre": nueva}).execute()
-            if response.error:
-                print(f"❌ Error al agregar categoría: {response.error}")
+            if not response.data:
+                print(f"❌ Error al agregar categoría: {not response.data}")
         except Exception as e:
             print(f"❌ Error al agregar categoría: {str(e)}")
 
@@ -50,8 +50,8 @@ def eliminar_categoria(categoria):
 
     try:
         response = supabase.table("categorias").delete().eq("nombre", categoria).execute()
-        if response.error:
-            print(f"❌ Error al eliminar categoría: {response.error}")
+        if not response.data:
+            print(f"❌ Error al eliminar categoría: {not response.data}")
     except Exception as e:
         print(f"❌ Error al eliminar categoría: {str(e)}")
 
@@ -69,16 +69,16 @@ def editar_categoria(nombre):
             # Actualizar la categoría en la tabla `categorias`
             try:
                 response = supabase.table("categorias").update({"nombre": nuevo_nombre}).eq("nombre", nombre).execute()
-                if response.error:
-                    print(f"❌ Error al actualizar categoría: {response.error}")
+                if not response.data:
+                    print(f"❌ Error al actualizar categoría: {not response.data}")
             except Exception as e:
                 print(f"❌ Error al actualizar categoría: {str(e)}")
 
             # Actualizar las respuestas en la tabla `bot_data`
             try:
                 response = supabase.table("bot_data").select("*").execute()
-                if response.error:
-                    print(f"❌ Error al cargar datos del bot: {response.error}")
+                if not response.data:
+                    print(f"❌ Error al cargar datos del bot: {not response.data}")
                 else:
                     data = response.data
                     for item in data:

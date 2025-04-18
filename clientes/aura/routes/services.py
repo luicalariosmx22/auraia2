@@ -17,8 +17,8 @@ def obtener_timestamp_actual():
 def cargar_etiquetas():
     try:
         response = supabase.table("etiquetas").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar etiquetas: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar etiquetas: {not response.data}")
             return []
         return [e["nombre"] for e in response.data]
     except Exception as e:
@@ -52,8 +52,8 @@ def agregar_contacto_service(request):
                 "etiquetas": etiquetas,
                 "fecha_registro": obtener_timestamp_actual()
             }).execute()
-            if response.error:
-                print(f"❌ Error al agregar contacto: {response.error}")
+            if not response.data:
+                print(f"❌ Error al agregar contacto: {not response.data}")
                 flash('❌ Error al agregar contacto', 'error')
             else:
                 flash('✅ Contacto agregado correctamente', 'success')
@@ -86,8 +86,8 @@ def editar_contacto_service(numero, request):
                 "nombre": nuevo_nombre or contacto["nombre"],
                 "etiquetas": nuevas_etiquetas
             }).eq("numero", numero).execute()
-            if response.error:
-                print(f"❌ Error al actualizar contacto: {response.error}")
+            if not response.data:
+                print(f"❌ Error al actualizar contacto: {not response.data}")
                 flash('❌ Error al actualizar contacto', 'error')
             else:
                 flash('✅ Contacto actualizado', 'success')
@@ -106,8 +106,8 @@ def eliminar_contacto_service(numero):
     try:
         # Eliminar contacto desde Supabase
         response = supabase.table("contactos").delete().eq("numero", numero).execute()
-        if response.error:
-            print(f"❌ Error al eliminar contacto: {response.error}")
+        if not response.data:
+            print(f"❌ Error al eliminar contacto: {not response.data}")
             flash('❌ Error al eliminar contacto', 'error')
         else:
             flash('✅ Contacto eliminado', 'success')
@@ -132,8 +132,8 @@ def toggle_ia_service(numero):
 
         # Actualizar estado de IA
         response = supabase.table("contactos").update({"ia_activada": nuevo_estado}).eq("numero", numero).execute()
-        if response.error:
-            print(f"❌ Error al cambiar estado de IA: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cambiar estado de IA: {not response.data}")
             return jsonify({"success": False, "error": "Error al cambiar estado de IA"}), 500
 
         flash(f'IA {"activada" if nuevo_estado else "desactivada"} correctamente', 'success')

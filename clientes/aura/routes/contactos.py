@@ -20,8 +20,8 @@ contactos_bp = Blueprint('contactos', __name__)
 def ver_contactos():
     try:
         response = supabase.table("contactos").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar contactos: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar contactos: {not response.data}")
             return jsonify({"success": False, "error": "Error al cargar contactos"}), 500
 
         contactos = {c["numero"]: c for c in response.data}
@@ -58,8 +58,8 @@ def agregar_contacto():
             "primer_mensaje": datetime.now().isoformat(),
             "ultimo_mensaje": datetime.now().isoformat()
         }).execute()
-        if response.error:
-            print(f"❌ Error al agregar contacto: {response.error}")
+        if not response.data:
+            print(f"❌ Error al agregar contacto: {not response.data}")
             return jsonify({"success": False, "error": "Error al agregar contacto"}), 400
         return jsonify({"success": True})
     except Exception as e:
@@ -86,8 +86,8 @@ def editar_contacto(numero):
             "etiquetas": etiqueta,
             "ultimo_mensaje": datetime.now().isoformat()
         }).eq("numero", numero).execute()
-        if response.error:
-            print(f"❌ Error al editar contacto: {response.error}")
+        if not response.data:
+            print(f"❌ Error al editar contacto: {not response.data}")
             return jsonify({"success": False, "error": "Error al editar contacto"}), 400
         return jsonify({"success": True})
     except Exception as e:
@@ -99,8 +99,8 @@ def editar_contacto(numero):
 def eliminar_contacto(numero):
     try:
         response = supabase.table("contactos").delete().eq("numero", numero).execute()
-        if response.error:
-            print(f"❌ Error al eliminar contacto: {response.error}")
+        if not response.data:
+            print(f"❌ Error al eliminar contacto: {not response.data}")
             return jsonify({"success": False, "error": "Error al eliminar contacto"}), 400
         return jsonify({"success": True})
     except Exception as e:
@@ -123,8 +123,8 @@ def exportar_a_sheets():
 
         # Leer contactos desde Supabase
         response = supabase.table("contactos").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar contactos: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar contactos: {not response.data}")
             return jsonify({"success": False, "error": "Error al cargar contactos"}), 500
 
         contactos = response.data

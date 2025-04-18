@@ -64,8 +64,8 @@ def actualizar_datos_contacto(numero, nombre=None, foto_perfil=None, ia_activada
 
         # Guardar los datos actualizados en Supabase
         response = supabase.table("contactos").upsert(contacto).execute()
-        if response.error:
-            print(f"❌ Error al actualizar datos del contacto {numero}: {response.error}")
+        if not response.data:
+            print(f"❌ Error al actualizar datos del contacto {numero}: {not response.data}")
         else:
             print(f"✅ Datos del contacto {numero} actualizados correctamente.")
     except Exception as e:

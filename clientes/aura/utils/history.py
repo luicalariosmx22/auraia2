@@ -27,8 +27,8 @@ def guardar_en_historial(numero, mensaje, origen, nombre):
 
     try:
         response = supabase.table("historial_conversaciones").insert(nuevo_mensaje).execute()
-        if response.error:
-            print(f"❌ Error al guardar en historial_conversaciones: {response.error}")
+        if not response.data:
+            print(f"❌ Error al guardar en historial_conversaciones: {not response.data}")
         else:
             print(f"✅ Mensaje guardado en historial_conversaciones: {nuevo_mensaje}")
     except Exception as e:

@@ -21,8 +21,8 @@ def panel_envios(nombre_nora):
     try:
         # Obtener envíos programados desde Supabase
         response = supabase.table("envios_programados").select("*").eq("nombre_nora", nombre_nora).execute()
-        if response.error:
-            print(f"❌ Error al cargar envíos programados: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar envíos programados: {not response.data}")
             envios = []
         else:
             envios = response.data
@@ -42,8 +42,8 @@ def panel_envios(nombre_nora):
         try:
             # Insertar nuevo envío en Supabase
             response = supabase.table("envios_programados").insert(nuevo_envio).execute()
-            if response.error:
-                print(f"❌ Error al programar envío: {response.error}")
+            if not response.data:
+                print(f"❌ Error al programar envío: {not response.data}")
                 return jsonify({"success": False, "error": "Error al programar envío"}), 500
         except Exception as e:
             print(f"❌ Error al programar envío: {str(e)}")

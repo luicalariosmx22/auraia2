@@ -37,7 +37,7 @@ def cargar_datos_supabase(tabla, filtro=None, default=None):
                 query = query.eq(key, value)
         response = query.execute()
         if not response.data:
-            print(f"❌ Error al cargar datos de {tabla}: {response.error}")
+            print(f"❌ Error al cargar datos de {tabla}: {not response.data}")
             return default
         return response.data
     except Exception as e:
@@ -53,8 +53,8 @@ def guardar_datos_supabase(tabla, datos):
     """
     try:
         response = supabase.table(tabla).insert(datos).execute()
-        if response.error:
-            print(f"❌ Error al guardar datos en {tabla}: {response.error}")
+        if not response.data:
+            print(f"❌ Error al guardar datos en {tabla}: {not response.data}")
             return False
         return True
     except Exception as e:

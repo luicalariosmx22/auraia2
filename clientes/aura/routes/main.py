@@ -49,7 +49,7 @@ def toggle_ia():
     try:
         response = supabase.table("bot_data").select("*").execute()
         if not response.data:
-            print(f"❌ Error al cargar configuración: {response.error}")
+            print(f"❌ Error al cargar configuración: {not response.data}")
             return redirect(url_for('main.index'))
 
         config = response.data[0]

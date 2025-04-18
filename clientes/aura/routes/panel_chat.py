@@ -20,8 +20,8 @@ panel_chat_bp = Blueprint("panel_chat_aura", __name__)
 def leer_contactos():
     try:
         response = supabase.table("contactos").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar contactos: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar contactos: {not response.data}")
             return []
         return response.data
     except Exception as e:
@@ -31,8 +31,8 @@ def leer_contactos():
 def leer_historial(nombre_nora, numero):
     try:
         response = supabase.table("historial_conversaciones").select("*").eq("nombre_nora", nombre_nora).eq("telefono", numero).execute()
-        if response.error:
-            print(f"❌ Error al cargar historial: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar historial: {not response.data}")
             return []
         return response.data
     except Exception as e:
@@ -52,8 +52,8 @@ def guardar_historial(nombre_nora, numero, mensajes):
     ]
     try:
         response = supabase.table("historial_conversaciones").insert(registros).execute()
-        if response.error:
-            print(f"❌ Error al guardar historial: {response.error}")
+        if not response.data:
+            print(f"❌ Error al guardar historial: {not response.data}")
     except Exception as e:
         print(f"❌ Error al guardar historial: {str(e)}")
 
@@ -142,7 +142,7 @@ def api_toggle_ia(numero):
     try:
         response = supabase.table("contactos").select("*").eq("numero", numero).execute()
         if not response.data:
-            print(f"❌ Error al cargar contacto: {response.error}")
+            print(f"❌ Error al cargar contacto: {not response.data}")
             return jsonify({"success": False})
 
         contacto = response.data[0]
@@ -165,8 +165,8 @@ def api_programar_envio():
             "hora": data.get("hora"),
             "nombre_nora": data.get("nombre_nora")
         }).execute()
-        if response.error:
-            print(f"❌ Error al programar envío: {response.error}")
+        if not response.data:
+            print(f"❌ Error al programar envío: {not response.data}")
             return jsonify({"success": False})
         return jsonify({"success": True})
     except Exception as e:

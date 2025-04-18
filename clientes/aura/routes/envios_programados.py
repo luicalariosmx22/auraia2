@@ -21,8 +21,8 @@ def vista_envios(estado=None):
 def api_contactos():
     try:
         response = supabase.table("contactos").select("*").execute()
-        if response.error:
-            print(f"❌ Error al cargar contactos: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar contactos: {not response.data}")
             return jsonify({"error": "Error al cargar contactos"}), 500
         return jsonify(response.data)
     except Exception as e:
@@ -37,8 +37,8 @@ def api_envios_programados():
         if estado_filtro:
             query = query.eq("estado", estado_filtro)
         response = query.execute()
-        if response.error:
-            print(f"❌ Error al cargar envíos programados: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cargar envíos programados: {not response.data}")
             return jsonify({"error": "Error al cargar envíos programados"}), 500
         return jsonify(response.data)
     except Exception as e:
@@ -83,8 +83,8 @@ def programar_envio_masivo():
 
     try:
         response = supabase.table("envios_programados").insert(registros).execute()
-        if response.error:
-            print(f"❌ Error al programar envíos: {response.error}")
+        if not response.data:
+            print(f"❌ Error al programar envíos: {not response.data}")
             return jsonify({"error": "Error al programar envíos"}), 500
         return jsonify({"ok": True})
     except Exception as e:
@@ -107,8 +107,8 @@ def cancelar_envio():
             "fecha": fecha,
             "hora": hora
         }).execute()
-        if response.error:
-            print(f"❌ Error al cancelar envío: {response.error}")
+        if not response.data:
+            print(f"❌ Error al cancelar envío: {not response.data}")
             return jsonify({"error": "Error al cancelar envío"}), 500
         return jsonify({"ok": True})
     except Exception as e:

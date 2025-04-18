@@ -23,8 +23,8 @@ def registrar_error(origen, mensaje_error):
 
     try:
         response = supabase.table("logs_errores").insert(error).execute()
-        if response.error:
-            print(f"❌ Error al registrar en Supabase: {response.error}")
+        if not response.data:
+            print(f"❌ Error al registrar en Supabase: {not response.data}")
         else:
             print(f"✅ Error registrado en Supabase: {error}")
     except Exception as e:
