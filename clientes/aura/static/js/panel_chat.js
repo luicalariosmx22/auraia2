@@ -1,6 +1,9 @@
 console.log("✅ panel_chat.js cargado correctamente");
 
 let contactoActual = null;
+let historial = [];
+let offset = 0;
+let numeroActual = null;
 
 function mostrarError(mensaje) {
     alert(`❌ ${mensaje}`);
@@ -14,6 +17,8 @@ function manejarError(err, mensaje) {
 // Nueva implementación de cargarChat con async/await
 async function cargarChat(numero) {
     try {
+        numeroActual = numero;
+        offset = 0;
         const response = await fetch(`/api/chat/${numero}`);
         const data = await response.json();
 
@@ -25,24 +30,10 @@ async function cargarChat(numero) {
             return;
         }
 
-        data.mensajes.forEach(m => {
-            const burbuja = document.createElement("div");
-            burbuja.classList.add("burbuja");
-            burbuja.classList.add(m.emisor === "bot" ? "nora" : "usuario");
-
-            const hora = document.createElement("span");
-            hora.classList.add("hora");
-            hora.innerText = m.hora.slice(11, 16); // solo HH:MM
-
-            burbuja.innerText = m.mensaje;
-            burbuja.appendChild(hora);
-            chatArea.appendChild(burbuja);
-        });
-
-        // También actualiza los detalles del contacto a la derecha
-        document.getElementById("nombre-contacto").innerText = data.contacto.nombre;
-        document.getElementById("numero-contacto").innerText = data.contacto.telefono;
-        document.getElementById("resumen-contacto").innerText = data.resumen_ia || "Sin resumen.";
+        historial = data.mensajes || [];
+        renderizarMensajes(historial);
+        actualizarInfoContacto(data.contacto, data.resumen_ia);
+        document.getElementById("cargar-mas").style.display = "block";
     } catch (error) {
         console.error("Error al cargar el chat:", error);
         const chatArea = document.getElementById("chat-area");
@@ -64,26 +55,35 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     async function seleccionarContacto(nombre, numero) {
-        // Actualiza visualmente contacto activo
-        document.querySelectorAll(".contacto").forEach(c => c.classList.remove("activo"));
-        const activo = document.querySelector(`.contacto[data-numero="${numero}"]`);
-        if (activo) activo.classList.add("activo");
-
-        // Limpia y muestra un "cargando"
-        chatArea.innerHTML = "<p class='cargando'>⏳ Cargando conversación...</p>";
-
-        // Carga datos del backend
+        numeroActual = numero;
+        offset = 0;
         const res = await fetch(`/api/chat/${numero}`);
         const data = await res.json();
 
-        if (!data.success || !data.mensajes) {
+        if (!data.success) {
             chatArea.innerHTML = "<p class='error'>❌ No se pudo cargar el historial.</p>";
             return;
         }
 
-        renderizarMensajes(data.mensajes);
+        historial = data.mensajes || [];
+        renderizarMensajes(historial);
         actualizarInfoContacto(data.contacto, data.resumen_ia);
+        document.getElementById("cargar-mas").style.display = "block";
     }
+
+    document.getElementById("cargar-mas").addEventListener("click", async () => {
+        offset += 20;
+        const res = await fetch(`/api/chat/${numeroActual}?offset=${offset}`);
+        const data = await res.json();
+
+        if (data.mensajes && data.mensajes.length) {
+            historial = [...data.mensajes, ...historial]; // prepend
+            renderizarMensajes(historial);
+        } else {
+            alert("No hay más historial disponible.");
+            document.getElementById("cargar-mas").style.display = "none";
+        }
+    });
 
     function renderizarMensajes(mensajes) {
         chatArea.innerHTML = ""; // limpia
