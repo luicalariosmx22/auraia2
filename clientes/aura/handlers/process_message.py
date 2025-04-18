@@ -1,6 +1,7 @@
 # 📁 clientes/aura/handlers/process_message.py
 
-from clientes.aura.utils.normalize import normalizar_numero, limpiar_mensaje
+from clientes.aura.utils.normalizador import normalizar_numero  # ✅ Actualizado
+from clientes.aura.utils.limpieza import limpiar_mensaje  # ✅ Actualizado
 from clientes.aura.utils.history import guardar_en_historial
 from clientes.aura.utils.twilio_sender import enviar_mensaje
 from clientes.aura.utils.settings_loader import cargar_settings

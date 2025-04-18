@@ -3,6 +3,7 @@
 from flask import Blueprint, request
 from clientes.aura.handlers.process_message import procesar_mensaje
 from clientes.aura.utils.historial import guardar_en_historial  # Ruta corregida si es necesario
+from clientes.aura.utils.normalizador import normalizar_numero  # ✅ Importación agregada
 from datetime import datetime
 
 webhook_bp = Blueprint("webhook", __name__)
@@ -14,7 +15,7 @@ def webhook():
         print("📩 Mensaje recibido de Twilio:", data)
 
         mensaje_usuario = data.get("Body", "")
-        telefono = data.get("From", "").replace("whatsapp:", "")
+        telefono = normalizar_numero(data.get("From", ""))  # ✅ Línea actualizada
         nombre_nora = "aura"  # dinámico si luego se requiere
 
         # Guardar mensaje del usuario

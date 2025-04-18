@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 from supabase import create_client
 from dotenv import load_dotenv
+from clientes.aura.utils.normalizador import normalizar_numero  # ✅ Importación agregada
 import os
 
 # Configurar Supabase
@@ -14,6 +15,9 @@ chat_data_bp = Blueprint('chat_data_aura', __name__)
 @chat_data_bp.route("/chat/<numero>")
 def chat_historial(numero):
     try:
+        # Normalizar el número de teléfono
+        numero = normalizar_numero(numero)  # ✅ Línea actualizada
+
         # Consultar historial desde la tabla historial_conversaciones
         response = supabase.table("historial_conversaciones").select("*").eq("telefono", numero).order("timestamp", desc=True).execute()
         if not response.data:
