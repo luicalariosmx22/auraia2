@@ -35,22 +35,28 @@ def registrar_blueprints_por_nora(app, nombre_nora):
                 print("⚠️ El blueprint 'panel_cliente_contactos' ya está registrado.")
 
         if "ia" in modulos:
-            try:
+            if "panel_cliente_ia" not in app.blueprints:
                 from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
                 app.register_blueprint(panel_cliente_ia_bp)
                 print("✅ Módulo: ia registrado")
-            except Exception as e:
-                print(f"❌ Error al registrar el módulo IA: {str(e)}")
+            else:
+                print("⚠️ El blueprint 'panel_cliente_ia' ya está registrado.")
 
         if "respuestas" in modulos:
-            from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
-            app.register_blueprint(panel_cliente_respuestas_bp)
-            print("✅ Módulo: respuestas registrado")
+            if "panel_cliente_respuestas" not in app.blueprints:
+                from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
+                app.register_blueprint(panel_cliente_respuestas_bp)
+                print("✅ Módulo: respuestas registrado")
+            else:
+                print("⚠️ El blueprint 'panel_cliente_respuestas' ya está registrado.")
 
         if "envios" in modulos:
-            from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
-            app.register_blueprint(panel_cliente_envios_bp)
-            print("✅ Módulo: envios programados registrado")
+            if "panel_cliente_envios" not in app.blueprints:
+                from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
+                app.register_blueprint(panel_cliente_envios_bp)
+                print("✅ Módulo: envios programados registrado")
+            else:
+                print("⚠️ El blueprint 'panel_cliente_envios' ya está registrado.")
 
         if "qr_whatsapp_web" in modulos:
             print("🕐 Módulo QR WhatsApp Web (aún no implementado)")
