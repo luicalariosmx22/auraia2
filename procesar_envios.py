@@ -12,15 +12,22 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("❌ Error: SUPABASE_URL o SUPABASE_KEY no están configurados correctamente.")
+else:
+    print("✅ Conexión con Supabase configurada correctamente.")
+
 def leer_contactos(nombre_nora):
     """
     Leer contactos desde Supabase.
     """
+    print(f"🔍 Intentando leer contactos para {nombre_nora}...")
     try:
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
-        if not response.data:  # Verifica si no hay datos
+        if not response.data:
             print(f"⚠️ No se encontraron contactos para {nombre_nora}.")
             return []
+        print(f"✅ Contactos cargados: {len(response.data)}")
         return response.data
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
@@ -30,23 +37,25 @@ def guardar_historial(nombre_nora, numero, mensajes):
     """
     Guardar historial en Supabase.
     """
+    print(f"🔍 Intentando guardar historial para {numero} en {nombre_nora}...")
     registros = [
         {
-            "nombre_nora": nombre_nora,  # Incluye el campo 'nombre_nora'
+            "nombre_nora": nombre_nora,
             "telefono": numero,
             "mensaje": mensaje["texto"],
-            "emisor": mensaje["origen"],  # Cambiado de 'origen' a 'emisor' para coincidir con la tabla
-            "hora": mensaje["hora"],  # Asegúrate de que 'hora' sea un timestamp válido
-            "timestamp": datetime.now()  # Agrega un timestamp actual
+            "emisor": mensaje["emisor"],
+            "hora": mensaje["hora"],
+            "timestamp": datetime.now()
         }
         for mensaje in mensajes
     ]
+    print(f"📋 Registros a guardar: {registros}")
     try:
         response = supabase.table("historial_conversaciones").insert(registros).execute()
-        if not response.data:  # Verifica si no se insertaron datos
+        if not response.data:
             print(f"⚠️ No se pudo guardar el historial para {numero}.")
         else:
-            print(f"✅ Historial guardado para {numero}")
+            print(f"✅ Historial guardado correctamente para {numero}.")
     except Exception as e:
         print(f"❌ Error al guardar historial: {str(e)}")
 
@@ -54,14 +63,16 @@ def leer_historial(nombre_nora, numero):
     """
     Leer historial desde Supabase.
     """
+    print(f"🔍 Intentando leer historial para {numero} en {nombre_nora}...")
     try:
         response = supabase.table("historial_conversaciones").select("*").eq("nombre_nora", nombre_nora).eq("telefono", numero).execute()
-        if not response.data:  # Verifica si no hay datos
+        if not response.data:
             print(f"⚠️ No se encontró historial para {numero}.")
             return []
+        print(f"✅ Historial cargado: {len(response.data)} registros.")
         return [
             {
-                "emisor": registro["emisor"],  # Cambiado de 'origen' a 'emisor'
+                "emisor": registro["emisor"],
                 "texto": registro["mensaje"],
                 "hora": registro["hora"]
             }
@@ -75,22 +86,30 @@ def procesar_envios():
     """
     Procesar envíos programados desde Supabase.
     """
+    print("🕒 Iniciando procesamiento de envíos programados...")
     while True:
         try:
-            # Obtén los envíos pendientes desde Supabase
+            print("🔍 Consultando envíos programados...")
             response = supabase.table("envios_programados").select("*").execute()
-            if not response.data:  # Si no hay datos, imprime un mensaje
+            if not response.data:
                 print("⚠️ No hay envíos programados.")
                 time.sleep(30)
                 continue
 
             pendientes = response.data
+            print(f"✅ Envíos pendientes encontrados: {len(pendientes)}")
             ahora = datetime.now()
 
             for envio in pendientes:
-                # Verifica la fecha y hora del envío
-                fecha_hora = datetime.strptime(f"{envio['fecha']} {envio['hora']}", "%Y-%m-%d %H:%M")
-                if fecha_hora <= ahora:
+                print(f"📦 Procesando envío: {envio}")
+                try:
+                    # Verifica la fecha y hora del envío
+                    fecha_hora = datetime.strptime(f"{envio['fecha']} {envio['hora']}", "%Y-%m-%d %H:%M")
+                    print(f"🕒 Fecha y hora del envío: {fecha_hora}, ahora: {ahora}")
+                    if fecha_hora > ahora:
+                        print(f"⏳ Envío programado para el futuro. Saltando: {envio['id']}")
+                        continue
+
                     print(f"📤 Enviando mensaje programado a {envio['numero']}")
 
                     # Leer historial existente
@@ -99,7 +118,7 @@ def procesar_envios():
 
                     # Agregar el mensaje al historial
                     historial.append({
-                        "emisor": "nora",  # Cambiado de 'origen' a 'emisor'
+                        "emisor": "nora",
                         "texto": envio["mensaje"],
                         "hora": ahora.strftime("%H:%M")
                     })
@@ -113,27 +132,32 @@ def procesar_envios():
                     if contacto.get("ia", False):
                         respuesta = f"Respuesta automática a: {envio['mensaje']}"
                         historial.append({
-                            "emisor": "nora",  # Cambiado de 'origen' a 'emisor'
+                            "emisor": "nora",
                             "texto": respuesta,
                             "hora": ahora.strftime("%H:%M")
                         })
                         print(f"🤖 Respuesta automática generada: {respuesta}")
 
                     # Verificar y manejar el campo nombre_nora
-                    nombre_nora = envio.get("nombre_nora", "Nora")  # Valor predeterminado si no existe
-                    print(f"Verificando nombre_nora: {nombre_nora}")
+                    nombre_nora = envio.get("nombre_nora", "Nora")
+                    print(f"🔍 Verificando nombre_nora: {nombre_nora}")
 
                     # Guardar el historial en la base de datos
                     guardar_historial(nombre_nora, envio["numero"], historial)
 
                     # Marcar el envío como completado
+                    print(f"🗑️ Eliminando envío completado: {envio['id']}")
                     supabase.table("envios_programados").delete().eq("id", envio["id"]).execute()
-                    print(f"✅ Envío completado y eliminado de la tabla: {envio['id']}")
+                    print(f"✅ Envío completado y eliminado: {envio['id']}")
+
+                except Exception as e:
+                    print(f"❌ Error al procesar envío {envio['id']}: {str(e)}")
 
         except Exception as e:
-            print(f"❌ Error al procesar envíos: {str(e)}")
+            print(f"❌ Error general al procesar envíos: {str(e)}")
 
         # Esperar antes de procesar nuevamente
+        print("⏳ Esperando 30 segundos antes de la próxima iteración...")
         time.sleep(30)
 
 if __name__ == "__main__":
