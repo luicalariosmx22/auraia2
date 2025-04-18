@@ -2,7 +2,7 @@
 
 from flask import Blueprint, request
 from clientes.aura.handlers.process_message import procesar_mensaje
-from clientes.aura.utils.db.historial import guardar_en_historial  # Ruta corregida si es necesario
+from clientes.aura.utils.historial import guardar_en_historial  # Ruta corregida si es necesario
 from datetime import datetime
 
 webhook_bp = Blueprint("webhook", __name__)
