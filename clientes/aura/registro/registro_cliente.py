@@ -10,9 +10,10 @@ def registrar_blueprints_cliente(app):
         from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
         from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
         from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
+        from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp  # Importación agregada
 
         app.register_blueprint(panel_cliente_contactos_bp)
-        app.register_blueprint(panel_cliente_ia_bp)
+        app.register_blueprint(panel_cliente_ia_bp)  # Ahora está definido
         app.register_blueprint(panel_cliente_respuestas_bp)
         app.register_blueprint(panel_cliente_envios_bp)
 

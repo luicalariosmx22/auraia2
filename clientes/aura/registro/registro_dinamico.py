@@ -4,39 +4,46 @@ import os
 def registrar_blueprints_por_nora(app, nombre_nora):
     print(f"⚙️ Registrando módulos activos para Nora: {nombre_nora}")
 
+    # Ruta del archivo config.json
     config_path = f"clientes/{nombre_nora}/config.json"
     if not os.path.exists(config_path):
         print(f"❌ No existe config.json para {nombre_nora}")
         return
 
+    # Leer el archivo config.json
     try:
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
         modulos = config.get("modulos", [])
+        print(f"🔍 Módulos encontrados en config.json: {modulos}")
     except Exception as e:
         print(f"❌ Error al leer config.json: {str(e)}")
         return
 
+    # Registrar blueprints dinámicamente
     try:
         if "contactos" in modulos:
             from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
             app.register_blueprint(panel_cliente_contactos_bp)
-            print("✅ Módulo: contactos")
+            print("✅ Módulo: contactos registrado")
 
         if "ia" in modulos:
-            from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
-            app.register_blueprint(panel_cliente_ia_bp)
-            print("✅ Módulo: ia")
+            try:
+                from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
+                app.register_blueprint(panel_cliente_ia_bp)
+                print("✅ Módulo: ia registrado")
+            except Exception as e:
+                print(f"❌ Error al registrar el módulo IA: {str(e)}")
 
         if "respuestas" in modulos:
             from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
             app.register_blueprint(panel_cliente_respuestas_bp)
-            print("✅ Módulo: respuestas")
+            print("✅ Módulo: respuestas registrado")
 
         if "envios" in modulos:
             from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
             app.register_blueprint(panel_cliente_envios_bp)
-            print("✅ Módulo: envios programados")
+            print("✅ Módulo: envios programados registrado")
 
         if "qr_whatsapp_web" in modulos:
             print("🕐 Módulo QR WhatsApp Web (aún no implementado)")
