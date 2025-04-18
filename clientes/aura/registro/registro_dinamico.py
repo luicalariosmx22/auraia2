@@ -27,9 +27,12 @@ def registrar_blueprints_por_nora(app, nombre_nora):
     # Registrar blueprints dinámicamente
     try:
         if "contactos" in modulos:
-            from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
-            app.register_blueprint(panel_cliente_contactos_bp)
-            print("✅ Módulo: contactos registrado")
+            if "panel_cliente_contactos" not in app.blueprints:
+                from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
+                app.register_blueprint(panel_cliente_contactos_bp)
+                print("✅ Módulo: contactos registrado")
+            else:
+                print("⚠️ El blueprint 'panel_cliente_contactos' ya está registrado.")
 
         if "ia" in modulos:
             try:
