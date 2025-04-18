@@ -38,8 +38,14 @@ def leer_contactos():
 def leer_historial(telefono):
     try:
         print(f"🔍 Leyendo historial para el teléfono: {telefono}...")
-        response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("hora", desc=False)  # ✅ orden ascendente correcto
-.execute()
+        response = (
+            supabase
+            .table("historial_conversaciones")
+            .select("*")
+            .eq("telefono", telefono)
+            .order("hora", desc=False)
+            .execute()
+        )
         if not response.data:
             print(f"⚠️ No se encontró historial para {telefono}.")
             return []
@@ -55,7 +61,7 @@ def guardar_historial(nombre_nora, telefono, mensajes):
             "nombre_nora": nombre_nora,
             "telefono": telefono,
             "mensaje": mensaje["texto"],
-            "emisor": mensaje["emisor"],  # Cambiado de "origen" a "emisor"
+            "emisor": mensaje["emisor"],
             "hora": mensaje["hora"],
             "timestamp": datetime.datetime.now()
         }
@@ -200,4 +206,3 @@ def api_programar_envio():
     except Exception as e:
         print(f"❌ Error al programar envío: {str(e)}")
         return jsonify({"success": False})
-
