@@ -75,13 +75,59 @@ body {
   position: relative;
 }
 
-.chat-area {
+/* Estilo general */
+#chat-area {
   flex-grow: 1;
   padding: 20px;
   overflow-y: auto;
-  background-color: #efeae2;
+  background-color: #eaeff1;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+/* Burbuja base */
+.burbuja {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 20px;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+/* Usuario (cliente) */
+.burbuja.usuario {
+  background-color: #ffffff;
+  align-self: flex-end;
+  border-bottom-right-radius: 0;
+}
+
+/* Bot (Nora) */
+.burbuja.nora {
+  background-color: #dcf8c6;
+  align-self: flex-start;
+  border-bottom-left-radius: 0;
+}
+
+/* Hora dentro de la burbuja */
+.burbuja .hora {
+  font-size: 11px;
+  color: #888;
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+}
+
+/* Mensaje de estado */
+.cargando, .error {
+  color: #555;
+  padding: 10px;
+  font-style: italic;
 }
 
 .chat-area .placeholder {
