@@ -101,6 +101,7 @@ def api_chat(telefono):
     contacto = next((c for c in contactos if c["telefono"] == telefono), {})
     historial = leer_historial(telefono)
     resumen = generar_resumen_ia(historial)
+    print(f"✅ API Chat - Historial para {telefono}: {historial}")
     return jsonify({
         "success": True,
         "contacto": contacto,
@@ -171,3 +172,17 @@ def api_programar_envio():
     except Exception as e:
         print(f"❌ Error al programar envío: {str(e)}")
         return jsonify({"success": False})
+
+function cargarChat(telefono) {
+    fetch(`/api/chat/${telefono}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("Datos del chat:", data); // Verifica los datos en la consola
+            if (data.success) {
+                mostrarMensajes(data.mensajes);
+            } else {
+                console.error("Error al cargar el chat:", data.error);
+            }
+        })
+        .catch(error => console.error("Error al cargar el chat:", error));
+}

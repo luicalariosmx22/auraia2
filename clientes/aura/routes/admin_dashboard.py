@@ -1,6 +1,6 @@
 # clientes/aura/routes/admin_dashboard.py
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, session, redirect, url_for
 from supabase import create_client
 from dotenv import load_dotenv
 import os
@@ -15,6 +15,14 @@ admin_dashboard_bp = Blueprint("admin_dashboard", __name__)
 
 @admin_dashboard_bp.route("/admin")
 def dashboard_admin():
+    # Verificar si el usuario tiene una sesión activa
+    if "user" not in session:
+        return redirect(url_for("login.login_google"))
+
+    # Verificar si el usuario es administrador
+    if not session.get("is_admin", False):
+        return redirect(url_for("panel_cliente.panel_cliente", nombre_nora="aura"))
+
     total_noras = 0
     total_errores = 0
 

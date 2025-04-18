@@ -11,6 +11,32 @@ function manejarError(err, mensaje) {
     mostrarError(mensaje);
 }
 
+function mostrarMensajes(mensajes) {
+    const chatArea = document.getElementById("chat-area");
+    const debugChat = document.getElementById("debug-chat");
+    chatArea.innerHTML = ""; // Limpia el área de chat
+    debugChat.textContent = JSON.stringify(mensajes, null, 2); // Muestra los mensajes en formato JSON
+
+    mensajes.forEach(mensaje => {
+        const mensajeDiv = document.createElement("div");
+        mensajeDiv.classList.add("mensaje");
+
+        // Diferenciar entre mensajes del usuario y de Nora
+        if (mensaje.emisor === "usuario") {
+            mensajeDiv.classList.add("usuario");
+            mensajeDiv.innerHTML = `<div class="texto">${mensaje.mensaje}</div>`;
+        } else if (mensaje.emisor === "bot") {
+            mensajeDiv.classList.add("nora");
+            mensajeDiv.innerHTML = `<div class="texto">${mensaje.mensaje}</div>`;
+        }
+
+        chatArea.appendChild(mensajeDiv);
+    });
+
+    // Desplazar hacia abajo automáticamente
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
 function cargarChat(numero) {
     const chatArea = document.getElementById("chat-area");
     chatArea.innerHTML = '<p class="placeholder">Cargando mensajes...</p>';
@@ -28,16 +54,7 @@ function cargarChat(numero) {
             if (!data.mensajes || data.mensajes.length === 0) {
                 chatArea.innerHTML = '<p class="placeholder">Sin mensajes aún.</p>';
             } else {
-                data.mensajes.forEach(m => {
-                    const div = document.createElement("div");
-                    const clase = m.origen === "usuario" ? "burbuja-usuario" : "burbuja-nora";
-                    div.className = `burbuja ${clase}`;
-                    div.innerHTML = `
-                        <div class="texto">${m.texto}</div>
-                        <div class="hora">${m.hora || ''}</div>
-                    `;
-                    chatArea.appendChild(div);
-                });
+                mostrarMensajes(data.mensajes);
             }
 
             const info = document.getElementById("info-contacto");
