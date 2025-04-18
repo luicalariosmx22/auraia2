@@ -1,50 +1,80 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Panel Noras – Administrador</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+  <meta charset="UTF-8">
+  <title>Dashboard – Nora AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <div class="logo">👩‍💼 Nora AI - Panel Admin</div>
-        <div class="logout"><a href="/logout">Cerrar sesión</a></div>
+  <div class="meta-container">
+    <header class="meta-header">
+      <h1>🧠 Panel de {{ config.nombre_visible or nombre_nora }}</h1>
+      <form method="POST" action="" style="display:flex; gap:10px; align-items:center;">
+        <input type="text" name="nuevo_nombre" placeholder="Nuevo nombre visible"
+               value="{{ config.nombre_visible or '' }}" style="padding:8px; border-radius:6px; border:1px solid #ccc;">
+        <button type="submit" class="btn-primary">💾 Guardar nombre</button>
+      </form>
     </header>
 
-    <main>
-        <h2>🤖 Noras activas en el sistema ({{ noras|length }})</h2>
+    <section class="meta-grid">
+      {% if "contactos" in config.modulos %}
+      <div class="meta-card">
+        <h3>👥 Contactos</h3>
+        <p>Gestiona tu base de contactos registrados.</p>
+        <a href="/panel_cliente/contactos/{{ nombre_nora }}" class="btn-neutral">Ver contactos</a>
+      </div>
+      {% endif %}
 
-        <a href="{{ url_for('admin_nora.crear_nora') }}" class="btn">➕ Crear nueva Nora AI</a>
+      {% if "etiquetas" in config.modulos %}
+      <div class="meta-card">
+        <h3>🏷️ Etiquetas</h3>
+        <p>Organiza tus contactos con etiquetas.</p>
+        <a href="/panel_cliente/etiquetas/{{ nombre_nora }}" class="btn-neutral">Ver etiquetas</a>
+      </div>
+      {% endif %}
 
-        {% for nora in noras %}
-        <div class="card">
-            <h4>ID: {{ nora.nombre }}</h4>
+      {% if "respuestas" in config.modulos %}
+      <div class="meta-card">
+        <h3>⚡ Respuestas rápidas</h3>
+        <p>Administra atajos de mensajes frecuentes.</p>
+        <a href="/panel_cliente/respuestas/{{ nombre_nora }}" class="btn-neutral">Ver respuestas</a>
+      </div>
+      {% endif %}
 
-            <div class="estado-ia">
-                {% if nora.config.get("ia_activada") %}
-                    <span class="verde">🟢 IA activada</span>
-                {% else %}
-                    <span class="rojo">🔴 IA desactivada</span>
-                {% endif %}
-            </div>
+      {% if "ia" in config.modulos %}
+      <div class="meta-card">
+        <h3>🧠 Inteligencia artificial</h3>
+        <p>Activa o desactiva la IA en tus conversaciones.</p>
+        <a href="/panel_cliente/ia/{{ nombre_nora }}" class="btn-neutral">Control de IA</a>
+      </div>
+      {% endif %}
 
-            <strong>Módulos:</strong><br>
-            {% for m in nora.config.get("modulos", []) %}
-                <span class="tag">{{ m }}</span>
-            {% else %}
-                <span class="tag">Sin módulos</span>
-            {% endfor %}
+      {% if "envios" in config.modulos %}
+      <div class="meta-card">
+        <h3>📤 Envíos programados</h3>
+        <p>Configura mensajes automatizados por fecha.</p>
+        <a href="/panel_cliente/envios/{{ nombre_nora }}" class="btn-neutral">Ver envíos</a>
+      </div>
+      {% endif %}
 
-            <p><small>Última actualización: {{ nora.config.get("ultima_actualizacion", "Sin fecha") }}</small></p>
+      {% if "google_calendar" in config.modulos %}
+      <div class="meta-card">
+        <h3>📅 Agenda Google</h3>
+        <p>Conecta y gestiona tu calendario con clientes.</p>
+        <a href="/panel_cliente/calendario/{{ nombre_nora }}" class="btn-neutral">Ir al calendario</a>
+      </div>
+      {% endif %}
 
-            <div class="botones">
-                <a href="{{ url_for('admin_nora_dashboard.dashboard_nora', nombre_nora=nora.nombre|lower|replace(' ', '-') ) }}">📊 Ver dashboard</a>
-                <a href="{{ url_for('admin_nora.editar_nora', nombre_nora=nora.nombre) }}" class="editar">✏️ Editar</a>
-                <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nora.nombre) }}" class="chat" target="_blank">🟩 Panel tipo WhatsApp</a>
-                <a class="boton" href="{{ url_for('panel_cliente.panel_cliente_contactos.panel_contactos', nombre_nora=nora.nombre|lower|replace(' ', '-') ) }}">👥 Ver contactos</a>
-            </div>
-        </div>
-        {% endfor %}
-    </main>
+      {% if "pagos" in config.modulos %}
+      <div class="meta-card">
+        <h3>💳 Pagos y facturación</h3>
+        <p>Consulta cobros, saldos y facturas.</p>
+        <a href="/panel_cliente/pagos/{{ nombre_nora }}" class="btn-neutral">Ver pagos</a>
+      </div>
+      {% endif %}
+    </section>
+  </div>
 </body>
 </html>

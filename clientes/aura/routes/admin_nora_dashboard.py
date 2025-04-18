@@ -25,9 +25,9 @@ def dashboard_nora(nombre_nora):
         "tickets": []
     }
 
-    # Cargar configuración desde Supabase
+    # Cargar configuración desde Supabase (tabla: configuracion_bot)
     try:
-        print("🔍 Cargando configuración desde la tabla 'configuracion_bot'...")
+        print("🔍 Cargando configuración desde 'configuracion_bot'...")
         response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
             print(f"⚠️ No se encontró configuración para {nombre_nora}.")
@@ -37,9 +37,9 @@ def dashboard_nora(nombre_nora):
     except Exception as e:
         print(f"❌ Error al cargar configuración: {str(e)}")
 
-    # Cargar contactos desde Supabase
+    # Cargar contactos desde Supabase (tabla: contactos)
     try:
-        print("🔍 Cargando contactos desde la tabla 'contactos'...")
+        print("🔍 Cargando contactos desde 'contactos'...")
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
             print(f"⚠️ No se encontraron contactos para {nombre_nora}.")
@@ -49,9 +49,9 @@ def dashboard_nora(nombre_nora):
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
 
-    # Cargar respuestas desde Supabase
+    # Cargar respuestas desde Supabase (tabla: respuestas_bot)
     try:
-        print("🔍 Cargando respuestas desde la tabla 'respuestas_bot'...")
+        print("🔍 Cargando respuestas desde 'respuestas_bot'...")
         response = supabase.table("respuestas_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
             print(f"⚠️ No se encontraron respuestas para {nombre_nora}.")
@@ -61,9 +61,9 @@ def dashboard_nora(nombre_nora):
     except Exception as e:
         print(f"❌ Error al cargar respuestas: {str(e)}")
 
-    # Cargar tickets desde Supabase
+    # Cargar tickets desde Supabase (tabla: tickets)
     try:
-        print("🔍 Cargando tickets desde la tabla 'tickets'...")
+        print("🔍 Cargando tickets desde 'tickets'...")
         response = supabase.table("tickets").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
             print(f"⚠️ No se encontraron tickets para {nombre_nora}.")
@@ -73,36 +73,40 @@ def dashboard_nora(nombre_nora):
     except Exception as e:
         print(f"❌ Error al cargar tickets: {str(e)}")
 
-    # Calcular métricas
+    # Calcular métricas para el dashboard
     total_contactos = len(datos["contactos"])
+    # Asumimos que en cada contacto se guarda un flag "ia" (True/False)
     sin_ia = len([c for c in datos["contactos"] if not c.get("ia", True)])
+    # Se cuentan contactos que no tengan etiquetas asignadas (puede ser lista vacía o None)
     sin_etiquetas = len([c for c in datos["contactos"] if not c.get("etiquetas")])
+    total_respuestas = len(datos["respuestas"])
     respuestas_claves = [r.get("keyword") for r in datos["respuestas"] if isinstance(r, dict) and "keyword" in r]
-
-    print(f"✅ Métricas calculadas: Total contactos: {total_contactos}, Sin IA: {sin_ia}, Sin etiquetas: {sin_etiquetas}, Total respuestas: {len(datos['respuestas'])}")
-
+    
+    print(f"✅ Métricas: Contactos: {total_contactos}, Sin IA: {sin_ia}, Sin etiquetas: {sin_etiquetas}, Total respuestas: {total_respuestas}")
+    
     return render_template("admin_nora_dashboard.html",
-        nombre_nora=nombre_nora,
-        ia_activada=datos["config"].get("ia_activada", False),
-        modulos=datos["config"].get("modulos", []),
-        total_contactos=total_contactos,
-        sin_ia=sin_ia,
-        sin_etiquetas=sin_etiquetas,
-        total_respuestas=len(datos["respuestas"]),
-        respuestas_claves=respuestas_claves,
-        tickets=datos["tickets"]
-    )
+                           nombre_nora=nombre_nora,
+                           config=datos["config"],
+                           total_contactos=total_contactos,
+                           sin_ia=sin_ia,
+                           sin_etiquetas=sin_etiquetas,
+                           total_respuestas=total_respuestas,
+                           respuestas_claves=respuestas_claves,
+                           tickets=datos["tickets"]
+                           )
 
 @admin_nora_dashboard_bp.route("/admin/nora/<nombre_nora>/ticket/<ticket_id>/resolver", methods=["POST"])
 def resolver_ticket(nombre_nora, ticket_id):
     print(f"🔍 Resolviendo ticket {ticket_id} para Nora: {nombre_nora}")
     try:
-        response = supabase.table("tickets").update({"estado": "resuelto", "resuelto_en": datetime.now().isoformat()}).eq("id", ticket_id).execute()
+        response = supabase.table("tickets").update({
+            "estado": "resuelto",
+            "resuelto_en": datetime.now().isoformat()
+        }).eq("id", ticket_id).execute()
         if not response.data:
             print(f"⚠️ No se pudo resolver el ticket {ticket_id}.")
         else:
             print(f"✅ Ticket {ticket_id} resuelto correctamente.")
     except Exception as e:
         print(f"❌ Error al resolver ticket {ticket_id}: {str(e)}")
-
     return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=nombre_nora))

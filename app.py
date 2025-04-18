@@ -27,7 +27,8 @@ from clientes.aura.registro.registro_admin import registrar_blueprints_admin
 from clientes.aura.registro.registro_debug import registrar_blueprints_debug
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 from clientes.aura.routes.panel_chat import panel_chat_bp
-from clientes.aura.routes.webhook import webhook_bp  # Importar el blueprint del webhook
+from clientes.aura.routes.webhook import webhook_bp
+from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp  # 👈 NUEVO
 
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
@@ -35,11 +36,13 @@ registrar_blueprints_cliente(app)
 registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
 registrar_blueprints_por_nora(app, "aura")
+
 app.register_blueprint(panel_chat_bp)
+app.register_blueprint(admin_nora_dashboard_bp)  # 👈 NUEVO
 
 # Verificar si el blueprint 'webhook' ya está registrado
 if "webhook" not in app.blueprints:
-    app.register_blueprint(webhook_bp)  # Registrar el blueprint del webhook
+    app.register_blueprint(webhook_bp)
 
 # ========= RUTA INICIAL =========
 @app.route("/")
