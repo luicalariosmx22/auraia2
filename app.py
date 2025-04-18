@@ -38,7 +38,10 @@ registrar_blueprints_debug(app)
 registrar_blueprints_por_nora(app, "aura")
 
 app.register_blueprint(panel_chat_bp)
-app.register_blueprint(admin_nora_dashboard_bp)  # 👈 NUEVO
+
+# Verificar si el blueprint 'admin_nora_dashboard' ya está registrado
+if "admin_nora_dashboard" not in app.blueprints:
+    app.register_blueprint(admin_nora_dashboard_bp)  # 👈 NUEVO
 
 # Verificar si el blueprint 'webhook' ya está registrado
 if "webhook" not in app.blueprints:
