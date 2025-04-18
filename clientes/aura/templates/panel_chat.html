@@ -11,117 +11,115 @@
 <body>
   <div class="chat-wrapper">
     
-    <!-- Columna izquierda: Lista de contactos -->
-    <aside class="col-izquierda">
-      <div class="buscador">
+    <!-- Columna izquierda -->
+    <div class="sidebar">
+      <div class="search-bar">
         <input type="text" placeholder="🔍 Buscar contacto..." oninput="filtrarContactosPorNombre(this.value)">
+      </div>
+      <div class="filter-bar">
         <select onchange="filtrarContactosPorEtiqueta(this.value)">
-          <option value="">🎯 Filtrar por etiqueta</option>
-          {% for et in etiquetas %}
-          <option value="{{ et }}">{{ et }}</option>
-          {% endfor %}
+          <option value="">Todos</option>
+          <option value="Clientes">Clientes</option>
+          <option value="VIP">VIP</option>
         </select>
       </div>
-      <ul class="lista-contactos" id="lista-contactos">
-        {% for c in contactos %}
-        <li onclick="cargarChat('{{ c.telefono }}')" data-etiquetas="{{ c.etiquetas|join(',') }}">
-          <div class="nombre">{{ c.nombre }}</div>
-          <div class="numero">{{ c.telefono }}</div>
-          <div class="preview">{{ c.mensajes[-1].texto if c.mensajes|length > 0 else '...' }}</div>
-        </li>
-        {% endfor %}
-      </ul>
-    </aside>
+      <div class="contact-list" id="lista-contactos">
+        <!-- Los contactos se renderizan dinámicamente -->
+      </div>
+    </div>
 
-    <!-- Columna central: Conversación -->
-    <section class="col-central">
-      <div id="chat-area">
-        {% if contactos %}
-          {% for contacto in contactos %}
-            {% for mensaje in contacto.mensajes %}
-              <div class="burbuja {{ 'usuario' if mensaje.emisor == 'usuario' else 'nora' }}">
-                {{ mensaje.mensaje }}
-                <span class="hora">{{ mensaje.hora or '' }}</span>
-              </div>
-            {% endfor %}
-          {% endfor %}
-        {% else %}
-          <p class="placeholder">Selecciona un contacto para ver el historial.</p>
-        {% endif %}
+    <!-- Chat principal -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <h3 id="contacto-nombre">Selecciona un contacto</h3>
+        <span id="contacto-etiquetas"></span>
+      </div>
+      <div class="chat-body" id="chat-mensajes">
+        <p class="placeholder">Selecciona un contacto</p>
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Escribe un mensaje..." id="input-mensaje">
+        <button id="btn-enviar">Enviar</button>
+      </div>
+    </div>
+
+    <!-- Información del contacto -->
+    <div class="contact-info">
+      <h4>Atributos</h4>
+      <p><strong>Teléfono:</strong> <span id="contacto-telefono"></span></p>
+      <p><strong>Etiquetas:</strong> <span id="contacto-tags"></span></p>
+      <div class="toggle-ia">
+        <label>IA Activada:</label>
+        <input type="checkbox" id="toggle-ia">
       </div>
 
       <!-- Formulario de envío de mensajes -->
-      <form class="form-envio" method="post">
+      <h4>Enviar mensaje</h4>
+      <form class="form-envio">
         <input type="text" name="mensaje" placeholder="Escribe un mensaje..." />
         <button type="submit">Enviar</button>
       </form>
-    </section>
-
-    <!-- Columna derecha: Información del contacto -->
-    <aside class="col-derecha" id="col-derecha">
-      <div class="info-contacto" id="info-contacto">
-        <p>Selecciona un contacto para ver detalles.</p>
-      </div>
-      <div id="detalles-contacto" style="display: none; padding: 10px;">
-        <h3 id="nombre-contacto">Nombre</h3>
-        <p id="numero-contacto" class="subinfo"></p>
-
-        <h4>🏷️ Etiquetas:</h4>
-        <div id="etiquetas-contacto"></div>
-        <form onsubmit="agregarEtiqueta(event)">
-          <input type="text" id="nueva-etiqueta" placeholder="Agregar etiqueta...">
-          <button type="submit">➕</button>
-        </form>
-
-        <h4>📝 Notas:</h4>
-        <textarea id="notas-contacto" placeholder="Agregar nota..."></textarea>
-        <button onclick="guardarNota()" class="btn-outline" style="margin-top: 6px;">💾 Guardar nota</button>
-
-        <h4>🧠 Resumen:</h4>
-        <p id="resumen-contacto" class="resumen-box">Cargando resumen...</p>
-
-        <div style="margin-top: 10px;">
-          <button onclick="toggleIAContacto()" id="btn-toggle-ia" class="btn-neutral">Desactivar IA</button>
-        </div>
-      </div>
-    </aside>
+    </div>
 
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const contactos = document.querySelectorAll(".contacto");
-      const chatArea = document.getElementById("chat-area");
+    // Lista de contactos desde el backend
+    const contactos = {{ contactos | tojson }};
 
-      contactos.forEach((item) => {
-        item.addEventListener("click", async () => {
-          const numero = item.getAttribute("data-numero");
-          console.log(`📞 Intentando cargar historial para el número: ${numero}`);
-          try {
-            const res = await fetch(`/api/chat/${numero}`);
-            const data = await res.json();
+    // Renderiza la lista de contactos
+    function renderizarContactos() {
+      const contenedor = document.getElementById('lista-contactos');
+      contenedor.innerHTML = "";
 
-            if (!data.success) {
-              console.error("❌ Error al cargar historial:", data.error || "Error desconocido");
-              chatArea.innerHTML = "<p class='error'>❌ No se pudo cargar el historial.</p>";
-              return;
-            }
+      contactos.forEach(c => {
+        const ultimoMensaje = (c.mensajes && c.mensajes.length > 0)
+          ? c.mensajes[c.mensajes.length - 1].mensaje.slice(0, 30) + "..."
+          : "Sin mensajes aún";
 
-            console.log("✅ Historial cargado con éxito:", data.mensajes);
-            chatArea.innerHTML = ""; // Limpiar el área de chat
-            data.mensajes.forEach((msg) => {
-              const burbuja = document.createElement("div");
-              burbuja.classList.add("burbuja", msg.emisor === "bot" ? "nora" : "usuario");
-              burbuja.innerText = msg.mensaje;
-              chatArea.appendChild(burbuja);
-            });
-          } catch (error) {
-            console.error("❌ Error al intentar cargar el historial:", error);
-            chatArea.innerHTML = "<p class='error'>❌ Error al cargar el historial.</p>";
+        const item = document.createElement('div');
+        item.className = "contacto-item";
+        item.innerHTML = `
+          <div onclick="seleccionarContacto('${c.telefono}')">
+            <strong>${c.nombre || c.telefono}</strong><br>
+            <span class="ultimo-mensaje">${ultimoMensaje}</span>
+          </div>
+        `;
+        contenedor.appendChild(item);
+      });
+    }
+
+    // Función para manejar clic en contacto
+    function seleccionarContacto(telefono) {
+      fetch(`/api/chat/${telefono}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            renderizarChat(data.mensajes);
+            document.getElementById('contacto-nombre').innerText = data.contacto.nombre || telefono;
+            document.getElementById('contacto-telefono').innerText = data.contacto.telefono;
+            document.getElementById('contacto-tags').innerText = (data.contacto.etiquetas || []).join(', ');
+            document.getElementById('toggle-ia').checked = !!data.contacto.ia_activada;
+          } else {
+            document.getElementById('chat-mensajes').innerHTML = "<p class='placeholder'>Error al cargar el historial.</p>";
           }
         });
+    }
+
+    // Renderizar mensajes
+    function renderizarChat(mensajes) {
+      const contenedor = document.getElementById('chat-mensajes');
+      contenedor.innerHTML = "";
+      mensajes.forEach(m => {
+        const msg = document.createElement('div');
+        msg.className = m.emisor === "usuario" ? "mensaje usuario" : "mensaje bot";
+        msg.innerText = m.mensaje;
+        contenedor.appendChild(msg);
       });
-    });
+    }
+
+    // Inicializar
+    renderizarContactos();
   </script>
 </body>
 </html>

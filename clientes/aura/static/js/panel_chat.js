@@ -18,6 +18,7 @@ function manejarError(err, mensaje) {
 async function cargarChat(numero) {
     try {
         numeroActual = numero;
+        localStorage.setItem("numeroActivo", numero); // Guardar el número activo en localStorage
         offset = 0;
         const response = await fetch(`/api/chat/${numero}`);
         const data = await response.json();
@@ -56,6 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function seleccionarContacto(nombre, numero) {
         numeroActual = numero;
+        localStorage.setItem("numeroActivo", numero); // Guardar el número activo en localStorage
         offset = 0;
         const res = await fetch(`/api/chat/${numero}`);
         const data = await res.json();
@@ -112,6 +114,31 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("numero-contacto").innerText = contacto.telefono || "";
         document.getElementById("resumen-contacto").innerText = resumen || "Sin resumen aún.";
     }
+
+    // Agregar evento para enviar mensajes
+    document.querySelector(".form-envio").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const input = this.querySelector("input[name='mensaje']");
+        const mensaje = input.value.trim();
+        if (!mensaje) return;
+
+        const numero = localStorage.getItem("numeroActivo");
+
+        fetch("/api/enviar-mensaje", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ numero, mensaje })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                input.value = "";
+                cargarChat(numero); // Recargar el chat automáticamente
+            }
+        })
+        .catch(err => console.error("❌ Error al enviar el mensaje:", err));
+    });
 });
 
 // Funciones adicionales...
