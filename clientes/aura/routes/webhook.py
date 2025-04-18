@@ -2,7 +2,7 @@
 
 from flask import Blueprint, request
 from clientes.aura.handlers.process_message import procesar_mensaje
-from clientes.aura.utils.historial import guardar_en_historial  # Importar correctamente
+from clientes.aura.utils.db.historial import guardar_en_historial  # Ruta corregida si es necesario
 from datetime import datetime
 
 webhook_bp = Blueprint("webhook", __name__)
@@ -15,9 +15,9 @@ def webhook():
 
         mensaje_usuario = data.get("Body", "")
         telefono = data.get("From", "").replace("whatsapp:", "")
-        nombre_nora = "aura"  # Asegúrate de obtener este valor dinámicamente si es necesario
+        nombre_nora = "aura"  # dinámico si luego se requiere
 
-        # ✅ Guardar mensaje del usuario en historial_conversaciones
+        # Guardar mensaje del usuario
         print(f"🔍 Guardando mensaje del usuario: {mensaje_usuario}")
         guardar_en_historial(
             remitente=telefono,
@@ -26,12 +26,12 @@ def webhook():
             nombre=nombre_nora
         )
 
-        # Obtener respuesta del bot
+        # Procesar y generar respuesta
         print("🔍 Procesando mensaje para generar respuesta...")
         respuesta = procesar_mensaje(data)
         print(f"✅ Respuesta generada: {respuesta}")
 
-        # ✅ Guardar respuesta del bot en historial_conversaciones
+        # Guardar respuesta del bot
         print(f"🔍 Guardando respuesta del bot: {respuesta}")
         guardar_en_historial(
             remitente=telefono,
