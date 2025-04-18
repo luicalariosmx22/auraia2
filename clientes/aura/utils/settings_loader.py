@@ -1,4 +1,5 @@
-import json
+# clientes/aura/utils/settings_loader.py
+
 import os
 from supabase import create_client
 from dotenv import load_dotenv
@@ -9,17 +10,15 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-RUTA_CONFIG = "clientes/aura/config/settings.json"
-
-def cargar_settings():
+def cargar_settings(nombre_nora="aura"):
     """
-    Carga las configuraciones desde la tabla `settings` en Supabase.
+    Carga las configuraciones desde la tabla `configuracion` en Supabase.
     Si no se encuentran configuraciones, devuelve valores predeterminados.
     """
     try:
-        response = supabase.table("settings").select("*").limit(1).execute()
+        response = supabase.table("configuracion").select("*").eq("nombre_nora", nombre_nora).limit(1).execute()
         if not response.data:
-            print(f"⚠️ Configuración no encontrada en Supabase. Usando valores predeterminados.")
+            print(f"⚠️ Configuración no encontrada para '{nombre_nora}' en Supabase. Usando valores predeterminados.")
             return {
                 "usar_ai": False,
                 "usar_respuestas_automaticas": False,

@@ -20,7 +20,7 @@ def procesar_mensaje(data):
 
     guardar_en_historial(numero, mensaje, "usuario", nombre_nora)
 
-    settings = cargar_settings()
+    settings = cargar_settings(nombre_nora)
     respuesta = None
 
     # ✅ Consultar si el contacto tiene IA desactivada
