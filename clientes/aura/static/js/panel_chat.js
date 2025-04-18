@@ -37,53 +37,18 @@ function mostrarMensajes(mensajes) {
     chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-function cargarChat(numero) {
-    const chatArea = document.getElementById("chat-area");
-    chatArea.innerHTML = '<p class="placeholder">Cargando mensajes...</p>';
-
-    fetch(`/api/chat/${numero}`)
-        .then(res => {
-            if (!res.ok) throw new Error("Error al cargar el chat");
-            return res.json();
-        })
+function cargarChat(telefono) {
+    fetch(`/api/chat/${telefono}`)
+        .then(response => response.json())
         .then(data => {
-            contactoActual = numero;
-
-            chatArea.innerHTML = "";
-
-            if (!data.mensajes || data.mensajes.length === 0) {
-                chatArea.innerHTML = '<p class="placeholder">Sin mensajes aún.</p>';
-            } else {
+            console.log("Datos del chat:", data);
+            if (data.success) {
                 mostrarMensajes(data.mensajes);
+            } else {
+                console.error("Error al cargar el chat:", data.error);
             }
-
-            const info = document.getElementById("info-contacto");
-            const etiquetas = data.contacto.etiquetas && data.contacto.etiquetas.length > 0 ? data.contacto.etiquetas.join(", ") : "Sin etiquetas";
-            const resumen = data.resumen_ia || "Sin resumen disponible.";
-
-            info.innerHTML = `
-                <h3>${data.contacto.nombre}</h3>
-                <p><strong>Número:</strong> ${data.contacto.numero}</p>
-                <p><strong>Etiquetas:</strong> ${etiquetas}</p>
-                <p><strong>IA:</strong> ${data.contacto.ia_activada ? '🟢 Activada' : '🔴 Desactivada'}</p>
-                <button onclick="toggleIA('${data.contacto.numero}')">
-                    ${data.contacto.ia_activada ? 'Desactivar IA' : 'Activar IA'}
-                </button>
-                <hr>
-                <p><strong>🧠 Resumen IA:</strong><br>${resumen}</p>
-                <hr>
-                <h4>📆 Programar envío</h4>
-                <form onsubmit="programarEnvio(event, '${data.contacto.numero}')">
-                    <textarea id="mensaje-programado" placeholder="Mensaje..." rows="3" style="width: 100%;"></textarea><br>
-                    <input type="date" id="fecha-envio" required>
-                    <input type="time" id="hora-envio" required>
-                    <button type="submit">Programar</button>
-                </form>
-            `;
-
-            chatArea.scrollTop = chatArea.scrollHeight;
         })
-        .catch(err => manejarError(err, "Error al cargar el chat."));
+        .catch(error => console.error("Error al cargar el chat:", error));
 }
 
 function enviarMensaje(e) {
