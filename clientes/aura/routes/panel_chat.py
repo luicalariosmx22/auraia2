@@ -41,17 +41,20 @@ def leer_historial(telefono):
         print(f"❌ Error al cargar historial: {str(e)}")
         return []
 
-def guardar_historial(telefono, mensajes):
+def guardar_historial(nombre_nora, telefono, mensajes):
     registros = [
         {
+            "nombre_nora": nombre_nora,  # Incluye el campo 'nombre_nora'
             "telefono": telefono,
             "mensaje": mensaje["texto"],
             "emisor": mensaje["origen"],  # Cambiado de "origen" a "emisor" para coincidir con la tabla
-            "hora": mensaje["hora"]
+            "hora": mensaje["hora"],  # Asegúrate de que 'hora' sea un timestamp válido
+            "timestamp": datetime.datetime.now()  # Agrega un timestamp actual
         }
         for mensaje in mensajes
     ]
     try:
+        print(f"Datos a insertar en historial_conversaciones: {registros}")
         response = supabase.table("historial_conversaciones").insert(registros).execute()
         if not response.data:
             print(f"❌ Error al guardar historial: {not response.data}")
@@ -135,7 +138,7 @@ def api_enviar_mensaje():
             "hora": datetime.datetime.now().strftime("%H:%M")
         })
 
-    guardar_historial(telefono, historial)
+    guardar_historial(contacto.get("nombre_nora", "Nora"), telefono, historial)
     return jsonify({"success": True})
 
 @panel_chat_bp.route("/api/toggle-ia/<telefono>", methods=["POST"])

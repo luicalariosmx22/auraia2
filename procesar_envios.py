@@ -32,11 +32,12 @@ def guardar_historial(nombre_nora, numero, mensajes):
     """
     registros = [
         {
-            "nombre_nora": nombre_nora,
+            "nombre_nora": nombre_nora,  # Incluye el campo 'nombre_nora'
             "telefono": numero,
             "mensaje": mensaje["texto"],
-            "origen": mensaje["origen"],
-            "hora": mensaje["hora"]
+            "emisor": mensaje["origen"],  # Cambiado de 'origen' a 'emisor' para coincidir con la tabla
+            "hora": mensaje["hora"],  # Asegúrate de que 'hora' sea un timestamp válido
+            "timestamp": datetime.now()  # Agrega un timestamp actual
         }
         for mensaje in mensajes
     ]
