@@ -47,7 +47,7 @@ def leer_historial(telefono):
             .table("historial_conversaciones")
             .select("*")
             .like("telefono", f"%{numero_simplificado}")  # 🧠 Busca coincidencia parcial
-            .order("hora", ascending=True)
+            .order("hora", desc=False)
             .execute()
         )
         if not response.data:
