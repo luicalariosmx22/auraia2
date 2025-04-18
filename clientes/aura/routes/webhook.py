@@ -3,7 +3,6 @@
 from flask import Blueprint, request
 from clientes.aura.handlers.process_message import procesar_mensaje
 from utils.db.historial import guardar_mensaje
-from utils.db.envios import guardar_envio  # Nueva función para manejar otra tabla
 from datetime import datetime
 
 webhook_bp = Blueprint("webhook", __name__)
@@ -30,16 +29,6 @@ def webhook():
         # ✅ Guardar respuesta del bot en historial_conversaciones
         print(f"🔍 Guardando respuesta del bot: {respuesta}")
         guardar_mensaje(telefono, respuesta, "bot", nombre_nora)
-
-        # ✅ Guardar envío en otra tabla (si es necesario)
-        print("🔍 Guardando envío en la tabla 'envios'...")
-        guardar_envio({
-            "numero": telefono,
-            "mensaje": respuesta,
-            "estado": "enviado",
-            "fecha_envio": datetime.utcnow().isoformat(),
-            "nombre_nora": nombre_nora
-        })
 
         print("✅ Webhook procesado correctamente.")
         return respuesta, 200
