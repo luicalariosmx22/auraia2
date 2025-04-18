@@ -92,6 +92,40 @@
 
   </div>
 
-  <script src="{{ url_for('static', filename='js/panel_chat.js') }}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const contactos = document.querySelectorAll(".contacto");
+      const chatArea = document.getElementById("chat-area");
+
+      contactos.forEach((item) => {
+        item.addEventListener("click", async () => {
+          const numero = item.getAttribute("data-numero");
+          console.log(`📞 Intentando cargar historial para el número: ${numero}`);
+          try {
+            const res = await fetch(`/api/chat/${numero}`);
+            const data = await res.json();
+
+            if (!data.success) {
+              console.error("❌ Error al cargar historial:", data.error || "Error desconocido");
+              chatArea.innerHTML = "<p class='error'>❌ No se pudo cargar el historial.</p>";
+              return;
+            }
+
+            console.log("✅ Historial cargado con éxito:", data.mensajes);
+            chatArea.innerHTML = ""; // Limpiar el área de chat
+            data.mensajes.forEach((msg) => {
+              const burbuja = document.createElement("div");
+              burbuja.classList.add("burbuja", msg.emisor === "bot" ? "nora" : "usuario");
+              burbuja.innerText = msg.mensaje;
+              chatArea.appendChild(burbuja);
+            });
+          } catch (error) {
+            console.error("❌ Error al intentar cargar el historial:", error);
+            chatArea.innerHTML = "<p class='error'>❌ Error al cargar el historial.</p>";
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>
