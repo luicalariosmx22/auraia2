@@ -61,7 +61,7 @@ def leer_historial(nombre_nora, numero):
             return []
         return [
             {
-                "origen": registro["origen"],
+                "emisor": registro["emisor"],  # Cambiado de 'origen' a 'emisor'
                 "texto": registro["mensaje"],
                 "hora": registro["hora"]
             }

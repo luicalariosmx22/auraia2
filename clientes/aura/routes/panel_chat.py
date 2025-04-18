@@ -129,7 +129,7 @@ def api_enviar_mensaje():
 
     historial = leer_historial(telefono)
     historial.append({
-        "origen": "usuario",
+        "origen": "usuario",  # Cambiar a 'emisor' en guardar_historial
         "texto": texto,
         "hora": datetime.datetime.now().strftime("%H:%M")
     })
@@ -139,12 +139,15 @@ def api_enviar_mensaje():
     if contacto.get("ia_activada"):
         respuesta = f"Respuesta IA a: {texto}"
         historial.append({
-            "origen": "bot",
+            "origen": "bot",  # Cambiar a 'emisor' en guardar_historial
             "texto": respuesta,
             "hora": datetime.datetime.now().strftime("%H:%M")
         })
 
-    guardar_historial(contacto.get("nombre_nora", "Nora"), telefono, historial)
+    # Asegúrate de que 'nombre_nora' esté presente y sea válido
+    nombre_nora = contacto.get("nombre_nora", "Nora")
+    guardar_historial(nombre_nora, telefono, historial)
+
     return jsonify({"success": True})
 
 @panel_chat_bp.route("/api/toggle-ia/<telefono>", methods=["POST"])
