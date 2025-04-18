@@ -69,3 +69,24 @@ def obtener_etiquetas(telefono):
     except Exception as e:
         print(f"❌ Error al obtener etiquetas: {str(e)}")
         return []
+
+def insertar_etiqueta(telefono, etiqueta):
+    """
+    Inserta una nueva etiqueta asociada a un número de teléfono en la tabla 'etiquetas_contacto'.
+    """
+    registro = {
+        "telefono": telefono,
+        "etiqueta": etiqueta
+    }
+    try:
+        print(f"🔍 Intentando insertar etiqueta: {registro}")
+        response = supabase.table("etiquetas_contacto").insert(registro).execute()
+        if response.data:
+            print(f"✅ Etiqueta insertada correctamente: {response.data}")
+            return response
+        else:
+            print(f"⚠️ No se pudo insertar la etiqueta: {registro}")
+            return None
+    except Exception as e:
+        print(f"❌ Error al insertar etiqueta: {str(e)}")
+        return None

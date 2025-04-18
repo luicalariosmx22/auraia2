@@ -16,11 +16,14 @@ def obtener_timestamp_actual():
 
 def cargar_etiquetas():
     try:
+        print("🔍 Cargando etiquetas desde la tabla 'etiquetas'...")
         response = supabase.table("etiquetas").select("*").execute()
         if not response.data:
-            print(f"❌ Error al cargar etiquetas: {not response.data}")
+            print("⚠️ No se encontraron etiquetas.")
             return []
-        return [e["nombre"] for e in response.data]
+        etiquetas = [e["nombre"] for e in response.data]
+        print(f"✅ Etiquetas cargadas: {etiquetas}")
+        return etiquetas
     except Exception as e:
         print(f"❌ Error al cargar etiquetas: {str(e)}")
         return []
@@ -31,6 +34,8 @@ def agregar_contacto_service(request):
         numero = request.form.get('numero', '').strip()
         etiquetas = [e.strip() for e in request.form.get('etiquetas', '').split(',') if e.strip()]
 
+        print(f"🔍 Datos recibidos para agregar contacto: Nombre: {nombre}, Número: {numero}, Etiquetas: {etiquetas}")
+
         if not nombre or not numero:
             flash('❌ Nombre y número son obligatorios', 'error')
             return redirect(url_for('panel_chat.agregar_contacto'))
@@ -38,13 +43,14 @@ def agregar_contacto_service(request):
         numero = normalizar_numero(numero)
 
         try:
-            # Verificar si el contacto ya existe
+            print(f"🔍 Verificando si el contacto ya existe: {numero}")
             response = supabase.table("contactos").select("*").eq("numero", numero).execute()
             if response.data:
+                print("⚠️ El número ya está registrado.")
                 flash('❌ El número ya está registrado', 'error')
                 return redirect(url_for('panel_chat.agregar_contacto'))
 
-            # Insertar nuevo contacto
+            print(f"🔍 Insertando nuevo contacto: {nombre}, {numero}")
             response = supabase.table("contactos").insert({
                 "numero": numero,
                 "nombre": nombre,
@@ -53,9 +59,10 @@ def agregar_contacto_service(request):
                 "fecha_registro": obtener_timestamp_actual()
             }).execute()
             if not response.data:
-                print(f"❌ Error al agregar contacto: {not response.data}")
+                print("⚠️ No se pudo agregar el contacto.")
                 flash('❌ Error al agregar contacto', 'error')
             else:
+                print(f"✅ Contacto agregado correctamente: {response.data}")
                 flash('✅ Contacto agregado correctamente', 'success')
         except Exception as e:
             print(f"❌ Error al agregar contacto: {str(e)}")
@@ -67,29 +74,33 @@ def agregar_contacto_service(request):
 
 def editar_contacto_service(numero, request):
     numero = normalizar_numero(numero)
+    print(f"🔍 Editando contacto con número: {numero}")
 
     try:
-        # Obtener contacto desde Supabase
+        print(f"🔍 Buscando contacto en la tabla 'contactos': {numero}")
         response = supabase.table("contactos").select("*").eq("numero", numero).execute()
         if not response.data:
+            print("⚠️ Contacto no encontrado.")
             flash('❌ Contacto no encontrado', 'error')
             return redirect(url_for('panel_chat.panel_chat'))
 
         contacto = response.data[0]
+        print(f"✅ Contacto encontrado: {contacto}")
 
         if request.method == 'POST':
             nuevo_nombre = request.form.get('nombre', '').strip()
             nuevas_etiquetas = [e.strip() for e in request.form.get('etiquetas', '').split(',') if e.strip()]
 
-            # Actualizar contacto
+            print(f"🔍 Actualizando contacto: Nombre: {nuevo_nombre}, Etiquetas: {nuevas_etiquetas}")
             response = supabase.table("contactos").update({
                 "nombre": nuevo_nombre or contacto["nombre"],
                 "etiquetas": nuevas_etiquetas
             }).eq("numero", numero).execute()
             if not response.data:
-                print(f"❌ Error al actualizar contacto: {not response.data}")
+                print("⚠️ No se pudo actualizar el contacto.")
                 flash('❌ Error al actualizar contacto', 'error')
             else:
+                print(f"✅ Contacto actualizado correctamente: {response.data}")
                 flash('✅ Contacto actualizado', 'success')
 
             return redirect(url_for('panel_chat.panel_chat', numero=numero))
@@ -102,14 +113,16 @@ def editar_contacto_service(numero, request):
 
 def eliminar_contacto_service(numero):
     numero = normalizar_numero(numero)
+    print(f"🔍 Eliminando contacto con número: {numero}")
 
     try:
-        # Eliminar contacto desde Supabase
+        print(f"🔍 Intentando eliminar contacto: {numero}")
         response = supabase.table("contactos").delete().eq("numero", numero).execute()
         if not response.data:
-            print(f"❌ Error al eliminar contacto: {not response.data}")
+            print("⚠️ No se pudo eliminar el contacto.")
             flash('❌ Error al eliminar contacto', 'error')
         else:
+            print(f"✅ Contacto eliminado correctamente: {response.data}")
             flash('✅ Contacto eliminado', 'success')
     except Exception as e:
         print(f"❌ Error al eliminar contacto: {str(e)}")
@@ -119,23 +132,26 @@ def eliminar_contacto_service(numero):
 
 def toggle_ia_service(numero):
     numero = normalizar_numero(numero)
+    print(f"🔍 Cambiando estado de IA para el contacto con número: {numero}")
 
     try:
-        # Obtener contacto desde Supabase
+        print(f"🔍 Buscando contacto en la tabla 'contactos': {numero}")
         response = supabase.table("contactos").select("*").eq("numero", numero).execute()
         if not response.data:
+            print("⚠️ Contacto no encontrado.")
             flash('❌ Contacto no encontrado', 'error')
             return jsonify({"success": False, "error": "Contacto no encontrado"}), 404
 
         contacto = response.data[0]
         nuevo_estado = not contacto.get("ia_activada", True)
+        print(f"🔍 Nuevo estado de IA: {'Activado' if nuevo_estado else 'Desactivado'}")
 
-        # Actualizar estado de IA
         response = supabase.table("contactos").update({"ia_activada": nuevo_estado}).eq("numero", numero).execute()
         if not response.data:
-            print(f"❌ Error al cambiar estado de IA: {not response.data}")
+            print("⚠️ No se pudo cambiar el estado de IA.")
             return jsonify({"success": False, "error": "Error al cambiar estado de IA"}), 500
 
+        print(f"✅ Estado de IA cambiado correctamente: {response.data}")
         flash(f'IA {"activada" if nuevo_estado else "desactivada"} correctamente', 'success')
         return jsonify({"success": True, "nuevo_estado": nuevo_estado})
     except Exception as e:

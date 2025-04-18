@@ -16,6 +16,7 @@ panel_cliente_contactos_bp = Blueprint("panel_cliente_contactos", __name__)
 @panel_cliente_contactos_bp.route("/panel_cliente/contactos/<nombre_nora>", methods=["GET", "POST"])
 def panel_contactos(nombre_nora):
     if "user" not in session:
+        print("⚠️ Usuario no autenticado. Redirigiendo al login.")
         return redirect(url_for("login.login_google"))
 
     ia_permitida = False
@@ -23,22 +24,26 @@ def panel_contactos(nombre_nora):
 
     # Verificar si el módulo de IA está habilitado
     try:
+        print(f"🔍 Verificando módulos habilitados para {nombre_nora}...")
         response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar configuración: {not response.data}")
+            print(f"⚠️ No se encontró configuración para {nombre_nora}.")
         else:
             modulos = response.data[0].get("modulos", [])
             ia_permitida = "ia" in modulos
+            print(f"✅ Módulos habilitados: {modulos}")
     except Exception as e:
         print(f"❌ Error al cargar configuración: {str(e)}")
 
     # Cargar contactos desde Supabase
     try:
+        print(f"🔍 Cargando contactos para {nombre_nora}...")
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
         if not response.data:
-            print(f"❌ Error al cargar contactos: {not response.data}")
+            print(f"⚠️ No se encontraron contactos para {nombre_nora}.")
         else:
             contactos = response.data
+            print(f"✅ Contactos cargados: {len(contactos)}")
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
 
@@ -53,11 +58,12 @@ def panel_contactos(nombre_nora):
 
         # Insertar nuevo contacto en Supabase
         try:
+            print(f"🔍 Guardando nuevo contacto: {nuevo}")
             response = supabase.table("contactos").insert(nuevo).execute()
             if not response.data:
-                print(f"❌ Error al guardar contacto: {not response.data}")
+                print(f"⚠️ No se pudo guardar el contacto: {nuevo}")
             else:
-                print(f"✅ Contacto guardado: {nuevo}")
+                print(f"✅ Contacto guardado correctamente: {response.data}")
         except Exception as e:
             print(f"❌ Error al guardar contacto: {str(e)}")
 
