@@ -1,36 +1,92 @@
 print("✅ procesar_envios.py cargado correctamente")
 
-import time, json, os, datetime
+import time
+from datetime import datetime
+from supabase import create_client
+from dotenv import load_dotenv
+import os
 
-def leer_contactos():
-    with open("clientes/aura/database/contactos.json", "r", encoding="utf-8") as f:
-        return json.load(f)
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def leer_contactos(nombre_nora):
+    """
+    Leer contactos desde Supabase.
+    """
+    try:
+        response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
+        if response.error:
+            print(f"❌ Error al cargar contactos: {response.error}")
+            return []
+        return response.data
+    except Exception as e:
+        print(f"❌ Error al cargar contactos: {str(e)}")
+        return []
 
 def guardar_historial(nombre_nora, numero, mensajes):
-    ruta = f"clientes/{nombre_nora}/database/historial/{numero}.json"
-    os.makedirs(os.path.dirname(ruta), exist_ok=True)
-    with open(ruta, "w", encoding="utf-8") as f:
-        json.dump(mensajes, f, indent=2, ensure_ascii=False)
+    """
+    Guardar historial en Supabase.
+    """
+    registros = [
+        {
+            "nombre_nora": nombre_nora,
+            "telefono": numero,
+            "mensaje": mensaje["texto"],
+            "origen": mensaje["origen"],
+            "hora": mensaje["hora"]
+        }
+        for mensaje in mensajes
+    ]
+    try:
+        response = supabase.table("historial_conversaciones").insert(registros).execute()
+        if response.error:
+            print(f"❌ Error al guardar historial: {response.error}")
+        else:
+            print(f"✅ Historial guardado para {numero}")
+    except Exception as e:
+        print(f"❌ Error al guardar historial: {str(e)}")
 
 def leer_historial(nombre_nora, numero):
-    ruta = f"clientes/{nombre_nora}/database/historial/{numero}.json"
-    if os.path.exists(ruta):
-        with open(ruta, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return []
+    """
+    Leer historial desde Supabase.
+    """
+    try:
+        response = supabase.table("historial_conversaciones").select("*").eq("nombre_nora", nombre_nora).eq("telefono", numero).execute()
+        if response.error:
+            print(f"❌ Error al cargar historial: {response.error}")
+            return []
+        return [
+            {
+                "origen": registro["origen"],
+                "texto": registro["mensaje"],
+                "hora": registro["hora"]
+            }
+            for registro in response.data
+        ]
+    except Exception as e:
+        print(f"❌ Error al cargar historial: {str(e)}")
+        return []
 
 def procesar_envios():
+    """
+    Procesar envíos programados desde Supabase.
+    """
     while True:
-        ruta = "clientes/aura/database/envios/envios_programados.json"
-        if os.path.exists(ruta):
-            with open(ruta, "r", encoding="utf-8") as f:
-                pendientes = json.load(f)
+        try:
+            response = supabase.table("envios_programados").select("*").execute()
+            if response.error:
+                print(f"❌ Error al cargar envíos programados: {response.error}")
+                time.sleep(30)
+                continue
 
-            nuevos = []
-            ahora = datetime.datetime.now()
+            pendientes = response.data
+            ahora = datetime.now()
 
             for envio in pendientes:
-                fecha_hora = datetime.datetime.strptime(f"{envio['fecha']} {envio['hora']}", "%Y-%m-%d %H:%M")
+                fecha_hora = datetime.strptime(f"{envio['fecha']} {envio['hora']}", "%Y-%m-%d %H:%M")
                 if fecha_hora <= ahora:
                     print(f"📤 Enviando mensaje programado a {envio['numero']}")
                     historial = leer_historial(envio["nombre_nora"], envio["numero"])
@@ -40,10 +96,10 @@ def procesar_envios():
                         "hora": ahora.strftime("%H:%M")
                     })
 
-                    contactos = leer_contactos()
-                    contacto = next((c for c in contactos if c["numero"] == envio["numero"]), {})
+                    contactos = leer_contactos(envio["nombre_nora"])
+                    contacto = next((c for c in contactos if c["telefono"] == envio["numero"]), {})
 
-                    if contacto.get("ia_activada"):
+                    if contacto.get("ia", False):
                         respuesta = f"Respuesta automática a: {envio['mensaje']}"
                         historial.append({
                             "origen": "nora",
@@ -52,11 +108,12 @@ def procesar_envios():
                         })
 
                     guardar_historial(envio["nombre_nora"], envio["numero"], historial)
-                else:
-                    nuevos.append(envio)
 
-            with open(ruta, "w", encoding="utf-8") as f:
-                json.dump(nuevos, f, indent=2, ensure_ascii=False)
+                    # Marcar el envío como completado
+                    supabase.table("envios_programados").delete().eq("id", envio["id"]).execute()
+
+        except Exception as e:
+            print(f"❌ Error al procesar envíos: {str(e)}")
 
         time.sleep(30)
 

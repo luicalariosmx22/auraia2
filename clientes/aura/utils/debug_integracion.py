@@ -1,61 +1,48 @@
 import os
-import json
 import openai
 from twilio.rest import Client
+from supabase import create_client
+from dotenv import load_dotenv
 from clientes.aura.handlers.handle_keywords import manejar_respuesta_keywords
 from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
 
-def revisar_todo():
-    resultado = "📁 ARCHIVOS Y CONFIGURACIÓN:\n"
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-    # Verificar archivos esenciales
-    base_path = "clientes/aura/config"
-    archivos = {
-        "settings.json": os.path.join(base_path, "settings.json"),
-        "bot_data.json": os.path.join(base_path, "bot_data.json"),
-        "servicios_conocimiento.txt": os.path.join(base_path, "servicios_conocimiento.txt"),
+def revisar_todo():
+    resultado = "📁 CONFIGURACIÓN Y TABLAS EN SUPABASE:\n"
+
+    # Verificar tablas esenciales en Supabase
+    tablas = {
+        "settings": "Configuración de Nora",
+        "bot_data": "Respuestas automáticas",
+        "conocimiento": "Base de conocimiento"
     }
 
-    for nombre, ruta in archivos.items():
-        if os.path.exists(ruta):
-            resultado += f"✅ {nombre} → OK\n"
-            if nombre == "bot_data.json":
-                try:
-                    with open(ruta, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                        if "hola" in data:
-                            resultado += "✅ Palabra clave 'hola' encontrada\n"
-                        else:
-                            resultado += "⚠️ Palabra clave 'hola' NO encontrada\n"
-                except Exception as e:
-                    resultado += f"❌ Error al leer {nombre}: {e}\n"
-        else:
-            resultado += f"❌ {nombre} → No encontrado\n"
+    for tabla, descripcion in tablas.items():
+        try:
+            response = supabase.table(tabla).select("*").limit(1).execute()
+            if response.error or not response.data:
+                resultado += f"❌ {descripcion} → Tabla '{tabla}' vacía o no encontrada.\n"
+            else:
+                resultado += f"✅ {descripcion} → Tabla '{tabla}' contiene datos.\n"
+        except Exception as e:
+            resultado += f"❌ Error al verificar tabla '{tabla}': {e}\n"
 
-    # Verificar historial
-    historial_dir = "clientes/aura/database/historial"
-    if os.path.exists(historial_dir):
-        archivos_historial = os.listdir(historial_dir)
-        if archivos_historial:
-            resultado += f"✅ {len(archivos_historial)} archivos de historial encontrados\n"
-        else:
-            resultado += f"⚠️ Carpeta de historial vacía\n"
-    else:
-        resultado += "❌ Carpeta historial → No encontrado (clientes/aura/database/historial)\n"
-
-    # Verificar configuración
+    # Verificar configuración en la tabla `settings`
     resultado += "\n🧠 CONFIGURACIÓN DE NORA:\n"
     try:
-        with open(archivos["settings.json"], "r", encoding="utf-8") as f:
-            settings = json.load(f)
-            for key in ["usar_ai", "usar_respuestas_automaticas", "usar_manejo_archivos"]:
-                if key in settings:
-                    valor = settings[key]
-                    resultado += f"✅ {key} → {valor}\n"
-                else:
-                    resultado += f"❌ Falta la clave '{key}' en settings.json\n"
-    except:
-        resultado += "❌ No se pudo cargar settings.json\n"
+        response = supabase.table("settings").select("*").execute()
+        settings = response.data[0] if response.data else {}
+
+        for key in ["usar_ai", "usar_respuestas_automaticas", "usar_manejo_archivos"]:
+            valor = settings.get(key, False)
+            resultado += f"{'✅' if valor else '⚠️'} {key} → {valor}\n"
+    except Exception as e:
+        resultado += f"❌ Error al cargar configuración desde 'settings': {e}\n"
 
     # Revisar variables de entorno
     resultado += "\n🔐 VARIABLES DE ENTORNO:\n"
@@ -79,18 +66,6 @@ def revisar_todo():
         resultado += f"   Valor actual: {twilio_from}\n"
     else:
         resultado += "✅ TWILIO_PHONE_NUMBER con formato correcto (+521...)\n"
-
-    # Comparar con el último 'from' usado
-    try:
-        with open("clientes/aura/config/twilio_last_sent.json", "r", encoding="utf-8") as f:
-            last_data = json.load(f)
-            last_from = last_data.get("from", "[no registrado]")
-            resultado += f"📤 Último FROM usado: {last_from}\n"
-
-            if last_from != twilio_from:
-                resultado += "⚠️ Diferencia entre TWILIO_PHONE_NUMBER y el último FROM utilizado.\n"
-    except Exception as e:
-        resultado += f"⚠️ No se pudo leer twilio_last_sent.json: {e}\n"
 
     # Probar conexión OpenAI
     resultado += "\n🔌 CONEXIÓN CON OPENAI:\n"

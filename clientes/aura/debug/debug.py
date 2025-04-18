@@ -1,10 +1,18 @@
 # clientes/aura/debug/debug.py
 
 import os
-import json
 import openai
 import requests
 from flask import Blueprint, render_template
+from supabase import create_client
+from dotenv import load_dotenv
+import json
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 debug_bp = Blueprint("debug_general", __name__)
 
@@ -45,18 +53,24 @@ def verificar_sistema():
     except Exception:
         resultados.append(("env", "N/A", "❌ Error cargando"))
 
-    # 5. Verificar archivos requeridos
-    archivos_requeridos = [
-        "clientes/aura/database/bot_data.json",
-        "clientes/aura/database/categorias.json",
-        "clientes/aura/database/contactos.json",
-        "clientes/aura/database/config.json"
-    ]
-    archivos_faltantes = [a for a in archivos_requeridos if not os.path.exists(a)]
-    if archivos_faltantes:
-        resultados.append(("archivos", "N/A", "❌ Faltante(s)"))
-    else:
-        resultados.append(("archivos", "N/A", "✅ Todos encontrados"))
+    # 5. Verificar tablas requeridas en Supabase
+    tablas_requeridas = {
+        "bot_data": "Tabla de datos del bot",
+        "categorias": "Tabla de categorías",
+        "contactos": "Tabla de contactos",
+        "configuracion_bot": "Tabla de configuración del bot"
+    }
+    tablas_faltantes = []
+    for tabla, descripcion in tablas_requeridas.items():
+        response = supabase.table(tabla).select("*").limit(1).execute()
+        if response.error or not response.data:
+            tablas_faltantes.append((tabla, descripcion, "❌ Faltante"))
+        else:
+            resultados.append((tabla, descripcion, "✅ Encontrada"))
+
+    if tablas_faltantes:
+        for tabla, descripcion, estado in tablas_faltantes:
+            resultados.append((tabla, descripcion, estado))
 
     # 6. Verificar carpeta historial (aunque esté vacía)
     ruta_historial = "clientes/aura/database/historial"
@@ -77,21 +91,13 @@ def verificar_sistema():
     except Exception as e:
         resultados.append(("conexion_openai", "N/A", f"❌ Error: {str(e)[:40]}"))
 
-    # 8. Verificar bot_data.json
-    try:
-        with open("clientes/aura/database/bot_data.json", "r", encoding="utf-8") as f:
-            json.load(f)
-        resultados.append(("mensaje_hola", "N/A", "✅ Leído correctamente"))
-    except Exception as e:
-        resultados.append(("mensaje_hola", "N/A", "❌ Error al leer bot_data.json"))
-
-    # 9. Verificar Twilio
+    # 8. Verificar Twilio
     if os.getenv("TWILIO_ACCOUNT_SID") and os.getenv("TWILIO_AUTH_TOKEN"):
         resultados.append(("twilio_conexion", "N/A", "✅ Activa"))
     else:
         resultados.append(("twilio_conexion", "N/A", "⚠️ Falta configuración"))
 
-    # 10. Verificar webhook
+    # 9. Verificar webhook
     try:
         r = requests.get("https://app.soynoraai.com/webhook")
         if r.status_code == 200:

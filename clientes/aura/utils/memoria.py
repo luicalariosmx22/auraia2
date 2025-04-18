@@ -1,32 +1,65 @@
+from supabase import create_client
+from dotenv import load_dotenv
 import os
-import json
 
-# Carpeta donde se guardará la memoria de cada número
-CARPETA_MEMORIA = "memory"
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def obtener_memoria(usuario_id):
     """
-    Devuelve un diccionario con la memoria del usuario si existe.
+    Devuelve un diccionario con la memoria del usuario si existe en Supabase.
     """
-    ruta = os.path.join(CARPETA_MEMORIA, f"{usuario_id}.json")
-    if os.path.exists(ruta):
-        with open(ruta, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
+    try:
+        response = supabase.table("memoria_usuarios").select("*").eq("usuario_id", usuario_id).execute()
+        if response.error or not response.data:
+            print(f"⚠️ Memoria no encontrada para el usuario {usuario_id}.")
+            return {}
+        return response.data[0].get("data", {})
+    except Exception as e:
+        print(f"❌ Error al obtener memoria para el usuario {usuario_id}: {str(e)}")
+        return {}
 
 def guardar_memoria(usuario_id, data):
     """
-    Guarda un nuevo estado de memoria para el usuario.
+    Guarda un nuevo estado de memoria para el usuario en Supabase.
     """
-    ruta = os.path.join(CARPETA_MEMORIA, f"{usuario_id}.json")
-    os.makedirs(CARPETA_MEMORIA, exist_ok=True)
-    with open(ruta, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    try:
+        # Verificar si ya existe una memoria para el usuario
+        response = supabase.table("memoria_usuarios").select("*").eq("usuario_id", usuario_id).execute()
+        if response.error:
+            print(f"❌ Error al verificar memoria existente: {response.error}")
+            return
+
+        if response.data:
+            # Actualizar memoria existente
+            response = supabase.table("memoria_usuarios").update({"data": data}).eq("usuario_id", usuario_id).execute()
+            if response.error:
+                print(f"❌ Error al actualizar memoria para el usuario {usuario_id}: {response.error}")
+            else:
+                print(f"✅ Memoria actualizada para el usuario {usuario_id}.")
+        else:
+            # Crear nueva memoria
+            nueva_memoria = {"usuario_id": usuario_id, "data": data}
+            response = supabase.table("memoria_usuarios").insert(nueva_memoria).execute()
+            if response.error:
+                print(f"❌ Error al guardar nueva memoria para el usuario {usuario_id}: {response.error}")
+            else:
+                print(f"✅ Nueva memoria guardada para el usuario {usuario_id}.")
+    except Exception as e:
+        print(f"❌ Error al guardar memoria para el usuario {usuario_id}: {str(e)}")
 
 def limpiar_memoria(usuario_id):
     """
-    Elimina el archivo de memoria si ya no se necesita.
+    Elimina la memoria del usuario en Supabase si ya no se necesita.
     """
-    ruta = os.path.join(CARPETA_MEMORIA, f"{usuario_id}.json")
-    if os.path.exists(ruta):
-        os.remove(ruta)
+    try:
+        response = supabase.table("memoria_usuarios").delete().eq("usuario_id", usuario_id).execute()
+        if response.error:
+            print(f"❌ Error al eliminar memoria para el usuario {usuario_id}: {response.error}")
+        else:
+            print(f"✅ Memoria eliminada para el usuario {usuario_id}.")
+    except Exception as e:
+        print(f"❌ Error al eliminar memoria para el usuario {usuario_id}: {str(e)}")

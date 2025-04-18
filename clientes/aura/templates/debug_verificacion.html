@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verificación del Sistema | Nora AI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/debug_verificacion.css') }}">
 </head>
@@ -15,7 +16,7 @@
                 <th>Estado</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody aria-live="polite">
             {% if resultado %}
                 {% for nombre, info in resultado.items() %}
                     <tr>
@@ -25,17 +26,25 @@
                     </tr>
                 {% endfor %}
             {% else %}
-                <!-- Si no hay resultado, lo llenamos con JS -->
+                <tr id="loading-row">
+                    <td colspan="3" class="placeholder">Cargando datos...</td>
+                </tr>
             {% endif %}
         </tbody>
     </table>
 
     {% if not resultado %}
     <script>
+        const tbody = document.querySelector('#tabla-verificacion tbody');
+        const loadingRow = document.getElementById('loading-row');
+
         fetch('/debug/verificar')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Error al obtener los datos de verificación.");
+                return res.json();
+            })
             .then(data => {
-                const tbody = document.querySelector('#tabla-verificacion tbody');
+                tbody.innerHTML = ""; // Limpiar la tabla
                 Object.entries(data).forEach(([nombre, info]) => {
                     const fila = document.createElement('tr');
                     fila.innerHTML = `
@@ -45,6 +54,14 @@
                     `;
                     tbody.appendChild(fila);
                 });
+            })
+            .catch(err => {
+                console.error(err);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="placeholder error">❌ Error al cargar los datos. Intenta nuevamente más tarde.</td>
+                    </tr>
+                `;
             });
 
         function estadoClase(estado) {

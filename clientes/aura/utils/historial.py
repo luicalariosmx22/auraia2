@@ -1,54 +1,79 @@
-import json
-import os
 from datetime import datetime
+from supabase import create_client
+from dotenv import load_dotenv
+import os
 
-ARCHIVO_HISTORIAL = "historial_conversaciones.json"
-ARCHIVO_CONTACTOS = "contactos_info.json"
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_activada=True, etiquetas=[]):
-    # Cargar historial
+    """
+    Guarda un mensaje en el historial de conversaciones y actualiza la información del contacto en Supabase.
+    :param remitente: Número del remitente.
+    :param mensaje: Contenido del mensaje.
+    :param tipo: Tipo de mensaje ('recibido' o 'enviado').
+    :param nombre: Nombre del remitente (opcional).
+    :param ia_activada: Estado de la IA para el contacto.
+    :param etiquetas: Etiquetas asociadas al contacto.
+    """
+    # Guardar en la tabla `historial_conversaciones`
     try:
-        with open(ARCHIVO_HISTORIAL, 'r', encoding='utf-8') as f:
-            historial = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        historial = []
-
-    # Añadir mensaje
-    historial.append({
-        "remitente": remitente,
-        "mensaje": mensaje,
-        "tipo": tipo,
-        "timestamp": datetime.now().isoformat(),
-        "ia_activada": ia_activada,
-        **({"nombre": nombre} if nombre else {})
-    })
-
-    # Guardar historial
-    with open(ARCHIVO_HISTORIAL, 'w', encoding='utf-8') as f:
-        json.dump(historial, f, ensure_ascii=False, indent=2)
-
-    # Actualizar contactos_info
-    try:
-        with open(ARCHIVO_CONTACTOS, 'r', encoding='utf-8') as f:
-            contactos = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        contactos = {}
-
-    if remitente not in contactos:
-        contactos[remitente] = {
-            "nombre": nombre,
+        historial_entry = {
+            "telefono": remitente,
+            "mensaje": mensaje,
+            "tipo": tipo,
+            "timestamp": datetime.now().isoformat(),
             "ia_activada": ia_activada,
-            "etiquetas": etiquetas,
-            "mensaje_count": 1,
-            "primer_mensaje": datetime.now().isoformat(),
-            "ultimo_mensaje": datetime.now().isoformat()
+            **({"nombre": nombre} if nombre else {})
         }
-    else:
-        contactos[remitente].update({
-            "ultimo_mensaje": datetime.now().isoformat(),
-            "mensaje_count": contactos[remitente].get("mensaje_count", 0) + 1,
-            "ia_activada": ia_activada
-        })
+        response = supabase.table("historial_conversaciones").insert(historial_entry).execute()
+        if response.error:
+            print(f"❌ Error al guardar en historial_conversaciones: {response.error}")
+        else:
+            print(f"✅ Mensaje guardado en historial_conversaciones: {historial_entry}")
+    except Exception as e:
+        print(f"❌ Error al guardar en historial_conversaciones: {str(e)}")
 
-    with open(ARCHIVO_CONTACTOS, 'w', encoding='utf-8') as f:
-        json.dump(contactos, f, ensure_ascii=False, indent=2)
+    # Actualizar la tabla `contactos`
+    try:
+        # Obtener el contacto actual
+        response = supabase.table("contactos").select("*").eq("numero", remitente).execute()
+        if response.error:
+            print(f"❌ Error al obtener contacto: {response.error}")
+            return
+
+        contacto = response.data[0] if response.data else None
+
+        if not contacto:
+            # Crear un nuevo contacto si no existe
+            nuevo_contacto = {
+                "numero": remitente,
+                "nombre": nombre,
+                "ia_activada": ia_activada,
+                "etiquetas": etiquetas,
+                "mensaje_count": 1,
+                "primer_mensaje": datetime.now().isoformat(),
+                "ultimo_mensaje": datetime.now().isoformat()
+            }
+            response = supabase.table("contactos").insert(nuevo_contacto).execute()
+            if response.error:
+                print(f"❌ Error al crear nuevo contacto: {response.error}")
+            else:
+                print(f"✅ Nuevo contacto creado: {nuevo_contacto}")
+        else:
+            # Actualizar el contacto existente
+            contacto_actualizado = {
+                "ultimo_mensaje": datetime.now().isoformat(),
+                "mensaje_count": contacto.get("mensaje_count", 0) + 1,
+                "ia_activada": ia_activada
+            }
+            response = supabase.table("contactos").update(contacto_actualizado).eq("numero", remitente).execute()
+            if response.error:
+                print(f"❌ Error al actualizar contacto: {response.error}")
+            else:
+                print(f"✅ Contacto actualizado: {contacto_actualizado}")
+    except Exception as e:
+        print(f"❌ Error al actualizar contacto: {str(e)}")

@@ -1,8 +1,15 @@
 print("✅ panel_cliente_contactos.py cargado correctamente")
 
 from flask import Blueprint, render_template, session, request, redirect, url_for
+from supabase import create_client
+from dotenv import load_dotenv
 import os
-import json
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_cliente_contactos_bp = Blueprint("panel_cliente_contactos", __name__)
 
@@ -11,43 +18,50 @@ def panel_contactos(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    carpeta = f"clientes/{nombre_nora}"
-    ruta_contactos = f"{carpeta}/crm/contactos.json"
-    ruta_config = f"{carpeta}/config.json"
-
-    os.makedirs(os.path.dirname(ruta_contactos), exist_ok=True)
-
-    if not os.path.exists(ruta_contactos):
-        with open(ruta_contactos, "w", encoding="utf-8") as f:
-            json.dump([], f)
-
     ia_permitida = False
-    if os.path.exists(ruta_config):
-        with open(ruta_config, "r", encoding="utf-8") as f:
-            config = json.load(f)
-            modulos = config.get("modulos", [])
+    contactos = []
+
+    # Verificar si el módulo de IA está habilitado
+    try:
+        response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
+        if response.error or not response.data:
+            print(f"❌ Error al cargar configuración: {response.error}")
+        else:
+            modulos = response.data[0].get("modulos", [])
             ia_permitida = "ia" in modulos
+    except Exception as e:
+        print(f"❌ Error al cargar configuración: {str(e)}")
+
+    # Cargar contactos desde Supabase
+    try:
+        response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
+        if response.error or not response.data:
+            print(f"❌ Error al cargar contactos: {response.error}")
+        else:
+            contactos = response.data
+    except Exception as e:
+        print(f"❌ Error al cargar contactos: {str(e)}")
 
     if request.method == "POST":
         nuevo = {
             "nombre": request.form.get("nombre").strip(),
             "telefono": request.form.get("telefono").strip(),
             "etiquetas": [et.strip() for et in request.form.get("etiquetas", "").split(",") if et.strip()],
-            "ia": True
+            "ia": True,
+            "nombre_nora": nombre_nora
         }
 
-        with open(ruta_contactos, "r", encoding="utf-8") as f:
-            contactos = json.load(f)
-
-        contactos.append(nuevo)
-
-        with open(ruta_contactos, "w", encoding="utf-8") as f:
-            json.dump(contactos, f, indent=4, ensure_ascii=False)
+        # Insertar nuevo contacto en Supabase
+        try:
+            response = supabase.table("contactos").insert(nuevo).execute()
+            if response.error:
+                print(f"❌ Error al guardar contacto: {response.error}")
+            else:
+                print(f"✅ Contacto guardado: {nuevo}")
+        except Exception as e:
+            print(f"❌ Error al guardar contacto: {str(e)}")
 
         return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
-
-    with open(ruta_contactos, "r", encoding="utf-8") as f:
-        contactos = json.load(f)
 
     return render_template(
         "panel_cliente_contactos.html",

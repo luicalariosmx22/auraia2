@@ -1,9 +1,20 @@
-import json
 from datetime import datetime
+from supabase import create_client
+from dotenv import load_dotenv
+import os
 
-RUTA_LOG = "clientes/aura/database/logs_errores.json"
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def registrar_error(origen, mensaje_error):
+    """
+    Registra un error en la tabla `logs_errores` en Supabase.
+    :param origen: Módulo o función donde ocurrió el error.
+    :param mensaje_error: Descripción del error.
+    """
     error = {
         "origen": origen,
         "mensaje": mensaje_error,
@@ -11,12 +22,10 @@ def registrar_error(origen, mensaje_error):
     }
 
     try:
-        with open(RUTA_LOG, "r", encoding="utf-8") as f:
-            errores = json.load(f)
-    except:
-        errores = []
-
-    errores.append(error)
-
-    with open(RUTA_LOG, "w", encoding="utf-8") as f:
-        json.dump(errores, f, indent=2, ensure_ascii=False)
+        response = supabase.table("logs_errores").insert(error).execute()
+        if response.error:
+            print(f"❌ Error al registrar en Supabase: {response.error}")
+        else:
+            print(f"✅ Error registrado en Supabase: {error}")
+    except Exception as e:
+        print(f"❌ Error al conectar con Supabase: {str(e)}")

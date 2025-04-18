@@ -1,16 +1,24 @@
-import os
-import json
 from datetime import datetime
+from supabase import create_client
+from dotenv import load_dotenv
+import os
 
-HISTORIAL_DIR = "clientes/aura/database/historial"
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def guardar_en_historial(numero, mensaje, origen, nombre):
-    if not os.path.exists(HISTORIAL_DIR):
-        os.makedirs(HISTORIAL_DIR)
-
-    archivo_historial = os.path.join(HISTORIAL_DIR, f"{numero}.json")
-
+    """
+    Guarda un mensaje en la tabla `historial_conversaciones` en Supabase.
+    :param numero: Número del remitente o destinatario.
+    :param mensaje: Contenido del mensaje.
+    :param origen: Origen del mensaje ('usuario' o 'bot').
+    :param nombre: Nombre del remitente o destinatario.
+    """
     nuevo_mensaje = {
+        "telefono": numero,
         "mensaje": mensaje,
         "origen": origen,
         "nombre": nombre,
@@ -18,16 +26,10 @@ def guardar_en_historial(numero, mensaje, origen, nombre):
     }
 
     try:
-        if os.path.exists(archivo_historial):
-            with open(archivo_historial, "r", encoding="utf-8") as f:
-                historial = json.load(f)
+        response = supabase.table("historial_conversaciones").insert(nuevo_mensaje).execute()
+        if response.error:
+            print(f"❌ Error al guardar en historial_conversaciones: {response.error}")
         else:
-            historial = []
-
-        historial.append(nuevo_mensaje)
-
-        with open(archivo_historial, "w", encoding="utf-8") as f:
-            json.dump(historial, f, indent=2, ensure_ascii=False)
-
+            print(f"✅ Mensaje guardado en historial_conversaciones: {nuevo_mensaje}")
     except Exception as e:
-        print(f"❌ Error al guardar historial: {e}")
+        print(f"❌ Error al guardar en historial_conversaciones: {str(e)}")

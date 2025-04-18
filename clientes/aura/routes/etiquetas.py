@@ -1,30 +1,32 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-import json
-import os
+from supabase import create_client
+from dotenv import load_dotenv
 from utils.config import login_requerido
+import os
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 etiquetas_bp = Blueprint("etiquetas", __name__)
-ARCHIVO_ETIQUETAS = "etiquetas.json"
-
-# Funciones auxiliares
-def cargar_etiquetas():
-    if os.path.exists(ARCHIVO_ETIQUETAS):
-        try:
-            with open(ARCHIVO_ETIQUETAS, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except:
-            return []
-    return []
-
-def guardar_etiquetas(etiquetas):
-    with open(ARCHIVO_ETIQUETAS, "w", encoding="utf-8") as f:
-        json.dump(etiquetas, f, ensure_ascii=False, indent=2)
 
 # Mostrar etiquetas
 @etiquetas_bp.route("/etiquetas")
 @login_requerido
 def mostrar_etiquetas():
-    etiquetas = cargar_etiquetas()
+    try:
+        response = supabase.table("etiquetas").select("*").execute()
+        if response.error:
+            print(f"❌ Error al cargar etiquetas: {response.error}")
+            etiquetas = []
+        else:
+            etiquetas = [e["nombre"] for e in response.data]
+    except Exception as e:
+        print(f"❌ Error al cargar etiquetas: {str(e)}")
+        etiquetas = []
+
     return render_template("etiquetas.html", etiquetas=etiquetas)
 
 # Agregar nueva etiqueta
@@ -36,35 +38,54 @@ def agregar_etiqueta():
         flash("Etiqueta no puede estar vacía", "danger")
         return redirect(url_for("etiquetas.mostrar_etiquetas"))
 
-    etiquetas = cargar_etiquetas()
-    if nueva in etiquetas:
-        flash("Esa etiqueta ya existe", "warning")
-        return redirect(url_for("etiquetas.mostrar_etiquetas"))
+    try:
+        # Verificar si la etiqueta ya existe
+        response = supabase.table("etiquetas").select("*").eq("nombre", nueva).execute()
+        if response.data:
+            flash("Esa etiqueta ya existe", "warning")
+            return redirect(url_for("etiquetas.mostrar_etiquetas"))
 
-    etiquetas.append(nueva)
-    guardar_etiquetas(etiquetas)
-    flash("Etiqueta agregada correctamente", "success")
+        # Insertar nueva etiqueta
+        response = supabase.table("etiquetas").insert({"nombre": nueva}).execute()
+        if response.error:
+            print(f"❌ Error al agregar etiqueta: {response.error}")
+            flash("Error al agregar etiqueta", "danger")
+        else:
+            flash("Etiqueta agregada correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al agregar etiqueta: {str(e)}")
+        flash("Error al agregar etiqueta", "danger")
+
     return redirect(url_for("etiquetas.mostrar_etiquetas"))
 
 # Editar etiqueta
 @etiquetas_bp.route("/etiquetas/editar/<nombre>", methods=["GET", "POST"])
 @login_requerido
 def editar_etiqueta(nombre):
-    etiquetas = cargar_etiquetas()
     if request.method == "POST":
         nueva = request.form.get("nueva_etiqueta", "").strip()
         if not nueva:
             flash("Etiqueta nueva no puede estar vacía", "danger")
             return redirect(url_for("etiquetas.mostrar_etiquetas"))
 
-        if nueva != nombre and nueva in etiquetas:
-            flash("Ya existe otra etiqueta con ese nombre", "warning")
-            return redirect(url_for("etiquetas.mostrar_etiquetas"))
+        try:
+            # Verificar si la nueva etiqueta ya existe
+            response = supabase.table("etiquetas").select("*").eq("nombre", nueva).execute()
+            if response.data and nueva != nombre:
+                flash("Ya existe otra etiqueta con ese nombre", "warning")
+                return redirect(url_for("etiquetas.mostrar_etiquetas"))
 
-        # Reemplazar nombre
-        etiquetas = [nueva if e == nombre else e for e in etiquetas]
-        guardar_etiquetas(etiquetas)
-        flash("Etiqueta editada correctamente", "success")
+            # Actualizar etiqueta
+            response = supabase.table("etiquetas").update({"nombre": nueva}).eq("nombre", nombre).execute()
+            if response.error:
+                print(f"❌ Error al editar etiqueta: {response.error}")
+                flash("Error al editar etiqueta", "danger")
+            else:
+                flash("Etiqueta editada correctamente", "success")
+        except Exception as e:
+            print(f"❌ Error al editar etiqueta: {str(e)}")
+            flash("Error al editar etiqueta", "danger")
+
         return redirect(url_for("etiquetas.mostrar_etiquetas"))
 
     return render_template("editar_etiqueta.html", nombre=nombre)
@@ -73,11 +94,15 @@ def editar_etiqueta(nombre):
 @etiquetas_bp.route("/etiquetas/eliminar/<nombre>", methods=["POST"])
 @login_requerido
 def eliminar_etiqueta(nombre):
-    etiquetas = cargar_etiquetas()
-    if nombre in etiquetas:
-        etiquetas.remove(nombre)
-        guardar_etiquetas(etiquetas)
-        flash("Etiqueta eliminada correctamente", "success")
-    else:
-        flash("Etiqueta no encontrada", "danger")
+    try:
+        response = supabase.table("etiquetas").delete().eq("nombre", nombre).execute()
+        if response.error:
+            print(f"❌ Error al eliminar etiqueta: {response.error}")
+            flash("Error al eliminar etiqueta", "danger")
+        else:
+            flash("Etiqueta eliminada correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al eliminar etiqueta: {str(e)}")
+        flash("Error al eliminar etiqueta", "danger")
+
     return redirect(url_for("etiquetas.mostrar_etiquetas"))

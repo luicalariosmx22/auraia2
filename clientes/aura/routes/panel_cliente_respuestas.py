@@ -1,8 +1,15 @@
 print("✅ panel_cliente_respuestas.py cargado correctamente")
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from supabase import create_client
+from dotenv import load_dotenv
 import os
-import json
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_cliente_respuestas_bp = Blueprint("panel_cliente_respuestas", __name__)
 
@@ -10,11 +17,6 @@ panel_cliente_respuestas_bp = Blueprint("panel_cliente_respuestas", __name__)
 def panel_respuestas(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
-
-    ruta_archivo = f"clientes/{nombre_nora}/database/bot_data.json"
-    if not os.path.exists(ruta_archivo):
-        with open(ruta_archivo, "w", encoding="utf-8") as f:
-            json.dump([], f)
 
     if request.method == "POST":
         palabra_clave = request.form.get("palabra_clave", "").strip().lower()
@@ -25,42 +27,60 @@ def panel_respuestas(nombre_nora):
             flash("❌ Completa ambos campos", "error")
             return redirect(request.url)
 
-        with open(ruta_archivo, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        if index:
-            try:
+        try:
+            if index:
+                # Actualizar respuesta existente
                 idx = int(index)
-                data[idx] = {"keyword": palabra_clave, "respuesta": respuesta}
-                flash("✅ Respuesta actualizada", "success")
-            except:
-                flash("❌ No se pudo editar", "error")
-        else:
-            data.append({"keyword": palabra_clave, "respuesta": respuesta})
-            flash("✅ Respuesta agregada", "success")
+                response = supabase.table("bot_data").update({
+                    "keyword": palabra_clave,
+                    "respuesta": respuesta
+                }).eq("id", idx).execute()
+                if response.error:
+                    flash("❌ No se pudo editar", "error")
+                else:
+                    flash("✅ Respuesta actualizada", "success")
+            else:
+                # Agregar nueva respuesta
+                response = supabase.table("bot_data").insert({
+                    "nombre_nora": nombre_nora,
+                    "keyword": palabra_clave,
+                    "respuesta": respuesta
+                }).execute()
+                if response.error:
+                    flash("❌ No se pudo agregar la respuesta", "error")
+                else:
+                    flash("✅ Respuesta agregada", "success")
+        except Exception as e:
+            print(f"❌ Error al guardar respuesta: {str(e)}")
+            flash("❌ Error al guardar respuesta", "error")
 
-        with open(ruta_archivo, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-
-        return redirect(url_for("panel_cliente.panel_cliente_respuestas.panel_respuestas", nombre_nora=nombre_nora))
+        return redirect(url_for("panel_cliente_respuestas.panel_respuestas", nombre_nora=nombre_nora))
 
     eliminar = request.args.get("eliminar")
     if eliminar is not None:
         try:
             idx = int(eliminar)
-            with open(ruta_archivo, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            if 0 <= idx < len(data):
-                eliminada = data.pop(idx)
-                with open(ruta_archivo, "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=4, ensure_ascii=False)
-                flash(f"❌ Respuesta eliminada: '{eliminada['keyword']}'", "success")
-        except:
-            flash("❌ No se pudo eliminar", "error")
-        return redirect(url_for("panel_cliente.panel_cliente_respuestas.panel_respuestas", nombre_nora=nombre_nora))
+            response = supabase.table("bot_data").delete().eq("id", idx).execute()
+            if response.error:
+                flash("❌ No se pudo eliminar", "error")
+            else:
+                flash("✅ Respuesta eliminada", "success")
+        except Exception as e:
+            print(f"❌ Error al eliminar respuesta: {str(e)}")
+            flash("❌ Error al eliminar respuesta", "error")
+        return redirect(url_for("panel_cliente_respuestas.panel_respuestas", nombre_nora=nombre_nora))
 
-    with open(ruta_archivo, "r", encoding="utf-8") as f:
-        respuestas = json.load(f)
+    try:
+        # Cargar respuestas desde Supabase
+        response = supabase.table("bot_data").select("*").eq("nombre_nora", nombre_nora).execute()
+        if response.error:
+            print(f"❌ Error al cargar respuestas: {response.error}")
+            respuestas = []
+        else:
+            respuestas = response.data
+    except Exception as e:
+        print(f"❌ Error al cargar respuestas: {str(e)}")
+        respuestas = []
 
     return render_template(
         "panel_cliente_respuestas.html",

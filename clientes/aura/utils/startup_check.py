@@ -1,24 +1,34 @@
 # 📁 Archivo: clientes/aura/utils/startup_check.py
 
 import os
-import json
+from supabase import create_client
+from dotenv import load_dotenv
 
-def asegurar_directorio(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-        print(f"🛠️ Carpeta creada: {path}")
-    else:
-        print(f"✅ Carpeta existente: {path}")
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-def asegurar_archivo_json(path, contenido_inicial):
-    if not os.path.exists(path):
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(contenido_inicial, f, indent=2, ensure_ascii=False)
-        print(f"📄 Archivo creado: {path}")
-    else:
-        print(f"✅ Archivo existente: {path}")
+def verificar_tabla(tabla, descripcion):
+    """
+    Verifica si una tabla existe en Supabase y contiene datos.
+    :param tabla: Nombre de la tabla en Supabase.
+    :param descripcion: Descripción de la tabla para los mensajes de salida.
+    """
+    try:
+        response = supabase.table(tabla).select("*").limit(1).execute()
+        if response.error or not response.data:
+            print(f"⚠️ Tabla '{tabla}' ({descripcion}) no encontrada o vacía.")
+        else:
+            print(f"✅ Tabla '{tabla}' ({descripcion}) verificada.")
+    except Exception as e:
+        print(f"❌ Error al verificar tabla '{tabla}': {e}")
 
 def verificar_entorno():
+    """
+    Verifica que las variables de entorno necesarias estén configuradas.
+    """
     claves = [
         "OPENAI_API_KEY",
         "TWILIO_ACCOUNT_SID",
@@ -32,14 +42,25 @@ def verificar_entorno():
             print(f"🔐 {clave} configurada")
 
 def inicializar_nora():
+    """
+    Verifica la configuración inicial de Nora AI, incluyendo tablas en Supabase y variables de entorno.
+    """
     print("🧩 Iniciando verificación de entorno y estructura para Nora AI...")
 
-    # Carpetas necesarias
-    asegurar_directorio("clientes/aura/database/historial")
-    asegurar_directorio("clientes/aura/config")
+    # Verificar tablas necesarias en Supabase
+    tablas = {
+        "logs_errores": "Registro de errores",
+        "historial_conversaciones": "Historial de conversaciones",
+        "contactos": "Información de contactos",
+        "settings": "Configuración del sistema",
+        "bot_data": "Respuestas automáticas",
+        "conocimiento": "Base de conocimiento"
+    }
 
-    # Archivos necesarios
-    asegurar_archivo_json("clientes/aura/database/logs_errores.json", [])
+    for tabla, descripcion in tablas.items():
+        verificar_tabla(tabla, descripcion)
+
+    # Verificar variables de entorno
     verificar_entorno()
 
     print("✅ Inicialización completa.")

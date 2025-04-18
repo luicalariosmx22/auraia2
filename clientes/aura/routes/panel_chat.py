@@ -1,41 +1,67 @@
 print("✅ panel_chat.py cargado correctamente")
 
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-import os, json, datetime
-import openai
+from supabase import create_client
 from dotenv import load_dotenv
+import os
+import datetime
+import openai
 
+# Configurar Supabase
 load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 panel_chat_bp = Blueprint("panel_chat_aura", __name__)
 
+def leer_contactos():
+    try:
+        response = supabase.table("contactos").select("*").execute()
+        if response.error:
+            print(f"❌ Error al cargar contactos: {response.error}")
+            return []
+        return response.data
+    except Exception as e:
+        print(f"❌ Error al cargar contactos: {str(e)}")
+        return []
+
 def leer_historial(nombre_nora, numero):
-    ruta = f"clientes/{nombre_nora}/database/historial/{numero}.json"
-    if os.path.exists(ruta):
-        with open(ruta, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return []
+    try:
+        response = supabase.table("historial_conversaciones").select("*").eq("nombre_nora", nombre_nora).eq("telefono", numero).execute()
+        if response.error:
+            print(f"❌ Error al cargar historial: {response.error}")
+            return []
+        return response.data
+    except Exception as e:
+        print(f"❌ Error al cargar historial: {str(e)}")
+        return []
 
 def guardar_historial(nombre_nora, numero, mensajes):
-    ruta = f"clientes/{nombre_nora}/database/historial/{numero}.json"
-    os.makedirs(os.path.dirname(ruta), exist_ok=True)
-    with open(ruta, "w", encoding="utf-8") as f:
-        json.dump(mensajes, f, indent=2, ensure_ascii=False)
-
-def leer_contactos():
-    with open("clientes/aura/database/contactos.json", "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def guardar_contactos(data):
-    with open("clientes/aura/database/contactos.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    registros = [
+        {
+            "nombre_nora": nombre_nora,
+            "telefono": numero,
+            "mensaje": mensaje["texto"],
+            "origen": mensaje["origen"],
+            "hora": mensaje["hora"]
+        }
+        for mensaje in mensajes
+    ]
+    try:
+        response = supabase.table("historial_conversaciones").insert(registros).execute()
+        if response.error:
+            print(f"❌ Error al guardar historial: {response.error}")
+    except Exception as e:
+        print(f"❌ Error al guardar historial: {str(e)}")
 
 def generar_resumen_ia(mensajes):
     if not mensajes:
         return "No hay suficientes mensajes para generar un resumen."
 
-    texto = "\n".join([f"{m['origen']}: {m['texto']}" for m in mensajes[-20:]])
+    texto = "\n".join([f"{m['origen']}: {m['mensaje']}" for m in mensajes[-20:]])
 
     prompt = f"""
 Eres un asistente profesional. Resume brevemente esta conversación entre un cliente y una IA llamada Nora. El resumen debe identificar si el cliente está interesado en algo, si ya fue atendido, y si hay seguimiento pendiente:
@@ -62,14 +88,9 @@ def panel_chat(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     contactos = leer_contactos()
-    historial_path = f"clientes/{nombre_nora}/database/historial"
     lista = []
     for c in contactos:
-        ruta = os.path.join(historial_path, f"{c['numero']}.json")
-        mensajes = []
-        if os.path.exists(ruta):
-            with open(ruta, "r", encoding="utf-8") as f:
-                mensajes = json.load(f)
+        mensajes = leer_historial(nombre_nora, c["numero"])
         lista.append({**c, "mensajes": mensajes})
     return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
 
@@ -80,6 +101,7 @@ def api_chat(numero):
     historial = leer_historial("aura", numero)
     resumen = generar_resumen_ia(historial)
     return jsonify({
+        "success": True,
         "contacto": contacto,
         "mensajes": historial,
         "resumen_ia": resumen
@@ -88,14 +110,17 @@ def api_chat(numero):
 @panel_chat_bp.route("/api/enviar-mensaje", methods=["POST"])
 def api_enviar_mensaje():
     data = request.json
-    numero = data["numero"]
-    texto = data["mensaje"]
-    nombre_nora = data["nombre_nora"]
+    numero = data.get("numero")
+    texto = data.get("mensaje")
+    nombre_nora = data.get("nombre_nora")
+
+    if not all([numero, texto, nombre_nora]):
+        return jsonify({"success": False, "error": "Datos incompletos"}), 400
 
     historial = leer_historial(nombre_nora, numero)
     historial.append({
         "origen": "usuario",
-        "texto": texto,
+        "mensaje": texto,
         "hora": datetime.datetime.now().strftime("%H:%M")
     })
 
@@ -105,7 +130,7 @@ def api_enviar_mensaje():
         respuesta = f"Respuesta IA a: {texto}"
         historial.append({
             "origen": "nora",
-            "texto": respuesta,
+            "mensaje": respuesta,
             "hora": datetime.datetime.now().strftime("%H:%M")
         })
 
@@ -114,33 +139,36 @@ def api_enviar_mensaje():
 
 @panel_chat_bp.route("/api/toggle-ia/<numero>", methods=["POST"])
 def api_toggle_ia(numero):
-    contactos = leer_contactos()
-    for c in contactos:
-        if c["numero"] == numero:
-            c["ia_activada"] = not c.get("ia_activada", True)
-    guardar_contactos(contactos)
-    return jsonify({"success": True})
+    try:
+        response = supabase.table("contactos").select("*").eq("numero", numero).execute()
+        if response.error or not response.data:
+            print(f"❌ Error al cargar contacto: {response.error}")
+            return jsonify({"success": False})
+
+        contacto = response.data[0]
+        nuevo_estado = not contacto.get("ia_activada", True)
+
+        supabase.table("contactos").update({"ia_activada": nuevo_estado}).eq("numero", numero).execute()
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"❌ Error al cambiar estado de IA: {str(e)}")
+        return jsonify({"success": False})
 
 @panel_chat_bp.route("/api/programar-envio", methods=["POST"])
 def api_programar_envio():
     data = request.json
-    ruta = f"clientes/{data['nombre_nora']}/database/envios/envios_programados.json"
-    os.makedirs(os.path.dirname(ruta), exist_ok=True)
-
-    envios = []
-    if os.path.exists(ruta):
-        with open(ruta, "r", encoding="utf-8") as f:
-            envios = json.load(f)
-
-    envios.append({
-        "numero": data["numero"],
-        "mensaje": data["mensaje"],
-        "fecha": data["fecha"],
-        "hora": data["hora"],
-        "nombre_nora": data["nombre_nora"]
-    })
-
-    with open(ruta, "w", encoding="utf-8") as f:
-        json.dump(envios, f, indent=2, ensure_ascii=False)
-
-    return jsonify({"success": True})
+    try:
+        response = supabase.table("envios_programados").insert({
+            "numero": data.get("numero"),
+            "mensaje": data.get("mensaje"),
+            "fecha": data.get("fecha"),
+            "hora": data.get("hora"),
+            "nombre_nora": data.get("nombre_nora")
+        }).execute()
+        if response.error:
+            print(f"❌ Error al programar envío: {response.error}")
+            return jsonify({"success": False})
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"❌ Error al programar envío: {str(e)}")
+        return jsonify({"success": False})

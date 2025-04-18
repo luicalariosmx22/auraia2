@@ -1,41 +1,62 @@
-from flask import Blueprint, render_template, request, redirect, url_for
-import json
+from flask import Blueprint, render_template, redirect, url_for
+from supabase import create_client
+from dotenv import load_dotenv
 import os
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_errores_bp = Blueprint("panel_errores", __name__)
 
 @panel_errores_bp.route("/panel/errores", endpoint="ver_errores")
 def ver_errores():
-    errores = []
-    ruta = "logs_errores.json"
-
-    if os.path.exists(ruta):
-        with open(ruta, "r", encoding="utf-8") as f:
-            try:
-                errores = json.load(f)
-            except Exception:
-                errores = []
+    """
+    Mostrar los errores desde la tabla logs_errores en Supabase.
+    """
+    try:
+        response = supabase.table("logs_errores").select("*").execute()
+        if response.error:
+            print(f"❌ Error al cargar errores: {response.error}")
+            errores = []
+        else:
+            errores = response.data
+    except Exception as e:
+        print(f"❌ Error al cargar errores: {str(e)}")
+        errores = []
 
     return render_template("panel_errores.html", errores=errores)
 
 @panel_errores_bp.route("/panel/errores/limpiar", methods=["POST"])
 def limpiar_errores():
-    ruta = "logs_errores.json"
-    if os.path.exists(ruta):
-        os.remove(ruta)
+    """
+    Eliminar todos los errores de la tabla logs_errores en Supabase.
+    """
+    try:
+        response = supabase.table("logs_errores").delete().execute()
+        if response.error:
+            print(f"❌ Error al limpiar errores: {response.error}")
+    except Exception as e:
+        print(f"❌ Error al limpiar errores: {str(e)}")
+
     return redirect(url_for("panel_errores.ver_errores"))
 
 # Función auxiliar para usar en el context processor
 def contar_errores():
-    ruta = "logs_errores.json"
-    if os.path.exists(ruta):
-        try:
-            with open(ruta, "r", encoding="utf-8") as f:
-                errores = json.load(f)
-                return len(errores)
-        except:
+    """
+    Contar el número de errores en la tabla logs_errores en Supabase.
+    """
+    try:
+        response = supabase.table("logs_errores").select("id").execute()
+        if response.error:
+            print(f"❌ Error al contar errores: {response.error}")
             return 0
-    return 0
+        return len(response.data)
+    except Exception as e:
+        print(f"❌ Error al contar errores: {str(e)}")
+        return 0
 
 # ✅ Alias para importar como 'error_panel_bp' desde app.py
 error_panel_bp = panel_errores_bp

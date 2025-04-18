@@ -1,19 +1,21 @@
 print("✅ admin_nora.py cargado correctamente")
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
+from supabase import create_client
+from dotenv import load_dotenv
+from datetime import datetime
 import os
-import json
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 admin_nora_bp = Blueprint("admin_nora", __name__)
 
 @admin_nora_bp.route("/admin/nora/<nombre_nora>/editar", methods=["GET", "POST"])
 def editar_nora(nombre_nora):
-    base_path = f"clientes/{nombre_nora}"
-    ruta_config = os.path.join(base_path, "config.json")
-
-    if not os.path.exists(ruta_config):
-        return f"❌ No se encontró el archivo config.json para {nombre_nora}", 404
-
     modulos_disponibles = [
         "contactos", "ia", "respuestas", "envios",
         "qr_whatsapp_web", "multi_nora", "pagos",
@@ -21,8 +23,15 @@ def editar_nora(nombre_nora):
         "open_table", "google_calendar"
     ]
 
-    with open(ruta_config, "r", encoding="utf-8") as f:
-        config = json.load(f)
+    # Cargar configuración desde Supabase
+    try:
+        response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
+        if response.error or not response.data:
+            return f"❌ No se encontró la configuración para {nombre_nora}", 404
+        config = response.data[0]
+    except Exception as e:
+        print(f"❌ Error al cargar configuración: {str(e)}")
+        return f"❌ Error al cargar configuración para {nombre_nora}", 500
 
     if request.method == "POST":
         nuevo_nombre = request.form.get("nuevo_nombre", "").strip()
@@ -36,11 +45,19 @@ def editar_nora(nombre_nora):
             flash("❌ Debes seleccionar al menos un módulo", "error")
             return redirect(request.url)
 
-        config["nombre_visible"] = nuevo_nombre
-        config["modulos"] = nuevos_modulos
-
-        with open(ruta_config, "w", encoding="utf-8") as f:
-            json.dump(config, f, indent=4, ensure_ascii=False)
+        # Actualizar configuración en Supabase
+        try:
+            config["nombre_visible"] = nuevo_nombre
+            config["modulos"] = nuevos_modulos
+            response = supabase.table("configuracion_bot").update(config).eq("nombre_nora", nombre_nora).execute()
+            if response.error:
+                print(f"❌ Error al actualizar configuración: {response.error}")
+                flash("❌ Error al actualizar configuración", "error")
+                return redirect(request.url)
+        except Exception as e:
+            print(f"❌ Error al actualizar configuración: {str(e)}")
+            flash("❌ Error al actualizar configuración", "error")
+            return redirect(request.url)
 
         print(f"📝 Nora '{nombre_nora}' actualizada:")
         print(f"    ➤ Nombre visible: {nuevo_nombre}")
@@ -75,28 +92,34 @@ def crear_nora():
             flash("❌ Debes completar ambos campos", "error")
             return redirect(request.url)
 
-        carpeta = f"clientes/{nombre_interno}"
-        if os.path.exists(carpeta):
-            flash("❌ Ya existe una Nora con ese nombre interno", "error")
+        # Verificar si ya existe en Supabase
+        try:
+            response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_interno).execute()
+            if response.data:
+                flash("❌ Ya existe una Nora con ese nombre interno", "error")
+                return redirect(request.url)
+        except Exception as e:
+            print(f"❌ Error al verificar existencia de Nora: {str(e)}")
+            flash("❌ Error al verificar existencia de Nora", "error")
             return redirect(request.url)
 
-        os.makedirs(carpeta, exist_ok=True)
-        config = {
-            "nombre_visible": nombre_visible,
-            "ia_activada": True,
-            "modulos": modulos
-        }
-        with open(os.path.join(carpeta, "config.json"), "w", encoding="utf-8") as f:
-            json.dump(config, f, indent=4, ensure_ascii=False)
-
-        os.makedirs(os.path.join(carpeta, "crm"), exist_ok=True)
-        os.makedirs(os.path.join(carpeta, "soporte"), exist_ok=True)
-        os.makedirs(os.path.join(carpeta, "database"), exist_ok=True)
-
-        # Crear bot_data.json vacío
-        ruta_botdata = os.path.join(carpeta, "database", "bot_data.json")
-        with open(ruta_botdata, "w", encoding="utf-8") as f:
-            json.dump({}, f)
+        # Crear nueva configuración en Supabase
+        try:
+            config = {
+                "nombre_nora": nombre_interno,
+                "nombre_visible": nombre_visible,
+                "ia_activada": True,
+                "modulos": modulos
+            }
+            response = supabase.table("configuracion_bot").insert(config).execute()
+            if response.error:
+                print(f"❌ Error al crear Nora: {response.error}")
+                flash("❌ Error al crear Nora", "error")
+                return redirect(request.url)
+        except Exception as e:
+            print(f"❌ Error al crear Nora: {str(e)}")
+            flash("❌ Error al crear Nora", "error")
+            return redirect(request.url)
 
         print(f"🆕 Nueva Nora creada: {nombre_interno} ({nombre_visible}) con módulos: {', '.join(modulos)}")
 

@@ -1,8 +1,15 @@
 print("✅ panel_cliente_envios.py cargado correctamente")
 
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
+from supabase import create_client
+from dotenv import load_dotenv
 import os
-import json
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_cliente_envios_bp = Blueprint("panel_cliente_envios", __name__)
 
@@ -11,24 +18,37 @@ def panel_envios(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    ruta_envios = f"clientes/{nombre_nora}/envios_programados.json"
-
-    if not os.path.exists(ruta_envios):
-        with open(ruta_envios, "w", encoding="utf-8") as f:
-            json.dump([], f)
-
-    with open(ruta_envios, "r", encoding="utf-8") as f:
-        envios = json.load(f)
+    try:
+        # Obtener envíos programados desde Supabase
+        response = supabase.table("envios_programados").select("*").eq("nombre_nora", nombre_nora).execute()
+        if response.error:
+            print(f"❌ Error al cargar envíos programados: {response.error}")
+            envios = []
+        else:
+            envios = response.data
+    except Exception as e:
+        print(f"❌ Error al cargar envíos programados: {str(e)}")
+        envios = []
 
     if request.method == "POST":
         nuevo_envio = {
             "mensaje": request.form.get("mensaje"),
             "fecha": request.form.get("fecha"),
-            "hora": request.form.get("hora")
+            "hora": request.form.get("hora"),
+            "nombre_nora": nombre_nora,
+            "creado_por": session.get("user", {}).get("email", "admin")
         }
-        envios.append(nuevo_envio)
-        with open(ruta_envios, "w", encoding="utf-8") as f:
-            json.dump(envios, f, indent=4, ensure_ascii=False)
+
+        try:
+            # Insertar nuevo envío en Supabase
+            response = supabase.table("envios_programados").insert(nuevo_envio).execute()
+            if response.error:
+                print(f"❌ Error al programar envío: {response.error}")
+                return jsonify({"success": False, "error": "Error al programar envío"}), 500
+        except Exception as e:
+            print(f"❌ Error al programar envío: {str(e)}")
+            return jsonify({"success": False, "error": "Error al programar envío"}), 500
+
         return redirect(url_for("panel_cliente_envios.panel_envios", nombre_nora=nombre_nora))
 
     return render_template(

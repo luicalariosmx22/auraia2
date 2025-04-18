@@ -1,8 +1,16 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, jsonify
+from supabase import create_client
+from dotenv import load_dotenv
 import os, json
 from clientes.aura.utils.debug_integracion import revisar_todo
 from clientes.aura.utils.twilio_sender import enviar_mensaje
 from clientes.aura.utils.normalize import normalizar_numero
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 debug_bp = Blueprint("debug", __name__)
 
@@ -21,16 +29,14 @@ def info_contacto():
     if not numero:
         return "⚠️ Debes pasar el número con ?numero=XXXXXXXXXXX"
 
-    archivo = f"clientes/aura/database/historial/{numero}.json"
-    if not os.path.exists(archivo):
-        return f"❌ No hay historial para {numero}"
-
     try:
-        with open(archivo, "r", encoding="utf-8") as f:
-            historial = json.load(f)
-        ultimos = historial[-5:]
+        response = supabase.table("historial_conversaciones").select("*").eq("telefono", numero).execute()
+        if response.error or not response.data:
+            return f"❌ No hay historial para {numero}"
+
+        historial = response.data[-5:]  # Últimos 5 mensajes
         salida = f"🧾 Últimos mensajes de {numero}:\n\n"
-        for m in ultimos:
+        for m in historial:
             salida += f"[{m['hora']}] {m['origen']}: {m['mensaje']}\n"
         return f"<pre>{salida}</pre>"
     except Exception as e:
@@ -42,11 +48,13 @@ def reset_historial():
     if not numero:
         return "⚠️ Agrega el número con ?numero=XXXXXXXXXXX"
 
-    archivo = f"clientes/aura/database/historial/{numero}.json"
-    if os.path.exists(archivo):
-        os.remove(archivo)
+    try:
+        response = supabase.table("historial_conversaciones").delete().eq("telefono", numero).execute()
+        if response.error:
+            return f"❌ Error al eliminar historial para {numero}: {response.error}"
         return f"✅ Historial de {numero} eliminado."
-    return f"❌ No se encontró historial para {numero}"
+    except Exception as e:
+        return f"❌ Error al eliminar historial: {e}"
 
 @debug_bp.route("/debug/enviar-prueba", methods=["GET"])
 def enviar_prueba():
@@ -118,7 +126,6 @@ def verificar_canal_twilio():
     except Exception as e:
         return f"❌ Error al consultar los canales de WhatsApp: {e}"
 
-# ✅ Test del normalizador
 @debug_bp.route("/debug/test-normalizador", methods=["GET"])
 def test_normalizador():
     entrada = request.args.get("n", "+525593372311")

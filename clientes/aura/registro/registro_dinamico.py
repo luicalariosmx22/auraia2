@@ -1,23 +1,27 @@
-import json
+from supabase import create_client
+from dotenv import load_dotenv
 import os
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def registrar_blueprints_por_nora(app, nombre_nora):
     print(f"⚙️ Registrando módulos activos para Nora: {nombre_nora}")
 
-    # Ruta del archivo config.json
-    config_path = f"clientes/{nombre_nora}/config.json"
-    if not os.path.exists(config_path):
-        print(f"❌ No existe config.json para {nombre_nora}")
-        return
-
-    # Leer el archivo config.json
+    # Consultar módulos activos desde Supabase
     try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            config = json.load(f)
-        modulos = config.get("modulos", [])
-        print(f"🔍 Módulos encontrados en config.json: {modulos}")
+        response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
+        if response.error or not response.data:
+            print(f"❌ No se encontraron módulos para {nombre_nora} en Supabase")
+            return
+
+        modulos = response.data[0].get("modulos", [])
+        print(f"🔍 Módulos encontrados en Supabase: {modulos}")
     except Exception as e:
-        print(f"❌ Error al leer config.json: {str(e)}")
+        print(f"❌ Error al consultar módulos en Supabase: {str(e)}")
         return
 
     # Registrar blueprints dinámicamente

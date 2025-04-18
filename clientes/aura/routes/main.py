@@ -1,7 +1,15 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
+from supabase import create_client
+from dotenv import load_dotenv
 import json
 import os
 from utils.config import cargar_configuracion
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 main_bp = Blueprint('main', __name__)
 
@@ -38,10 +46,20 @@ def login():
 @main_bp.route('/toggle_ia', methods=['POST'])
 @login_requerido
 def toggle_ia():
-    from utils.config_helper import cargar_configuracion, guardar_configuracion
-    config = cargar_configuracion()
-    config["usar_openai"] = not config.get("usar_openai", False)
-    guardar_configuracion(config)
+    try:
+        response = supabase.table("bot_data").select("*").execute()
+        if response.error or not response.data:
+            print(f"❌ Error al cargar configuración: {response.error}")
+            return redirect(url_for('main.index'))
+
+        config = response.data[0]
+        usar_openai = not config.get("usar_openai", False)
+
+        # Actualizar configuración en Supabase
+        supabase.table("bot_data").update({"usar_openai": usar_openai}).eq("id", config["id"]).execute()
+    except Exception as e:
+        print(f"❌ Error al actualizar configuración: {str(e)}")
+
     return redirect(url_for('main.index'))
 
 # LOGOUT
@@ -55,18 +73,26 @@ def logout():
 @login_requerido
 def index():
     try:
-        with open('bot_data.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except FileNotFoundError:
+        # Cargar datos desde Supabase
+        response_bot_data = supabase.table("bot_data").select("*").execute()
+        response_categorias = supabase.table("categorias").select("*").execute()
+
+        if response_bot_data.error or not response_bot_data.data:
+            print(f"❌ Error al cargar bot_data: {response_bot_data.error}")
+            data = {}
+        else:
+            data = response_bot_data.data[0]
+
+        if response_categorias.error or not response_categorias.data:
+            print(f"❌ Error al cargar categorias: {response_categorias.error}")
+            categorias = []
+        else:
+            categorias = [c["nombre"] for c in response_categorias.data]
+
+    except Exception as e:
+        print(f"❌ Error al cargar datos: {str(e)}")
         data = {}
-
-    try:
-        with open('categorias.json', 'r', encoding='utf-8') as f:
-            categorias = json.load(f)
-    except FileNotFoundError:
         categorias = []
-
-    config = cargar_configuracion()
 
     info_twilio = {
         "nombre": os.getenv("TWILIO_ACCOUNT_SID", "No disponible"),
@@ -75,14 +101,14 @@ def index():
     }
 
     info_openai = {
-        "estado": "activo" if config.get("usar_openai", False) else "inactivo"
+        "estado": "activo" if data.get("usar_openai", False) else "inactivo"
     }
 
     return render_template(
         'index.html',
         datos=data,
         categorias=categorias,
-        usar_openai=config.get("usar_openai", False),
+        usar_openai=data.get("usar_openai", False),
         info_twilio=info_twilio,
         info_openai=info_openai
     )

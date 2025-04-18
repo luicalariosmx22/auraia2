@@ -2,13 +2,27 @@ console.log("✅ panel_chat.js cargado correctamente");
 
 let contactoActual = null;
 
+function mostrarError(mensaje) {
+    alert(`❌ ${mensaje}`);
+}
+
+function manejarError(err, mensaje) {
+    console.error(err);
+    mostrarError(mensaje);
+}
+
 function cargarChat(numero) {
+    const chatArea = document.getElementById("chat-area");
+    chatArea.innerHTML = '<p class="placeholder">Cargando mensajes...</p>';
+
     fetch(`/api/chat/${numero}`)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Error al cargar el chat");
+            return res.json();
+        })
         .then(data => {
             contactoActual = numero;
 
-            const chatArea = document.getElementById("chat-area");
             chatArea.innerHTML = "";
 
             if (!data.mensajes || data.mensajes.length === 0) {
@@ -51,7 +65,8 @@ function cargarChat(numero) {
             `;
 
             chatArea.scrollTop = chatArea.scrollHeight;
-        });
+        })
+        .catch(err => manejarError(err, "Error al cargar el chat."));
 }
 
 function enviarMensaje(e) {
@@ -59,6 +74,9 @@ function enviarMensaje(e) {
     const input = document.getElementById("mensaje");
     const texto = input.value.trim();
     if (!texto || !contactoActual) return;
+
+    const botonEnviar = document.getElementById("boton-enviar");
+    botonEnviar.disabled = true;
 
     fetch("/api/enviar-mensaje", {
         method: "POST",
@@ -68,16 +86,29 @@ function enviarMensaje(e) {
             mensaje: texto,
             nombre_nora: nombreNora
         })
-    }).then(res => res.json())
-      .then(() => {
-          input.value = "";
-          cargarChat(contactoActual);
-      });
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Error al enviar el mensaje");
+        return res.json();
+    })
+    .then(() => {
+        input.value = "";
+        cargarChat(contactoActual);
+    })
+    .catch(err => manejarError(err, "Error al enviar el mensaje."))
+    .finally(() => {
+        botonEnviar.disabled = false;
+    });
 }
 
 function toggleIA(numero) {
     fetch(`/api/toggle-ia/${numero}`, { method: "POST" })
-        .then(() => cargarChat(numero));
+        .then(res => {
+            if (!res.ok) throw new Error("Error al cambiar el estado de la IA");
+            return res.json();
+        })
+        .then(() => cargarChat(numero))
+        .catch(err => manejarError(err, "Error al cambiar el estado de la IA."));
 }
 
 function programarEnvio(e, numero) {
@@ -86,7 +117,10 @@ function programarEnvio(e, numero) {
     const fecha = document.getElementById("fecha-envio").value;
     const hora = document.getElementById("hora-envio").value;
 
-    if (!mensaje || !fecha || !hora) return;
+    if (!mensaje || !fecha || !hora) {
+        mostrarError("Todos los campos son obligatorios.");
+        return;
+    }
 
     fetch("/api/programar-envio", {
         method: "POST",
@@ -98,8 +132,14 @@ function programarEnvio(e, numero) {
             hora,
             nombre_nora: nombreNora
         })
-    }).then(() => {
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Error al programar el envío");
+        return res.json();
+    })
+    .then(() => {
         alert("✅ Envío programado con éxito");
         document.getElementById("mensaje-programado").value = "";
-    });
+    })
+    .catch(err => manejarError(err, "Error al programar el envío."));
 }

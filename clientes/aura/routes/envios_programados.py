@@ -1,35 +1,49 @@
 from flask import Blueprint, render_template, request, jsonify, session
-import json
-import os
 from datetime import datetime
+from supabase import create_client
+from dotenv import load_dotenv
+import os
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 envios_programados_bp = Blueprint("envios_programados", __name__)
-
-CONTACTOS_PATH = "clientes/aura/database/contactos.json"
-ENVIOS_PATH = "clientes/aura/database/envios_programados.json"
 
 @envios_programados_bp.route("/panel/envios-programados")
 @envios_programados_bp.route("/panel/envios-programados/<estado>")
 def vista_envios(estado=None):
-        return render_template("panel_envios_programados.html", estado=estado)
+    return render_template("panel_envios_programados.html", estado=estado)
 
 @envios_programados_bp.route("/api/contactos")
 def api_contactos():
-    with open(CONTACTOS_PATH, "r", encoding="utf-8") as f:
-        contactos = json.load(f)
-    return jsonify(contactos)
+    try:
+        response = supabase.table("contactos").select("*").execute()
+        if response.error:
+            print(f"❌ Error al cargar contactos: {response.error}")
+            return jsonify({"error": "Error al cargar contactos"}), 500
+        return jsonify(response.data)
+    except Exception as e:
+        print(f"❌ Error al cargar contactos: {str(e)}")
+        return jsonify({"error": "Error al cargar contactos"}), 500
 
 @envios_programados_bp.route("/api/envios-programados")
 def api_envios_programados():
     estado_filtro = request.args.get("estado")
-    if os.path.exists(ENVIOS_PATH):
-        with open(ENVIOS_PATH, "r", encoding="utf-8") as f:
-            todos = json.load(f)
-            if estado_filtro:
-                filtrados = [e for e in todos if e.get("estado") == estado_filtro]
-                return jsonify(filtrados)
-            return jsonify(todos)
-    return jsonify([])
+    try:
+        query = supabase.table("envios_programados").select("*")
+        if estado_filtro:
+            query = query.eq("estado", estado_filtro)
+        response = query.execute()
+        if response.error:
+            print(f"❌ Error al cargar envíos programados: {response.error}")
+            return jsonify({"error": "Error al cargar envíos programados"}), 500
+        return jsonify(response.data)
+    except Exception as e:
+        print(f"❌ Error al cargar envíos programados: {str(e)}")
+        return jsonify({"error": "Error al cargar envíos programados"}), 500
 
 @envios_programados_bp.route("/api/programar-envio-masivo", methods=["POST"])
 def programar_envio_masivo():
@@ -52,17 +66,10 @@ def programar_envio_masivo():
     if errores:
         return jsonify({"error": "Datos incompletos", "detalles": errores}), 400
 
-    if not os.path.exists(ENVIOS_PATH):
-        with open(ENVIOS_PATH, "w", encoding="utf-8") as f:
-            json.dump([], f, ensure_ascii=False, indent=2)
-
-    with open(ENVIOS_PATH, "r", encoding="utf-8") as f:
-        existentes = json.load(f)
-
     programado_por = session.get("user", {}).get("email", "admin")
 
-    for numero in destinatarios:
-        existentes.append({
+    registros = [
+        {
             "numero": numero,
             "mensaje": mensaje,
             "fecha": fecha,
@@ -70,12 +77,19 @@ def programar_envio_masivo():
             "programado_por": programado_por,
             "estado": "pendiente",
             "creado_en": datetime.now().isoformat()
-        })
+        }
+        for numero in destinatarios
+    ]
 
-    with open(ENVIOS_PATH, "w", encoding="utf-8") as f:
-        json.dump(existentes, f, ensure_ascii=False, indent=2)
-
-    return jsonify({"ok": True})
+    try:
+        response = supabase.table("envios_programados").insert(registros).execute()
+        if response.error:
+            print(f"❌ Error al programar envíos: {response.error}")
+            return jsonify({"error": "Error al programar envíos"}), 500
+        return jsonify({"ok": True})
+    except Exception as e:
+        print(f"❌ Error al programar envíos: {str(e)}")
+        return jsonify({"error": "Error al programar envíos"}), 500
 
 @envios_programados_bp.route("/api/cancelar-envio", methods=["POST"])
 def cancelar_envio():
@@ -87,15 +101,16 @@ def cancelar_envio():
     if not all([numero, fecha, hora]):
         return jsonify({"error": "Faltan datos para cancelar el envío."}), 400
 
-    if not os.path.exists(ENVIOS_PATH):
-        return jsonify({"error": "No hay archivo de envíos."}), 404
-
-    with open(ENVIOS_PATH, "r", encoding="utf-8") as f:
-        envios = json.load(f)
-
-    nuevos = [e for e in envios if not (e["numero"] == numero and e["fecha"] == fecha and e["hora"] == hora)]
-
-    with open(ENVIOS_PATH, "w", encoding="utf-8") as f:
-        json.dump(nuevos, f, ensure_ascii=False, indent=2)
-
-    return jsonify({"ok": True})
+    try:
+        response = supabase.table("envios_programados").delete().match({
+            "numero": numero,
+            "fecha": fecha,
+            "hora": hora
+        }).execute()
+        if response.error:
+            print(f"❌ Error al cancelar envío: {response.error}")
+            return jsonify({"error": "Error al cancelar envío"}), 500
+        return jsonify({"ok": True})
+    except Exception as e:
+        print(f"❌ Error al cancelar envío: {str(e)}")
+        return jsonify({"error": "Error al cancelar envío"}), 500

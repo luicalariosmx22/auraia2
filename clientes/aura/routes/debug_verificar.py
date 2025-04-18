@@ -6,6 +6,7 @@ import openai
 import json
 import pkg_resources
 from dotenv import load_dotenv
+from supabase import create_client
 
 from clientes.aura.routes.debug_openai import verificar_openai
 from clientes.aura.routes.debug_oauthlib import verificar_oauthlib
@@ -13,7 +14,11 @@ from clientes.aura.routes.debug_google import verificar_google_login
 
 debug_verificar_bp = Blueprint("debug_verificar", __name__)
 
+# Configurar Supabase
 load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @debug_verificar_bp.route("/debug/verificar", methods=["GET"])  # ✅ RUTA CORREGIDA
 def verificar_configuracion():
@@ -45,22 +50,30 @@ def verificar_configuracion():
         "estado": "✅ Completo" if not faltantes else f"❌ Faltan: {', '.join(faltantes)}"
     }
 
-    # Archivos clave
-    archivos = {
-        "bot_data.json": os.path.exists("bot_data.json"),
-        "servicios_conocimiento.txt": os.path.exists("servicios_conocimiento.txt")
-    }
-    resultado["archivos"] = {
-        "version": None,
-        "estado": "✅ OK" if all(archivos.values()) else "❌ Faltante(s)"
-    }
+    # Verificar datos en Supabase
+    try:
+        # Verificar tabla bot_data
+        response = supabase.table("bot_data").select("*").execute()
+        if response.error or not response.data:
+            resultado["bot_data"] = {"estado": "❌ Faltante"}
+        else:
+            resultado["bot_data"] = {"estado": "✅ OK"}
 
-    # Historial
-    historial_path = "clientes/aura/database/historial"
-    resultado["historial"] = {
-        "version": None,
-        "estado": "✅ Accesible" if os.path.isdir(historial_path) else "❌ No encontrada"
-    }
+        # Verificar tabla servicios_conocimiento
+        response = supabase.table("servicios_conocimiento").select("*").execute()
+        if response.error or not response.data:
+            resultado["servicios_conocimiento"] = {"estado": "❌ Faltante"}
+        else:
+            resultado["servicios_conocimiento"] = {"estado": "✅ OK"}
+
+        # Verificar tabla historial_conversaciones
+        response = supabase.table("historial_conversaciones").select("*").limit(1).execute()
+        if response.error or not response.data:
+            resultado["historial"] = {"estado": "❌ No encontrada"}
+        else:
+            resultado["historial"] = {"estado": "✅ Accesible"}
+    except Exception as e:
+        print(f"❌ Error al verificar datos en Supabase: {str(e)}")
 
     # Conexión real a OpenAI
     try:
@@ -78,21 +91,6 @@ def verificar_configuracion():
         resultado["conexion_openai"] = {
             "version": None,
             "estado": f"❌ Error: {str(e)}"
-        }
-
-    # Verificación de palabra clave "hola" en bot_data.json
-    try:
-        with open("bot_data.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
-        hay_hola = any(item.get("keyword") == "hola" for item in data)
-        resultado["mensaje_hola"] = {
-            "version": None,
-            "estado": "✅ Existe" if hay_hola else "❌ No configurado"
-        }
-    except:
-        resultado["mensaje_hola"] = {
-            "version": None,
-            "estado": "❌ Error al leer bot_data.json"
         }
 
     # Verificar conexión real con Twilio

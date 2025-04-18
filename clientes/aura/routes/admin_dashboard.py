@@ -1,35 +1,45 @@
 # clientes/aura/routes/admin_dashboard.py
 
 from flask import Blueprint, render_template
+from supabase import create_client
+from dotenv import load_dotenv
 import os
-import json
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 admin_dashboard_bp = Blueprint("admin_dashboard", __name__)
 
 @admin_dashboard_bp.route("/admin")
 def dashboard_admin():
-    base_path = "clientes"
     total_noras = 0
+    total_errores = 0
 
-    # Contar carpetas de Noras (proyectos/clientes)
-    if os.path.exists(base_path):
-        total_noras = len([
-            nombre for nombre in os.listdir(base_path)
-            if os.path.isdir(os.path.join(base_path, nombre))
-        ])
+    # Contar Noras desde Supabase
+    try:
+        response = supabase.table("configuracion_bot").select("id").execute()
+        if response.error:
+            print(f"❌ Error al contar Noras: {response.error}")
+        else:
+            total_noras = len(response.data)
+    except Exception as e:
+        print(f"❌ Error al contar Noras: {str(e)}")
 
-    # Contar errores del log si existe
-    errores_path = "logs_errores.json"
-    errores = []
-    if os.path.exists(errores_path):
-        with open(errores_path, "r", encoding="utf-8") as f:
-            try:
-                errores = json.load(f)
-            except Exception:
-                errores = []
+    # Contar errores desde Supabase
+    try:
+        response = supabase.table("logs_errores").select("id").execute()
+        if response.error:
+            print(f"❌ Error al contar errores: {response.error}")
+        else:
+            total_errores = len(response.data)
+    except Exception as e:
+        print(f"❌ Error al contar errores: {str(e)}")
 
     return render_template("admin_dashboard.html",
         total_noras=total_noras,
-        total_errores=len(errores),
+        total_errores=total_errores,
         ultimo_deployment="hace 5 minutos"  # puedes actualizar esto después
     )
