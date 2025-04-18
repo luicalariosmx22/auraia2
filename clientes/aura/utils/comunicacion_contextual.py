@@ -28,7 +28,7 @@ def ya_saludo(historial):
     Verifica si el bot ya saludó en el historial.
     """
     for mensaje in historial:
-        if mensaje["origen"] == "bot" and "hola" in mensaje["mensaje"].lower():
+        if mensaje["emisor"] == "bot" and "hola" in mensaje["mensaje"].lower():
             return True
     return False
 
