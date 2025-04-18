@@ -28,9 +28,9 @@ def leer_contactos():
         print(f"❌ Error al cargar contactos: {str(e)}")
         return []
 
-def leer_historial(nombre_nora, numero):
+def leer_historial(nombre_nora, telefono):
     try:
-        response = supabase.table("historial_conversaciones").select("*").eq("nombre_nora", nombre_nora).eq("telefono", numero).execute()
+        response = supabase.table("historial_conversaciones").select("*").eq("nombre_nora", nombre_nora).eq("telefono", telefono).execute()
         if not response.data:
             print(f"❌ Error al cargar historial: {not response.data}")
             return []
@@ -39,11 +39,11 @@ def leer_historial(nombre_nora, numero):
         print(f"❌ Error al cargar historial: {str(e)}")
         return []
 
-def guardar_historial(nombre_nora, numero, mensajes):
+def guardar_historial(nombre_nora, telefono, mensajes):
     registros = [
         {
             "nombre_nora": nombre_nora,
-            "telefono": numero,
+            "telefono": telefono,
             "mensaje": mensaje["texto"],
             "origen": mensaje["origen"],
             "hora": mensaje["hora"]
@@ -90,15 +90,15 @@ def panel_chat(nombre_nora):
     contactos = leer_contactos()
     lista = []
     for c in contactos:
-        mensajes = leer_historial(nombre_nora, c["numero"])
+        mensajes = leer_historial(nombre_nora, c["telefono"])
         lista.append({**c, "mensajes": mensajes})
     return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
 
-@panel_chat_bp.route("/api/chat/<numero>")
-def api_chat(numero):
+@panel_chat_bp.route("/api/chat/<telefono>")
+def api_chat(telefono):
     contactos = leer_contactos()
-    contacto = next((c for c in contactos if c["numero"] == numero), {})
-    historial = leer_historial("aura", numero)
+    contacto = next((c for c in contactos if c["telefono"] == telefono), {})
+    historial = leer_historial("aura", telefono)
     resumen = generar_resumen_ia(historial)
     return jsonify({
         "success": True,
@@ -110,14 +110,14 @@ def api_chat(numero):
 @panel_chat_bp.route("/api/enviar-mensaje", methods=["POST"])
 def api_enviar_mensaje():
     data = request.json
-    numero = data.get("numero")
+    telefono = data.get("numero")
     texto = data.get("mensaje")
     nombre_nora = data.get("nombre_nora")
 
-    if not all([numero, texto, nombre_nora]):
+    if not all([telefono, texto, nombre_nora]):
         return jsonify({"success": False, "error": "Datos incompletos"}), 400
 
-    historial = leer_historial(nombre_nora, numero)
+    historial = leer_historial(nombre_nora, telefono)
     historial.append({
         "origen": "usuario",
         "mensaje": texto,
@@ -125,7 +125,7 @@ def api_enviar_mensaje():
     })
 
     contactos = leer_contactos()
-    contacto = next((c for c in contactos if c["numero"] == numero), {})
+    contacto = next((c for c in contactos if c["telefono"] == telefono), {})
     if contacto.get("ia_activada"):
         respuesta = f"Respuesta IA a: {texto}"
         historial.append({
@@ -134,13 +134,13 @@ def api_enviar_mensaje():
             "hora": datetime.datetime.now().strftime("%H:%M")
         })
 
-    guardar_historial(nombre_nora, numero, historial)
+    guardar_historial(nombre_nora, telefono, historial)
     return jsonify({"success": True})
 
-@panel_chat_bp.route("/api/toggle-ia/<numero>", methods=["POST"])
-def api_toggle_ia(numero):
+@panel_chat_bp.route("/api/toggle-ia/<telefono>", methods=["POST"])
+def api_toggle_ia(telefono):
     try:
-        response = supabase.table("contactos").select("*").eq("numero", numero).execute()
+        response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
         if not response.data:
             print(f"❌ Error al cargar contacto: {not response.data}")
             return jsonify({"success": False})
@@ -148,7 +148,7 @@ def api_toggle_ia(numero):
         contacto = response.data[0]
         nuevo_estado = not contacto.get("ia_activada", True)
 
-        supabase.table("contactos").update({"ia_activada": nuevo_estado}).eq("numero", numero).execute()
+        supabase.table("contactos").update({"ia_activada": nuevo_estado}).eq("telefono", telefono).execute()
         return jsonify({"success": True})
     except Exception as e:
         print(f"❌ Error al cambiar estado de IA: {str(e)}")
