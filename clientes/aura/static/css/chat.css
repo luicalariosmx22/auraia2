@@ -45,25 +45,29 @@
 }
 
 .burbuja.usuario {
-  background-color: #d1e7dd;
+  background-color: #cce5ff; /* Azul claro */
+  color: #004085; /* Azul oscuro */
   align-self: flex-end;
+  border: 1px solid #b8daff; /* Borde azul */
 }
 
-.burbuja.nora {
-  background-color: #f8d7da;
+.burbuja.contacto {
+  background-color: #d4edda; /* Verde claro */
+  color: #155724; /* Verde oscuro */
   align-self: flex-start;
+  border: 1px solid #c3e6cb; /* Borde verde */
 }
 
 .remitente {
   font-size: 0.8rem;
   font-weight: bold;
   margin-bottom: 5px;
-  color: #555;
+  color: #495057; /* Gris oscuro */
 }
 
 .timestamp {
   font-size: 0.7rem;
-  color: #888;
+  color: #6c757d; /* Gris medio */
   position: absolute;
   top: -15px;
   right: 10px;
@@ -71,14 +75,14 @@
 
 .contenido {
   font-size: 1rem;
-  color: #333;
+  color: #212529; /* Gris oscuro */
 }
 
 .chat-input {
   display: flex;
   padding: 0.5rem;
-  background-color: #f0f0f0;
-  border-top: 1px solid #ccc;
+  background-color: #f8f9fa; /* Gris claro */
+  border-top: 1px solid #dee2e6; /* Borde gris */
   position: sticky;
   bottom: 0;
   gap: 0.5rem;
@@ -88,12 +92,14 @@
   flex: 1;
   padding: 0.4rem 1rem;
   border-radius: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid #ced4da; /* Borde gris */
   outline: none;
+  background-color: #ffffff; /* Blanco */
+  color: #495057; /* Gris oscuro */
 }
 
 .chat-input button {
-  background-color: #4da6ff;
+  background-color: #007bff; /* Azul */
   color: white;
   border: none;
   padding: 0.4rem 1.2rem;
@@ -103,5 +109,5 @@
 }
 
 .chat-input button:hover {
-  background-color: #3399ff;
+  background-color: #0056b3; /* Azul más oscuro */
 }

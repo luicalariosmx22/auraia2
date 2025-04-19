@@ -221,3 +221,38 @@ def api_programar_envio():
     except Exception as e:
         print(f"❌ Error al programar envío: {str(e)}")
         return jsonify({"success": False})
+
+function renderizarMensajes(mensajes, contacto) {
+  const chatArea = document.getElementById("chat-area");
+  chatArea.innerHTML = ""; // Limpiar el área de chat
+
+  mensajes.forEach(mensaje => {
+    const div = document.createElement("div");
+    div.className = `burbuja ${mensaje.emisor === "nora" ? "usuario" : "contacto"}`;
+
+    // Mostrar el remitente
+    const remitente = document.createElement("div");
+    remitente.className = "remitente";
+    if (mensaje.emisor === "nora") {
+      remitente.innerText = "Tú"; // Mensajes enviados por Nora
+    } else {
+      remitente.innerText = contacto.nombre || contacto.telefono; // Mensajes enviados por el contacto
+    }
+
+    // Mostrar el timestamp
+    const timestamp = document.createElement("div");
+    timestamp.className = "timestamp";
+    timestamp.innerText = mensaje.fecha || "Sin fecha";
+
+    // Mostrar el contenido del mensaje
+    const contenido = document.createElement("div");
+    contenido.className = "contenido";
+    contenido.innerText = mensaje.mensaje;
+
+    div.appendChild(remitente);
+    div.appendChild(timestamp);
+    div.appendChild(contenido);
+
+    chatArea.appendChild(div);
+  });
+}
