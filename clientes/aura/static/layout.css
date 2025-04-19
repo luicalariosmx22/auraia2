@@ -1,8 +1,4 @@
-body {
-  margin: 0;
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f0f2f5;
-}
+
 
 .chat-wrapper {
   display: grid;
@@ -10,7 +6,9 @@ body {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-}
-body {
-  border: 5px solid red !important;
-}
+  
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+  }
