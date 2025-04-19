@@ -41,14 +41,6 @@
       </div>
       {% endif %}
 
-      {% if "respuestas" in modulos %}
-      <div class="meta-card">
-        <h3>💬 Respuestas automáticas</h3>
-        <p>Configura tus respuestas rápidas.</p>
-        <a href="{{ url_for('panel_cliente_respuestas.panel_respuestas', nombre_nora=nombre_nora) }}" class="btn-neutral">📝 Configurar respuestas</a>
-      </div>
-      {% endif %}
-
       {% if "envios" in modulos %}
       <div class="meta-card">
         <h3>📤 Envíos programados</h3>
@@ -57,11 +49,11 @@
       </div>
       {% endif %}
 
-      {% if "ia" in modulos %}
+      {% if "entrenamiento" in modulos %}
       <div class="meta-card">
-        <h3>🧠 Control de Inteligencia Artificial</h3>
-        <p>Activa o desactiva la IA en conversaciones.</p>
-        <a href="{{ url_for('panel_cliente_ia.panel_ia', nombre_nora=nombre_nora) }}" class="btn-neutral">⚙️ Control de IA</a>
+        <h3>🧠 Entrena mi Nora</h3>
+        <p>Configura la personalidad, respuestas rápidas e información de tu Nora.</p>
+        <a href="{{ url_for('panel_cliente_entrenamiento.panel_entrenamiento', nombre_nora=nombre_nora) }}" class="btn-neutral">🧠 Configurar entrenamiento</a>
       </div>
       {% endif %}
 
