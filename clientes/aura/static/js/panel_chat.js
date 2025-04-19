@@ -139,6 +139,18 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(err => console.error("❌ Error al enviar el mensaje:", err));
     });
+
+    // Permitir agregar etiqueta al presionar Enter
+    const inputEtiqueta = document.getElementById("nueva-etiqueta");
+    if (inputEtiqueta) {
+        inputEtiqueta.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                const telefono = document.getElementById("contacto-telefono").innerText;
+                agregarEtiqueta(telefono);
+            }
+        });
+    }
 });
 
 // Función para renderizar etiquetas
@@ -148,34 +160,40 @@ function renderizarEtiquetas(etiquetas, telefono) {
     etiquetas.forEach(etiqueta => {
         const tag = document.createElement("span");
         tag.className = "tag";
-        tag.innerHTML = `${etiqueta} <span class="x" onclick="quitarEtiqueta('${telefono}', '${etiqueta}')">✖</span>`;
+        tag.innerHTML = `${etiqueta} <span class="x" onclick="eliminarEtiqueta(event, '${telefono}', '${etiqueta}')">✖</span>`;
         contenedor.appendChild(tag);
     });
 }
 
+// Función para eliminar una etiqueta
+function eliminarEtiqueta(event, telefono, etiqueta) {
+    event.stopPropagation(); // evitar seleccionar contacto por error
+
+    fetch(`/api/etiqueta/${telefono}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ etiqueta })
+    }).then(res => {
+        if (res.ok) {
+            seleccionarContacto(telefono); // recargar datos del contacto
+        }
+    });
+}
+
 // Función para agregar una etiqueta
-function agregarEtiqueta() {
-    const etiqueta = document.getElementById("nueva-etiqueta").value.trim();
-    const telefono = document.getElementById("contacto-telefono").innerText;
-    if (!etiqueta || !telefono) return;
+function agregarEtiqueta(telefono) {
+    const input = document.getElementById("nueva-etiqueta");
+    const etiqueta = input.value.trim().toLowerCase();
+    if (!etiqueta) return;
 
     fetch(`/api/etiqueta/${telefono}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ etiqueta })
-    }).then(() => {
-        seleccionarContacto(telefono);
-        document.getElementById("nueva-etiqueta").value = "";
-    });
-}
-
-// Función para quitar una etiqueta
-function quitarEtiqueta(telefono, etiqueta) {
-    fetch(`/api/etiqueta/${telefono}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ etiqueta })
-    }).then(() => {
-        seleccionarContacto(telefono);
+    }).then(res => {
+        if (res.ok) {
+            seleccionarContacto(telefono); // recargar para mostrar nueva etiqueta
+            input.value = "";
+        }
     });
 }
