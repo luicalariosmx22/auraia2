@@ -14,7 +14,8 @@ body {
 }
 
 .sidebar {
-  width: 20%;
+  flex: 1; /* 20% del ancho total */
+  min-width: 200px;
   background-color: #f1f1f1;
   border-right: 1px solid #ddd;
   display: flex;
@@ -22,7 +23,7 @@ body {
 }
 
 .chat-main {
-  width: 50%;
+  flex: 2.5; /* 50% del ancho total */
   background-color: #eef3f6;
   display: flex;
   flex-direction: column;
@@ -32,7 +33,8 @@ body {
 }
 
 .contact-info {
-  width: 30%;
+  flex: 1.5; /* 30% del ancho total */
+  min-width: 300px;
   background-color: #f9f9f9;
   padding: 1.5rem;
   overflow-y: auto;
