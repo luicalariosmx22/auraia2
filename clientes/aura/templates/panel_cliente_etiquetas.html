@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Etiquetas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_cliente.css') }}">
+</head>
+<body>
+    <header>
+        <h1>🏷️ Etiquetas para {{ nombre_nora }}</h1>
+    </header>
+    <main>
+        <p>Aquí puedes gestionar las etiquetas para tus contactos.</p>
+        <form action="/panel/cliente/{{ nombre_nora }}/etiquetas" method="POST">
+            <label for="nueva_etiqueta">Agregar nueva etiqueta:</label>
+            <input type="text" id="nueva_etiqueta" name="nueva_etiqueta" placeholder="Escribe el nombre de la etiqueta">
+            <button type="submit">Agregar</button>
+        </form>
+
+        <h2>Etiquetas existentes:</h2>
+        <ul>
+            {% for etiqueta in etiquetas %}
+            <li>{{ etiqueta }}</li>
+            {% endfor %}
+        </ul>
+    </main>
+</body>
+</html>
