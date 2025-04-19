@@ -15,20 +15,20 @@
 <body>
   <div class="chat-wrapper">
 
-    <!-- 📍 Panel izquierdo (Contactos) -->
-    <div class="col-izquierda">
+    <!-- Sidebar (columna izquierda) -->
+    <div class="sidebar">
       <div class="buscador">
         <input type="text" placeholder="🔍 Buscar contacto..." oninput="filtrarContactosPorNombre(this.value)">
       </div>
-      <div class="buscador">
-        <select onchange="filtrarContactosPorEtiqueta(this.value)">
-          <option value="">Todos</option>
-          <option value="cliente">Clientes</option>
-          <option value="vip">VIP</option>
-        </select>
-      </div>
+      <select onchange="filtrarContactosPorEtiqueta(this.value)">
+        <option value="">Todos</option>
+        <option value="cliente">Cliente</option>
+        <option value="vip">VIP</option>
+        <option value="interesado">Interesado</option>
+        <option value="no contestó">No contestó</option>
+      </select>
       <ul class="lista-contactos" id="lista-contactos">
-        <!-- Los contactos se renderizan dinámicamente -->
+        <!-- Se rellena con JS -->
       </ul>
     </div>
 

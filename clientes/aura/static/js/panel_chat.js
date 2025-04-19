@@ -200,11 +200,11 @@ function agregarEtiqueta(telefono) {
 
 // Función para renderizar contactos
 function renderizarContactos() {
-    const contenedor = document.getElementById('lista-contactos');
+    const contenedor = document.getElementById("lista-contactos");
     contenedor.innerHTML = "";
 
     contactos.forEach((c, i) => {
-        const li = document.createElement('li');
+        const li = document.createElement("li");
         li.className = "contacto-item" + (i === 0 ? " activo" : "");
         li.onclick = () => seleccionarContacto(c.telefono);
 
@@ -212,14 +212,15 @@ function renderizarContactos() {
             `<span class="etiqueta-burbuja">${et}</span>`
         ).join(" ");
 
+        const ultimo = c.mensajes?.at(-1)?.mensaje || "Sin mensajes aún";
+
         li.innerHTML = `
-            <strong>${c.nombre || c.telefono}</strong><br>
-            <span class="ultimo-mensaje">${(c.mensajes?.at(-1)?.mensaje || 'Sin mensajes')}</span><br>
+            <div><strong>${c.nombre || c.telefono}</strong></div>
+            <span class="ultimo-mensaje">${ultimo}</span><br>
             ${etiquetasHtml}
         `;
         contenedor.appendChild(li);
 
-        // ✅ Selecciona automáticamente el primer contacto
-        if (i === 0) seleccionarContacto(c.telefono);
+        if (i === 0) seleccionarContacto(c.telefono); // selecciona primero
     });
 }
