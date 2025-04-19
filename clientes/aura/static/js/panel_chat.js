@@ -208,6 +208,10 @@ async function enviarMensaje(event) {
   if (!mensaje) return; // No enviar mensajes vacíos
 
   const telefono = localStorage.getItem("numeroActivo"); // Número del contacto seleccionado
+  if (!telefono) {
+    console.error("❌ No se ha seleccionado un contacto.");
+    return;
+  }
 
   try {
     const response = await fetch("/api/enviar-mensaje", {
