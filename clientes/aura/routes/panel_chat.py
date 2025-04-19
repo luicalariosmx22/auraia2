@@ -64,7 +64,7 @@ def guardar_historial(nombre_nora, telefono, mensajes):
         {
             "nombre_nora": nombre_nora,
             "telefono": telefono,
-            "mensaje": mensaje["texto"],
+            "mensaje": mensaje.get("texto") or mensaje.get("mensaje"),
             "emisor": mensaje["emisor"],
             "hora": mensaje["hora"],
             "timestamp": datetime.datetime.now()
