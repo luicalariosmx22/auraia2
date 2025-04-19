@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from datetime import datetime
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
@@ -59,8 +59,16 @@ def ver_contactos():
 
         # Obtener el historial y el último mensaje para cada contacto
         for contacto in contactos:
-            historial = leer_historial(contacto["numero"])
+            # Asegurarse de que el número de teléfono esté presente
+            telefono = contacto.get("telefono") or contacto.get("numero")
+            if not telefono:
+                print(f"⚠️ Contacto sin número: {contacto}")
+                continue
+
+            # Leer historial y obtener el último mensaje
+            historial = leer_historial(telefono)
             ultimo = historial[0] if historial else {}
+            contacto["numero"] = telefono  # Asegurarse de que 'numero' esté presente
             contacto["ultimo_mensaje"] = ultimo.get("mensaje", "")
             contacto["fecha_ultimo_mensaje"] = ultimo.get("timestamp", "")
 
@@ -111,32 +119,43 @@ def agregar_contacto():
         return jsonify({"success": False, "error": "Error al agregar contacto"}), 500
 
 # Editar contacto
-@contactos_bp.route('/contactos/editar/<numero>', methods=['PUT'])
-def editar_contacto(numero):
-    datos = request.form
-    nombre = datos.get('nombre')
-    correo = datos.get('correo')
-    celular = datos.get('celular')
-    etiqueta = datos.get('etiqueta')
+@contactos_bp.route("/editar/<telefono>", methods=["GET", "POST"])
+def editar_contacto(telefono):
+    if request.method == "POST":
+        # Obtener los datos del formulario
+        nombre = request.form.get("nombre")
+        nota = request.form.get("nota")
+        correo = request.form.get("correo")
+        celular = request.form.get("celular")
+        etiquetas = request.form.get("etiquetas")
 
-    if not nombre:
-        return jsonify({"success": False, "error": "El nombre es obligatorio"}), 400
+        # Actualizar el contacto en la base de datos
+        try:
+            response = supabase.table("contactos").update({
+                "nombre": nombre,
+                "nota": nota,
+                "correo": correo,
+                "celular": celular,
+                "etiquetas": etiquetas
+            }).eq("numero", telefono).execute()
+            print(f"✅ Contacto actualizado: {response.data}")
+            return redirect(url_for("contactos.ver_contactos"))
+        except Exception as e:
+            print(f"❌ Error al editar contacto: {str(e)}")
+            return jsonify({"success": False, "error": "Error al editar contacto"}), 500
 
+    # Si es una solicitud GET, obtener los datos del contacto para mostrar en el formulario
     try:
-        response = supabase.table("contactos").update({
-            "nombre": nombre,
-            "correo": correo,
-            "celular": celular,
-            "etiquetas": etiqueta,
-            "ultimo_mensaje": datetime.now().isoformat()
-        }).eq("numero", numero).execute()
+        response = supabase.table("contactos").select("*").eq("numero", telefono).execute()
         if not response.data:
-            print(f"❌ Error al editar contacto: {not response.data}")
-            return jsonify({"success": False, "error": "Error al editar contacto"}), 400
-        return jsonify({"success": True})
+            print(f"❌ Contacto no encontrado: {telefono}")
+            return jsonify({"success": False, "error": "Contacto no encontrado"}), 404
+
+        contacto = response.data[0]
+        return render_template("editar_contacto.html", contacto=contacto)
     except Exception as e:
-        print(f"❌ Error al editar contacto: {str(e)}")
-        return jsonify({"success": False, "error": "Error al editar contacto"}), 500
+        print(f"❌ Error al cargar contacto: {str(e)}")
+        return jsonify({"success": False, "error": "Error al cargar contacto"}), 500
 
 # Eliminar contacto
 @contactos_bp.route('/contactos/eliminar/<numero>', methods=['DELETE'])
