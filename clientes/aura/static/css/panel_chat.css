@@ -5,17 +5,17 @@ body {
   background-color: #f0f2f5;
 }
 
-/* 🟦 Proporciones exactas: 20% - 50% - 30% */
+/* 🟦 Proporciones exactas usando Grid */
 .chat-wrapper {
-  display: flex;
+  display: grid;
+  grid-template-columns: 20% 50% 30%; /* Proporciones: 20% - 50% - 30% */
   height: 100vh;
   width: 100vw;
   overflow: hidden;
 }
 
-/* Columna izquierda - 20% */
+/* Columna izquierda */
 .sidebar {
-  width: 20%;
   background-color: #f1f1f1;
   border-right: 1px solid #ddd;
   display: flex;
@@ -23,20 +23,19 @@ body {
   overflow-y: auto;
 }
 
-/* Columna central - 50% */
+/* Columna del chat */
 .chat-main {
-  width: 50%;
   background-color: #eef3f6;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 1rem;
   border-right: 1px solid #ddd;
+  overflow-y: auto;
 }
 
-/* Columna derecha - 30% */
+/* Columna de la información */
 .contact-info {
-  width: 30%;
   background-color: #f9f9f9;
   padding: 1.5rem;
   overflow-y: auto;
