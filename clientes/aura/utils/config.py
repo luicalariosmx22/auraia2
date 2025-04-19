@@ -5,6 +5,7 @@ from flask import session, redirect, url_for
 from dotenv import load_dotenv
 from supabase import create_client
 import json
+from functools import wraps
 
 # Cargar variables de entorno
 load_dotenv()
@@ -13,13 +14,13 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Decorador reutilizable
-def login_requerido(func):
-    def wrapper(*args, **kwargs):
-        if not session.get('logueado'):
-            return redirect(url_for('main.login'))
-        return func(*args, **kwargs)
-    wrapper.__name__ = func.__name__
-    return wrapper
+def login_requerido(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user" not in session:
+            return redirect(url_for("login.login_google"))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Cargar configuración desde Supabase
 def cargar_configuracion():

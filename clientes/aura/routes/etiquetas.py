@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from supabase import create_client
 from dotenv import load_dotenv
-from utils.config import login_requerido
+from clientes.utils.config import login_requerido
 import os
 
 # Configurar Supabase
