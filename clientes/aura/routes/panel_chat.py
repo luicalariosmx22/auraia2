@@ -30,8 +30,16 @@ def leer_contactos():
         if not response.data:
             print(f"⚠️ No se encontraron contactos en la tabla 'contactos'.")
             return []
-        print(f"✅ Contactos cargados: {response.data}")
-        return response.data
+
+        contactos = []
+        for contacto in response.data:
+            # Si no tiene nombre, usa "Usuario <últimos 10 dígitos del teléfono>"
+            if not contacto.get("nombre"):
+                contacto["nombre"] = f"Usuario {contacto['telefono'][-10:]}"
+            contactos.append(contacto)
+
+        print(f"✅ Contactos cargados: {contactos}")
+        return contactos
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
         return []
