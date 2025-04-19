@@ -183,7 +183,8 @@ def acciones_contactos():
             return jsonify({"success": True, "message": "Contactos eliminados correctamente"})
 
         elif accion == "editar":
-            # Redirigir a la página de edición (puedes implementar un formulario de edición aquí)
+            # Aquí puedes redirigir a un formulario de edición o implementar la lógica de edición
+            print(f"✏️ Contactos seleccionados para editar: {contactos_seleccionados}")
             return jsonify({"success": True, "message": "Función de edición no implementada aún"})
 
         else:
