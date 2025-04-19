@@ -25,18 +25,10 @@ def registrar_blueprints_cliente(app):
             print("⚠️ Blueprint 'panel_cliente_bp' ya estaba registrado.")
 
         # 📂 Módulos separados
-        from clientes.aura.routes.contactos import contactos_bp
         from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
         from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
         from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
         from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
-
-        # Registrar contactos_bp
-        if "contactos" not in app.blueprints:
-            app.register_blueprint(contactos_bp, url_prefix='/contactos')
-            print("✅ Blueprint 'contactos_bp' registrado correctamente.")
-        else:
-            print("⚠️ Blueprint 'contactos_bp' ya estaba registrado.")
 
         if "panel_cliente_contactos" not in app.blueprints:
             app.register_blueprint(panel_cliente_contactos_bp)
