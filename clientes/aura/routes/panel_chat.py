@@ -156,6 +156,7 @@ def api_enviar_mensaje():
         print("❌ Datos incompletos para enviar mensaje.")
         return jsonify({"success": False, "error": "Datos incompletos"}), 400
 
+    # Leer historial del contacto
     historial = leer_historial(telefono)
     historial.append({
         "emisor": "usuario",  # Mensaje enviado por el usuario
@@ -163,23 +164,9 @@ def api_enviar_mensaje():
         "fecha": datetime.datetime.now().strftime("%d-%b %H:%M")
     })
 
-    if contacto.get("ia_activada"):
-        respuesta = f"Respuesta IA a: {texto}"
-        historial.append({
-            "emisor": "nora",  # Mensaje enviado por Nora
-            "mensaje": respuesta,
-            "fecha": datetime.datetime.now().strftime("%d-%b %H:%M")
-        })
-        print(f"🤖 Respuesta generada por IA: {respuesta}")
-
-    contactos = leer_contactos()
-    contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
-    print(f"✅ Contacto encontrado: {contacto}")
-
     # Guardar el historial actualizado
-    nombre_nora = contacto.get("nombre_nora", "Nora")
-    print(f"🔍 Guardando historial para {telefono} con nombre_nora: {nombre_nora}")
-    guardar_historial(nombre_nora, telefono, historial)
+    guardar_historial(telefono, historial)
+    print(f"✅ Mensaje guardado en el historial para {telefono}: {texto}")
 
     return jsonify({"success": True})
 

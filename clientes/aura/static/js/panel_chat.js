@@ -229,15 +229,15 @@ function renderizarMensajes(mensajes, contacto) {
 
   mensajes.forEach(mensaje => {
     const div = document.createElement("div");
-    div.className = `burbuja ${mensaje.emisor === "usuario" ? "usuario" : "nora"}`;
+    div.className = `burbuja ${mensaje.emisor === "nora" ? "usuario" : "contacto"}`;
 
     // Mostrar el remitente
     const remitente = document.createElement("div");
     remitente.className = "remitente";
-    if (mensaje.emisor === "usuario") {
-      remitente.innerText = "Tú"; // Mensajes enviados por el usuario
+    if (mensaje.emisor === "nora") {
+      remitente.innerText = "Tú"; // Mensajes enviados por Nora
     } else {
-      remitente.innerText = contacto.nombre || contacto.telefono; // Mensajes enviados por Nora
+      remitente.innerText = contacto.nombre || contacto.telefono; // Mensajes enviados por el contacto
     }
 
     // Mostrar el timestamp
