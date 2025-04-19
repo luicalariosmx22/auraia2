@@ -48,52 +48,34 @@ def obtener_contacto(telefono):
 @contactos_bp.route('/contactos', methods=['GET'])
 def ver_contactos():
     try:
-        # Obtener parámetros de filtro
-        busqueda = request.args.get('busqueda', '').strip()
-        orden = request.args.get('orden', 'desc')
+        # Obtener parámetros de búsqueda
+        busqueda = request.args.get('busqueda', '').strip().lower()
+        fecha_inicio = request.args.get('fecha_inicio', None)
+        fecha_fin = request.args.get('fecha_fin', None)
         etiqueta = request.args.get('etiqueta', '').strip()
 
-        # Obtener todos los contactos
-        response_contactos = supabase.table("contactos").select("*").execute()
-        contactos = response_contactos.data or []
-        print(f"🔍 Contactos base: {len(contactos)}")
+        # Construir la consulta base
+        query = supabase.table("contactos").select("*")
 
-        # Filtro manual (por nombre o número)
+        # Filtro por nombre o teléfono
         if busqueda:
-            contactos = [
-                c for c in contactos if
-                busqueda.lower() in c.get("nombre", "").lower() or
-                busqueda in c.get("numero", "")
-            ]
+            query = query.or_(
+                f"nombre.ilike.%{busqueda}%,telefono.ilike.%{busqueda}%"
+            )
+
+        # Filtro por rango de fechas
+        if fecha_inicio:
+            query = query.gte("ultimo_mensaje", fecha_inicio)
+        if fecha_fin:
+            query = query.lte("ultimo_mensaje", fecha_fin)
 
         # Filtro por etiqueta
         if etiqueta:
-            contactos = [
-                c for c in contactos if
-                etiqueta in (c.get("etiquetas") or [])
-            ]
+            query = query.contains("etiquetas", [etiqueta])
 
-        # Ordenar por fecha de primer mensaje
-        contactos.sort(
-            key=lambda c: c.get("primer_mensaje", ""),
-            reverse=(orden == "desc")
-        )
-
-        # Agregar historial a cada contacto
-        for contacto in contactos:
-            telefono = contacto.get("telefono") or contacto.get("numero")
-            if not telefono:
-                continue
-            contacto["numero"] = telefono
-            historial = leer_historial(telefono)
-            ultimo = historial[0] if historial else {}
-            contacto["ultimo_mensaje"] = ultimo.get("mensaje", "")
-            contacto["fecha_ultimo_mensaje"] = ultimo.get("timestamp", "")
-
-        # Depuración: Imprimir contactos procesados
-        print(f"🧪 Lista final de contactos a enviar al template:")
-        for c in contactos:
-            print(f"📇 {c.get('nombre')} | {c.get('numero')} | Último: {c.get('ultimo_mensaje')}")
+        # Ejecutar la consulta
+        response = query.execute()
+        contactos = response.data or []
 
         # Obtener etiquetas únicas
         etiquetas_response = supabase.table("contactos").select("etiquetas").execute()

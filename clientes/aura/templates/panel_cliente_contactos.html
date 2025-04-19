@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Contactos – {{ nombre_visible or nombre_nora }}</title>
+  <title>Panel de Contactos</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
   <div class="meta-container">
     <header class="meta-header">
       <div>
-        <h1>📇 Contactos – {{ nombre_visible or nombre_nora }}</h1>
+        <h1>📇 Panel de Contactos</h1>
       </div>
       <div class="logo">
         <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo de Nora">
@@ -29,12 +29,25 @@
     <div class="grid-container">
       <!-- Columna 1: Agregar nuevo contacto -->
       <section class="seccion">
-        <h3>➕ Agregar nuevo contacto</h3>
-        <form method="POST" class="meta-card">
-          <input type="text" name="nombre" placeholder="Nombre completo" required class="input-text">
-          <input type="text" name="telefono" placeholder="Número WhatsApp" required class="input-text">
-          <input type="text" name="etiquetas" placeholder="Ej: cliente, vip, interesado" class="input-text">
+        <h3>➕ Agregar Nuevo Contacto</h3>
+        <form method="POST" action="/contactos/agregar" class="meta-card">
+          <input type="text" name="nombre" placeholder="Nombre completo (obligatorio)" required class="input-text">
+          <input type="text" name="telefono" placeholder="Número de celular (obligatorio)" required class="input-text">
+          <input type="email" name="correo" placeholder="Correo electrónico (opcional)" class="input-text">
+          <input type="text" name="empresa" placeholder="Empresa (opcional)" class="input-text">
+          <input type="text" name="direccion" placeholder="Dirección (opcional)" class="input-text">
+          <input type="text" name="ciudad" placeholder="Ciudad (opcional)" class="input-text">
+          <input type="text" name="rfc" placeholder="RFC (opcional)" class="input-text">
+          <input type="date" name="cumpleaños" placeholder="Cumpleaños (opcional)" class="input-text">
+          <textarea name="notas" placeholder="Notas (opcional)" class="input-text"></textarea>
+          <input type="text" name="etiquetas" placeholder="Etiquetas (opcional)" class="input-text">
           <button type="submit" class="btn-primary">💾 Guardar</button>
+        </form>
+
+        <h3>📂 Importar Contactos</h3>
+        <form method="POST" action="/contactos/importar" enctype="multipart/form-data" class="meta-card">
+          <input type="file" name="archivo_csv" accept=".csv" class="input-file">
+          <button type="submit" class="btn-primary">📤 Importar CSV</button>
         </form>
       </section>
 
