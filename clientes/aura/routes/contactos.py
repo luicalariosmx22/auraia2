@@ -19,48 +19,32 @@ contactos_bp = Blueprint('contactos', __name__)
 @contactos_bp.route('/contactos', methods=['GET'])
 def ver_contactos():
     try:
-        # Obtener todos los contactos desde Supabase
-        response_contactos = supabase.table("contactos").select("*").execute()
-        print(f"🔍 Respuesta de contactos desde Supabase: {response_contactos.data}")  # Depuración: Verificar los contactos obtenidos
+        # Obtener parámetros de filtro
+        busqueda = request.args.get('busqueda', '').strip()
+        orden = request.args.get('orden', 'desc')
+        etiqueta = request.args.get('etiqueta', '').strip()
 
+        # Construir consulta
+        query = supabase.table("contactos").select("*")
+        if busqueda:
+            query = query.ilike("nombre", f"%{busqueda}%").ilike("numero", f"%{busqueda}%")
+        if etiqueta:
+            query = query.contains("etiquetas", [etiqueta])
+        query = query.order("primer_mensaje", desc=(orden == 'desc'))
+
+        # Ejecutar consulta
+        response_contactos = query.execute()
         if not response_contactos.data:
             print(f"❌ Error al cargar contactos: {not response_contactos.data}")
             return jsonify({"success": False, "error": "Error al cargar contactos"}), 500
 
-        contactos = []
-        for contacto in response_contactos.data:
-            # Obtener el último mensaje del historial para este contacto
-            print(f"🔍 Procesando contacto: {contacto}")  # Depuración: Verificar cada contacto
-            response_historial = supabase.table("historial_conversaciones") \
-                .select("mensaje, timestamp") \
-                .eq("telefono", contacto["numero"]) \
-                .order("timestamp", desc=True) \
-                .limit(1) \
-                .execute()
+        contactos = response_contactos.data
 
-            print(f"🔍 Respuesta del historial para {contacto['numero']}: {response_historial.data}")  # Depuración: Verificar el historial
+        # Obtener etiquetas únicas
+        etiquetas = supabase.table("contactos").select("etiquetas").execute()
+        etiquetas = list(set(et for c in etiquetas.data for et in c.get("etiquetas", [])))
 
-            ultimo_mensaje = response_historial.data[0] if response_historial.data else {"mensaje": "Sin mensajes", "timestamp": "N/A"}
-
-            # Formatear el número de teléfono para mostrar solo los últimos 10 dígitos
-            numero_formateado = contacto["numero"][-10:]
-            print(f"🔍 Número formateado: {numero_formateado}")  # Depuración: Verificar el número formateado
-
-            # Agregar los datos del contacto junto con el último mensaje
-            contactos.append({
-                "numero": numero_formateado,
-                "nombre": contacto["nombre"],
-                "correo": contacto.get("correo", "N/A"),
-                "celular": contacto.get("celular", "N/A"),
-                "ultimo_mensaje": ultimo_mensaje["timestamp"],
-                "cantidad_mensajes": contacto.get("cantidad_mensajes", 0),
-                "ultimo_texto": ultimo_mensaje["mensaje"]
-            })
-
-        # Depuración: Verificar los datos procesados
-        print(f"🔍 Contactos procesados: {contactos}")
-
-        return render_template('contactos.html', contactos=contactos)
+        return render_template('panel_cliente_contactos.html', contactos=contactos, etiquetas=etiquetas)
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
         return jsonify({"success": False, "error": "Error al cargar contactos"}), 500
@@ -181,3 +165,29 @@ def exportar_a_sheets():
     except Exception as e:
         print(f"❌ Error al exportar contactos: {str(e)}")
         return jsonify({"success": False, "error": "Error al exportar contactos"}), 500
+
+# Acciones con contactos seleccionados
+@contactos_bp.route('/contactos/acciones', methods=['POST'])
+def acciones_contactos():
+    try:
+        accion = request.form.get('accion')
+        contactos_seleccionados = request.form.getlist('contactos_seleccionados')
+
+        if not contactos_seleccionados:
+            return jsonify({"success": False, "error": "No se seleccionaron contactos"}), 400
+
+        if accion == "eliminar":
+            # Eliminar contactos seleccionados
+            response = supabase.table("contactos").delete().in_("numero", contactos_seleccionados).execute()
+            print(f"✅ Contactos eliminados: {response.data}")
+            return jsonify({"success": True, "message": "Contactos eliminados correctamente"})
+
+        elif accion == "editar":
+            # Redirigir a la página de edición (puedes implementar un formulario de edición aquí)
+            return jsonify({"success": True, "message": "Función de edición no implementada aún"})
+
+        else:
+            return jsonify({"success": False, "error": "Acción no válida"}), 400
+    except Exception as e:
+        print(f"❌ Error al realizar acción: {str(e)}")
+        return jsonify({"success": False, "error": "Error al realizar acción"}), 500
