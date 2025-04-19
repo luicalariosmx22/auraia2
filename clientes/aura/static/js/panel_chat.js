@@ -235,9 +235,9 @@ function renderizarMensajes(mensajes, contacto) {
     const remitente = document.createElement("div");
     remitente.className = "remitente";
     if (mensaje.emisor === "usuario") {
-      remitente.innerText = "Tú";
+      remitente.innerText = "Tú"; // Mensajes enviados por el usuario
     } else {
-      remitente.innerText = contacto.nombre || contacto.telefono; // Mostrar nombre o número
+      remitente.innerText = contacto.nombre || contacto.telefono; // Mensajes enviados por Nora
     }
 
     // Mostrar el timestamp
