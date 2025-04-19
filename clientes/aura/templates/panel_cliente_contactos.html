@@ -67,6 +67,8 @@
               <th>Nombre</th>
               <th>Teléfono</th>
               <th>Etiquetas</th>
+              <th>Último Mensaje</th>
+              <th>Fecha Último Contacto</th>
             </tr>
           </thead>
           <tbody>
@@ -76,13 +78,15 @@
               <td>{{ c.numero }}</td>
               <td>
                 {% if c.etiquetas %}
-                  {% for et in c.etiquetas %}
-                    <span class="badge">{{ et }}</span>
+                  {% for etiqueta in c.etiquetas %}
+                    <span class="badge">{{ etiqueta }}</span>
                   {% endfor %}
                 {% else %}
                   <span class="badge badge-muted">Sin etiquetas</span>
                 {% endif %}
               </td>
+              <td>{{ c.ultimo_texto }}</td>
+              <td>{{ c.ultimo_mensaje }}</td>
             </tr>
             {% endfor %}
           </tbody>

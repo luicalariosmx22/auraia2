@@ -21,6 +21,8 @@ def ver_contactos():
     try:
         # Obtener todos los contactos desde Supabase
         response_contactos = supabase.table("contactos").select("*").execute()
+        print(f"🔍 Respuesta de contactos desde Supabase: {response_contactos.data}")  # Depuración: Verificar los contactos obtenidos
+
         if not response_contactos.data:
             print(f"❌ Error al cargar contactos: {not response_contactos.data}")
             return jsonify({"success": False, "error": "Error al cargar contactos"}), 500
@@ -28,6 +30,7 @@ def ver_contactos():
         contactos = []
         for contacto in response_contactos.data:
             # Obtener el último mensaje del historial para este contacto
+            print(f"🔍 Procesando contacto: {contacto}")  # Depuración: Verificar cada contacto
             response_historial = supabase.table("historial_conversaciones") \
                 .select("mensaje, timestamp") \
                 .eq("telefono", contacto["numero"]) \
@@ -35,10 +38,13 @@ def ver_contactos():
                 .limit(1) \
                 .execute()
 
+            print(f"🔍 Respuesta del historial para {contacto['numero']}: {response_historial.data}")  # Depuración: Verificar el historial
+
             ultimo_mensaje = response_historial.data[0] if response_historial.data else {"mensaje": "Sin mensajes", "timestamp": "N/A"}
 
             # Formatear el número de teléfono para mostrar solo los últimos 10 dígitos
             numero_formateado = contacto["numero"][-10:]
+            print(f"🔍 Número formateado: {numero_formateado}")  # Depuración: Verificar el número formateado
 
             # Agregar los datos del contacto junto con el último mensaje
             contactos.append({
@@ -75,6 +81,7 @@ def agregar_contacto():
     # Asegurarse de que el número tenga el prefijo 521
     if not numero.startswith("521"):
         numero = f"521{numero[-10:]}"  # Agregar prefijo y truncar a los últimos 10 dígitos
+    print(f"🔍 Número con prefijo 521: {numero}")  # Depuración: Verificar el número con prefijo
 
     try:
         response = supabase.table("contactos").insert({
@@ -86,6 +93,7 @@ def agregar_contacto():
             "primer_mensaje": datetime.now().isoformat(),
             "ultimo_mensaje": datetime.now().isoformat()
         }).execute()
+        print(f"✅ Respuesta al agregar contacto: {response.data}")  # Depuración: Verificar la respuesta de Supabase
         if not response.data:
             print(f"❌ Error al agregar contacto: {not response.data}")
             return jsonify({"success": False, "error": "Error al agregar contacto"}), 400

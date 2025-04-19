@@ -123,19 +123,17 @@ body {
   }
   
   .badge {
-    background-color: #e4e6eb;
-    color: #050505;
-    font-size: 0.8em;
-    padding: 5px 10px;
-    border-radius: 999px;
-    margin-right: 6px;
     display: inline-block;
-    margin-bottom: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 12px;
+    margin-right: 5px;
   }
   
   .badge-muted {
-    background-color: #f0f0f0;
-    color: #888;
+    background-color: #6c757d;
   }
   
   .badge-alert {
@@ -337,17 +335,16 @@ body {
   
   .badge {
     display: inline-block;
-    background-color: #e4e6eb;
-    color: #050505;
-    font-size: 0.8em;
-    padding: 5px 10px;
-    border-radius: 999px;
-    margin: 2px 4px 2px 0;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 12px;
+    margin-right: 5px;
   }
   
   .badge-muted {
-    background-color: #ddd;
-    color: #666;
+    background-color: #6c757d;
   }
   
   textarea {
