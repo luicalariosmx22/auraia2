@@ -12,10 +12,6 @@
   padding: 10px;
   overflow-y: auto;
   height: calc(100% - 50px); /* Ajusta según el diseño */
-  background-color: #eaeff1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
 .mensaje {
@@ -45,6 +41,7 @@
   border-radius: 10px;
   max-width: 70%;
   word-wrap: break-word;
+  position: relative;
 }
 
 .burbuja.usuario {
@@ -55,6 +52,26 @@
 .burbuja.nora {
   background-color: #f8d7da;
   align-self: flex-start;
+}
+
+.remitente {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.timestamp {
+  font-size: 0.7rem;
+  color: #888;
+  position: absolute;
+  top: -15px;
+  right: 10px;
+}
+
+.contenido {
+  font-size: 1rem;
+  color: #333;
 }
 
 .chat-input {

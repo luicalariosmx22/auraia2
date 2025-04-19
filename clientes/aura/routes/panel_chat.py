@@ -130,6 +130,12 @@ def api_chat(telefono):
     contactos = leer_contactos()
     contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
     historial = leer_historial(telefono)  # Función que obtiene los mensajes del contacto
+
+    # Asegúrate de que cada mensaje tenga un timestamp formateado
+    for mensaje in historial:
+        if "fecha" in mensaje and isinstance(mensaje["fecha"], datetime):
+            mensaje["fecha"] = mensaje["fecha"].strftime('%d-%b %H:%M')  # Formato: 18-Abr 14:30
+
     resumen = generar_resumen_ia(historial)  # Opcional: Generar un resumen con IA
     print(f"✅ API Chat - Datos cargados para {telefono}: {historial}")
     return jsonify({

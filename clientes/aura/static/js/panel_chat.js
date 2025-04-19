@@ -230,7 +230,24 @@ function renderizarMensajes(mensajes) {
     mensajes.forEach(mensaje => {
         const div = document.createElement("div");
         div.className = `burbuja ${mensaje.emisor === "usuario" ? "usuario" : "nora"}`;
-        div.innerText = mensaje.mensaje;
+
+        // Agregar el remitente y el timestamp
+        const remitente = document.createElement("div");
+        remitente.className = "remitente";
+        remitente.innerText = mensaje.emisor === "usuario" ? "Tú" : "Nora";
+
+        const timestamp = document.createElement("div");
+        timestamp.className = "timestamp";
+        timestamp.innerText = mensaje.fecha || "Sin fecha";
+
+        const contenido = document.createElement("div");
+        contenido.className = "contenido";
+        contenido.innerText = mensaje.mensaje;
+
+        div.appendChild(remitente);
+        div.appendChild(timestamp);
+        div.appendChild(contenido);
+
         chatArea.appendChild(div);
     });
 }
