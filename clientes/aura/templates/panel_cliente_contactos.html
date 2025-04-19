@@ -45,52 +45,82 @@
         <!-- Filtros -->
         <div class="filters">
           <form method="GET" class="filter-form">
-            <input type="text" name="busqueda" placeholder="Buscar por nombre o teléfono" class="input-text" value="{{ request.args.get('busqueda', '') }}">
-            <select name="orden" class="input-select">
-              <option value="desc" {% if request.args.get('orden') == 'desc' %}selected{% endif %}>Más nuevo a más viejo</option>
-              <option value="asc" {% if request.args.get('orden') == 'asc' %}selected{% endif %}>Más viejo a más nuevo</option>
-            </select>
-            <select name="etiqueta" class="input-select">
-              <option value="">Todas las etiquetas</option>
-              {% for etiqueta in etiquetas %}
-              <option value="{{ etiqueta }}" {% if request.args.get('etiqueta') == etiqueta %}selected{% endif %}>{{ etiqueta }}</option>
-              {% endfor %}
-            </select>
-            <button type="submit" class="btn-neutral">Filtrar</button>
+            <!-- Campo de búsqueda -->
+            <div>
+              <label for="busqueda">🔍 Buscar:</label>
+              <input type="text" id="busqueda" name="busqueda" placeholder="Nombre o teléfono" class="input-text" value="{{ request.args.get('busqueda', '') }}">
+            </div>
+
+            <!-- Ordenar por fecha -->
+            <div>
+              <label for="orden">📅 Ordenar:</label>
+              <select id="orden" name="orden" class="input-select">
+                <option value="desc" {% if request.args.get('orden') == 'desc' %}selected{% endif %}>Más nuevo a más viejo</option>
+                <option value="asc" {% if request.args.get('orden') == 'asc' %}selected{% endif %}>Más viejo a más nuevo</option>
+              </select>
+            </div>
+
+            <!-- Filtrar por etiquetas -->
+            <div>
+              <label for="etiqueta">🏷️ Etiquetas:</label>
+              <select id="etiqueta" name="etiqueta" class="input-select">
+                <option value="">Todas las etiquetas</option>
+                {% for etiqueta in etiquetas %}
+                <option value="{{ etiqueta }}" {% if request.args.get('etiqueta') == etiqueta %}selected{% endif %}>{{ etiqueta }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Botón de filtro -->
+            <div>
+              <button type="submit" class="btn-neutral">Aplicar filtros</button>
+            </div>
           </form>
         </div>
 
         <!-- Tabla de contactos -->
-        <table class="noras-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Teléfono</th>
-              <th>Etiquetas</th>
-              <th>Último Mensaje</th>
-              <th>Fecha Último Contacto</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for c in contactos %}
-            <tr>
-              <td>{{ c.nombre }}</td>
-              <td>{{ c.numero }}</td>
-              <td>
-                {% if c.etiquetas %}
-                  {% for etiqueta in c.etiquetas %}
-                    <span class="badge">{{ etiqueta }}</span>
-                  {% endfor %}
-                {% else %}
-                  <span class="badge badge-muted">Sin etiquetas</span>
-                {% endif %}
-              </td>
-              <td>{{ c.ultimo_texto }}</td>
-              <td>{{ c.ultimo_mensaje }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <form method="POST" action="/contactos/acciones">
+          <table class="noras-table">
+            <thead>
+              <tr>
+                <th>Seleccionar</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Etiquetas</th>
+                <th>Último Mensaje</th>
+                <th>Fecha Último Contacto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in contactos %}
+              <tr>
+                <td>
+                  <input type="checkbox" name="contactos_seleccionados" value="{{ c.numero }}">
+                </td>
+                <td>{{ c.nombre }}</td>
+                <td>{{ c.numero }}</td>
+                <td>
+                  {% if c.etiquetas %}
+                    {% for etiqueta in c.etiquetas %}
+                      <span class="badge">{{ etiqueta }}</span>
+                    {% endfor %}
+                  {% else %}
+                    <span class="badge badge-muted">Sin etiquetas</span>
+                  {% endif %}
+                </td>
+                <td>{{ c.ultimo_texto }}</td>
+                <td>{{ c.ultimo_mensaje }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <!-- Botones de acción -->
+          <div class="meta-card-actions">
+            <button type="submit" name="accion" value="editar" class="btn-primary">✏️ Editar</button>
+            <button type="submit" name="accion" value="eliminar" class="btn-danger">🗑️ Eliminar</button>
+          </div>
+        </form>
       </section>
     </div>
 
