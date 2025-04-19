@@ -5,7 +5,7 @@ body {
   background-color: #f0f2f5;
 }
 
-/* Estructura principal */
+/* 🟦 Proporciones actualizadas */
 .chat-wrapper {
   display: flex;
   height: 100vh;
@@ -13,34 +13,96 @@ body {
   overflow: hidden;
 }
 
-/* Panel izquierdo: contactos */
 .sidebar {
   width: 20%;
-  min-width: 200px;
   background-color: #f1f1f1;
   border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
 }
 
-/* Panel del chat */
 .chat-main {
   width: 50%;
   background-color: #eef3f6;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-right: 1px solid #ddd;
   padding: 1rem;
+  border-right: 1px solid #ddd;
 }
 
-/* Panel derecho: info del contacto */
 .contact-info {
   width: 30%;
-  min-width: 300px;
   background-color: #f9f9f9;
-  padding: 1rem 2rem;
+  padding: 1.5rem;
   overflow-y: auto;
+}
+
+/* 🟩 Etiquetas tipo burbuja */
+.etiqueta-burbuja {
+  display: inline-block;
+  background-color: #d6ecff;
+  color: #005fa3;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  margin: 3px 4px 3px 0;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* 🟦 Etiquetas en la lista izquierda */
+.contacto-item .etiqueta-burbuja {
+  background-color: #e0f3ff;
+  color: #005073;
+  font-size: 0.65rem;
+  margin-top: 3px;
+}
+
+/* Mensajes estilo burbuja */
+.mensaje {
+  max-width: 70%;
+  padding: 10px 14px;
+  margin: 8px 0;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  word-wrap: break-word;
+}
+
+.mensaje.usuario {
+  background-color: #ffffff;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.mensaje.bot {
+  background-color: #d6f5d6;
+  align-self: flex-start;
+}
+
+/* Input fijo al fondo */
+.chat-input {
+  display: flex;
+  margin-top: auto;
+  border-top: 1px solid #ccc;
+  padding: 10px 0 0;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.chat-input button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #00c7b1;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
 }
 
 /* Barra de búsqueda */
