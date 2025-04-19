@@ -12,7 +12,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 etiquetas_bp = Blueprint("panel_cliente_etiquetas", __name__)
 
-@etiquetas_bp.route("/panel/cliente/<nombre_nora>/etiquetas", methods=["GET", "POST"])
+@etiquetas_bp.route("/<nombre_nora>/etiquetas", methods=["GET", "POST"])
 def panel_etiquetas(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))

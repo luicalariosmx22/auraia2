@@ -58,7 +58,7 @@ def obtener_etiquetas(telefono):
     """
     try:
         print(f"🔍 Buscando etiquetas para el teléfono: {telefono}")
-        res = supabase.table("etiquetas_contacto").select("*").eq("telefono", telefono).execute()
+        res = supabase.table("etiquetas").select("*").eq("telefono", telefono).execute()
         if res.data:
             etiquetas = [e["etiqueta"] for e in res.data]
             print(f"✅ Etiquetas encontradas: {etiquetas}")
@@ -72,7 +72,7 @@ def obtener_etiquetas(telefono):
 
 def insertar_etiqueta(telefono, etiqueta):
     """
-    Inserta una nueva etiqueta asociada a un número de teléfono en la tabla 'etiquetas_contacto'.
+    Inserta una nueva etiqueta asociada a un número de teléfono en la tabla 'etiquetas'.
     """
     registro = {
         "telefono": telefono,
@@ -80,7 +80,7 @@ def insertar_etiqueta(telefono, etiqueta):
     }
     try:
         print(f"🔍 Intentando insertar etiqueta: {registro}")
-        response = supabase.table("etiquetas_contacto").insert(registro).execute()
+        response = supabase.table("etiquetas").insert(registro).execute()
         if response.data:
             print(f"✅ Etiqueta insertada correctamente: {response.data}")
             return response
