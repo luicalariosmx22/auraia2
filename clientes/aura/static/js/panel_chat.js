@@ -32,7 +32,7 @@ async function cargarChat(numero) {
         }
 
         historial = data.mensajes || [];
-        renderizarMensajes(data.mensajes);
+        renderizarMensajes(data.mensajes, data.contacto);
         actualizarInfoContacto(data.contacto, data.resumen_ia);
         document.getElementById("cargar-mas").style.display = "block";
     } catch (error) {
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         historial = data.mensajes || [];
-        renderizarMensajes(data.mensajes);
+        renderizarMensajes(data.mensajes, data.contacto);
         actualizarInfoContacto(data.contacto, data.resumen_ia);
         document.getElementById("cargar-mas").style.display = "block";
 
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (data.mensajes && data.mensajes.length) {
             historial = [...data.mensajes, ...historial]; // prepend
-            renderizarMensajes(historial);
+            renderizarMensajes(historial, data.contacto);
         } else {
             alert("No hay más historial disponible.");
             document.getElementById("cargar-mas").style.display = "none";
@@ -205,7 +205,7 @@ function seleccionarContacto(telefono) {
             if (!data.success) throw new Error("No se pudo cargar el historial.");
             
             // Renderizar mensajes en el área de chat
-            renderizarMensajes(data.mensajes);
+            renderizarMensajes(data.mensajes, data.contacto);
 
             // Actualizar información del contacto en la columna derecha
             document.getElementById("contacto-nombre").innerText = data.contacto.nombre || telefono;
@@ -223,31 +223,37 @@ function seleccionarContacto(telefono) {
         .catch(err => console.error("Error al cargar el historial:", err));
 }
 
-function renderizarMensajes(mensajes) {
-    const chatArea = document.getElementById("chat-area");
-    chatArea.innerHTML = ""; // Limpiar el área de chat
+function renderizarMensajes(mensajes, contacto) {
+  const chatArea = document.getElementById("chat-area");
+  chatArea.innerHTML = ""; // Limpiar el área de chat
 
-    mensajes.forEach(mensaje => {
-        const div = document.createElement("div");
-        div.className = `burbuja ${mensaje.emisor === "usuario" ? "usuario" : "nora"}`;
+  mensajes.forEach(mensaje => {
+    const div = document.createElement("div");
+    div.className = `burbuja ${mensaje.emisor === "usuario" ? "usuario" : "nora"}`;
 
-        // Agregar el remitente y el timestamp
-        const remitente = document.createElement("div");
-        remitente.className = "remitente";
-        remitente.innerText = mensaje.emisor === "usuario" ? "Tú" : "Nora";
+    // Mostrar el remitente
+    const remitente = document.createElement("div");
+    remitente.className = "remitente";
+    if (mensaje.emisor === "usuario") {
+      remitente.innerText = "Tú";
+    } else {
+      remitente.innerText = contacto.nombre || contacto.telefono; // Mostrar nombre o número
+    }
 
-        const timestamp = document.createElement("div");
-        timestamp.className = "timestamp";
-        timestamp.innerText = mensaje.fecha || "Sin fecha";
+    // Mostrar el timestamp
+    const timestamp = document.createElement("div");
+    timestamp.className = "timestamp";
+    timestamp.innerText = mensaje.fecha || "Sin fecha";
 
-        const contenido = document.createElement("div");
-        contenido.className = "contenido";
-        contenido.innerText = mensaje.mensaje;
+    // Mostrar el contenido del mensaje
+    const contenido = document.createElement("div");
+    contenido.className = "contenido";
+    contenido.innerText = mensaje.mensaje;
 
-        div.appendChild(remitente);
-        div.appendChild(timestamp);
-        div.appendChild(contenido);
+    div.appendChild(remitente);
+    div.appendChild(timestamp);
+    div.appendChild(contenido);
 
-        chatArea.appendChild(div);
-    });
+    chatArea.appendChild(div);
+  });
 }

@@ -159,8 +159,8 @@ def api_enviar_mensaje():
     historial = leer_historial(telefono)
     historial.append({
         "emisor": "usuario",
-        "texto": texto,
-        "hora": datetime.datetime.now().strftime("%H:%M")
+        "mensaje": texto,
+        "fecha": datetime.datetime.now().strftime("%d-%b %H:%M")
     })
 
     contactos = leer_contactos()
@@ -170,12 +170,13 @@ def api_enviar_mensaje():
     if contacto.get("ia_activada"):
         respuesta = f"Respuesta IA a: {texto}"
         historial.append({
-            "emisor": "bot",
-            "texto": respuesta,
-            "hora": datetime.datetime.now().strftime("%H:%M")
+            "emisor": "nora",
+            "mensaje": respuesta,
+            "fecha": datetime.datetime.now().strftime("%d-%b %H:%M")
         })
         print(f"🤖 Respuesta generada por IA: {respuesta}")
 
+    # Guardar el historial actualizado
     nombre_nora = contacto.get("nombre_nora", "Nora")
     print(f"🔍 Guardando historial para {telefono} con nombre_nora: {nombre_nora}")
     guardar_historial(nombre_nora, telefono, historial)
