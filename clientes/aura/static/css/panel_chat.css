@@ -5,25 +5,27 @@ body {
   background-color: #f0f2f5;
 }
 
-/* 🟦 Proporciones actualizadas */
+/* 🟦 Proporciones exactas: 20% - 50% - 30% */
 .chat-wrapper {
   display: flex;
   height: 100vh;
-  width: 100%;
+  width: 100vw;
   overflow: hidden;
 }
 
+/* Columna izquierda - 20% */
 .sidebar {
-  flex: 1; /* 20% del ancho total */
-  min-width: 200px;
+  width: 20%;
   background-color: #f1f1f1;
   border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
+/* Columna central - 50% */
 .chat-main {
-  flex: 2.5; /* 50% del ancho total */
+  width: 50%;
   background-color: #eef3f6;
   display: flex;
   flex-direction: column;
@@ -32,9 +34,9 @@ body {
   border-right: 1px solid #ddd;
 }
 
+/* Columna derecha - 30% */
 .contact-info {
-  flex: 1.5; /* 30% del ancho total */
-  min-width: 300px;
+  width: 30%;
   background-color: #f9f9f9;
   padding: 1.5rem;
   overflow-y: auto;
