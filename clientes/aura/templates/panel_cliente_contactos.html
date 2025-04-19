@@ -6,6 +6,51 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    .grid-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .seccion {
+      flex: 1;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .seccion h3 {
+      margin-bottom: 20px;
+    }
+
+    .input-label {
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .meta-card-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .filters {
+      margin-bottom: 20px;
+    }
+
+    .filters form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filters div {
+      flex: 1;
+      min-width: 150px;
+    }
+  </style>
 </head>
 <body>
   <div class="meta-container">
@@ -27,55 +72,26 @@
     {% endwith %}
 
     <div class="grid-container">
-      <!-- Columna 1: Agregar nuevo contacto -->
-      <section class="seccion">
-        <h3>➕ Agregar Nuevo Contacto</h3>
-        <form method="POST" action="/contactos/agregar" class="meta-card">
-          <input type="text" name="nombre" placeholder="Nombre completo (obligatorio)" required class="input-text">
-          <input type="text" name="telefono" placeholder="Número de celular (obligatorio)" required class="input-text">
-          <input type="email" name="correo" placeholder="Correo electrónico (opcional)" class="input-text">
-          <input type="text" name="empresa" placeholder="Empresa (opcional)" class="input-text">
-          <input type="text" name="direccion" placeholder="Dirección (opcional)" class="input-text">
-          <input type="text" name="ciudad" placeholder="Ciudad (opcional)" class="input-text">
-          <input type="text" name="rfc" placeholder="RFC (opcional)" class="input-text">
-          <input type="date" name="cumpleaños" placeholder="Cumpleaños (opcional)" class="input-text">
-          <textarea name="notas" placeholder="Notas (opcional)" class="input-text"></textarea>
-          <input type="text" name="etiquetas" placeholder="Etiquetas (opcional)" class="input-text">
-          <button type="submit" class="btn-primary">💾 Guardar</button>
-        </form>
-
-        <h3>📂 Importar Contactos</h3>
-        <form method="POST" action="/contactos/importar" enctype="multipart/form-data" class="meta-card">
-          <input type="file" name="archivo_csv" accept=".csv" class="input-file">
-          <button type="submit" class="btn-primary">📤 Importar CSV</button>
-        </form>
-      </section>
-
-      <!-- Columna 2: Contactos registrados -->
+      <!-- Columna 1: Lista de contactos -->
       <section class="seccion">
         <h3>👥 Contactos registrados</h3>
 
         <!-- Filtros -->
         <div class="filters">
           <form method="GET" class="filter-form">
-            <!-- Campo de búsqueda -->
             <div>
-              <label for="busqueda">🔍 Buscar:</label>
+              <label for="busqueda" class="input-label">🔍 Buscar:</label>
               <input type="text" id="busqueda" name="busqueda" placeholder="Nombre o teléfono" class="input-text" value="{{ request.args.get('busqueda', '') }}">
             </div>
-
-            <!-- Ordenar por fecha -->
             <div>
-              <label for="orden">📅 Ordenar:</label>
+              <label for="orden" class="input-label">📅 Ordenar:</label>
               <select id="orden" name="orden" class="input-select">
                 <option value="desc" {% if request.args.get('orden') == 'desc' %}selected{% endif %}>Más nuevo a más viejo</option>
                 <option value="asc" {% if request.args.get('orden') == 'asc' %}selected{% endif %}>Más viejo a más nuevo</option>
               </select>
             </div>
-
-            <!-- Filtrar por etiquetas -->
             <div>
-              <label for="etiqueta">🏷️ Etiquetas:</label>
+              <label for="etiqueta" class="input-label">🏷️ Etiquetas:</label>
               <select id="etiqueta" name="etiqueta" class="input-select">
                 <option value="">Todas las etiquetas</option>
                 {% for etiqueta in etiquetas %}
@@ -83,8 +99,6 @@
                 {% endfor %}
               </select>
             </div>
-
-            <!-- Botón de filtro -->
             <div>
               <button type="submit" class="btn-neutral">Aplicar filtros</button>
             </div>
@@ -133,6 +147,50 @@
             <button type="submit" name="accion" value="editar" class="btn-primary">✏️ Editar</button>
             <button type="submit" name="accion" value="eliminar" class="btn-danger">🗑️ Eliminar</button>
           </div>
+        </form>
+      </section>
+
+      <!-- Columna 2: Agregar nuevo contacto -->
+      <section class="seccion">
+        <h3>➕ Agregar Nuevo Contacto</h3>
+        <form method="POST" action="/contactos/agregar" class="meta-card">
+          <label class="input-label" for="nombre">Nombre completo (obligatorio):</label>
+          <input type="text" id="nombre" name="nombre" required class="input-text">
+
+          <label class="input-label" for="telefono">Número de celular (obligatorio):</label>
+          <input type="text" id="telefono" name="telefono" required class="input-text">
+
+          <label class="input-label" for="correo">Correo electrónico (opcional):</label>
+          <input type="email" id="correo" name="correo" class="input-text">
+
+          <label class="input-label" for="empresa">Empresa (opcional):</label>
+          <input type="text" id="empresa" name="empresa" class="input-text">
+
+          <label class="input-label" for="direccion">Dirección (opcional):</label>
+          <input type="text" id="direccion" name="direccion" class="input-text">
+
+          <label class="input-label" for="ciudad">Ciudad (opcional):</label>
+          <input type="text" id="ciudad" name="ciudad" class="input-text">
+
+          <label class="input-label" for="rfc">RFC (opcional):</label>
+          <input type="text" id="rfc" name="rfc" class="input-text">
+
+          <label class="input-label" for="cumpleaños">Cumpleaños (opcional):</label>
+          <input type="date" id="cumpleaños" name="cumpleaños" class="input-text">
+
+          <label class="input-label" for="notas">Notas (opcional):</label>
+          <textarea id="notas" name="notas" class="input-text"></textarea>
+
+          <label class="input-label" for="etiquetas">Etiquetas (opcional):</label>
+          <input type="text" id="etiquetas" name="etiquetas" class="input-text">
+
+          <button type="submit" class="btn-primary">💾 Guardar</button>
+        </form>
+
+        <h3>📂 Importar Contactos</h3>
+        <form method="POST" action="/contactos/importar" enctype="multipart/form-data" class="meta-card">
+          <input type="file" name="archivo_csv" accept=".csv" class="input-file">
+          <button type="submit" class="btn-primary">📤 Importar CSV</button>
         </form>
       </section>
     </div>
