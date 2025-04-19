@@ -37,9 +37,12 @@ def ver_contactos():
 
             ultimo_mensaje = response_historial.data[0] if response_historial.data else {"mensaje": "Sin mensajes", "timestamp": "N/A"}
 
+            # Formatear el número de teléfono para mostrar solo los últimos 10 dígitos
+            numero_formateado = contacto["numero"][-10:]
+
             # Agregar los datos del contacto junto con el último mensaje
             contactos.append({
-                "numero": contacto["numero"],
+                "numero": numero_formateado,
                 "nombre": contacto["nombre"],
                 "correo": contacto.get("correo", "N/A"),
                 "celular": contacto.get("celular", "N/A"),
@@ -60,14 +63,18 @@ def ver_contactos():
 @contactos_bp.route('/contactos/agregar', methods=['POST'])
 def agregar_contacto():
     datos = request.form
-    numero = datos.get('numero')
-    nombre = datos.get('nombre')
+    numero = datos.get('numero').strip()
+    nombre = datos.get('nombre').strip()
     correo = datos.get('correo')
     celular = datos.get('celular')
     etiqueta = datos.get('etiqueta')
 
     if not numero or not nombre:
         return jsonify({"success": False, "error": "El número y el nombre son obligatorios"}), 400
+
+    # Asegurarse de que el número tenga el prefijo 521
+    if not numero.startswith("521"):
+        numero = f"521{numero[-10:]}"  # Agregar prefijo y truncar a los últimos 10 dígitos
 
     try:
         response = supabase.table("contactos").insert({
