@@ -210,19 +210,10 @@ function renderizarContactos() {
         li.className = "contacto-item" + (i === 0 ? " activo" : "");
         li.onclick = () => seleccionarContacto(c.telefono);
 
-        const etiquetasHtml = (c.etiquetas || []).map(et =>
-            `<span class="etiqueta-burbuja">${et}</span>`
-        ).join(" ");
-
-        const ultimo = c.mensajes?.at(-1)?.mensaje || "Sin mensajes aún";
-
         li.innerHTML = `
-            <div><strong>${c.nombre || c.telefono}</strong></div>
-            <span class="ultimo-mensaje">${ultimo}</span><br>
-            ${etiquetasHtml}
-        `;
+      <div><strong>${c.nombre || c.telefono}</strong></div>
+      <span class="ultimo-mensaje">${c.mensajes?.at(-1)?.mensaje || "Sin mensajes aún"}</span>
+    `;
         contenedor.appendChild(li);
-
-        if (i === 0) seleccionarContacto(c.telefono); // selecciona primero
     });
 }
