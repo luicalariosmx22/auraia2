@@ -39,6 +39,7 @@ def ver_contactos():
             return jsonify({"success": False, "error": "Error al cargar contactos"}), 500
 
         contactos = response_contactos.data
+        print(f"🔍 Contactos obtenidos: {contactos}")
 
         # Obtener etiquetas únicas
         etiquetas = supabase.table("contactos").select("etiquetas").execute()
