@@ -208,7 +208,3 @@ def api_programar_envio():
     except Exception as e:
         print(f"❌ Error al programar envío: {str(e)}")
         return jsonify({"success": False})
-
-function renderizarMensajes(mensajes, contacto) {
-  ...
-}
