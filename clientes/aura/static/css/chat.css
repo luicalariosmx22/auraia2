@@ -118,13 +118,26 @@
   background-color: #0056b3; /* Azul más oscuro */
 }
 
+.col-centro {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: #f8f9fa; /* Fondo claro */
+  border: 1px solid #dee2e6; /* Borde gris */
+  border-radius: 5px;
+}
+
 .form-envio {
   display: flex;
   padding: 0.5rem;
-  background-color: #f8f9fa; /* Gris claro */
+  background-color: #ffffff; /* Fondo blanco */
   border-top: 1px solid #dee2e6; /* Borde gris */
-  position: sticky;
-  bottom: 0;
   gap: 0.5rem;
 }
 
@@ -134,8 +147,8 @@
   border-radius: 20px;
   border: 1px solid #ced4da; /* Borde gris */
   outline: none;
-  background-color: #ffffff; /* Blanco */
-  color: #495057; /* Gris oscuro */
+  background-color: #f8f9fa; /* Fondo claro */
+  color: #495057; /* Texto gris oscuro */
 }
 
 .form-envio button {
