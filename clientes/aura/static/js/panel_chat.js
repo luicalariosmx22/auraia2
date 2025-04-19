@@ -197,3 +197,29 @@ function agregarEtiqueta(telefono) {
         }
     });
 }
+
+// Función para renderizar contactos
+function renderizarContactos() {
+    const contenedor = document.getElementById('lista-contactos');
+    contenedor.innerHTML = "";
+
+    contactos.forEach((c, i) => {
+        const li = document.createElement('li');
+        li.className = "contacto-item" + (i === 0 ? " activo" : "");
+        li.onclick = () => seleccionarContacto(c.telefono);
+
+        const etiquetasHtml = (c.etiquetas || []).map(et =>
+            `<span class="etiqueta-burbuja">${et}</span>`
+        ).join(" ");
+
+        li.innerHTML = `
+            <strong>${c.nombre || c.telefono}</strong><br>
+            <span class="ultimo-mensaje">${(c.mensajes?.at(-1)?.mensaje || 'Sin mensajes')}</span><br>
+            ${etiquetasHtml}
+        `;
+        contenedor.appendChild(li);
+
+        // ✅ Selecciona automáticamente el primer contacto
+        if (i === 0) seleccionarContacto(c.telefono);
+    });
+}

@@ -63,3 +63,8 @@
   font-size: 0.65rem;
   margin-top: 3px;
 }
+.contacto-item.activo {
+    background-color: #d6ecff;
+    border-left: 4px solid #0099ff;
+  }
+  
