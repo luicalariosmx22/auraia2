@@ -53,24 +53,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     async function seleccionarContacto(numero) {
-        numeroActual = numero;
-        localStorage.setItem("numeroActivo", numero); // Guardar el número activo en localStorage
-        offset = 0;
-        const res = await fetch(`/api/chat/${numero}`);
-        const data = await res.json();
-
-        if (!data.success) {
-            chatArea.innerHTML = "<p class='error'>❌ No se pudo cargar el historial.</p>";
-            return;
-        }
-
-        historial = data.mensajes || [];
-        renderizarMensajes(data.mensajes, data.contacto);
-        actualizarInfoContacto(data.contacto, data.resumen_ia);
-        document.getElementById("cargar-mas").style.display = "block";
-
-        // Renderizar etiquetas
-        renderizarEtiquetas(data.contacto.etiquetas || [], numero);
+        localStorage.setItem("numeroActivo", numero); // Guardar el número del contacto seleccionado
+        cargarChat(numero); // Cargar el historial del contacto
     }
 
     document.getElementById("cargar-mas").addEventListener("click", async () => {
@@ -180,29 +164,8 @@ function renderizarContactos(contactos) {
 
 // Nueva implementación de seleccionarContacto
 function seleccionarContacto(telefono) {
-    console.log("Contacto seleccionado:", telefono);
-    fetch(`/api/chat/${telefono}`)
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) throw new Error("No se pudo cargar el historial.");
-            
-            // Renderizar mensajes en el área de chat
-            renderizarMensajes(data.mensajes, data.contacto);
-
-            // Actualizar información del contacto en la columna derecha
-            document.getElementById("contacto-nombre").innerText = data.contacto.nombre || telefono;
-            document.getElementById("contacto-telefono").innerText = data.contacto.telefono;
-
-            // Renderizar etiquetas
-            const etiquetasBox = document.getElementById("contacto-tags");
-            etiquetasBox.innerHTML = (data.contacto.etiquetas || []).map(et =>
-                `<span class="tag">${et}</span>`
-            ).join("");
-
-            // Actualizar resumen IA
-            document.getElementById("resumen-ia").innerText = data.resumen_ia || "Sin resumen aún.";
-        })
-        .catch(err => console.error("Error al cargar el historial:", err));
+    localStorage.setItem("numeroActivo", telefono); // Guardar el número del contacto seleccionado
+    cargarChat(telefono); // Cargar el historial del contacto
 }
 
 function renderizarMensajes(mensajes, contacto) {

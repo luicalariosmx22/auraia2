@@ -219,3 +219,54 @@ def api_programar_envio():
     except Exception as e:
         print(f"❌ Error al programar envío: {str(e)}")
         return jsonify({"success": False})
+
+async function enviarMensaje(event) {
+  event.preventDefault(); // Evitar recargar la página
+
+  const input = document.getElementById("mensaje-input");
+  const mensaje = input.value.trim();
+  if (!mensaje) return; // No enviar mensajes vacíos
+
+  const telefono = localStorage.getItem("numeroActivo"); // Número del contacto seleccionado
+  if (!telefono) {
+    console.error("❌ No se ha seleccionado un contacto.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/enviar-mensaje", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        numero: telefono,
+        mensaje: mensaje
+      })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      console.log("✅ Mensaje enviado:", mensaje);
+
+      // Agregar el mensaje al área de chat
+      const chatArea = document.getElementById("chat-area");
+      const div = document.createElement("div");
+      div.className = "burbuja usuario";
+      div.innerHTML = `
+        <div class="remitente">Tú</div>
+        <div class="contenido">${mensaje}</div>
+        <div class="timestamp">${new Date().toLocaleString()}</div>
+      `;
+      chatArea.appendChild(div);
+
+      // Limpiar el campo de entrada
+      input.value = "";
+      chatArea.scrollTop = chatArea.scrollHeight; // Desplazar hacia abajo
+    } else {
+      console.error("❌ Error al enviar mensaje:", data.error);
+    }
+  } catch (err) {
+    console.error("❌ Error en la solicitud:", err);
+  }
+}
