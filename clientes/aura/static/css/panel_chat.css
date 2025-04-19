@@ -14,29 +14,29 @@ body {
   overflow: hidden;
 }
 
-/* Columna izquierda */
+/* 🟦 Diferenciación entre columnas */
 .sidebar {
-  background-color: #f1f1f1;
-  border-right: 1px solid #ddd;
+  background-color: #e9f2fc; /* azul muy claro */
+  border-right: 2px solid #c4e2ff;
+  box-shadow: inset -2px 0 5px rgba(0, 128, 255, 0.05);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
 
-/* Columna del chat */
 .chat-main {
-  background-color: #eef3f6;
+  background-color: #f2f7fa;
+  border-right: 2px solid #c4e2ff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 1rem;
-  border-right: 1px solid #ddd;
   overflow-y: auto;
 }
 
-/* Columna de la información */
 .contact-info {
-  background-color: #f9f9f9;
+  background-color: #f8fbff;
+  box-shadow: inset 2px 0 5px rgba(0, 128, 255, 0.05);
   padding: 1.5rem;
   overflow-y: auto;
 }
@@ -72,40 +72,56 @@ body {
 }
 
 .mensaje.usuario {
-  background-color: #ffffff;
+  background-color: #dfffdc;
+  color: #000;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
   align-self: flex-end;
-  margin-left: auto;
+  max-width: 75%;
+  margin: 0.4rem 0;
 }
 
 .mensaje.bot {
-  background-color: #d6f5d6;
+  background-color: #d7ebff;
+  color: #003366;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
   align-self: flex-start;
+  max-width: 75%;
+  margin: 0.4rem 0;
 }
 
 /* Input fijo al fondo */
 .chat-input {
   display: flex;
-  margin-top: auto;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
   border-top: 1px solid #ccc;
-  padding: 10px 0 0;
-  gap: 10px;
+  position: sticky;
+  bottom: 0;
+  gap: 0.5rem;
 }
 
-.chat-input input {
+.chat-input input[type="text"] {
   flex: 1;
-  padding: 8px 12px;
+  padding: 0.4rem 1rem;
   border-radius: 20px;
   border: 1px solid #ccc;
   outline: none;
 }
 
 .chat-input button {
-  padding: 8px 16px;
-  border: none;
-  background-color: #00c7b1;
+  background-color: #4da6ff;
   color: white;
+  border: none;
+  padding: 0.4rem 1.2rem;
   border-radius: 20px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.chat-input button:hover {
+  background-color: #3399ff;
 }
 
 /* Barra de búsqueda */
