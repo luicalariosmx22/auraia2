@@ -16,30 +16,45 @@ function manejarError(err, mensaje) {
 
 // Nueva implementación de cargarChat con async/await
 async function cargarChat(numero) {
-    try {
-        numeroActual = numero;
-        localStorage.setItem("numeroActivo", numero); // Guardar el número activo en localStorage
-        offset = 0;
-        const response = await fetch(`/api/chat/${numero}`);
-        const data = await response.json();
+  try {
+    const response = await fetch(`/api/chat/${numero}`);
+    const data = await response.json();
 
-        const chatArea = document.getElementById("chat-area");
-        chatArea.innerHTML = ""; // Limpiar
+    const chatArea = document.getElementById("chat-area");
+    chatArea.innerHTML = ""; // Limpiar el área de chat
 
-        if (!data.success || !data.mensajes) {
-            chatArea.innerHTML = "<p>Error al cargar el historial.</p>";
-            return;
-        }
-
-        historial = data.mensajes || [];
-        renderizarMensajes(data.mensajes, data.contacto);
-        actualizarInfoContacto(data.contacto, data.resumen_ia);
-        document.getElementById("cargar-mas").style.display = "block";
-    } catch (error) {
-        console.error("Error al cargar el chat:", error);
-        const chatArea = document.getElementById("chat-area");
-        chatArea.innerHTML = "<p>Error al cargar el historial.</p>";
+    if (!data.success || !data.mensajes) {
+      chatArea.innerHTML = "<p>Error al cargar el historial.</p>";
+      return;
     }
+
+    data.mensajes.forEach(mensaje => {
+      const div = document.createElement("div");
+      div.className = `burbuja ${mensaje.emisor === "nora" ? "nora" : "contacto"}`;
+
+      const remitente = document.createElement("div");
+      remitente.className = "remitente";
+      remitente.innerText = mensaje.remitente;
+
+      const contenido = document.createElement("div");
+      contenido.className = "contenido";
+      contenido.innerText = mensaje.mensaje;
+
+      const timestamp = document.createElement("div");
+      timestamp.className = "timestamp";
+      timestamp.innerText = mensaje.fecha || "Sin fecha";
+
+      div.appendChild(remitente);
+      div.appendChild(contenido);
+      div.appendChild(timestamp);
+
+      chatArea.appendChild(div);
+    });
+  } catch (error) {
+    console.error("❌ Error al cargar el chat:", error);
+    const chatArea = document.getElementById("chat-area");
+    chatArea.innerHTML = "<p>Error al cargar el historial.</p>";
+  }
 }
 
 // Nueva implementación: Manejo de contactos y carga inicial
