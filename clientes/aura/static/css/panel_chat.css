@@ -191,3 +191,50 @@ body {
 .info-contacto p {
   color: #555;
 }
+
+/* Estilos para las etiquetas */
+.etiquetas-box {
+  margin: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  background-color: #d6ecff;
+  color: #004080;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tag .x {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.etiqueta-input {
+  display: flex;
+  margin-top: 6px;
+  gap: 5px;
+}
+
+.etiqueta-input input {
+  flex: 1;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.etiqueta-input button {
+  background-color: #00aaff;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
