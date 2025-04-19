@@ -77,6 +77,9 @@ def ver_contactos():
         response = query.execute()
         contactos = response.data or []
 
+        # Depurar los datos obtenidos
+        print(f"🔍 Contactos obtenidos: {contactos}")
+
         # Obtener etiquetas únicas
         etiquetas_response = supabase.table("contactos").select("etiquetas").execute()
         etiquetas = list(set(

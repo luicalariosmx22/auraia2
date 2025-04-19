@@ -62,7 +62,6 @@
         <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo de Nora">
       </div>
     </header>
-
     <div class="grid-container">
       <!-- Columna 1: Lista de contactos -->
       <section class="seccion">
@@ -78,8 +77,8 @@
             <div>
               <label for="orden" class="input-label">📅 Ordenar:</label>
               <select id="orden" name="orden" class="input-select">
-                <option value="desc" {% if request.args.get('orden') == 'desc' %}selected{% endif %}>Más nuevo a más viejo</option>
-                <option value="asc" {% if request.args.get('orden') == 'asc' %}selected{% endif %}>Más viejo a más nuevo</option>
+                <option value="desc" {% if request.args.get('orden', 'desc') == 'desc' %}selected{% endif %}>Más nuevo a más viejo</option>
+                <option value="asc" {% if request.args.get('orden', 'desc') == 'asc' %}selected{% endif %}>Más viejo a más nuevo</option>
               </select>
             </div>
             <div>
@@ -87,7 +86,7 @@
               <select id="etiqueta" name="etiqueta" class="input-select">
                 <option value="">Todas las etiquetas</option>
                 {% for etiqueta in etiquetas %}
-                <option value="{{ etiqueta }}" {% if request.args.get('etiqueta') == etiqueta %}selected{% endif %}>{{ etiqueta }}</option>
+                <option value="{{ etiqueta | e }}" {% if request.args.get('etiqueta', '') == etiqueta %}selected{% endif %}>{{ etiqueta | e }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -113,11 +112,8 @@
             <tbody>
               {% for c in contactos %}
               <tr>
-                <td>
-                  <input type="checkbox" name="contactos_seleccionados" value="{{ c.numero }}">
-                </td>
-                <td>{{ c.nombre }}</td>
                 <td>{{ c.numero }}</td>
+                <td>{{ c.nombre }}</td>
                 <td>
                   {% if c.etiquetas %}
                     {% for etiqueta in c.etiquetas %}
@@ -127,7 +123,6 @@
                     <span class="badge badge-muted">Sin etiquetas</span>
                   {% endif %}
                 </td>
-                <td>{{ c.ultimo_texto }}</td>
                 <td>{{ c.ultimo_mensaje }}</td>
               </tr>
               {% endfor %}
