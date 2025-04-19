@@ -75,16 +75,19 @@
           ? c.mensajes[c.mensajes.length - 1].mensaje.slice(0, 30) + "..."
           : "Sin mensajes aún";
 
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <div class="nombre">${c.nombre || c.telefono}</div>
-          <div class="preview">${ultimoMensaje}</div>
-          <span class="etiquetas-contacto">
-            ${(c.etiquetas || []).map(e => `<span class="tag">${e}</span>`).join("")}
-          </span>
+        const item = document.createElement("li");
+        item.className = "contacto-item";
+        item.innerHTML = `
+          <div onclick="seleccionarContacto('${c.telefono}')">
+            <strong>${c.nombre || c.telefono}</strong>
+            ${(c.etiquetas || []).map(tag => `
+              <span class="etiqueta-chip" onclick="eliminarEtiqueta(event, '${c.telefono}', '${tag}')">${tag}</span>
+            `).join('')}
+            <br>
+            <span class="ultimo-mensaje">${ultimoMensaje}</span>
+          </div>
         `;
-        li.onclick = () => seleccionarContacto(c.telefono);
-        contenedor.appendChild(li);
+        contenedor.appendChild(item);
       });
     }
 
@@ -166,15 +169,14 @@
       });
     }
 
-    function eliminarEtiqueta(etiqueta) {
-      if (!contactoSeleccionado) return;
-
-      fetch(`/api/etiqueta/${contactoSeleccionado}`, {
+    function eliminarEtiqueta(event, telefono, etiqueta) {
+      event.stopPropagation(); // Evita que se dispare el evento de seleccionar contacto
+      fetch(`/api/etiqueta/${telefono}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ etiqueta })
       }).then(() => {
-        seleccionarContacto(contactoSeleccionado);
+        seleccionarContacto(telefono); // Recargar contacto después de eliminar la etiqueta
       });
     }
 
