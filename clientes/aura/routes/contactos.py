@@ -28,7 +28,7 @@ def leer_historial(telefono):
 
 def actualizar_contacto(telefono, data):
     try:
-        response = supabase.table("contactos").update(data).eq("numero", telefono).execute()
+        response = supabase.table("contactos").update(data).eq("telefono", telefono).execute()
         print(f"✅ Contacto actualizado: {response.data}")
         return True
     except Exception as e:
@@ -37,7 +37,7 @@ def actualizar_contacto(telefono, data):
 
 def obtener_contacto(telefono):
     try:
-        response = supabase.table("contactos").select("*").eq("numero", telefono).execute()
+        response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
         if response.data:
             return response.data[0]
         return None
@@ -94,22 +94,22 @@ def ver_contactos():
 @contactos_bp.route('/contactos/agregar', methods=['POST'])
 def agregar_contacto():
     datos = request.form
-    numero = datos.get('numero', '').strip()
+    telefono = datos.get('telefono', '').strip()
     nombre = datos.get('nombre', '').strip()
     correo = datos.get('correo')
     celular = datos.get('celular')
     etiqueta = datos.get('etiqueta')
 
-    if not numero or not nombre:
-        return jsonify({"success": False, "error": "El número y el nombre son obligatorios"}), 400
+    if not telefono or not nombre:
+        return jsonify({"success": False, "error": "El teléfono y el nombre son obligatorios"}), 400
 
-    if not numero.startswith("521"):
-        numero = f"521{numero[-10:]}"
-    print(f"🔍 Número normalizado: {numero}")
+    if not telefono.startswith("521"):
+        telefono = f"521{telefono[-10:]}"
+    print(f"🔍 Teléfono normalizado: {telefono}")
 
     try:
         response = supabase.table("contactos").insert({
-            "numero": numero,
+            "telefono": telefono,
             "nombre": nombre,
             "correo": correo,
             "celular": celular,
@@ -152,11 +152,11 @@ def editar_contacto(telefono):
 
     return render_template('editar_contacto.html', contacto=contacto)
 
-@contactos_bp.route('/contactos/eliminar/<numero>', methods=['DELETE'])
-def eliminar_contacto(numero):
+@contactos_bp.route('/contactos/eliminar/<telefono>', methods=['DELETE'])
+def eliminar_contacto(telefono):
     try:
-        response = supabase.table("contactos").delete().eq("numero", numero).execute()
-        print(f"🗑️ Contacto eliminado: {numero}")
+        response = supabase.table("contactos").delete().eq("telefono", telefono).execute()
+        print(f"🗑️ Contacto eliminado: {telefono}")
         return jsonify({"success": True})
     except Exception as e:
         print(f"❌ Error al eliminar contacto: {str(e)}")
@@ -177,7 +177,7 @@ def exportar_a_sheets():
         response = supabase.table("contactos").select("*").execute()
         contactos = response.data or []
         valores = [
-            [c.get("numero"), c.get("nombre"), c.get("correo"), c.get("celular"), c.get("etiquetas"), c.get("primer_mensaje"), c.get("ultimo_mensaje")]
+            [c.get("telefono"), c.get("nombre"), c.get("correo"), c.get("celular"), c.get("etiquetas"), c.get("primer_mensaje"), c.get("ultimo_mensaje")]
             for c in contactos
         ]
 
@@ -202,7 +202,7 @@ def acciones_contactos():
             return jsonify({"success": False, "error": "No se seleccionaron contactos"}), 400
 
         if accion == "eliminar":
-            response = supabase.table("contactos").delete().in_("numero", seleccionados).execute()
+            response = supabase.table("contactos").delete().in_("telefono", seleccionados).execute()
             print(f"✅ Contactos eliminados: {response.data}")
             return jsonify({"success": True})
 
