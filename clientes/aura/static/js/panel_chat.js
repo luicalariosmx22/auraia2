@@ -151,6 +151,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    renderizarContactos();
 });
 
 // Función para renderizar etiquetas

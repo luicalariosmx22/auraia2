@@ -9,8 +9,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/contact_info.css') }}">
   <script>
-    const nombreNora = "{{ nombre_nora }}";
+    const contactos = {{ contactos | tojson }};
     console.log("🧪 CONTACTOS:", contactos); // Verificar si contactos llega al navegador
+  </script>
+  <script>
+    const nombreNora = "{{ nombre_nora }}";
   </script>
 </head>
 <body>
@@ -77,4 +80,3 @@
   </script>
 </body>
 </html>
-``` 
