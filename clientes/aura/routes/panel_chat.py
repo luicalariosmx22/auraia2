@@ -109,21 +109,18 @@ Resumen:
 @panel_chat_bp.route("/panel/chat/<nombre_nora>")
 def panel_chat(nombre_nora):
     if "user" not in session:
-        print("⚠️ Usuario no autenticado. Redirigiendo al login.")
         return redirect(url_for("login.login_google"))
 
-    print(f"🔍 Cargando panel de chat para {nombre_nora}...")
-
     contactos = leer_contactos()
-    print(f"🔢 Total de contactos encontrados: {len(contactos)}")
-
     lista = []
     for c in contactos:
         mensajes = leer_historial(c["telefono"])
-        print(f"📨 Contacto: {c.get('nombre')} | Tel: {c.get('telefono')} | Mensajes: {len(mensajes)}")
+        # Asegúrate de que cada mensaje tenga un atributo 'fecha' correctamente formateado
+        for mensaje in mensajes:
+            if "fecha" in mensaje and isinstance(mensaje["fecha"], datetime.datetime):
+                mensaje["fecha"] = mensaje["fecha"].strftime('%d-%b')  # Formato: 18-Abr
         lista.append({**c, "mensajes": mensajes})
 
-    print(f"✅ Contactos y mensajes cargados: {len(lista)}")
     return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
 
 @panel_chat_bp.route("/api/chat/<telefono>")
