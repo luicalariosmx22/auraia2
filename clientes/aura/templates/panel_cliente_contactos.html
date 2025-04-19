@@ -63,14 +63,6 @@
       </div>
     </header>
 
-    {% with mensajes = get_flashed_messages() %}
-      {% if mensajes %}
-      <div class="flash" style="margin-bottom: 20px; background: #e0f4ff; padding: 12px; border-radius: 8px; color: #1877f2;">
-        {{ mensajes[0] }}
-      </div>
-      {% endif %}
-    {% endwith %}
-
     <div class="grid-container">
       <!-- Columna 1: Lista de contactos -->
       <section class="seccion">
@@ -193,10 +185,6 @@
           <button type="submit" class="btn-primary">📤 Importar CSV</button>
         </form>
       </section>
-    </div>
-
-    <div style="margin-top: 40px;">
-      <a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}" class="btn-neutral">← Volver al panel</a>
     </div>
   </div>
 </body>
