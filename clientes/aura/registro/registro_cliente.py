@@ -6,7 +6,11 @@ from clientes.aura.routes.contactos import contactos_bp
 app = Flask(__name__)
 
 # Registrar el Blueprint de contactos
-app.register_blueprint(contactos_bp, url_prefix='/contactos')
+if "contactos" not in app.blueprints:
+    app.register_blueprint(contactos_bp, url_prefix='/contactos')
+    print("✅ Blueprint 'contactos_bp' registrado correctamente.")
+else:
+    print("⚠️ Blueprint 'contactos_bp' ya estaba registrado.")
 
 def registrar_blueprints_cliente(app):
     try:
