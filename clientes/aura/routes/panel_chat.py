@@ -108,18 +108,11 @@ Resumen:
 
 @panel_chat_bp.route("/panel/chat/<nombre_nora>")
 def panel_chat(nombre_nora):
-    if "user" not in session:
-        print("⚠️ Usuario no autenticado. Redirigiendo al login.")
-        return redirect(url_for("login.login_google"))
+    # Obtener contactos desde la base de datos o una fuente de datos
+    contactos = leer_contactos()  # Supongamos que esta función obtiene los contactos
 
-    print(f"🔍 Cargando panel de chat para {nombre_nora}...")
-    contactos = leer_contactos()
-    lista = []
-    for c in contactos:
-        mensajes = leer_historial(c["telefono"])
-        lista.append({**c, "mensajes": mensajes})
-    print(f"✅ Contactos y mensajes cargados: {lista}")
-    return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
+    # Renderizar la plantilla y pasar los contactos como contexto
+    return render_template("panel_chat.html", contactos=contactos, nombre_nora=nombre_nora)
 
 @panel_chat_bp.route("/api/chat/<telefono>")
 def api_chat(telefono):
