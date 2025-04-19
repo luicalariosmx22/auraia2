@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Chat de Nora – {{ nombre_nora }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}">
+  <!-- Nuevas hojas de estilo -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/contact_info.css') }}">
   <script>
     const nombreNora = "{{ nombre_nora }}";
   </script>
