@@ -9,28 +9,37 @@ body {
 .chat-wrapper {
   display: flex;
   height: 100vh;
+  width: 100%;
   overflow: hidden;
 }
 
+/* Panel izquierdo: contactos */
 .sidebar {
   width: 20%;
+  min-width: 200px;
   background-color: #f1f1f1;
-  border-right: 1px solid #ccc;
-  overflow-y: auto;
-}
-
-.chat-main {
-  width: 50%;
+  border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #ccc;
-  background-color: #fff;
 }
 
+/* Panel del chat */
+.chat-main {
+  width: 50%;
+  background-color: #eef3f6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid #ddd;
+  padding: 1rem;
+}
+
+/* Panel derecho: info del contacto */
 .contact-info {
   width: 30%;
-  padding: 1rem;
+  min-width: 300px;
   background-color: #f9f9f9;
+  padding: 1rem 2rem;
   overflow-y: auto;
 }
 
