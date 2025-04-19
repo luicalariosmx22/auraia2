@@ -25,21 +25,26 @@
   margin: 0;
   padding: 0;
   overflow-y: auto;
-  flex-grow: 1;
+  max-height: 100%;
 }
 
 .contacto-item {
-  padding: 12px;
+  padding: 10px;
   border-bottom: 1px solid #ccc;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .contacto-item:hover {
-  background-color: #e6f0ff;
+  background-color: #f0f0f0;
 }
 
 .contacto-item.activo {
   background-color: #d6ecff;
   border-left: 4px solid #0099ff;
+}
+
+.contacto-item .ultimo-mensaje {
+  font-size: 0.9em;
+  color: #666;
 }

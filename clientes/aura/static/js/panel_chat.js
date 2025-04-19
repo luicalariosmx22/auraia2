@@ -217,3 +217,25 @@ function renderizarContactos() {
         contenedor.appendChild(li);
     });
 }
+
+// Nueva implementación de seleccionarContacto
+function seleccionarContacto(telefono) {
+    console.log("Contacto seleccionado:", telefono);
+    fetch(`/api/chat/${telefono}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) throw new Error("No se pudo cargar el historial.");
+            renderizarMensajes(data.mensajes);
+            document.getElementById("contacto-nombre").innerText = data.contacto.nombre || telefono;
+            document.getElementById("contacto-telefono").innerText = data.contacto.telefono;
+
+            // Renderizar etiquetas
+            const etiquetasBox = document.getElementById("contacto-tags");
+            etiquetasBox.innerHTML = (data.contacto.etiquetas || []).map(et =>
+                `<span class="tag">${et}</span>`
+            ).join("");
+
+            document.getElementById("resumen-ia").innerText = data.resumen_ia || "Sin resumen aún.";
+        })
+        .catch(err => console.error("Error al cargar el historial:", err));
+}

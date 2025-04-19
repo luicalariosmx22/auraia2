@@ -2,18 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat de Nora – {{ nombre_nora }}</title>
-  <!-- Nuevas hojas de estilo -->
+  <!-- Hojas de estilo -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/contact_info.css') }}">
   <script>
     const contactos = {{ contactos | tojson }};
-    console.log("🧪 CONTACTOS:", contactos); // Verificar si contactos llega al navegador
-  </script>
-  <script>
     const nombreNora = "{{ nombre_nora }}";
+    console.log("🧪 CONTACTOS:", contactos); // Verificar si contactos llega al navegador
   </script>
 </head>
 <body>
@@ -32,11 +31,20 @@
         <option value="no contestó">No contestó</option>
       </select>
       <ul id="lista-contactos" class="lista-contactos">
-        <!-- Los contactos no se renderizan dinámicamente -->
+        {% for contacto in contactos %}
+          <li class="contacto-item" onclick="seleccionarContacto('{{ contacto.telefono }}')">
+            <div>
+              <strong>{{ contacto.nombre or contacto.telefono }}</strong>
+            </div>
+            <span class="ultimo-mensaje">
+              {{ contacto.mensajes[-1].mensaje if contacto.mensajes else "Sin mensajes aún" }}
+            </span>
+          </li>
+        {% endfor %}
       </ul>
     </div>
 
-    <!-- 📍 Panel central (Mensajes) -->
+    <!-- Panel central (Mensajes) -->
     <div class="col-central">
       <div id="chat-area">
         <p class="placeholder">Selecciona un contacto para ver la conversación</p>
@@ -47,7 +55,7 @@
       </form>
     </div>
 
-    <!-- 📍 Panel derecho (Info del contacto) -->
+    <!-- Panel derecho (Info del contacto) -->
     <div class="col-derecha">
       <div class="info-contacto">
         <h4 id="contacto-nombre">Contacto</h4>
@@ -58,12 +66,10 @@
           <input type="text" id="nueva-etiqueta" placeholder="Agregar etiqueta">
           <button onclick="agregarEtiqueta(document.getElementById('contacto-telefono').innerText)">+</button>
         </div>
-        
         <p><strong>IA activada:</strong>
           <input type="checkbox" id="toggle-ia" onchange="toggleIA(this)">
         </p>
       </div>
-
       <div class="info-contacto">
         <h4>Resumen IA</h4>
         <p id="resumen-ia">Selecciona un contacto para ver resumen.</p>
@@ -72,11 +78,7 @@
 
   </div>
 
-  <script>
-    // Elimina la llamada a renderizarContactos para evitar mostrar contactos
-    if (contactos.length > 0) {
-      seleccionarContacto(contactos[0].telefono);
-    }
-  </script>
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/panel_chat.js') }}"></script>
 </body>
 </html>
