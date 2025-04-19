@@ -62,10 +62,10 @@ def leer_historial(telefono):
             print(f"⚠️ No se encontró historial para {telefono}.")
             return []
         
-        # Asegúrate de que cada mensaje tenga el campo 'hora'
+        # Convertir cualquier campo datetime a cadena
         for mensaje in response.data:
-            if "hora" not in mensaje:
-                mensaje["hora"] = "00:00:00"  # Valor predeterminado si no existe
+            if isinstance(mensaje.get("timestamp"), datetime.datetime):
+                mensaje["timestamp"] = mensaje["timestamp"].isoformat()
 
         print(f"✅ Historial cargado: {len(response.data)} registros.")
         return response.data
@@ -81,7 +81,7 @@ def guardar_historial(nombre_nora, telefono, mensajes):
             "mensaje": mensaje.get("texto") or mensaje.get("mensaje"),
             "emisor": mensaje["emisor"],
             "hora": mensaje.get("hora", datetime.datetime.now().strftime("%H:%M:%S")),  # Hora actual si no existe
-            "timestamp": datetime.datetime.now()
+            "timestamp": datetime.datetime.now().isoformat()  # Convertir a cadena en formato ISO 8601
         }
         for mensaje in mensajes
     ]
