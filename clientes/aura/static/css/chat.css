@@ -54,8 +54,15 @@
 .burbuja.contacto {
   background-color: #d4edda; /* Verde claro */
   color: #155724; /* Verde oscuro */
-  align-self: flex-start;
+  align-self: flex-end;
   border: 1px solid #c3e6cb; /* Borde verde */
+}
+
+.burbuja.nora {
+  background-color: #d7ebff; /* Azul claro */
+  color: #003366; /* Azul oscuro */
+  align-self: flex-start;
+  border: 1px solid #b8daff; /* Borde azul */
 }
 
 .remitente {
@@ -68,9 +75,8 @@
 .timestamp {
   font-size: 0.7rem;
   color: #6c757d; /* Gris medio */
-  position: absolute;
-  top: -15px;
-  right: 10px;
+  margin-top: 5px;
+  text-align: right;
 }
 
 .contenido {

@@ -143,6 +143,13 @@ def api_chat(telefono):
     if not contacto.get("nombre"):
         contacto["nombre"] = f"Usuario {telefono[-10:]}"  # Nombre predeterminado con los últimos 10 dígitos del teléfono
 
+    # Ajustar el historial para que los mensajes tengan el emisor correcto
+    for mensaje in historial:
+        if mensaje["emisor"] == "nora":
+            mensaje["remitente"] = "Tú"
+        else:
+            mensaje["remitente"] = contacto["nombre"] or contacto["telefono"][-10:]
+
     return jsonify({
         "success": True,
         "contacto": contacto,
