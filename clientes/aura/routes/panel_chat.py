@@ -129,26 +129,16 @@ def api_chat(telefono):
     print(f"🔍 API Chat - Cargando datos para el teléfono: {telefono}...")
     contactos = leer_contactos()
     contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
-    historial = leer_historial(telefono)  # Función que obtiene los mensajes del contacto
+    historial = leer_historial(telefono)
 
-    # Ajustar el formato de las fechas en el historial
-    for mensaje in historial:
-        if "fecha" in mensaje:
-            try:
-                # Eliminar los milisegundos si están presentes
-                fecha_sin_milisegundos = mensaje["fecha"].split(".")[0]
-                mensaje["fecha"] = datetime.datetime.strptime(fecha_sin_milisegundos, '%Y-%m-%dT%H:%M:%S').strftime('%d-%b %H:%M')
-            except ValueError as e:
-                print(f"❌ Error al parsear la fecha: {mensaje['fecha']} - {e}")
-                mensaje["fecha"] = "Fecha inválida"
+    # Asegúrate de que el contacto tenga un nombre o usa el número como fallback
+    if not contacto.get("nombre"):
+        contacto["nombre"] = f"Usuario {telefono[-10:]}"  # Nombre predeterminado con los últimos 10 dígitos del teléfono
 
-    resumen = generar_resumen_ia(historial)  # Opcional: Generar un resumen con IA
-    print(f"✅ API Chat - Datos cargados para {telefono}: {historial}")
     return jsonify({
         "success": True,
         "contacto": contacto,
-        "mensajes": historial,
-        "resumen_ia": resumen
+        "mensajes": historial
     })
 
 @panel_chat_bp.route("/api/enviar-mensaje", methods=["POST"])

@@ -103,3 +103,8 @@ body {
   margin-left: 10px;
   font-style: italic;
 }
+.contacto-telefono {
+  font-size: 0.9rem;
+  color: #6c757d; /* Gris medio */
+  margin-top: 2px;
+}

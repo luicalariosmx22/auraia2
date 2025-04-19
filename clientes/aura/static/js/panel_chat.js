@@ -179,21 +179,25 @@ function agregarEtiqueta(telefono) {
 }
 
 // Función para renderizar contactos
-function renderizarContactos() {
-    const contenedor = document.getElementById("lista-contactos");
-    contenedor.innerHTML = "";
+function renderizarContactos(contactos) {
+  const listaContactos = document.getElementById("lista-contactos");
+  listaContactos.innerHTML = ""; // Limpiar la lista
 
-    contactos.forEach((c, i) => {
-        const li = document.createElement("li");
-        li.className = "contacto-item" + (i === 0 ? " activo" : "");
-        li.onclick = () => seleccionarContacto(c.telefono);
+  contactos.forEach(contacto => {
+    const li = document.createElement("li");
+    li.className = "contacto-item";
+    li.setAttribute("data-numero", contacto.telefono);
 
-        li.innerHTML = `
-      <div><strong>${c.nombre || c.telefono}</strong></div>
-      <span class="ultimo-mensaje">${c.mensajes?.at(-1)?.mensaje || "Sin mensajes aún"}</span>
+    li.innerHTML = `
+      <div>
+        <strong class="contacto-nombre">${contacto.nombre || `Usuario ${contacto.telefono.slice(-10)}`}</strong>
+        <div class="contacto-telefono">${contacto.telefono.slice(-10)}</div>
+      </div>
     `;
-        contenedor.appendChild(li);
-    });
+
+    li.addEventListener("click", () => seleccionarContacto(contacto.telefono));
+    listaContactos.appendChild(li);
+  });
 }
 
 // Nueva implementación de seleccionarContacto
