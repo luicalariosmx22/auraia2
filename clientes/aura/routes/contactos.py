@@ -29,11 +29,12 @@ def leer_historial(telefono):
 @contactos_bp.route('/contactos', methods=['GET'])
 def ver_contactos():
     try:
+        # Obtener parámetros de filtro
         busqueda = request.args.get('busqueda', '').strip()
         orden = request.args.get('orden', 'desc')
         etiqueta = request.args.get('etiqueta', '').strip()
 
-        # Obtener todos los contactos primero
+        # Obtener todos los contactos
         response_contactos = supabase.table("contactos").select("*").execute()
         contactos = response_contactos.data or []
         print(f"🔍 Contactos base: {len(contactos)}")
@@ -69,6 +70,11 @@ def ver_contactos():
             ultimo = historial[0] if historial else {}
             contacto["ultimo_mensaje"] = ultimo.get("mensaje", "")
             contacto["fecha_ultimo_mensaje"] = ultimo.get("timestamp", "")
+
+        # Depuración: Imprimir contactos procesados
+        print(f"🧪 Lista final de contactos a enviar al template:")
+        for c in contactos:
+            print(f"📇 {c.get('nombre')} | {c.get('numero')} | Último: {c.get('ultimo_mensaje')}")
 
         # Obtener etiquetas únicas
         etiquetas_response = supabase.table("contactos").select("etiquetas").execute()
