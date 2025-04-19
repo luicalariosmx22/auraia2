@@ -1,6 +1,7 @@
 import json 
 import os
 import re
+from datetime import datetime
 from supabase import create_client
 from dotenv import load_dotenv
 
@@ -87,3 +88,22 @@ def normalizar_numero(numero):
         return "521" + solo_digitos
     
     return solo_digitos
+
+def leer_historial(telefono):
+    # Simulación de lectura de historial desde una base de datos o archivo
+    historial = [
+        {"emisor": "usuario", "mensaje": "Hola", "fecha": "2025-04-19T05:30:37.035623"},
+        {"emisor": "nora", "mensaje": "Hola, ¿cómo estás?", "fecha": "2025-04-19T05:31:00.123456"}
+    ]
+
+    # Ajustar el formato de las fechas
+    for mensaje in historial:
+        if "fecha" in mensaje:
+            try:
+                fecha_sin_milisegundos = mensaje["fecha"].split(".")[0]
+                mensaje["fecha"] = datetime.strptime(fecha_sin_milisegundos, '%Y-%m-%dT%H:%M:%S').strftime('%d-%b %H:%M')
+            except ValueError as e:
+                print(f"❌ Error al parsear la fecha: {mensaje['fecha']} - {e}")
+                mensaje["fecha"] = "Fecha inválida"
+
+    return historial
