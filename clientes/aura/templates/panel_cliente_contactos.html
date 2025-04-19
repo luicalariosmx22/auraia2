@@ -13,8 +13,8 @@
       <div>
         <h1>📇 Contactos – {{ nombre_visible or nombre_nora }}</h1>
       </div>
-      <div>
-        <a href="/logout" class="btn-outline">Cerrar sesión</a>
+      <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo de Nora">
       </div>
     </header>
 
@@ -26,60 +26,84 @@
       {% endif %}
     {% endwith %}
 
-    <section class="seccion">
-      <h2>👥 Contactos registrados</h2>
-      <table class="noras-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Etiquetas</th>
-            {% if ia_permitida %}
-              <th>IA</th>
-            {% endif %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for c in contactos %}
-          <tr>
-            <td>{{ c.nombre }}</td>
-            <td>{{ c.numero }}</td>
-            <td>
-              {% if c.etiquetas %}
-                {% for et in c.etiquetas %}
-                  <span class="badge">{{ et }}</span>
-                {% endfor %}
-              {% else %}
-                <span class="badge badge-muted">Sin etiquetas</span>
-              {% endif %}
-            </td>
-            {% if ia_permitida %}
-            <td>
-              <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/toggle_ia">
-                <input type="hidden" name="numero" value="{{ c.numero }}">
-                {% if c.ia %}
-                  <button type="submit" class="btn-outline">Desactivar IA</button>
-                {% else %}
-                  <button type="submit" class="btn-neutral">Activar IA</button>
-                {% endif %}
-              </form>
-            </td>
-            {% endif %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </section>
+    <div class="grid-container">
+      <!-- Columna 1: Agregar nuevo contacto -->
+      <section class="seccion">
+        <h3>➕ Agregar nuevo contacto</h3>
+        <form method="POST" class="meta-card">
+          <input type="text" name="nombre" placeholder="Nombre completo" required class="input-text">
+          <input type="text" name="telefono" placeholder="Número WhatsApp" required class="input-text">
+          <input type="text" name="etiquetas" placeholder="Ej: cliente, vip, interesado" class="input-text">
+          <button type="submit" class="btn-primary">💾 Guardar</button>
+        </form>
+      </section>
 
-    <section class="seccion" style="margin-top: 40px;">
-      <h3>➕ Agregar nuevo contacto</h3>
-      <form method="POST" class="meta-card" style="max-width: 480px;">
-        <input type="text" name="nombre" placeholder="Nombre completo" required class="input-text">
-        <input type="text" name="telefono" placeholder="Número WhatsApp" required class="input-text">
-        <input type="text" name="etiquetas" placeholder="Ej: cliente, vip, interesado" class="input-text">
-        <button type="submit" class="btn-primary">💾 Guardar</button>
-      </form>
-    </section>
+      <!-- Columna 2: Contactos registrados -->
+      <section class="seccion">
+        <h3>👥 Contactos registrados</h3>
+
+        <!-- Filtros -->
+        <div class="filters">
+          <form method="GET" class="filter-form">
+            <input type="text" name="busqueda" placeholder="Buscar por nombre o teléfono" class="input-text" value="{{ request.args.get('busqueda', '') }}">
+            <select name="orden" class="input-select">
+              <option value="desc" {% if request.args.get('orden') == 'desc' %}selected{% endif %}>Más nuevo a más viejo</option>
+              <option value="asc" {% if request.args.get('orden') == 'asc' %}selected{% endif %}>Más viejo a más nuevo</option>
+            </select>
+            <select name="etiqueta" class="input-select">
+              <option value="">Todas las etiquetas</option>
+              {% for etiqueta in etiquetas %}
+              <option value="{{ etiqueta }}" {% if request.args.get('etiqueta') == etiqueta %}selected{% endif %}>{{ etiqueta }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn-neutral">Filtrar</button>
+          </form>
+        </div>
+
+        <!-- Tabla de contactos -->
+        <table class="noras-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Etiquetas</th>
+              {% if ia_permitida %}
+                <th>IA</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in contactos %}
+            <tr>
+              <td>{{ c.nombre }}</td>
+              <td>{{ c.numero }}</td>
+              <td>
+                {% if c.etiquetas %}
+                  {% for et in c.etiquetas %}
+                    <span class="badge">{{ et }}</span>
+                  {% endfor %}
+                {% else %}
+                  <span class="badge badge-muted">Sin etiquetas</span>
+                {% endif %}
+              </td>
+              {% if ia_permitida %}
+              <td>
+                <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/toggle_ia">
+                  <input type="hidden" name="numero" value="{{ c.numero }}">
+                  {% if c.ia %}
+                    <button type="submit" class="btn-outline">Desactivar IA</button>
+                  {% else %}
+                    <button type="submit" class="btn-neutral">Activar IA</button>
+                  {% endif %}
+                </form>
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </div>
 
     <div style="margin-top: 40px;">
       <a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}" class="btn-neutral">← Volver al panel</a>

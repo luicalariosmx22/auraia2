@@ -19,18 +19,39 @@ contactos_bp = Blueprint('contactos', __name__)
 @contactos_bp.route('/contactos', methods=['GET'])
 def ver_contactos():
     try:
-        response = supabase.table("contactos").select("*").execute()
-        if not response.data:
-            print(f"❌ Error al cargar contactos: {not response.data}")
+        # Obtener todos los contactos desde Supabase
+        response_contactos = supabase.table("contactos").select("*").execute()
+        if not response_contactos.data:
+            print(f"❌ Error al cargar contactos: {not response_contactos.data}")
             return jsonify({"success": False, "error": "Error al cargar contactos"}), 500
 
-        contactos = {c["numero"]: c for c in response.data}
+        contactos = []
+        for contacto in response_contactos.data:
+            # Obtener el último mensaje del historial para este contacto
+            response_historial = supabase.table("historial_conversaciones") \
+                .select("mensaje, timestamp") \
+                .eq("telefono", contacto["numero"]) \
+                .order("timestamp", desc=True) \
+                .limit(1) \
+                .execute()
 
-        primeros_últimos_contactos = {
-            'primer_contacto': min(contactos.items(), key=lambda x: x[1]['primer_mensaje'], default=None),
-            'ultimo_contacto': max(contactos.items(), key=lambda x: x[1]['ultimo_mensaje'], default=None)
-        }
-        return render_template('contactos.html', contactos=contactos, primeros_últimos_contactos=primeros_últimos_contactos)
+            ultimo_mensaje = response_historial.data[0] if response_historial.data else {"mensaje": "Sin mensajes", "timestamp": "N/A"}
+
+            # Agregar los datos del contacto junto con el último mensaje
+            contactos.append({
+                "numero": contacto["numero"],
+                "nombre": contacto["nombre"],
+                "correo": contacto.get("correo", "N/A"),
+                "celular": contacto.get("celular", "N/A"),
+                "ultimo_mensaje": ultimo_mensaje["timestamp"],
+                "cantidad_mensajes": contacto.get("cantidad_mensajes", 0),
+                "ultimo_texto": ultimo_mensaje["mensaje"]
+            })
+
+        # Depuración: Verificar los datos procesados
+        print(f"🔍 Contactos procesados: {contactos}")
+
+        return render_template('contactos.html', contactos=contactos)
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
         return jsonify({"success": False, "error": "Error al cargar contactos"}), 500
