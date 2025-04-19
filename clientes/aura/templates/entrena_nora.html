@@ -28,8 +28,16 @@
             <!-- 1. Crea una bienvenida -->
             <div class="modulo">
                 <h2>👋 Crea una bienvenida</h2>
+                <p>Configura el mensaje que Nora enviará automáticamente cuando alguien diga "Hola" o algo similar.</p>
+                <p><strong>Ejemplos:</strong></p>
+                <ul>
+                    <li>👋 "¡Hola! Soy Nora, tu asistente virtual. ¿En qué puedo ayudarte hoy?"</li>
+                    <li>🤖 "¡Hola! Estoy aquí para responder tus preguntas. ¿Cómo puedo ayudarte?"</li>
+                    <li>💬 "¡Hola! Soy Nora de [Nombre de la Empresa]. ¿Cómo puedo asistirte?"</li>
+                </ul>
                 <form action="/admin/nora/{{ nombre_nora }}/entrenar/bienvenida" method="POST">
-                    <textarea name="bienvenida" rows="3" placeholder="Escribe el mensaje de bienvenida...">{{ config.bienvenida or "" }}</textarea>
+                    <label for="bienvenida">Escribe el mensaje de bienvenida:</label>
+                    <textarea id="bienvenida" name="bienvenida" rows="3" placeholder="Escribe el mensaje de bienvenida aquí...">{{ config.bienvenida or "" }}</textarea>
                     <button type="submit">Guardar bienvenida</button>
                 </form>
             </div>

@@ -175,3 +175,30 @@ def entrenar_nora(nombre_nora):
         nombre_nora=nombre_nora,
         config=config
     )
+
+
+@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/bienvenida", methods=["POST"])
+def entrenar_bienvenida(nombre_nora):
+    # Obtener el mensaje de bienvenida del formulario
+    bienvenida = request.form.get("bienvenida", "").strip()
+
+    if not bienvenida:
+        flash("❌ El mensaje de bienvenida no puede estar vacío.", "error")
+        return redirect(url_for("admin_nora.entrenar_nora", nombre_nora=nombre_nora))
+
+    # Guardar el mensaje de bienvenida en la base de datos
+    try:
+        response = supabase.table("configuracion_bot").update({
+            "bienvenida": bienvenida
+        }).eq("nombre_nora", nombre_nora).execute()
+
+        if not response.data:
+            flash("❌ Error al guardar el mensaje de bienvenida.", "error")
+            return redirect(url_for("admin_nora.entrenar_nora", nombre_nora=nombre_nora))
+
+        flash("✅ Mensaje de bienvenida guardado correctamente.", "success")
+    except Exception as e:
+        print(f"❌ Error al guardar el mensaje de bienvenida: {str(e)}")
+        flash("❌ Error al guardar el mensaje de bienvenida.", "error")
+
+    return redirect(url_for("admin_nora.entrenar_nora", nombre_nora=nombre_nora))

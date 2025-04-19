@@ -20,19 +20,7 @@ def panel_cliente(nombre_nora):
 
     session["nombre_nora"] = nombre_nora
 
-    # Cargar configuración desde Supabase
-    try:
-        response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
-        if not response.data:
-            print(f"❌ Error al cargar configuración: {not response.data}")
-            return f"❌ No se encontró la configuración de la Nora {nombre_nora}"
-        config = response.data[0]
-    except Exception as e:
-        print(f"❌ Error al cargar configuración: {str(e)}")
-        return f"❌ Error al cargar configuración de la Nora {nombre_nora}"
-
-    nombre_visible = config.get("nombre_visible", nombre_nora)
-    modulos = config.get("modulos", [])
+    modulos = ["contactos", "etiquetas", "envios", "entrenamiento", "ia"]
 
     print(f"🔓 Acceso al panel del cliente: {nombre_nora} – Usuario: {session['user']['name']}")
 
@@ -40,6 +28,24 @@ def panel_cliente(nombre_nora):
         "panel_cliente.html",
         user=session["user"],
         nombre_nora=nombre_nora,
-        nombre_visible=nombre_visible,
         modulos=modulos
+    )
+
+@panel_cliente_bp.route("/panel/cliente/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
+def panel_entrenamiento(nombre_nora):
+    if "user" not in session:
+        return redirect(url_for("login.login_google"))
+
+    # Cargar configuración existente desde Supabase
+    try:
+        response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
+        config = response.data[0] if response.data else {}
+    except Exception as e:
+        print(f"❌ Error al cargar configuración: {str(e)}")
+        config = {}
+
+    return render_template(
+        "entrena_nora.html",
+        nombre_nora=nombre_nora,
+        config=config
     )
