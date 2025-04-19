@@ -32,7 +32,7 @@ async function cargarChat(numero) {
         }
 
         historial = data.mensajes || [];
-        renderizarMensajes(historial);
+        renderizarMensajes(data.mensajes);
         actualizarInfoContacto(data.contacto, data.resumen_ia);
         document.getElementById("cargar-mas").style.display = "block";
     } catch (error) {
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         historial = data.mensajes || [];
-        renderizarMensajes(historial);
+        renderizarMensajes(data.mensajes);
         actualizarInfoContacto(data.contacto, data.resumen_ia);
         document.getElementById("cargar-mas").style.display = "block";
 
@@ -86,28 +86,6 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("cargar-mas").style.display = "none";
         }
     });
-
-    function renderizarMensajes(mensajes) {
-        chatArea.innerHTML = ""; // limpia
-
-        mensajes.forEach((msg) => {
-            const burbuja = document.createElement("div");
-            burbuja.classList.add("burbuja", msg.emisor === "bot" ? "nora" : "usuario");
-
-            const texto = document.createElement("p");
-            texto.innerText = msg.mensaje;
-            burbuja.appendChild(texto);
-
-            const hora = document.createElement("span");
-            hora.classList.add("hora");
-            hora.innerText = msg.hora?.slice(11, 16) || "";
-            burbuja.appendChild(hora);
-
-            chatArea.appendChild(burbuja);
-        });
-
-        chatArea.scrollTop = chatArea.scrollHeight;
-    }
 
     function actualizarInfoContacto(contacto, resumen) {
         document.getElementById("nombre-contacto").innerText = contacto.nombre || "Sin nombre";
@@ -225,7 +203,11 @@ function seleccionarContacto(telefono) {
         .then(res => res.json())
         .then(data => {
             if (!data.success) throw new Error("No se pudo cargar el historial.");
+            
+            // Renderizar mensajes en el área de chat
             renderizarMensajes(data.mensajes);
+
+            // Actualizar información del contacto en la columna derecha
             document.getElementById("contacto-nombre").innerText = data.contacto.nombre || telefono;
             document.getElementById("contacto-telefono").innerText = data.contacto.telefono;
 
@@ -235,7 +217,20 @@ function seleccionarContacto(telefono) {
                 `<span class="tag">${et}</span>`
             ).join("");
 
+            // Actualizar resumen IA
             document.getElementById("resumen-ia").innerText = data.resumen_ia || "Sin resumen aún.";
         })
         .catch(err => console.error("Error al cargar el historial:", err));
+}
+
+function renderizarMensajes(mensajes) {
+    const chatArea = document.getElementById("chat-area");
+    chatArea.innerHTML = ""; // Limpiar el área de chat
+
+    mensajes.forEach(mensaje => {
+        const div = document.createElement("div");
+        div.className = `burbuja ${mensaje.emisor === "usuario" ? "usuario" : "nora"}`;
+        div.innerText = mensaje.mensaje;
+        chatArea.appendChild(div);
+    });
 }

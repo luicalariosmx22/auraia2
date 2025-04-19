@@ -132,8 +132,8 @@ def api_chat(telefono):
     print(f"🔍 API Chat - Cargando datos para el teléfono: {telefono}...")
     contactos = leer_contactos()
     contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
-    historial = leer_historial(telefono)
-    resumen = generar_resumen_ia(historial)
+    historial = leer_historial(telefono)  # Función que obtiene los mensajes del contacto
+    resumen = generar_resumen_ia(historial)  # Opcional: Generar un resumen con IA
     print(f"✅ API Chat - Datos cargados para {telefono}: {historial}")
     return jsonify({
         "success": True,
