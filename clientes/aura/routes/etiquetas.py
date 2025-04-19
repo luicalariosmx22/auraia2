@@ -17,16 +17,24 @@ def panel_etiquetas(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
+    # Depuración: Verificar el valor de nombre_nora
+    print(f"🔍 nombre_nora recibido: {nombre_nora}")
+
     # Obtener etiquetas desde la base de datos
     try:
         response = supabase.table("etiquetas").select("etiqueta").eq("nombre_nora", nombre_nora).execute()
-        etiquetas = [row["etiqueta"] for row in response.data if row["etiqueta"]]
+        print(f"🔍 Respuesta de la base de datos: {response.data}")  # Depuración: Verificar la respuesta
+        etiquetas = [row["etiqueta"] for row in response.data if row.get("etiqueta")]
     except Exception as e:
         print(f"❌ Error al cargar etiquetas: {str(e)}")
         etiquetas = []
 
+    # Depuración: Verificar las etiquetas obtenidas
+    print(f"🔍 Etiquetas obtenidas: {etiquetas}")
+
     if request.method == "POST":
         nueva_etiqueta = request.form.get("nueva_etiqueta", "").strip()
+        print(f"🔍 Nueva etiqueta recibida: {nueva_etiqueta}")  # Depuración: Verificar el valor del formulario
         if nueva_etiqueta:
             try:
                 supabase.table("etiquetas").insert({"nombre_nora": nombre_nora, "etiqueta": nueva_etiqueta}).execute()
