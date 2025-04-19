@@ -29,7 +29,7 @@
         <option value="no contestó">No contestó</option>
       </select>
       <ul id="lista-contactos" class="lista-contactos">
-        <!-- Los contactos se renderizan dinámicamente -->
+        <!-- Los contactos no se renderizan dinámicamente -->
       </ul>
     </div>
 
@@ -70,144 +70,11 @@
   </div>
 
   <script>
-    function renderizarContactos() {
-      const contenedor = document.getElementById('lista-contactos');
-      contenedor.innerHTML = "";
-
-      contactos.forEach(c => {
-        const ultimoMensaje = (c.mensajes && c.mensajes.length > 0)
-          ? c.mensajes[c.mensajes.length - 1].mensaje.slice(0, 30) + "..."
-          : "Sin mensajes aún";
-
-        const item = document.createElement("li");
-        item.className = "contacto-item";
-        item.innerHTML = `
-          <div onclick="seleccionarContacto('${c.telefono}')">
-            <strong>${c.nombre || c.telefono}</strong>
-            ${(c.etiquetas || []).map(tag => `
-              <span class="etiqueta-chip" onclick="eliminarEtiqueta(event, '${c.telefono}', '${tag}')">${tag}</span>
-            `).join('')}
-            <br>
-            <span class="ultimo-mensaje">${ultimoMensaje}</span>
-          </div>
-        `;
-        contenedor.appendChild(item);
-      });
-    }
-
-    function seleccionarContacto(telefono) {
-      contactoSeleccionado = telefono;
-      fetch(`/api/chat/${telefono}`)
-        .then(res => res.json())
-        .then(data => {
-          if (!data.success) throw new Error("No se pudo cargar historial.");
-          renderizarMensajes(data.mensajes);
-          document.getElementById("contacto-nombre").innerText = data.contacto.nombre || telefono;
-          document.getElementById("contacto-telefono").innerText = data.contacto.telefono;
-
-          // Renderizar etiquetas
-          const etiquetasBox = document.getElementById("contacto-tags");
-          etiquetasBox.innerHTML = (data.contacto.etiquetas || []).map(et =>
-            `<span class="tag">
-               ${et} <button onclick="eliminarEtiqueta(event, '${telefono}', '${et}')">x</button>
-             </span>`
-          ).join("");
-
-          document.getElementById("toggle-ia").checked = !!data.contacto.ia_activada;
-          document.getElementById("resumen-ia").innerText = data.resumen_ia || "Sin resumen aún.";
-        })
-        .catch(() => {
-          document.getElementById("chat-area").innerHTML = "<p class='error'>Error al cargar el historial.</p>";
-        });
-    }
-
-    function renderizarMensajes(mensajes) {
-      const area = document.getElementById("chat-area");
-      area.innerHTML = "";
-      mensajes.forEach(m => {
-        const div = document.createElement("div");
-        div.className = `burbuja ${m.emisor === "usuario" ? "usuario" : "nora"}`;
-        div.innerText = m.mensaje;
-        area.appendChild(div);
-      });
-    }
-
-    function enviarMensaje(e) {
-      e.preventDefault();
-      const texto = document.getElementById("mensaje-input").value.trim();
-      if (!texto || !contactoSeleccionado) return;
-
-      fetch("/api/enviar-mensaje", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          numero: contactoSeleccionado,
-          mensaje: texto
-        })
-      }).then(() => {
-        seleccionarContacto(contactoSeleccionado); // Recargar historial
-        document.getElementById("mensaje-input").value = "";
-      });
-    }
-
-    function toggleIA(checkbox) {
-      if (!contactoSeleccionado) return;
-      fetch(`/api/toggle-ia/${contactoSeleccionado}`, { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
-          if (!data.success) alert("Error al cambiar el estado de la IA.");
-        });
-    }
-
-    function agregarEtiqueta(telefono) {
-      const input = document.getElementById("nueva-etiqueta");
-      const etiqueta = input.value.trim().toLowerCase();
-      if (!etiqueta) return;
-
-      fetch(`/api/etiqueta/${telefono}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ etiqueta })
-      }).then(res => {
-        if (res.ok) {
-          seleccionarContacto(telefono); // recargar para mostrar nueva etiqueta
-          input.value = "";
-        }
-      });
-    }
-
-    // Permitir agregar etiqueta al presionar Enter
-    document.addEventListener("DOMContentLoaded", () => {
-      const inputEtiqueta = document.getElementById("nueva-etiqueta");
-      if (inputEtiqueta) {
-        inputEtiqueta.addEventListener("keypress", function (e) {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            const telefono = document.getElementById("contacto-telefono").innerText;
-            agregarEtiqueta(telefono);
-          }
-        });
-      }
-    });
-
-    function eliminarEtiqueta(event, telefono, etiqueta) {
-      event.stopPropagation();  // evitar seleccionar contacto por error
-
-      fetch(`/api/etiqueta/${telefono}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ etiqueta })
-      }).then(res => {
-        if (res.ok) {
-          seleccionarContacto(telefono);  // recargar datos del contacto
-        }
-      });
-    }
-
-    renderizarContactos();
+    // Elimina la llamada a renderizarContactos para evitar mostrar contactos
     if (contactos.length > 0) {
       seleccionarContacto(contactos[0].telefono);
     }
   </script>
 </body>
 </html>
+``` 
