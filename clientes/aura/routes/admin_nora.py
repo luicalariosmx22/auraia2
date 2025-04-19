@@ -128,3 +128,50 @@ def crear_nora():
         "admin_nora_nueva.html",
         modulos_disponibles=modulos_disponibles
     )
+
+
+@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar", methods=["GET", "POST"])
+def entrenar_nora(nombre_nora):
+    # Cargar configuración existente desde Supabase
+    try:
+        response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
+        if not response.data:
+            return f"❌ No se encontró la configuración para {nombre_nora}", 404
+        config = response.data[0]
+    except Exception as e:
+        print(f"❌ Error al cargar configuración: {str(e)}")
+        return f"❌ Error al cargar configuración para {nombre_nora}", 500
+
+    if request.method == "POST":
+        # Obtener datos del formulario
+        personalidad = request.form.get("personalidad", "").strip()
+        respuestas_rapidas = request.form.get("respuestas_rapidas", "").strip()
+        informacion_empresa = request.form.get("informacion_empresa", "").strip()
+
+        # Actualizar configuración en Supabase
+        try:
+            config["personalidad"] = personalidad
+            config["respuestas_rapidas"] = respuestas_rapidas.split(",")  # Convertir a lista
+            config["informacion_empresa"] = informacion_empresa
+            response = supabase.table("configuracion_bot").update(config).eq("nombre_nora", nombre_nora).execute()
+            if not response.data:
+                flash("❌ Error al actualizar configuración", "error")
+                return redirect(request.url)
+        except Exception as e:
+            print(f"❌ Error al actualizar configuración: {str(e)}")
+            flash("❌ Error al actualizar configuración", "error")
+            return redirect(request.url)
+
+        print(f"🧠 Nora '{nombre_nora}' entrenada:")
+        print(f"    ➤ Personalidad: {personalidad}")
+        print(f"    ➤ Respuestas rápidas: {respuestas_rapidas}")
+        print(f"    ➤ Información de la empresa: {informacion_empresa}")
+
+        flash("✅ Nora entrenada correctamente", "success")
+        return redirect(url_for("admin_nora.entrenar_nora", nombre_nora=nombre_nora))
+
+    return render_template(
+        "admin_nora_entrenar.html",
+        nombre_nora=nombre_nora,
+        config=config
+    )
