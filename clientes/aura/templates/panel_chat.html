@@ -36,11 +36,12 @@
           <li class="contacto-item" onclick="seleccionarContacto('{{ contacto.telefono }}')">
             <div>
               <strong class="contacto-nombre">{{ contacto.nombre or contacto.telefono }}</strong>
-              <div class="contacto-etiquetas">
-                {% for etiqueta in contacto.etiquetas %}
-                  <span class="etiqueta">{{ etiqueta }}</span>
-                {% endfor %}
-              </div>
+              {% for etiqueta in contacto.etiquetas %}
+                <span class="etiqueta">{{ etiqueta }}</span>
+              {% endfor %}
+              {% if contacto.mensajes and contacto.mensajes[-1].fecha %}
+                <span class="fecha-mensaje">{{ contacto.mensajes[-1].fecha.strftime('%d-%b') }}</span>
+              {% endif %}
             </div>
             <span class="ultimo-mensaje">
               {{ contacto.mensajes[-1].mensaje if contacto.mensajes else "Sin mensajes aún" }}
