@@ -176,7 +176,7 @@ def api_enviar_mensaje():
     })
 
     # Guardar el historial actualizado
-    guardar_historial(telefono, historial)
+    guardar_historial("Nora", telefono, historial)
     print(f"✅ Mensaje guardado en el historial para {telefono}: {texto}")
 
     return jsonify({"success": True})

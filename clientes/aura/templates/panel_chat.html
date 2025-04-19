@@ -62,15 +62,13 @@
     </div>
 
     <!-- Panel central (Mensajes) -->
-    <div class="col-central">
-      <div id="chat-area">
-        <p class="placeholder">Selecciona un contacto para ver la conversación</p>
-      </div>
-      <form class="form-envio" onsubmit="enviarMensaje(event)">
-        <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
-        <button type="submit">Enviar</button>
-      </form>
+    <div id="chat-area" class="chat-area">
+      <!-- Aquí se renderizan los mensajes -->
     </div>
+    <form id="form-enviar-mensaje" class="form-envio" onsubmit="enviarMensaje(event)">
+      <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
+      <button type="submit">Enviar</button>
+    </form>
 
     <!-- Panel derecho (Info del contacto) -->
     <div class="col-derecha">

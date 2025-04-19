@@ -94,29 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Agregar evento para enviar mensajes
-    document.querySelector(".form-envio").addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const input = this.querySelector("input[name='mensaje']");
-        const mensaje = input.value.trim();
-        if (!mensaje) return;
-
-        const numero = localStorage.getItem("numeroActivo");
-
-        fetch("/api/enviar-mensaje", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ numero, mensaje })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                input.value = "";
-                cargarChat(numero); // Recargar el chat automáticamente
-            }
-        })
-        .catch(err => console.error("❌ Error al enviar el mensaje:", err));
-    });
+    document.querySelector(".form-envio").addEventListener("submit", enviarMensaje);
 
     // Permitir agregar etiqueta al presionar Enter
     const inputEtiqueta = document.getElementById("nueva-etiqueta");
@@ -256,4 +234,52 @@ function renderizarMensajes(mensajes, contacto) {
 
     chatArea.appendChild(div);
   });
+}
+
+// Nueva implementación de enviarMensaje
+async function enviarMensaje(event) {
+  event.preventDefault(); // Evitar recargar la página
+
+  const input = document.getElementById("mensaje-input");
+  const mensaje = input.value.trim();
+  if (!mensaje) return; // No enviar mensajes vacíos
+
+  const telefono = localStorage.getItem("numeroActivo"); // Número del contacto seleccionado
+
+  try {
+    const response = await fetch("/api/enviar-mensaje", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        numero: telefono,
+        mensaje: mensaje
+      })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      console.log("✅ Mensaje enviado:", mensaje);
+
+      // Agregar el mensaje al área de chat
+      const chatArea = document.getElementById("chat-area");
+      const div = document.createElement("div");
+      div.className = "burbuja usuario";
+      div.innerHTML = `
+        <div class="remitente">Tú</div>
+        <div class="contenido">${mensaje}</div>
+        <div class="timestamp">${new Date().toLocaleString()}</div>
+      `;
+      chatArea.appendChild(div);
+
+      // Limpiar el campo de entrada
+      input.value = "";
+      chatArea.scrollTop = chatArea.scrollHeight; // Desplazar hacia abajo
+    } else {
+      console.error("❌ Error al enviar mensaje:", data.error);
+    }
+  } catch (err) {
+    console.error("❌ Error en la solicitud:", err);
+  }
 }

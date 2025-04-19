@@ -117,3 +117,37 @@
 .chat-input button:hover {
   background-color: #0056b3; /* Azul más oscuro */
 }
+
+.form-envio {
+  display: flex;
+  padding: 0.5rem;
+  background-color: #f8f9fa; /* Gris claro */
+  border-top: 1px solid #dee2e6; /* Borde gris */
+  position: sticky;
+  bottom: 0;
+  gap: 0.5rem;
+}
+
+.form-envio input[type="text"] {
+  flex: 1;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  border: 1px solid #ced4da; /* Borde gris */
+  outline: none;
+  background-color: #ffffff; /* Blanco */
+  color: #495057; /* Gris oscuro */
+}
+
+.form-envio button {
+  background-color: #007bff; /* Azul */
+  color: white;
+  border: none;
+  padding: 0.4rem 1.2rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form-envio button:hover {
+  background-color: #0056b3; /* Azul más oscuro */
+}
