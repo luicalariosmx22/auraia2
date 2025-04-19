@@ -8,16 +8,31 @@ body {
 .chat-wrapper {
   display: flex;
   height: 100vh;
+  overflow: hidden; /* Asegura que no haya scroll fuera del contenedor */
 }
 
-.col-izquierda {
-  width: 30%;
-  background-color: #fff;
-  border-right: 1px solid #ddd;
+.sidebar {
+  width: 25%; /* Ajusta el ancho de la barra lateral */
+  border-right: 1px solid #ccc;
   display: flex;
   flex-direction: column;
 }
 
+.chat-main {
+  flex: 1; /* Ocupa el espacio restante */
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-info {
+  width: 25%; /* Ajusta el ancho de la sección de información del contacto */
+  border-left: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+/* Barra de búsqueda */
 .buscador {
   padding: 10px;
   border-bottom: 1px solid #ddd;
@@ -31,6 +46,7 @@ body {
   background-color: #f0f2f5;
 }
 
+/* Lista de contactos */
 .lista-contactos {
   flex-grow: 1;
   overflow-y: auto;
@@ -67,15 +83,7 @@ body {
   margin-top: 4px;
 }
 
-.col-central {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  background-color: #e5ddd5;
-  position: relative;
-}
-
-/* Estilo general */
+/* Área de chat */
 #chat-area {
   flex-grow: 1;
   padding: 20px;
@@ -136,26 +144,7 @@ body {
   color: #999;
 }
 
-.mensaje {
-  max-width: 60%;
-  padding: 10px 15px;
-  margin: 5px 0;
-  border-radius: 8px;
-  font-size: 0.95em;
-  position: relative;
-}
-
-.mensaje.recibido {
-  background-color: #fff;
-  align-self: flex-start;
-  border: 1px solid #ddd;
-}
-
-.mensaje.enviado {
-  background-color: #dcf8c6;
-  align-self: flex-end;
-}
-
+/* Formulario de envío */
 .form-envio {
   display: flex;
   padding: 10px;
@@ -189,15 +178,7 @@ body {
   background-color: #009688;
 }
 
-.col-derecha {
-  width: 20%;
-  background-color: #fff;
-  border-left: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-}
-
+/* Información del contacto */
 .info-contacto {
   flex-grow: 1;
   display: flex;
