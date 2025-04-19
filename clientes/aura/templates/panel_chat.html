@@ -42,10 +42,23 @@
       <div class="info-contacto">
         <h4 id="contacto-nombre">Contacto</h4>
         <p><strong>Teléfono:</strong> <span id="contacto-telefono">---</span></p>
-        <p><strong>Etiquetas:</strong> <span id="contacto-etiquetas">---</span></p>
+        
+        <p><strong>Etiquetas:</strong> 
+          <span id="contacto-etiquetas">---</span>
+          <input id="nueva-etiqueta" type="text" placeholder="Agregar etiqueta" />
+          <button onclick="agregarEtiqueta()">+</button>
+        </p>
+
+        <div id="lista-etiquetas-editable"></div>
+
         <p><strong>IA activada:</strong>
           <input type="checkbox" id="toggle-ia" onchange="toggleIA(this)">
         </p>
+      </div>
+
+      <div class="info-contacto">
+        <h4>Resumen IA</h4>
+        <p id="resumen-ia">Selecciona un contacto para ver resumen.</p>
       </div>
     </div>
 
@@ -85,6 +98,16 @@
           document.getElementById("contacto-telefono").innerText = data.contacto.telefono;
           document.getElementById("contacto-etiquetas").innerText = (data.contacto.etiquetas || []).join(", ");
           document.getElementById("toggle-ia").checked = !!data.contacto.ia_activada;
+          document.getElementById("resumen-ia").innerText = data.resumen_ia || "Sin resumen aún.";
+
+          // Renderizar etiquetas con botón de eliminar
+          const etiquetas = data.contacto.etiquetas || [];
+          const listaEditable = document.getElementById("lista-etiquetas-editable");
+          listaEditable.innerHTML = etiquetas.map(et =>
+            `<span class="tag">
+               ${et} <button onclick="eliminarEtiqueta('${et}')">x</button>
+             </span>`
+          ).join("");
         })
         .catch(() => {
           document.getElementById("chat-area").innerHTML = "<p class='error'>Error al cargar el historial.</p>";
@@ -129,19 +152,29 @@
         });
     }
 
-    function filtrarContactosPorNombre(nombre) {
-      const nombreLimpio = nombre.toLowerCase();
-      document.querySelectorAll("#lista-contactos li").forEach(el => {
-        const texto = el.innerText.toLowerCase();
-        el.style.display = texto.includes(nombreLimpio) ? "block" : "none";
+    function agregarEtiqueta() {
+      const nueva = document.getElementById("nueva-etiqueta").value.trim();
+      if (!nueva || !contactoSeleccionado) return;
+
+      fetch(`/api/etiqueta/${contactoSeleccionado}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ etiqueta: nueva })
+      }).then(() => {
+        document.getElementById("nueva-etiqueta").value = "";
+        seleccionarContacto(contactoSeleccionado); // Recargar contacto
       });
     }
 
-    function filtrarContactosPorEtiqueta(etiqueta) {
-      document.querySelectorAll("#lista-contactos li").forEach(el => {
-        const contacto = contactos.find(c => el.innerText.includes(c.nombre || c.telefono));
-        const tieneEtiqueta = contacto.etiquetas.includes(etiqueta);
-        el.style.display = (etiqueta === "" || tieneEtiqueta) ? "block" : "none";
+    function eliminarEtiqueta(etiqueta) {
+      if (!contactoSeleccionado) return;
+
+      fetch(`/api/etiqueta/${contactoSeleccionado}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ etiqueta })
+      }).then(() => {
+        seleccionarContacto(contactoSeleccionado);
       });
     }
 

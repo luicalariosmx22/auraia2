@@ -155,3 +155,34 @@ def panel_cliente():
     except Exception as e:
         print(f"❌ Error en la ruta /panel_cliente: {str(e)}")
         return "Error al cargar el panel cliente", 500
+
+@panel_chat_bp.route("/api/etiqueta/<telefono>", methods=["POST", "DELETE"])
+def api_gestion_etiqueta(telefono):
+    """
+    Ruta para agregar o eliminar etiquetas de un contacto.
+    """
+    try:
+        body = request.get_json()
+        etiqueta = body.get("etiqueta", "").strip().lower()
+        telefono = normalizar_numero(telefono)
+
+        # Buscar el contacto en la base de datos
+        response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
+        if not response.data:
+            return jsonify({"success": False, "error": "Contacto no encontrado"}), 404
+
+        contacto = response.data[0]
+        etiquetas = set(contacto.get("etiquetas", []))
+
+        # Agregar o eliminar la etiqueta según el método HTTP
+        if request.method == "POST":
+            etiquetas.add(etiqueta)
+        elif request.method == "DELETE":
+            etiquetas.discard(etiqueta)
+
+        # Actualizar las etiquetas en la base de datos
+        supabase.table("contactos").update({"etiquetas": list(etiquetas)}).eq("telefono", telefono).execute()
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"❌ Error en la gestión de etiquetas para {telefono}: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
