@@ -5,174 +5,34 @@ body {
   background-color: #f0f2f5;
 }
 
-/* 🟦 Proporciones exactas usando Grid */
+/* Estructura principal */
 .chat-wrapper {
-  display: grid;
-  grid-template-columns: 20% 50% 30%; /* Proporciones: 20% - 50% - 30% */
+  display: flex;
   height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-}
-
-/* 🟦 Diferenciación entre columnas */
-.sidebar {
-  background-color: #e9f2fc; /* azul muy claro */
-  border-right: 2px solid #c4e2ff;
-  box-shadow: inset -2px 0 5px rgba(0, 128, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.chat-main {
-  background-color: #f2f7fa;
-  border-right: 2px solid #c4e2ff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-.contact-info {
-  background-color: #f8fbff;
-  box-shadow: inset 2px 0 5px rgba(0, 128, 255, 0.05);
-  padding: 1.5rem;
-  overflow-y: auto;
-}
-
-/* 🏷️ Estilo para etiquetas pequeñas tipo chip */
-.etiqueta-chip {
-  display: inline-block;
-  background-color: #d0e7ff;
-  color: #004080;
-  padding: 2px 6px;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  margin-left: 6px;
-  vertical-align: middle;
-  line-height: 1;
-}
-
-/* 🧾 Acomodar texto en la lista de contactos */
-.contacto-item {
-  padding: 0.7rem 1rem;
-  border-bottom: 1px solid #ddd;
-  cursor: pointer;
-}
-
-.contacto-item strong {
-  display: inline-block;
-  font-size: 0.95rem;
-  color: #111;
-}
-
-.contacto-item .ultimo-mensaje {
-  font-size: 0.75rem;
-  color: #666;
-  margin-top: 4px;
-  display: block;
-}
-
-/* 🟩 Etiquetas tipo burbuja */
-.etiqueta-burbuja {
-  display: inline-block;
-  background-color: #d6ecff;
-  color: #005fa3;
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  margin: 3px 4px 3px 0;
-  border-radius: 12px;
-  font-weight: 500;
-}
-
-/* 🟦 Etiquetas en la lista izquierda */
-.contacto-item .etiqueta-burbuja {
-  background-color: #e0f3ff;
-  color: #005073;
-  font-size: 0.65rem;
-  margin-top: 3px;
-}
-
-/* Mensajes estilo burbuja */
-.mensaje {
-  max-width: 70%;
-  padding: 10px 14px;
-  margin: 8px 0;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  word-wrap: break-word;
-}
-
-.mensaje.usuario {
-  background-color: #dfffdc;
-  color: #000;
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
-  align-self: flex-end;
-  max-width: 75%;
-  margin: 0.4rem 0;
-}
-
-.mensaje.bot {
-  background-color: #d7ebff;
-  color: #003366;
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
-  align-self: flex-start;
-  max-width: 75%;
-  margin: 0.4rem 0;
-}
-
-/* Input fijo al fondo */
-.chat-input {
-  display: flex;
-  padding: 0.5rem;
-  background-color: #f0f0f0;
-  border-top: 1px solid #ccc;
-  position: sticky;
-  bottom: 0;
-  gap: 0.5rem;
-}
-
-.chat-input input[type="text"] {
-  flex: 1;
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-  outline: none;
-}
-
-.chat-input button {
-  background-color: #4da6ff;
-  color: white;
-  border: none;
-  padding: 0.4rem 1.2rem;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.chat-input button:hover {
-  background-color: #3399ff;
-}
-
-/* Barra de búsqueda */
-.buscador {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.buscador input {
   width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  background-color: #f0f2f5;
+  overflow: hidden;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-/* Lista de contactos */
-.lista-contactos {
+/* 🟦 Sidebar (20%) */
+.sidebar {
+  flex: 1;
+  background-color: #f1f6fb;
+  border-right: 2px solid #c3dafe;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-bar input,
+.filter-bar select {
+  padding: 10px;
+  border: none;
+  border-bottom: 1px solid #d0d0d0;
+  width: 100%;
+  background-color: #fff;
+}
+
+#lista-contactos {
   flex-grow: 1;
   overflow-y: auto;
   list-style: none;
@@ -180,226 +40,140 @@ body {
   padding: 0;
 }
 
-.lista-contactos li {
-  padding: 15px;
-  border-bottom: 1px solid #eee;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.lista-contactos li:hover {
-  background-color: #f5f5f5;
-}
-
-.nombre {
-  font-weight: 600;
-  font-size: 1em;
-  color: #111;
-}
-
-.numero {
-  font-size: 0.85em;
-  color: #777;
-}
-
-.preview {
-  font-size: 0.8em;
-  color: #aaa;
-  margin-top: 4px;
-}
-
-/* Área de chat */
-#chat-area {
-  flex-grow: 1;
-  padding: 20px;
-  overflow-y: auto;
-  background-color: #eaeff1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Burbuja base */
-.burbuja {
-  max-width: 70%;
-  padding: 10px 15px;
-  border-radius: 20px;
-  position: relative;
-  font-size: 14px;
-  line-height: 1.4;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  display: inline-block;
-  align-self: flex-start;
-}
-
-/* Usuario (cliente) */
-.burbuja.usuario {
-  background-color: #ffffff;
-  align-self: flex-end;
-  border-bottom-right-radius: 0;
-}
-
-/* Bot (Nora) */
-.burbuja.nora {
-  background-color: #dcf8c6;
-  align-self: flex-start;
-  border-bottom-left-radius: 0;
-}
-
-/* Hora dentro de la burbuja */
-.burbuja .hora {
-  font-size: 11px;
-  color: #888;
-  position: absolute;
-  bottom: 5px;
-  right: 10px;
-}
-
-/* Mensaje de estado */
-.cargando, .error {
-  color: #555;
-  padding: 10px;
-  font-style: italic;
-}
-
-.chat-area .placeholder {
-  text-align: center;
-  margin-top: 100px;
-  color: #999;
-}
-
-/* Formulario de envío */
-.form-envio {
-  display: flex;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border-top: 1px solid #ddd;
-}
-
-.form-envio input {
-  flex-grow: 1;
+#lista-contactos .contacto-item {
   padding: 12px;
-  border: none;
-  border-radius: 25px;
-  outline: none;
-  font-size: 1em;
-  background-color: white;
-}
-
-.form-envio button {
-  background-color: #00bfa5;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 25px;
-  margin-left: 10px;
-  font-weight: bold;
+  border-bottom: 1px solid #e1e1e1;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.form-envio button:hover {
-  background-color: #009688;
+#lista-contactos .contacto-item:hover {
+  background-color: #eaf2fb;
 }
 
-/* Información del contacto */
-.info-contacto {
-  flex-grow: 1;
+#lista-contactos .ultimo-mensaje {
+  font-size: 0.85em;
+  color: #666;
+}
+
+.contacto-etiquetas {
+  display: inline-block;
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-size: 0.7em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 5px;
+}
+
+/* 🟦 Chat principal (50%) */
+.chat-main {
+  flex: 2.5;
+  background-color: #eef3f6;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-right: 2px solid #c3dafe;
 }
 
-.info-contacto p {
-  color: #555;
+.chat-header {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ccc;
 }
 
-/* Estilos para las etiquetas */
-.etiquetas-box {
-  margin: 10px 0;
+.chat-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mensaje {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 80%;
+}
+
+.mensaje.usuario {
+  background-color: #c7e2ff;
+  align-self: flex-end;
+  text-align: right;
+}
+
+.mensaje.bot {
+  background-color: #ffffff;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.chat-input {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
+  margin-top: auto;
 }
 
-.tag {
-  background-color: #d6ecff;
-  color: #004080;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.tag .x {
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 12px;
-}
-
-.etiqueta-input {
-  display: flex;
-  margin-top: 6px;
-  gap: 5px;
-}
-
-.etiqueta-input input {
+.chat-input input {
   flex: 1;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 10px;
   border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
-.etiqueta-input button {
-  background-color: #00aaff;
-  border: none;
+.chat-input button {
+  padding: 10px 15px;
+  background-color: #3b82f6;
   color: white;
-  padding: 4px 10px;
-  border-radius: 8px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
 }
-/* 🏷️ Etiqueta con tooltip y eliminación */
-.etiqueta-chip {
+
+/* 🟦 Info del contacto (30%) */
+.contact-info {
+  flex: 1.5;
+  background-color: #f9fbff;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.contact-info h4 {
+  margin-top: 1rem;
+  color: #1e3a8a;
+}
+
+.toggle-ia {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 1rem 0;
+}
+
+.etiqueta-tag {
   display: inline-block;
-  background-color: #d0e7ff;
-  color: #004080;
-  padding: 2px 8px;
-  border-radius: 12px;
+  background-color: #dbeafe;
+  color: #1d4ed8;
   font-size: 0.7rem;
-  margin: 0 3px;
+  padding: 2px 6px;
+  margin: 2px 5px 2px 0;
+  border-radius: 10px;
   cursor: pointer;
-  position: relative;
-  transition: background-color 0.2s ease-in-out;
 }
 
-.etiqueta-chip:hover {
-  background-color: #a4d2ff;
+.etiqueta-tag:hover {
+  background-color: #bfdbfe;
 }
 
-/* Tooltip de eliminación */
-.etiqueta-chip::after {
-  content: "Haz clic para eliminar";
-  position: absolute;
-  bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #004080;
-  color: #fff;
-  font-size: 0.65rem;
-  padding: 3px 6px;
-  border-radius: 4px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-  z-index: 10;
+.etiqueta-tag .eliminar-etiqueta {
+  margin-left: 4px;
+  color: #888;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-.etiqueta-chip:hover::after {
-  opacity: 1;
+.placeholder {
+  color: #888;
+  text-align: center;
+  padding: 2rem;
 }
