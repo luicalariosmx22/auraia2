@@ -41,6 +41,39 @@ body {
   overflow-y: auto;
 }
 
+/* 🏷️ Estilo para etiquetas pequeñas tipo chip */
+.etiqueta-chip {
+  display: inline-block;
+  background-color: #d0e7ff;
+  color: #004080;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  margin-left: 6px;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* 🧾 Acomodar texto en la lista de contactos */
+.contacto-item {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.contacto-item strong {
+  display: inline-block;
+  font-size: 0.95rem;
+  color: #111;
+}
+
+.contacto-item .ultimo-mensaje {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 4px;
+  display: block;
+}
+
 /* 🟩 Etiquetas tipo burbuja */
 .etiqueta-burbuja {
   display: inline-block;
