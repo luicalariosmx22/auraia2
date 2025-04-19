@@ -26,6 +26,25 @@ def leer_historial(telefono):
         print(f"❌ Error al leer historial para {telefono}: {str(e)}")
         return []
 
+def actualizar_contacto(telefono, data):
+    try:
+        response = supabase.table("contactos").update(data).eq("numero", telefono).execute()
+        print(f"✅ Contacto actualizado: {response.data}")
+        return True
+    except Exception as e:
+        print(f"❌ Error al actualizar contacto: {str(e)}")
+        return False
+
+def obtener_contacto(telefono):
+    try:
+        response = supabase.table("contactos").select("*").eq("numero", telefono).execute()
+        if response.data:
+            return response.data[0]
+        return None
+    except Exception as e:
+        print(f"❌ Error al obtener contacto: {str(e)}")
+        return None
+
 @contactos_bp.route('/contactos', methods=['GET'])
 def ver_contactos():
     try:
@@ -119,39 +138,34 @@ def agregar_contacto():
         print(f"❌ Error al agregar contacto: {str(e)}")
         return jsonify({"success": False, "error": "Error al agregar contacto"}), 500
 
-@contactos_bp.route("/editar/<telefono>", methods=["GET", "POST"])
+@contactos_bp.route('/contactos/editar/<telefono>', methods=['GET', 'POST'])
 def editar_contacto(telefono):
-    if request.method == "POST":
-        nombre = request.form.get("nombre")
-        nota = request.form.get("nota")
-        correo = request.form.get("correo")
-        celular = request.form.get("celular")
-        etiquetas = request.form.get("etiquetas")
+    if request.method == 'POST':
+        # Obtener datos del formulario
+        nombre = request.form.get('nombre')
+        correo = request.form.get('correo')
+        celular = request.form.get('celular')
+        etiquetas = request.form.get('etiquetas').split(',')  # Convertir etiquetas en lista
 
-        print(f"📝 Editando {telefono} con: nombre={nombre}, etiquetas={etiquetas}")
-        try:
-            response = supabase.table("contactos").update({
-                "nombre": nombre,
-                "nota": nota,
-                "correo": correo,
-                "celular": celular,
-                "etiquetas": etiquetas
-            }).eq("numero", telefono).execute()
-            print(f"✅ Contacto actualizado: {response.data}")
-            return redirect(url_for("contactos.ver_contactos"))
-        except Exception as e:
-            print(f"❌ Error al editar contacto: {str(e)}")
-            return jsonify({"success": False, "error": "Error al editar contacto"}), 500
+        # Actualizar el contacto en la base de datos
+        data = {
+            "nombre": nombre,
+            "correo": correo,
+            "celular": celular,
+            "etiquetas": etiquetas
+        }
+        response = actualizar_contacto(telefono, data)
+        if response:
+            return redirect(url_for('contactos.ver_contactos'))
+        else:
+            return jsonify({"success": False, "error": "Error al actualizar el contacto"}), 500
 
-    try:
-        response = supabase.table("contactos").select("*").eq("numero", telefono).execute()
-        if not response.data:
-            return jsonify({"success": False, "error": "Contacto no encontrado"}), 404
-        contacto = response.data[0]
-        return render_template("editar_contacto.html", contacto=contacto)
-    except Exception as e:
-        print(f"❌ Error al cargar contacto: {str(e)}")
-        return jsonify({"success": False, "error": "Error al cargar contacto"}), 500
+    # Si es una solicitud GET, obtener los datos del contacto
+    contacto = obtener_contacto(telefono)
+    if not contacto:
+        return jsonify({"success": False, "error": "Contacto no encontrado"}), 404
+
+    return render_template('editar_contacto.html', contacto=contacto)
 
 @contactos_bp.route('/contactos/eliminar/<numero>', methods=['DELETE'])
 def eliminar_contacto(numero):
@@ -208,8 +222,10 @@ def acciones_contactos():
             return jsonify({"success": True})
 
         elif accion == "editar":
-            print(f"✏️ Contactos seleccionados para editar: {seleccionados}")
-            return jsonify({"success": True, "message": "Función de edición no implementada"})
+            if len(seleccionados) != 1:
+                return jsonify({"success": False, "error": "Selecciona un solo contacto para editar"}), 400
+            telefono = seleccionados[0]
+            return redirect(url_for('contactos.editar_contacto', telefono=telefono))
 
         return jsonify({"success": False, "error": "Acción no válida"}), 400
     except Exception as e:
