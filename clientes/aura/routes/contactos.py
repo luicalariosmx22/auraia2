@@ -15,6 +15,22 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Ruta de contactos
 contactos_bp = Blueprint('contactos', __name__)
 
+def leer_historial(telefono):
+    """
+    Simula la lectura del historial de mensajes para un número de teléfono.
+    Aquí puedes implementar la lógica para consultar la tabla `historial_conversaciones`.
+    """
+    try:
+        response_historial = supabase.table("historial_conversaciones") \
+            .select("mensaje, timestamp") \
+            .eq("telefono", telefono) \
+            .order("timestamp", desc=True) \
+            .execute()
+        return response_historial.data
+    except Exception as e:
+        print(f"❌ Error al leer historial para {telefono}: {str(e)}")
+        return []
+
 # Mostrar contactos
 @contactos_bp.route('/contactos', methods=['GET'])
 def ver_contactos():
@@ -40,6 +56,13 @@ def ver_contactos():
 
         contactos = response_contactos.data
         print(f"🔍 Contactos obtenidos: {contactos}")
+
+        # Obtener el historial y el último mensaje para cada contacto
+        for contacto in contactos:
+            historial = leer_historial(contacto["numero"])
+            ultimo = historial[0] if historial else {}
+            contacto["ultimo_mensaje"] = ultimo.get("mensaje", "")
+            contacto["fecha_ultimo_mensaje"] = ultimo.get("timestamp", "")
 
         # Obtener etiquetas únicas
         etiquetas = supabase.table("contactos").select("etiquetas").execute()
