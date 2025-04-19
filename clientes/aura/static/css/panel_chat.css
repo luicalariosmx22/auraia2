@@ -363,3 +363,43 @@ body {
   border-radius: 8px;
   cursor: pointer;
 }
+/* 🏷️ Etiqueta con tooltip y eliminación */
+.etiqueta-chip {
+  display: inline-block;
+  background-color: #d0e7ff;
+  color: #004080;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  margin: 0 3px;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.etiqueta-chip:hover {
+  background-color: #a4d2ff;
+}
+
+/* Tooltip de eliminación */
+.etiqueta-chip::after {
+  content: "Haz clic para eliminar";
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #004080;
+  color: #fff;
+  font-size: 0.65rem;
+  padding: 3px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+
+.etiqueta-chip:hover::after {
+  opacity: 1;
+}
