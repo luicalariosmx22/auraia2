@@ -5,31 +5,33 @@ body {
   background-color: #f0f2f5;
 }
 
+/* Estructura principal */
 .chat-wrapper {
   display: flex;
   height: 100vh;
-  overflow: hidden; /* Asegura que no haya scroll fuera del contenedor */
+  overflow: hidden;
 }
 
 .sidebar {
-  width: 25%; /* Ajusta el ancho de la barra lateral */
+  width: 20%;
+  background-color: #f1f1f1;
   border-right: 1px solid #ccc;
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
 }
 
 .chat-main {
-  flex: 1; /* Ocupa el espacio restante */
+  width: 50%;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid #ccc;
+  background-color: #fff;
 }
 
 .contact-info {
-  width: 25%; /* Ajusta el ancho de la sección de información del contacto */
-  border-left: 1px solid #ccc;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
+  width: 30%;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  overflow-y: auto;
 }
 
 /* Barra de búsqueda */
