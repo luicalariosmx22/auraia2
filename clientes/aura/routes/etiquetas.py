@@ -22,9 +22,9 @@ def panel_etiquetas(nombre_nora):
 
     # Obtener etiquetas desde la base de datos
     try:
-        response = supabase.table("etiquetas").select("etiqueta").eq("nombre_nora", nombre_nora).execute()
+        response = supabase.table("etiquetas").select("nombre").eq("nombre_nora", nombre_nora).execute()
         print(f"🔍 Respuesta de la base de datos: {response.data}")  # Depuración: Verificar la respuesta
-        etiquetas = [row["etiqueta"] for row in response.data if row.get("etiqueta")]
+        etiquetas = [row["nombre"] for row in response.data if row.get("nombre")]
     except Exception as e:
         print(f"❌ Error al cargar etiquetas: {str(e)}")
         etiquetas = []
@@ -37,7 +37,7 @@ def panel_etiquetas(nombre_nora):
         print(f"🔍 Nueva etiqueta recibida: {nueva_etiqueta}")  # Depuración: Verificar el valor del formulario
         if nueva_etiqueta:
             try:
-                supabase.table("etiquetas").insert({"nombre_nora": nombre_nora, "etiqueta": nueva_etiqueta}).execute()
+                supabase.table("etiquetas").insert({"nombre_nora": nombre_nora, "nombre": nueva_etiqueta}).execute()
                 flash(f"Etiqueta '{nueva_etiqueta}' agregada correctamente.", "success")
             except Exception as e:
                 print(f"❌ Error al agregar etiqueta: {str(e)}")
