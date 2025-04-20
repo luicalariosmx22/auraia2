@@ -93,6 +93,7 @@
               <th>Nombre</th>
               <th>Etiquetas</th>
               <th>Último Mensaje</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody id="contactos-tbody">
@@ -110,6 +111,10 @@
                 {% endif %}
               </td>
               <td>{{ c.ultimo_mensaje }}</td>
+              <td>
+                <a href="/contactos/editar/{{ c.telefono }}">✏️ Editar</a>
+                <button onclick="eliminarContacto('{{ c.telefono }}')">🗑️ Eliminar</button>
+              </td>
             </tr>
             {% endfor %}
           </tbody>
