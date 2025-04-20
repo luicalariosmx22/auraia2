@@ -50,7 +50,10 @@ registrar_blueprints_base(app)
 registrar_blueprints_cliente(app)
 registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
-registrar_blueprints_por_nora(app, "aura")
+
+# Registrar blueprints dinámicos según nombre_nora de la sesión
+if "nombre_nora" in session:
+    registrar_blueprints_por_nora(app, session["nombre_nora"])
 
 # Verificar si los Blueprints ya están registrados
 if "panel_chat" not in app.blueprints:
