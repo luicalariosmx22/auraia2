@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificador de Rutas</title>
+</head>
+<body>
+    <h2>❌ Rutas en HTML que NO existen en Flask</h2>
+    {% if rutas %}
+        <ul>
+        {% for ruta in rutas %}
+            <li style="color: red">{{ ruta }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color: green">✅ Todo está bien, no se encontraron rutas inválidas.</p>
+    {% endif %}
+</body>
+</html>
