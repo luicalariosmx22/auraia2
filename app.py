@@ -76,6 +76,10 @@ if "panel_cliente_contactos" not in app.blueprints:
 if "panel_cliente_envios" not in app.blueprints:  # <-- LÍNEA AGREGADA
     app.register_blueprint(panel_cliente_envios_bp, url_prefix="/panel/cliente")  # <-- LÍNEA AGREGADA
 
+# Registrar rutas en Supabase
+from clientes.aura.utils.rutas_logger import registrar_rutas_en_supabase
+registrar_rutas_en_supabase(app)
+
 # ========= RUTA INICIAL =========
 @app.route("/")
 def home():

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block title %}🛠 Verificador de Rutas{% endblock %}
+
+{% block content %}
+<h2>🛠 Rutas Registradas</h2>
+<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr>
+            <th>🛣 Ruta</th>
+            <th>📦 Blueprint</th>
+            <th>🔧 Método</th>
+            <th>🕒 Registrado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in rutas %}
+        <tr>
+            <td>{{ r.ruta }}</td>
+            <td>{{ r.blueprint }}</td>
+            <td>{{ r.metodo }}</td>
+            <td>{{ r.registrado_en[:19].replace("T", " ") }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
