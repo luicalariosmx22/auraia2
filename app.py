@@ -1,6 +1,6 @@
 print("🔥 ESTE ES EL APP.PY QUE SE ESTÁ EJECUTANDO")
 
-from flask import Flask, session, redirect, url_for
+from flask import Flask, session, redirect, url_for, request
 from flask_session import Session
 from dotenv import load_dotenv
 import os
@@ -21,12 +21,11 @@ app.secret_key = os.getenv("SECRET_KEY", "clave-secreta-por-defecto")
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+# Logger en producción
 if not app.debug:
     file_handler = RotatingFileHandler("error.log", maxBytes=10240, backupCount=10)
     file_handler.setLevel(logging.ERROR)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     app.logger.addHandler(file_handler)
 
@@ -36,7 +35,6 @@ from clientes.aura.registro.registro_base import registrar_blueprints_base
 from clientes.aura.registro.registro_cliente import registrar_blueprints_cliente
 from clientes.aura.registro.registro_admin import registrar_blueprints_admin
 from clientes.aura.registro.registro_debug import registrar_blueprints_debug
-from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.webhook import webhook_bp
 from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp
@@ -44,18 +42,14 @@ from clientes.aura.routes.etiquetas import etiquetas_bp
 from clientes.aura.routes.panel_cliente import panel_cliente_bp
 from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
 
-# Registro de Blueprints
+# Registro base
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
 registrar_blueprints_cliente(app)
 registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
 
-# Registrar blueprints dinámicos según nombre_nora de la sesión
-if "nombre_nora" in session:
-    registrar_blueprints_por_nora(app, session["nombre_nora"])
-
-# Verificar si los Blueprints ya están registrados
+# Rutas globales que no dependen de la sesión
 if "panel_chat" not in app.blueprints:
     app.register_blueprint(panel_chat_bp)
 
@@ -83,11 +77,10 @@ def home():
     if session.get("is_admin"):
         return redirect(url_for("admin_dashboard.dashboard_admin"))
     else:
-        return redirect(url_for("panel_cliente.panel_cliente", nombre_nora="aura"))
+        return redirect(url_for("panel_cliente.panel_cliente", nombre_nora=session.get("nombre_nora", "aura")))
 
 @app.route("/logout")
 def logout():
-    # Comportamiento normal
     session.clear()
     return redirect(url_for("login.login_google"))
 
