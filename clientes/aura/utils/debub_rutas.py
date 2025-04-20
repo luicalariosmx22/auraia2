@@ -1,9 +1,12 @@
 from flask import current_app
 
-def generar_html_rutas():
+def generar_html_rutas(output_path=None):
     """
     Genera un HTML con la lista de rutas registradas en la aplicación Flask.
-    
+
+    Args:
+        output_path (str, optional): Ruta donde se guardará el archivo HTML. Si no se proporciona, solo se devuelve el HTML.
+
     Returns:
         str: Código HTML con la información de las rutas.
     """
@@ -57,5 +60,14 @@ def generar_html_rutas():
     </body>
     </html>
     """
+
+    # Guardar el HTML en un archivo si se proporciona una ruta
+    if output_path:
+        try:
+            with open(output_path, "w", encoding="utf-8") as file:
+                file.write(html)
+            print(f"✅ HTML de rutas guardado en: {output_path}")
+        except Exception as e:
+            print(f"❌ Error al guardar el HTML de rutas: {str(e)}")
 
     return html
