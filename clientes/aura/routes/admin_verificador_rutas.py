@@ -1,19 +1,23 @@
-from flask import Blueprint, render_template
-import os
-from clientes.aura.utils.verificador_rutas import RutaChecker
+print("✅ admin_verificador_rutas.py cargado correctamente")
 
-admin_verificador_bp = Blueprint("admin_verificador", __name__)
+from flask import Blueprint, render_template, current_app
+from flask import session, redirect, url_for
+
+admin_verificador_bp = Blueprint("admin_verificador_rutas", __name__)
 
 @admin_verificador_bp.route("/admin/verificador_rutas")
-def verificador_rutas_admin():
-    # Usa la raíz del proyecto para hacer el análisis
-    carpeta_proyecto = os.getcwd()
-    checker = RutaChecker()
-    checker.analizar_rutas(carpeta_proyecto)
-    html_path = checker.generar_html()
+def verificador_rutas():
+    if "user" not in session or not session.get("is_admin"):
+        return redirect(url_for("login.login_google"))
 
-    # Leer el HTML generado como string para mostrarlo en el navegador
-    with open(html_path, "r", encoding="utf-8") as f:
-        contenido_html = f.read()
+    rutas = []
+    for rule in current_app.url_map.iter_rules():
+        rutas.append({
+            "endpoint": rule.endpoint,
+            "ruta": str(rule),
+            "métodos": ", ".join(rule.methods - {"HEAD", "OPTIONS"})
+        })
 
-    return contenido_html
+    rutas.sort(key=lambda x: x["ruta"])  # Ordenar alfabéticamente por ruta
+
+    return render_template("admin_verificador_rutas.html", rutas=rutas)
