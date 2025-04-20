@@ -1,0 +1,38 @@
+{% extends 'admin_layout.html' %}
+{% block title %}Debug Master{% endblock %}
+
+{% block content %}
+<h1>🧠 Panel de Debug Master</h1>
+
+<form method="POST" class="p-3 bg-white shadow rounded">
+    <label>🔎 Ingresa aquí un error que hayas recibido:</label>
+    <textarea name="error" rows="4" class="form-control mb-2" placeholder="Ejemplo: jinja2.exceptions.UndefinedError: 'user' is undefined">{{ error_usuario or '' }}</textarea>
+    <button type="submit" class="btn btn-primary">Buscar causa probable con IA</button>
+</form>
+
+{% if prompt_enviado %}
+<div class="mt-3">
+    <h5>🧠 Respuesta de la IA:</h5>
+    <pre style="background:#f3f3f3;padding:10px;border-radius:8px">{{ resultado_ai }}</pre>
+</div>
+{% endif %}
+
+<hr>
+
+<h3>🧩 Rutas HTML vs Flask</h3>
+<p><strong>Total en HTML:</strong> {{ rutas_html|length }} | <strong>Registradas en Flask:</strong> {{ rutas_flask|length }}</p>
+<ul>
+    {% for ruta in rutas_no_definidas %}
+    <li style="color:red">❌ No definida: <code>{{ ruta }}</code></li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<h3>🧪 Verificaciones del sistema</h3>
+<ul>
+    {% for item in sistema_logs %}
+        <li><strong>{{ item[0] }}</strong> — {{ item[2] }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
