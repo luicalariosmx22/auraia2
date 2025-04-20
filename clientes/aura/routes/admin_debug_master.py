@@ -14,58 +14,79 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @admin_debug_master_bp.route("/admin/debug/master", methods=["GET", "POST"])
 def debug_master():
-    resultado_ai = ""
-    prompt_enviado = ""
-    error_usuario = request.form.get("error") if request.method == "POST" else None
+    try:
+        resultado_ai = ""
+        prompt_enviado = ""
+        error_usuario = request.form.get("error") if request.method == "POST" else None
 
-    # 1️⃣ Rutas HTML y Flask
-    rutas_html = admin_debug_rutas.extraer_rutas_desde_templates("clientes/aura/templates")
-    rutas_flask = admin_debug_rutas.extraer_rutas_flask("clientes/aura/routes")
-    no_definidas = [r for r in rutas_html if r not in rutas_flask]
+        # 1️⃣ Rutas HTML y Flask
+        try:
+            rutas_html = admin_debug_rutas.extraer_rutas_desde_templates("clientes/aura/templates")
+            rutas_flask = admin_debug_rutas.extraer_rutas_flask("clientes/aura/routes")
+            no_definidas = [r for r in rutas_html if r not in rutas_flask]
+        except Exception as e:
+            rutas_html = []
+            rutas_flask = []
+            no_definidas = []
+            print(f"❌ Error al procesar rutas HTML y Flask: {str(e)}")
 
-    # 2️⃣ Verificar Supabase
-    supabase_logs = debug_supabase.run_verificacion()  # Corre la verificación completa de Supabase
+        # 2️⃣ Verificar Supabase
+        try:
+            supabase_logs = debug_supabase.run_verificacion()
+        except Exception as e:
+            supabase_logs = f"❌ Error al verificar Supabase: {str(e)}"
 
-    # 3️⃣ Verificar el sistema
-    sistema_logs = verificar_sistema()
+        # 3️⃣ Verificar el sistema
+        try:
+            sistema_logs = verificar_sistema()
+        except Exception as e:
+            sistema_logs = f"❌ Error al verificar el sistema: {str(e)}"
 
-    # 4️⃣ Generar HTML con rutas registradas
-    rutas_registradas_html = generar_html_rutas()
+        # 4️⃣ Generar HTML con rutas registradas
+        try:
+            rutas_registradas_html = generar_html_rutas()
+        except RuntimeError as e:
+            rutas_registradas_html = f"❌ Error al generar rutas: {str(e)}"
 
-    # 5️⃣ OpenAI para analizar errores proporcionados por el usuario
-    if error_usuario:
-        prompt_enviado = f"""
+        # 5️⃣ OpenAI para analizar errores proporcionados por el usuario
+        if error_usuario:
+            prompt_enviado = f"""
 Tengo un proyecto Flask y recibí este error:
 {error_usuario}
 
 Basado en este contexto, ¿cuál podría ser la causa probable?
 Evita suposiciones, responde como experto en debug de Flask y Python.
-        """.strip()
+            """.strip()
 
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "Eres un experto en detectar errores de programación en Flask y Supabase."},
-                    {"role": "user", "content": prompt_enviado}
-                ],
-                max_tokens=500,
-                temperature=0.2
-            )
-            resultado_ai = response.choices[0].message.content.strip()
-        except Exception as e:
-            resultado_ai = f"❌ Error al consultar OpenAI: {e}"
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "Eres un experto en detectar errores de programación en Flask y Supabase."},
+                        {"role": "user", "content": prompt_enviado}
+                    ],
+                    max_tokens=500,
+                    temperature=0.2
+                )
+                resultado_ai = response.choices[0].message.content.strip()
+            except openai.error.OpenAIError as e:
+                resultado_ai = f"❌ Error en OpenAI: {e.__class__.__name__} - {str(e)}"
+            except Exception as e:
+                resultado_ai = f"❌ Error desconocido: {str(e)}"
 
-    # Renderizar resultados en la plantilla
-    return render_template(
-        "admin_debug_master.html",
-        rutas_html=rutas_html,
-        rutas_flask=rutas_flask,
-        rutas_no_definidas=no_definidas,
-        rutas_registradas_html=rutas_registradas_html,
-        resultado_ai=resultado_ai,
-        prompt_enviado=prompt_enviado,
-        error_usuario=error_usuario,
-        sistema_logs=sistema_logs,
-        supabase_logs=supabase_logs
-    )
+        # Renderizar resultados en la plantilla
+        return render_template(
+            "admin_debug_master.html",
+            rutas_html=rutas_html,
+            rutas_flask=rutas_flask,
+            rutas_no_definidas=no_definidas,
+            rutas_registradas_html=rutas_registradas_html,
+            resultado_ai=resultado_ai,
+            prompt_enviado=prompt_enviado,
+            error_usuario=error_usuario,
+            sistema_logs=sistema_logs,
+            supabase_logs=supabase_logs
+        )
+    except Exception as e:
+        # Capturar errores inesperados en el flujo principal
+        return f"❌ Error crítico en debug_master: {str(e)}"

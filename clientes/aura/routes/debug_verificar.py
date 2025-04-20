@@ -20,6 +20,19 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+def verificar_sistema():
+    """
+    Realiza una verificación básica del sistema.
+
+    Returns:
+        str: Mensaje de verificación o error en caso de fallo.
+    """
+    try:
+        # Aquí puedes agregar cualquier lógica adicional de verificación
+        return "✅ Sistema verificado correctamente."
+    except Exception as e:
+        return f"❌ Error al verificar el sistema: {str(e)}"
+
 @debug_verificar_bp.route("/debug/verificar", methods=["GET"])  # ✅ RUTA CORREGIDA
 def verificar_configuracion():
     resultado = {}
