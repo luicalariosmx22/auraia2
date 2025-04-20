@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte del Proyecto</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Reporte del Proyecto</h1>
+    {% for categoria, archivos in categorias.items() %}
+    <h2>{{ categoria }}</h2>
+    <ul>
+        {% for archivo in archivos %}
+        <li>
+            <strong>Archivo:</strong> {{ archivo.nombre }}<br>
+            <strong>Propósito:</strong> {{ archivo.proposito }}<br>
+            <strong>Rutas:</strong> {{ archivo.rutas | join(", ") or "Ninguna" }}<br>
+            <strong>Archivos CSS:</strong> {{ archivo.css_files | join(", ") or "Ninguno" }}<br>
+            <strong>Archivos HTML:</strong> {{ archivo.html_files | join(", ") or "Ninguno" }}<br>
+            <strong>Tablas y columnas:</strong>
+            <ul>
+                {% for tabla in archivo.tablas_columnas %}
+                <li>Tabla: {{ tabla.tabla }}, Columnas: {{ tabla.columnas | join(", ") }}</li>
+                {% endfor %}
+            </ul>
+            <strong>Archivos .py usados:</strong> {{ archivo.archivos_py | join(", ") or "Ninguno" }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+</body>
+</html>
