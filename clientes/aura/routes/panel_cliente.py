@@ -13,23 +13,12 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_cliente_bp = Blueprint("panel_cliente", __name__)
 
-@panel_cliente_bp.route("/panel/cliente/<nombre_nora>")
+@panel_cliente_bp.route("/<nombre_nora>")
 def panel_cliente(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    session["nombre_nora"] = nombre_nora
-
-    modulos = ["contactos", "etiquetas", "envios", "entrenamiento", "ia"]
-
-    print(f"🔓 Acceso al panel del cliente: {nombre_nora} – Usuario: {session['user']['name']}")
-
-    return render_template(
-        "panel_cliente.html",
-        user=session["user"],
-        nombre_nora=nombre_nora,
-        modulos=modulos
-    )
+    return render_template("panel_cliente.html", nombre_nora=nombre_nora)
 
 @panel_cliente_bp.route("/panel/cliente/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
 def panel_entrenamiento(nombre_nora):
