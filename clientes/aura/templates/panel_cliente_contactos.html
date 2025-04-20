@@ -1,181 +1,74 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Panel de Contactos</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    .grid-container {
-      display: flex;
-      gap: 20px;
-    }
+{% extends 'layout.html' %}
 
-    .seccion {
-      flex: 1;
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+{% block contenido %}
+<h2>📞 Contactos</h2>
 
-    .seccion h3 {
-      margin-bottom: 20px;
-    }
+<!-- 📍 FILTROS -->
+<form id="filtros-form" method="GET" action="/{{ nombre_nora }}/contactos" class="meta-card">
+  <input type="text" name="busqueda" placeholder="Buscar por nombre o teléfono" value="{{ request.args.get('busqueda', '') }}">
+  <input type="date" name="fecha_inicio" value="{{ request.args.get('fecha_inicio', '') }}">
+  <input type="date" name="fecha_fin" value="{{ request.args.get('fecha_fin', '') }}">
+  <select name="etiqueta">
+    <option value="">Todas las etiquetas</option>
+    {% for etiqueta in etiquetas %}
+      <option value="{{ etiqueta }}" {% if request.args.get('etiqueta') == etiqueta %}selected{% endif %}>
+        {{ etiqueta }}
+      </option>
+    {% endfor %}
+  </select>
+  <button type="submit">Filtrar</button>
+</form>
 
-    .input-label {
-      font-weight: 600;
-      margin-bottom: 5px;
-      display: block;
-    }
+<!-- 📍 FORMULARIO PARA AGREGAR CONTACTO -->
+<form method="POST" action="/{{ nombre_nora }}/contactos/agregar" class="meta-card">
+  <input type="text" name="telefono" placeholder="Teléfono" required>
+  <input type="text" name="nombre" placeholder="Nombre" required>
+  <input type="email" name="correo" placeholder="Correo">
+  <input type="text" name="celular" placeholder="Celular">
+  <input type="text" name="etiqueta" placeholder="Etiqueta">
+  <button type="submit">Agregar Contacto</button>
+</form>
 
-    .meta-card-actions {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-    }
+<!-- 📍 LISTADO DE CONTACTOS -->
+<form method="POST" action="/{{ nombre_nora }}/contactos/acciones">
+  <table class="tabla-contactos">
+    <thead>
+      <tr>
+        <th>✓</th>
+        <th>Teléfono</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Celular</th>
+        <th>Etiquetas</th>
+        <th>Último mensaje</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in contactos %}
+        <tr>
+          <td><input type="checkbox" name="contactos_seleccionados" value="{{ c.telefono }}"></td>
+          <td>{{ c.telefono }}</td>
+          <td>{{ c.nombre }}</td>
+          <td>{{ c.correo or '' }}</td>
+          <td>{{ c.celular or '' }}</td>
+          <td>
+            {% if c.etiquetas %}
+              {{ c.etiquetas | join(', ') }}
+            {% else %}
+              Sin etiquetas
+            {% endif %}
+          </td>
+          <td>{{ c.ultimo_mensaje[:10] if c.ultimo_mensaje }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-    .filters {
-      margin-bottom: 20px;
-    }
-
-    .filters form {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .filters div {
-      flex: 1;
-      min-width: 150px;
-    }
-  </style>
-</head>
-<body>
-  <div class="meta-container">
-    <header class="meta-header">
-      <div>
-        <h1>📇 Panel de Contactos</h1>
-      </div>
-      <div class="logo">
-        <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo de Nora">
-      </div>
-    </header>
-    <div class="grid-container">
-      <!-- Columna 1: Lista de contactos -->
-      <section class="seccion">
-        <h3>👥 Contactos registrados</h3>
-
-        <!-- Filtros -->
-        <div class="filters">
-          <form id="filtros-form">
-            <input type="text" name="busqueda" placeholder="Buscar..." value="{{ request.args.get('busqueda', '') }}">
-            <input type="date" name="fecha_inicio" value="{{ request.args.get('fecha_inicio', '') }}">
-            <input type="date" name="fecha_fin" value="{{ request.args.get('fecha_fin', '') }}">
-            <select name="etiqueta">
-              <option value="">Todas las etiquetas</option>
-              {% for etiqueta in etiquetas %}
-              <option value="{{ etiqueta }}" {% if request.args.get('etiqueta') == etiqueta %}selected{% endif %}>
-                {{ etiqueta }}
-              </option>
-              {% endfor %}
-            </select>
-            <button type="submit">Aplicar filtros</button>
-          </form>
-        </div>
-
-        <!-- Tabla de contactos -->
-        <table class="noras-table">
-          <thead>
-            <tr>
-              <th>Teléfono</th>
-              <th>Nombre</th>
-              <th>Etiquetas</th>
-              <th>Último Mensaje</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="contactos-tbody">
-            {% for c in contactos %}
-            <tr>
-              <td>{{ c.telefono }}</td>
-              <td>{{ c.nombre }}</td>
-              <td>
-                {% if c.etiquetas %}
-                  {% for etiqueta in c.etiquetas %}
-                    <span class="badge">{{ etiqueta }}</span>
-                  {% endfor %}
-                {% else %}
-                  <span class="badge badge-muted">Sin etiquetas</span>
-                {% endif %}
-              </td>
-              <td>{{ c.ultimo_mensaje }}</td>
-              <td>
-                <a href="/contactos/editar/{{ c.telefono }}">✏️ Editar</a>
-                <button onclick="eliminarContacto('{{ c.telefono }}')">🗑️ Eliminar</button>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </section>
-
-      <!-- Columna 2: Agregar nuevo contacto -->
-      <section class="seccion">
-        <h3>➕ Agregar Nuevo Contacto</h3>
-        <form method="POST" action="/contactos/agregar" class="meta-card">
-          <label class="input-label" for="nombre">Nombre completo (obligatorio):</label>
-          <input type="text" id="nombre" name="nombre" required class="input-text">
-
-          <label class="input-label" for="telefono">Número de celular (obligatorio):</label>
-          <input type="text" id="telefono" name="telefono" required class="input-text">
-
-          <label class="input-label" for="correo">Correo electrónico (opcional):</label>
-          <input type="email" id="correo" name="correo" class="input-text">
-
-          <label class="input-label" for="empresa">Empresa (opcional):</label>
-          <input type="text" id="empresa" name="empresa" class="input-text">
-
-          <label class="input-label" for="direccion">Dirección (opcional):</label>
-          <input type="text" id="direccion" name="direccion" class="input-text">
-
-          <label class="input-label" for="ciudad">Ciudad (opcional):</label>
-          <input type="text" id="ciudad" name="ciudad" class="input-text">
-
-          <label class="input-label" for="rfc">RFC (opcional):</label>
-          <input type="text" id="rfc" name="rfc" class="input-text">
-
-          <label class="input-label" for="cumpleaños">Cumpleaños (opcional):</label>
-          <input type="date" id="cumpleaños" name="cumpleaños" class="input-text">
-
-          <label class="input-label" for="notas">Notas (opcional):</label>
-          <textarea id="notas" name="notas" class="input-text"></textarea>
-
-          <label class="input-label" for="etiquetas">Etiquetas (opcional):</label>
-          <input type="text" id="etiquetas" name="etiquetas" class="input-text">
-
-          <button type="submit" class="btn-primary">💾 Guardar</button>
-        </form>
-
-        <h3>📂 Importar Contactos</h3>
-        <form method="POST" action="/contactos/importar" enctype="multipart/form-data" class="meta-card">
-          <input type="file" name="archivo_csv" accept=".csv" class="input-file">
-          <button type="submit" class="btn-primary">📤 Importar CSV</button>
-        </form>
-      </section>
-    </div>
-  </div>
-
-  <!-- Incluir el archivo JavaScript -->
-  <script src="{{ url_for('static', filename='js/contactos.js') }}"></script>
-  <script>
-    fetch(`/nora123/contactos?busqueda=juan&fecha_inicio=2025-01-01&fecha_fin=2025-12-31&etiqueta=vip`, {
-      method: "GET",
-      headers: {
-        "X-Requested-With": "XMLHttpRequest"
-      }
-    });
-  </script>
-</body>
-</html>
+  <select name="accion" required>
+    <option value="">Selecciona una acción</option>
+    <option value="editar">Editar</option>
+    <option value="eliminar">Eliminar</option>
+  </select>
+  <button type="submit">Aplicar</button>
+</form>
+{% endblock %}

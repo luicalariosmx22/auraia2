@@ -18,6 +18,30 @@ def panel_contactos(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    # Lógica para manejar contactos
-    return render_template("panel_cliente_contactos.html", nombre_nora=nombre_nora)
+    try:
+        # Obtener contactos desde Supabase
+        response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
+        contactos = response.data if response.data else []
+
+        # Obtener etiquetas únicas
+        etiquetas_response = supabase.table("contactos").select("etiquetas").eq("nombre_nora", nombre_nora).execute()
+        etiquetas = list(set(et for c in etiquetas_response.data for et in c.get("etiquetas", []) if et)) if etiquetas_response.data else []
+
+        return render_template(
+            "panel_cliente_contactos.html",
+            nombre_nora=nombre_nora,
+            contactos=contactos,
+            etiquetas=etiquetas,
+            user=session["user"]
+        )
+    except Exception as e:
+        print(f"❌ Error al cargar contactos para {nombre_nora}: {str(e)}")
+        return render_template(
+            "panel_cliente_contactos.html",
+            nombre_nora=nombre_nora,
+            contactos=[],
+            etiquetas=[],
+            user=session["user"]
+        )
+
 print("✅ Blueprint de contactos cargado como '/contactos'")
