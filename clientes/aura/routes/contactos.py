@@ -135,32 +135,53 @@ def agregar_contacto():
 
 @contactos_bp.route('/contactos/editar/<telefono>', methods=['GET', 'POST'])
 def editar_contacto(telefono):
-    if request.method == 'POST':
-        # Obtener datos del formulario
-        nombre = request.form.get('nombre')
-        correo = request.form.get('correo')
-        celular = request.form.get('celular')
-        etiquetas = request.form.get('etiquetas').split(',')  # Convertir etiquetas en lista
+    print(f"✏️ Editando contacto {telefono}")
 
-        # Actualizar el contacto en la base de datos
-        data = {
-            "nombre": nombre,
-            "correo": correo,
-            "celular": celular,
-            "etiquetas": etiquetas
-        }
-        response = actualizar_contacto(telefono, data)
-        if response:
-            return redirect(url_for('contactos.ver_contactos'))
-        else:
+    if request.method == 'POST':
+        try:
+            # Obtener datos del formulario
+            nombre = request.form.get('nombre', '').strip()
+            correo = request.form.get('correo', '').strip()
+            celular = request.form.get('celular', '').strip()
+            etiquetas = request.form.get('etiquetas', '').strip().split(',')
+
+            # Validar datos obligatorios
+            if not nombre:
+                return jsonify({"success": False, "error": "El nombre es obligatorio"}), 400
+
+            # Actualizar el contacto en la base de datos
+            data = {
+                "nombre": nombre,
+                "correo": correo,
+                "celular": celular,
+                "etiquetas": etiquetas
+            }
+            print(f"🔄 Actualizando contacto con datos: {data}")
+            response = actualizar_contacto(telefono, data)
+
+            if response:
+                print(f"✅ Contacto {telefono} actualizado correctamente")
+                return redirect(url_for('contactos.ver_contactos', nombre_nora=request.form.get('nombre_nora')))
+            else:
+                return jsonify({"success": False, "error": "Error al actualizar el contacto"}), 500
+        except Exception as e:
+            print(f"❌ Error al actualizar contacto {telefono}: {str(e)}")
             return jsonify({"success": False, "error": "Error al actualizar el contacto"}), 500
 
-    # Si es una solicitud GET, obtener los datos del contacto
-    contacto = obtener_contacto(telefono)
-    if not contacto:
-        return jsonify({"success": False, "error": "Contacto no encontrado"}), 404
+    try:
+        # Si es una solicitud GET, obtener los datos del contacto
+        print(f"🔍 Obteniendo datos del contacto {telefono}")
+        contacto = obtener_contacto(telefono)
 
-    return render_template('editar_contacto.html', contacto=contacto)
+        if not contacto:
+            print(f"⚠️ Contacto {telefono} no encontrado")
+            return jsonify({"success": False, "error": "Contacto no encontrado"}), 404
+
+        print(f"✅ Datos del contacto obtenidos: {contacto}")
+        return render_template('editar_contacto.html', contacto=contacto)
+    except Exception as e:
+        print(f"❌ Error al obtener datos del contacto {telefono}: {str(e)}")
+        return jsonify({"success": False, "error": "Error al obtener datos del contacto"}), 500
 
 @contactos_bp.route('/contactos/eliminar/<telefono>', methods=['DELETE'])
 def eliminar_contacto(telefono):
