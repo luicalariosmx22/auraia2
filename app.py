@@ -4,6 +4,8 @@ from flask import Flask, session, redirect, url_for
 from flask_session import Session
 from dotenv import load_dotenv
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 
 # Cargar variables de entorno
 load_dotenv()
@@ -21,6 +23,15 @@ app.session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
 app.secret_key = os.getenv("SECRET_KEY", "clave-secreta-por-defecto")
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+if not app.debug:
+    file_handler = RotatingFileHandler("error.log", maxBytes=10240, backupCount=10)
+    file_handler.setLevel(logging.ERROR)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
 
 # ========= REGISTRO DE BLUEPRINTS =========
 from clientes.aura.registro.registro_login import registrar_blueprints_login
@@ -47,7 +58,9 @@ registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
 registrar_blueprints_por_nora(app, "aura")
 
-app.register_blueprint(panel_chat_bp)
+# Verificar si el blueprint 'panel_chat' ya está registrado
+if "panel_chat" not in app.blueprints:
+    app.register_blueprint(panel_chat_bp)
 
 # Verificar si el blueprint 'admin_nora_dashboard' ya está registrado
 if "admin_nora_dashboard" not in app.blueprints:
@@ -57,19 +70,16 @@ if "admin_nora_dashboard" not in app.blueprints:
 if "webhook" not in app.blueprints:
     app.register_blueprint(webhook_bp)
 
-app.register_blueprint(etiquetas_bp, url_prefix="/panel/cliente")
+# Verificar si el blueprint 'panel_cliente_etiquetas' ya está registrado
+if "panel_cliente_etiquetas" not in app.blueprints:
+    app.register_blueprint(etiquetas_bp, url_prefix="/panel/cliente")
 
 # ========= RUTA INICIAL =========
 @app.route("/")
 def home():
-    # Deshabilitar el login temporalmente para modo desarrollador
-    if MODO_DEV:
-        print("⚙️ Modo desarrollador activado: Deshabilitando login.")
-        return redirect(url_for("panel_cliente.panel_cliente", nombre_nora="aura"))
-    
-    # Comportamiento normal con login habilitado
     if "user" not in session:
         return redirect(url_for("login.login_google"))
+
     if session.get("is_admin"):
         return redirect(url_for("admin_dashboard.dashboard_admin"))
     else:
@@ -87,4 +97,4 @@ def logout():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    app.run(debug=False, host="0.0.0.0", port=port)
