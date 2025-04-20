@@ -248,11 +248,11 @@ def acciones_contactos():
         print(f"❌ Error en acción múltiple: {str(e)}")
         return jsonify({"success": False, "error": "Error al procesar acción"}), 500
 
-def verificar_modulos(modulos):
-    if "contactos" in modulos:
-        print("El módulo 'contactos' está disponible.")
+# Definir los módulos disponibles
+modulos = ["contactos", "mensajes", "usuarios"]  # Ajusta según tus necesidades
 
 if "contactos" in modulos:
+    print("El módulo 'contactos' está disponible.")
     if "contactos" not in app.blueprints:
         from clientes.aura.routes.contactos import contactos_bp
         app.register_blueprint(contactos_bp, url_prefix=f'/{nombre_nora}/contactos')
