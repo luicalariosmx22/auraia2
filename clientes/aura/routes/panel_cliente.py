@@ -18,10 +18,19 @@ def panel_cliente(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
+    # Se asegura que `modulos` venga de la configuración
+    try:
+        response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
+        modulos = response.data[0]["modulos"] if response.data and "modulos" in response.data[0] else []
+    except Exception as e:
+        print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
+        modulos = []
+
     return render_template(
         "panel_cliente.html",
         nombre_nora=nombre_nora,
-        user=session["user"]  # ✅ Esto soluciona el error en Jinja
+        user=session["user"],
+        modulos=modulos
     )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
@@ -40,5 +49,5 @@ def panel_entrenamiento(nombre_nora):
         "entrena_nora.html",
         nombre_nora=nombre_nora,
         config=config,
-        user=session["user"]  # ✅ Por consistencia, también se pasa aquí
+        user=session["user"]
     )
