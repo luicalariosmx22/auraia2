@@ -45,23 +45,26 @@ def obtener_contacto(telefono):
         print(f"❌ Error al obtener contacto: {str(e)}")
         return None
 
-@contactos_bp.route('/contactos', methods=['GET'])
-def ver_contactos():
+@contactos_bp.route('/<nombre_nora>/contactos', methods=['GET'])
+def ver_contactos(nombre_nora):
     try:
+        print(f"📍 Ruta con Nora: {nombre_nora}")
+
         # Obtener parámetros de búsqueda
         busqueda = request.args.get('busqueda', '').strip().lower()
         fecha_inicio = request.args.get('fecha_inicio', None)
         fecha_fin = request.args.get('fecha_fin', None)
         etiqueta = request.args.get('etiqueta', '').strip()
 
+        # Imprimir los parámetros recibidos
+        print(f"📩 Parámetros recibidos: busqueda={busqueda}, fecha_inicio={fecha_inicio}, fecha_fin={fecha_fin}, etiqueta={etiqueta}")
+
         # Construir la consulta base
-        query = supabase.table("contactos").select("*")
+        query = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora)
 
         # Filtro por nombre o teléfono
         if busqueda:
-            query = query.or_(
-                f"nombre.ilike.%{busqueda}%,telefono.ilike.%{busqueda}%"
-            )
+            query = query.or_("nombre.ilike.*{0}*,telefono.ilike.*{0}*".format(busqueda))
 
         # Filtro por rango de fechas
         if fecha_inicio:
@@ -93,7 +96,7 @@ def ver_contactos():
             et for c in etiquetas_response.data for et in c.get("etiquetas", []) if et
         ))
 
-        return render_template('panel_cliente_contactos.html', contactos=contactos, etiquetas=etiquetas)
+        return render_template('panel_cliente_contactos.html', contactos=contactos, etiquetas=etiquetas, nombre_nora=nombre_nora)
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
         return jsonify({"success": False, "error": "Error al cargar contactos"}), 500

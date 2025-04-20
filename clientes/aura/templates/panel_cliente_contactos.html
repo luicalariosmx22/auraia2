@@ -169,5 +169,13 @@
 
   <!-- Incluir el archivo JavaScript -->
   <script src="{{ url_for('static', filename='js/contactos.js') }}"></script>
+  <script>
+    fetch(`/nora123/contactos?busqueda=juan&fecha_inicio=2025-01-01&fecha_fin=2025-12-31&etiqueta=vip`, {
+      method: "GET",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+  </script>
 </body>
 </html>
