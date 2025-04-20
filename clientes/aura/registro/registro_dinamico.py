@@ -24,8 +24,5 @@ def registrar_blueprints_por_nora(app, nombre_nora):
             else:
                 print("⚠️ El blueprint 'contactos' ya estaba registrado.")
 
-        # Registrar otros módulos dinámicos aquí si es necesario
-        # ...
-
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos: {str(e)}")

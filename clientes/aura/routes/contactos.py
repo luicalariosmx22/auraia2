@@ -247,5 +247,3 @@ def acciones_contactos():
     except Exception as e:
         print(f"❌ Error en acción múltiple: {str(e)}")
         return jsonify({"success": False, "error": "Error al procesar acción"}), 500
-
-print(app.blueprints)
