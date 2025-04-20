@@ -8,6 +8,9 @@ import os
 # Cargar variables de entorno
 load_dotenv()
 
+# Configurar el modo desarrollador
+MODO_DEV = os.getenv("MODO_DEV", "False").lower() == "true"
+
 app = Flask(
     __name__,
     template_folder='clientes/aura/templates',
@@ -53,6 +56,12 @@ app.register_blueprint(etiquetas_bp, url_prefix="/panel/cliente")
 # ========= RUTA INICIAL =========
 @app.route("/")
 def home():
+    # Deshabilitar el login temporalmente para modo desarrollador
+    if MODO_DEV:
+        print("⚙️ Modo desarrollador activado: Deshabilitando login.")
+        return redirect(url_for("panel_cliente.panel_cliente", nombre_nora="aura"))
+    
+    # Comportamiento normal con login habilitado
     if "user" not in session:
         return redirect(url_for("login.login_google"))
     if session.get("is_admin"):
@@ -62,6 +71,11 @@ def home():
 
 @app.route("/logout")
 def logout():
+    if MODO_DEV:
+        print("⚙️ Modo desarrollador activado: Ignorando logout.")
+        return redirect(url_for("panel_cliente.panel_cliente", nombre_nora="aura"))
+    
+    # Comportamiento normal
     session.clear()
     return redirect(url_for("login.login_google"))
 

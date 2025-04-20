@@ -26,8 +26,8 @@ configuracion_bot,valor
 configuracion_bot,descripcion
 configuracion_bot,ultima_actualizacion
 configuracion_bot,modulos
-configuracion_bot,nombre_nora
 configuracion_bot,bienvenida
+configuracion_bot,nombre_nora
 etiquetas,nombre
 etiquetas,color
 etiquetas,activa

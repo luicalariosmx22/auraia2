@@ -247,3 +247,11 @@ def acciones_contactos():
     except Exception as e:
         print(f"❌ Error en acción múltiple: {str(e)}")
         return jsonify({"success": False, "error": "Error al procesar acción"}), 500
+
+if "contactos" in modulos:
+    if "contactos" not in app.blueprints:
+        from clientes.aura.routes.contactos import contactos_bp
+        app.register_blueprint(contactos_bp, url_prefix=f'/{nombre_nora}/contactos')
+        print(f"✅ Módulo: contactos registrado correctamente con prefijo dinámico '/{nombre_nora}/contactos'.")
+    else:
+        print("⚠️ El blueprint 'contactos' ya estaba registrado.")

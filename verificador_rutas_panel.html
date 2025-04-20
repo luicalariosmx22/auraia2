@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Verificador de Rutas Flask</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-color: #f8f8f8;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    pre {
+      background-color: #eee;
+      padding: 15px;
+      border-radius: 5px;
+      max-height: 80vh;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    td {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛠️ Verificador de Rutas Flask</h1>
+  <button onclick="seleccionarDirectorio()">Seleccionar Carpeta del Proyecto</button>
+  <pre id="salida">Esperando análisis...</pre>
+
+  <script>
+    function seleccionarDirectorio() {
+      console.log("📂 Botón de selección de carpeta presionado."); // Mensaje en la consola del navegador
+      window.pywebview.api.seleccionar_directorio().then(ruta => {
+        console.log("✅ Carpeta seleccionada:", ruta); // Mensaje en la consola del navegador
+        document.getElementById("salida").innerText = "🔍 Analizando " + ruta + "...";
+        window.pywebview.api.verificar_rutas(ruta).then(resultado => {
+          console.log("🔎 Resultado recibido del backend:", resultado); // Imprimir los datos recibidos
+
+          let html = "";
+
+          // Agrupar rutas por Blueprint
+          html += "<h2>📁 Análisis de Rutas y Blueprints</h2>";
+          for (let blueprint of resultado.blueprints_registrados) {
+            const [name, prefix, archivo] = blueprint;
+            html += `<h3>🔹 Blueprint: ${name} (Prefijo: ${prefix})</h3>`;
+            html += `<p>Declarado en: <strong>${archivo}</strong></p>`;
+            html += "<table><tr><th>Ruta</th><th>Detalle</th><th>Estado</th></tr>";
+            for (let ruta of resultado.rutas_definidas) {
+              if (ruta.startsWith(prefix.trim("/"))) {
+                const estado = resultado.rutas_usadas.includes(ruta) ? "Verificada" : "No registrada";
+                const color = estado === "Verificada" ? "green" : "red";
+                html += `<tr><td>${ruta}</td><td>Asociada al Blueprint '${name}'</td><td style="color:${color};">${estado}</td></tr>`;
+              }
+            }
+            html += "</table>";
+          }
+
+          // Mostrar rutas no asociadas a Blueprints
+          html += "<h2>🔸 Rutas no asociadas a ningún Blueprint</h2><table><tr><th>Ruta</th><th>Detalle</th><th>Estado</th></tr>";
+          for (let ruta of resultado.rutas_definidas) {
+            if (!resultado.blueprints_registrados.some(([_, prefix]) => ruta.startsWith(prefix.trim("/")))) {
+              const estado = resultado.rutas_usadas.includes(ruta) ? "Verificada" : "No registrada";
+              const color = estado === "Verificada" ? "green" : "red";
+              html += `<tr><td>${ruta}</td><td>No asociada a ningún Blueprint</td><td style="color:${color};">${estado}</td></tr>`;
+            }
+          }
+          html += "</table>";
+
+          // Mostrar el resultado en el elemento <pre>
+          document.getElementById("salida").innerHTML = html;
+        }).catch(error => {
+          console.error("❌ Error al seleccionar carpeta:", error); // Mensaje en caso de error
+        });
+      });
+    }
+  </script>
+</body>
+</html>
