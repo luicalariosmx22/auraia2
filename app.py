@@ -34,6 +34,12 @@ from clientes.aura.routes.webhook import webhook_bp
 from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp  # 👈 NUEVO
 from clientes.aura.routes.etiquetas import etiquetas_bp
 
+def registrar_blueprints_cliente(app):
+    if app:
+        print("Registrando blueprints del cliente...")
+    else:
+        print("Error: app no está definido.")
+
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
 registrar_blueprints_cliente(app)
