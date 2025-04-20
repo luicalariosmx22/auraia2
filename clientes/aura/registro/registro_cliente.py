@@ -10,6 +10,11 @@ else:
     print("⚠️ Blueprint 'contactos_bp' ya estaba registrado.")
 
 def registrar_blueprints_cliente(app):
+    if app:
+        print("Registrando blueprints del cliente...")
+    else:
+        print("Error: app no está definido.")  # Correctamente indentado
+
     try:
         print("🔍 Registrando blueprints del cliente...")
 
