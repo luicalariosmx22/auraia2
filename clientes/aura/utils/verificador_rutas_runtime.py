@@ -1,5 +1,7 @@
+import os
 import re
 from flask import current_app
+
 
 def extraer_rutas_html(html_text):
     """Extrae rutas tipo /algo/{variable} desde href, action o src"""
