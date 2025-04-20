@@ -18,14 +18,17 @@ def panel_cliente(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    return render_template("panel_cliente.html", nombre_nora=nombre_nora)
+    return render_template(
+        "panel_cliente.html",
+        nombre_nora=nombre_nora,
+        user=session["user"]  # ✅ Esto soluciona el error en Jinja
+    )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
 def panel_entrenamiento(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    # Cargar configuración existente desde Supabase
     try:
         response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         config = response.data[0] if response.data else {}
@@ -36,5 +39,6 @@ def panel_entrenamiento(nombre_nora):
     return render_template(
         "entrena_nora.html",
         nombre_nora=nombre_nora,
-        config=config
+        config=config,
+        user=session["user"]  # ✅ Por consistencia, también se pasa aquí
     )
