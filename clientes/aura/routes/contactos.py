@@ -248,6 +248,10 @@ def acciones_contactos():
         print(f"❌ Error en acción múltiple: {str(e)}")
         return jsonify({"success": False, "error": "Error al procesar acción"}), 500
 
+def verificar_modulos(modulos):
+    if "contactos" in modulos:
+        print("El módulo 'contactos' está disponible.")
+
 if "contactos" in modulos:
     if "contactos" not in app.blueprints:
         from clientes.aura.routes.contactos import contactos_bp
