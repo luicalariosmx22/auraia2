@@ -80,6 +80,10 @@ if "panel_cliente_envios" not in app.blueprints:  # <-- LÍNEA AGREGADA
 from clientes.aura.utils.rutas_logger import registrar_rutas_en_supabase
 registrar_rutas_en_supabase(app)
 
+# Generar HTML de rutas
+from clientes.aura.utils.debug_rutas import generar_html_rutas
+generar_html_rutas(app)
+
 # ========= RUTA INICIAL =========
 @app.route("/")
 def home():
