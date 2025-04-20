@@ -41,7 +41,8 @@ from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp
 from clientes.aura.routes.etiquetas import etiquetas_bp
 from clientes.aura.routes.panel_cliente import panel_cliente_bp
 from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
-from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp  # Importación agregada
+from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp
+from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp  # <-- LÍNEA AGREGADA
 
 # Registro base
 registrar_blueprints_login(app)
@@ -71,6 +72,9 @@ if "panel_cliente" not in app.blueprints:
 
 if "panel_cliente_contactos" not in app.blueprints:
     app.register_blueprint(panel_cliente_contactos_bp, url_prefix="/panel_cliente/contactos")
+
+if "panel_cliente_envios" not in app.blueprints:  # <-- LÍNEA AGREGADA
+    app.register_blueprint(panel_cliente_envios_bp, url_prefix="/panel/cliente")  # <-- LÍNEA AGREGADA
 
 # ========= RUTA INICIAL =========
 @app.route("/")
