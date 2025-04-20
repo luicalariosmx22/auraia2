@@ -17,12 +17,8 @@ def registrar_blueprints_por_nora(app, nombre_nora):
         modulos = response.data[0].get("modulos", [])
 
         if "contactos" in modulos:
-            if "contactos" not in app.blueprints:
-                from clientes.aura.routes.contactos import contactos_bp
-                app.register_blueprint(contactos_bp, url_prefix=f'/{nombre_nora}/contactos')
-                print(f"✅ Módulo: contactos registrado correctamente con prefijo dinámico '/{nombre_nora}/contactos'.")
-            else:
-                print("⚠️ El blueprint 'contactos' ya estaba registrado.")
-
+            from clientes.aura.routes.contactos import contactos_bp
+            app.register_blueprint(contactos_bp, url_prefix=f'/{nombre_nora}/contactos')
+            print(f"✅ Módulo: contactos registrado correctamente con prefijo dinámico '/{nombre_nora}/contactos'.")
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos: {str(e)}")

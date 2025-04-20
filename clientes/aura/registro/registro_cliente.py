@@ -14,13 +14,9 @@ else:
 
 def registrar_blueprints_cliente(app):
     try:
-        # Importar y registrar el Blueprint de contactos
         from clientes.aura.routes.contactos import contactos_bp
-        if "contactos_bp" not in app.blueprints:
-            app.register_blueprint(contactos_bp, url_prefix="/panel/cliente")
-            print("✅ Blueprint 'contactos_bp' registrado correctamente con prefijo '/panel/cliente'.")
-        else:
-            print("⚠️ Blueprint 'contactos_bp' ya estaba registrado.")
+        app.register_blueprint(contactos_bp, url_prefix="/panel/cliente")
+        print("✅ Blueprint 'contactos_bp' registrado correctamente con prefijo '/panel/cliente'.")
     except Exception as e:
         print("❌ Error en registrar_blueprints_cliente:", str(e))
 

@@ -12,7 +12,12 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-contactos_bp = Blueprint('contactos', __name__)
+contactos_bp = Blueprint("contactos", __name__)
+
+# Aquí defines las rutas del Blueprint
+@contactos_bp.route("/contactos")
+def contactos():
+    return "Página de contactos"
 
 def leer_historial(telefono):
     try:
