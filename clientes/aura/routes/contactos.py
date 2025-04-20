@@ -75,13 +75,20 @@ def ver_contactos():
 
         # Ejecutar la consulta
         response = query.execute()
+        if response.status_code != 200:
+            raise Exception(f"Error en la consulta de contactos: {response.error_message}")
+
         contactos = response.data or []
 
-        # Depurar los datos obtenidos
-        print(f"🔍 Contactos obtenidos: {contactos}")
+        # Si la solicitud es AJAX, devolver JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": True, "contactos": contactos})
 
         # Obtener etiquetas únicas
         etiquetas_response = supabase.table("contactos").select("etiquetas").execute()
+        if etiquetas_response.status_code != 200:
+            raise Exception(f"Error en la consulta de etiquetas: {etiquetas_response.error_message}")
+
         etiquetas = list(set(
             et for c in etiquetas_response.data for et in c.get("etiquetas", []) if et
         ))

@@ -69,7 +69,7 @@
 
         <!-- Filtros -->
         <div class="filters">
-          <form method="GET" action="{{ url_for('contactos.ver_contactos') }}">
+          <form id="filtros-form">
             <input type="text" name="busqueda" placeholder="Buscar..." value="{{ request.args.get('busqueda', '') }}">
             <input type="date" name="fecha_inicio" value="{{ request.args.get('fecha_inicio', '') }}">
             <input type="date" name="fecha_fin" value="{{ request.args.get('fecha_fin', '') }}">
@@ -86,44 +86,34 @@
         </div>
 
         <!-- Tabla de contactos -->
-        <form method="POST" action="/contactos/acciones">
-          <table class="noras-table">
-            <thead>
-              <tr>
-                <th>Seleccionar</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Etiquetas</th>
-                <th>Último Mensaje</th>
-                <th>Fecha Último Contacto</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for c in contactos %}
-              <tr>
-                <td>{{ c.numero }}</td>
-                <td>{{ c.nombre }}</td>
-                <td>
-                  {% if c.etiquetas %}
-                    {% for etiqueta in c.etiquetas %}
-                      <span class="badge">{{ etiqueta }}</span>
-                    {% endfor %}
-                  {% else %}
-                    <span class="badge badge-muted">Sin etiquetas</span>
-                  {% endif %}
-                </td>
-                <td>{{ c.ultimo_mensaje }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-
-          <!-- Botones de acción -->
-          <div class="meta-card-actions">
-            <button type="submit" name="accion" value="editar" class="btn-primary">✏️ Editar</button>
-            <button type="submit" name="accion" value="eliminar" class="btn-danger">🗑️ Eliminar</button>
-          </div>
-        </form>
+        <table class="noras-table">
+          <thead>
+            <tr>
+              <th>Teléfono</th>
+              <th>Nombre</th>
+              <th>Etiquetas</th>
+              <th>Último Mensaje</th>
+            </tr>
+          </thead>
+          <tbody id="contactos-tbody">
+            {% for c in contactos %}
+            <tr>
+              <td>{{ c.telefono }}</td>
+              <td>{{ c.nombre }}</td>
+              <td>
+                {% if c.etiquetas %}
+                  {% for etiqueta in c.etiquetas %}
+                    <span class="badge">{{ etiqueta }}</span>
+                  {% endfor %}
+                {% else %}
+                  <span class="badge badge-muted">Sin etiquetas</span>
+                {% endif %}
+              </td>
+              <td>{{ c.ultimo_mensaje }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </section>
 
       <!-- Columna 2: Agregar nuevo contacto -->
@@ -171,5 +161,8 @@
       </section>
     </div>
   </div>
+
+  <!-- Incluir el archivo JavaScript -->
+  <script src="{{ url_for('static', filename='js/contactos.js') }}"></script>
 </body>
 </html>
