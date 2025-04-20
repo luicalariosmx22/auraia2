@@ -42,6 +42,7 @@ from clientes.aura.routes.webhook import webhook_bp
 from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp
 from clientes.aura.routes.etiquetas import etiquetas_bp
 from clientes.aura.routes.panel_cliente import panel_cliente_bp
+from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
 
 # Registro de Blueprints
 registrar_blueprints_login(app)
@@ -66,6 +67,9 @@ if "panel_cliente_etiquetas" not in app.blueprints:
 
 if "panel_cliente" not in app.blueprints:
     app.register_blueprint(panel_cliente_bp, url_prefix="/panel/cliente")
+
+if "panel_cliente_contactos" not in app.blueprints:
+    app.register_blueprint(panel_cliente_contactos_bp, url_prefix="/panel_cliente/contactos")
 
 # ========= RUTA INICIAL =========
 @app.route("/")
