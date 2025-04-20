@@ -38,7 +38,33 @@ def panel_contactos(nombre_nora):
     # Cargar contactos desde Supabase
     try:
         print(f"🔍 Cargando contactos para {nombre_nora}...")
-        response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
+        busqueda = request.args.get("busqueda", "").strip().lower()
+        fecha_inicio = request.args.get("fecha_inicio", None)
+        fecha_fin = request.args.get("fecha_fin", None)
+        etiqueta = request.args.get("etiqueta", "").strip()
+
+        # Imprimir los parámetros recibidos
+        print(f"📩 Parámetros recibidos: busqueda={busqueda}, fecha_inicio={fecha_inicio}, fecha_fin={fecha_fin}, etiqueta={etiqueta}")
+
+        # Construir la consulta base
+        query = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora)
+
+        # Filtro por nombre o teléfono
+        if busqueda:
+            query = query.or_("nombre.ilike.*{0}*,telefono.ilike.*{0}*".format(busqueda))
+
+        # Filtro por rango de fechas
+        if fecha_inicio:
+            query = query.gte("ultimo_mensaje", fecha_inicio)
+        if fecha_fin:
+            query = query.lte("ultimo_mensaje", fecha_fin)
+
+        # Filtro por etiqueta
+        if etiqueta:
+            query = query.contains("etiquetas", [etiqueta])
+
+        # Ejecutar la consulta
+        response = query.execute()
         if not response.data:
             print(f"⚠️ No se encontraron contactos para {nombre_nora}.")
         else:
@@ -47,28 +73,6 @@ def panel_contactos(nombre_nora):
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
 
-    if request.method == "POST":
-        nuevo = {
-            "nombre": request.form.get("nombre").strip(),
-            "telefono": request.form.get("telefono").strip(),
-            "etiquetas": [et.strip() for et in request.form.get("etiquetas", "").split(",") if et.strip()],
-            "ia": True,
-            "nombre_nora": nombre_nora
-        }
-
-        # Insertar nuevo contacto en Supabase
-        try:
-            print(f"🔍 Guardando nuevo contacto: {nuevo}")
-            response = supabase.table("contactos").insert(nuevo).execute()
-            if not response.data:
-                print(f"⚠️ No se pudo guardar el contacto: {nuevo}")
-            else:
-                print(f"✅ Contacto guardado correctamente: {response.data}")
-        except Exception as e:
-            print(f"❌ Error al guardar contacto: {str(e)}")
-
-        return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
-
     return render_template(
         "panel_cliente_contactos.html",
         user=session["user"],
@@ -76,3 +80,4 @@ def panel_contactos(nombre_nora):
         nombre_nora=nombre_nora,
         ia_permitida=ia_permitida
     )
+print("✅ Blueprint de contactos cargado como '/contactos'")
