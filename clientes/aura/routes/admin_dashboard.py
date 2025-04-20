@@ -1,9 +1,10 @@
 # clientes/aura/routes/admin_dashboard.py
 
-from flask import Blueprint, render_template, session, redirect, url_for
+from flask import Blueprint, render_template, session, redirect, url_for, current_app
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+from clientes.aura.utils.verificador_rutas_runtime import verificar_rutas_vs_html
 
 # Configurar Supabase
 load_dotenv()
@@ -58,3 +59,8 @@ def dashboard_admin():
         total_errores=total_errores,
         ultimo_deployment="hace 5 minutos"  # puedes actualizar esto después
     )
+
+@admin_dashboard_bp.route("/admin/debug/rutas")
+def debug_rutas():
+    rutas_erroneas = verificar_rutas_vs_html(current_app)
+    return render_template("debug_rutas.html", rutas=rutas_erroneas)
