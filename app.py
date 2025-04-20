@@ -41,6 +41,7 @@ from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp
 from clientes.aura.routes.etiquetas import etiquetas_bp
 from clientes.aura.routes.panel_cliente import panel_cliente_bp
 from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
+from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp  # Importación agregada
 
 # Registro base
 registrar_blueprints_login(app)
@@ -48,6 +49,9 @@ registrar_blueprints_base(app)
 registrar_blueprints_cliente(app)
 registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
+
+# Registrar el Blueprint admin_verificador_bp
+app.register_blueprint(admin_verificador_bp)
 
 # Rutas globales que no dependen de la sesión
 if "panel_chat" not in app.blueprints:
