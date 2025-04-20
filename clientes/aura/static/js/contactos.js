@@ -11,10 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const fechaInicio = document.querySelector('input[name="fecha_inicio"]').value;
     const fechaFin = document.querySelector('input[name="fecha_fin"]').value;
     const etiqueta = document.querySelector('select[name="etiqueta"]').value;
-    const nombreNora = "nombreNora"; // Definir el nombreNora según sea necesario
+    const nombreNora = "aura"; // Asegúrate de que este valor sea dinámico si es necesario
 
     // Enviar la solicitud AJAX al servidor
-    fetch(`/panel_cliente/contactos/${nombreNora}?busqueda=${busqueda}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}&etiqueta=${etiqueta}`, {
+    fetch(`/${nombreNora}/contactos?busqueda=${busqueda}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}&etiqueta=${etiqueta}`, {
       method: "GET",
       headers: {
         "X-Requested-With": "XMLHttpRequest", // Indicar que es una solicitud AJAX

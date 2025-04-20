@@ -16,7 +16,6 @@ def registrar_blueprints_por_nora(app, nombre_nora):
         response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
         modulos = response.data[0].get("modulos", [])
 
-        # Registrar el Blueprint de contactos si está habilitado
         if "contactos" in modulos:
             if "contactos" not in app.blueprints:
                 from clientes.aura.routes.contactos import contactos_bp
