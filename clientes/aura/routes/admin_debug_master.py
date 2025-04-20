@@ -1,11 +1,11 @@
 import os
 import openai
-import inspect
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, render_template, request
 from dotenv import load_dotenv
 from clientes.aura.routes import admin_debug_rutas
 from clientes.aura.debug import debug_supabase
-from clientes.aura.debug import debug_verificar
+from clientes.aura.utils.debug_rutas import generar_html_rutas
+from clientes.aura.routes.debug_verificar import verificar_sistema
 
 admin_debug_master_bp = Blueprint("admin_debug_master", __name__)
 
@@ -18,14 +18,21 @@ def debug_master():
     prompt_enviado = ""
     error_usuario = request.form.get("error") if request.method == "POST" else None
 
-    # Ejecutar todos los debugs
+    # 1️⃣ Rutas HTML y Flask
     rutas_html = admin_debug_rutas.extraer_rutas_desde_templates("clientes/aura/templates")
     rutas_flask = admin_debug_rutas.extraer_rutas_flask("clientes/aura/routes")
     no_definidas = [r for r in rutas_html if r not in rutas_flask]
 
-    supabase_logs = debug_supabase.run_verificacion
-    sistema_logs = debug_verificar.verificar_sistema()
+    # 2️⃣ Verificar Supabase
+    supabase_logs = debug_supabase.run_verificacion()  # Corre la verificación completa de Supabase
 
+    # 3️⃣ Verificar el sistema
+    sistema_logs = verificar_sistema()
+
+    # 4️⃣ Generar HTML con rutas registradas
+    rutas_registradas_html = generar_html_rutas()
+
+    # 5️⃣ OpenAI para analizar errores proporcionados por el usuario
     if error_usuario:
         prompt_enviado = f"""
 Tengo un proyecto Flask y recibí este error:
@@ -49,13 +56,16 @@ Evita suposiciones, responde como experto en debug de Flask y Python.
         except Exception as e:
             resultado_ai = f"❌ Error al consultar OpenAI: {e}"
 
+    # Renderizar resultados en la plantilla
     return render_template(
         "admin_debug_master.html",
         rutas_html=rutas_html,
         rutas_flask=rutas_flask,
         rutas_no_definidas=no_definidas,
+        rutas_registradas_html=rutas_registradas_html,
         resultado_ai=resultado_ai,
         prompt_enviado=prompt_enviado,
         error_usuario=error_usuario,
-        sistema_logs=sistema_logs
+        sistema_logs=sistema_logs,
+        supabase_logs=supabase_logs
     )

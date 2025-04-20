@@ -1,53 +1,56 @@
-import os
 from flask import current_app
 
-def generar_html_rutas(app, output_path="clientes/aura/templates/debug_rutas.html"):
+def generar_html_rutas():
+    """
+    Genera un HTML con la lista de rutas registradas en la aplicación Flask.
+    
+    Returns:
+        str: Código HTML con la información de las rutas.
+    """
     rutas = []
-
-    for rule in app.url_map.iter_rules():
+    for rule in current_app.url_map.iter_rules():
         rutas.append({
-            "endpoint": rule.endpoint,
-            "ruta": str(rule),
-            "metodos": ', '.join(rule.methods - {'HEAD', 'OPTIONS'})
+            "ruta": rule.rule,
+            "metodos": ", ".join(rule.methods),
+            "funcion": rule.endpoint
         })
 
-    # Generar HTML simple
+    # Generar el HTML
     html = """
     <!DOCTYPE html>
     <html lang="es">
     <head>
         <meta charset="UTF-8">
-        <title>Debug de Rutas Flask</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rutas Registradas</title>
         <style>
-            body { font-family: Arial; background: #f4f4f4; padding: 20px; }
-            table { width: 100%; border-collapse: collapse; background: white; }
-            th, td { padding: 10px; border: 1px solid #ccc; }
-            th { background: #222; color: white; }
-            tr:nth-child(even) { background: #f9f9f9; }
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f4f4f4; }
+            tr:nth-child(even) { background-color: #f9f9f9; }
         </style>
     </head>
     <body>
-        <h2>📍 Rutas registradas en la aplicación</h2>
+        <h1>Rutas Registradas en la Aplicación</h1>
         <table>
             <thead>
                 <tr>
-                    <th>Endpoint</th>
                     <th>Ruta</th>
                     <th>Métodos</th>
+                    <th>Función</th>
                 </tr>
             </thead>
             <tbody>
     """
-
     for ruta in rutas:
         html += f"""
         <tr>
-            <td>{ruta['endpoint']}</td>
             <td>{ruta['ruta']}</td>
             <td>{ruta['metodos']}</td>
+            <td>{ruta['funcion']}</td>
         </tr>
         """
-
     html += """
             </tbody>
         </table>
@@ -55,9 +58,4 @@ def generar_html_rutas(app, output_path="clientes/aura/templates/debug_rutas.htm
     </html>
     """
 
-    # Guardar en archivo
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(html)
-    
-    print(f"✅ Archivo generado: {output_path}")
+    return html

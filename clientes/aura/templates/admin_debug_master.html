@@ -1,38 +1,63 @@
-{% extends 'admin_layout.html' %}
-{% block title %}Debug Master{% endblock %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Debug Master</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>Admin Debug Master</h1>
 
-{% block content %}
-<h1>🧠 Panel de Debug Master</h1>
+    <h2>🔍 Rutas HTML y Flask</h2>
+    <h3>Rutas en HTML:</h3>
+    <ul>
+        {% for ruta in rutas_html %}
+            <li>{{ ruta }}</li>
+        {% endfor %}
+    </ul>
 
-<form method="POST" class="p-3 bg-white shadow rounded">
-    <label>🔎 Ingresa aquí un error que hayas recibido:</label>
-    <textarea name="error" rows="4" class="form-control mb-2" placeholder="Ejemplo: jinja2.exceptions.UndefinedError: 'user' is undefined">{{ error_usuario or '' }}</textarea>
-    <button type="submit" class="btn btn-primary">Buscar causa probable con IA</button>
-</form>
+    <h3>Rutas en Flask:</h3>
+    <ul>
+        {% for ruta in rutas_flask %}
+            <li>{{ ruta }}</li>
+        {% endfor %}
+    </ul>
 
-{% if prompt_enviado %}
-<div class="mt-3">
-    <h5>🧠 Respuesta de la IA:</h5>
-    <pre style="background:#f3f3f3;padding:10px;border-radius:8px">{{ resultado_ai }}</pre>
-</div>
-{% endif %}
+    <h3>Rutas no definidas:</h3>
+    <ul>
+        {% for ruta in rutas_no_definidas %}
+            <li>{{ ruta }}</li>
+        {% endfor %}
+    </ul>
 
-<hr>
+    <h2>🛠️ Verificaciones del Sistema</h2>
+    <pre>{{ sistema_logs }}</pre>
 
-<h3>🧩 Rutas HTML vs Flask</h3>
-<p><strong>Total en HTML:</strong> {{ rutas_html|length }} | <strong>Registradas en Flask:</strong> {{ rutas_flask|length }}</p>
-<ul>
-    {% for ruta in rutas_no_definidas %}
-    <li style="color:red">❌ No definida: <code>{{ ruta }}</code></li>
-    {% endfor %}
-</ul>
+    <h2>🗃️ Verificaciones de Supabase</h2>
+    <pre>{{ supabase_logs }}</pre>
 
-<hr>
+    <h2>📋 Rutas Registradas en Flask</h2>
+    <div>
+        {{ rutas_registradas_html|safe }}
+    </div>
 
-<h3>🧪 Verificaciones del sistema</h3>
-<ul>
-    {% for item in sistema_logs %}
-        <li><strong>{{ item[0] }}</strong> — {{ item[2] }}</li>
-    {% endfor %}
-</ul>
-{% endblock %}
+    <h2>🤖 OpenAI Debug Helper</h2>
+    <form method="POST" action="/admin/debug/master">
+        <label for="error">Describe el error recibido:</label><br>
+        <textarea id="error" name="error" rows="4" cols="50">{{ error_usuario }}</textarea><br><br>
+        <button type="submit">Analizar Error</button>
+    </form>
+    {% if resultado_ai %}
+        <h3>Resultado de OpenAI:</h3>
+        <pre>{{ resultado_ai }}</pre>
+    {% endif %}
+</body>
+</html>
