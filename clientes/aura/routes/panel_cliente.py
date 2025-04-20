@@ -20,7 +20,7 @@ def panel_cliente(nombre_nora):
 
     return render_template("panel_cliente.html", nombre_nora=nombre_nora)
 
-@panel_cliente_bp.route("/panel/cliente/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
+@panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
 def panel_entrenamiento(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
