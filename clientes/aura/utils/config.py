@@ -17,15 +17,6 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 def login_requerido(f):
     @wraps(f)
     def decorado(*args, **kwargs):
-        # Modo desarrollador
-        if os.getenv("MODO_DEV") == "True":
-            # Simula un usuario en modo desarrollo
-            session["user"] = {
-                "email": "dev@local.test",
-                "name": "Desarrollador"
-            }
-            return f(*args, **kwargs)
-
         # Verificar si el usuario está autenticado
         if "user" not in session:
             return redirect(url_for("login.login_google"))

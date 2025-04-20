@@ -255,12 +255,3 @@ def acciones_contactos():
 
 # Definir los módulos disponibles
 modulos = ["contactos", "mensajes", "usuarios"]  # Ajusta según tus necesidades
-
-if "contactos" in modulos:
-    print("El módulo 'contactos' está disponible.")
-    if "contactos" not in app.blueprints:
-        from clientes.aura.routes.contactos import contactos_bp
-        app.register_blueprint(contactos_bp, url_prefix=f'/{nombre_nora}/contactos')
-        print(f"✅ Módulo: contactos registrado correctamente con prefijo dinámico '/{nombre_nora}/contactos'.")
-    else:
-        print("⚠️ El blueprint 'contactos' ya estaba registrado.")
