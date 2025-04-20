@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Nora AI Panel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_cliente.css') }}">
+</head>
+<body>
+
+  <header>
+    <h1>🧠 Panel de {{ nombre_nora|capitalize }}</h1>
+  </header>
+
+  <main>
+    {% block contenido %}{% endblock %}
+  </main>
+
+</body>
+</html>
