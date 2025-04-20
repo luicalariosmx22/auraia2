@@ -9,12 +9,15 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-def insertar_ruta(nombre, uuid=""):
+def insertar_ruta(ruta, blueprint, metodo, registrado_en=None, uuid=""):
     """
-    Inserta una ruta en la tabla 'rutas' en Supabase. Valida el UUID antes de la inserción.
+    Inserta una ruta en la tabla 'rutas_registradas' en Supabase. Valida el UUID antes de la inserción.
 
     Args:
-        nombre (str): Nombre de la ruta.
+        ruta (str): Ruta registrada (por ejemplo, '/debug').
+        blueprint (str): Nombre del blueprint asociado.
+        metodo (str): Método HTTP (por ejemplo, 'GET').
+        registrado_en (str): Fecha y hora de registro (opcional).
         uuid (str): UUID de la ruta (opcional).
 
     Returns:
@@ -23,11 +26,14 @@ def insertar_ruta(nombre, uuid=""):
     uuid_valido = validar_o_generar_uuid(uuid)
     datos = {
         "id": uuid_valido,
-        "nombre": nombre
+        "ruta": ruta,
+        "blueprint": blueprint,
+        "metodo": metodo,
+        "registrado_en": registrado_en or "NOW()"  # Usa la fecha y hora actual si no se especifica.
     }
 
     try:
-        respuesta = supabase.table("rutas").insert(datos).execute()
+        respuesta = supabase.table("rutas_registradas").insert(datos).execute()
         if respuesta.error:
             print(f"❌ Error al insertar en Supabase: {respuesta.error.message}")
         else:
