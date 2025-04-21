@@ -76,7 +76,12 @@ def procesar_mensaje(data):
         "hora": datetime.now().isoformat(),
         "tipo": "usuario"
     }
-    guardar_en_historial(historial_usuario)
+    guardar_en_historial(
+        remitente=historial_usuario["emisor"],
+        mensaje=historial_usuario["mensaje"],
+        tipo=historial_usuario["tipo"],
+        nombre_nora=nombre_nora
+    )
 
     # Buscar conocimiento en la base de datos
     respuesta_conocimiento = buscar_conocimiento(nombre_nora, mensaje_usuario)
@@ -89,7 +94,12 @@ def procesar_mensaje(data):
             "hora": datetime.now().isoformat(),
             "tipo": "respuesta"
         }
-        guardar_en_historial(historial_nuevo)
+        guardar_en_historial(
+            remitente=historial_nuevo["emisor"],
+            mensaje=historial_nuevo["mensaje"],
+            tipo=historial_nuevo["tipo"],
+            nombre_nora=nombre_nora
+        )
 
         # Enviar respuesta al usuario usando nombre_usuario
         enviar_mensaje(numero, respuesta_conocimiento, nombre_usuario)  # ✅ Usar nombre_usuario
@@ -106,7 +116,12 @@ def procesar_mensaje(data):
         "hora": datetime.now().isoformat(),
         "tipo": "respuesta"
     }
-    guardar_en_historial(historial_nuevo)
+    guardar_en_historial(
+        remitente=historial_nuevo["emisor"],
+        mensaje=historial_nuevo["mensaje"],
+        tipo=historial_nuevo["tipo"],
+        nombre_nora=nombre_nora
+    )
 
     # Enviar respuesta al usuario usando nombre_usuario
     enviar_mensaje(numero, respuesta_ia, nombre_usuario)  # ✅ Usar nombre_usuario
