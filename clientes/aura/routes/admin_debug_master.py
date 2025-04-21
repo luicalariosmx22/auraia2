@@ -274,17 +274,52 @@ def probar_rutas_dinamicas(robot_nombre):
 @admin_debug_master_bp.route("/admin/debug/rutas", methods=["GET"])
 def debug_rutas():
     """
-    Devuelve todas las rutas registradas en la aplicación Flask.
+    Devuelve todas las rutas registradas en la aplicación Flask y su origen.
     """
     rutas_registradas = []
     for rule in current_app.url_map.iter_rules():
         rutas_registradas.append({
             "ruta": rule.rule,
             "endpoint": rule.endpoint,
-            "metodos": list(rule.methods - {"HEAD", "OPTIONS"})  # Excluir métodos no relevantes
+            "metodos": list(rule.methods - {"HEAD", "OPTIONS"}),  # Excluir métodos no relevantes
+            "origen": identificar_origen_de_ruta(rule.endpoint)  # Identificar el archivo donde se define
         })
 
     return jsonify({"rutas_registradas": rutas_registradas})
+
+
+def identificar_origen_de_ruta(endpoint):
+    """
+    Identifica el archivo donde se define un endpoint.
+
+    Args:
+        endpoint (str): Nombre del endpoint.
+
+    Returns:
+        str: Archivo donde se define el endpoint o 'Desconocido'.
+    """
+    try:
+        # Buscar en los archivos de la carpeta de registros
+        registros_path = "clientes/aura/registro"
+        for root, _, files in os.walk(registros_path):
+            for file in files:
+                if file.endswith(".py"):
+                    with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                        contenido = f.read()
+                        if endpoint in contenido:
+                            return os.path.join(root, file)
+
+        # Buscar en app.py
+        app_path = "app.py"
+        with open(app_path, "r", encoding="utf-8") as f:
+            contenido = f.read()
+            if endpoint in contenido:
+                return app_path
+
+        return "Desconocido"
+    except Exception as e:
+        current_app.logger.error(f"Error al identificar el origen de la ruta: {str(e)}")
+        return "Error al identificar"
 
 @admin_debug_master_bp.route("/admin/debug/rutas_no_registradas", methods=["GET"])
 def rutas_no_registradas():

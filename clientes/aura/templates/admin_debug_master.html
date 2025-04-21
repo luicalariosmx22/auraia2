@@ -26,12 +26,6 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        pre {
-            background: #ecf0f1;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-        }
         table {
             border-collapse: collapse;
             width: 100%;
@@ -49,19 +43,6 @@
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        .form-container {
-            margin-top: 20px;
-            padding: 20px;
-            background: #ecf0f1;
-            border-radius: 8px;
-        }
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
-        }
         button {
             background-color: #3498db;
             color: white;
@@ -75,10 +56,6 @@
         }
         .result-container {
             margin-top: 20px;
-            padding: 20px;
-            background: #dff9fb;
-            border: 1px solid #7ed6df;
-            border-radius: 8px;
         }
     </style>
     <script>
@@ -86,41 +63,38 @@
             fetch('/admin/debug/rutas')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('resultado').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    const rutas = data.rutas_registradas;
+                    let tablaHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ruta</th>
+                                    <th>Endpoint</th>
+                                    <th>Métodos</th>
+                                    <th>Origen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    rutas.forEach(ruta => {
+                        tablaHTML += `
+                            <tr>
+                                <td>${ruta.ruta}</td>
+                                <td>${ruta.endpoint}</td>
+                                <td>${ruta.metodos.join(", ")}</td>
+                                <td>${ruta.origen}</td>
+                            </tr>
+                        `;
+                    });
+                    tablaHTML += `
+                            </tbody>
+                        </table>
+                    `;
+                    document.getElementById('resultado').innerHTML = tablaHTML;
                 })
                 .catch(error => {
                     console.error('Error al obtener rutas registradas:', error);
                     alert('Error al obtener rutas registradas.');
-                });
-        }
-
-        function obtenerRutasNoRegistradas() {
-            fetch('/admin/debug/rutas_no_registradas')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('resultado').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                })
-                .catch(error => {
-                    console.error('Error al obtener rutas no registradas:', error);
-                    alert('Error al obtener rutas no registradas.');
-                });
-        }
-
-        function probarRutasDinamicas() {
-            const robotNombre = document.getElementById('robot-nombre').value;
-            if (!robotNombre) {
-                alert('Por favor, ingresa el nombre del robot.');
-                return;
-            }
-
-            fetch(`/admin/debug/probar_rutas_dinamicas/${robotNombre}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('resultado').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                })
-                .catch(error => {
-                    console.error('Error al probar rutas dinámicas:', error);
-                    alert('Error al probar rutas dinámicas.');
                 });
         }
     </script>
@@ -130,14 +104,9 @@
         <h1>Debug Master</h1>
 
         <button onclick="obtenerRutasRegistradas()">Ver Rutas Registradas</button>
-        <button onclick="obtenerRutasNoRegistradas()">Ver Rutas No Registradas</button>
-
-        <h2>Probar Rutas Dinámicas</h2>
-        <input type="text" id="robot-nombre" placeholder="Nombre del robot">
-        <button onclick="probarRutasDinamicas()">Probar Rutas</button>
 
         <h2>Resultado</h2>
-        <div id="resultado" style="white-space: pre-wrap; background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
+        <div id="resultado" class="result-container"></div>
     </div>
 </body>
 </html>
