@@ -78,7 +78,7 @@ def generar_controladores_para_rutas_no_definidas(rutas_no_definidas):
     for ruta in rutas_no_definidas:
         print(f"Creando controlador para la ruta: {ruta['ruta']}")
         # Limpia el nombre del archivo
-        nombre_archivo = ruta['ruta'].strip('/').replace('-', '_').replace('/', '_')
+        nombre_archivo = re.sub(r'[^a-zA-Z0-9_]', '_', ruta['ruta'].strip('/'))
         with open(f"clientes/aura/routes/{nombre_archivo}.py", "w", encoding="utf-8") as f:
             f.write(f"""
 from flask import Blueprint
@@ -92,6 +92,9 @@ def {nombre_archivo}():
 
 @admin_debug_master_bp.route("/admin/debug/master", methods=["GET", "POST"])
 def debug_master():
+    if request.method not in ["GET", "POST"]:
+        return "❌ Método HTTP no permitido", 405
+
     try:
         # Inicialización de variables
         resultado_ai = ""
@@ -108,15 +111,22 @@ def debug_master():
         try:
             rutas_html = extraer_rutas_desde_templates("clientes/aura/templates")
             rutas_flask = extraer_rutas_flask("clientes/aura/routes")
-            no_definidas = [r for r in rutas_html if r["ruta"] not in [rf["ruta"] for rf in rutas_flask]]
+            try:
+                no_definidas = [r for r in rutas_html if r["ruta"] not in [rf["ruta"] for rf in rutas_flask]]
+                if not no_definidas:
+                    print("✅ No hay rutas no definidas.")
+            except Exception as e:
+                print(f"❌ Error al procesar rutas no definidas: {str(e)}")
         except Exception as e:
             print(f"❌ Error al procesar rutas HTML y Flask: {str(e)}")
 
         # 2️⃣ Verificar Supabase
         try:
             supabase_logs = debug_supabase.run_verificacion()
-        except Exception as e:
+        except AttributeError as e:
             supabase_logs = f"❌ Error al verificar Supabase: {str(e)}"
+        except Exception as e:
+            supabase_logs = f"❌ Error desconocido al verificar Supabase: {str(e)}"
 
         # 3️⃣ Verificar el sistema
         try:
@@ -178,4 +188,8 @@ Evita suposiciones, responde como experto en debug de Flask y Python.
     except Exception as e:
         # Registrar errores críticos
         print(f"❌ Error crítico en debug_master: {str(e)}")
-        return "❌ Error crítico en el servidor. Por favor, contacta al administrador."
+        return render_template(
+            "error.html",
+            mensaje="❌ Error crítico en el servidor. Por favor, contacta al administrador.",
+            detalle=str(e)
+        )
