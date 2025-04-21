@@ -25,7 +25,7 @@ def procesar_mensaje(data):
     # Obtener datos del mensaje
     numero = normalizar_numero(data.get("From"))
     mensaje_usuario = limpiar_mensaje(data.get("Body"))
-    nombre_usuario = data.get("ProfileName", "Usuario")
+    nombre_usuario = data.get("ProfileName", "Usuario")  # ✅ Obtener el ProfileName del usuario
     nombre_nora = data.get("NombreNora", "Nora")  # ✅ Dinámico: Obtener el nombre de Nora desde los datos
 
     # Obtener configuración de Nora
@@ -57,8 +57,8 @@ def procesar_mensaje(data):
         }
         guardar_en_historial(historial_nuevo)
 
-        # Enviar respuesta al usuario
-        enviar_mensaje(numero, respuesta_conocimiento, nombre_usuario)
+        # Enviar respuesta al usuario usando nombre_usuario
+        enviar_mensaje(numero, respuesta_conocimiento, nombre_usuario)  # ✅ Usar nombre_usuario
         return respuesta_conocimiento
 
     # Si no se encuentra conocimiento, usar IA
@@ -74,6 +74,6 @@ def procesar_mensaje(data):
     }
     guardar_en_historial(historial_nuevo)
 
-    # Enviar respuesta al usuario
-    enviar_mensaje(numero, respuesta_ia, nombre_usuario)
+    # Enviar respuesta al usuario usando nombre_usuario
+    enviar_mensaje(numero, respuesta_ia, nombre_usuario)  # ✅ Usar nombre_usuario
     return respuesta_ia
