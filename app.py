@@ -60,9 +60,6 @@ registrar_blueprints_debug(app)
 # Registrar el Blueprint admin_verificador_bp
 app.register_blueprint(admin_verificador_bp)
 
-# Registrar el Blueprint admin_debug_master_bp
-app.register_blueprint(admin_debug_master_bp, url_prefix="/admin/debug")
-
 # Rutas globales que no dependen de la sesión
 if "panel_chat" not in app.blueprints:
     app.register_blueprint(panel_chat_bp)
@@ -84,6 +81,9 @@ if "panel_cliente_contactos" not in app.blueprints:
 
 if "panel_cliente_envios" not in app.blueprints:
     app.register_blueprint(panel_cliente_envios_bp, url_prefix="/panel/cliente")
+
+if "admin_debug_master" not in app.blueprints:
+    app.register_blueprint(admin_debug_master_bp, url_prefix="/admin/debug")
 
 # ========= FUNCIONES AUXILIARES =========
 def validar_o_generar_uuid(valor):
