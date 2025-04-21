@@ -9,60 +9,52 @@
 }
 
 #chat-area {
-  padding: 10px;
+  flex: 1;
+  padding: 1rem;
   overflow-y: auto;
-  height: calc(100% - 50px); /* Ajusta según el diseño */
-}
-
-.mensaje {
-  max-width: 70%;
-  padding: 10px 14px;
-  margin: 8px 0;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  word-wrap: break-word;
-}
-
-.mensaje.usuario {
-  background-color: #dfffdc;
-  color: #000;
-  align-self: flex-end;
-}
-
-.mensaje.bot {
-  background-color: #d7ebff;
-  color: #003366;
-  align-self: flex-start;
+  background-color: #f8f9fa; /* Fondo claro */
+  border: 1px solid #dee2e6; /* Borde gris */
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .burbuja {
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 10px;
   max-width: 70%;
-  word-wrap: break-word;
+  padding: 10px 15px;
+  border-radius: 20px;
   position: relative;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  display: inline-block;
+  align-self: flex-start;
 }
 
 .burbuja.usuario {
-  background-color: #cce5ff; /* Azul claro */
-  color: #004085; /* Azul oscuro */
+  background-color: #ffffff;
   align-self: flex-end;
+  border-bottom-right-radius: 0;
   border: 1px solid #b8daff; /* Borde azul */
-}
-
-.burbuja.contacto {
-  background-color: #d4edda; /* Verde claro */
-  color: #155724; /* Verde oscuro */
-  align-self: flex-end;
-  border: 1px solid #c3e6cb; /* Borde verde */
+  color: #004085; /* Azul oscuro */
 }
 
 .burbuja.nora {
   background-color: #d7ebff; /* Azul claro */
-  color: #003366; /* Azul oscuro */
   align-self: flex-start;
+  border-bottom-left-radius: 0;
   border: 1px solid #b8daff; /* Borde azul */
+  color: #003366; /* Azul oscuro */
+}
+
+.burbuja .timestamp {
+  font-size: 11px;
+  color: #888;
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
 }
 
 .remitente {
@@ -70,13 +62,6 @@
   font-weight: bold;
   margin-bottom: 5px;
   color: #495057; /* Gris oscuro */
-}
-
-.timestamp {
-  font-size: 0.7rem;
-  color: #6c757d; /* Gris medio */
-  margin-top: 5px;
-  text-align: right;
 }
 
 .contenido {
@@ -102,6 +87,7 @@
   outline: none;
   background-color: #ffffff; /* Blanco */
   color: #495057; /* Gris oscuro */
+  font-size: 1rem;
 }
 
 .chat-input button {
@@ -163,4 +149,17 @@
 
 .form-envio button:hover {
   background-color: #0056b3; /* Azul más oscuro */
+}
+
+.chat-area .placeholder {
+  text-align: center;
+  margin-top: 100px;
+  color: #999;
+  font-style: italic;
+}
+
+.cargando, .error {
+  color: #555;
+  padding: 10px;
+  font-style: italic;
 }

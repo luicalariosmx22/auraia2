@@ -1,12 +1,17 @@
+/* sidebar.css */
+
+/* Estilo general de la barra lateral */
 .sidebar {
-  background-color: #e9f2fc;
-  border-right: 2px solid #c4e2ff;
+  background-color: #e9f2fc; /* Fondo azul claro */
+  border-right: 2px solid #c4e2ff; /* Borde azul */
   box-shadow: inset -2px 0 5px rgba(0, 128, 255, 0.05);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  height: 100%;
 }
 
+/* Buscador */
 .buscador {
   padding: 10px;
   border-bottom: 1px solid #ddd;
@@ -17,45 +22,45 @@
   padding: 10px;
   border: none;
   border-radius: 10px;
-  background-color: #f0f2f5;
+  background-color: #f0f2f5; /* Fondo gris claro */
+  font-size: 1rem;
+  color: #495057; /* Texto gris oscuro */
+  outline: none;
 }
 
+.buscador input::placeholder {
+  color: #adb5bd; /* Texto gris claro */
+}
+
+/* Lista de contactos */
 .lista-contactos {
   list-style: none;
   margin: 0;
   padding: 0;
   overflow-y: auto;
-  max-height: 100%;
+  max-height: calc(100% - 60px); /* Ajustar altura para incluir el buscador */
 }
 
+/* Elementos de la lista de contactos */
 .contacto-item {
   padding: 10px;
   border-bottom: 1px solid #ccc;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, border-left 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 .contacto-item:hover {
-  background-color: #f0f0f0;
+  background-color: #f0f0f0; /* Fondo gris claro al pasar el cursor */
 }
 
 .contacto-item.activo {
-  background-color: #d6ecff;
-  border-left: 4px solid #0099ff;
+  background-color: #d6ecff; /* Fondo azul claro */
+  border-left: 4px solid #0099ff; /* Indicador azul */
 }
 
-.contacto-item .ultimo-mensaje {
-  font-size: 0.9em;
-  color: #666;
-}
-
-/* Mejorar la tipografía */
-body {
-  font-family: 'Roboto', Arial, sans-serif;
-  font-size: 14px;
-  color: #333;
-}
-
+/* Nombre del contacto */
 .contacto-nombre {
   font-weight: bold;
   font-size: 1rem;
@@ -64,20 +69,14 @@ body {
   margin-right: 5px;
 }
 
-.contacto-etiquetas {
-  margin-top: 5px;
+/* Teléfono del contacto */
+.contacto-telefono {
+  font-size: 0.9rem;
+  color: #6c757d; /* Gris medio */
+  margin-top: 2px;
 }
 
-.etiqueta {
-  display: inline-block;
-  background-color: #0099ff; /* Color contrastante */
-  color: #fff; /* Texto blanco para contraste */
-  font-size: 0.8rem;
-  padding: 2px 6px;
-  border-radius: 12px;
-  margin-left: 5px;
-}
-
+/* Último mensaje */
 .ultimo-mensaje {
   display: block;
   font-size: 0.9rem;
@@ -88,14 +87,7 @@ body {
   text-overflow: ellipsis;
 }
 
-#lista-contactos {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
-  max-height: 100%;
-}
-
+/* Fecha del último mensaje */
 .fecha-mensaje {
   display: inline-block;
   font-size: 0.8rem;
@@ -103,8 +95,51 @@ body {
   margin-left: 10px;
   font-style: italic;
 }
-.contacto-telefono {
-  font-size: 0.9rem;
-  color: #6c757d; /* Gris medio */
-  margin-top: 2px;
+
+/* Etiquetas asociadas al contacto */
+.contacto-etiquetas {
+  margin-top: 5px;
+}
+
+.etiqueta {
+  display: inline-block;
+  background-color: #0099ff; /* Azul */
+  color: #fff; /* Texto blanco */
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+  margin-left: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.etiqueta:hover {
+  background-color: #007bff; /* Azul más oscuro */
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .sidebar {
+    grid-column: 1 / span 3; /* Ocupa toda la fila en pantallas pequeñas */
+    height: auto;
+    border-right: none;
+    border-bottom: 2px solid #c4e2ff;
+  }
+
+  .lista-contactos {
+    max-height: 300px; /* Limitar altura en pantallas pequeñas */
+  }
+
+  .contacto-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .contacto-nombre {
+    font-size: 0.9rem;
+  }
+
+  .ultimo-mensaje {
+    font-size: 0.8rem;
+  }
 }
