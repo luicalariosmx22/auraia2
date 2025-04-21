@@ -240,7 +240,7 @@ function filtrarContactosPorEtiqueta(etiqueta) {
 document.addEventListener("DOMContentLoaded", function () {
   const contactos = document.querySelectorAll(".contacto-item");
 
-  // Añadir eventos a cada contacto
+  // Añadir evento click a cada contacto
   contactos.forEach(contacto => {
     contacto.addEventListener("click", () => {
       const telefono = contacto.getAttribute("data-numero");
@@ -249,15 +249,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Si ya hay un número en localStorage, cargarlo
+  // Verifica si hay un número guardado en localStorage
   const numeroGuardado = localStorage.getItem("numeroActivo");
-  if (numeroGuardado) {
-    console.log("📦 Cargando historial del número guardado:", numeroGuardado);
+  if (numeroGuardado && numeroGuardado !== "null") {
+    console.log("📦 Cargando historial guardado:", numeroGuardado);
     cargarChat(numeroGuardado);
   } else if (contactos.length > 0) {
-    // Si no hay número guardado, carga el primero
+    // Si no hay número guardado, cargar el primer contacto de la lista
     const primerTelefono = contactos[0].getAttribute("data-numero");
-    console.log("📦 No hay número guardado. Cargando el primer contacto:", primerTelefono);
+    console.log("📲 No había número guardado. Cargando primer contacto:", primerTelefono);
     seleccionarContacto(primerTelefono);
+  } else {
+    // Si no hay contactos en la lista
+    console.warn("⚠️ No hay contactos en la lista.");
   }
 });
