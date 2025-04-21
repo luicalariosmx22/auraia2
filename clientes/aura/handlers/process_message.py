@@ -80,7 +80,7 @@ def procesar_mensaje(data):
     # Consultar la base de conocimiento en Supabase
     response = (
         supabase.table("base_conocimiento")
-        .select("contenido")
+        .select("pregunta,respuesta")
         .eq("nombre_nora", nombre_nora)
         .execute()
     )

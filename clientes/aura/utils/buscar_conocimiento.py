@@ -43,17 +43,32 @@ def buscar_conocimiento(nombre_nora, mensaje_usuario):
     Returns:
         str: Respuesta relevante encontrada en la base de conocimiento, o None si no se encuentra.
     """
-    contenido = cargar_base_conocimiento(nombre_nora)  # Cargar contenido desde Supabase
+    print(f"🔍 Buscando conocimiento para Nora: {nombre_nora}, mensaje: '{mensaje_usuario}'")
 
-    if not contenido:
-        print("⚠️ No se pudo cargar la base de conocimiento.")
+    try:
+        # Realizar la consulta en la tabla base_conocimiento
+        response = (
+            supabase.table("base_conocimiento")
+            .select("pregunta,respuesta")
+            .eq("nombre_nora", nombre_nora.lower())  # Normalizar el nombre de Nora a minúsculas
+            .execute()
+        )
+
+        # Verificar si hay datos en la respuesta
+        if not response.data:
+            print("⚠️ No se encontró conocimiento para esta Nora.")
+            return None
+
+        # Buscar coincidencias en las preguntas
+        for fila in response.data:
+            pregunta = fila.get("pregunta", "").lower()
+            if mensaje_usuario.lower() in pregunta:
+                print(f"✅ Coincidencia con pregunta: '{pregunta}' → Respuesta: {fila.get('respuesta')}")
+                return fila.get("respuesta")
+
+        print("❌ No se encontró ninguna coincidencia en preguntas.")
         return None
 
-    # Buscar coincidencias en las líneas del contenido
-    for linea in contenido.splitlines():
-        if mensaje_usuario.lower() in linea.lower():
-            print(f"✅ Conocimiento encontrado: {linea}")
-            return linea
-
-    print("⚠️ No se encontró conocimiento relevante.")
-    return None
+    except Exception as e:
+        print(f"❌ Error al buscar conocimiento: {e}")
+        return None
