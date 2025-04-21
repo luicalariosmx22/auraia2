@@ -54,7 +54,6 @@ from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_no
 # Registro base
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
-registrar_blueprints_cliente(app)
 registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
 
