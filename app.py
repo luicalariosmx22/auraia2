@@ -71,7 +71,7 @@ if "webhook" not in app.blueprints:
     app.register_blueprint(webhook_bp)
 
 if "panel_cliente_etiquetas" not in app.blueprints:
-    app.register_blueprint(etiquetas_bp, url_prefix="/panel/cliente")
+    app.register_blueprint(etiquetas_bp, url_prefix="/panel_cliente")
 
 if "panel_cliente" not in app.blueprints:
     app.register_blueprint(panel_cliente_bp, url_prefix="/panel_cliente")
@@ -80,7 +80,7 @@ if "panel_cliente_contactos" not in app.blueprints:
     app.register_blueprint(panel_cliente_contactos_bp, url_prefix="/panel_cliente/contactos")
 
 if "panel_cliente_envios" not in app.blueprints:
-    app.register_blueprint(panel_cliente_envios_bp, url_prefix="/panel/cliente")
+    app.register_blueprint(panel_cliente_envios_bp, url_prefix="/panel_cliente/envios")
 
 if "admin_debug_master" not in app.blueprints:
     app.register_blueprint(admin_debug_master_bp, url_prefix="/admin/debug")
