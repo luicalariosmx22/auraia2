@@ -29,6 +29,12 @@ async function cargarChat(numero) {
     const response = await fetch(`/api/chat/${numero}`);
     console.log(`🔍 Respuesta recibida del servidor: ${response.status}`);
 
+    if (!response.ok) {
+      console.error(`❌ Error en la respuesta del servidor: ${response.statusText}`);
+      manejarError(null, "Error al cargar el historial de chat.");
+      return;
+    }
+
     const data = await response.json();
     console.log("🔍 Datos recibidos del servidor:", data);
 
@@ -148,8 +154,14 @@ async function agregarEtiqueta(telefono) {
 
 // Seleccionar un contacto y cargar su historial
 function seleccionarContacto(telefono) {
-  localStorage.setItem("numeroActivo", telefono); // Guardar el número del contacto seleccionado
-  cargarChat(telefono); // Cargar el historial del contacto
+  console.log(`🔍 Seleccionando contacto con el número: ${telefono}`);
+  
+  // Guardar el número del contacto seleccionado en localStorage
+  localStorage.setItem("numeroActivo", telefono);
+  console.log(`✅ Número guardado en localStorage: ${localStorage.getItem("numeroActivo")}`);
+  
+  // Llamar a la función cargarChat para cargar el historial del contacto
+  cargarChat(telefono);
 }
 
 // Enviar un mensaje al contacto seleccionado
