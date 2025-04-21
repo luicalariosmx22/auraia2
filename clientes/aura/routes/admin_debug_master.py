@@ -244,11 +244,31 @@ def probar_rutas_dinamicas(robot_nombre):
         rutas_registradas = [rule.rule for rule in current_app.url_map.iter_rules()]
         rutas_faltantes = [ruta for ruta in rutas_dinamicas if ruta not in rutas_registradas]
 
+        # Probar accesibilidad de las rutas dinámicas
+        rutas_accesibles = {}
+        for ruta in rutas_dinamicas:
+            try:
+                with current_app.test_client() as client:
+                    response = client.get(ruta)
+                    rutas_accesibles[ruta] = {
+                        "accesible": response.status_code == 200,
+                        "status_code": response.status_code,
+                        "error": None
+                    }
+            except Exception as e:
+                rutas_accesibles[ruta] = {
+                    "accesible": False,
+                    "status_code": None,
+                    "error": str(e)
+                }
+
         return jsonify({
             "rutas_dinamicas": rutas_dinamicas,
-            "rutas_faltantes": rutas_faltantes
+            "rutas_faltantes": rutas_faltantes,
+            "rutas_accesibles": rutas_accesibles,
         })
     except Exception as e:
+        current_app.logger.error(f"Error al probar rutas dinámicas: {str(e)}")
         return jsonify({"error": str(e)})
 
 @admin_debug_master_bp.route("/admin/debug/rutas", methods=["GET"])
