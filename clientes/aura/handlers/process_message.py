@@ -69,36 +69,22 @@ def procesar_mensaje(data):
     print(f"📞 Número de Nora: {nora_numero}")
 
     # Guardar mensaje del usuario en el historial
-    historial_usuario = {
-        "telefono": numero,
-        "emisor": numero,
-        "mensaje": mensaje_usuario,
-        "hora": datetime.now().isoformat(),
-        "tipo": "usuario"
-    }
     guardar_en_historial(
-        remitente=historial_usuario["emisor"],
-        mensaje=historial_usuario["mensaje"],
-        tipo=historial_usuario["tipo"],
-        nombre_nora=nombre_nora
+        numero,
+        mensaje_usuario,
+        "recibido",
+        nombre_nora
     )
 
     # Buscar conocimiento en la base de datos
     respuesta_conocimiento = buscar_conocimiento(nombre_nora, mensaje_usuario)
     if respuesta_conocimiento:
         # Guardar respuesta del bot en el historial
-        historial_nuevo = {
-            "telefono": numero,
-            "emisor": nora_numero,  # Usar número de Nora desde la configuración
-            "mensaje": respuesta_conocimiento,
-            "hora": datetime.now().isoformat(),
-            "tipo": "respuesta"
-        }
         guardar_en_historial(
-            remitente=historial_nuevo["emisor"],
-            mensaje=historial_nuevo["mensaje"],
-            tipo=historial_nuevo["tipo"],
-            nombre_nora=nombre_nora
+            nora_numero,
+            respuesta_conocimiento,
+            "enviado",
+            nombre_nora
         )
 
         # Enviar respuesta al usuario usando nombre_usuario
@@ -109,18 +95,11 @@ def procesar_mensaje(data):
     respuesta_ia = manejar_respuesta_ai(mensaje_usuario)
 
     # Guardar respuesta generada por la IA en el historial
-    historial_nuevo = {
-        "telefono": numero,
-        "emisor": nora_numero,  # Usar número de Nora desde la configuración
-        "mensaje": respuesta_ia,
-        "hora": datetime.now().isoformat(),
-        "tipo": "respuesta"
-    }
     guardar_en_historial(
-        remitente=historial_nuevo["emisor"],
-        mensaje=historial_nuevo["mensaje"],
-        tipo=historial_nuevo["tipo"],
-        nombre_nora=nombre_nora
+        nora_numero,
+        respuesta_ia,
+        "enviado",
+        nombre_nora
     )
 
     # Enviar respuesta al usuario usando nombre_usuario
