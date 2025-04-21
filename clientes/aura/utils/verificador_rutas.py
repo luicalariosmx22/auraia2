@@ -1,58 +1,72 @@
 import os
 import re
-from urllib.parse import urljoin
 
 class RutaChecker:
     def __init__(self):
-        self.rutas_detectadas = []
+        self.rutas_html = []
         self.rutas_flask = []
-        self.resultado_html = "clientes/aura/templates/verificador_rutas_panel.html"
+        self.rutas_no_definidas = []
 
-    def analizar_rutas(self, ruta_proyecto):
-        for root, _, files in os.walk(ruta_proyecto):
-            for archivo in files:
-                if archivo.endswith(".py"):
-                    self._extraer_rutas_flask(os.path.join(root, archivo))
-                elif archivo.endswith(".html"):
-                    self._extraer_rutas_html(os.path.join(root, archivo))
+    def analizar_rutas(self, base_path):
+        templates_path = os.path.join(base_path, "templates")
+        routes_path = os.path.join(base_path, "routes")
 
-    def _extraer_rutas_flask(self, filepath):
-        with open(filepath, "r", encoding="utf-8") as f:
-            contenido = f.read()
-            rutas = re.findall(r"@[\w_]+\.route\(['\"](/[\w\-/<>]*)", contenido)
-            self.rutas_flask.extend(rutas)
+        # Extraer rutas desde plantillas HTML
+        self.rutas_html = self.extraer_rutas_desde_templates(templates_path)
 
-    def _extraer_rutas_html(self, filepath):
-        with open(filepath, "r", encoding="utf-8") as f:
-            contenido = f.read()
-            rutas = re.findall(r'href=["\'](/[^"\']+)["\']', contenido)
-            self.rutas_detectadas.extend(rutas)
+        # Extraer rutas desde Flask
+        self.rutas_flask = self.extraer_rutas_flask(routes_path)
+
+        # Identificar rutas no definidas
+        self.rutas_no_definidas = [
+            ruta for ruta in self.rutas_html if ruta["ruta"] not in [rf["ruta"] for rf in self.rutas_flask]
+        ]
+
+    def extraer_rutas_desde_templates(self, templates_path):
+        rutas = []
+        try:
+            for root, _, files in os.walk(templates_path):
+                for file in files:
+                    if file.endswith(".html"):
+                        with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                            contenido = f.read()
+                            matches = re.findall(r'href="([^"]+)"', contenido)
+                            for match in matches:
+                                rutas.append({"archivo": file, "ruta": match})
+        except Exception as e:
+            print(f"❌ Error al extraer rutas desde plantillas: {str(e)}")
+        return rutas
+
+    def extraer_rutas_flask(self, routes_path):
+        rutas = []
+        try:
+            for root, _, files in os.walk(routes_path):
+                for file in files:
+                    if file.endswith(".py"):
+                        with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                            contenido = f.read()
+                            matches = re.findall(r'@(?:app|blueprint)\.route\("([^"]+)"', contenido)
+                            for match in matches:
+                                rutas.append({"archivo": file, "ruta": match})
+        except Exception as e:
+            print(f"❌ Error al extraer rutas de Flask: {str(e)}")
+        return rutas
 
     def generar_html(self):
-        usadas = set(self.rutas_detectadas)
-        definidas = set(self.rutas_flask)
-
-        html = "<h2>🔍 Verificador de Rutas y Blueprints</h2>"
-        html += f"<p>🧠 Total de rutas usadas en HTML: {len(usadas)}</p>"
-        html += f"<p>🛠️ Total de rutas definidas en Flask: {len(definidas)}</p>"
-
-        html += "<h3 style='color: red;'>❌ Rutas usadas en HTML pero NO definidas en Flask</h3><ul>"
-        for ruta in usadas - definidas:
-            html += f"<li style='color:red'>{ruta}</li>"
+        html = "<h2>🔍 Verificación de Rutas</h2>"
+        html += "<h3>Rutas HTML:</h3><ul>"
+        for ruta in self.rutas_html:
+            html += f"<li>{ruta['ruta']} (Archivo: {ruta['archivo']})</li>"
         html += "</ul>"
 
-        html += "<h3 style='color: green;'>✅ Rutas definidas y usadas</h3><ul>"
-        for ruta in usadas & definidas:
-            html += f"<li style='color:green'>{ruta}</li>"
+        html += "<h3>Rutas Flask:</h3><ul>"
+        for ruta in self.rutas_flask:
+            html += f"<li>{ruta['ruta']} (Archivo: {ruta['archivo']})</li>"
         html += "</ul>"
 
-        html += "<h3>🧱 Todas las rutas definidas en Flask</h3><ul>"
-        for ruta in sorted(definidas):
-            html += f"<li>{ruta}</li>"
+        html += "<h3>Rutas No Definidas:</h3><ul>"
+        for ruta in self.rutas_no_definidas:
+            html += f"<li>{ruta['ruta']} (Archivo: {ruta['archivo']})</li>"
         html += "</ul>"
 
-        os.makedirs(os.path.dirname(self.resultado_html), exist_ok=True)
-        with open(self.resultado_html, "w", encoding="utf-8") as f:
-            f.write(html)
-
-        return self.resultado_html
+        return html
