@@ -97,11 +97,11 @@ def registrar_rutas_en_supabase():
     rutas = []
     for rule in app.url_map.iter_rules():
         rutas.append({
-            "id": validar_o_generar_uuid(""),
+            "id": validar_o_generar_uuid(""),  # Esto no es necesario si Supabase genera automáticamente el UUID
             "ruta": rule.rule,
-            "endpoint": rule.endpoint,
-            "metodos": ", ".join(rule.methods - {"HEAD", "OPTIONS"}),  # Excluir métodos no relevantes
-            "creado_en": datetime.now().isoformat()
+            "blueprint": rule.endpoint.split(".")[0] if "." in rule.endpoint else "default",  # Extraer el blueprint del endpoint
+            "metodo": ", ".join(rule.methods - {"HEAD", "OPTIONS"}),  # Excluir métodos no relevantes
+            "registrado_en": datetime.now().isoformat()  # Esto no es necesario si Supabase usa `now()`
         })
     try:
         response = supabase.table("rutas_registradas").insert(rutas).execute()
