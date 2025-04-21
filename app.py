@@ -36,7 +36,6 @@ if not app.debug:
 # ========= REGISTRO DE BLUEPRINTS =========
 from clientes.aura.registro.registro_login import registrar_blueprints_login
 from clientes.aura.registro.registro_base import registrar_blueprints_base
-from clientes.aura.registro.registro_cliente import registrar_blueprints_cliente
 from clientes.aura.registro.registro_admin import registrar_blueprints_admin
 from clientes.aura.registro.registro_debug import registrar_blueprints_debug
 from clientes.aura.routes.panel_chat import panel_chat_bp
