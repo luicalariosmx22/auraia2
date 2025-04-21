@@ -55,38 +55,41 @@ def ver_contactos(nombre_nora):
     try:
         print(f"📍 Ruta con Nora: {nombre_nora}")
 
-        # Obtener parámetros de búsqueda
+        # Obtener parámetros del filtro
         busqueda = request.args.get('busqueda', '').strip().lower()
-        fecha_inicio = request.args.get('fecha_inicio', None)
-        fecha_fin = request.args.get('fecha_fin', None)
-        etiqueta = request.args.get('etiqueta', '').strip()
+        fecha_inicio = request.args.get('fecha_inicio')
+        fecha_fin = request.args.get('fecha_fin')
+        etiquetas_filtro = request.args.getlist('etiqueta')  # ✅ ahora acepta múltiples etiquetas
 
-        # Imprimir los parámetros recibidos
-        print(f"📩 Parámetros recibidos: busqueda={busqueda}, fecha_inicio={fecha_inicio}, fecha_fin={fecha_fin}, etiqueta={etiqueta}")
-
-        # Construir la consulta base
+        # Consulta base
         query = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora)
 
         # Filtro por nombre o teléfono
         if busqueda:
-            query = query.or_("nombre.ilike.*{0}*,telefono.ilike.*{0}*".format(busqueda))
+            query = query.or_(f"nombre.ilike.*{busqueda}*,telefono.ilike.*{busqueda}*")
 
-        # Filtro por rango de fechas
+        # Filtro por fechas
         if fecha_inicio:
             query = query.gte("ultimo_mensaje", fecha_inicio)
         if fecha_fin:
             query = query.lte("ultimo_mensaje", fecha_fin)
 
-        # Filtro por etiqueta
-        if etiqueta:
-            query = query.contains("etiquetas", [etiqueta])
+        # Filtro por etiquetas (debe tener todas las seleccionadas)
+        if etiquetas_filtro:
+            for etiqueta in etiquetas_filtro:
+                query = query.contains("etiquetas", [etiqueta])
 
         # Ejecutar la consulta
-        response = query.execute()
-        if response.status_code != 200:
-            raise Exception(f"Error en la consulta de contactos: {response.error_message}")
+        try:
+            response = query.execute()
+            if response.status_code != 200:
+                raise Exception(f"Error en la consulta de contactos: {response.error_message}")
 
-        contactos = response.data or []
+            contactos = response.data or []
+            print(f"✅ Contactos encontrados: {len(contactos)}")
+        except Exception as e:
+            print(f"❌ Error al filtrar contactos: {str(e)}")
+            contactos = []
 
         # Si la solicitud es AJAX, devolver JSON
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
