@@ -55,4 +55,5 @@ def generar_html_rutas(app, output_path=None):
 
             return html
     except Exception as e:
+        current_app.logger.error(f"❌ Error al generar el HTML de rutas: {str(e)}")
         return f"❌ Error al generar el HTML de rutas: {str(e)}"

@@ -19,6 +19,8 @@ def ruta_no_definida():
 # Cargar variables de entorno
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
+if not openai.api_key:
+    current_app.logger.warning("⚠️ La clave de API de OpenAI no está configurada.")
 
 def extraer_rutas_desde_templates(templates_path):
     """
@@ -91,32 +93,40 @@ def {nombre_archivo}():
     return "¡Esta es una ruta generada automáticamente para {ruta['ruta']}!"
 """)
 
+def registrar_rutas_generadas(app):
+    rutas_generadas_path = "clientes/aura/routes"
+    for root, _, files in os.walk(rutas_generadas_path):
+        for file in files:
+            if file.endswith(".py") and file != "__init__.py":
+                module_name = f"clientes.aura.routes.{file[:-3]}"
+                module = __import__(module_name, fromlist=["generated_blueprint"])
+                if hasattr(module, "generated_blueprint"):
+                    app.register_blueprint(module.generated_blueprint)
+
+def verificar_rutas():
+    try:
+        checker = RutaChecker()
+        checker.analizar_rutas("clientes/aura")
+        return checker.generar_html()
+    except FileNotFoundError as e:
+        return f"❌ Error: No se encontró el archivo o directorio: {str(e)}"
+    except Exception as e:
+        return f"❌ Error inesperado al verificar rutas: {str(e)}"
+
 @admin_debug_master_bp.route("/admin/debug/master", methods=["GET", "POST"])
 def debug_master():
-    if request.method not in ["GET", "POST"]:
-        return "❌ Método HTTP no permitido", 405
-
     try:
-        # Inicialización de variables
-        resultado_verificacion = ""
+        checker = RutaChecker()
+        checker.analizar_rutas("clientes/aura")
+        rutas_no_definidas = checker.rutas_no_definidas
 
-        # 1️⃣ Verificar Rutas
-        try:
-            # Extraer rutas desde las plantillas HTML y Flask
-            checker = RutaChecker()
-            checker.analizar_rutas("clientes/aura")
-            resultado_verificacion = checker.generar_html()
-        except Exception as e:
-            resultado_verificacion = f"❌ Error al verificar rutas: {str(e)}"
-
-        # Renderizar resultados en la plantilla
         return render_template(
             "admin_debug_master.html",
-            resultado_verificacion=resultado_verificacion,
+            resultado_verificacion=checker.generar_html(),
+            rutas_no_definidas=rutas_no_definidas,
         )
     except Exception as e:
-        # Registrar errores críticos
-        print(f"❌ Error crítico en debug_master: {str(e)}")
+        current_app.logger.error(f"❌ Error crítico en debug_master: {str(e)}")
         return render_template(
             "error.html",
             mensaje="❌ Error crítico en el servidor. Por favor, contacta al administrador.",

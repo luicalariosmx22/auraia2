@@ -49,6 +49,37 @@
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+        .form-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #dff9fb;
+            border: 1px solid #7ed6df;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -112,22 +143,11 @@
         </table>
 
         <h3>Rutas no definidas:</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ruta</th>
-                    <th>Archivo HTML</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ruta in rutas_no_definidas %}
-                <tr>
-                    <td>{{ ruta.ruta }}</td>
-                    <td>{{ ruta.archivo }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <ul>
+            {% for ruta in rutas_no_definidas %}
+            <li>{{ ruta.ruta }} (Archivo: {{ ruta.archivo }})</li>
+            {% endfor %}
+        </ul>
 
         <!-- 🤖 OpenAI Debug Helper -->
         <h2>🤖 OpenAI Debug Helper</h2>

@@ -17,6 +17,10 @@ class RutaChecker:
         # Extraer rutas desde Flask
         self.rutas_flask = self.extraer_rutas_flask(routes_path)
 
+        # Eliminar duplicados
+        self.rutas_html = list({ruta['ruta']: ruta for ruta in self.rutas_html}.values())
+        self.rutas_flask = list({ruta['ruta']: ruta for ruta in self.rutas_flask}.values())
+
         # Identificar rutas no definidas
         self.rutas_no_definidas = [
             ruta for ruta in self.rutas_html if ruta["ruta"] not in [rf["ruta"] for rf in self.rutas_flask]
