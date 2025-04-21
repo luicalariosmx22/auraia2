@@ -32,43 +32,58 @@ def cargar_base_conocimiento(nombre_nora):
         return None
 
 
-def buscar_conocimiento(nombre_nora, mensaje_usuario):
+def buscar_conocimiento(numero_nora, mensaje_usuario):
     """
-    Busca en la base de conocimiento alguna respuesta relevante al mensaje del usuario.
+    Consulta el contenido largo de la memoria desde Supabase,
+    usando el número de la Nora como identificador principal.
 
     Args:
-        nombre_nora (str): Nombre de la instancia de Nora.
+        numero_nora (str): Número de la instancia de Nora.
         mensaje_usuario (str): Mensaje enviado por el usuario.
 
     Returns:
-        str: Respuesta relevante encontrada en la base de conocimiento, o None si no se encuentra.
+        str: Prompt completo para enviar a la IA, o None si no se encuentra contenido.
     """
-    print(f"🔍 Buscando conocimiento para Nora: {nombre_nora}, mensaje: '{mensaje_usuario}'")
-
     try:
+        print(f"📚 Buscando conocimiento para número_nora: {numero_nora} y mensaje: '{mensaje_usuario}'")
+
         # Realizar la consulta en la tabla base_conocimiento
         response = (
             supabase.table("base_conocimiento")
-            .select("pregunta,respuesta")
-            .eq("nombre_nora", nombre_nora.lower())  # Normalizar el nombre de Nora a minúsculas
+            .select("contenido")
+            .eq("numero_nora", numero_nora)  # Filtrar por número de Nora
+            .single()
             .execute()
         )
 
         # Verificar si hay datos en la respuesta
         if not response.data:
-            print("⚠️ No se encontró conocimiento para esta Nora.")
+            print(f"⚠️ No se encontró contenido para número_nora: {numero_nora}")
             return None
 
-        # Buscar coincidencias en las preguntas
-        for fila in response.data:
-            pregunta = fila.get("pregunta", "").lower()
-            if mensaje_usuario.lower() in pregunta:
-                print(f"✅ Coincidencia con pregunta: '{pregunta}' → Respuesta: {fila.get('respuesta')}")
-                return fila.get("respuesta")
+        contenido = response.data.get("contenido", "")
+        if not contenido.strip():
+            print("⚠️ Contenido vacío para esta Nora.")
+            return None
 
-        print("❌ No se encontró ninguna coincidencia en preguntas.")
-        return None
+        # 🧠 Formar el prompt completo para enviar a la IA
+        prompt = f"""
+Eres Nora, una asistente profesional de marketing digital.
+
+Tu trabajo es ayudar a los clientes de forma clara, útil y natural.
+No inventes información. Utiliza el siguiente conocimiento siempre que sea posible.
+
+Conocimiento disponible:
+{contenido}
+
+Pregunta del usuario:
+{mensaje_usuario}
+
+Respuesta:
+"""
+        print("✅ Prompt generado exitosamente.")
+        return prompt
 
     except Exception as e:
-        print(f"❌ Error al buscar conocimiento: {e}")
+        print(f"❌ Error al consultar conocimiento en Supabase: {e}")
         return None

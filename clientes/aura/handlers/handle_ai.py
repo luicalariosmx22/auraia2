@@ -2,59 +2,34 @@ import os
 import openai
 from dotenv import load_dotenv
 from clientes.aura.utils.error_logger import registrar_error
-from utils.supabase_client import supabase
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def cargar_base_conocimiento(nombre_nora):
+def manejar_respuesta_ai(mensaje_usuario, prompt=None):
     """
-    Carga la base de conocimiento específica para una Nora desde Supabase.
-    """
-    try:
-        res = supabase.table("base_conocimiento").select("contenido").eq("nombre_nora", nombre_nora).execute()
-        if res.data:
-            # Concatenar múltiples registros de la base de conocimiento
-            return "\n".join([item["contenido"] for item in res.data])
-        return ""
-    except Exception as e:
-        registrar_error("IA", f"No se pudo cargar el conocimiento desde Supabase para {nombre_nora}: {e}")
-        return ""
+    Genera una respuesta utilizando OpenAI GPT-3.5-turbo basada en el mensaje del usuario y un prompt opcional.
 
-def manejar_respuesta_ai(mensaje_usuario, nombre_nora="Nora", temperatura=0.7, modelo="gpt-3.5-turbo"):
-    """
-    Genera una respuesta utilizando OpenAI GPT-3.5-turbo basada en el mensaje del usuario y la base de conocimiento.
+    Args:
+        mensaje_usuario (str): Mensaje enviado por el usuario.
+        prompt (str, optional): Contexto adicional para la IA. Si no se proporciona, se usa el mensaje del usuario.
+
+    Returns:
+        str: Respuesta generada por la IA.
     """
     try:
-        # Cargar la base de conocimiento específica para la Nora
-        conocimiento_base = cargar_base_conocimiento(nombre_nora)
-
-        # Construir el prompt dinámico
-        prompt = f"""
-Eres {nombre_nora}, una asistente profesional y personalizada.
-
-Tu trabajo es responder de forma clara, útil, profesional y humana.
-No inventes información y utiliza el conocimiento disponible siempre que sea posible.
-
-Conocimiento disponible:
-{conocimiento_base}
-
-Pregunta del usuario:
-{mensaje_usuario}
-
-Respuesta:
-        """
+        # Construir el mensaje para la IA
+        messages = [{"role": "user", "content": prompt or mensaje_usuario}]
 
         # Llamar a la API de OpenAI
-        respuesta = openai.ChatCompletion.create(
-            model=modelo,
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            temperature=temperatura
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            temperature=0.7
         )
 
-        return respuesta.choices[0].message.content.strip()
+        # Retornar la respuesta generada
+        return response.choices[0].message.content.strip()
 
     except openai.error.OpenAIError as e:
         registrar_error("IA", f"Error al generar respuesta con OpenAI: {e}")
