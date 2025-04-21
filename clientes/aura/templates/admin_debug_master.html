@@ -96,6 +96,22 @@
     <div class="container">
         <h1>Admin Debug Master</h1>
 
+        <h2>🤖 OpenAI Debug Helper</h2>
+        <div class="form-container">
+            <form method="POST" action="/admin/debug/master">
+                <label for="error">Describe el error recibido:</label><br>
+                <textarea id="error" name="error" rows="4" placeholder="Escribe aquí el error...">{{ error_usuario }}</textarea><br><br>
+                <button type="submit">Analizar Error</button>
+            </form>
+        </div>
+
+        {% if resultado_ai %}
+            <div class="result-container">
+                <h3>Resultado de OpenAI:</h3>
+                <pre>{{ resultado_ai }}</pre>
+            </div>
+        {% endif %}
+
         <h2>🔍 Rutas HTML y Flask</h2>
         <h3>Rutas en HTML:</h3>
         <ul>
@@ -128,22 +144,6 @@
         <div>
             {{ rutas_registradas_html|safe }}
         </div>
-
-        <h2>🤖 OpenAI Debug Helper</h2>
-        <div class="form-container">
-            <form method="POST" action="/admin/debug/master">
-                <label for="error">Describe el error recibido:</label><br>
-                <textarea id="error" name="error" rows="4" placeholder="Escribe aquí el error...">{{ error_usuario }}</textarea><br><br>
-                <button type="submit">Analizar Error</button>
-            </form>
-        </div>
-
-        {% if resultado_ai %}
-            <div class="result-container">
-                <h3>Resultado de OpenAI:</h3>
-                <pre>{{ resultado_ai }}</pre>
-            </div>
-        {% endif %}
     </div>
 </body>
 </html>
