@@ -5,7 +5,7 @@ from clientes.aura.utils.supabase import supabase
 from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.error_logger import registrar_error
 
-def guardar_en_historial(telefono, mensaje, origen, nombre_nora, tipo="desconocido"):
+def guardar_en_historial(telefono, mensaje, origen, nombre_nora, tipo="mensaje", nombre=None):
     """
     Guarda un mensaje en el historial de conversaciones en Supabase.
 
@@ -15,38 +15,39 @@ def guardar_en_historial(telefono, mensaje, origen, nombre_nora, tipo="desconoci
         origen (str): Número del remitente.
         nombre_nora (str): Nombre de la instancia de Nora.
         tipo (str): Tipo de mensaje (e.g., "recibido", "enviado").
+        nombre (str, optional): Nombre del remitente o destinatario.
 
     Returns:
         dict: Resultado de la operación con éxito o error.
     """
     try:
-        # Validar datos requeridos
-        if not telefono or not mensaje or not origen or not nombre_nora:
-            return {"success": False, "error": "Datos insuficientes para guardar en historial"}
-
         # Normalizar números
         telefono = normalizar_numero(telefono)
         origen = normalizar_numero(origen)
 
         # Preparar datos para insertar
-        data = {
+        nuevo_mensaje = {
             "telefono": telefono,
-            "emisor": origen,
             "mensaje": mensaje,
-            "hora": datetime.now().isoformat(),
+            "origen": origen,
+            "nombre_nora": nombre_nora.lower(),
             "tipo": tipo,
-            "nombre_nora": nombre_nora.lower()
+            "nombre": nombre,
+            "hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
 
+        # Eliminar claves con valor None
+        nuevo_mensaje = {k: v for k, v in nuevo_mensaje.items() if v is not None}
+
         # Insertar en la tabla historial_conversaciones
-        response = supabase.table("historial_conversaciones").insert(data).execute()
+        response = supabase.table("historial_conversaciones").insert(nuevo_mensaje).execute()
 
         # Verificar respuesta de Supabase
         if not response.data:
-            print(f"❌ Error al guardar en historial_conversaciones: {response}")
+            print("⚠️ No se pudo registrar en el historial.")
             return {"success": False, "error": "No se pudo guardar en la base de datos"}
 
-        print(f"✅ Historial guardado para {telefono}: {mensaje}")
+        print(f"✅ Historial registrado: {nuevo_mensaje}")
         return {"success": True, "data": response.data}
 
     except Exception as e:
