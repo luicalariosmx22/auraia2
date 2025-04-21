@@ -1,5 +1,6 @@
 import os
 import openai
+import re
 from flask import Blueprint, render_template, request, current_app
 from dotenv import load_dotenv
 from clientes.aura.routes import admin_debug_rutas
@@ -21,7 +22,7 @@ def extraer_rutas_desde_templates(templates_path):
         templates_path (str): Ruta al directorio de plantillas.
 
     Returns:
-        list: Lista de rutas extraídas.
+        list: Lista de diccionarios con detalles de las rutas extraídas.
     """
     rutas = []
     try:
@@ -30,9 +31,10 @@ def extraer_rutas_desde_templates(templates_path):
                 if file.endswith(".html"):
                     with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                         contenido = f.read()
-                        # Aquí puedes usar expresiones regulares para buscar rutas en el contenido
-                        if "href=" in contenido:
-                            rutas.append(file)  # Ejemplo: agrega el nombre del archivo como ruta
+                        # Busca rutas en los atributos href
+                        matches = re.findall(r'href="([^"]+)"', contenido)
+                        for match in matches:
+                            rutas.append({"archivo": file, "ruta": match})
     except Exception as e:
         print(f"❌ Error al extraer rutas desde plantillas: {str(e)}")
     return rutas
@@ -45,19 +47,18 @@ def extraer_rutas_flask(routes_path):
         routes_path (str): Ruta al directorio de rutas.
 
     Returns:
-        list: Lista de rutas registradas.
+        list: Lista de diccionarios con detalles de las rutas registradas.
     """
     rutas = []
     try:
-        # Aquí puedes implementar la lógica para analizar los archivos de rutas
-        # Por ejemplo, buscar decoradores @app.route o @blueprint.route
         for root, _, files in os.walk(routes_path):
             for file in files:
                 if file.endswith(".py"):
                     with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                         contenido = f.read()
-                        if "@app.route" in contenido or ".route" in contenido:
-                            rutas.append(file)  # Ejemplo: agrega el nombre del archivo como ruta
+                        matches = re.findall(r'@(?:app|blueprint)\.route\("([^"]+)"', contenido)
+                        for match in matches:
+                            rutas.append({"archivo": file, "ruta": match})
     except Exception as e:
         print(f"❌ Error al extraer rutas de Flask: {str(e)}")
     return rutas
@@ -80,7 +81,7 @@ def debug_master():
         try:
             rutas_html = extraer_rutas_desde_templates("clientes/aura/templates")
             rutas_flask = extraer_rutas_flask("clientes/aura/routes")
-            no_definidas = [r for r in rutas_html if r not in rutas_flask]
+            no_definidas = [r for r in rutas_html if r["ruta"] not in [rf["ruta"] for rf in rutas_flask]]
         except Exception as e:
             print(f"❌ Error al procesar rutas HTML y Flask: {str(e)}")
 

@@ -113,24 +113,47 @@
         {% endif %}
 
         <h2>🔍 Rutas HTML y Flask</h2>
+
         <h3>Rutas en HTML:</h3>
-        <ul>
-            {% for ruta in rutas_html %}
-                <li>{{ ruta }}</li>
-            {% endfor %}
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Archivo</th>
+                    <th>Ruta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ruta in rutas_html %}
+                <tr>
+                    <td>{{ ruta.archivo }}</td>
+                    <td>{{ ruta.ruta }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
         <h3>Rutas en Flask:</h3>
-        <ul>
-            {% for ruta in rutas_flask %}
-                <li>{{ ruta }}</li>
-            {% endfor %}
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Archivo</th>
+                    <th>Ruta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ruta in rutas_flask %}
+                <tr>
+                    <td>{{ ruta.archivo }}</td>
+                    <td>{{ ruta.ruta }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
         <h3>Rutas no definidas:</h3>
         <ul>
             {% for ruta in rutas_no_definidas %}
-                <li>{{ ruta }}</li>
+            <li>{{ ruta }}</li>
             {% endfor %}
         </ul>
 
