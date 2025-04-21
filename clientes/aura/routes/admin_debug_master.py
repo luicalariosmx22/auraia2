@@ -9,6 +9,11 @@ from clientes.aura.utils.debug_rutas import generar_html_rutas
 from clientes.aura.routes.debug_verificar import verificar_sistema
 
 admin_debug_master_bp = Blueprint("admin_debug_master", __name__)
+my_blueprint = Blueprint('my_blueprint', __name__)
+
+@my_blueprint.route('/ruta-no-definida')
+def ruta_no_definida():
+    return "¡Hola, esta es la ruta no definida!"
 
 # Cargar variables de entorno
 load_dotenv()
@@ -62,6 +67,28 @@ def extraer_rutas_flask(routes_path):
     except Exception as e:
         print(f"❌ Error al extraer rutas de Flask: {str(e)}")
     return rutas
+
+def generar_controladores_para_rutas_no_definidas(rutas_no_definidas):
+    """
+    Genera controladores básicos para las rutas no definidas.
+
+    Args:
+        rutas_no_definidas (list): Lista de rutas no definidas.
+    """
+    for ruta in rutas_no_definidas:
+        print(f"Creando controlador para la ruta: {ruta['ruta']}")
+        # Limpia el nombre del archivo
+        nombre_archivo = ruta['ruta'].strip('/').replace('-', '_').replace('/', '_')
+        with open(f"clientes/aura/routes/{nombre_archivo}.py", "w", encoding="utf-8") as f:
+            f.write(f"""
+from flask import Blueprint
+
+generated_blueprint = Blueprint('generated_blueprint', __name__)
+
+@generated_blueprint.route('{ruta['ruta']}')
+def {nombre_archivo}():
+    return "¡Esta es una ruta generada automáticamente para {ruta['ruta']}!"
+""")
 
 @admin_debug_master_bp.route("/admin/debug/master", methods=["GET", "POST"])
 def debug_master():
@@ -128,6 +155,12 @@ Evita suposiciones, responde como experto en debug de Flask y Python.
                 resultado_ai = f"❌ Error en OpenAI: {e.__class__.__name__} - {str(e)}"
             except Exception as e:
                 resultado_ai = f"❌ Error desconocido: {str(e)}"
+
+        # Generar controladores para rutas no definidas
+        try:
+            generar_controladores_para_rutas_no_definidas(no_definidas)
+        except Exception as e:
+            print(f"❌ Error al generar controladores para rutas no definidas: {str(e)}")
 
         # Renderizar resultados en la plantilla
         return render_template(

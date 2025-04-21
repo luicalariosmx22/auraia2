@@ -108,11 +108,22 @@
         </table>
 
         <h3>Rutas no definidas:</h3>
-        <ul>
-            {% for ruta in rutas_no_definidas %}
-            <li>{{ ruta }}</li>
-            {% endfor %}
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ruta</th>
+                    <th>Archivo HTML</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ruta in rutas_no_definidas %}
+                <tr>
+                    <td>{{ ruta.ruta }}</td>
+                    <td>{{ ruta.archivo }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
         <!-- 🤖 OpenAI Debug Helper -->
         <h2>🤖 OpenAI Debug Helper</h2>
