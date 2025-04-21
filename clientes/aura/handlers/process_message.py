@@ -26,7 +26,7 @@ def procesar_mensaje(data):
     numero = normalizar_numero(data.get("From"))
     mensaje_usuario = limpiar_mensaje(data.get("Body"))
     nombre_usuario = data.get("ProfileName", "Usuario")  # ✅ Obtener el ProfileName del usuario
-    nombre_nora = data.get("NombreNora", "Nora")  # ✅ Dinámico: Obtener el nombre de Nora desde los datos
+    nombre_nora = data.get("NombreNora", "nora").lower()  # ✅ Normalizar el nombre de Nora a minúsculas
 
     # Obtener configuración de Nora
     config = obtener_config_nora(nombre_nora)
