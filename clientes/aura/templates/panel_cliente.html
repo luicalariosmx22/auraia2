@@ -26,15 +26,7 @@
       {% endfor %}
     </section>
 
-    <!-- 📍 Sección de Debug -->
-    <section class="debug-info">
-      <h4>Debug:</h4>
-      <p><strong>Nombre Nora:</strong> {{ nombre_nora }}</p>
-      <p><strong>Módulos:</strong> {{ modulos }}</p>
-    </section>
-
     <section class="meta-grid">
-
       {% if "contactos" in modulos %}
       <div class="meta-card">
         <h3>👥 Gestión de Contactos</h3>
@@ -82,7 +74,6 @@
         <a href="{{ url_for('panel_cliente_respuestas.panel_respuestas', nombre_nora=nombre_nora) }}" class="btn-neutral">🧾 Configurar respuestas</a>
       </div>
       {% endif %}
-
     </section>
   </div>
 </body>
