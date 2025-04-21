@@ -26,9 +26,17 @@
     <header>
         <div class="logo">🧠 Nora AI</div>
         <div class="logout">
-            <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+            <a href="/logout">Cerrar sesión</a>
         </div>
     </header>
+
+    <nav class="sidebar">
+        <ul>
+            <li><a href="/admin">🏠 Panel</a></li>
+            <li><a href="/admin/noras">📋 Ver Noras</a></li>
+            <li><a href="/admin/nora/{{ nombre_nora }}/entrenar" class="active">🧠 Entrena tu Nora</a></li>
+        </ul>
+    </nav>
 
     <main>
         <h1>⚙️ Entrenamiento de Nora: <strong>{{ nombre_nora }}</strong></h1>
@@ -38,7 +46,7 @@
             <!-- 1. Activar o desactivar IA -->
             <div class="modulo">
                 <h2>🔌 Activar o desactivar la Inteligencia Artificial</h2>
-                <form action="{{ url_for('estado_ia', nombre_nora=nombre_nora) }}" method="POST">
+                <form action="/admin/nora/{{ nombre_nora }}/entrenar/estado_ia" method="POST">
                     <label>
                         <input type="checkbox" name="ia_activa" value="true" {% if config.ia_activa %}checked{% endif %}>
                         Activar IA (desactívala si quieres responder manualmente)
@@ -50,7 +58,7 @@
             <!-- 2. Cambiar nombre -->
             <div class="modulo">
                 <h2>✏️ Cambiar el nombre de Nora</h2>
-                <form action="{{ url_for('cambiar_nombre', nombre_nora=nombre_nora) }}" method="POST">
+                <form action="/admin/nora/{{ nombre_nora }}/entrenar/cambiar_nombre" method="POST">
                     <input type="text" name="nuevo_nombre" value="{{ nombre_nora }}" required>
                     <button type="submit">Actualizar nombre</button>
                 </form>
@@ -59,7 +67,7 @@
             <!-- 3. Personalidad -->
             <div class="modulo">
                 <h2>🎭 Personalidad</h2>
-                <form action="{{ url_for('personalidad', nombre_nora=nombre_nora) }}" method="POST">
+                <form action="/admin/nora/{{ nombre_nora }}/entrenar/personalidad" method="POST">
                     <textarea name="personalidad" rows="4" placeholder="Ej: Amable, profesional, tono relajado...">{{ config.personalidad or '' }}</textarea>
                     <button type="submit">Guardar personalidad</button>
                 </form>
@@ -68,7 +76,7 @@
             <!-- 4. Instrucciones clave -->
             <div class="modulo">
                 <h2>📋 Instrucciones clave</h2>
-                <form action="{{ url_for('instrucciones', nombre_nora=nombre_nora) }}" method="POST">
+                <form action="/admin/nora/{{ nombre_nora }}/entrenar/instrucciones" method="POST">
                     <textarea name="instrucciones" rows="5" placeholder="Ej: Nunca compartas enlaces externos, siempre pide el nombre, etc...">{{ config.instrucciones or '' }}</textarea>
                     <button type="submit">Guardar instrucciones</button>
                 </form>
@@ -77,7 +85,7 @@
             <!-- 5. Centro de conocimiento -->
             <div class="modulo">
                 <h2>📚 Centro de conocimiento</h2>
-                <form action="{{ url_for('guardar_conocimiento', nombre_nora=nombre_nora) }}" method="POST">
+                <form action="/admin/nora/{{ nombre_nora }}/entrenar/conocimiento" method="POST">
                     <textarea name="base_conocimiento" rows="8" placeholder="Agrega información que Nora debe saber para responder en WhatsApp...">{{ config.base_conocimiento or '' }}</textarea>
                     <button type="submit">Guardar conocimiento</button>
                 </form>
@@ -87,7 +95,7 @@
             <div class="modulo">
                 <h2>📚 Editar base de conocimiento</h2>
                 <p>Consulta y edita las respuestas que Nora usará para contestar automáticamente en WhatsApp.</p>
-                <a href="{{ url_for('editar_conocimiento', nombre_nora=nombre_nora) }}" class="btn-neutral">Ir al editor de conocimiento</a>
+                <a href="/admin/nora/{{ nombre_nora }}/conocimiento" class="btn-neutral">Ir al editor de conocimiento</a>
             </div>
         </section>
     </main>

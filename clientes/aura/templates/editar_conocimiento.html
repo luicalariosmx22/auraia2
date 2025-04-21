@@ -3,7 +3,7 @@
 <div class="meta-container">
   <h2>✏️ Editar conocimiento de Nora: {{ nombre_nora }}</h2>
 
-  <form method="POST" action="/nora/{{ nombre_nora }}/conocimiento/editar/{{ registro.id }}" class="meta-card">
+  <form method="POST" action="/admin/nora/{{ nombre_nora }}/conocimiento/editar/{{ registro.id }}" class="meta-card">
     <div class="form-group">
       <label for="tema">Tema</label>
       <input type="text" name="tema" id="tema" value="{{ registro.tema }}">
