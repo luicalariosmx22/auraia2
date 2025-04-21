@@ -114,7 +114,7 @@ def agregar_contacto():
     try:
         # Obtener datos del formulario
         nombre = request.form.get('nombre', '').strip()
-        celular = request.form.get('celular', '').strip()
+        telefono = request.form.get('telefono', '').strip()
         correo = request.form.get('correo', '').strip()
         empresa = request.form.get('empresa', '').strip()
         rfc = request.form.get('rfc', '').strip()
@@ -124,13 +124,20 @@ def agregar_contacto():
         notas = request.form.get('notas', '').strip()
 
         # Validar campos obligatorios
-        if not nombre or not celular:
-            return jsonify({"success": False, "error": "El nombre y el celular son obligatorios"}), 400
+        if not nombre or not telefono:
+            return jsonify({"success": False, "error": "El nombre y el teléfono son obligatorios"}), 400
 
-        # Insertar contacto en la base de datos
-        response = supabase.table("contactos").insert({
+        # Validar formato de fecha
+        try:
+            if cumpleanos:
+                datetime.strptime(cumpleanos, '%Y-%m-%d')
+        except ValueError:
+            return jsonify({"success": False, "error": "El formato de la fecha de cumpleaños es inválido"}), 400
+
+        # Datos enviados a Supabase
+        data = {
             "nombre": nombre,
-            "celular": celular,
+            "telefono": telefono,
             "correo": correo,
             "empresa": empresa,
             "rfc": rfc,
@@ -141,7 +148,14 @@ def agregar_contacto():
             "primer_mensaje": datetime.now().isoformat(),
             "ultimo_mensaje": datetime.now().isoformat(),
             "nombre_nora": request.form.get('nombre_nora')
-        }).execute()
+        }
+        print(f"📤 Datos enviados a Supabase: {data}")
+
+        # Insertar contacto en la base de datos
+        response = supabase.table("contactos").insert(data).execute()
+
+        if response.status_code != 201:
+            raise Exception(f"Error al insertar contacto: {response.error_message}")
 
         print(f"✅ Contacto agregado: {response.data}")
         return jsonify({"success": True})
