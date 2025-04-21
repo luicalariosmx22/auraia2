@@ -1,507 +1,71 @@
+/* Estilo general */
 body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #f6f7fb;
-    color: #1c1e21;
-  }
-  
-  .meta-container {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+h1, h2, h3 {
+    color: #2c3e50;
+}
+
+.container {
     max-width: 1200px;
-    margin: auto;
-    padding: 40px 20px;
-  }
-  
-  .meta-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: #f9f9f9;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .meta-header .logo img {
-    height: 40px; /* Tamaño pequeño y proporcional */
-    margin-left: 15px;
-  }
-  
-  .meta-header h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: 600;
-  }
-  
-  .meta-header p {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #555;
-  }
-  
-  .botones-globales {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .btn-primary {
-    background-color: #1877f2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    text-decoration: none;
-  }
-  .btn-primary:hover {
-    background-color: #165fda;
-  }
-  
-  .btn-secondary {
-    background-color: #e4e6eb;
-    color: #050505;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background-color 0.2s;
-  }
-  .btn-secondary:hover {
-    background-color: #d0d3d8;
-  }
-  
-  .btn-danger {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .btn-danger:hover {
-    background-color: #c82333;
-  }
-  
-  .meta-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 20px;
-  }
-  
-  .meta-card {
-    background-color: white;
-    border-radius: 12px;
+    margin: 0 auto;
+    background: #fff;
     padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  
-  .meta-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-  }
-  
-  .nora-id {
-    font-weight: 600;
-    font-size: 1.1em;
-  }
-  
-  .nora-status {
-    font-size: 0.9em;
-    margin-top: 4px;
-  }
-  
-  .status-on {
-    color: #1a7f37;
-  }
-  
-  .status-off {
-    color: #e53935;
-  }
-  
-  .nora-date {
-    font-size: 0.8em;
-    color: #777;
-  }
-  
-  .meta-card-body {
-    margin: 12px 0;
-  }
-  
-  .badge {
-    display: inline-block;
-    padding: 4px 8px;
-    font-size: 12px;
-    color: #fff;
-    background-color: #007bff;
-    border-radius: 12px;
-    margin-right: 5px;
-  }
-  
-  .badge-muted {
-    background-color: #6c757d;
-  }
-  
-  .badge-alert {
-    background-color: #fff3cd;
-    color: #856404;
-    font-weight: 500;
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 999px;
-    margin-top: 8px;
-  }
-  
-  .meta-card-actions {
-    display: flex;
-    gap: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabla de rutas */
+table {
+    border-collapse: collapse;
+    width: 100%;
     margin-top: 20px;
-  }
-  
-  .btn-neutral {
-    background-color: #f0f2f5;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    color: #050505;
-  }
-  
-  .btn-outline {
-    border: 1px solid #ccc;
-    padding: 8px 12px;
-    border-radius: 6px;
-    background-color: white;
-    color: #050505;
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
-    margin: 30px 0;
-  }
-  
-  .stats .card {
-    background-color: white;
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  
-  .stats .card h2 {
-    font-size: 2rem;
-    margin: 0;
-    color: #1877f2;
-  }
-  
-  .stats .card p {
-    margin: 8px 0 0;
-    font-size: 0.95em;
-    color: #444;
-  }
+}
 
-  /* Ajuste de proporciones estilo WhatsApp Web */
-  .chat-wrapper {
-    display: flex;
-    height: 100vh;
-    font-family: 'Inter', sans-serif;
-  }
-  
-  /* Columna izquierda: Contactos (30%) */
-  .col-izquierda {
-    width: 30%;
-    background-color: #f0f2f5;
-    border-right: 1px solid #ccc;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .buscador {
-    padding: 10px;
-    background-color: #fff;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .buscador input,
-  .buscador select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 8px;
-    border-radius: 6px;
+th, td {
     border: 1px solid #ddd;
-    font-size: 0.95rem;
-  }
-  
-  .lista-contactos {
-    overflow-y: auto;
-    flex-grow: 1;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .lista-contactos li {
-    padding: 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .lista-contactos li:hover {
-    background-color: #e6f0ff;
-  }
-  
-  .nombre {
-    font-weight: bold;
-  }
-  
-  .numero,
-  .preview {
-    font-size: 0.85em;
-    color: #666;
-  }
-  
-  /* Columna central: Chat (50%) */
-  .col-central {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    background-color: #ffffff;
-  }
-  
-  .chat-area {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-  }
-  
-  .placeholder {
-    color: #999;
-    text-align: center;
-    margin-top: 40px;
-  }
-  
-  .form-envio {
-    display: flex;
-    padding: 12px;
-    border-top: 1px solid #ccc;
-    background-color: #f0f2f5;
-  }
-  
-  .form-envio input {
-    flex-grow: 1;
     padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-  }
-  
-  .form-envio button {
-    margin-left: 10px;
-    padding: 10px 16px;
-    border-radius: 6px;
-    border: none;
-    background-color: #1877f2;
+    text-align: left;
+}
+
+th {
+    background-color: #3498db;
     color: white;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
-  .form-envio button:hover {
-    background-color: #125cc1;
-  }
-  
-  /* Columna derecha: Info contacto (20%) */
-  .col-derecha {
-    width: 20%;
-    background-color: #fafafa;
-    border-left: 1px solid #ccc;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .col-derecha h3,
-  .col-derecha h4 {
-    margin-top: 10px;
-    font-size: 1rem;
-  }
-  
-  .subinfo {
-    font-size: 0.85em;
-    color: #555;
-  }
-  
-  .badge {
-    display: inline-block;
-    padding: 4px 8px;
-    font-size: 12px;
-    color: #fff;
-    background-color: #007bff;
-    border-radius: 12px;
-    margin-right: 5px;
-  }
-  
-  .badge-muted {
-    background-color: #6c757d;
-  }
-  
-  textarea {
-    width: 100%;
-    height: 60px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    padding: 8px;
-    resize: vertical;
-    font-size: 0.9rem;
-  }
-  
-  .resumen-box {
-    background-color: #f3f3f3;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    color: #333;
-    margin-top: 6px;
-  }
-  
-  .btn-outline,
-  .btn-neutral {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-  }
-  
-  .btn-outline {
-    border: 1px solid #ccc;
-    background-color: white;
-    color: #333;
-  }
-  
-  .btn-neutral {
-    border: none;
-    background-color: #e4e6eb;
-    color: #050505;
-  }
-  
-  /* Sección de estadísticas */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
-    margin: 30px 0;
-  }
-  
-  .stats .card {
-    background-color: white;
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  }
-  
-  .stats .card h2 {
-    font-size: 2rem;
-    margin: 0;
-    color: #1877f2;
-  }
-  
-  .stats .card p {
-    margin: 8px 0 0;
-    font-size: 0.95em;
-    color: #444;
-  }
+}
 
-  /* Estilo para el contenedor de filtros */
-  .filters {
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-    background-color: #ffffff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Campos de entrada y select */
-  .filter-form .input-text,
-  .filter-form .input-select {
-    padding: 10px 14px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    color: #333;
+tr:nth-child(even) {
     background-color: #f9f9f9;
-    transition: border-color 0.2s;
-    width: 220px;
-  }
+}
 
-  .filter-form .input-text:focus,
-  .filter-form .input-select:focus {
-    border-color: #1877f2;
-    outline: none;
-    background-color: #ffffff;
-  }
-
-  /* Botón de filtro */
-  .filter-form .btn-neutral {
-    padding: 10px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    background-color: #1877f2;
+/* Botones */
+button {
+    background-color: #3498db;
     color: white;
     border: none;
-    border-radius: 6px;
+    padding: 10px 20px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.2s;
-  }
+}
 
-  .filter-form .btn-neutral:hover {
-    background-color: #165fda;
-  }
+button:hover {
+    background-color: #2980b9;
+}
 
-  /* Etiquetas de filtro */
-  .filter-form label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #555;
-    margin-right: 8px;
-  }
-
-  /* Debug panel styles */
-  #debug-panel {
+/* Panel de Debug */
+#debug-panel {
     display: none;
     background: #f4f4f9;
     padding: 10px;
     border: 1px solid #ccc;
     margin-top: 20px;
     border-radius: 4px;
-  }
-  #debug-log {
+}
+
+#debug-log {
     background: #ecf0f1;
     padding: 10px;
     border-radius: 4px;
@@ -509,4 +73,4 @@ body {
     max-height: 200px;
     font-size: 12px;
     color: #2c3e50;
-  }
+}
