@@ -1,6 +1,6 @@
 print("✅ admin_noras.py cargado correctamente")
 
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, jsonify
 from supabase import create_client
 from dotenv import load_dotenv
 from datetime import datetime
@@ -13,6 +13,10 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 admin_noras_bp = Blueprint("admin_noras", __name__)
+
+# Validar que las rutas estén correctamente registradas
+for rule in admin_noras_bp.url_map.iter_rules():
+    print(f"Ruta registrada: {rule.rule} - Métodos: {rule.methods}")
 
 @admin_noras_bp.route("/admin/noras")
 def vista_admin():
@@ -75,3 +79,12 @@ def vista_admin():
 @admin_noras_bp.route("/admin")
 def redireccionar_a_noras():
     return redirect(url_for("admin_noras.vista_admin"))
+
+
+@admin_noras_bp.route("/debug_info", methods=["GET"])
+def debug_info():
+    try:
+        rutas = [rule.rule for rule in admin_noras_bp.url_map.iter_rules()]
+        return jsonify({"rutas_registradas": rutas, "estado": "OK"})
+    except Exception as e:
+        return jsonify({"error": str(e), "estado": "ERROR"})

@@ -11,7 +11,7 @@
     <div class="container">
         <h1>Admin Noras</h1>
 
-        <!-- Tabla de Rutas -->
+        <!-- Tabla de Rutas mejorada -->
         <h2>Rutas Registradas</h2>
         {% if rutas_filtradas %}
         <table>
@@ -43,6 +43,35 @@
         <h2>Nueva Nora</h2>
         <p>{{ nueva_nora }}</p>
 
+        <!-- Tabla de Noras -->
+        <h2>Noras Registradas</h2>
+        {% if noras %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>IA Activada</th>
+                    <th>Módulos</th>
+                    <th>Última Actualización</th>
+                    <th>Tickets Pendientes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nora in noras %}
+                <tr>
+                    <td>{{ nora.nombre }}</td>
+                    <td>{{ 'Sí' if nora.ia_activada else 'No' }}</td>
+                    <td>{{ nora.modulos | join(', ') }}</td>
+                    <td>{{ nora.ultima_actualizacion }}</td>
+                    <td>{{ nora.tickets_pendientes }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No hay Noras registradas.</p>
+        {% endif %}
+
         <!-- Panel de Debug -->
         <div id="debug-panel" style="display: none; background: #f4f4f9; padding: 10px; border: 1px solid #ccc; margin-top: 20px;">
             <h3>Panel de Debug</h3>
@@ -51,6 +80,8 @@
 
         <button onclick="toggleDebug()">Activar/Desactivar Debug</button>
         <button onclick="limpiarDebug()">Limpiar Debug</button>
+        <!-- Botón para obtener información de rutas -->
+        <button onclick="obtenerDebugInfo()">Obtener Información de Rutas</button>
     </div>
 
     <!-- Scripts para las acciones de editar y borrar -->
@@ -83,11 +114,19 @@
             window.location.href = `/editar_ruta?ruta=${encodeURIComponent(ruta)}`;
         }
 
-        // Modificar la función borrarRuta para incluir validación
-        function borrarRuta(ruta) {
+        // Función para validar la ruta
+        function validarRuta(ruta) {
             if (!ruta || typeof ruta !== 'string') {
                 logDebug('Error: La ruta proporcionada no es válida.');
                 alert('La ruta proporcionada no es válida.');
+                return false;
+            }
+            return true;
+        }
+
+        // Modificar la función borrarRuta para incluir validación
+        function borrarRuta(ruta) {
+            if (!validarRuta(ruta)) {
                 return;
             }
             logDebug(`Intentando borrar la ruta: ${ruta}`);

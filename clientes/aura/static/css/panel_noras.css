@@ -59,10 +59,11 @@ button:hover {
 #debug-panel {
     display: none;
     background: #f4f4f9;
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 15px;
+    border: 2px solid #3498db;
     margin-top: 20px;
-    border-radius: 4px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #debug-log {
@@ -70,7 +71,9 @@ button:hover {
     padding: 10px;
     border-radius: 4px;
     overflow-x: auto;
-    max-height: 200px;
-    font-size: 12px;
+    max-height: 300px;
+    font-size: 14px;
     color: #2c3e50;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
