@@ -77,8 +77,11 @@ def procesar_mensaje(data):
     )
 
     # Buscar conocimiento en la base de datos
+    print(f"📚 Buscando en base de conocimiento para '{mensaje_usuario}' en Nora: '{nombre_nora}'...")
     respuesta_conocimiento = buscar_conocimiento(nombre_nora, mensaje_usuario)
+
     if respuesta_conocimiento:
+        print(f"✅ ¡Conocimiento encontrado!: {respuesta_conocimiento}")
         # Guardar respuesta del bot en el historial
         guardar_en_historial(
             nora_numero,
@@ -90,6 +93,8 @@ def procesar_mensaje(data):
         # Enviar respuesta al usuario usando nombre_usuario
         enviar_mensaje(numero, respuesta_conocimiento, nombre_usuario)  # ✅ Usar nombre_usuario
         return respuesta_conocimiento
+    else:
+        print("❌ No se encontró conocimiento. Pasando a IA...")
 
     # Si no se encuentra conocimiento, usar IA
     respuesta_ia = manejar_respuesta_ai(mensaje_usuario)
@@ -104,4 +109,5 @@ def procesar_mensaje(data):
 
     # Enviar respuesta al usuario usando nombre_usuario
     enviar_mensaje(numero, respuesta_ia, nombre_usuario)  # ✅ Usar nombre_usuario
-    return respuesta_ia
+
+    return respuesta_ia    return respuesta_ia
