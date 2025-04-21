@@ -111,30 +111,38 @@ def ver_contactos(nombre_nora):
 
 @contactos_bp.route('/contactos/agregar', methods=['POST'])
 def agregar_contacto():
-    datos = request.form
-    telefono = datos.get('telefono', '').strip()
-    nombre = datos.get('nombre', '').strip()
-    correo = datos.get('correo')
-    celular = datos.get('celular')
-    etiqueta = datos.get('etiqueta')
-
-    if not telefono or not nombre:
-        return jsonify({"success": False, "error": "El teléfono y el nombre son obligatorios"}), 400
-
-    if not telefono.startswith("521"):
-        telefono = f"521{telefono[-10:]}"
-    print(f"🔍 Teléfono normalizado: {telefono}")
-
     try:
+        # Obtener datos del formulario
+        nombre = request.form.get('nombre', '').strip()
+        celular = request.form.get('celular', '').strip()
+        correo = request.form.get('correo', '').strip()
+        empresa = request.form.get('empresa', '').strip()
+        rfc = request.form.get('rfc', '').strip()
+        direccion = request.form.get('direccion', '').strip()
+        ciudad = request.form.get('ciudad', '').strip()
+        cumpleanos = request.form.get('cumpleanos', '').strip()
+        notas = request.form.get('notas', '').strip()
+
+        # Validar campos obligatorios
+        if not nombre or not celular:
+            return jsonify({"success": False, "error": "El nombre y el celular son obligatorios"}), 400
+
+        # Insertar contacto en la base de datos
         response = supabase.table("contactos").insert({
-            "telefono": telefono,
             "nombre": nombre,
-            "correo": correo,
             "celular": celular,
-            "etiquetas": [etiqueta] if etiqueta else [],
+            "correo": correo,
+            "empresa": empresa,
+            "rfc": rfc,
+            "direccion": direccion,
+            "ciudad": ciudad,
+            "cumpleanos": cumpleanos,
+            "notas": notas,
             "primer_mensaje": datetime.now().isoformat(),
-            "ultimo_mensaje": datetime.now().isoformat()
+            "ultimo_mensaje": datetime.now().isoformat(),
+            "nombre_nora": request.form.get('nombre_nora')
         }).execute()
+
         print(f"✅ Contacto agregado: {response.data}")
         return jsonify({"success": True})
     except Exception as e:

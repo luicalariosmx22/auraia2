@@ -24,11 +24,15 @@
   <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/agregar" class="meta-card">
     <h3>➕ Agregar Contacto</h3>
     <div class="form-group">
-      <input type="text" name="telefono" placeholder="Teléfono" required>
       <input type="text" name="nombre" placeholder="Nombre" required>
+      <input type="text" name="celular" placeholder="Celular" required>
       <input type="email" name="correo" placeholder="Correo">
-      <input type="text" name="celular" placeholder="Celular">
-      <input type="text" name="etiqueta" placeholder="Etiqueta">
+      <input type="text" name="empresa" placeholder="Empresa">
+      <input type="text" name="rfc" placeholder="RFC">
+      <input type="text" name="direccion" placeholder="Dirección">
+      <input type="text" name="ciudad" placeholder="Ciudad">
+      <input type="date" name="cumpleanos" placeholder="Cumpleaños">
+      <textarea name="notas" placeholder="Notas" rows="3"></textarea>
     </div>
     <button type="submit" class="btn-neutral">Agregar Contacto</button>
   </form>
@@ -43,8 +47,12 @@
           <th>Teléfono</th>
           <th>Nombre</th>
           <th>Correo</th>
-          <th>Celular</th>
-          <th>Etiquetas</th>
+          <th>Empresa</th>
+          <th>RFC</th>
+          <th>Dirección</th>
+          <th>Ciudad</th>
+          <th>Cumpleaños</th>
+          <th>Notas</th>
           <th>Último mensaje</th>
           <th>Acciones</th>
         </tr>
@@ -56,17 +64,14 @@
           <td>{{ c.telefono }}</td>
           <td>{{ c.nombre }}</td>
           <td>{{ c.correo or '' }}</td>
-          <td>{{ c.celular or '' }}</td>
-          <td>
-            {% if c.etiquetas %}
-              {{ c.etiquetas | join(', ') }}
-            {% else %}
-              —
-            {% endif %}
-          </td>
+          <td>{{ c.empresa or '' }}</td>
+          <td>{{ c.rfc or '' }}</td>
+          <td>{{ c.direccion or '' }}</td>
+          <td>{{ c.ciudad or '' }}</td>
+          <td>{{ c.cumpleanos or '' }}</td>
+          <td>{{ c.notas or '' }}</td>
           <td>{{ c.ultimo_mensaje[:10] if c.ultimo_mensaje }}</td>
           <td>
-            <!-- Botones compactos tipo ícono -->
             <button class="btn-mini" name="accion" value="editar" title="Editar">✏️</button>
             <button class="btn-mini" name="accion" value="eliminar" title="Eliminar">🗑</button>
             <input type="hidden" name="contactos_seleccionados" value="{{ c.telefono }}">
