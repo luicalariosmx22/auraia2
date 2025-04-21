@@ -1,11 +1,9 @@
-# clientes/aura/routes/webhook.py
+# 📁 clientes/aura/routes/webhook.py
 
-import os
 from flask import Blueprint, request
 from clientes.aura.handlers.process_message import procesar_mensaje
-from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.supabase import supabase
-from datetime import datetime
+from clientes.aura.utils.normalizador import normalizar_numero
 
 webhook_bp = Blueprint("webhook", __name__)
 
@@ -16,36 +14,36 @@ def webhook():
         data = request.form.to_dict()
         print("📩 Mensaje recibido:", data)
 
-        # 📞 Obtener número del remitente
-        numero_remitente = normalizar_numero(data.get("To", ""))
-        print(f"📞 Número de Nora detectado: {numero_remitente}")
+        # 📞 Obtener número del destinatario (es el número de Nora)
+        numero_nora = normalizar_numero(data.get("To", ""))
+        print(f"📞 Número de Nora detectado: {numero_nora}")
 
-        # 🔍 Buscar la configuración del bot por número_nora
-        config_res = (
+        # 🔍 Buscar el nombre_nora correspondiente en Supabase
+        response = (
             supabase.table("configuracion_bot")
             .select("nombre_nora")
-            .eq("numero_nora", numero_remitente)
+            .eq("numero_nora", numero_nora)
             .execute()
         )
-        config_data = config_res.data or []
 
-        if config_data:
-            nombre_nora_detectado = config_data[0]["nombre_nora"]
+        resultado = response.data or []
+        if resultado:
+            nombre_nora_detectado = resultado[0]["nombre_nora"]
             print(f"🎯 Detectado nombre_nora automáticamente: {nombre_nora_detectado}")
-            data["NombreNora"] = nombre_nora_detectado  # 🔧 Reemplazar en los datos
+            data["NombreNora"] = nombre_nora_detectado  # ✅ Sobrescribir en data
         else:
-            print("⚠️ No se detectó configuración válida. Usando 'nora' por defecto.")
+            print("⚠️ No se encontró configuración para este número. Usando 'nora' como fallback.")
             data["NombreNora"] = "nora"
 
         print(f"🎯 NombreNora validado: '{data['NombreNora']}'")
 
-        # 🤖 Procesar el mensaje
+        # 🧠 Procesar el mensaje
         respuesta = procesar_mensaje(data)
 
-        if not respuesta:
-            print("🟡 No se generó una respuesta. Posiblemente sin IA o sin conocimiento.")
-        else:
+        if respuesta:
             print(f"✅ Respuesta enviada: {respuesta}")
+        else:
+            print("🟡 No se generó una respuesta. Posiblemente sin IA o sin conocimiento.")
 
         return respuesta or "", 200
 
