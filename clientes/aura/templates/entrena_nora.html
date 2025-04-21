@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Entrena tu Nora</title>
+    <title>Entrenamiento de Nora</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
 </head>
 <body>
@@ -16,87 +16,61 @@
     <nav class="sidebar">
         <ul>
             <li><a href="/admin">🏠 Panel</a></li>
-            <li><a href="/admin/noras">📋 Ver Nora’s</a></li>
+            <li><a href="/admin/noras">📋 Ver Noras</a></li>
             <li><a href="/admin/nora/{{ nombre_nora }}/entrenar" class="active">🧠 Entrena tu Nora</a></li>
         </ul>
     </nav>
 
     <main>
-        <h1>Entrena tu Nora: {{ nombre_nora }}</h1>
+        <h1>⚙️ Entrenamiento de Nora: <strong>{{ nombre_nora }}</strong></h1>
 
         <section class="entrena-modulos">
-            <!-- 1. Crea una bienvenida -->
-            <div class="modulo">
-                <h2>👋 Crea una bienvenida</h2>
-                <p>Configura el mensaje que Nora enviará automáticamente cuando alguien diga "Hola" o algo similar.</p>
-                <p><strong>Ejemplos:</strong></p>
-                <ul>
-                    <li>👋 "¡Hola! Soy Nora, tu asistente virtual. ¿En qué puedo ayudarte hoy?"</li>
-                    <li>🤖 "¡Hola! Estoy aquí para responder tus preguntas. ¿Cómo puedo ayudarte?"</li>
-                    <li>💬 "¡Hola! Soy Nora de [Nombre de la Empresa]. ¿Cómo puedo asistirte?"</li>
-                </ul>
-                <form action="/admin/nora/{{ nombre_nora }}/entrenar/bienvenida" method="POST">
-                    <label for="bienvenida">Escribe el mensaje de bienvenida:</label>
-                    <textarea id="bienvenida" name="bienvenida" rows="3" placeholder="Escribe el mensaje de bienvenida aquí...">{{ config.bienvenida or "" }}</textarea>
-                    <button type="submit">Guardar bienvenida</button>
-                </form>
-            </div>
 
-            <!-- 2. Respuestas automáticas -->
+            <!-- 1. Activar o desactivar IA -->
             <div class="modulo">
-                <h2>🤖 Respuestas automáticas</h2>
-                <form action="/admin/nora/{{ nombre_nora }}/entrenar/respuestas" method="POST">
-                    <textarea name="respuestas_automaticas" rows="4" placeholder="Escribe respuestas rápidas separadas por comas...">{{ config.respuestas_automaticas | join(", ") }}</textarea>
-                    <button type="submit">Guardar respuestas</button>
-                </form>
-            </div>
-
-            <!-- 3. Apaga la IA -->
-            <div class="modulo">
-                <h2>🔌 Apaga la IA</h2>
-                <form action="/admin/nora/{{ nombre_nora }}/entrenar/apagar" method="POST">
+                <h2>🔌 Activar o desactivar la Inteligencia Artificial</h2>
+                <form action="/admin/nora/{{ nombre_nora }}/entrenar/estado_ia" method="POST">
                     <label>
-                        <input type="checkbox" name="ia_activa" value="false" {% if not config.ia_activa %}checked{% endif %}>
-                        Desactivar IA
+                        <input type="checkbox" name="ia_activa" value="true" {% if config.ia_activa %}checked{% endif %}>
+                        Activar IA (desactívala si quieres responder manualmente)
                     </label>
                     <button type="submit">Guardar estado</button>
                 </form>
             </div>
 
-            <!-- 4. Contactos con la IA inactiva -->
+            <!-- 2. Cambiar nombre -->
             <div class="modulo">
-                <h2>📋 Contactos con la IA inactiva</h2>
-                <ul>
-                    {% for contacto in contactos_inactivos %}
-                    <li>{{ contacto.nombre }} - {{ contacto.telefono }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <!-- 5. Base del conocimiento -->
-            <div class="modulo">
-                <h2>📚 Base del conocimiento</h2>
-                <form action="/admin/nora/{{ nombre_nora }}/entrenar/base_conocimiento" method="POST">
-                    <textarea name="base_conocimiento" rows="6" placeholder="Agrega información clave que Nora debe aprender...">{{ config.base_conocimiento or "" }}</textarea>
-                    <button type="submit">Guardar base del conocimiento</button>
+                <h2>✏️ Cambiar el nombre de Nora</h2>
+                <form action="/admin/nora/{{ nombre_nora }}/entrenar/cambiar_nombre" method="POST">
+                    <input type="text" name="nuevo_nombre" value="{{ nombre_nora }}" required>
+                    <button type="submit">Actualizar nombre</button>
                 </form>
             </div>
 
-            <!-- 6. Alertas -->
-            <div class="modulo">
-                <h2>🚨 Alertas</h2>
-                <form action="/admin/nora/{{ nombre_nora }}/entrenar/alertas" method="POST">
-                    <textarea name="alertas" rows="3" placeholder="Configura alertas importantes...">{{ config.alertas or "" }}</textarea>
-                    <button type="submit">Guardar alertas</button>
-                </form>
-            </div>
-
-            <!-- 7. Personalidad -->
+            <!-- 3. Personalidad -->
             <div class="modulo">
                 <h2>🎭 Personalidad</h2>
                 <form action="/admin/nora/{{ nombre_nora }}/entrenar/personalidad" method="POST">
-                    <textarea name="personalidad" rows="4" placeholder="Describe la personalidad de Nora...">{{ config.personalidad or "" }}</textarea>
+                    <textarea name="personalidad" rows="4" placeholder="Ej: Amable, profesional, tono relajado...">{{ config.personalidad or '' }}</textarea>
                     <button type="submit">Guardar personalidad</button>
+                </form>
+            </div>
+
+            <!-- 4. Instrucciones clave -->
+            <div class="modulo">
+                <h2>📋 Instrucciones clave</h2>
+                <form action="/admin/nora/{{ nombre_nora }}/entrenar/instrucciones" method="POST">
+                    <textarea name="instrucciones" rows="5" placeholder="Ej: Nunca compartas enlaces externos, siempre pide el nombre, etc...">{{ config.instrucciones or '' }}</textarea>
+                    <button type="submit">Guardar instrucciones</button>
+                </form>
+            </div>
+
+            <!-- 5. Centro de conocimiento -->
+            <div class="modulo">
+                <h2>📚 Centro de conocimiento</h2>
+                <form action="/admin/nora/{{ nombre_nora }}/entrenar/conocimiento" method="POST">
+                    <textarea name="base_conocimiento" rows="8" placeholder="Agrega información que Nora debe saber para responder en WhatsApp...">{{ config.base_conocimiento or '' }}</textarea>
+                    <button type="submit">Guardar conocimiento</button>
                 </form>
             </div>
         </section>
