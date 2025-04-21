@@ -26,16 +26,6 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        ul li {
-            background: #ecf0f1;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 4px;
-        }
         pre {
             background: #ecf0f1;
             padding: 10px;
@@ -59,61 +49,28 @@
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        .form-container {
-            margin-top: 20px;
-            padding: 20px;
-            background: #ecf0f1;
-            border-radius: 8px;
-        }
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        .result-container {
-            margin-top: 20px;
-            padding: 20px;
-            background: #dff9fb;
-            border: 1px solid #7ed6df;
-            border-radius: 8px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Admin Debug Master</h1>
 
-        <h2>🤖 OpenAI Debug Helper</h2>
-        <div class="form-container">
-            <form method="POST" action="/admin/debug/master">
-                <label for="error">Describe el error recibido:</label><br>
-                <textarea id="error" name="error" rows="4" placeholder="Escribe aquí el error...">{{ error_usuario }}</textarea><br><br>
-                <button type="submit">Analizar Error</button>
-            </form>
+        <!-- 🛠️ Verificaciones del Sistema -->
+        <h2>🛠️ Verificaciones del Sistema</h2>
+        <pre>{{ sistema_logs }}</pre>
+
+        <!-- 🗃️ Verificaciones de Supabase -->
+        <h2>🗃️ Verificaciones de Supabase</h2>
+        <pre>{{ supabase_logs }}</pre>
+
+        <!-- 📋 Rutas Registradas en Flask -->
+        <h2>📋 Rutas Registradas en Flask</h2>
+        <div>
+            {{ rutas_registradas_html|safe }}
         </div>
 
-        {% if resultado_ai %}
-            <div class="result-container">
-                <h3>Resultado de OpenAI:</h3>
-                <pre>{{ resultado_ai }}</pre>
-            </div>
-        {% endif %}
-
+        <!-- 🔍 Rutas HTML y Flask -->
         <h2>🔍 Rutas HTML y Flask</h2>
-
         <h3>Rutas en HTML:</h3>
         <table>
             <thead>
@@ -157,16 +114,22 @@
             {% endfor %}
         </ul>
 
-        <h2>🛠️ Verificaciones del Sistema</h2>
-        <pre>{{ sistema_logs }}</pre>
-
-        <h2>🗃️ Verificaciones de Supabase</h2>
-        <pre>{{ supabase_logs }}</pre>
-
-        <h2>📋 Rutas Registradas en Flask</h2>
-        <div>
-            {{ rutas_registradas_html|safe }}
+        <!-- 🤖 OpenAI Debug Helper -->
+        <h2>🤖 OpenAI Debug Helper</h2>
+        <div class="form-container">
+            <form method="POST" action="/admin/debug/master">
+                <label for="error">Describe el error recibido:</label><br>
+                <textarea id="error" name="error" rows="4" placeholder="Escribe aquí el error...">{{ error_usuario }}</textarea><br><br>
+                <button type="submit">Analizar Error</button>
+            </form>
         </div>
+
+        {% if resultado_ai %}
+            <div class="result-container">
+                <h3>Resultado de OpenAI:</h3>
+                <pre>{{ resultado_ai }}</pre>
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>
