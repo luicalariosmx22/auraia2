@@ -13,7 +13,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_cliente_bp = Blueprint("panel_cliente", __name__)
 
-@panel_cliente_bp.route("/panel_cliente/<nombre_nora>")
+@panel_cliente_bp.route("/<nombre_nora>")
 def panel_cliente(nombre_nora):
     if "user" not in session:
         return redirect(url_for("login.login_google"))
