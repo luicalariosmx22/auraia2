@@ -1,6 +1,7 @@
 import os
 import openai
 import re
+import logging
 from flask import Blueprint, render_template, request, current_app, jsonify
 from dotenv import load_dotenv
 from clientes.aura.routes import admin_debug_rutas
@@ -9,6 +10,9 @@ from clientes.aura.utils.debug_rutas import generar_html_rutas
 from clientes.aura.routes.debug_verificar import verificar_sistema
 from clientes.aura.utils.verificador_rutas import RutaChecker
 from clientes.aura.utils.supabase import supabase
+
+# Configurar logs
+logging.basicConfig(level=logging.DEBUG)
 
 admin_debug_master_bp = Blueprint("admin_debug_master", __name__)
 my_blueprint = Blueprint('my_blueprint', __name__)
@@ -218,3 +222,75 @@ def debug_rutas_dinamicas(robot_nombre):
     """
     resultados = validar_rutas_dinamicas(robot_nombre)
     return jsonify(resultados)
+
+@admin_debug_master_bp.route("/admin/debug/probar_rutas_dinamicas/<robot_nombre>", methods=["GET"])
+def probar_rutas_dinamicas(robot_nombre):
+    """
+    Prueba rutas dinámicas relacionadas con un robot específico.
+    """
+    try:
+        # Obtener datos del robot desde Supabase
+        response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", robot_nombre).execute()
+        if not response.data:
+            return jsonify({"error": f"No se encontró el robot con nombre: {robot_nombre}"})
+
+        robot_config = response.data[0]
+        modulos = robot_config.get("modulos", [])
+
+        # Generar rutas dinámicas
+        rutas_dinamicas = [f"/panel_cliente/{robot_nombre}/{modulo}" for modulo in modulos]
+
+        # Validar si las rutas están registradas
+        rutas_registradas = [rule.rule for rule in current_app.url_map.iter_rules()]
+        rutas_faltantes = [ruta for ruta in rutas_dinamicas if ruta not in rutas_registradas]
+
+        return jsonify({
+            "rutas_dinamicas": rutas_dinamicas,
+            "rutas_faltantes": rutas_faltantes
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+@admin_debug_master_bp.route("/admin/debug/rutas", methods=["GET"])
+def debug_rutas():
+    """
+    Devuelve todas las rutas registradas en la aplicación Flask.
+    """
+    rutas_registradas = []
+    for rule in current_app.url_map.iter_rules():
+        rutas_registradas.append({
+            "ruta": rule.rule,
+            "endpoint": rule.endpoint,
+            "metodos": list(rule.methods - {"HEAD", "OPTIONS"})  # Excluir métodos no relevantes
+        })
+
+    return jsonify({"rutas_registradas": rutas_registradas})
+
+@admin_debug_master_bp.route("/admin/debug/rutas_no_registradas", methods=["GET"])
+def rutas_no_registradas():
+    """
+    Detecta rutas esperadas que no están registradas en Flask.
+    """
+    rutas_esperadas = [
+        "/panel_cliente/<cliente>/<nombre_nora>",
+        "/admin/noras",
+        "/admin/debug/master",
+        # Agrega aquí más rutas esperadas
+    ]
+
+    rutas_registradas = [rule.rule for rule in current_app.url_map.iter_rules()]
+    rutas_faltantes = [ruta for ruta in rutas_esperadas if ruta not in rutas_registradas]
+
+    return jsonify({"rutas_faltantes": rutas_faltantes})
+
+@admin_debug_master_bp.route("/admin/debug/logs", methods=["GET"])
+def mostrar_logs():
+    """
+    Muestra los logs generados por la aplicación.
+    """
+    try:
+        with open("debug.log", "r") as log_file:
+            logs = log_file.readlines()
+        return jsonify({"logs": logs})
+    except FileNotFoundError:
+        return jsonify({"error": "No se encontró el archivo de logs."})

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Debug Master</title>
+    <title>Debug Master</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -81,117 +81,63 @@
             border-radius: 8px;
         }
     </style>
+    <script>
+        function obtenerRutasRegistradas() {
+            fetch('/admin/debug/rutas')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('resultado').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                })
+                .catch(error => {
+                    console.error('Error al obtener rutas registradas:', error);
+                    alert('Error al obtener rutas registradas.');
+                });
+        }
+
+        function obtenerRutasNoRegistradas() {
+            fetch('/admin/debug/rutas_no_registradas')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('resultado').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                })
+                .catch(error => {
+                    console.error('Error al obtener rutas no registradas:', error);
+                    alert('Error al obtener rutas no registradas.');
+                });
+        }
+
+        function probarRutasDinamicas() {
+            const robotNombre = document.getElementById('robot-nombre').value;
+            if (!robotNombre) {
+                alert('Por favor, ingresa el nombre del robot.');
+                return;
+            }
+
+            fetch(`/admin/debug/probar_rutas_dinamicas/${robotNombre}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('resultado').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                })
+                .catch(error => {
+                    console.error('Error al probar rutas dinámicas:', error);
+                    alert('Error al probar rutas dinámicas.');
+                });
+        }
+    </script>
 </head>
 <body>
     <div class="container">
-        <h1>Admin Debug Master</h1>
+        <h1>Debug Master</h1>
 
-        <div>
-            {{ resultado_verificacion|safe }}
-        </div>
+        <button onclick="obtenerRutasRegistradas()">Ver Rutas Registradas</button>
+        <button onclick="obtenerRutasNoRegistradas()">Ver Rutas No Registradas</button>
 
-        <!-- 🛠️ Verificaciones del Sistema -->
-        <h2>🛠️ Verificaciones del Sistema</h2>
-        <pre>{{ sistema_logs }}</pre>
-
-        <!-- 🗃️ Verificaciones de Supabase -->
-        <h2>🗃️ Verificaciones de Supabase</h2>
-        <pre>{{ supabase_logs }}</pre>
-
-        <!-- 📋 Rutas Registradas en Flask -->
-        <h2>📋 Rutas Registradas en Flask</h2>
-        <div>
-            {{ rutas_registradas_html|safe }}
-        </div>
-
-        <!-- 🔍 Rutas HTML y Flask -->
-        <h2>🔍 Rutas HTML y Flask</h2>
-        <h3>Rutas en HTML:</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Archivo</th>
-                    <th>Ruta</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ruta in rutas_html %}
-                <tr>
-                    <td>{{ ruta.archivo }}</td>
-                    <td>{{ ruta.ruta }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <h3>Rutas en Flask:</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Archivo</th>
-                    <th>Ruta</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ruta in rutas_flask %}
-                <tr>
-                    <td>{{ ruta.archivo }}</td>
-                    <td>{{ ruta.ruta }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <h3>Rutas no definidas:</h3>
-        <ul>
-            {% for ruta in rutas_no_definidas %}
-            <li>{{ ruta.ruta }} (Archivo: {{ ruta.archivo }})</li>
-            {% endfor %}
-        </ul>
-
-        <!-- 🤖 OpenAI Debug Helper -->
-        <h2>🤖 OpenAI Debug Helper</h2>
-        <div class="form-container">
-            <form method="POST" action="/admin/debug/master">
-                <label for="error">Describe el error recibido:</label><br>
-                <textarea id="error" name="error" rows="4" placeholder="Escribe aquí el error...">{{ error_usuario }}</textarea><br><br>
-                <button type="submit">Analizar Error</button>
-            </form>
-        </div>
-
-        {% if resultado_ai %}
-            <div class="result-container">
-                <h3>Resultado de OpenAI:</h3>
-                <pre>{{ resultado_ai }}</pre>
-            </div>
-        {% endif %}
-
-        <!-- Validar Rutas Dinámicas -->
-        <h3>Validar Rutas Dinámicas</h3>
+        <h2>Probar Rutas Dinámicas</h2>
         <input type="text" id="robot-nombre" placeholder="Nombre del robot">
-        <button onclick="validarRutasDinamicas()">Validar Rutas</button>
+        <button onclick="probarRutasDinamicas()">Probar Rutas</button>
 
-        <div id="resultado-rutas"></div>
-
-        <script>
-            function validarRutasDinamicas() {
-                const robotNombre = document.getElementById("robot-nombre").value;
-                if (!robotNombre) {
-                    alert("Por favor, ingresa el nombre del robot.");
-                    return;
-                }
-
-                fetch(`/admin/debug/rutas_dinamicas/${robotNombre}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const resultadoDiv = document.getElementById("resultado-rutas");
-                        resultadoDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                    })
-                    .catch(error => {
-                        console.error("Error al validar rutas dinámicas:", error);
-                    });
-            }
-        </script>
+        <h2>Resultado</h2>
+        <div id="resultado" style="white-space: pre-wrap; background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></div>
     </div>
 </body>
 </html>
