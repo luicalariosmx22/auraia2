@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Entrena tu Nora</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+    <title>Entrenamiento de Nora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_cliente.css') }}">
 </head>
 <body>
     <header>
-        <div class="logo">🧠 Nora AI</div>
+        <div class="logo">🤖 Nora AI</div>
         <div class="logout">
             <a href="/logout">Cerrar sesión</a>
         </div>
@@ -15,29 +15,33 @@
 
     <nav class="sidebar">
         <ul>
-            <li><a href="/admin">🏠 Panel</a></li>
-            <li><a href="/admin/noras">📋 Ver Nora’s</a></li>
-            <li><a href="/admin/nora/{{ nombre_nora }}/editar">✏️ Editar Nora</a></li>
-            <li><a href="/admin/nora/{{ nombre_nora }}/entrenar" class="active">🧠 Entrena tu Nora</a></li>
+            <li><a href="/panel_cliente/{{ nombre_nora }}">🏠 Inicio</a></li>
+            <li><a href="/panel_cliente/{{ nombre_nora }}/contactos">👥 Contactos</a></li>
+            <li><a href="/panel_cliente/{{ nombre_nora }}/ia">🧠 IA</a></li>
+            <li><a href="/panel_cliente/{{ nombre_nora }}/entrenamiento" class="active">🎯 Entrenamiento</a></li>
         </ul>
     </nav>
 
     <main>
-        <h1>Entrena tu Nora: {{ nombre_nora }}</h1>
-        <form action="" method="POST">
-            <div>
-                <label for="personalidad">Personalidad de Nora:</label>
-                <textarea id="personalidad" name="personalidad" rows="4">{{ config.personalidad or "" }}</textarea>
+        <h1>🎯 Entrena a Nora - {{ nombre_nora|capitalize }}</h1>
+
+        <form action="" method="POST" class="formulario-entrenamiento">
+            <div class="form-group">
+                <label for="personalidad">🎭 Personalidad de Nora:</label>
+                <textarea id="personalidad" name="personalidad" rows="4" placeholder="Ej: Cercana, profesional, amigable...">{{ config.personalidad or "" }}</textarea>
             </div>
-            <div>
-                <label for="respuestas-rapidas">Respuestas rápidas:</label>
-                <textarea id="respuestas-rapidas" name="respuestas_rapidas" rows="4">{{ config.respuestas_rapidas | join(", ") }}</textarea>
+
+            <div class="form-group">
+                <label for="respuestas-rapidas">⚡ Respuestas rápidas (separadas por comas):</label>
+                <textarea id="respuestas-rapidas" name="respuestas_rapidas" rows="4" placeholder="Hola, ¿En qué puedo ayudarte?, Gracias">{{ config.respuestas_rapidas | join(", ") }}</textarea>
             </div>
-            <div>
-                <label for="informacion-empresa">Información de la empresa:</label>
-                <textarea id="informacion-empresa" name="informacion_empresa" rows="6">{{ config.informacion_empresa or "" }}</textarea>
+
+            <div class="form-group">
+                <label for="informacion-empresa">🏢 Información clave de tu empresa:</label>
+                <textarea id="informacion-empresa" name="informacion_empresa" rows="6" placeholder="Agrega aquí la información que Nora debe recordar para responder correctamente">{{ config.informacion_empresa or "" }}</textarea>
             </div>
-            <button type="submit">Guardar</button>
+
+            <button type="submit" class="btn-guardar">💾 Guardar configuración</button>
         </form>
     </main>
 </body>
