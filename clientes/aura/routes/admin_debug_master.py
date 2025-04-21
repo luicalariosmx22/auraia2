@@ -183,7 +183,7 @@ def validar_rutas_dinamicas(robot_nombre):
     except Exception as e:
         return {"error": str(e)}
 
-@admin_debug_master_bp.route("/admin/debug/master", methods=["GET", "POST"])
+@admin_debug_master_bp.route("/master", methods=["GET", "POST"])
 def debug_master():
     try:
         checker = RutaChecker()
