@@ -63,7 +63,7 @@ def registrar_blueprints_por_nora(app, nombre_nora):
         # Registro global para el panel de conocimiento
         from clientes.aura.routes.panel_conocimiento import panel_conocimiento_bp
         if "panel_conocimiento" not in app.blueprints:
-            app.register_blueprint(panel_conocimiento_bp)
+            app.register_blueprint(panel_conocimiento_bp, url_prefix="/panel_cliente")
             print("✅ Blueprint 'panel_conocimiento' registrado globalmente")
 
     except Exception as e:
