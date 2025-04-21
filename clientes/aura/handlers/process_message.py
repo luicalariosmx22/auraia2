@@ -45,8 +45,8 @@ def procesar_mensaje(data):
 
     # Guardar el mensaje del usuario en el historial
     guardar_en_historial(
-        numero_usuario,
-        mensaje_usuario,
+        telefono=numero_usuario,
+        mensaje=mensaje_usuario,
         origen=numero_usuario,
         nombre_nora=nombre_nora,
         tipo="usuario"
@@ -64,8 +64,8 @@ def procesar_mensaje(data):
 
     # Guardar la respuesta generada en el historial
     guardar_en_historial(
-        numero_usuario,
-        respuesta,
+        telefono=numero_usuario,
+        mensaje=respuesta,
         origen=numero_nora,
         nombre_nora=nombre_nora,
         tipo="respuesta"
