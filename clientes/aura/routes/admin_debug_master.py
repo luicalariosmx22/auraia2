@@ -1,6 +1,6 @@
 import os
 import openai
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, current_app
 from dotenv import load_dotenv
 from clientes.aura.routes import admin_debug_rutas
 from clientes.aura.debug import debug_supabase
@@ -9,15 +9,23 @@ from clientes.aura.routes.debug_verificar import verificar_sistema
 
 admin_debug_master_bp = Blueprint("admin_debug_master", __name__)
 
+# Cargar variables de entorno
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @admin_debug_master_bp.route("/admin/debug/master", methods=["GET", "POST"])
 def debug_master():
     try:
+        # Inicialización de variables
         resultado_ai = ""
         prompt_enviado = ""
         error_usuario = request.form.get("error") if request.method == "POST" else None
+        rutas_html, rutas_flask, no_definidas = [], [], []
+        supabase_logs, sistema_logs, rutas_registradas_html = "", "", ""
+
+        # Validar clave de API de OpenAI
+        if not openai.api_key:
+            return "❌ Error: No se configuró la clave de API de OpenAI."
 
         # 1️⃣ Rutas HTML y Flask
         try:
@@ -25,9 +33,6 @@ def debug_master():
             rutas_flask = admin_debug_rutas.extraer_rutas_flask("clientes/aura/routes")
             no_definidas = [r for r in rutas_html if r not in rutas_flask]
         except Exception as e:
-            rutas_html = []
-            rutas_flask = []
-            no_definidas = []
             print(f"❌ Error al procesar rutas HTML y Flask: {str(e)}")
 
         # 2️⃣ Verificar Supabase
@@ -44,7 +49,7 @@ def debug_master():
 
         # 4️⃣ Generar HTML con rutas registradas
         try:
-            rutas_registradas_html = generar_html_rutas()
+            rutas_registradas_html = generar_html_rutas(current_app)
         except RuntimeError as e:
             rutas_registradas_html = f"❌ Error al generar rutas: {str(e)}"
 
@@ -88,5 +93,6 @@ Evita suposiciones, responde como experto en debug de Flask y Python.
             supabase_logs=supabase_logs
         )
     except Exception as e:
-        # Capturar errores inesperados en el flujo principal
-        return f"❌ Error crítico en debug_master: {str(e)}"
+        # Registrar errores críticos
+        print(f"❌ Error crítico en debug_master: {str(e)}")
+        return "❌ Error crítico en el servidor. Por favor, contacta al administrador."
