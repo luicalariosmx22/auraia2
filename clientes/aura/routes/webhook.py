@@ -1,10 +1,14 @@
 # clientes/aura/routes/webhook.py
 
+import os  # ✅ Importación agregada
 from flask import Blueprint, request
 from clientes.aura.handlers.process_message import procesar_mensaje
 from clientes.aura.utils.historial import guardar_en_historial  # Ruta corregida si es necesario
 from clientes.aura.utils.normalizador import normalizar_numero  # ✅ Importación agregada
 from datetime import datetime
+
+# Configuración de variables de entorno
+NORA_NUMERO = os.getenv("NORA_NUMERO")  # ✅ Variable de entorno para el número de Nora
 
 webhook_bp = Blueprint("webhook", __name__)
 
@@ -35,7 +39,7 @@ def webhook():
         # Guardar respuesta del bot
         print(f"🔍 Guardando respuesta del bot: {respuesta}")
         guardar_en_historial(
-            remitente=telefono,
+            remitente=NORA_NUMERO,  # ✅ Usar el número de Nora desde la variable de entorno
             mensaje=respuesta,
             tipo="enviado",
             nombre=nombre_nora
