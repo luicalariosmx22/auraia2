@@ -14,9 +14,9 @@ def run_verificacion():
         # Realiza una consulta simple para verificar la conexión
         response = supabase.table("contactos").select("*").limit(1).execute()
         
-        # Verifica si hay un error en la respuesta
-        if response.error:
-            return f"❌ Error al verificar Supabase: {response.error['message']}"
+        # Verifica si la consulta fue exitosa
+        if response.status_code != 200:
+            return f"❌ Error al verificar Supabase: Código de estado {response.status_code}"
         
         # Si la consulta tiene datos, la conexión es exitosa
         if response.data:
