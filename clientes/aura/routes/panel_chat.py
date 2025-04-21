@@ -27,6 +27,7 @@ def leer_contactos():
     """
     Carga la lista de contactos desde Supabase.
     """
+    print("🔍 Iniciando función leer_contactos...")
     try:
         print("🔍 Leyendo contactos desde la tabla 'contactos'...")
         response = supabase.table("contactos").select("*").execute()
@@ -50,6 +51,7 @@ def leer_historial(telefono):
     """
     Carga el historial de conversaciones de un contacto desde Supabase.
     """
+    print(f"🔍 Iniciando función leer_historial para el teléfono: {telefono}")
     telefono = normalizar_numero(telefono)
     numero_simplificado = telefono[-10:]
 
@@ -81,6 +83,7 @@ def guardar_historial(nombre_nora, telefono, mensajes):
     """
     Guarda un conjunto de mensajes en la tabla 'historial_conversaciones'.
     """
+    print(f"🔍 Iniciando función guardar_historial para el teléfono: {telefono}")
     registros = [
         {
             "nombre_nora": nombre_nora,
@@ -93,10 +96,12 @@ def guardar_historial(nombre_nora, telefono, mensajes):
         for mensaje in mensajes
     ]
     try:
-        print(f"🔍 Guardando historial en la tabla 'historial_conversaciones': {len(registros)} registros.")
+        print(f"🔍 Guardando {len(registros)} registros en la tabla 'historial_conversaciones'...")
         response = supabase.table("historial_conversaciones").insert(registros).execute()
         if not response.data:
             print("❌ Error al guardar historial.")
+        else:
+            print("✅ Historial guardado correctamente.")
     except Exception as e:
         print(f"❌ Error al guardar historial: {str(e)}")
 
@@ -104,6 +109,7 @@ def generar_resumen_ia(mensajes):
     """
     Genera un resumen de los últimos mensajes utilizando OpenAI.
     """
+    print("🔍 Iniciando función generar_resumen_ia...")
     if not mensajes:
         print("⚠️ No hay suficientes mensajes para generar un resumen.")
         return "No hay suficientes mensajes para generar un resumen."
@@ -135,7 +141,9 @@ def panel_chat(nombre_nora):
     """
     Renderiza el panel de chat para una Nora específica.
     """
+    print(f"🔍 Iniciando función panel_chat para Nora: {nombre_nora}")
     if "user" not in session:
+        print("⚠️ Usuario no autenticado. Redirigiendo al login.")
         return redirect(url_for("login.login_google"))
 
     contactos = leer_contactos()
@@ -147,6 +155,7 @@ def panel_chat(nombre_nora):
                 mensaje["fecha"] = mensaje["fecha"].strftime('%d-%b')
         lista.append({**c, "mensajes": mensajes})
 
+    print(f"✅ Panel de chat renderizado para {len(contactos)} contactos.")
     return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
 
 @panel_chat_bp.route("/api/chat/<telefono>")
@@ -154,8 +163,8 @@ def api_chat(telefono):
     """
     Proporciona el historial de chat de un contacto específico en formato JSON.
     """
+    print(f"🔍 Iniciando función api_chat para el teléfono: {telefono}")
     telefono = normalizar_numero(telefono)
-    print(f"🔍 API Chat - Cargando datos para el teléfono: {telefono}...")
     contactos = leer_contactos()
     contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
     historial = leer_historial(telefono)
@@ -166,6 +175,7 @@ def api_chat(telefono):
     for mensaje in historial:
         mensaje["remitente"] = "Tú" if mensaje["emisor"] == "nora" else contacto["nombre"]
 
+    print(f"✅ API Chat cargado para el teléfono: {telefono}")
     return jsonify({
         "success": True,
         "contacto": contacto,
@@ -177,8 +187,9 @@ def api_enviar_mensaje():
     """
     Permite enviar un mensaje a un contacto y guardar el mensaje en el historial.
     """
+    print("🔍 Iniciando función api_enviar_mensaje...")
     data = request.json
-    print(f"🔍 API Enviar Mensaje - Datos recibidos: {data}")
+    print(f"🔍 Datos recibidos: {data}")
     telefono = normalizar_numero(data.get("numero"))
     texto = data.get("mensaje")
 
@@ -194,8 +205,7 @@ def api_enviar_mensaje():
     })
 
     guardar_historial("Nora", telefono, historial)
-    print(f"✅ Mensaje guardado en el historial para {telefono}: {texto}")
-
+    print(f"✅ Mensaje enviado y guardado en el historial para {telefono}.")
     return jsonify({"success": True})
 
 @panel_chat_bp.route("/api/toggle-ia/<telefono>", methods=["POST"])
@@ -203,9 +213,9 @@ def api_toggle_ia(telefono):
     """
     Activa o desactiva la IA para un contacto específico.
     """
+    print(f"🔍 Iniciando función api_toggle_ia para el teléfono: {telefono}")
     telefono = normalizar_numero(telefono)
     try:
-        print(f"🔍 API Toggle IA - Cambiando estado de IA para {telefono}...")
         response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
         if not response.data:
             print(f"❌ Error al cargar contacto para {telefono}.")
@@ -225,8 +235,9 @@ def api_programar_envio():
     """
     Permite programar el envío de un mensaje a un contacto.
     """
+    print("🔍 Iniciando función api_programar_envio...")
     data = request.json
-    print(f"🔍 API Programar Envío - Datos recibidos: {data}")
+    print(f"🔍 Datos recibidos: {data}")
     try:
         response = supabase.table("envios_programados").insert({
             "numero": data.get("numero"),
@@ -237,7 +248,7 @@ def api_programar_envio():
         if not response.data:
             print("❌ Error al programar envío.")
             return jsonify({"success": False})
-        print(f"✅ Envío programado: {response.data}")
+        print(f"✅ Envío programado correctamente: {response.data}")
         return jsonify({"success": True})
     except Exception as e:
         print(f"❌ Error al programar envío: {str(e)}")
