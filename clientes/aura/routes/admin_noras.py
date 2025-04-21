@@ -88,8 +88,35 @@ def debug_rutas():
 @admin_noras_bp.route("/editar_nora", methods=["GET"])
 def editar_nora():
     nombre = request.args.get("nombre")
-    # Aquí puedes agregar lógica para obtener los detalles de la Nora y renderizar un formulario de edición
-    return render_template("editar_nora.html", nombre=nombre)
+    try:
+        # Consultar los detalles de la Nora desde Supabase
+        nora = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre).single().execute().data
+        if not nora:
+            print(f"❌ No se encontró la Nora con el nombre: {nombre}")
+            return render_template("editar_nora.html", nombre=nombre, nora=None)
+
+        return render_template("editar_nora.html", nombre=nombre, nora=nora)
+    except Exception as e:
+        print(f"❌ Error al cargar los detalles de la Nora: {str(e)}")
+        return render_template("editar_nora.html", nombre=nombre, nora=None)
+
+
+@admin_noras_bp.route("/editar_nora/<nombre>", methods=["POST"])
+def actualizar_nora(nombre):
+    try:
+        # Recuperar los módulos seleccionados desde el formulario
+        modulos = request.form.getlist("modulos")
+
+        # Actualizar los módulos en la base de datos
+        supabase.table("configuracion_bot").update({
+            "modulos": modulos
+        }).eq("nombre_nora", nombre).execute()
+
+        print(f"✅ Nora '{nombre}' actualizada con los módulos: {modulos}")
+        return redirect(url_for("admin_noras.vista_admin"))  # Redirige al panel donde se listan las Noras
+    except Exception as e:
+        print(f"❌ Error al actualizar la Nora '{nombre}': {str(e)}")
+        return jsonify({"success": False, "error": str(e)})
 
 
 @admin_noras_bp.route("/borrar_nora", methods=["POST"])

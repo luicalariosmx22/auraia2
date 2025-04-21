@@ -1,13 +1,16 @@
 <h3>🧩 Módulos activos para Nora</h3>
-<div class="form-group">
-  {% set lista_modulos = ['panel_cliente', 'contactos', 'envios', 'etiquetas', 'entrenamiento', 'ia', 'conocimiento'] %}
-  {% for m in lista_modulos %}
-    <label>
-      <input type="checkbox" name="modulos" value="{{ m }}" {% if m in nora.modulos %}checked{% endif %}>
-      {{ m.replace('_', ' ') | capitalize }}
-    </label><br>
-  {% endfor %}
-</div>
+<form method="POST" action="/editar_nora/{{ nombre }}">
+  <div class="form-group">
+    {% set lista_modulos = ['panel_cliente', 'contactos', 'envios', 'etiquetas', 'entrenamiento', 'ia', 'conocimiento'] %}
+    {% for m in lista_modulos %}
+      <label>
+        <input type="checkbox" name="modulos" value="{{ m }}" {% if m in nora.modulos %}checked{% endif %}>
+        {{ m.replace('_', ' ') | capitalize }}
+      </label><br>
+    {% endfor %}
+  </div>
+  <button type="submit" class="btn-neutral">Guardar cambios</button>
+</form>
 
 <style>
 .form-group label {
@@ -20,5 +23,20 @@
 input[type="checkbox"] {
   margin-right: 8px;
   transform: scale(1.2);
+}
+
+button.btn-neutral {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button.btn-neutral:hover {
+  background-color: #2980b9;
 }
 </style>
