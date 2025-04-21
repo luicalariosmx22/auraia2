@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+{% block contenido %}
+<div class="meta-container">
+  <h2>✏️ Editar contacto</h2>
+  <form method="POST">
+    <input type="hidden" name="nombre_nora" value="{{ contacto.nombre_nora }}">
+    <div class="form-group">
+      <input type="text" name="nombre" value="{{ contacto.nombre }}" placeholder="Nombre" required>
+      <input type="email" name="correo" value="{{ contacto.correo }}" placeholder="Correo">
+      <input type="text" name="celular" value="{{ contacto.celular }}" placeholder="Celular">
+      <input type="text" name="etiquetas" value="{{ contacto.etiquetas | join(', ') }}" placeholder="Etiquetas separadas por coma">
+    </div>
+    <button type="submit" class="btn-neutral">Guardar cambios</button>
+  </form>
+</div>
+{% endblock %}
