@@ -30,11 +30,10 @@ def enviar_mensaje_por_twilio(numero, mensaje):
         if not numero.startswith("whatsapp:"):
             numero = f"whatsapp:{numero}"
 
-        # Enviar el mensaje por WhatsApp
         client.messages.create(
             body=mensaje,
-            from_=twilio_number,  # ✅ Sin doble whatsapp:
-            to=numero  # Aquí usamos el número que ya tiene el prefijo "whatsapp:"
+            from_=twilio_number,
+            to=numero
         )
     except Exception as e:
         registrar_error("twilio", "Error enviando mensaje con Twilio", tipo="Twilio", detalles=str(e))
@@ -43,9 +42,13 @@ def enviar_mensaje_por_twilio(numero, mensaje):
 @api_mensajes.route("/api/enviar_mensaje", methods=["POST"])
 def enviar_mensaje_api():
     try:
-        numero = normalizar_numero(request.form.get("numero", ""))  # Asegúrate que el número esté bien normalizado
+        numero = normalizar_numero(request.form.get("numero", ""))
         mensaje = request.form.get("respuesta", "").strip()
         archivo = request.files.get("archivo")
+
+        # Obtener nombre_nora dinámico si viene en el formulario, por ahora default
+        nombre_nora = request.form.get("nombre_nora", "nora")
+        nombre_display = "Nora AI"
 
         if not numero:
             return jsonify({"success": False, "error": "Número es requerido"}), 400
@@ -55,14 +58,20 @@ def enviar_mensaje_api():
 
         # ✅ Enviar mensaje de texto
         if mensaje:
-            guardar_en_historial(numero, mensaje, tipo="enviado")
+            guardar_en_historial(
+                numero,
+                mensaje,
+                tipo="enviado",
+                nombre=nombre_display,
+                nombre_nora=nombre_nora
+            )
             enviar_mensaje_por_twilio(numero, mensaje)
             print(f"✅ Mensaje enviado a {numero}: {mensaje}")
 
             current_app.extensions['socketio'].emit("nuevo_mensaje", {
                 "remitente": "bot",
                 "mensaje": mensaje,
-                "nombre": "Nora AI"
+                "nombre": nombre_display
             })
 
         # ✅ Guardar archivo adjunto en historial y panel
@@ -72,13 +81,19 @@ def enviar_mensaje_api():
             archivo.save(ruta_guardada)
 
             texto_archivo = f"[Archivo adjunto: {nombre_archivo}]"
-            guardar_en_historial(numero, texto_archivo, tipo="enviado")
+            guardar_en_historial(
+                numero,
+                texto_archivo,
+                tipo="enviado",
+                nombre=nombre_display,
+                nombre_nora=nombre_nora
+            )
 
             print(f"📎 Archivo guardado para {numero}: {nombre_archivo}")
             current_app.extensions['socketio'].emit("nuevo_mensaje", {
                 "remitente": "bot",
                 "mensaje": texto_archivo,
-                "nombre": "Nora AI"
+                "nombre": nombre_display
             })
 
         return jsonify({"success": True})

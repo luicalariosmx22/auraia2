@@ -4,6 +4,7 @@ from flask import Blueprint, request
 from clientes.aura.handlers.process_message import procesar_mensaje
 from clientes.aura.utils.supabase import supabase
 from clientes.aura.utils.normalizador import normalizar_numero
+from clientes.aura.utils.historial import guardar_en_historial  # ✅ Asegúrate de importar esto
 
 webhook_bp = Blueprint("webhook", __name__)
 
@@ -40,8 +41,32 @@ def webhook():
         # 🧠 Procesar el mensaje
         respuesta = procesar_mensaje(data)
 
+        # ✅ Guardar historial manualmente si hay respuesta
         if respuesta:
             print(f"✅ Respuesta enviada: {respuesta}")
+
+            telefono_usuario = normalizar_numero(data.get("From", ""))
+            mensaje_usuario = data.get("Body", "")
+            nombre_nora = data["NombreNora"]
+
+            # 📥 Historial del mensaje recibido
+            guardar_en_historial(
+                telefono_usuario,
+                mensaje_usuario,
+                tipo="recibido",
+                nombre=telefono_usuario,
+                nombre_nora=nombre_nora
+            )
+
+            # 📤 Historial de la respuesta enviada
+            guardar_en_historial(
+                telefono_usuario,
+                respuesta,
+                tipo="enviado",
+                nombre="Nora",
+                nombre_nora=nombre_nora
+            )
+
         else:
             print("🟡 No se generó una respuesta. Posiblemente sin IA o sin conocimiento.")
 

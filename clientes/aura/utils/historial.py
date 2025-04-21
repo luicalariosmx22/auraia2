@@ -85,3 +85,15 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, nombr
         return {"success": False, "error": str(e)}
 
     return {"success": True}
+
+# Ejemplo de uso de la función guardar_en_historial
+nora_numero = "+123456789"
+respuesta = "Hola, ¿cómo estás?"
+nombre_nora = "Nora"
+
+guardar_en_historial(
+    remitente=nora_numero,
+    mensaje=respuesta,
+    tipo="enviado",
+    nombre=nombre_nora
+)
