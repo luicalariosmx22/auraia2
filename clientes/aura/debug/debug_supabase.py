@@ -12,7 +12,7 @@ def run_verificacion():
     """
     try:
         # Realiza una consulta simple para verificar la conexión
-        response = supabase.table("nombre_de_tu_tabla").select("*").limit(1).execute()
+        response = supabase.table("contactos").select("*").limit(1).execute()
         if response.error:
             return f"❌ Error al verificar Supabase: {response.error.message}"
         return "✅ Conexión con Supabase verificada correctamente."
