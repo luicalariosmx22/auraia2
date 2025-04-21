@@ -1,5 +1,6 @@
 # 📁 clientes/aura/handlers/process_message.py
 
+import os  # Asegúrate de importar os si no está ya importado
 from datetime import datetime  # ✅ Importación necesaria
 from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.limpieza import limpiar_mensaje
@@ -19,21 +20,36 @@ from clientes.aura.utils.supabase import supabase  # ✅ Importación agregada
 # Función para obtener configuración de Nora
 def obtener_config_nora(nombre_nora):
     """
-    Obtiene la configuración de Nora desde la tabla 'configuracion_bot' en Supabase.
+    Obtiene la configuración de Nora. Si es la Nora base ('nora'), devuelve una configuración predeterminada.
+    Para otras Noras, consulta la tabla 'configuracion_bot' en Supabase.
     """
+    nombre_nora = nombre_nora.lower()  # Normalizar a minúsculas
+
+    if nombre_nora == "nora":
+        # Configuración predeterminada para la Nora base
+        print("🔧 Cargando configuración predeterminada para la Nora base.")
+        return {
+            "nombre_nora": "nora",
+            "numero_nora": os.getenv("NORA_NUMERO", "5210000000000"),  # Número de Nora desde las variables de entorno
+            "modulos": ["ia", "conocimiento", "panel_admin"]  # Módulos predeterminados
+        }
+
+    # Consultar configuración en Supabase para otras Noras
     try:
-        print(f"🔍 Buscando configuración para Nora: {nombre_nora}")
+        print(f"🔍 Buscando configuración para Nora del cliente: {nombre_nora}")
         response = (
             supabase.table("configuracion_bot")
             .select("*")
-            .eq("nombre_nora", nombre_nora.lower())  # Normalizar a minúsculas
+            .eq("nombre_nora", nombre_nora)
             .execute()
         )
         data = response.data or []
+
         if not data:
-            print(f"⚠️ No se encontró configuración para Nora: {nombre_nora}")
+            print(f"⚠️ No se encontró configuración para Nora del cliente: {nombre_nora}")
             return {}
-        print(f"✅ Configuración encontrada para Nora: {data[0]}")
+
+        print(f"✅ Configuración encontrada para Nora del cliente: {data[0]}")
         return data[0]
     except Exception as e:
         print(f"❌ Error al obtener configuración de Nora ({nombre_nora}): {e}")
