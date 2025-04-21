@@ -1,59 +1,133 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Administrador de Noras – Nora AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Noras</title>
+    <!-- Enlace al archivo CSS panel_noras.css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
 </head>
 <body>
-  <div class="meta-container">
-    <header class="meta-header">
-      <h1>🤖 Noras activas</h1>
-      <a href="/admin/nora/nueva" class="btn-primary">+ Nueva Nora</a>
-    </header>
+    <div class="container">
+        <h1>Admin Noras</h1>
 
-    <section class="meta-grid">
-      {% for nora in noras %}
-      <div class="meta-card {% if nora.nombre in ['noraai', 'dani20'] %}nora-demo{% endif %}">
-        <div class="meta-card-header">
-          <div>
-            <div class="nora-id">
-              {{ nora.nombre }}
-              {% if nora.nombre in ['noraai', 'dani20'] %}
-                <span class="badge badge-demo">DEMO</span>
-              {% endif %}
-            </div>
-            <div class="nora-status {{ 'status-on' if nora.ia_activada else 'status-off' }}">
-              ● IA {{ 'activada' if nora.ia_activada else 'desactivada' }}
-            </div>
-          </div>
-          <span class="nora-date">Actualizado: {{ nora.ultima_actualizacion[:10] }}</span>
+        <!-- Tabla de Rutas -->
+        <h2>Rutas Registradas</h2>
+        {% if rutas_filtradas %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Ruta</th>
+                    <th>Módulos Activados</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ruta in rutas_filtradas %}
+                <tr>
+                    <td>{{ ruta.ruta }}</td>
+                    <td>{{ ruta.modulos }}</td>
+                    <td class="actions">
+                        <button onclick="editarRuta('{{ ruta.ruta }}')">Editar</button>
+                        <button onclick="borrarRuta('{{ ruta.ruta }}')">Borrar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No hay rutas registradas.</p>
+        {% endif %}
+
+        <!-- Información de la Nueva Nora -->
+        <h2>Nueva Nora</h2>
+        <p>{{ nueva_nora }}</p>
+
+        <!-- Panel de Debug -->
+        <div id="debug-panel" style="display: none; background: #f4f4f9; padding: 10px; border: 1px solid #ccc; margin-top: 20px;">
+            <h3>Panel de Debug</h3>
+            <pre id="debug-log" style="background: #ecf0f1; padding: 10px; border-radius: 4px; overflow-x: auto;"></pre>
         </div>
 
-        <div class="meta-card-body">
-          {% if nora.modulos %}
-            {% for m in nora.modulos %}
-              <span class="badge">{{ m }}</span>
-            {% endfor %}
-          {% else %}
-            <span class="badge badge-muted">Sin módulos</span>
-          {% endif %}
-          {% if nora.tickets_pendientes > 0 %}
-            <div class="badge badge-alert">🎫 {{ nora.tickets_pendientes }} tickets pendientes</div>
-          {% endif %}
-        </div>
+        <button onclick="toggleDebug()">Activar/Desactivar Debug</button>
+        <button onclick="limpiarDebug()">Limpiar Debug</button>
+    </div>
 
-        <div class="meta-card-actions">
-          <a href="/panel/{{ nora.nombre }}" class="btn-neutral">💬 Panel Chat</a>
-          <a href="/dashboard/{{ nora.nombre }}" class="btn-neutral">📊 Dashboard</a>
-          <a href="/panel/cliente/{{ nora.nombre }}" class="btn-neutral">👤 Panel del Cliente</a> <!-- Enlace corregido -->
-          <a href="/admin/nora/{{ nora.nombre }}/editar" class="btn-outline">✏️ Editar</a>
-        </div>
-      </div>
-      {% endfor %}
-    </section>
-  </div>
+    <!-- Scripts para las acciones de editar y borrar -->
+    <script>
+        let debugEnabled = false;
+
+        function toggleDebug() {
+            debugEnabled = !debugEnabled;
+            const debugPanel = document.getElementById('debug-panel');
+            debugPanel.style.display = debugEnabled ? 'block' : 'none';
+            console.debug(`Debug ${debugEnabled ? 'activado' : 'desactivado'}`);
+        }
+
+        // Función para mostrar mensajes en el panel de debug
+        function logDebug(message) {
+            const debugPanel = document.getElementById('debug-panel');
+            const debugLog = document.getElementById('debug-log');
+            debugPanel.style.display = 'block';
+            debugLog.textContent += `${message}\n`;
+        }
+
+        function limpiarDebug() {
+            const debugLog = document.getElementById('debug-log');
+            debugLog.textContent = '';
+            console.debug('Panel de debug limpiado.');
+        }
+
+        function editarRuta(ruta) {
+            console.debug(`Redirigiendo a la edición de la ruta: ${ruta}`);
+            window.location.href = `/editar_ruta?ruta=${encodeURIComponent(ruta)}`;
+        }
+
+        // Modificar la función borrarRuta para incluir validación
+        function borrarRuta(ruta) {
+            if (!ruta || typeof ruta !== 'string') {
+                logDebug('Error: La ruta proporcionada no es válida.');
+                alert('La ruta proporcionada no es válida.');
+                return;
+            }
+            logDebug(`Intentando borrar la ruta: ${ruta}`);
+            if (confirm(`¿Estás seguro de que deseas borrar la ruta: ${ruta}?`)) {
+                fetch(`/borrar_ruta`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ruta: ruta }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        logDebug(`Ruta borrada exitosamente: ${ruta}`);
+                        alert(`Ruta borrada: ${ruta}`);
+                        location.reload(); // Recargar la página para actualizar la tabla
+                    } else {
+                        logDebug(`Error al borrar la ruta: ${data.error}`);
+                        alert(`Error al borrar la ruta: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    logDebug(`Error en la solicitud AJAX: ${error}`);
+                    console.error('Error:', error);
+                    alert('Ocurrió un error al borrar la ruta.');
+                });
+            }
+        }
+
+        function obtenerDebugInfo() {
+            fetch('/debug_info')
+                .then(response => response.json())
+                .then(data => {
+                    logDebug(`Información de Debug: ${JSON.stringify(data, null, 2)}`);
+                })
+                .catch(error => {
+                    logDebug(`Error al obtener información de debug: ${error}`);
+                });
+        }
+    </script>
 </body>
 </html>

@@ -491,3 +491,22 @@ body {
     color: #555;
     margin-right: 8px;
   }
+
+  /* Debug panel styles */
+  #debug-panel {
+    display: none;
+    background: #f4f4f9;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    border-radius: 4px;
+  }
+  #debug-log {
+    background: #ecf0f1;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    max-height: 200px;
+    font-size: 12px;
+    color: #2c3e50;
+  }

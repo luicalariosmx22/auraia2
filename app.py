@@ -3,7 +3,7 @@ print("🔥 ESTE ES EL APP.PY QUE SE ESTÁ EJECUTANDO")
 import os
 import uuid
 import logging  # Importación necesaria para evitar el NameError
-from flask import Flask, session, redirect, url_for, request
+from flask import Flask, session, redirect, url_for, request, jsonify
 from flask_session import Session
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
@@ -124,6 +124,13 @@ def home():
 def logout():
     session.clear()
     return redirect(url_for("login.login_google"))
+
+@app.route('/debug_info', methods=['GET'])
+def debug_info():
+    return jsonify({
+        "rutas_registradas": [rule.rule for rule in app.url_map.iter_rules()],
+        "estado": "OK",
+    })
 
 # ========= INICIALIZACIÓN =========
 if __name__ == "__main__":
