@@ -7,7 +7,7 @@ from flask_session import Session
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
-from clientes.aura.routes.debug_rutas import generar_html_rutas  # Importación correcta
+from clientes.aura.utils.debug_rutas import generar_html_rutas  # Importación correcta
 from clientes.aura.utils.supabase import supabase
 
 # Cargar variables de entorno
