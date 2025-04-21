@@ -25,6 +25,7 @@ def vista_admin():
     # Consultar todas las Noras desde Supabase
     try:
         response = supabase.table("configuracion_bot").select("*").execute()
+        print(f"Respuesta de Supabase: {response.data}")
         if not response or not response.data:
             print(f"❌ No se encontraron Noras en la tabla configuracion_bot.")
             return render_template("admin_noras.html", noras=lista_noras)
