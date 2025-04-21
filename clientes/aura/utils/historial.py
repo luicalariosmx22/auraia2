@@ -3,7 +3,7 @@
 from datetime import datetime
 from supabase import create_client
 from dotenv import load_dotenv
-from clientes.aura.utils.normalizador import normalizar_numero  # ✅ Importado
+from clientes.aura.utils.normalizador import normalizar_numero
 import os
 
 # Configurar Supabase
@@ -12,31 +12,37 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_activada=True, etiquetas=[]):
+def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, nombre_nora="Nora", ia_activada=True, etiquetas=[]):
     """
     Guarda un mensaje en el historial de conversaciones y actualiza la información del contacto en Supabase.
     """
-    print(f"🔍 Iniciando guardado en historial para {remitente}...")
-    telefono = normalizar_numero(remitente)  # ✅ Asegurar formato correcto
+    if not remitente or not mensaje:
+        print("⚠️ El remitente o el mensaje están vacíos. No se puede guardar en el historial.")
+        return {"success": False, "error": "Remitente o mensaje vacío"}
+
+    telefono = normalizar_numero(remitente)
+    print(f"🔍 Iniciando guardado en historial para {telefono}...")
 
     try:
+        # Guardar en historial de conversaciones
         historial_entry = {
             "telefono": telefono,
             "mensaje": mensaje,
             "emisor": tipo,
             "timestamp": datetime.now().isoformat(),
             "hora": datetime.now().isoformat(),
-            "nombre_nora": "aura"
+            "nombre_nora": nombre_nora
         }
         print(f"📋 Datos a guardar en historial_conversaciones: {historial_entry}")
 
         response = supabase.table("historial_conversaciones").insert(historial_entry).execute()
         if not response.data:
             print(f"❌ Error al guardar en historial_conversaciones: {response}")
-        else:
-            print(f"✅ Mensaje guardado en historial_conversaciones: {historial_entry}")
+            return {"success": False, "error": "Error al guardar en historial"}
+        print(f"✅ Mensaje guardado en historial_conversaciones: {historial_entry}")
     except Exception as e:
         print(f"❌ Error al guardar en historial_conversaciones: {str(e)}")
+        return {"success": False, "error": str(e)}
 
     # Actualizar o crear contacto
     try:
@@ -48,7 +54,7 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
             print(f"⚠️ Contacto no encontrado. Creando nuevo contacto para {telefono}...")
             nuevo_contacto = {
                 "telefono": telefono,
-                "nombre": nombre,
+                "nombre": nombre or "Desconocido",
                 "ia_activada": ia_activada,
                 "etiquetas": etiquetas,
                 "mensaje_count": 1,
@@ -59,8 +65,8 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
             response = supabase.table("contactos").insert(nuevo_contacto).execute()
             if not response.data:
                 print(f"❌ Error al crear nuevo contacto: {response}")
-            else:
-                print(f"✅ Nuevo contacto creado: {nuevo_contacto}")
+                return {"success": False, "error": "Error al crear nuevo contacto"}
+            print(f"✅ Nuevo contacto creado: {nuevo_contacto}")
         else:
             print(f"✅ Contacto encontrado. Actualizando información para {telefono}...")
             contacto_actualizado = {
@@ -72,7 +78,10 @@ def guardar_en_historial(remitente, mensaje, tipo="recibido", nombre=None, ia_ac
             response = supabase.table("contactos").update(contacto_actualizado).eq("telefono", telefono).execute()
             if not response.data:
                 print(f"❌ Error al actualizar contacto: {response}")
-            else:
-                print(f"✅ Contacto actualizado: {contacto_actualizado}")
+                return {"success": False, "error": "Error al actualizar contacto"}
+            print(f"✅ Contacto actualizado: {contacto_actualizado}")
     except Exception as e:
         print(f"❌ Error al actualizar contacto: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+    return {"success": True}

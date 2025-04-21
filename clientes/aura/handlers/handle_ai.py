@@ -7,25 +7,34 @@ from utils.supabase_client import supabase
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def cargar_base_conocimiento():
+def cargar_base_conocimiento(nombre_nora):
+    """
+    Carga la base de conocimiento específica para una Nora desde Supabase.
+    """
     try:
-        res = supabase.table("base_conocimiento").select("contenido").limit(1).execute()
+        res = supabase.table("base_conocimiento").select("contenido").eq("nombre_nora", nombre_nora).execute()
         if res.data:
-            return res.data[0]["contenido"]
+            # Concatenar múltiples registros de la base de conocimiento
+            return "\n".join([item["contenido"] for item in res.data])
         return ""
     except Exception as e:
-        registrar_error("IA", f"No se pudo cargar el conocimiento desde Supabase: {e}")
+        registrar_error("IA", f"No se pudo cargar el conocimiento desde Supabase para {nombre_nora}: {e}")
         return ""
 
-def manejar_respuesta_ai(mensaje_usuario):
+def manejar_respuesta_ai(mensaje_usuario, nombre_nora="Nora", temperatura=0.7, modelo="gpt-3.5-turbo"):
+    """
+    Genera una respuesta utilizando OpenAI GPT-3.5-turbo basada en el mensaje del usuario y la base de conocimiento.
+    """
     try:
-        conocimiento_base = cargar_base_conocimiento()
+        # Cargar la base de conocimiento específica para la Nora
+        conocimiento_base = cargar_base_conocimiento(nombre_nora)
 
+        # Construir el prompt dinámico
         prompt = f"""
-Eres Nora AI, una asistente profesional de Aura Marketing.
+Eres {nombre_nora}, una asistente profesional y personalizada.
 
 Tu trabajo es responder de forma clara, útil, profesional y humana.
-No inventes información.
+No inventes información y utiliza el conocimiento disponible siempre que sea posible.
 
 Conocimiento disponible:
 {conocimiento_base}
@@ -36,16 +45,20 @@ Pregunta del usuario:
 Respuesta:
         """
 
+        # Llamar a la API de OpenAI
         respuesta = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model=modelo,
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7
+            temperature=temperatura
         )
 
         return respuesta.choices[0].message.content.strip()
 
-    except Exception as e:
+    except openai.error.OpenAIError as e:
         registrar_error("IA", f"Error al generar respuesta con OpenAI: {e}")
-        return None
+        return "Lo siento, hubo un problema al generar la respuesta. Por favor, intenta nuevamente."
+    except Exception as e:
+        registrar_error("IA", f"Error inesperado al generar respuesta: {e}")
+        return "Lo siento, ocurrió un error inesperado. Por favor, intenta nuevamente."
