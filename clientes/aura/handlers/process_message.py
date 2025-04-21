@@ -44,13 +44,13 @@ def procesar_mensaje(data):
     print(f"🔧 Configuración para {nombre_nora} → número_nora={numero_nora}")
 
     # Guardar el mensaje del usuario en el historial
-    guardar_en_historial({
-        "telefono": numero_usuario,
-        "emisor": numero_usuario,
-        "mensaje": mensaje_usuario,
-        "hora": datetime.now().isoformat(),
-        "tipo": "usuario"
-    })
+    guardar_en_historial(
+        numero_usuario,
+        mensaje_usuario,
+        origen=numero_usuario,
+        nombre_nora=nombre_nora,
+        tipo="usuario"
+    )
 
     # 🧠 Buscar en la memoria extendida (base de conocimiento)
     prompt_conocimiento = buscar_conocimiento(numero_nora, mensaje_usuario)
@@ -63,13 +63,13 @@ def procesar_mensaje(data):
         respuesta = manejar_respuesta_ai(mensaje_usuario)
 
     # Guardar la respuesta generada en el historial
-    guardar_en_historial({
-        "telefono": numero_usuario,
-        "emisor": numero_nora,
-        "mensaje": respuesta,
-        "hora": datetime.now().isoformat(),
-        "tipo": "respuesta"
-    })
+    guardar_en_historial(
+        numero_usuario,
+        respuesta,
+        origen=numero_nora,
+        nombre_nora=nombre_nora,
+        tipo="respuesta"
+    )
 
     # Enviar respuesta al usuario
     enviar_mensaje(numero_usuario, respuesta, nombre_usuario)
