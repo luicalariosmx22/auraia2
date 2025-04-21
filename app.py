@@ -74,7 +74,7 @@ if "panel_cliente_etiquetas" not in app.blueprints:
     app.register_blueprint(etiquetas_bp, url_prefix="/panel/cliente")
 
 if "panel_cliente" not in app.blueprints:
-    app.register_blueprint(panel_cliente_bp, url_prefix="/panel/cliente")
+    app.register_blueprint(panel_cliente_bp, url_prefix="/panel_cliente")
 
 if "panel_cliente_contactos" not in app.blueprints:
     app.register_blueprint(panel_cliente_contactos_bp, url_prefix="/panel_cliente/contactos")
