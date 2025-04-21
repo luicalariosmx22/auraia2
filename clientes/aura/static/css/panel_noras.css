@@ -19,7 +19,7 @@ h1, h2, h3 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Tabla de rutas */
+/* Tabla de Noras */
 table {
     border-collapse: collapse;
     width: 100%;
@@ -41,12 +41,11 @@ tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-/* Botones */
 button {
     background-color: #3498db;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
 }

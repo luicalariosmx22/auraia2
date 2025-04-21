@@ -1,6 +1,6 @@
 print("✅ admin_noras.py cargado correctamente")
 
-from flask import Blueprint, render_template, redirect, url_for, jsonify
+from flask import Blueprint, render_template, redirect, url_for, jsonify, request
 from supabase import create_client
 from dotenv import load_dotenv
 from datetime import datetime
@@ -88,3 +88,23 @@ def debug_info():
         return jsonify({"rutas_registradas": rutas, "estado": "OK"})
     except Exception as e:
         return jsonify({"error": str(e), "estado": "ERROR"})
+
+
+@admin_noras_bp.route("/editar_nora", methods=["GET"])
+def editar_nora():
+    nombre = request.args.get("nombre")
+    # Aquí puedes agregar lógica para obtener los detalles de la Nora y renderizar un formulario de edición
+    return render_template("editar_nora.html", nombre=nombre)
+
+
+@admin_noras_bp.route("/borrar_nora", methods=["POST"])
+def borrar_nora():
+    data = request.get_json()
+    nombre = data.get("nombre")
+    try:
+        # Aquí puedes agregar lógica para borrar la Nora de la base de datos
+        print(f"Nora borrada: {nombre}")
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"Error al borrar la Nora: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})

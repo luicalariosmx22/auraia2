@@ -54,6 +54,7 @@
                     <th>Módulos</th>
                     <th>Última Actualización</th>
                     <th>Tickets Pendientes</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,6 +65,11 @@
                     <td>{{ nora.modulos | join(', ') }}</td>
                     <td>{{ nora.ultima_actualizacion }}</td>
                     <td>{{ nora.tickets_pendientes }}</td>
+                    <td>
+                        <button onclick="verDetallesNora('{{ nora.nombre }}')">Ver Detalles</button>
+                        <button onclick="editarNora('{{ nora.nombre }}')">Editar</button>
+                        <button onclick="borrarNora('{{ nora.nombre }}')">Borrar</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -82,6 +88,13 @@
         <button onclick="limpiarDebug()">Limpiar Debug</button>
         <!-- Botón para obtener información de rutas -->
         <button onclick="obtenerDebugInfo()">Obtener Información de Rutas</button>
+    </div>
+
+    <!-- Modal para mostrar detalles de la Nora -->
+    <div id="nora-details-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <h3>Detalles de la Nora</h3>
+        <p id="nora-details"></p>
+        <button onclick="cerrarModal()">Cerrar</button>
     </div>
 
     <!-- Scripts para las acciones de editar y borrar -->
@@ -166,6 +179,52 @@
                 .catch(error => {
                     logDebug(`Error al obtener información de debug: ${error}`);
                 });
+        }
+
+        function verDetallesNora(nombre) {
+            const modal = document.getElementById('nora-details-modal');
+            const details = document.getElementById('nora-details');
+            details.textContent = `Detalles de la Nora: ${nombre}`;
+            modal.style.display = 'block';
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('nora-details-modal');
+            modal.style.display = 'none';
+        }
+
+        function editarNora(nombre) {
+            logDebug(`Redirigiendo a la edición de la Nora: ${nombre}`);
+            window.location.href = `/editar_nora?nombre=${encodeURIComponent(nombre)}`;
+        }
+
+        function borrarNora(nombre) {
+            if (confirm(`¿Estás seguro de que deseas borrar la Nora: ${nombre}?`)) {
+                logDebug(`Intentando borrar la Nora: ${nombre}`);
+                fetch(`/borrar_nora`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ nombre: nombre }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        logDebug(`Nora borrada exitosamente: ${nombre}`);
+                        alert(`Nora borrada: ${nombre}`);
+                        location.reload(); // Recargar la página para actualizar la tabla
+                    } else {
+                        logDebug(`Error al borrar la Nora: ${data.error}`);
+                        alert(`Error al borrar la Nora: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    logDebug(`Error en la solicitud AJAX: ${error}`);
+                    console.error('Error:', error);
+                    alert('Ocurrió un error al borrar la Nora.');
+                });
+            }
         }
     </script>
 </body>
