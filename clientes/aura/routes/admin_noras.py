@@ -43,7 +43,7 @@ def vista_admin():
             pendientes = len([t for t in tickets_pendientes if t.get("nombre_nora") == nombre])
 
             lista_noras.append({
-                "nombre": nombre,
+                "nombre": nombre,  # Este es el nombre_nora
                 "ia_activada": ia_activada,
                 "modulos": modulos,
                 "ultima_actualizacion": ultima_actualizacion,
@@ -52,23 +52,6 @@ def vista_admin():
 
     except Exception as e:
         print(f"❌ Error al procesar Noras: {str(e)}")
-
-    # ✅ Agregar Noras falsas para vista previa
-    lista_noras.append({
-        "nombre": "noraai",
-        "ia_activada": True,
-        "modulos": ["contactos", "respuestas", "ia"],
-        "ultima_actualizacion": datetime.now().isoformat(),
-        "tickets_pendientes": 0
-    })
-
-    lista_noras.append({
-        "nombre": "dani20",
-        "ia_activada": False,
-        "modulos": ["diseño_personalizado"],
-        "ultima_actualizacion": datetime.now().isoformat(),
-        "tickets_pendientes": 0
-    })
 
     return render_template("admin_noras.html", noras=lista_noras)
 

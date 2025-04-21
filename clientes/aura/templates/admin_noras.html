@@ -228,9 +228,12 @@
             }
         }
 
-        function irAlPanelCliente(nombre, cliente) {
-            logDebug(`Redirigiendo al Panel de Control del cliente: ${cliente}, Nora: ${nombre}`);
-            window.location.href = `/panel_cliente/${encodeURIComponent(cliente)}/${encodeURIComponent(nombre)}`;
+        function irAlPanelCliente(nombre_nora) {
+            if (!nombre_nora) {
+                alert("Falta el nombre de la Nora para redirigir al panel del cliente.");
+                return;
+            }
+            window.location.href = `/panel_cliente/${encodeURIComponent(nombre_nora)}`;
         }
     </script>
 </body>

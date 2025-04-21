@@ -22,7 +22,7 @@ def panel_cliente(nombre_nora):
         response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
         modulos = response.data[0]["modulos"] if response.data else []
     except Exception as e:
-        print(f"❌ Error al obtener módulos: {str(e)}")
+        print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
         modulos = []
 
     return render_template(
