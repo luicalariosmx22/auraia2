@@ -14,10 +14,6 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 admin_noras_bp = Blueprint("admin_noras", __name__)
 
-# Validar que las rutas estén correctamente registradas
-for rule in admin_noras_bp.url_map.iter_rules():
-    print(f"Ruta registrada: {rule.rule} - Métodos: {rule.methods}")
-
 @admin_noras_bp.route("/admin/noras")
 def vista_admin():
     lista_noras = []
