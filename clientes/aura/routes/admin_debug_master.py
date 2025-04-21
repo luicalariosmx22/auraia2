@@ -13,6 +13,55 @@ admin_debug_master_bp = Blueprint("admin_debug_master", __name__)
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+def extraer_rutas_desde_templates(templates_path):
+    """
+    Extrae rutas desde los archivos de plantilla HTML.
+
+    Args:
+        templates_path (str): Ruta al directorio de plantillas.
+
+    Returns:
+        list: Lista de rutas extraídas.
+    """
+    rutas = []
+    try:
+        for root, _, files in os.walk(templates_path):
+            for file in files:
+                if file.endswith(".html"):
+                    with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                        contenido = f.read()
+                        # Aquí puedes usar expresiones regulares para buscar rutas en el contenido
+                        if "href=" in contenido:
+                            rutas.append(file)  # Ejemplo: agrega el nombre del archivo como ruta
+    except Exception as e:
+        print(f"❌ Error al extraer rutas desde plantillas: {str(e)}")
+    return rutas
+
+def extraer_rutas_flask(routes_path):
+    """
+    Extrae rutas registradas en Flask desde un directorio de rutas.
+
+    Args:
+        routes_path (str): Ruta al directorio de rutas.
+
+    Returns:
+        list: Lista de rutas registradas.
+    """
+    rutas = []
+    try:
+        # Aquí puedes implementar la lógica para analizar los archivos de rutas
+        # Por ejemplo, buscar decoradores @app.route o @blueprint.route
+        for root, _, files in os.walk(routes_path):
+            for file in files:
+                if file.endswith(".py"):
+                    with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                        contenido = f.read()
+                        if "@app.route" in contenido or ".route" in contenido:
+                            rutas.append(file)  # Ejemplo: agrega el nombre del archivo como ruta
+    except Exception as e:
+        print(f"❌ Error al extraer rutas de Flask: {str(e)}")
+    return rutas
+
 @admin_debug_master_bp.route("/admin/debug/master", methods=["GET", "POST"])
 def debug_master():
     try:
@@ -29,8 +78,8 @@ def debug_master():
 
         # 1️⃣ Rutas HTML y Flask
         try:
-            rutas_html = admin_debug_rutas.extraer_rutas_desde_templates("clientes/aura/templates")
-            rutas_flask = admin_debug_rutas.extraer_rutas_flask("clientes/aura/routes")
+            rutas_html = extraer_rutas_desde_templates("clientes/aura/templates")
+            rutas_flask = extraer_rutas_flask("clientes/aura/routes")
             no_definidas = [r for r in rutas_html if r not in rutas_flask]
         except Exception as e:
             print(f"❌ Error al procesar rutas HTML y Flask: {str(e)}")
