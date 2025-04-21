@@ -109,5 +109,4 @@ def procesar_mensaje(data):
 
     # Enviar respuesta al usuario usando nombre_usuario
     enviar_mensaje(numero, respuesta_ia, nombre_usuario)  # ✅ Usar nombre_usuario
-
-    return respuesta_ia    return respuesta_ia
+    return respuesta_ia
