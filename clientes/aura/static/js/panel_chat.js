@@ -172,9 +172,9 @@ async function enviarMensaje(event) {
   const mensaje = input.value.trim();
   if (!mensaje) return; // No enviar mensajes vacíos
 
-  const telefono = localStorage.getItem("numeroActivo"); // Número del contacto seleccionado
-  if (!telefono) {
-    mostrarError("No se ha seleccionado un contacto.");
+  const telefono = localStorage.getItem("numeroActivo");
+  if (!telefono || telefono === "null" || telefono === "undefined") {
+    mostrarError("No se ha seleccionado un contacto válido.");
     return;
   }
 
@@ -239,18 +239,25 @@ function filtrarContactosPorEtiqueta(etiqueta) {
 // Inicializar la página
 document.addEventListener("DOMContentLoaded", function () {
   const contactos = document.querySelectorAll(".contacto-item");
+
+  // Añadir eventos a cada contacto
   contactos.forEach(contacto => {
-    contacto.addEventListener("click", () => seleccionarContacto(contacto.getAttribute("data-numero")));
+    contacto.addEventListener("click", () => {
+      const telefono = contacto.getAttribute("data-numero");
+      console.log(`🔍 Contacto seleccionado: ${telefono}`);
+      seleccionarContacto(telefono);
+    });
   });
 
-  const inputEtiqueta = document.getElementById("nueva-etiqueta");
-  if (inputEtiqueta) {
-    inputEtiqueta.addEventListener("keypress", function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const telefono = document.getElementById("contacto-telefono").innerText;
-        agregarEtiqueta(telefono);
-      }
-    });
+  // Si ya hay un número en localStorage, cargarlo
+  const numeroGuardado = localStorage.getItem("numeroActivo");
+  if (numeroGuardado) {
+    console.log("📦 Cargando historial del número guardado:", numeroGuardado);
+    cargarChat(numeroGuardado);
+  } else if (contactos.length > 0) {
+    // Si no hay número guardado, carga el primero
+    const primerTelefono = contactos[0].getAttribute("data-numero");
+    console.log("📦 No hay número guardado. Cargando el primer contacto:", primerTelefono);
+    seleccionarContacto(primerTelefono);
   }
 });

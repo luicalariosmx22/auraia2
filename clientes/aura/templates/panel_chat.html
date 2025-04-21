@@ -33,7 +33,7 @@
       </select>
       <ul id="lista-contactos" class="lista-contactos">
         {% for contacto in contactos %}
-          <li class="contacto-item" onclick="seleccionarContacto('{{ contacto.telefono }}')">
+          <li class="contacto-item" data-numero="{{ contacto.telefono }}">
             <div>
               <strong class="contacto-nombre">{{ contacto.nombre }}</strong>
               <div class="contacto-telefono">{{ contacto.telefono[-10:] }}</div>
