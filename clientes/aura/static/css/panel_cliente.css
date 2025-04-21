@@ -1,57 +1,121 @@
-/* ✅ panel_cliente.css cargado correctamente */
+/* ✅ panel_cliente.css actualizado correctamente */
 
 body {
-  font-family: "Segoe UI", sans-serif;
-  background: #f4f6f8;
-  padding: 2rem;
+  font-family: "Inter", sans-serif;
+  background: #f9fafb;
+  margin: 0;
+  padding: 0;
   color: #333;
 }
 
-.panel-header {
+.meta-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.meta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
+}
+
+.meta-header h1 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.meta-header p {
+  font-size: 1rem;
+  color: #7f8c8d;
+}
+
+.meta-header .logo img {
+  width: 80px;
+  height: auto;
 }
 
 .seccion {
   background: #ffffff;
   padding: 1.5rem;
   border-radius: 10px;
-  box-shadow: 0 2px 10px #ddd;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.5rem;
 }
 
-h2, h3 {
-  color: #222;
+h3 {
+  color: #34495e;
+  margin-bottom: 1rem;
 }
 
-.btn {
+.badge {
+  display: inline-block;
+  background: #3498db;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  margin-right: 5px;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.meta-card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.meta-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.meta-card h3 {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.meta-card p {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin-bottom: 1rem;
+}
+
+.btn-neutral {
   display: inline-block;
   padding: 10px 16px;
-  margin-top: 10px;
-  background-color: #007bff;
+  background-color: #3498db;
   color: #fff;
   text-decoration: none;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   transition: background 0.2s;
 }
 
-.btn:hover {
-  background-color: #0056b3;
+.btn-neutral:hover {
+  background-color: #2980b9;
 }
 
-.btn-verde {
-  background-color: #28a745;
+.debug-info {
+  background: #ecf0f1;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
 }
 
-.btn-verde:hover {
-  background-color: #218838;
-}
-
-.tag {
-  background: #e0e0e0;
-  border-radius: 20px;
-  padding: 5px 12px;
-  font-size: 0.85rem;
-  margin: 3px 8px 3px 0;
-  display: inline-block;
+.debug-info p {
+  margin: 0.5rem 0;
 }
