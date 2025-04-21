@@ -53,15 +53,14 @@ def leer_historial(telefono):
     """
     print(f"🔍 Iniciando función leer_historial para el teléfono: {telefono}")
     telefono = normalizar_numero(telefono)
-    numero_simplificado = telefono[-10:]
 
     try:
-        print(f"🔍 Buscando historial para número simplificado: {numero_simplificado}")
+        print(f"🔍 Buscando historial para el número exacto: {telefono}")
         response = (
             supabase
             .table("historial_conversaciones")
             .select("*")
-            .like("telefono", f"%{numero_simplificado}")
+            .eq("telefono", telefono)  # ← Comparación exacta
             .order("hora", desc=False)
             .execute()
         )
