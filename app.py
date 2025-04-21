@@ -1,11 +1,14 @@
 print("🔥 ESTE ES EL APP.PY QUE SE ESTÁ EJECUTANDO")
 
+import os
+import uuid
 from flask import Flask, session, redirect, url_for, request
 from flask_session import Session
-from dotenv import load_dotenv
-import os
-import logging
+from datetime import datetime
 from logging.handlers import RotatingFileHandler
+from dotenv import load_dotenv
+from clientes.aura.routes.debug_rutas import generar_html_rutas  # Importación correcta
+from clientes.aura.utils.supabase import supabase
 
 # Cargar variables de entorno
 load_dotenv()
@@ -42,7 +45,7 @@ from clientes.aura.routes.etiquetas import etiquetas_bp
 from clientes.aura.routes.panel_cliente import panel_cliente_bp
 from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
 from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp
-from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp  # <-- LÍNEA AGREGADA
+from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
 
 # Registro base
 registrar_blueprints_login(app)
@@ -73,16 +76,37 @@ if "panel_cliente" not in app.blueprints:
 if "panel_cliente_contactos" not in app.blueprints:
     app.register_blueprint(panel_cliente_contactos_bp, url_prefix="/panel_cliente/contactos")
 
-if "panel_cliente_envios" not in app.blueprints:  # <-- LÍNEA AGREGADA
-    app.register_blueprint(panel_cliente_envios_bp, url_prefix="/panel/cliente")  # <-- LÍNEA AGREGADA
+if "panel_cliente_envios" not in app.blueprints:
+    app.register_blueprint(panel_cliente_envios_bp, url_prefix="/panel/cliente")
 
-# Registrar rutas en Supabase
-from clientes.aura.utils.rutas_logger import registrar_rutas_en_supabase
-registrar_rutas_en_supabase(app)
+# ========= FUNCIONES AUXILIARES =========
+def validar_o_generar_uuid(valor):
+    """
+    Verifica si el valor es un UUID válido. Si no lo es, genera un nuevo UUID.
+    """
+    try:
+        return str(uuid.UUID(valor))
+    except (ValueError, TypeError):
+        return str(uuid.uuid4())
 
-# Generar HTML de rutas
-from clientes.aura.utils.debug_rutas import generar_html_rutas
-generar_html_rutas(app)
+def registrar_rutas_en_supabase():
+    """
+    Registra las rutas activas de la aplicación en Supabase.
+    """
+    rutas = []
+    for rule in app.url_map.iter_rules():
+        rutas.append({
+            "id": validar_o_generar_uuid(""),
+            "ruta": rule.rule,
+            "endpoint": rule.endpoint,
+            "metodos": ", ".join(rule.methods - {"HEAD", "OPTIONS"}),  # Excluir métodos no relevantes
+            "creado_en": datetime.now().isoformat()
+        })
+    try:
+        response = supabase.table("rutas_registradas").insert(rutas).execute()
+        print(f"✅ Rutas registradas en Supabase: {response}")
+    except Exception as e:
+        print(f"❌ Error al registrar rutas en Supabase: {str(e)}")
 
 # ========= RUTA INICIAL =========
 @app.route("/")
@@ -100,6 +124,16 @@ def logout():
     session.clear()
     return redirect(url_for("login.login_google"))
 
+# ========= INICIALIZACIÓN =========
 if __name__ == "__main__":
+    try:
+        print("📦 Registrando rutas activas en Supabase...")
+        registrar_rutas_en_supabase()
+
+        print("📄 Generando HTML de rutas...")
+        generar_html_rutas(app, output_path="clientes/aura/templates/debug_rutas.html")  # Uso correcto
+    except Exception as e:
+        print(f"❌ Error crítico: {str(e)}")
+
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
