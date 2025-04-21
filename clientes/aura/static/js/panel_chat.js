@@ -193,21 +193,8 @@ async function enviarMensaje(event) {
     const data = await response.json();
     if (data.success) {
       console.log("✅ Mensaje enviado:", mensaje);
-
-      // Agregar el mensaje al área de chat
-      const chatArea = document.getElementById("chat-area");
-      const div = document.createElement("div");
-      div.className = "burbuja usuario";
-      div.innerHTML = `
-        <div class="remitente">Tú</div>
-        <div class="contenido">${mensaje}</div>
-        <div class="timestamp">${new Date().toLocaleString()}</div>
-      `;
-      chatArea.appendChild(div);
-
-      // Limpiar el campo de entrada
-      input.value = "";
-      chatArea.scrollTop = chatArea.scrollHeight; // Desplazar hacia abajo
+      input.value = ""; // Limpiar input
+      // Esperamos a que el mensaje se renderice por Socket.IO
     } else {
       mostrarError("Error al enviar el mensaje.");
     }
@@ -263,4 +250,32 @@ document.addEventListener("DOMContentLoaded", function () {
     // Si no hay contactos en la lista
     console.warn("⚠️ No hay contactos en la lista.");
   }
+});
+
+// ✅ Inicializar conexión con Socket.IO
+const socket = io();
+
+// ✅ Escuchar el evento "nuevo_mensaje" desde el servidor
+socket.on("nuevo_mensaje", (data) => {
+    console.log("📩 Nuevo mensaje recibido:", data);
+
+    // Obtener el área de mensajes del chat
+    const chat = document.getElementById("chat-area");
+
+    // Crear un nuevo elemento para el mensaje
+    const nuevoMensaje = document.createElement("div");
+    nuevoMensaje.classList.add("burbuja", data.remitente === "bot" ? "nora" : "usuario");
+
+    // Agregar contenido al mensaje
+    nuevoMensaje.innerHTML = `
+        <div class="remitente">${data.remitente === "bot" ? "Nora" : "Tú"}</div>
+        <div class="contenido">${data.mensaje}</div>
+        <div class="timestamp">${new Date().toLocaleTimeString()}</div>
+    `;
+
+    // Añadir el mensaje al área de chat
+    chat.appendChild(nuevoMensaje);
+
+    // Desplazar hacia abajo automáticamente
+    chat.scrollTop = chat.scrollHeight;
 });
