@@ -21,7 +21,7 @@ def webhook():
 
         mensaje_usuario = data.get("Body", "")
         telefono = normalizar_numero(data.get("From", ""))  # ✅ Línea actualizada
-        nombre_nora = "aura"  # dinámico si luego se requiere
+        nombre_nora = data.get("NombreNora", "nora").lower()  # ✅ Normalizar el nombre de Nora a minúsculas
 
         print(f"🔍 Datos procesados: mensaje_usuario='{mensaje_usuario}', telefono='{telefono}', nombre_nora='{nombre_nora}'")
 

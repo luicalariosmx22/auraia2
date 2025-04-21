@@ -18,8 +18,26 @@ from clientes.aura.utils.supabase import supabase  # ✅ Importación agregada
 
 # Función para obtener configuración de Nora
 def obtener_config_nora(nombre_nora):
-    response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).single().execute()
-    return response.data if response.data else {}
+    """
+    Obtiene la configuración de Nora desde la tabla 'configuracion_bot' en Supabase.
+    """
+    try:
+        print(f"🔍 Buscando configuración para Nora: {nombre_nora}")
+        response = (
+            supabase.table("configuracion_bot")
+            .select("*")
+            .eq("nombre_nora", nombre_nora.lower())  # Normalizar a minúsculas
+            .execute()
+        )
+        data = response.data or []
+        if not data:
+            print(f"⚠️ No se encontró configuración para Nora: {nombre_nora}")
+            return {}
+        print(f"✅ Configuración encontrada para Nora: {data[0]}")
+        return data[0]
+    except Exception as e:
+        print(f"❌ Error al obtener configuración de Nora ({nombre_nora}): {e}")
+        return {}
 
 def procesar_mensaje(data):
     # Obtener datos del mensaje
