@@ -12,7 +12,6 @@ def cargar_base_conocimiento(nombre_nora):
         str: Contenido de la base de conocimiento como texto plano, o None si no se encuentra.
     """
     try:
-        # Realizar la consulta en la tabla base_conocimiento
         respuesta = supabase.table("base_conocimiento") \
             .select("contenido") \
             .eq("nombre_nora", nombre_nora) \
@@ -21,21 +20,20 @@ def cargar_base_conocimiento(nombre_nora):
 
         datos = respuesta.data
         if datos:
-            print(f"✅ Base de conocimiento cargada para Nora: {nombre_nora}")
+            print(f"✅ [BaseConocimiento] Contenido cargado para Nora '{nombre_nora}'. Longitud: {len(datos['contenido'])} caracteres.")
             return datos["contenido"]
 
-        print(f"⚠️ No se encontró base de conocimiento para Nora: {nombre_nora}")
+        print(f"⚠️ [BaseConocimiento] No se encontró contenido para Nora: {nombre_nora}")
         return None
 
     except Exception as e:
-        print(f"❌ Error al cargar base de conocimiento: {e}")
+        print(f"❌ [BaseConocimiento] Error al cargar base de conocimiento: {e}")
         return None
 
 
 def buscar_conocimiento(numero_nora, mensaje_usuario):
     """
-    Consulta el contenido largo de la memoria desde Supabase,
-    usando el número de la Nora como identificador principal.
+    Consulta el contenido largo de la memoria desde Supabase usando el número de la Nora como identificador.
 
     Args:
         numero_nora (str): Número de la instancia de Nora.
@@ -45,28 +43,28 @@ def buscar_conocimiento(numero_nora, mensaje_usuario):
         str: Prompt completo para enviar a la IA, o None si no se encuentra contenido.
     """
     try:
-        print(f"📚 Buscando conocimiento para número_nora: {numero_nora} y mensaje: '{mensaje_usuario}'")
+        print(f"📚 Buscando base de conocimiento para número_nora: {numero_nora}")
+        print(f"📝 Mensaje recibido del usuario: '{mensaje_usuario}'")
 
-        # Realizar la consulta en la tabla base_conocimiento
         response = (
             supabase.table("base_conocimiento")
             .select("contenido")
-            .eq("numero_nora", numero_nora)  # Filtrar por número de Nora
+            .eq("numero_nora", numero_nora)
             .single()
             .execute()
         )
 
-        # Verificar si hay datos en la respuesta
         if not response.data:
-            print(f"⚠️ No se encontró contenido para número_nora: {numero_nora}")
+            print(f"⚠️ [Conocimiento] No se encontró contenido para número_nora: {numero_nora}")
             return None
 
-        contenido = response.data.get("contenido", "")
-        if not contenido.strip():
-            print("⚠️ Contenido vacío para esta Nora.")
+        contenido = response.data.get("contenido", "").strip()
+        if not contenido:
+            print("⚠️ [Conocimiento] El contenido está vacío.")
             return None
 
-        # 🧠 Formar el prompt completo para enviar a la IA
+        print(f"✅ [Conocimiento] Conocimiento encontrado. Longitud: {len(contenido)} caracteres.")
+
         prompt = f"""
 Eres Nora, una asistente profesional de marketing digital.
 
@@ -81,9 +79,13 @@ Pregunta del usuario:
 
 Respuesta:
 """
-        print("✅ Prompt generado exitosamente.")
+        print("🧠 Prompt generado y listo para enviar a la IA:")
+        print("-" * 40)
+        print(prompt)
+        print("-" * 40)
+
         return prompt
 
     except Exception as e:
-        print(f"❌ Error al consultar conocimiento en Supabase: {e}")
+        print(f"❌ [Conocimiento] Error al consultar conocimiento en Supabase: {e}")
         return None
