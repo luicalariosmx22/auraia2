@@ -12,53 +12,25 @@ from clientes.aura.utils.comunicacion_contextual import debe_saludar, debe_pregu
 
 # ✅ NUEVO: importar desde Supabase
 from utils.db.contactos import obtener_contacto
+from utils.buscar_conocimiento import buscar_conocimiento
 
 def procesar_mensaje(data):
     numero = normalizar_numero(data.get("From"))
-    mensaje = limpiar_mensaje(data.get("Body"))
-    nombre_usuario = data.get("ProfileName", "Usuario")  # Renombrado para evitar confusión
-    nombre_nora = "Aura AI"  # Asegúrate de obtener este valor dinámicamente si es necesario
+    mensaje_usuario = limpiar_mensaje(data.get("Body"))
+    nombre_usuario = data.get("ProfileName", "Usuario")
+    nombre_nora = "Aura AI"
 
-    guardar_en_historial(numero, mensaje, "usuario", nombre_nora)
+    guardar_en_historial(numero, mensaje_usuario, "usuario", nombre_nora)
 
-    settings = cargar_settings(nombre_nora)
-    respuesta = None
+    # Buscar conocimiento en la base de datos
+    respuesta_conocimiento = buscar_conocimiento(nombre_nora, mensaje_usuario)
+    if respuesta_conocimiento:
+        guardar_en_historial(numero, respuesta_conocimiento, "bot", nombre_nora)
+        enviar_mensaje(numero, respuesta_conocimiento, nombre_usuario)
+        return respuesta_conocimiento
 
-    # ✅ Consultar si el contacto tiene IA desactivada
-    contacto = obtener_contacto(numero)
-    if contacto and contacto.get("ia_activada") is False:
-        mensaje_manual = "🔕 Nora AI está en modo manual. El cliente tomará el control del chat."
-        enviar_mensaje(numero, mensaje_manual, nombre_usuario)
-        guardar_en_historial(numero, mensaje_manual, "bot", nombre_nora)
-        return mensaje_manual
-
-    # === 1. Respuesta automática ===
-    if settings.get("usar_respuestas_automaticas"):
-        respuesta = manejar_respuesta_keywords(mensaje)
-
-    # === 2. Archivos ===
-    if not respuesta and settings.get("usar_manejo_archivos"):
-        respuesta = manejar_archivos_adjuntos(mensaje)
-
-    # === 3. Inteligencia Artificial ===
-    if not respuesta and settings.get("usar_ai"):
-        respuesta = manejar_respuesta_ai(mensaje)
-
-    # === 4. Último recurso
-    if not respuesta:
-        respuesta = "Estoy pensando... ¿puedes darme un poco más de contexto? 🧠"
-
-    # === 5. Saludo contextual
-    if debe_saludar(numero):
-        respuesta = "¡Hola! Soy Nora AI 🤖 " + respuesta
-
-    # === 6. Preguntar si tiene dudas
-    if debe_preguntar_si_hay_duda(numero):
-        respuesta += "\n\n¿Quedaste con alguna duda que te pueda ayudar a resolver?"
-
-    # === 7. Enviar y guardar
-    print("🧠 Respuesta generada:", respuesta)
-    enviar_mensaje(numero, respuesta, nombre_usuario)
-    guardar_en_historial(numero, respuesta, "bot", nombre_nora)
-
-    return respuesta
+    # Si no se encuentra conocimiento, usar IA
+    respuesta_ia = manejar_respuesta_ai(mensaje_usuario)
+    guardar_en_historial(numero, respuesta_ia, "bot", nombre_nora)
+    enviar_mensaje(numero, respuesta_ia, nombre_usuario)
+    return respuesta_ia

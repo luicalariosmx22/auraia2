@@ -60,7 +60,11 @@ def registrar_blueprints_por_nora(app, nombre_nora):
                 app.register_blueprint(etiquetas_bp, url_prefix="/panel_cliente/etiquetas")
                 print("✅ Blueprint 'panel_cliente_etiquetas' registrado en /panel_cliente/etiquetas")
 
-        # También puedes agregar otros módulos si los tienes (calendario, pagos, etc.)
+        # Registro global para el panel de conocimiento
+        from clientes.aura.routes.panel_conocimiento import panel_conocimiento_bp
+        if "panel_conocimiento" not in app.blueprints:
+            app.register_blueprint(panel_conocimiento_bp)
+            print("✅ Blueprint 'panel_conocimiento' registrado globalmente")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos: {str(e)}")

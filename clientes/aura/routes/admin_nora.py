@@ -202,3 +202,86 @@ def entrenar_bienvenida(nombre_nora):
         flash("❌ Error al guardar el mensaje de bienvenida.", "error")
 
     return redirect(url_for("admin_nora.entrenar_nora", nombre_nora=nombre_nora))
+
+
+# Ruta para guardar estado de IA
+@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/estado_ia", methods=["POST"])
+def guardar_estado_ia(nombre_nora):
+    try:
+        ia_activa = request.form.get("ia_activa") == "true"
+        supabase.table("configuracion_bot").update({"ia_activa": ia_activa}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Estado de IA actualizado correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar estado de IA: {str(e)}")
+        flash("❌ Error al actualizar estado de IA", "error")
+    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
+
+
+# Ruta para cambiar nombre
+@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/cambiar_nombre", methods=["POST"])
+def cambiar_nombre_nora(nombre_nora):
+    try:
+        nuevo_nombre = request.form.get("nuevo_nombre", "").strip()
+        if nuevo_nombre and nuevo_nombre != nombre_nora:
+            supabase.table("configuracion_bot").update({"nombre_nora": nuevo_nombre}).eq("nombre_nora", nombre_nora).execute()
+            flash("✅ Nombre de Nora actualizado correctamente", "success")
+            return redirect(url_for("admin_nora.mostrar_lista"))
+        flash("⚠️ El nuevo nombre no puede estar vacío o ser igual al actual", "warning")
+    except Exception as e:
+        print(f"❌ Error al cambiar nombre de Nora: {str(e)}")
+        flash("❌ Error al cambiar nombre de Nora", "error")
+    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
+
+
+# Ruta para guardar personalidad
+@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/personalidad", methods=["POST"])
+def guardar_personalidad(nombre_nora):
+    try:
+        personalidad = request.form.get("personalidad", "").strip()
+        supabase.table("configuracion_bot").update({"personalidad": personalidad}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Personalidad actualizada correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar personalidad: {str(e)}")
+        flash("❌ Error al actualizar personalidad", "error")
+    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
+
+
+# Ruta para guardar instrucciones
+@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/instrucciones", methods=["POST"])
+def guardar_instrucciones(nombre_nora):
+    try:
+        instrucciones = request.form.get("instrucciones", "").strip()
+        supabase.table("configuracion_bot").update({"instrucciones": instrucciones}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Instrucciones actualizadas correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar instrucciones: {str(e)}")
+        flash("❌ Error al actualizar instrucciones", "error")
+    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
+
+
+# Ruta para guardar conocimiento
+@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/conocimiento", methods=["POST"])
+def guardar_conocimiento(nombre_nora):
+    try:
+        conocimiento = request.form.get("base_conocimiento", "").strip()
+        supabase.table("configuracion_bot").update({"base_conocimiento": conocimiento}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Base de conocimiento actualizada correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar base de conocimiento: {str(e)}")
+        flash("❌ Error al actualizar base de conocimiento", "error")
+    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
+
+
+# Ruta principal de entrenamiento
+@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar")
+def mostrar_entrenamiento(nombre_nora):
+    try:
+        config = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).single().execute().data
+        if not config:
+            flash("❌ No se encontró la configuración de Nora", "error")
+            return redirect(url_for("admin_nora.mostrar_lista"))
+        return render_template("entrena_nora.html", nombre_nora=nombre_nora, config=config)
+    except Exception as e:
+        print(f"❌ Error al cargar configuración de Nora: {str(e)}")
+        flash("❌ Error al cargar configuración de Nora", "error")
+        return redirect(url_for("admin_nora.mostrar_lista"))

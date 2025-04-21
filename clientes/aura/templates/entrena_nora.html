@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <title>Entrenamiento de Nora</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
+    <style>
+        .btn-neutral {
+            display: inline-block;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .btn-neutral:hover {
+            background-color: #2980b9;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -72,6 +89,13 @@
                     <textarea name="base_conocimiento" rows="8" placeholder="Agrega información que Nora debe saber para responder en WhatsApp...">{{ config.base_conocimiento or '' }}</textarea>
                     <button type="submit">Guardar conocimiento</button>
                 </form>
+            </div>
+
+            <!-- 6. Editar base de conocimiento -->
+            <div class="modulo">
+                <h2>📚 Editar base de conocimiento</h2>
+                <p>Consulta y edita las respuestas que Nora usará para contestar automáticamente en WhatsApp.</p>
+                <a href="/admin/nora/{{ nombre_nora }}/conocimiento" class="btn-neutral">Ir al editor de conocimiento</a>
             </div>
         </section>
     </main>

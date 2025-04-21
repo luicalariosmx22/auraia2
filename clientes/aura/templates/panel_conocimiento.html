@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block contenido %}
+<div class="meta-container">
+  <h2>📚 Base de Conocimiento de Nora: {{ nombre_nora }}</h2>
+
+  <!-- Formulario para agregar nuevo conocimiento -->
+  <form method="POST" action="/admin/nora/{{ nombre_nora }}/conocimiento/agregar" class="meta-card">
+    <h3>➕ Agregar nuevo conocimiento</h3>
+    <div class="form-group">
+      <input type="text" name="tema" placeholder="Tema (opcional)">
+      <input type="text" name="pregunta" placeholder="Pregunta relacionada (opcional)">
+      <textarea name="respuesta" rows="3" placeholder="Respuesta que Nora debe dar" required></textarea>
+      <label for="prioridad">Prioridad:</label>
+      <input type="number" id="prioridad" name="prioridad" min="1" value="1">
+    </div>
+    <button type="submit" class="btn-neutral">Guardar</button>
+  </form>
+
+  <!-- Listado de entradas actuales -->
+  <div class="meta-card">
+    <h3>📋 Registros actuales</h3>
+    {% if registros %}
+    <table class="tabla-contactos">
+      <thead>
+        <tr>
+          <th>Tema</th>
+          <th>Pregunta</th>
+          <th>Respuesta</th>
+          <th>Prioridad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in registros %}
+        <tr>
+          <td>{{ r.tema or '—' }}</td>
+          <td>{{ r.pregunta or '—' }}</td>
+          <td>{{ r.respuesta[:120] }}{% if r.respuesta|length > 120 %}...{% endif %}</td>
+          <td>{{ r.prioridad }}</td>
+          <td>
+            <form method="POST" action="/admin/nora/{{ nombre_nora }}/conocimiento/eliminar/{{ r.id }}" onsubmit="return confirm('¿Seguro que deseas eliminar esta entrada?');">
+              <button class="btn-mini btn-danger" type="submit" title="Eliminar">🗑</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No hay registros en la base de conocimiento.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
