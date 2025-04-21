@@ -3,7 +3,7 @@ print("✅ panel_chat.py cargado correctamente")
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from supabase import create_client
 from dotenv import load_dotenv
-from clientes.aura.utils.normalizador import normalizar_numero  # ✅ IMPORTADO
+from clientes.aura.utils.normalizador import normalizar_numero
 import os
 import datetime
 import openai
@@ -24,29 +24,34 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 panel_chat_bp = Blueprint("panel_chat_aura", __name__)
 
 def leer_contactos():
+    """
+    Carga la lista de contactos desde Supabase.
+    """
     try:
         print("🔍 Leyendo contactos desde la tabla 'contactos'...")
         response = supabase.table("contactos").select("*").execute()
         if not response.data:
-            print(f"⚠️ No se encontraron contactos en la tabla 'contactos'.")
+            print("⚠️ No se encontraron contactos en la tabla 'contactos'.")
             return []
 
         contactos = []
         for contacto in response.data:
-            # Si no tiene nombre, usa "Usuario <últimos 10 dígitos del teléfono>"
             if not contacto.get("nombre"):
                 contacto["nombre"] = f"Usuario {contacto['telefono'][-10:]}"
             contactos.append(contacto)
 
-        print(f"✅ Contactos cargados: {contactos}")
+        print(f"✅ Contactos cargados: {len(contactos)} contactos.")
         return contactos
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
         return []
 
 def leer_historial(telefono):
+    """
+    Carga el historial de conversaciones de un contacto desde Supabase.
+    """
     telefono = normalizar_numero(telefono)
-    numero_simplificado = telefono[-10:]  # Extraer los últimos 10 dígitos para simplificar la búsqueda
+    numero_simplificado = telefono[-10:]
 
     try:
         print(f"🔍 Buscando historial para número simplificado: {numero_simplificado}")
@@ -54,15 +59,14 @@ def leer_historial(telefono):
             supabase
             .table("historial_conversaciones")
             .select("*")
-            .like("telefono", f"%{numero_simplificado}")  # 🧠 Busca coincidencia parcial
+            .like("telefono", f"%{numero_simplificado}")
             .order("hora", desc=False)
             .execute()
         )
         if not response.data:
             print(f"⚠️ No se encontró historial para {telefono}.")
             return []
-        
-        # Convertir cualquier campo datetime a cadena
+
         for mensaje in response.data:
             if isinstance(mensaje.get("hora"), datetime.datetime):
                 mensaje["hora"] = mensaje["hora"].strftime("%Y-%m-%d %H:%M:%S")
@@ -74,26 +78,32 @@ def leer_historial(telefono):
         return []
 
 def guardar_historial(nombre_nora, telefono, mensajes):
+    """
+    Guarda un conjunto de mensajes en la tabla 'historial_conversaciones'.
+    """
     registros = [
         {
             "nombre_nora": nombre_nora,
             "telefono": telefono,
             "mensaje": mensaje.get("texto") or mensaje.get("mensaje"),
             "emisor": mensaje["emisor"],
-            "hora": mensaje.get("hora", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")),  # Fecha y hora completas
-            "timestamp": datetime.datetime.now().isoformat()  # Convertir a cadena en formato ISO 8601
+            "hora": mensaje.get("hora", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+            "timestamp": datetime.datetime.now().isoformat()
         }
         for mensaje in mensajes
     ]
     try:
-        print(f"🔍 Guardando historial en la tabla 'historial_conversaciones': {registros}")
+        print(f"🔍 Guardando historial en la tabla 'historial_conversaciones': {len(registros)} registros.")
         response = supabase.table("historial_conversaciones").insert(registros).execute()
         if not response.data:
-            print(f"❌ Error al guardar historial: {not response.data}")
+            print("❌ Error al guardar historial.")
     except Exception as e:
         print(f"❌ Error al guardar historial: {str(e)}")
 
 def generar_resumen_ia(mensajes):
+    """
+    Genera un resumen de los últimos mensajes utilizando OpenAI.
+    """
     if not mensajes:
         print("⚠️ No hay suficientes mensajes para generar un resumen.")
         return "No hay suficientes mensajes para generar un resumen."
@@ -122,6 +132,9 @@ Resumen:
 
 @panel_chat_bp.route("/panel/chat/<nombre_nora>")
 def panel_chat(nombre_nora):
+    """
+    Renderiza el panel de chat para una Nora específica.
+    """
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
@@ -129,32 +142,29 @@ def panel_chat(nombre_nora):
     lista = []
     for c in contactos:
         mensajes = leer_historial(c["telefono"])
-        # Asegúrate de que cada mensaje tenga un atributo 'fecha' correctamente formateado
         for mensaje in mensajes:
             if "fecha" in mensaje and isinstance(mensaje["fecha"], datetime.datetime):
-                mensaje["fecha"] = mensaje["fecha"].strftime('%d-%b')  # Formato: 18-Abr
+                mensaje["fecha"] = mensaje["fecha"].strftime('%d-%b')
         lista.append({**c, "mensajes": mensajes})
 
     return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
 
 @panel_chat_bp.route("/api/chat/<telefono>")
 def api_chat(telefono):
+    """
+    Proporciona el historial de chat de un contacto específico en formato JSON.
+    """
     telefono = normalizar_numero(telefono)
     print(f"🔍 API Chat - Cargando datos para el teléfono: {telefono}...")
     contactos = leer_contactos()
     contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
     historial = leer_historial(telefono)
 
-    # Asegúrate de que el contacto tenga un nombre o usa el número como fallback
     if not contacto.get("nombre"):
-        contacto["nombre"] = f"Usuario {telefono[-10:]}"  # Nombre predeterminado con los últimos 10 dígitos del teléfono
+        contacto["nombre"] = f"Usuario {telefono[-10:]}"
 
-    # Ajustar el historial para que los mensajes tengan el emisor correcto
     for mensaje in historial:
-        if mensaje["emisor"] == "nora":
-            mensaje["remitente"] = "Tú"
-        else:
-            mensaje["remitente"] = contacto["nombre"] or contacto["telefono"][-10:]
+        mensaje["remitente"] = "Tú" if mensaje["emisor"] == "nora" else contacto["nombre"]
 
     return jsonify({
         "success": True,
@@ -164,6 +174,9 @@ def api_chat(telefono):
 
 @panel_chat_bp.route("/api/enviar-mensaje", methods=["POST"])
 def api_enviar_mensaje():
+    """
+    Permite enviar un mensaje a un contacto y guardar el mensaje en el historial.
+    """
     data = request.json
     print(f"🔍 API Enviar Mensaje - Datos recibidos: {data}")
     telefono = normalizar_numero(data.get("numero"))
@@ -173,15 +186,13 @@ def api_enviar_mensaje():
         print("❌ Datos incompletos para enviar mensaje.")
         return jsonify({"success": False, "error": "Datos incompletos"}), 400
 
-    # Leer historial del contacto
     historial = leer_historial(telefono)
     historial.append({
-        "emisor": "usuario",  # Mensaje enviado por el usuario
+        "emisor": "usuario",
         "mensaje": texto,
         "fecha": datetime.datetime.now().strftime("%d-%b %H:%M")
     })
 
-    # Guardar el historial actualizado
     guardar_historial("Nora", telefono, historial)
     print(f"✅ Mensaje guardado en el historial para {telefono}: {texto}")
 
@@ -189,6 +200,9 @@ def api_enviar_mensaje():
 
 @panel_chat_bp.route("/api/toggle-ia/<telefono>", methods=["POST"])
 def api_toggle_ia(telefono):
+    """
+    Activa o desactiva la IA para un contacto específico.
+    """
     telefono = normalizar_numero(telefono)
     try:
         print(f"🔍 API Toggle IA - Cambiando estado de IA para {telefono}...")
@@ -208,6 +222,9 @@ def api_toggle_ia(telefono):
 
 @panel_chat_bp.route("/api/programar-envio", methods=["POST"])
 def api_programar_envio():
+    """
+    Permite programar el envío de un mensaje a un contacto.
+    """
     data = request.json
     print(f"🔍 API Programar Envío - Datos recibidos: {data}")
     try:
@@ -218,7 +235,7 @@ def api_programar_envio():
             "hora": data.get("hora")
         }).execute()
         if not response.data:
-            print(f"❌ Error al programar envío: {not response.data}")
+            print("❌ Error al programar envío.")
             return jsonify({"success": False})
         print(f"✅ Envío programado: {response.data}")
         return jsonify({"success": True})

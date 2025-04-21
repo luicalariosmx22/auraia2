@@ -11,19 +11,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/contact_info.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <script>
-    const contactos = [
-      {
-        "nombre": "Juan Pérez",
-        "telefono": "123456789",
-        "mensajes": [
-          {
-            "mensaje": "Hola, ¿cómo estás?",
-            "fecha": "18-Abr"
-          }
-        ]
-      },
-      ...{{ contactos | tojson }}
-    ];
+    const contactos = [...{{ contactos | tojson }}];
     const nombreNora = "{{ nombre_nora }}";
     console.log("🧪 CONTACTOS:", contactos); // Verificar si contactos llega al navegador
   </script>
@@ -64,6 +52,8 @@
     <!-- Panel central (Mensajes) -->
     <div class="col-centro">
       <div id="chat-area" class="chat-area">
+        <!-- Spinner de carga -->
+        <div id="spinner-chat" class="spinner" style="display: none;">Cargando mensajes...</div>
         <!-- Aquí se renderizan los mensajes -->
       </div>
       <form id="form-enviar-mensaje" class="form-envio" onsubmit="enviarMensaje(event)">
