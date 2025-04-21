@@ -18,25 +18,33 @@ function manejarError(err, mensaje) {
 
 // Cargar el historial de chat de un contacto
 async function cargarChat(numero) {
+  console.log(`🔍 Iniciando carga del historial para el número: ${numero}`);
   try {
     const chatArea = document.getElementById("chat-area");
     const spinner = document.getElementById("spinner-chat");
     spinner.style.display = "block"; // Mostrar spinner de carga
     chatArea.innerHTML = ""; // Limpiar el área de chat
 
+    console.log("🔍 Enviando solicitud al backend...");
     const response = await fetch(`/api/chat/${numero}`);
+    console.log(`🔍 Respuesta recibida del servidor: ${response.status}`);
+
     const data = await response.json();
+    console.log("🔍 Datos recibidos del servidor:", data);
 
     spinner.style.display = "none"; // Ocultar spinner de carga
 
     if (!data.success || !data.mensajes) {
+      console.error("❌ Error: No se encontraron mensajes o la respuesta no fue exitosa.");
       chatArea.innerHTML = "<p>Error al cargar el historial.</p>";
       return;
     }
 
+    console.log("✅ Historial cargado correctamente. Renderizando mensajes...");
     renderizarMensajes(data.mensajes, data.contacto);
     actualizarInfoContacto(data.contacto, data.contacto.resumen || "Sin resumen aún.");
   } catch (error) {
+    console.error("❌ Error al cargar el historial de chat:", error);
     manejarError(error, "Error al cargar el historial de chat.");
     const chatArea = document.getElementById("chat-area");
     chatArea.innerHTML = "<p>Error al cargar el historial.</p>";

@@ -164,23 +164,34 @@ def api_chat(telefono):
     Proporciona el historial de chat de un contacto específico en formato JSON.
     """
     print(f"🔍 Iniciando función api_chat para el teléfono: {telefono}")
-    telefono = normalizar_numero(telefono)
-    contactos = leer_contactos()
-    contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
-    historial = leer_historial(telefono)
+    try:
+        telefono = normalizar_numero(telefono)
+        print(f"🔍 Teléfono normalizado: {telefono}")
 
-    if not contacto.get("nombre"):
-        contacto["nombre"] = f"Usuario {telefono[-10:]}"
+        contactos = leer_contactos()
+        print(f"✅ Contactos cargados: {len(contactos)}")
 
-    for mensaje in historial:
-        mensaje["remitente"] = "Tú" if mensaje["emisor"] == "nora" else contacto["nombre"]
+        contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
+        print(f"🔍 Contacto encontrado: {contacto}")
 
-    print(f"✅ API Chat cargado para el teléfono: {telefono}")
-    return jsonify({
-        "success": True,
-        "contacto": contacto,
-        "mensajes": historial
-    })
+        historial = leer_historial(telefono)
+        print(f"✅ Historial cargado: {len(historial)} mensajes")
+
+        if not contacto.get("nombre"):
+            contacto["nombre"] = f"Usuario {telefono[-10:]}"
+
+        for mensaje in historial:
+            mensaje["remitente"] = "Tú" if mensaje["emisor"] == "nora" else contacto["nombre"]
+
+        print(f"✅ Respuesta lista para el teléfono: {telefono}")
+        return jsonify({
+            "success": True,
+            "contacto": contacto,
+            "mensajes": historial
+        })
+    except Exception as e:
+        print(f"❌ Error en api_chat para el teléfono {telefono}: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})
 
 @panel_chat_bp.route("/api/enviar-mensaje", methods=["POST"])
 def api_enviar_mensaje():
