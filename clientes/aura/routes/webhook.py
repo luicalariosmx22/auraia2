@@ -15,12 +15,15 @@ webhook_bp = Blueprint("webhook", __name__)
 @webhook_bp.route("/webhook", methods=["POST"])
 def webhook():
     try:
+        # Obtener datos del mensaje recibido
         data = request.form.to_dict()
         print("📩 Mensaje recibido de Twilio:", data)
 
         mensaje_usuario = data.get("Body", "")
         telefono = normalizar_numero(data.get("From", ""))  # ✅ Línea actualizada
         nombre_nora = "aura"  # dinámico si luego se requiere
+
+        print(f"🔍 Datos procesados: mensaje_usuario='{mensaje_usuario}', telefono='{telefono}', nombre_nora='{nombre_nora}'")
 
         # Guardar mensaje del usuario
         print(f"🔍 Guardando mensaje del usuario: {mensaje_usuario}")
@@ -34,7 +37,7 @@ def webhook():
         # Procesar y generar respuesta
         print("🔍 Procesando mensaje para generar respuesta...")
         respuesta = procesar_mensaje(data)
-        print(f"✅ Respuesta generada: {respuesta}")
+        print(f"✅ Respuesta generada por Nora: {respuesta}")
 
         # Guardar respuesta del bot
         print(f"🔍 Guardando respuesta del bot: {respuesta}")
@@ -45,7 +48,7 @@ def webhook():
             nombre=nombre_nora
         )
 
-        print("✅ Webhook procesado correctamente.")
+        print("✅ Webhook procesado correctamente. Respuesta enviada a Twilio.")
         return respuesta, 200
 
     except Exception as e:
