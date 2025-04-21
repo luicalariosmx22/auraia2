@@ -8,7 +8,7 @@ from clientes.aura.debug import debug_supabase
 from clientes.aura.utils.debug_rutas import generar_html_rutas
 from clientes.aura.routes.debug_verificar import verificar_sistema
 from clientes.aura.utils.verificador_rutas import RutaChecker
-from clientes.aura.utils.supabase import supabasert supabase
+from clientes.aura.utils.supabase import supabase
 
 admin_debug_master_bp = Blueprint("admin_debug_master", __name__)
 my_blueprint = Blueprint('my_blueprint', __name__)

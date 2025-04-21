@@ -1,6 +1,6 @@
 print("✅ admin_noras.py cargado correctamente")
 
-from flask import Blueprint, render_template, redirect, url_for, jsonify, request
+from flask import Blueprint, render_template, redirect, url_for, jsonify, request, current_app
 from supabase import create_client
 from dotenv import load_dotenv
 from datetime import datetime
@@ -85,6 +85,21 @@ def debug_info():
         return jsonify({"rutas_registradas": rutas, "estado": "OK"})
     except Exception as e:
         return jsonify({"error": str(e), "estado": "ERROR"})
+
+
+@admin_noras_bp.route("/admin/debug/rutas", methods=["GET"])
+def debug_rutas():
+    """
+    Devuelve todas las rutas registradas en la aplicación Flask.
+    """
+    rutas = []
+    for rule in current_app.url_map.iter_rules():
+        rutas.append({
+            "ruta": rule.rule,
+            "endpoint": rule.endpoint,
+            "metodos": list(rule.methods)
+        })
+    return jsonify(rutas)
 
 
 @admin_noras_bp.route("/editar_nora", methods=["GET"])

@@ -66,7 +66,8 @@
                     <td>{{ nora.ultima_actualizacion }}</td>
                     <td>{{ nora.tickets_pendientes }}</td>
                     <td>
-                        <button onclick="verDetallesNora('{{ nora.nombre }}')">Ver Detalles</button>
+                        <!-- Botón para ir al Panel de Control -->
+                        <button onclick="irAlPanelCliente('{{ nora.nombre }}')">Panel de Control</button>
                         <button onclick="editarNora('{{ nora.nombre }}')">Editar</button>
                         <button onclick="borrarNora('{{ nora.nombre }}')">Borrar</button>
                     </td>
@@ -225,6 +226,11 @@
                     alert('Ocurrió un error al borrar la Nora.');
                 });
             }
+        }
+
+        function irAlPanelCliente(nombre, cliente) {
+            logDebug(`Redirigiendo al Panel de Control del cliente: ${cliente}, Nora: ${nombre}`);
+            window.location.href = `/panel_cliente/${encodeURIComponent(cliente)}/${encodeURIComponent(nombre)}`;
         }
     </script>
 </body>
