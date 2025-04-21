@@ -1,13 +1,14 @@
 import os
 import openai
 import re
-from flask import Blueprint, render_template, request, current_app
+from flask import Blueprint, render_template, request, current_app, jsonify
 from dotenv import load_dotenv
 from clientes.aura.routes import admin_debug_rutas
 from clientes.aura.debug import debug_supabase
 from clientes.aura.utils.debug_rutas import generar_html_rutas
 from clientes.aura.routes.debug_verificar import verificar_sistema
 from clientes.aura.utils.verificador_rutas import RutaChecker
+from clientes.aura.utils.supabase import supabasert supabase
 
 admin_debug_master_bp = Blueprint("admin_debug_master", __name__)
 my_blueprint = Blueprint('my_blueprint', __name__)
@@ -113,6 +114,75 @@ def verificar_rutas():
     except Exception as e:
         return f"❌ Error inesperado al verificar rutas: {str(e)}"
 
+def validar_blueprints(app, routes_path):
+    """
+    Valida los blueprints registrados en la aplicación con los archivos en el directorio de rutas.
+
+    Args:
+        app (Flask): La instancia de la aplicación Flask.
+        routes_path (str): Ruta al directorio de rutas.
+
+    Returns:
+        dict: Resultados de la validación.
+    """
+    registrados = set(app.blueprints.keys())
+    encontrados = set()
+
+    # Buscar blueprints en los archivos de rutas
+    for root, _, files in os.walk(routes_path):
+        for file in files:
+            if file.endswith(".py") and file != "__init__.py":
+                with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                    contenido = f.read()
+                    matches = re.findall(r"Blueprint\(['\"]([^'\"]+)['\"]", contenido)
+                    encontrados.update(matches)
+
+    # Comparar los blueprints registrados con los encontrados
+    faltantes = encontrados - registrados
+    extras = registrados - encontrados
+
+    return {
+        "registrados": list(registrados),
+        "encontrados": list(encontrados),
+        "faltantes": list(faltantes),
+        "extras": list(extras),
+    }
+
+def validar_rutas_dinamicas(robot_nombre):
+    """
+    Valida las rutas dinámicas relacionadas con un robot específico.
+
+    Args:
+        robot_nombre (str): Nombre del robot.
+
+    Returns:
+        dict: Resultados de la validación.
+    """
+    rutas = []
+    try:
+        # Obtener las rutas dinámicas relacionadas con el robot
+        response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", robot_nombre).execute()
+        if not response.data:
+            return {"error": f"No se encontró el robot con nombre: {robot_nombre}"}
+
+        robot_config = response.data[0]
+        modulos = robot_config.get("modulos", [])
+
+        # Generar rutas dinámicas basadas en los módulos
+        for modulo in modulos:
+            rutas.append(f"/{robot_nombre}/{modulo}")
+
+        # Validar si las rutas están registradas en Flask
+        rutas_registradas = [rule.rule for rule in current_app.url_map.iter_rules()]
+        rutas_faltantes = [ruta for ruta in rutas if ruta not in rutas_registradas]
+
+        return {
+            "rutas_generadas": rutas,
+            "rutas_faltantes": rutas_faltantes,
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 @admin_debug_master_bp.route("/admin/debug/master", methods=["GET", "POST"])
 def debug_master():
     try:
@@ -132,3 +202,19 @@ def debug_master():
             mensaje="❌ Error crítico en el servidor. Por favor, contacta al administrador.",
             detalle=str(e),
         )
+
+@admin_debug_master_bp.route("/admin/debug/blueprints", methods=["GET"])
+def debug_blueprints():
+    """
+    Endpoint para validar los blueprints registrados en la aplicación.
+    """
+    resultados = validar_blueprints(current_app, "clientes/aura/routes")
+    return jsonify(resultados)
+
+@admin_debug_master_bp.route("/admin/debug/rutas_dinamicas/<robot_nombre>", methods=["GET"])
+def debug_rutas_dinamicas(robot_nombre):
+    """
+    Endpoint para validar rutas dinámicas relacionadas con un robot específico.
+    """
+    resultados = validar_rutas_dinamicas(robot_nombre)
+    return jsonify(resultados)

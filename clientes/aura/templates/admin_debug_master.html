@@ -165,6 +165,33 @@
                 <pre>{{ resultado_ai }}</pre>
             </div>
         {% endif %}
+
+        <!-- Validar Rutas Dinámicas -->
+        <h3>Validar Rutas Dinámicas</h3>
+        <input type="text" id="robot-nombre" placeholder="Nombre del robot">
+        <button onclick="validarRutasDinamicas()">Validar Rutas</button>
+
+        <div id="resultado-rutas"></div>
+
+        <script>
+            function validarRutasDinamicas() {
+                const robotNombre = document.getElementById("robot-nombre").value;
+                if (!robotNombre) {
+                    alert("Por favor, ingresa el nombre del robot.");
+                    return;
+                }
+
+                fetch(`/admin/debug/rutas_dinamicas/${robotNombre}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const resultadoDiv = document.getElementById("resultado-rutas");
+                        resultadoDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    })
+                    .catch(error => {
+                        console.error("Error al validar rutas dinámicas:", error);
+                    });
+            }
+        </script>
     </div>
 </body>
 </html>
