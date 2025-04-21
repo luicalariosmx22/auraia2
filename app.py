@@ -2,6 +2,7 @@ print("🔥 ESTE ES EL APP.PY QUE SE ESTÁ EJECUTANDO")
 
 import os
 import uuid
+import logging  # Importación necesaria para evitar el NameError
 from flask import Flask, session, redirect, url_for, request
 from flask_session import Session
 from datetime import datetime
