@@ -5,59 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Debug Master</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #333; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            background: #ecf0f1;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        pre {
+            background: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .form-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #dff9fb;
+            border: 1px solid #7ed6df;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
-    <h1>Admin Debug Master</h1>
+    <div class="container">
+        <h1>Admin Debug Master</h1>
 
-    <h2>🔍 Rutas HTML y Flask</h2>
-    <h3>Rutas en HTML:</h3>
-    <ul>
-        {% for ruta in rutas_html %}
-            <li>{{ ruta }}</li>
-        {% endfor %}
-    </ul>
+        <h2>🔍 Rutas HTML y Flask</h2>
+        <h3>Rutas en HTML:</h3>
+        <ul>
+            {% for ruta in rutas_html %}
+                <li>{{ ruta }}</li>
+            {% endfor %}
+        </ul>
 
-    <h3>Rutas en Flask:</h3>
-    <ul>
-        {% for ruta in rutas_flask %}
-            <li>{{ ruta }}</li>
-        {% endfor %}
-    </ul>
+        <h3>Rutas en Flask:</h3>
+        <ul>
+            {% for ruta in rutas_flask %}
+                <li>{{ ruta }}</li>
+            {% endfor %}
+        </ul>
 
-    <h3>Rutas no definidas:</h3>
-    <ul>
-        {% for ruta in rutas_no_definidas %}
-            <li>{{ ruta }}</li>
-        {% endfor %}
-    </ul>
+        <h3>Rutas no definidas:</h3>
+        <ul>
+            {% for ruta in rutas_no_definidas %}
+                <li>{{ ruta }}</li>
+            {% endfor %}
+        </ul>
 
-    <h2>🛠️ Verificaciones del Sistema</h2>
-    <pre>{{ sistema_logs }}</pre>
+        <h2>🛠️ Verificaciones del Sistema</h2>
+        <pre>{{ sistema_logs }}</pre>
 
-    <h2>🗃️ Verificaciones de Supabase</h2>
-    <pre>{{ supabase_logs }}</pre>
+        <h2>🗃️ Verificaciones de Supabase</h2>
+        <pre>{{ supabase_logs }}</pre>
 
-    <h2>📋 Rutas Registradas en Flask</h2>
-    <div>
-        {{ rutas_registradas_html|safe }}
+        <h2>📋 Rutas Registradas en Flask</h2>
+        <div>
+            {{ rutas_registradas_html|safe }}
+        </div>
+
+        <h2>🤖 OpenAI Debug Helper</h2>
+        <div class="form-container">
+            <form method="POST" action="/admin/debug/master">
+                <label for="error">Describe el error recibido:</label><br>
+                <textarea id="error" name="error" rows="4" placeholder="Escribe aquí el error...">{{ error_usuario }}</textarea><br><br>
+                <button type="submit">Analizar Error</button>
+            </form>
+        </div>
+
+        {% if resultado_ai %}
+            <div class="result-container">
+                <h3>Resultado de OpenAI:</h3>
+                <pre>{{ resultado_ai }}</pre>
+            </div>
+        {% endif %}
     </div>
-
-    <h2>🤖 OpenAI Debug Helper</h2>
-    <form method="POST" action="/admin/debug/master">
-        <label for="error">Describe el error recibido:</label><br>
-        <textarea id="error" name="error" rows="4" cols="50">{{ error_usuario }}</textarea><br><br>
-        <button type="submit">Analizar Error</button>
-    </form>
-    {% if resultado_ai %}
-        <h3>Resultado de OpenAI:</h3>
-        <pre>{{ resultado_ai }}</pre>
-    {% endif %}
 </body>
 </html>
