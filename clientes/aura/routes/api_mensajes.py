@@ -59,11 +59,12 @@ def enviar_mensaje_api():
         # ✅ Enviar mensaje de texto
         if mensaje:
             guardar_en_historial(
-                numero,
-                mensaje,
+                telefono=numero,
+                mensaje=mensaje,
+                origen=os.getenv("TWILIO_PHONE_NUMBER", "5210000000000"),
+                nombre_nora=nombre_nora,  # Puedes hacerlo dinámico si es necesario
                 tipo="enviado",
-                nombre=nombre_display,
-                nombre_nora=nombre_nora
+                nombre=nombre_display
             )
             enviar_mensaje_por_twilio(numero, mensaje)
             print(f"✅ Mensaje enviado a {numero}: {mensaje}")
@@ -82,11 +83,12 @@ def enviar_mensaje_api():
 
             texto_archivo = f"[Archivo adjunto: {nombre_archivo}]"
             guardar_en_historial(
-                numero,
-                texto_archivo,
+                telefono=numero,
+                mensaje=texto_archivo,
+                origen=os.getenv("TWILIO_PHONE_NUMBER", "5210000000000"),
+                nombre_nora=nombre_nora,  # Puedes hacerlo dinámico si es necesario
                 tipo="enviado",
-                nombre=nombre_display,
-                nombre_nora=nombre_nora
+                nombre=nombre_display
             )
 
             print(f"📎 Archivo guardado para {numero}: {nombre_archivo}")
