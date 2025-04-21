@@ -23,7 +23,8 @@ def obtener_config_nora(nombre_nora):
     Obtiene la configuración de Nora. Si es la Nora base ('nora'), devuelve una configuración predeterminada.
     Para otras Noras, consulta la tabla 'configuracion_bot' en Supabase.
     """
-    nombre_nora = nombre_nora.lower()  # Normalizar a minúsculas
+    # Normalizar el nombre de Nora a minúsculas
+    nombre_nora = nombre_nora.lower()
 
     if nombre_nora == "nora":
         # Configuración predeterminada para la Nora base
@@ -74,6 +75,14 @@ def procesar_mensaje(data):
         mensaje_usuario,
         "recibido",
         nombre_nora
+    )
+
+    # Consultar la base de conocimiento en Supabase
+    response = (
+        supabase.table("base_conocimiento")
+        .select("contenido")
+        .eq("nombre_nora", nombre_nora)
+        .execute()
     )
 
     # Buscar conocimiento en la base de datos
