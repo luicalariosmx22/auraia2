@@ -5,7 +5,7 @@ import uuid
 panel_conocimiento_bp = Blueprint("panel_conocimiento", __name__)
 
 # Ruta para mostrar el panel de conocimiento
-@panel_conocimiento_bp.route("/admin/nora/<nombre_nora>/conocimiento")
+@panel_conocimiento_bp.route("/nora/<nombre_nora>/conocimiento")
 def panel_conocimiento(nombre_nora):
     try:
         registros = supabase.table("base_conocimiento").select("*").eq("nombre_nora", nombre_nora).order("tema").execute().data
@@ -13,10 +13,10 @@ def panel_conocimiento(nombre_nora):
     except Exception as e:
         print(f"❌ Error al cargar el conocimiento: {e}")
         flash("❌ Error al cargar el conocimiento", "error")
-        return redirect(url_for("admin_nora.mostrar_lista"))
+        return redirect(url_for("nora.mostrar_lista"))
 
 # Ruta para agregar nuevo conocimiento
-@panel_conocimiento_bp.route("/admin/nora/<nombre_nora>/conocimiento/agregar", methods=["POST"])
+@panel_conocimiento_bp.route("/nora/<nombre_nora>/conocimiento/agregar", methods=["POST"])
 def agregar_conocimiento(nombre_nora):
     try:
         tema = request.form.get("tema")
@@ -44,7 +44,7 @@ def agregar_conocimiento(nombre_nora):
     return redirect(url_for("panel_conocimiento.panel_conocimiento", nombre_nora=nombre_nora))
 
 # Ruta para eliminar conocimiento
-@panel_conocimiento_bp.route("/admin/nora/<nombre_nora>/conocimiento/eliminar/<id>", methods=["POST"])
+@panel_conocimiento_bp.route("/nora/<nombre_nora>/conocimiento/eliminar/<id>", methods=["POST"])
 def eliminar_conocimiento(nombre_nora, id):
     try:
         supabase.table("base_conocimiento").delete().eq("id", id).execute()
@@ -55,7 +55,7 @@ def eliminar_conocimiento(nombre_nora, id):
     return redirect(url_for("panel_conocimiento.panel_conocimiento", nombre_nora=nombre_nora))
 
 # Ruta para mostrar el formulario de edición
-@panel_conocimiento_bp.route("/admin/nora/<nombre_nora>/conocimiento/editar/<id>")
+@panel_conocimiento_bp.route("/nora/<nombre_nora>/conocimiento/editar/<id>")
 def editar_conocimiento(nombre_nora, id):
     try:
         registro = supabase.table("base_conocimiento").select("*").eq("id", id).single().execute().data
@@ -69,7 +69,7 @@ def editar_conocimiento(nombre_nora, id):
         return redirect(url_for("panel_conocimiento.panel_conocimiento", nombre_nora=nombre_nora))
 
 # Ruta para actualizar conocimiento
-@panel_conocimiento_bp.route("/admin/nora/<nombre_nora>/conocimiento/editar/<id>", methods=["POST"])
+@panel_conocimiento_bp.route("/nora/<nombre_nora>/conocimiento/editar/<id>", methods=["POST"])
 def actualizar_conocimiento(nombre_nora, id):
     try:
         datos = {
