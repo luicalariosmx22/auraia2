@@ -49,6 +49,7 @@ from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp
 from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
 from clientes.aura.routes.admin_noras import admin_noras_bp
 from clientes.aura.routes.admin_debug_master import admin_debug_master_bp
+from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 
 # Registro base
 registrar_blueprints_login(app)
@@ -84,6 +85,17 @@ if "panel_cliente_envios" not in app.blueprints:
 
 if "admin_debug_master" not in app.blueprints:
     app.register_blueprint(admin_debug_master_bp, url_prefix="/admin/debug")
+
+# 🔁 Registro dinámico de todas las Noras desde Supabase
+try:
+    response = supabase.table("configuracion_bot").select("nombre_nora").execute()
+    nombre_noras = [n["nombre_nora"] for n in response.data] if response.data else []
+
+    print(f"🔁 Registrando dinámicamente las siguientes Noras: {nombre_noras}")
+    for nombre in nombre_noras:
+        registrar_blueprints_por_nora(app, nombre)
+except Exception as e:
+    print(f"❌ Error al registrar Noras dinámicas: {e}")
 
 # ========= FUNCIONES AUXILIARES =========
 def validar_o_generar_uuid(valor):
