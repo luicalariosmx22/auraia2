@@ -17,6 +17,19 @@ h2 {
   font-size: 1.8rem;
   color: #2c3e50;
   margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Logo de Nora */
+h2::before {
+  content: "";
+  display: inline-block;
+  background: url("../images/logo_nora.png") no-repeat center center;
+  background-size: contain;
+  width: 40px;
+  height: 40px;
 }
 
 /* Meta Card */
@@ -51,12 +64,17 @@ h2 {
 input[type="text"],
 input[type="email"],
 input[type="date"],
+textarea,
 select {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 0.9rem;
+}
+
+textarea {
+  resize: none;
 }
 
 button.btn-neutral {
@@ -91,6 +109,7 @@ button.btn-neutral:hover {
 .tabla-contactos th {
   background: #3498db;
   color: #fff;
+  font-weight: 600;
 }
 
 .tabla-contactos tr:hover {
@@ -102,10 +121,52 @@ button.btn-neutral:hover {
   margin-right: 10px;
 }
 
+/* Botones de acciones */
+button.btn-mini {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button.btn-mini:hover {
+  background-color: #c0392b;
+}
+
+button.btn-mini[title="Editar"] {
+  background-color: #f1c40f;
+}
+
+button.btn-mini[title="Editar"]:hover {
+  background-color: #d4ac0d;
+}
+
 /* Select y acciones */
 .form-group select {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 0.9rem;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .form-group {
+    grid-template-columns: 1fr;
+  }
+
+  .tabla-contactos th,
+  .tabla-contactos td {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  button.btn-mini {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
 }
