@@ -50,45 +50,25 @@ def actualizar_contacto(numero_usuario, datos_actualizados):
 
 @whatsapp_bp.route('/webhook', methods=['POST'])
 def webhook():
-    mensaje_usuario = request.form.get('Body', '').strip().lower()
-    numero_usuario = normalizar_numero(request.form.get('From'))
-    nombre_usuario = request.form.get('ProfileName', '')
-    nombre_nora = request.form.get('NombreNora', 'Nora')  # Dinámico: Obtener el nombre de Nora
+    """
+    Webhook para recibir mensajes de WhatsApp y responder utilizando Twilio.
+    """
+    data = request.form.to_dict()
+    mensaje_usuario = data.get('Body', '').strip()
+    numero_usuario = normalizar_numero(data.get('From'))
+    nombre_usuario = data.get('ProfileName', 'Usuario')
+    nombre_nora = data.get('NombreNora', 'Nora').lower()  # Normalizar el nombre de Nora a minúsculas
 
-    respuesta = MessagingResponse()
     print(f"📩 Mensaje recibido: {mensaje_usuario} de {numero_usuario} ({nombre_usuario})")
 
-    contacto = obtener_contacto(numero_usuario)
-    if not contacto:
-        respuesta.message("❌ Error al procesar el mensaje. Inténtalo más tarde.")
-        return str(respuesta)
+    # Procesar el mensaje y generar una respuesta
+    respuesta_texto = procesar_mensaje(data)
 
-    actualizar_contacto(numero_usuario, {
-        "ultimo_mensaje": datetime.now().isoformat(),
-        "cantidad_mensajes": contacto.get("cantidad_mensajes", 0) + 1
-    })
+    # Crear la respuesta de Twilio
+    twilio_resp = MessagingResponse()
+    twilio_resp.message(respuesta_texto)
 
-    if not contacto.get("ia_activada", True):
-        respuesta.message("La IA está desactivada. ¿En qué puedo ayudarte de manera manual?")
-        guardar_en_historial(numero_usuario, mensaje_usuario, tipo="recibido", nombre=nombre_usuario, ia_activada=False)
-        guardar_en_historial(numero_usuario, "La IA está desactivada. ¿En qué puedo ayudarte de manera manual?", tipo="enviado", nombre=nombre_nora, ia_activada=False)
-        return str(respuesta)
-
-    # Buscar conocimiento en la base de datos
-    respuesta_conocimiento = buscar_conocimiento(nombre_nora, mensaje_usuario)
-    if respuesta_conocimiento:
-        respuesta.message(respuesta_conocimiento)
-        guardar_en_historial(numero_usuario, mensaje_usuario, tipo="recibido", nombre=nombre_usuario, ia_activada=True)
-        guardar_en_historial(numero_usuario, respuesta_conocimiento, tipo="enviado", nombre=nombre_nora, ia_activada=True)
-        return str(respuesta)
-
-    # Si no se encuentra conocimiento, usar IA
-    respuesta_ia = manejar_respuesta_ai(mensaje_usuario)
-    respuesta.message(respuesta_ia)
-    guardar_en_historial(numero_usuario, mensaje_usuario, tipo="recibido", nombre=nombre_usuario, ia_activada=True)
-    guardar_en_historial(numero_usuario, respuesta_ia, tipo="enviado", nombre=nombre_nora, ia_activada=True)
-
-    return str(respuesta)
+    return str(twilio_resp), 200
 
 @whatsapp_bp.route('/enviar', methods=['POST'])
 def enviar_mensaje():
