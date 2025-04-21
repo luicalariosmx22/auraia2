@@ -6,8 +6,11 @@ def registrar_blueprints_admin(app):
 
         # 📋 Panel general con lista de Noras
         from clientes.aura.routes.admin_noras import admin_noras_bp
-        app.register_blueprint(admin_noras_bp)  # /admin
-        print("✅ Blueprint 'admin_noras_bp' registrado correctamente.")
+        if "admin_noras" not in app.blueprints:
+            app.register_blueprint(admin_noras_bp)
+            print("✅ Blueprint 'admin_noras_bp' registrado correctamente.")
+        else:
+            print("⚠️ Blueprint 'admin_noras_bp' ya estaba registrado.")
 
         # 📊 Dashboard por Nora (IA, contactos, respuestas, tickets)
         from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp

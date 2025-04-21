@@ -59,9 +59,6 @@ registrar_blueprints_debug(app)
 # Registrar el Blueprint admin_verificador_bp
 app.register_blueprint(admin_verificador_bp)
 
-# Registrar el Blueprint admin_noras_bp
-app.register_blueprint(admin_noras_bp)
-
 # Rutas globales que no dependen de la sesión
 if "panel_chat" not in app.blueprints:
     app.register_blueprint(panel_chat_bp)
