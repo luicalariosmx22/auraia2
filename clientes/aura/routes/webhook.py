@@ -51,20 +51,22 @@ def webhook():
 
             # 📥 Historial del mensaje recibido
             guardar_en_historial(
-                telefono_usuario,
-                mensaje_usuario,
+                telefono=telefono_usuario,
+                mensaje=mensaje_usuario,
+                origen=telefono_usuario,
+                nombre_nora=nombre_nora,
                 tipo="recibido",
-                nombre=telefono_usuario,
-                nombre_nora=nombre_nora
+                nombre=telefono_usuario
             )
 
             # 📤 Historial de la respuesta enviada
             guardar_en_historial(
-                telefono_usuario,
-                respuesta,
+                telefono=telefono_usuario,
+                mensaje=respuesta,
+                origen="Nora",
+                nombre_nora=nombre_nora,
                 tipo="enviado",
-                nombre="Nora",
-                nombre_nora=nombre_nora
+                nombre="Nora"
             )
 
         else:
