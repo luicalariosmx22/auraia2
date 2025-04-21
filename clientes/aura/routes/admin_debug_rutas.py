@@ -39,6 +39,10 @@ def ver_rutas_registradas():
     try:
         response = supabase.table("rutas_registradas").select("*").order("registrado_en", desc=True).execute()
         rutas = response.data if response.data else []
+        try:
+            supabase_logs = run_verificacion()
+        except Exception as e:
+            supabase_logs = f"❌ Error al verificar Supabase: {str(e)}"
         return render_template("admin_debug_rutas.html", rutas=rutas)
     except Exception as e:
         return f"<h3>❌ Error al obtener rutas: {e}</h3>"
