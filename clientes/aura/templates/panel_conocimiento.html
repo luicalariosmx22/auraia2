@@ -5,7 +5,7 @@
   <h2>📚 Base de Conocimiento de Nora: {{ nombre_nora }}</h2>
 
   <!-- Formulario para agregar nuevo conocimiento -->
-  <form method="POST" action="/admin/nora/{{ nombre_nora }}/conocimiento/agregar" class="meta-card">
+  <form method="POST" action="{{ url_for('guardar_conocimiento', nombre_nora=nombre_nora) }}" class="meta-card">
     <h3>➕ Agregar nuevo conocimiento</h3>
     <div class="form-group">
       <input type="text" name="tema" placeholder="Tema (opcional)">
@@ -39,7 +39,7 @@
           <td>{{ r.respuesta[:120] }}{% if r.respuesta|length > 120 %}...{% endif %}</td>
           <td>{{ r.prioridad }}</td>
           <td>
-            <form method="POST" action="/admin/nora/{{ nombre_nora }}/conocimiento/eliminar/{{ r.id }}" onsubmit="return confirm('¿Seguro que deseas eliminar esta entrada?');">
+            <form method="POST" action="{{ url_for('eliminar_conocimiento', nombre_nora=nombre_nora, id=r.id) }}" onsubmit="return confirm('¿Seguro que deseas eliminar esta entrada?');">
               <button class="btn-mini btn-danger" type="submit" title="Eliminar">🗑</button>
             </form>
           </td>
