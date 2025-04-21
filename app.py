@@ -71,7 +71,7 @@ if "webhook" not in app.blueprints:
     app.register_blueprint(webhook_bp)
 
 if "panel_cliente_etiquetas" not in app.blueprints:
-    app.register_blueprint(etiquetas_bp, url_prefix="/panel_cliente")
+    app.register_blueprint(etiquetas_bp, url_prefix="/panel_cliente_etiquetas")
 
 if "panel_cliente" not in app.blueprints:
     app.register_blueprint(panel_cliente_bp, url_prefix="/panel_cliente")
