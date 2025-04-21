@@ -1,0 +1,24 @@
+<h3>🧩 Módulos activos para Nora</h3>
+<div class="form-group">
+  {% set lista_modulos = ['panel_cliente', 'contactos', 'envios', 'etiquetas', 'entrenamiento', 'ia', 'conocimiento'] %}
+  {% for m in lista_modulos %}
+    <label>
+      <input type="checkbox" name="modulos" value="{{ m }}" {% if m in nora.modulos %}checked{% endif %}>
+      {{ m.replace('_', ' ') | capitalize }}
+    </label><br>
+  {% endfor %}
+</div>
+
+<style>
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: #333;
+}
+
+input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+</style>
