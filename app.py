@@ -145,9 +145,9 @@ def registrar_rutas_en_supabase():
         print(f"❌ Error al registrar rutas en Supabase: {str(e)}")
 
 # Validar que las rutas estén correctamente registradas
-print("📋 Rutas registradas en la aplicación:")
+app.logger.info("📋 Rutas registradas en la aplicación:")
 for rule in app.url_map.iter_rules():
-    print(f"Ruta: {rule.rule} - Métodos: {', '.join(rule.methods)} - Endpoint: {rule.endpoint}")
+    app.logger.info(f"Ruta: {rule.rule} - Métodos: {', '.join(rule.methods)} - Endpoint: {rule.endpoint}")
 
 # ========= RUTA INICIAL =========
 @app.route("/")
