@@ -1,75 +1,52 @@
 from clientes.aura.utils.supabase import supabase
 
-def cargar_base_conocimiento(nombre_nora):
+def obtener_base_conocimiento(numero_nora):
     """
-    Carga el contenido de la base de conocimiento para una instancia específica de Nora.
-    Puede venir de un archivo o de Supabase.
-
-    Args:
-        nombre_nora (str): Nombre de la instancia de Nora.
-
-    Returns:
-        str: Contenido de la base de conocimiento como texto plano, o None si no se encuentra.
+    Recupera la base de conocimiento desde la tabla 'configuracion_bot' usando el número de Nora.
     """
     try:
-        respuesta = supabase.table("base_conocimiento") \
-            .select("contenido") \
-            .eq("nombre_nora", nombre_nora) \
+        respuesta = supabase.table("configuracion_bot") \
+            .select("base_conocimiento") \
+            .eq("numero_nora", numero_nora) \
             .single() \
             .execute()
 
         datos = respuesta.data
-        if datos:
-            print(f"✅ [BaseConocimiento] Contenido cargado para Nora '{nombre_nora}'. Longitud: {len(datos['contenido'])} caracteres.")
-            return datos["contenido"]
-
-        print(f"⚠️ [BaseConocimiento] No se encontró contenido para Nora: {nombre_nora}")
-        return None
-
+        if datos and datos.get("base_conocimiento"):
+            print(f"✅ [BaseConocimiento] Cargado para {numero_nora}.")
+            bloques = [b.strip() for b in datos["base_conocimiento"].split("\n\n") if b.strip()]
+            return [{"contenido": b} for b in bloques]
+        else:
+            print(f"⚠️ [BaseConocimiento] No se encontró contenido para Nora: {numero_nora}")
+            return []
     except Exception as e:
-        print(f"❌ [BaseConocimiento] Error al cargar base de conocimiento: {e}")
-        return None
-
+        print(f"❌ [BaseConocimiento] Error al obtener contenido: {e}")
+        return []
 
 def buscar_conocimiento(numero_nora, mensaje_usuario):
     """
-    Construye el prompt para la IA usando la personalidad, instrucciones y base_conocimiento desde Supabase.
-
-    Args:
-        numero_nora (str): Número de la instancia de Nora.
-        mensaje_usuario (str): Mensaje enviado por el usuario.
-
-    Returns:
-        str: Prompt completo para enviar a la IA, o None si no se encuentra configuración.
+    Construye el prompt completo usando personalidad, instrucciones y base de conocimiento.
     """
     try:
-        print(f"📚 Buscando configuración para número_nora: {numero_nora}...")
-        # Traer toda la configuración de esa Nora
-        response = (
-            supabase.table("configuracion_bot")
-            .select("base_conocimiento, personalidad, instrucciones")
-            .eq("numero_nora", numero_nora)
-            .single()
+        print(f"📚 Cargando configuración para Nora con número: {numero_nora}")
+        response = supabase.table("configuracion_bot") \
+            .select("base_conocimiento, personalidad, instrucciones") \
+            .eq("numero_nora", numero_nora) \
+            .single() \
             .execute()
-        )
 
         if not response.data:
             print(f"⚠️ No se encontró configuración para {numero_nora}")
             return None
 
         config = response.data
-        base_conocimiento = config.get("base_conocimiento", "").strip()
         personalidad = config.get("personalidad", "profesional y amigable")
-        instrucciones = config.get("instrucciones", "Responde de forma clara y útil. No inventes.")
+        instrucciones = config.get("instrucciones", "Responde de forma clara y útil.")
+        base_conocimiento = config.get("base_conocimiento", "").strip()
 
         if not base_conocimiento:
             print("⚠️ La base_conocimiento está vacía.")
             return None
-
-        print(f"✅ Configuración cargada para Nora: {numero_nora}")
-        print(f"🧠 Personalidad: {personalidad}")
-        print(f"📋 Instrucciones: {instrucciones}")
-        print(f"📚 Conocimiento base (primeros 150 caracteres): {base_conocimiento[:150]}...")
 
         prompt = f"""
 Eres Nora, una asistente profesional.
@@ -85,9 +62,9 @@ Pregunta del usuario:
 
 Respuesta:"""
 
-        print("✅ Prompt generado para la IA. Listo para enviar.")
+        print("✅ Prompt final generado.")
         return prompt
 
     except Exception as e:
-        print(f"❌ Error al construir el prompt para la IA: {e}")
+        print(f"❌ Error generando el prompt: {e}")
         return None
