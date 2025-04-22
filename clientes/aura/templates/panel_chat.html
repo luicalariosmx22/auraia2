@@ -25,9 +25,19 @@
     <!-- Sidebar de contactos -->
     <div class="sidebar">
       <h2>Contactos</h2>
+      <div class="filtros">
+        <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
+        <select id="filtro-etiqueta" onchange="filtrarContactos()">
+          <option value="">Todas las etiquetas</option>
+          {% for etiqueta in etiquetas_unicas %}
+          <option value="{{ etiqueta }}">{{ etiqueta }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
       <ul id="lista-contactos">
         {% for contacto in contactos %}
-        <li>
+        <li class="contacto-item" data-nombre="{{ contacto.nombre }}" data-etiquetas="{{ contacto.etiquetas | join(',') }}">
           <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
             <div class="info-contacto">
               <!-- Foto del contacto -->
@@ -276,6 +286,26 @@
         }
       });
     }
+
+    function filtrarContactos() {
+      const filtroNombre = document.getElementById("filtro-nombre").value.toLowerCase();
+      const filtroEtiqueta = document.getElementById("filtro-etiqueta").value.toLowerCase();
+      const contactos = document.querySelectorAll(".contacto-item");
+
+      contactos.forEach(contacto => {
+        const nombre = contacto.dataset.nombre.toLowerCase();
+        const etiquetas = contacto.dataset.etiquetas.toLowerCase();
+
+        const coincideNombre = nombre.includes(filtroNombre);
+        const coincideEtiqueta = filtroEtiqueta === "" || etiquetas.includes(filtroEtiqueta);
+
+        if (coincideNombre && coincideEtiqueta) {
+          contacto.style.display = "block";
+        } else {
+          contacto.style.display = "none";
+        }
+      });
+    }
   </script>
 </body>
 </html>
@@ -295,6 +325,7 @@ def panel_chat(nombre_nora):
     # Ordenar contactos por la fecha del último mensaje (descendente)
     contactos_ordenados = sorted(contactos, key=lambda c: c.get("ultimo_mensaje", ""), reverse=True)
 
+    etiquetas_unicas = set()
     lista = []
     for c in contactos_ordenados:
         mensajes = leer_historial(c["telefono"])
@@ -309,6 +340,7 @@ def panel_chat(nombre_nora):
             "etiquetas": c.get("etiquetas", []),
             "imagen_perfil": c.get("imagen_perfil", None)
         })
+        etiquetas_unicas.update(c.get("etiquetas", []))
 
     print(f"✅ Panel de chat renderizado para {len(contactos)} contactos.")
-    return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
+    return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora, etiquetas_unicas=sorted(etiquetas_unicas))

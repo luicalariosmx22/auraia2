@@ -146,8 +146,25 @@ def panel_chat(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     contactos = leer_contactos()
+
+    # Convertir 'ultimo_mensaje' a datetime para ordenarlo correctamente
+    for contacto in contactos:
+        if contacto.get("ultimo_mensaje"):
+            try:
+                contacto["ultimo_mensaje"] = datetime.datetime.fromisoformat(contacto["ultimo_mensaje"])
+            except ValueError:
+                contacto["ultimo_mensaje"] = None
+
+    # Ordenar contactos por la fecha del último mensaje (descendente)
+    contactos_ordenados = sorted(contactos, key=lambda c: c.get("ultimo_mensaje") or datetime.datetime.min, reverse=True)
+
+    # Extraer etiquetas únicas
+    etiquetas_unicas = set()
+    for contacto in contactos_ordenados:
+        etiquetas_unicas.update(contacto.get("etiquetas", []))
+
     lista = []
-    for c in contactos:
+    for c in contactos_ordenados:
         mensajes = leer_historial(c["telefono"])
         for mensaje in mensajes:
             if "fecha" in mensaje and isinstance(mensaje["fecha"], datetime.datetime):
@@ -162,7 +179,7 @@ def panel_chat(nombre_nora):
         })
 
     print(f"✅ Panel de chat renderizado para {len(contactos)} contactos.")
-    return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
+    return render_template("panel_chat.html", contactos=lista, etiquetas_unicas=etiquetas_unicas, nombre_nora=nombre_nora)
 
 @panel_chat_bp.route("/api/chat/<telefono>")
 def api_chat(telefono):
