@@ -51,13 +51,8 @@ def webhook():
             print(f"🎯 Detectado nombre_nora automáticamente: {nombre_nora_detectado}")
             data["NombreNora"] = nombre_nora_detectado  # ✅ Sobrescribir en data
         else:
-            # 🚨 Registro adicional para depuración
             print(f"⚠️ No se encontró configuración para el número: {numero_nora}")
-            print("🔍 Verifica si el número está registrado correctamente en la tabla 'configuracion_bot'.")
-            print("🔍 Datos recibidos:", data)
-
-            # Lanzar una excepción si el número no está configurado
-            raise ValueError(f"El número {numero_nora} no está configurado en la base de datos.")
+            return {"error": f"El número {numero_nora} no está configurado en la base de datos."}, 400
 
         print(f"🎯 NombreNora validado: '{data['NombreNora']}'")
 
@@ -65,10 +60,10 @@ def webhook():
         telefono_usuario = normalizar_numero(data.get("From", ""))
         if not telefono_usuario:
             print("❌ Número de teléfono no válido.")
-            return "Número de teléfono no válido", 400
+            return {"error": "Número de teléfono no válido"}, 400
 
-        nombre_emisor = data.get("ProfileName", None)  # Capturar el nombre del perfil
-        imagen_perfil = data.get("ProfilePicUrl", None)  # Capturar la URL de la imagen de perfil
+        nombre_emisor = data.get("ProfileName", None)
+        imagen_perfil = data.get("ProfilePicUrl", None)
         mensaje_usuario = data.get("Body", "")
         nombre_nora = data["NombreNora"]
 
@@ -77,33 +72,31 @@ def webhook():
         contacto_existente = response.data[0] if response.data else None
 
         if contacto_existente:
-            # 🛠️ Actualizar contacto existente
             print(f"🔄 Actualizando contacto existente: {telefono_usuario}")
             supabase.table("contactos").update({
-                "nombre": nombre_emisor or contacto_existente["nombre"],  # Reemplazar nombre si ProfileName está disponible
-                "imagen_perfil": imagen_perfil or contacto_existente.get("imagen_perfil"),  # Actualizar imagen si está disponible
-                "ultimo_mensaje": datetime.now().isoformat(),  # Actualizar fecha del último mensaje
-                "mensaje_reciente": mensaje_usuario  # Guardar el último mensaje recibido
+                "nombre": nombre_emisor or contacto_existente["nombre"],
+                "imagen_perfil": imagen_perfil or contacto_existente.get("imagen_perfil"),
+                "ultimo_mensaje": datetime.now().isoformat(),
+                "mensaje_reciente": mensaje_usuario
             }).eq("telefono", telefono_usuario).execute()
         else:
-            # 🆕 Guardar el contacto si no existe
             print(f"🆕 Guardando nuevo contacto: {telefono_usuario}")
             supabase.table("contactos").insert({
                 "telefono": telefono_usuario,
-                "nombre": nombre_emisor or f"Usuario {telefono_usuario[-4:]}",  # Nombre del perfil o genérico
-                "imagen_perfil": imagen_perfil,  # Guardar la URL de la imagen de perfil
+                "nombre": nombre_emisor or f"Usuario {telefono_usuario[-4:]}",
+                "imagen_perfil": imagen_perfil,
                 "primer_mensaje": datetime.now().isoformat(),
                 "ultimo_mensaje": datetime.now().isoformat(),
-                "mensaje_reciente": mensaje_usuario,  # Guardar el último mensaje recibido
+                "mensaje_reciente": mensaje_usuario,
                 "nombre_nora": nombre_nora,
-                "etiquetas": ["nuevo"]  # Etiqueta inicial para nuevos contactos
+                "etiquetas": ["nuevo"]
             }).execute()
 
         # 🧠 Procesar el mensaje
         respuesta = procesar_mensaje(data)
         if not respuesta:
             print("🟡 No se generó una respuesta. Posiblemente sin IA o sin conocimiento.")
-            return "No se pudo generar una respuesta", 200
+            return {"message": "No se pudo generar una respuesta"}, 200
 
         # ✅ Guardar historial manualmente si hay respuesta
         print(f"✅ Respuesta enviada: {respuesta}")
@@ -127,8 +120,8 @@ def webhook():
             }
         ])
 
-        return respuesta or "", 200
+        return {"message": respuesta}, 200
 
     except Exception as e:
         print(f"❌ Error en webhook: {e}")
-        return "Error interno", 500
+        return {"error": "Error interno"}, 500
