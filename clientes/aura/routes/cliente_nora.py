@@ -1,0 +1,64 @@
+print("✅ cliente_nora.py cargado correctamente")
+
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from supabase import create_client
+from dotenv import load_dotenv
+import os
+
+# Configurar Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+cliente_nora_bp = Blueprint("cliente_nora", __name__)
+
+# Ruta para mostrar la página de configuración del cliente
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/configuracion", methods=["GET", "POST"])
+def configuracion_cliente(nombre_nora):
+    try:
+        # Cargar configuración desde Supabase
+        response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
+        if not response.data:
+            return f"❌ No se encontró la configuración para {nombre_nora}", 404
+        config = response.data[0]
+    except Exception as e:
+        print(f"❌ Error al cargar configuración: {str(e)}")
+        return f"❌ Error al cargar configuración para {nombre_nora}", 500
+
+    if request.method == "POST":
+        # Obtener datos del formulario
+        nombre_visible = request.form.get("nombre_visible", "").strip()
+        respuestas_rapidas = request.form.get("respuestas_rapidas", "").strip()
+        informacion_empresa = request.form.get("informacion_empresa", "").strip()
+        bienvenida = request.form.get("bienvenida", "").strip()
+
+        # Actualizar configuración en Supabase
+        try:
+            config["nombre_visible"] = nombre_visible
+            config["respuestas_rapidas"] = respuestas_rapidas.split(",")  # Convertir a lista
+            config["informacion_empresa"] = informacion_empresa
+            config["bienvenida"] = bienvenida
+            response = supabase.table("configuracion_bot").update(config).eq("nombre_nora", nombre_nora).execute()
+            if not response.data:
+                flash("❌ Error al actualizar configuración", "error")
+                return redirect(request.url)
+        except Exception as e:
+            print(f"❌ Error al actualizar configuración: {str(e)}")
+            flash("❌ Error al actualizar configuración", "error")
+            return redirect(request.url)
+
+        print(f"✅ Configuración de cliente '{nombre_nora}' actualizada:")
+        print(f"    ➤ Nombre visible: {nombre_visible}")
+        print(f"    ➤ Respuestas rápidas: {respuestas_rapidas}")
+        print(f"    ➤ Información de la empresa: {informacion_empresa}")
+        print(f"    ➤ Bienvenida: {bienvenida}")
+
+        flash("✅ Configuración actualizada correctamente", "success")
+        return redirect(url_for("cliente_nora.configuracion_cliente", nombre_nora=nombre_nora))
+
+    return render_template(
+        "cliente_configuracion.html",
+        nombre_nora=nombre_nora,
+        config=config
+    )

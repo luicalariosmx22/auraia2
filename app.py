@@ -49,6 +49,8 @@ from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
 from clientes.aura.routes.admin_noras import admin_noras_bp
 from clientes.aura.routes.admin_debug_master import admin_debug_master_bp
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+from clientes.aura.routes.admin_nora import admin_nora_bp
+from clientes.aura.routes.cliente_nora import cliente_nora_bp
 
 # Registro base
 registrar_blueprints_login(app)
@@ -56,33 +58,24 @@ registrar_blueprints_base(app)
 registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
 
-# Registrar el Blueprint admin_verificador_bp
-app.register_blueprint(admin_verificador_bp)
+# Registro de blueprints estáticos
+blueprints_estaticos = [
+    (admin_verificador_bp, None),
+    (panel_chat_bp, None),
+    (admin_nora_dashboard_bp, None),
+    (webhook_bp, None),
+    (etiquetas_bp, "/panel_cliente_etiquetas"),
+    (panel_cliente_bp, "/panel_cliente"),
+    (panel_cliente_contactos_bp, "/panel_cliente/contactos"),
+    (panel_cliente_envios_bp, "/panel_cliente/envios"),
+    (admin_debug_master_bp, "/admin/debug"),
+    (admin_nora_bp, "/admin/nora"),
+    (cliente_nora_bp, "/panel_cliente")
+]
 
-# Rutas globales que no dependen de la sesión
-if "panel_chat" not in app.blueprints:
-    app.register_blueprint(panel_chat_bp)
-
-if "admin_nora_dashboard" not in app.blueprints:
-    app.register_blueprint(admin_nora_dashboard_bp)
-
-if "webhook" not in app.blueprints:
-    app.register_blueprint(webhook_bp)
-
-if "panel_cliente_etiquetas" not in app.blueprints:
-    app.register_blueprint(etiquetas_bp, url_prefix="/panel_cliente_etiquetas")
-
-if "panel_cliente" not in app.blueprints:
-    app.register_blueprint(panel_cliente_bp, url_prefix="/panel_cliente")
-
-if "panel_cliente_contactos" not in app.blueprints:
-    app.register_blueprint(panel_cliente_contactos_bp, url_prefix="/panel_cliente/contactos")
-
-if "panel_cliente_envios" not in app.blueprints:
-    app.register_blueprint(panel_cliente_envios_bp, url_prefix="/panel_cliente/envios")
-
-if "admin_debug_master" not in app.blueprints:
-    app.register_blueprint(admin_debug_master_bp, url_prefix="/admin/debug")
+for blueprint, prefix in blueprints_estaticos:
+    if blueprint.name not in app.blueprints:
+        app.register_blueprint(blueprint, url_prefix=prefix)
 
 # 🔁 Registro dinámico de todas las Noras desde Supabase
 try:
@@ -138,7 +131,7 @@ def home():
     if session.get("is_admin"):
         return redirect(url_for("admin_dashboard.dashboard_admin"))
     else:
-        return redirect(url_for("panel_cliente.panel_cliente", nombre_nora=session.get("nombre_nora", "aura")))
+        return redirect(url_for("panel_cliente.configuracion_cliente", nombre_nora=session.get("nombre_nora", "aura")))
 
 @app.route("/logout")
 def logout():

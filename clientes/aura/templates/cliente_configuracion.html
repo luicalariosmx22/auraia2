@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuración de Nora</title>
+</head>
+<body>
+    <header>
+        <h1>⚙️ Configuración de Nora: {{ nombre_nora }}</h1>
+    </header>
+    <main>
+        <form method="POST">
+            <!-- Nombre visible -->
+            <div>
+                <label for="nombre_visible">Nombre visible:</label>
+                <input type="text" id="nombre_visible" name="nombre_visible" value="{{ config.nombre_visible }}" required>
+            </div>
+
+            <!-- Respuestas rápidas -->
+            <div>
+                <label for="respuestas_rapidas">Respuestas rápidas (separadas por comas):</label>
+                <textarea id="respuestas_rapidas" name="respuestas_rapidas" rows="3">{{ config.respuestas_rapidas | join(', ') }}</textarea>
+            </div>
+
+            <!-- Información de la empresa -->
+            <div>
+                <label for="informacion_empresa">Información de la empresa:</label>
+                <textarea id="informacion_empresa" name="informacion_empresa" rows="3">{{ config.informacion_empresa }}</textarea>
+            </div>
+
+            <!-- Bienvenida -->
+            <div>
+                <label for="bienvenida">Mensaje de bienvenida:</label>
+                <textarea id="bienvenida" name="bienvenida" rows="3">{{ config.bienvenida }}</textarea>
+            </div>
+
+            <button type="submit">Guardar cambios</button>
+        </form>
+    </main>
+</body>
+</html>
