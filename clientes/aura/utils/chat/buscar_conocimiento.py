@@ -1,23 +1,25 @@
 from clientes.aura.utils.supabase import supabase
 
 def obtener_base_conocimiento(numero_nora):
+    """
+    Recupera la base de conocimiento en bloques desde la tabla 'conocimiento_nora'.
+    """
     try:
-        respuesta = supabase.table("configuracion_bot") \
-            .select("base_conocimiento") \
+        # Consulta a la tabla 'conocimiento_nora' para obtener los bloques de conocimiento
+        response = supabase.table("conocimiento_nora") \
+            .select("contenido") \
             .eq("numero_nora", numero_nora) \
-            .single() \
-            .execute()  # ✅ CORREGIDO
+            .order("creado_en", desc=False) \
+            .execute()
 
-        datos = respuesta.data
-        if datos and datos.get("base_conocimiento"):
-            print(f"✅ [BaseConocimiento] Cargado para {numero_nora}.")
-            bloques = [b.strip() for b in datos["base_conocimiento"].split("\n\n") if b.strip()]
-            return [{"contenido": b} for b in bloques]
-        else:
-            print(f"⚠️ [BaseConocimiento] No se encontró contenido para Nora: {numero_nora}")
-            return []
+        # Procesar los datos obtenidos
+        data = response.data or []
+        print(f"📚 {len(data)} bloques encontrados para {numero_nora}")
+        return [{"contenido": row["contenido"]} for row in data]
+
     except Exception as e:
-        print(f"❌ [BaseConocimiento] Error al obtener contenido: {e}")
+        # Manejo de errores
+        print(f"❌ [BaseConocimiento] Error al obtener contenido por bloques: {e}")
         return []
 
 def buscar_conocimiento(numero_nora, mensaje_usuario):

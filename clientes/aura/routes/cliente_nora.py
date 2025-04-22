@@ -99,14 +99,37 @@ def instrucciones(nombre_nora):
         flash("❌ Error al actualizar instrucciones", "error")
     return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
 
-# Ruta para manejar el conocimiento
+# Ruta para manejar el conocimiento (ahora en tabla conocimiento_nora)
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento", methods=["POST"])
 def guardar_conocimiento(nombre_nora):
     try:
+        # Obtener el contenido del conocimiento desde el formulario
         conocimiento = request.form.get("base_conocimiento", "").strip()
-        supabase.table("configuracion_bot").update({"base_conocimiento": conocimiento}).eq("nombre_nora", nombre_nora).execute()
+
+        # Buscar el número asociado a esa Nora
+        config_res = supabase.table("configuracion_bot").select("numero_nora").eq("nombre_nora", nombre_nora).single().execute()
+        if not config_res.data:
+            flash("❌ No se encontró el número de Nora para guardar conocimiento", "error")
+            return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
+
+        numero_nora = config_res.data["numero_nora"]
+
+        # Eliminar bloques anteriores de la tabla 'conocimiento_nora'
+        supabase.table("conocimiento_nora").delete().eq("numero_nora", numero_nora).execute()
+
+        # Dividir el nuevo contenido en bloques por párrafo
+        bloques = [b.strip() for b in conocimiento.split("\n\n") if b.strip()]
+        inserts = [{"numero_nora": numero_nora, "contenido": bloque} for bloque in bloques]
+
+        # Insertar nuevos bloques en la tabla 'conocimiento_nora'
+        if inserts:
+            supabase.table("conocimiento_nora").insert(inserts).execute()
+
         flash("✅ Conocimiento actualizado correctamente", "success")
     except Exception as e:
+        # Manejo de errores
         print(f"❌ Error al actualizar conocimiento: {str(e)}")
         flash("❌ Error al actualizar conocimiento", "error")
+
+    # Redirigir al panel de entrenamiento
     return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
