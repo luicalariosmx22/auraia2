@@ -134,9 +134,9 @@
               const burbuja = document.createElement("div");
               burbuja.className = m.emisor === "nora" ? "mensaje nora" : "mensaje cliente";
               burbuja.innerHTML = `
-                <div class="remitente">{{ m.emisor === "nora" ? "Nora" : data.contacto.nombre }}</div>
-                <div class="contenido">{{ m.mensaje }}</div>
-                <div class="hora">{{ m.hora || "" }}</div>
+                <div class="remitente">${m.emisor === "nora" ? "Nora" : data.contacto.nombre}</div>
+                <div class="contenido">${m.mensaje}</div>
+                <div class="hora">${m.hora || ""}</div>
               `;
               contenedor.appendChild(burbuja);
             });
