@@ -9,7 +9,7 @@ def obtener_base_conocimiento(numero_nora):
             .select("base_conocimiento") \
             .eq("numero_nora", numero_nora) \
             .single() \
-            .execute()
+            .execute(postgrest_options={"method": "POST"})  # ✅ Solución 414
 
         datos = respuesta.data
         if datos and datos.get("base_conocimiento"):
@@ -33,7 +33,7 @@ def buscar_conocimiento(numero_nora, mensaje_usuario):
             .select("base_conocimiento, personalidad, instrucciones") \
             .eq("numero_nora", numero_nora) \
             .single() \
-            .execute()
+            .execute(postgrest_options={"method": "POST"})  # ✅ Solución 414
 
         if not response.data:
             print(f"⚠️ No se encontró configuración para {numero_nora}")
