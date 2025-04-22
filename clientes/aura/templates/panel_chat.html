@@ -54,6 +54,23 @@
     </div>
   </div>
 
+  <!-- Detalle del contacto -->
+  <div class="contacto-detalle">
+    <div class="detalle-header">
+      <h3>Detalles del Contacto</h3>
+      <button onclick="cerrarDetalle()">✖</button>
+    </div>
+
+    <div class="detalle-seccion">
+      <label for="etiquetas-container">Etiquetas</label>
+      <div id="etiquetas-container" class="etiquetas">
+        <!-- Las etiquetas existentes se insertarán aquí dinámicamente -->
+      </div>
+      <input type="text" id="nueva-etiqueta" placeholder="Agregar nueva etiqueta" />
+      <button onclick="agregarEtiqueta()">Agregar</button>
+    </div>
+  </div>
+
   <!-- Sonido de notificación -->
   <audio id="notifSound" src="{{ url_for('static', filename='sounds/notificacion.mp3') }}" preload="auto"></audio>
 
@@ -73,19 +90,24 @@
       fetch(`/api/chat/${telefono}`)
         .then(res => res.json())
         .then(data => {
-          const contenedor = document.getElementById("chat-contenido");
-          const nombre = document.getElementById("nombre-contacto");
-          nombre.innerText = data.contacto.nombre || data.contacto.telefono;
+          if (data.success) {
+            contactoActivo = data.contacto; // Guardar el contacto activo
+            cargarEtiquetas(data.contacto); // ⬅️ Pasar el contacto a cargarEtiquetas
+            // …y cargar mensajes, etc.
+            const contenedor = document.getElementById("chat-contenido");
+            const nombre = document.getElementById("nombre-contacto");
+            nombre.innerText = data.contacto.nombre || data.contacto.telefono;
 
-          contenedor.innerHTML = "";
-          data.mensajes.forEach(m => {
-            const burbuja = document.createElement("div");
-            burbuja.className = m.emisor === "nora" ? "mensaje nora" : "mensaje usuario";
-            burbuja.innerHTML = `<span>${m.mensaje}</span><span class="hora">${m.hora || ""}</span>`;
-            contenedor.appendChild(burbuja);
-          });
+            contenedor.innerHTML = "";
+            data.mensajes.forEach(m => {
+              const burbuja = document.createElement("div");
+              burbuja.className = m.emisor === "nora" ? "mensaje nora" : "mensaje usuario";
+              burbuja.innerHTML = `<span>${m.mensaje}</span><span class="hora">${m.hora || ""}</span>`;
+              contenedor.appendChild(burbuja);
+            });
 
-          scrollAlFinal();
+            scrollAlFinal();
+          }
         });
     }
 
@@ -124,6 +146,112 @@
       }).then(() => {
         input.value = "";
         abrirChat(telefonoChatAbierto);
+      });
+    }
+
+    let contactoActivo = null;
+
+    function cargarEtiquetas(contacto) {
+      contactoActivo = contacto;
+      const etiquetas = contacto.etiquetas || [];
+      const container = document.getElementById("etiquetas-container");
+      container.innerHTML = ""; // Limpiar
+
+      etiquetas.forEach(etiqueta => {
+        const span = document.createElement("span");
+        span.className = "etiqueta";
+        span.textContent = etiqueta;
+
+        // Agregar evento de doble clic para editar la etiqueta
+        span.ondblclick = () => editarEtiqueta(span, etiqueta);
+
+        const x = document.createElement("button");
+        x.textContent = "❌";
+        x.className = "eliminar-etiqueta";
+        x.onclick = () => eliminarEtiqueta(etiqueta);
+
+        span.appendChild(x);
+        container.appendChild(span);
+      });
+    }
+
+    function agregarEtiqueta() {
+      const nueva = document.getElementById("nueva-etiqueta").value.trim().toLowerCase();
+      if (!nueva || !contactoActivo) return;
+
+      fetch(`/api/etiqueta/${contactoActivo.telefono}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ etiqueta: nueva })
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          contactoActivo.etiquetas.push(nueva);
+          cargarEtiquetas(contactoActivo);
+          document.getElementById("nueva-etiqueta").value = "";
+        }
+      });
+    }
+
+    function eliminarEtiqueta(etiqueta) {
+      if (!contactoActivo) return;
+
+      fetch(`/api/etiqueta/${contactoActivo.telefono}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ etiqueta })
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          contactoActivo.etiquetas = contactoActivo.etiquetas.filter(e => e !== etiqueta);
+          cargarEtiquetas(contactoActivo);
+        }
+      });
+    }
+
+    function editarEtiqueta(span, etiquetaActual) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = etiquetaActual;
+      input.className = "editar-etiqueta";
+
+      // Reemplazar el contenido del span con el input
+      span.innerHTML = "";
+      span.appendChild(input);
+
+      // Guardar cambios al perder el foco o presionar Enter
+      input.onblur = () => guardarEtiquetaEditada(span, etiquetaActual, input.value.trim());
+      input.onkeydown = (e) => {
+        if (e.key === "Enter") {
+          guardarEtiquetaEditada(span, etiquetaActual, input.value.trim());
+        }
+      };
+
+      input.focus();
+    }
+
+    function guardarEtiquetaEditada(span, etiquetaActual, nuevaEtiqueta) {
+      if (!nuevaEtiqueta || nuevaEtiqueta === etiquetaActual) {
+        cargarEtiquetas(contactoActivo); // Restaurar etiquetas si no hay cambios
+        return;
+      }
+
+      // Actualizar etiqueta en el servidor
+      fetch(`/api/etiqueta/${contactoActivo.telefono}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ etiqueta: etiquetaActual })
+      }).then(() => {
+        return fetch(`/api/etiqueta/${contactoActivo.telefono}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ etiqueta: nuevaEtiqueta })
+        });
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          // Actualizar etiquetas localmente y recargar
+          contactoActivo.etiquetas = contactoActivo.etiquetas.filter(e => e !== etiquetaActual);
+          contactoActivo.etiquetas.push(nuevaEtiqueta);
+          cargarEtiquetas(contactoActivo);
+        }
       });
     }
   </script>

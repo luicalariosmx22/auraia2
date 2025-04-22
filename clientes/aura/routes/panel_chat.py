@@ -263,3 +263,37 @@ def api_programar_envio():
     except Exception as e:
         print(f"❌ Error al programar envío: {str(e)}")
         return jsonify({"success": False})
+
+@panel_chat_bp.route("/api/etiqueta/<telefono>", methods=["POST", "DELETE"])
+def api_gestion_etiqueta(telefono):
+    """
+    Agrega o elimina etiquetas a un contacto.
+    POST → Agrega
+    DELETE → Elimina
+    """
+    print(f"🔍 Iniciando función api_gestion_etiqueta para el teléfono: {telefono}")
+    body = request.get_json()
+    etiqueta = body.get("etiqueta", "").strip().lower()
+    telefono = normalizar_numero(telefono)
+
+    try:
+        response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
+        if not response.data:
+            print(f"❌ Contacto no encontrado para el teléfono: {telefono}")
+            return jsonify({"success": False, "error": "Contacto no encontrado"}), 404
+
+        contacto = response.data[0]
+        etiquetas = set(contacto.get("etiquetas", []))
+
+        if request.method == "POST":
+            etiquetas.add(etiqueta)
+            print(f"✅ Etiqueta '{etiqueta}' agregada al contacto {telefono}.")
+        elif request.method == "DELETE":
+            etiquetas.discard(etiqueta)
+            print(f"✅ Etiqueta '{etiqueta}' eliminada del contacto {telefono}.")
+
+        supabase.table("contactos").update({"etiquetas": list(etiquetas)}).eq("telefono", telefono).execute()
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"❌ Error en api_gestion_etiqueta para el teléfono {telefono}: {str(e)}")
+        return jsonify({"success": False, "error": str(e)})
