@@ -61,7 +61,7 @@ registrar_blueprints_debug(app)
 # Registro de blueprints estáticos
 blueprints_estaticos = [
     (admin_verificador_bp, None),
-    (panel_chat_bp, "/panel_chat"),
+    (panel_chat_bp, "/panel_cliente"),
     (admin_nora_dashboard_bp, None),
     (webhook_bp, None),
     (etiquetas_bp, "/panel_cliente_etiquetas"),

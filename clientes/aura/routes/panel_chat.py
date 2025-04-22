@@ -21,7 +21,7 @@ else:
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-panel_chat_bp = Blueprint("panel_chat_aura", __name__)
+panel_chat_bp = Blueprint("panel_chat", __name__)
 
 def leer_contactos():
     """
