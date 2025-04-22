@@ -18,10 +18,14 @@ def obtener_historial_usuario(telefono):
     try:
         print(f"🔍 Buscando historial para el teléfono: {telefono}")
         response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("timestamp", desc=False).execute()
-        print(f"🔍 Respuesta de Supabase: {response.data}")
+        
+        # Mostrar solo un mensaje simple en lugar de imprimir toda la respuesta
         if response.data:
+            print("✅ Conversaciones cargadas.")
             historial = [{"role": "user" if m["tipo"] == "recibido" else "assistant", "content": m["mensaje"]} for m in response.data]
             return historial
+        
+        print("⚠️ No se encontraron conversaciones.")
         return []  # Devuelve una lista vacía si no hay historial
     except Exception as e:
         print(f"❌ Error al obtener historial del usuario {telefono}: {e}")
