@@ -140,7 +140,7 @@ def registrar_rutas_en_supabase():
         })
     try:
         response = supabase.table("rutas_registradas").insert(rutas).execute()
-        print(f"✅ Rutas registradas en Supabase: {response}")
+        print("✅ Todas las rutas se registraron correctamente en Supabase.")
     except Exception as e:
         print(f"❌ Error al registrar rutas en Supabase: {str(e)}")
 
