@@ -49,6 +49,7 @@ def webhook():
             return {"error": f"El número {numero_nora} no está configurado en la base de datos."}, 400
 
         telefono_usuario = normalizar_numero(data.get("From", ""))
+        print(f"📞 Número de teléfono del usuario: {telefono_usuario}")
         if not telefono_usuario:
             print("❌ Número de teléfono no válido.")
             return {"error": "Número de teléfono no válido"}, 400
