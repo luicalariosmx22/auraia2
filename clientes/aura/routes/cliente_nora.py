@@ -62,3 +62,16 @@ def configuracion_cliente(nombre_nora):
         nombre_nora=nombre_nora,
         config=config
     )
+
+# Nueva ruta para actualizar el estado de la IA
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/estado_ia", methods=["POST"])
+def estado_ia(nombre_nora):
+    try:
+        ia_activa = request.form.get("ia_activa") == "true"
+        supabase.table("configuracion_bot").update({"ia_activa": ia_activa}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Estado de IA actualizado correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar estado de IA: {str(e)}")
+        flash("❌ Error al actualizar estado de IA", "error")
+
+    return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
