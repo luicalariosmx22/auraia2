@@ -8,17 +8,22 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def obtener_base_conocimiento(nombre_nora):
+    """
+    Devuelve todos los registros de la base de conocimiento para la Nora especificada.
+    """
     try:
-        response = supabase.table("configuracion_bot").select("base_conocimiento").eq("nombre_nora", nombre_nora).execute()
-        if response.data:
-            texto = response.data[0]["base_conocimiento"]
-            print(f"📚 Base de conocimiento de '{nombre_nora}' obtenida correctamente.")
-            return [{"contenido": texto}]
-        else:
-            print(f"⚠️ No se encontró base de conocimiento para '{nombre_nora}'.")
+        print(f"🔍 Buscando base de conocimiento para Nora: {nombre_nora}")
+        response = supabase.table("base_conocimiento").select("contenido").eq("nombre_nora", nombre_nora).execute()
+
+        if not response.data:
+            print("⚠️ No se encontraron registros en la base de conocimiento.")
             return []
+
+        print(f"✅ {len(response.data)} registros encontrados en la base de conocimiento.")
+        return [{"contenido": item["contenido"]} for item in response.data]
+
     except Exception as e:
-        print(f"❌ Error al obtener base de conocimiento para {nombre_nora}: {e}")
+        print(f"❌ Error al obtener base de conocimiento: {e}")
         return []
 
 def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None, base_conocimiento=None, nombre_nora=None):
