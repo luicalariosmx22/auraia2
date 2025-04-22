@@ -5,6 +5,20 @@
   <title>Panel de Chat - Nora</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}" />
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script> <!-- Agregado para Socket.IO -->
+  <style>
+    /* Efecto de vibración */
+    .vibrar {
+      animation: vibrar 0.3s ease-in-out;
+    }
+
+    @keyframes vibrar {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      50% { transform: translateX(2px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+  </style>
 </head>
 <body>
   <div class="chat-container">
@@ -40,6 +54,9 @@
     </div>
   </div>
 
+  <!-- Sonido de notificación -->
+  <audio id="notifSound" src="{{ url_for('static', filename='sounds/notificacion.mp3') }}" preload="auto"></audio>
+
   <script>
     const socket = io(); // Inicializar Socket.IO
 
@@ -52,7 +69,7 @@
       const badge = document.getElementById(`badge-${telefono}`);
       if (badge) badge.style.display = "none";
 
-      // Aquí puedes cargar el historial o mensajes si no lo estás haciendo aún
+      // Cargar historial de mensajes
       fetch(`/api/chat/${telefono}`)
         .then(res => res.json())
         .then(data => {
@@ -75,21 +92,18 @@
     socket.on("nuevo_mensaje", function(data) {
       const numero = data.telefono;
 
-      // Si el chat no está abierto actualmente
       if (numero !== telefonoChatAbierto) {
         const badge = document.getElementById(`badge-${numero}`);
+        const contactoDiv = document.getElementById(`contacto-${numero}`);
+        const audio = document.getElementById("notifSound");
+
         if (badge) badge.style.display = "inline-block";
-      }
+        if (audio) audio.play().catch(e => console.log("🔇 No se pudo reproducir audio:", e));
 
-      // Aquí puedes agregar lógica para insertar el mensaje en la conversación activa
-      if (numero === telefonoChatAbierto) {
-        const contenedor = document.getElementById("chat-contenido");
-        const burbuja = document.createElement("div");
-        burbuja.className = data.emisor === "nora" ? "mensaje nora" : "mensaje usuario";
-        burbuja.innerHTML = `<span>${data.mensaje}</span><span class="hora">${data.hora}</span>`;
-        contenedor.appendChild(burbuja);
-
-        scrollAlFinal();
+        if (contactoDiv) {
+          contactoDiv.classList.add("vibrar");
+          setTimeout(() => contactoDiv.classList.remove("vibrar"), 600);
+        }
       }
     });
 
