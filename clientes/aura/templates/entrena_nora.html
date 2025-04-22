@@ -82,16 +82,7 @@
                 </form>
             </div>
 
-            <!-- 5. Centro de conocimiento -->
-            <div class="modulo">
-                <h2>📚 Centro de conocimiento</h2>
-                <form action="/admin/nora/{{ nombre_nora }}/entrenar/conocimiento" method="POST">
-                    <textarea name="base_conocimiento" rows="8" placeholder="Agrega información que Nora debe saber para responder en WhatsApp...">{{ config.base_conocimiento or '' }}</textarea>
-                    <button type="submit">Guardar conocimiento</button>
-                </form>
-            </div>
-
-            <!-- 6. Editar base de conocimiento -->
+            <!-- 5. Editar base de conocimiento -->
             <div class="modulo">
                 <h2>📚 Editar base de conocimiento</h2>
                 <p>Consulta y edita las respuestas que Nora usará para contestar automáticamente en WhatsApp.</p>
