@@ -64,10 +64,25 @@
             <!-- 5. Base de conocimiento -->
             <div class="modulo">
                 <h2>📚 Centro de conocimiento</h2>
-                <form action="{{ url_for('cliente_nora.guardar_conocimiento', nombre_nora=nombre_nora) }}" method="POST">
-                    <textarea name="base_conocimiento" rows="7" placeholder="Toda la información clave que Nora debe usar en sus respuestas...">{{ config.base_conocimiento or '' }}</textarea>
-                    <button type="submit">Guardar conocimiento</button>
+                <form action="{{ url_for('cliente_nora.gestionar_conocimiento', nombre_nora=nombre_nora) }}" method="POST">
+                    <input type="text" name="titulo" placeholder="Título de la tabla de conocimiento" required style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                    <textarea name="base_conocimiento" rows="7" placeholder="Toda la información clave que Nora debe usar en sus respuestas..." required></textarea>
+                    <button type="submit">Agregar conocimiento</button>
                 </form>
+
+                <h3>📋 Tablas de conocimiento existentes</h3>
+                <ul>
+                    {% for tabla in tablas %}
+                        <li>
+                            <strong>{{ tabla.titulo }}</strong>
+                            <form action="{{ url_for('cliente_nora.eliminar_conocimiento', nombre_nora=nombre_nora, tabla_id=tabla.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" style="color: red;">Eliminar</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <p>No hay tablas de conocimiento registradas.</p>
+                    {% endfor %}
+                </ul>
             </div>
 
         </section>

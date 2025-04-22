@@ -100,36 +100,61 @@ def instrucciones(nombre_nora):
     return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
 
 # Ruta para manejar el conocimiento (ahora en tabla conocimiento_nora)
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento", methods=["POST"])
-def guardar_conocimiento(nombre_nora):
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento", methods=["GET", "POST"])
+def gestionar_conocimiento(nombre_nora):
     try:
-        # Obtener el contenido del conocimiento desde el formulario
-        conocimiento = request.form.get("base_conocimiento", "").strip()
-
         # Buscar el número asociado a esa Nora
         config_res = supabase.table("configuracion_bot").select("numero_nora").eq("nombre_nora", nombre_nora).single().execute()
         if not config_res.data:
-            flash("❌ No se encontró el número de Nora para guardar conocimiento", "error")
+            flash("❌ No se encontró el número de Nora para gestionar conocimiento", "error")
             return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
 
         numero_nora = config_res.data["numero_nora"]
 
-        # Eliminar bloques anteriores de la tabla 'conocimiento_nora'
-        supabase.table("conocimiento_nora").delete().eq("numero_nora", numero_nora).execute()
+        if request.method == "POST":
+            # Obtener el contenido del conocimiento desde el formulario
+            conocimiento = request.form.get("base_conocimiento", "").strip()
+            titulo = request.form.get("titulo", "").strip()
 
-        # Dividir el nuevo contenido en bloques por párrafo
-        bloques = [b.strip() for b in conocimiento.split("\n\n") if b.strip()]
-        inserts = [{"numero_nora": numero_nora, "contenido": bloque} for bloque in bloques]
+            if not titulo:
+                flash("❌ Debes proporcionar un título para la tabla de conocimiento", "error")
+                return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
 
-        # Insertar nuevos bloques en la tabla 'conocimiento_nora'
-        if inserts:
-            supabase.table("conocimiento_nora").insert(inserts).execute()
+            # Dividir el nuevo contenido en bloques por párrafo
+            bloques = [b.strip() for b in conocimiento.split("\n\n") if b.strip()]
+            inserts = [{"numero_nora": numero_nora, "titulo": titulo, "contenido": bloque} for bloque in bloques]
 
-        flash("✅ Conocimiento actualizado correctamente", "success")
+            # Insertar nuevos bloques en la tabla 'conocimiento_nora'
+            if inserts:
+                supabase.table("conocimiento_nora").insert(inserts).execute()
+                flash("✅ Conocimiento agregado correctamente", "success")
+
+        # Obtener todas las tablas de conocimiento existentes para este cliente
+        tablas_res = supabase.table("conocimiento_nora").select("id, titulo").eq("numero_nora", numero_nora).execute()
+        tablas = tablas_res.data or []
+
     except Exception as e:
         # Manejo de errores
-        print(f"❌ Error al actualizar conocimiento: {str(e)}")
-        flash("❌ Error al actualizar conocimiento", "error")
+        print(f"❌ Error al gestionar conocimiento: {str(e)}")
+        flash("❌ Error al gestionar conocimiento", "error")
+        tablas = []
 
-    # Redirigir al panel de entrenamiento
-    return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
+    # Renderizar la página con las tablas existentes
+    return render_template(
+        "entrena_nora.html",
+        nombre_nora=nombre_nora,
+        tablas=tablas
+    )
+
+
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento/eliminar/<int:tabla_id>", methods=["POST"])
+def eliminar_conocimiento(nombre_nora, tabla_id):
+    try:
+        # Eliminar la tabla de conocimiento por ID
+        supabase.table("conocimiento_nora").delete().eq("id", tabla_id).execute()
+        flash("✅ Tabla de conocimiento eliminada correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al eliminar tabla de conocimiento: {str(e)}")
+        flash("❌ Error al eliminar tabla de conocimiento", "error")
+
+    return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
