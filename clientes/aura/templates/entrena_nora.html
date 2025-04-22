@@ -25,7 +25,16 @@
 
         <section class="entrena-modulos">
 
-            <!-- 1. Estado de la IA -->
+            <!-- 1. Mensaje de bienvenida -->
+            <div class="modulo">
+                <h2>👋 Mensaje de bienvenida</h2>
+                <form action="{{ url_for('cliente_nora.actualizar_bienvenida', nombre_nora=nombre_nora) }}" method="POST">
+                    <textarea name="mensaje_bienvenida" rows="4" placeholder="Escribe el mensaje de bienvenida que Nora mostrará a los usuarios..." required>{{ mensaje_bienvenida }}</textarea>
+                    <button type="submit">Actualizar bienvenida</button>
+                </form>
+            </div>
+
+            <!-- 2. Estado de la IA -->
             <div class="modulo">
                 <h2>🔌 Activar o desactivar IA</h2>
                 <form action="{{ url_for('cliente_nora.estado_ia', nombre_nora=nombre_nora) }}" method="POST">
@@ -37,13 +46,13 @@
                 </form>
             </div>
 
-            <!-- 2. Mostrar nombre (solo lectura) -->
+            <!-- 3. Mostrar nombre (solo lectura) -->
             <div class="modulo">
                 <h2>🏷 Nombre interno</h2>
                 <input type="text" value="{{ nombre_nora }}" readonly style="width: 100%; padding: 10px;">
             </div>
 
-            <!-- 3. Personalidad -->
+            <!-- 4. Personalidad -->
             <div class="modulo">
                 <h2>🎭 Personalidad</h2>
                 <form action="{{ url_for('cliente_nora.personalidad', nombre_nora=nombre_nora) }}" method="POST">
@@ -52,7 +61,7 @@
                 </form>
             </div>
 
-            <!-- 4. Instrucciones clave -->
+            <!-- 5. Instrucciones clave -->
             <div class="modulo">
                 <h2>📋 Instrucciones clave</h2>
                 <form action="{{ url_for('cliente_nora.instrucciones', nombre_nora=nombre_nora) }}" method="POST">
@@ -61,7 +70,7 @@
                 </form>
             </div>
 
-            <!-- 5. Base de conocimiento -->
+            <!-- 6. Base de conocimiento -->
             <div class="modulo">
                 <h2>📚 Centro de conocimiento</h2>
                 <form action="{{ url_for('cliente_nora.gestionar_conocimiento', nombre_nora=nombre_nora) }}" method="POST">

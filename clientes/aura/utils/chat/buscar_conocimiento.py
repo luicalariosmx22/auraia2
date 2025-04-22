@@ -1,25 +1,31 @@
 from clientes.aura.utils.supabase import supabase
 
-def obtener_base_conocimiento(numero_nora):
+def obtener_base_conocimiento(numero_nora, titulo=None):
     """
-    Recupera la base de conocimiento en bloques desde la tabla 'conocimiento_nora'.
+    Recupera múltiples bloques de conocimiento desde la tabla 'conocimiento_nora'
+    filtrando por numero_nora y opcionalmente por título.
     """
     try:
-        # Consulta a la tabla 'conocimiento_nora' para obtener los bloques de conocimiento
-        response = supabase.table("conocimiento_nora") \
-            .select("contenido") \
-            .eq("numero_nora", numero_nora) \
-            .order("creado_en", desc=False) \
-            .execute()
+        # Construir la consulta base
+        consulta = supabase.table("conocimiento_nora").select("contenido, titulo").eq("numero_nora", numero_nora)
 
-        # Procesar los datos obtenidos
-        data = response.data or []
-        print(f"📚 {len(data)} bloques encontrados para {numero_nora}")
-        return [{"contenido": row["contenido"]} for row in data]
+        # Agregar filtro por título si se proporciona
+        if titulo:
+            consulta = consulta.eq("titulo", titulo)
 
+        # Ejecutar la consulta
+        respuesta = consulta.execute()
+
+        datos = respuesta.data
+        if datos:
+            print(f"✅ [ConocimientoNora] Se cargaron {len(datos)} bloques para {numero_nora}.")
+            bloques = [{"titulo": item.get("titulo", "Sin título"), "contenido": item["contenido"].strip()} for item in datos if item.get("contenido")]
+            return bloques
+        else:
+            print(f"⚠️ [ConocimientoNora] No hay bloques para {numero_nora} con el título especificado.")
+            return []
     except Exception as e:
-        # Manejo de errores
-        print(f"❌ [BaseConocimiento] Error al obtener contenido por bloques: {e}")
+        print(f"❌ [ConocimientoNora] Error al obtener contenido: {e}")
         return []
 
 def buscar_conocimiento(numero_nora, mensaje_usuario):

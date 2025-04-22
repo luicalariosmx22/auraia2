@@ -103,16 +103,17 @@ def instrucciones(nombre_nora):
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento", methods=["GET", "POST"])
 def gestionar_conocimiento(nombre_nora):
     try:
-        # Buscar el número asociado a esa Nora
-        config_res = supabase.table("configuracion_bot").select("numero_nora").eq("nombre_nora", nombre_nora).single().execute()
+        # Buscar el número asociado a esa Nora y el mensaje de bienvenida
+        config_res = supabase.table("configuracion_bot").select("numero_nora, bienvenida").eq("nombre_nora", nombre_nora).single().execute()
         if not config_res.data:
-            flash("❌ No se encontró el número de Nora para gestionar conocimiento", "error")
+            flash("❌ No se encontró la configuración para esta Nora", "error")
             return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
 
         numero_nora = config_res.data["numero_nora"]
+        mensaje_bienvenida = config_res.data.get("bienvenida", "")
 
         if request.method == "POST":
-            # Obtener el contenido del conocimiento desde el formulario
+            # Lógica para agregar conocimiento (ya implementada)
             conocimiento = request.form.get("base_conocimiento", "").strip()
             titulo = request.form.get("titulo", "").strip()
 
@@ -134,18 +135,18 @@ def gestionar_conocimiento(nombre_nora):
         tablas = tablas_res.data or []
 
     except Exception as e:
-        # Manejo de errores
         print(f"❌ Error al gestionar conocimiento: {str(e)}")
         flash("❌ Error al gestionar conocimiento", "error")
         tablas = []
+        mensaje_bienvenida = ""
 
-    # Renderizar la página con las tablas existentes
+    # Renderizar la página con las tablas existentes y el mensaje de bienvenida
     return render_template(
         "entrena_nora.html",
         nombre_nora=nombre_nora,
-        tablas=tablas
+        tablas=tablas,
+        mensaje_bienvenida=mensaje_bienvenida
     )
-
 
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento/eliminar/<int:tabla_id>", methods=["POST"])
 def eliminar_conocimiento(nombre_nora, tabla_id):
@@ -156,5 +157,22 @@ def eliminar_conocimiento(nombre_nora, tabla_id):
     except Exception as e:
         print(f"❌ Error al eliminar tabla de conocimiento: {str(e)}")
         flash("❌ Error al eliminar tabla de conocimiento", "error")
+
+    return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
+
+# Ruta para actualizar el mensaje de bienvenida
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/bienvenida", methods=["POST"])
+def actualizar_bienvenida(nombre_nora):
+    try:
+        # Obtener el mensaje de bienvenida desde el formulario
+        mensaje_bienvenida = request.form.get("mensaje_bienvenida", "").strip()
+
+        # Actualizar el mensaje de bienvenida en la tabla 'configuracion_bot'
+        supabase.table("configuracion_bot").update({"bienvenida": mensaje_bienvenida}).eq("nombre_nora", nombre_nora).execute()
+
+        flash("✅ Mensaje de bienvenida actualizado correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar mensaje de bienvenida: {str(e)}")
+        flash("❌ Error al actualizar mensaje de bienvenida", "error")
 
     return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
