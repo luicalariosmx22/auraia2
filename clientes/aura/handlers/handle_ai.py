@@ -13,14 +13,25 @@ def obtener_prompt_personalizado(numero_nora):
     Obtiene un prompt personalizado desde Supabase basado en el numero_nora.
     """
     try:
-        resultado = supabase.table("configuracion_bot").select("personalidad, instrucciones").eq("numero_nora", numero_nora).execute()
+        # Realizar la consulta a Supabase para obtener personalidad e instrucciones
+        resultado = supabase.table("configuracion_bot") \
+            .select("personalidad, instrucciones") \
+            .eq("numero_nora", numero_nora) \
+            .single() \
+            .execute(postgrest_options={"method": "POST"})  # ✅ FIX AQUI
+
+        # Verificar si se obtuvieron datos
         if resultado.data:
-            personalidad = resultado.data[0].get("personalidad", "")
-            instrucciones = resultado.data[0].get("instrucciones", "")
+            personalidad = resultado.data.get("personalidad", "")
+            instrucciones = resultado.data.get("instrucciones", "")
             return f"{personalidad}\n\n{instrucciones}"
+
+        # Si no se encuentra un prompt personalizado
         print(f"⚠️ No se encontró un prompt personalizado para el número: {numero_nora}")
         return None
+
     except Exception as e:
+        # Registrar el error en caso de fallo
         registrar_error("IA", f"No se pudo cargar el prompt personalizado: {e}")
         return None
 
