@@ -3,12 +3,11 @@ print("🔥 ESTE ES EL APP.PY QUE SE ESTÁ EJECUTANDO")
 import os
 import uuid
 import logging
-from flask import Flask, session, redirect, url_for, request, jsonify
+import engineio
+from flask import Flask, session, redirect, url_for
 from flask_session import Session
-from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
-from clientes.aura.utils.supabase import supabase
 from clientes.aura.extensions.socketio_instance import socketio
 
 # Cargar variables de entorno
@@ -32,6 +31,10 @@ if not app.debug:
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     app.logger.addHandler(file_handler)
+
+# Reducir los logs de engineio
+engineio_logger = logging.getLogger("engineio")
+engineio_logger.setLevel(logging.WARNING)
 
 # Inicializar SocketIO
 socketio.init_app(app, cors_allowed_origins="*")
