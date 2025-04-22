@@ -196,12 +196,48 @@
 /* Etiquetas */
 .etiqueta {
   display: inline-block;
-  background: #007bff;
+  background-color: #007bff;
   color: white;
-  padding: 3px 8px;
+  padding: 2px 6px;
   margin-right: 5px;
   border-radius: 12px;
   font-size: 0.8rem;
+}
+
+/* Foto del contacto */
+.foto-contacto {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+/* Información del contacto */
+.info-contacto {
+  display: flex;
+  flex-direction: column;
+}
+
+.nombre {
+  font-weight: bold;
+}
+
+.ultimo-mensaje {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Fecha del último contacto */
+.fecha-ultimo-contacto {
+  font-size: 0.8rem;
+  color: #999;
+  margin-left: auto;
+}
+
+/* Etiquetas */
+.etiquetas-contacto {
+  margin-top: 5px;
 }
 
 /* Acciones rápidas */
@@ -253,6 +289,7 @@ input:checked + .slider {
 input:checked + .slider::before {
   transform: translateX(18px);
 }
+
 .editar-input {
   font-size: 0.9rem;
   padding: 4px 6px;

@@ -152,7 +152,14 @@ def panel_chat(nombre_nora):
         for mensaje in mensajes:
             if "fecha" in mensaje and isinstance(mensaje["fecha"], datetime.datetime):
                 mensaje["fecha"] = mensaje["fecha"].strftime('%d-%b')
-        lista.append({**c, "mensajes": mensajes})
+        lista.append({
+            **c,
+            "mensajes": mensajes,
+            "ultimo_mensaje": c.get("ultimo_mensaje", "Sin fecha"),
+            "mensaje_reciente": c.get("mensaje_reciente", "Sin mensajes"),
+            "etiquetas": c.get("etiquetas", []),
+            "imagen_perfil": c.get("imagen_perfil", None)
+        })
 
     print(f"✅ Panel de chat renderizado para {len(contactos)} contactos.")
     return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)

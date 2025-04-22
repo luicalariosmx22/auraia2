@@ -29,8 +29,28 @@
         {% for contacto in contactos %}
         <li>
           <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
-            <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
-            <span class="badge" id="badge-{{ contacto.telefono }}" style="display: none;">🔵</span>
+            <!-- Foto del contacto -->
+            {% if contacto.imagen_perfil %}
+            <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
+            {% else %}
+            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
+            {% endif %}
+
+            <!-- Nombre del contacto -->
+            <div class="info-contacto">
+              <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
+              <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
+            </div>
+
+            <!-- Fecha del último contacto -->
+            <span class="fecha-ultimo-contacto">{{ contacto.ultimo_mensaje | default("Sin fecha") }}</span>
+
+            <!-- Etiquetas -->
+            <div class="etiquetas-contacto">
+              {% for etiqueta in contacto.etiquetas %}
+              <span class="etiqueta">{{ etiqueta }}</span>
+              {% endfor %}
+            </div>
           </div>
         </li>
         {% endfor %}
@@ -257,3 +277,4 @@
   </script>
 </body>
 </html>
+``` 
