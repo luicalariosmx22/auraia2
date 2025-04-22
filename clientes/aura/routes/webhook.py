@@ -1,37 +1,29 @@
 # 📁 clientes/aura/routes/webhook.py
 
 import logging
-
-# Deshabilitar los logs de OpenAI
-logging.getLogger("openai").disabled = True
-
 from flask import Blueprint, request
 from datetime import datetime
-from clientes.aura.handlers.process_message import procesar_mensaje
-from clientes.aura.handlers.handle_ai import manejar_respuesta_ai  # ✅ Importar manejar_respuesta_ai
+from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
 from clientes.aura.utils.supabase import supabase
 from clientes.aura.utils.normalizador import normalizar_numero
-from clientes.aura.utils.historial import guardar_en_historial, guardar_en_historial_batch  # ✅ Asegúrate de importar esto
-from clientes.aura.utils.twilio import enviar_mensaje_twilio  # Importa tu función de Twilio
+from clientes.aura.utils.historial import guardar_en_historial_batch
+from clientes.aura.utils.twilio import enviar_mensaje_twilio
+
+# Configurar el nivel de logs de OpenAI
+logging.getLogger("openai").setLevel(logging.WARNING)
 
 webhook_bp = Blueprint("webhook", __name__)
 
 def obtener_historial_usuario(telefono):
-    """
-    Recupera el historial de un usuario desde la tabla historial_conversaciones.
-    """
     try:
         print(f"🔍 Buscando historial para el teléfono: {telefono}")
         response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("timestamp", desc=False).execute()
-        
-        # Mostrar solo un mensaje simple en lugar de imprimir toda la respuesta
         if response.data:
             print("✅ Conversaciones cargadas.")
             historial = [{"role": "user" if m["tipo"] == "recibido" else "assistant", "content": m["mensaje"]} for m in response.data]
             return historial
-        
         print("⚠️ No se encontraron conversaciones.")
-        return []  # Devuelve una lista vacía si no hay historial
+        return []
     except Exception as e:
         print(f"❌ Error al obtener historial del usuario {telefono}: {e}")
         return []
@@ -39,100 +31,45 @@ def obtener_historial_usuario(telefono):
 @webhook_bp.route("/webhook", methods=["POST"])
 def webhook():
     try:
-        # 📨 Datos crudos del webhook
         data = request.form.to_dict()
         print("📩 Mensaje recibido:", data)
 
-        # 📞 Obtener número del destinatario (es el número de Nora)
         numero_nora = normalizar_numero(data.get("To", ""))
         print(f"📞 Número de Nora detectado: {numero_nora}")
 
-        # 🔍 Buscar el nombre_nora correspondiente en Supabase
-        try:
-            response = supabase.table("configuracion_bot").select("nombre_nora").eq("numero_nora", numero_nora).execute()
-            resultado = response.data or []
-        except Exception as e:
-            print(f"❌ Error al consultar Supabase: {e}")
-            return {"error": "Error al consultar la base de datos"}, 500
+        response = supabase.table("configuracion_bot").select("nombre_nora").eq("numero_nora", numero_nora).execute()
+        resultado = response.data or []
 
         if resultado:
             nombre_nora_detectado = resultado[0]["nombre_nora"]
             print(f"🎯 Detectado nombre_nora automáticamente: {nombre_nora_detectado}")
-            data["NombreNora"] = nombre_nora_detectado  # ✅ Sobrescribir en data
+            data["NombreNora"] = nombre_nora_detectado
         else:
             print(f"⚠️ No se encontró configuración para el número: {numero_nora}")
             return {"error": f"El número {numero_nora} no está configurado en la base de datos."}, 400
 
-        print(f"🎯 NombreNora validado: '{data['NombreNora']}'")
-
-        # 📞 Obtener número, nombre y foto del emisor
         telefono_usuario = normalizar_numero(data.get("From", ""))
         if not telefono_usuario:
             print("❌ Número de teléfono no válido.")
             return {"error": "Número de teléfono no válido"}, 400
 
-        nombre_emisor = data.get("ProfileName", None)
-        imagen_perfil = data.get("ProfilePicUrl", None)
         mensaje_usuario = data.get("Body", "")
-        nombre_nora = data["NombreNora"]
-
-        # 🔍 Verificar si el contacto ya existe
-        response = supabase.table("contactos").select("*").eq("telefono", telefono_usuario).execute()
-        contacto_existente = response.data[0] if response.data else None
-
-        if contacto_existente:
-            supabase.table("contactos").update({
-                "nombre": nombre_emisor or contacto_existente["nombre"],
-                "imagen_perfil": imagen_perfil or contacto_existente.get("imagen_perfil"),
-                "ultimo_mensaje": datetime.now().isoformat(),
-                "mensaje_reciente": mensaje_usuario
-            }).eq("telefono", telefono_usuario).execute()
-        else:
-            supabase.table("contactos").insert({
-                "telefono": telefono_usuario,
-                "nombre": nombre_emisor or f"Usuario {telefono_usuario[-4:]}",
-                "imagen_perfil": imagen_perfil,
-                "primer_mensaje": datetime.now().isoformat(),
-                "ultimo_mensaje": datetime.now().isoformat(),
-                "mensaje_reciente": mensaje_usuario,
-                "nombre_nora": nombre_nora,
-                "etiquetas": ["nuevo"]
-            }).execute()
-
-        # Recuperar historial del usuario
         historial = obtener_historial_usuario(telefono_usuario)
 
-        # Generar respuesta con IA
         respuesta, historial_actualizado = manejar_respuesta_ai(mensaje_usuario, historial)
         if not respuesta:
-            print("🟡 No se generó una respuesta. Posiblemente sin IA o sin conocimiento.")
+            print("🟡 No se generó una respuesta.")
             return {"message": "No se pudo generar una respuesta"}, 200
 
-        # ✅ Enviar respuesta a través de Twilio
         try:
             enviar_mensaje_twilio(telefono_usuario, respuesta)
         except Exception as e:
             print(f"❌ Error al enviar mensaje con Twilio: {e}")
             return {"error": "Error al enviar mensaje con Twilio"}, 500
 
-        # ✅ Guardar historial manualmente si hay respuesta
         guardar_en_historial_batch([
-            {
-                "telefono": telefono_usuario,
-                "mensaje": mensaje_usuario,
-                "origen": telefono_usuario,
-                "nombre_nora": nombre_nora,
-                "tipo": "recibido",
-                "nombre": nombre_emisor or telefono_usuario
-            },
-            {
-                "telefono": telefono_usuario,
-                "mensaje": respuesta,
-                "origen": "Nora",
-                "nombre_nora": nombre_nora,
-                "tipo": "enviado",
-                "nombre": "Nora"
-            }
+            {"telefono": telefono_usuario, "mensaje": mensaje_usuario, "origen": telefono_usuario, "tipo": "recibido"},
+            {"telefono": telefono_usuario, "mensaje": respuesta, "origen": "Nora", "tipo": "enviado"}
         ])
 
         return {"message": respuesta}, 200
