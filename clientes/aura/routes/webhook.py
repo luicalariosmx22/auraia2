@@ -43,10 +43,9 @@ def webhook():
 
         if resultado:
             nombre_nora_detectado = resultado[0]["nombre_nora"]
-            numero_nora_remitente = resultado[0]["numero_nora"]  # Usaremos este número como remitente
+            numero_nora_remitente = resultado[0]["numero_nora"]
             print(f"🎯 Detectado nombre_nora automáticamente: {nombre_nora_detectado}")
             print(f"📞 Número de WhatsApp de la Nora: {numero_nora_remitente}")
-            data["NombreNora"] = nombre_nora_detectado
         else:
             print(f"⚠️ No se encontró configuración para el número: {numero_nora}")
             return {"error": f"El número {numero_nora} no está configurado en la base de datos."}, 400
@@ -60,9 +59,13 @@ def webhook():
         mensaje_usuario = data.get("Body", "")
         historial = obtener_historial_usuario(telefono_usuario)
 
+        if not historial:
+            print("⚠️ No se encontró historial. Generando respuesta sin contexto.")
+
         respuesta, historial_actualizado = manejar_respuesta_ai(mensaje_usuario, historial)
         if not respuesta:
-            print("🟡 No se generó una respuesta.")
+            print(f"🟡 No se generó una respuesta para el mensaje: {mensaje_usuario}")
+            print(f"Historial proporcionado: {historial}")
             return {"message": "No se pudo generar una respuesta"}, 200
 
         # Enviar mensaje con el número de WhatsApp de la Nora

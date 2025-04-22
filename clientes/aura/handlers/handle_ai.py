@@ -17,6 +17,7 @@ def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None):
 
         # Agregar un prompt inicial si el historial está vacío
         if not historial:
+            print("⚠️ No se encontró historial. Generando respuesta sin contexto.")
             prompt_inicial = (
                 "Eres un asistente virtual llamado Nora. "
                 "Tu objetivo es ayudar a los usuarios con sus preguntas de manera profesional y amigable. "
@@ -52,3 +53,9 @@ def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None):
     except Exception as e:
         registrar_error("IA", f"Error inesperado al generar respuesta: {e}")
         return "Lo siento, ocurrió un error inesperado. Por favor, intenta nuevamente.", historial
+
+respuesta, historial_actualizado = manejar_respuesta_ai(mensaje_usuario, historial)
+if not respuesta:
+    print(f"🟡 No se generó una respuesta para el mensaje: {mensaje_usuario}")
+    print(f"Historial proporcionado: {historial}")
+    return {"message": "No se pudo generar una respuesta"}, 200
