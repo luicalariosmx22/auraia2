@@ -37,15 +37,15 @@ def webhook():
         numero_nora = normalizar_numero(data.get("To", ""))
         print(f"📞 Número de Nora detectado: {numero_nora}")
 
-        # Consulta a Supabase para obtener el nombre y el número de WhatsApp de la Nora
-        response = supabase.table("configuracion_bot").select("nombre_nora, numero_whatsapp").eq("numero_nora", numero_nora).execute()
+        # Consulta a Supabase para obtener el nombre y el número de Nora
+        response = supabase.table("configuracion_bot").select("nombre_nora, numero_nora").eq("numero_nora", numero_nora).execute()
         resultado = response.data or []
 
         if resultado:
             nombre_nora_detectado = resultado[0]["nombre_nora"]
-            numero_whatsapp = resultado[0]["numero_whatsapp"]
+            numero_nora_remitente = resultado[0]["numero_nora"]  # Usaremos este número como remitente
             print(f"🎯 Detectado nombre_nora automáticamente: {nombre_nora_detectado}")
-            print(f"📞 Número de WhatsApp de la Nora: {numero_whatsapp}")
+            print(f"📞 Número de WhatsApp de la Nora: {numero_nora_remitente}")
             data["NombreNora"] = nombre_nora_detectado
         else:
             print(f"⚠️ No se encontró configuración para el número: {numero_nora}")
@@ -67,7 +67,7 @@ def webhook():
 
         # Enviar mensaje con el número de WhatsApp de la Nora
         try:
-            enviar_mensaje_twilio(telefono_usuario, respuesta, numero_whatsapp)
+            enviar_mensaje_twilio(telefono_usuario, respuesta, numero_nora_remitente)
         except Exception as e:
             print(f"❌ Error al enviar mensaje con Twilio: {e}")
             return {"error": "Error al enviar mensaje con Twilio"}, 500
