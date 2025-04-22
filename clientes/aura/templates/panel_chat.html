@@ -171,17 +171,39 @@
 
     function enviarMensaje() {
       const input = document.getElementById("mensajeInput");
-      const texto = input.value.trim();
-      if (!texto || !telefonoChatAbierto) return;
+      const mensaje = input.value.trim();
 
+      if (!mensaje) return;
+
+      // Agregar el mensaje al chat
+      const contenedor = document.getElementById("chat-contenido");
+      const burbuja = document.createElement("div");
+      burbuja.className = "mensaje cliente";
+      burbuja.innerHTML = `
+        <div class="remitente">Tú</div>
+        <div class="contenido">${mensaje}</div>
+        <div class="hora">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+      `;
+      contenedor.appendChild(burbuja);
+
+      // Limpiar el input
+      input.value = "";
+
+      // Enviar el mensaje al servidor
       fetch("/api/enviar-mensaje", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ numero: telefonoChatAbierto, mensaje: texto })
-      }).then(() => {
-        input.value = "";
-        abrirChat(telefonoChatAbierto);
-      });
+        body: JSON.stringify({ mensaje, telefono: telefonoChatAbierto })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            console.log("Mensaje enviado correctamente.");
+          } else {
+            console.error("Error al enviar el mensaje.");
+          }
+        })
+        .catch(err => console.error("Error en la solicitud:", err));
     }
 
     let contactoActivo = null;
