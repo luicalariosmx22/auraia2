@@ -135,7 +135,7 @@ Resumen:
         print(f"❌ Error al generar resumen con IA: {e}")
         return "No se pudo generar el resumen con IA."
 
-@panel_chat_bp.route("/panel/chat/<nombre_nora>")
+@panel_chat_bp.route("/<nombre_nora>")
 def panel_chat(nombre_nora):
     """
     Renderiza el panel de chat para una Nora específica.
