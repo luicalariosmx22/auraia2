@@ -60,6 +60,13 @@ def registrar_blueprints_por_nora(app, nombre_nora):
                 app.register_blueprint(etiquetas_bp, url_prefix="/panel_cliente/etiquetas")
                 print("✅ Blueprint 'panel_cliente_etiquetas' registrado en /panel_cliente/etiquetas")
 
+        # Panel Chat (ruta: /panel_chat/<nombre_nora>)
+        if "panel_chat" in modulos:
+            if "panel_chat" not in app.blueprints:
+                from clientes.aura.routes.panel_chat import panel_chat_bp
+                app.register_blueprint(panel_chat_bp, url_prefix="/panel_chat")
+                print("✅ Blueprint 'panel_chat' registrado en /panel_chat")
+
         # Registro global para el panel de conocimiento
         from clientes.aura.routes.panel_conocimiento import panel_conocimiento_bp
         if "panel_conocimiento" not in app.blueprints:
