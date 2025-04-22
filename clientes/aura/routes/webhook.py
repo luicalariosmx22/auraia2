@@ -15,7 +15,7 @@ def obtener_historial_usuario(telefono):
     """
     try:
         print(f"🔍 Buscando historial para el teléfono: {telefono}")
-        response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("timestamp", ascending=True).execute()
+        response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("timestamp", desc=False).execute()
         print(f"🔍 Respuesta de Supabase: {response.data}")
         if response.data:
             historial = [{"role": "user" if m["tipo"] == "recibido" else "assistant", "content": m["mensaje"]} for m in response.data]
