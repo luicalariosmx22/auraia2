@@ -1,5 +1,10 @@
 # 📁 clientes/aura/routes/webhook.py
 
+import logging
+
+# Deshabilitar los logs de OpenAI
+logging.getLogger("openai").disabled = True
+
 from flask import Blueprint, request
 from datetime import datetime
 from clientes.aura.handlers.process_message import procesar_mensaje
