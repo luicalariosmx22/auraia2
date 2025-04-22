@@ -1,15 +1,12 @@
 from clientes.aura.utils.supabase import supabase
 
 def obtener_base_conocimiento(numero_nora):
-    """
-    Recupera la base de conocimiento desde la tabla 'configuracion_bot' usando el número de Nora.
-    """
     try:
         respuesta = supabase.table("configuracion_bot") \
             .select("base_conocimiento") \
             .eq("numero_nora", numero_nora) \
             .single() \
-            .execute(postgrest_options={"method": "POST"})  # ✅ Solución 414
+            .execute()  # ✅ CORREGIDO
 
         datos = respuesta.data
         if datos and datos.get("base_conocimiento"):
@@ -24,16 +21,13 @@ def obtener_base_conocimiento(numero_nora):
         return []
 
 def buscar_conocimiento(numero_nora, mensaje_usuario):
-    """
-    Construye el prompt completo usando personalidad, instrucciones y base de conocimiento.
-    """
     try:
         print(f"📚 Cargando configuración para Nora con número: {numero_nora}")
         response = supabase.table("configuracion_bot") \
             .select("base_conocimiento, personalidad, instrucciones") \
             .eq("numero_nora", numero_nora) \
             .single() \
-            .execute(postgrest_options={"method": "POST"})  # ✅ Solución 414
+            .execute()  # ✅ CORREGIDO
 
         if not response.data:
             print(f"⚠️ No se encontró configuración para {numero_nora}")
