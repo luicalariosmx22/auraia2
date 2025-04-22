@@ -119,3 +119,31 @@ h3 {
 .debug-info p {
   margin: 0.5rem 0;
 }
+
+.modulos-activos {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.modulo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.modulo-tag {
+  text-decoration: none;
+  background-color: #3498db;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.modulo-tag:hover {
+  background-color: #2980b9;
+}
