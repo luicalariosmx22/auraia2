@@ -52,6 +52,12 @@ from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_no
 from clientes.aura.routes.admin_nora import admin_nora_bp
 from clientes.aura.routes.cliente_nora import cliente_nora_bp
 
+# Nuevos blueprints del módulo Panel Chat
+from clientes.aura.routes.panel_chat.vista_api_chat import vista_api_chat_bp
+from clientes.aura.routes.panel_chat.vista_panel_chat import vista_panel_chat_bp
+from clientes.aura.routes.panel_chat.vista_enviar_mensaje import vista_enviar_mensaje_bp
+from clientes.aura.routes.panel_chat.vista_toggle_ia import vista_toggle_ia_bp
+
 # Registro base
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
@@ -62,6 +68,10 @@ registrar_blueprints_debug(app)
 blueprints_estaticos = [
     (admin_verificador_bp, None),
     (panel_chat_bp, "/panel_chat"),
+    (vista_api_chat_bp, None),
+    (vista_panel_chat_bp, None),
+    (vista_enviar_mensaje_bp, None),
+    (vista_toggle_ia_bp, None),
     (admin_nora_dashboard_bp, None),
     (webhook_bp, None),
     (etiquetas_bp, "/panel_cliente_etiquetas"),
