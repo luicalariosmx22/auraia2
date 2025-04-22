@@ -253,3 +253,9 @@ input:checked + .slider {
 input:checked + .slider::before {
   transform: translateX(18px);
 }
+.editar-input {
+  font-size: 0.9rem;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

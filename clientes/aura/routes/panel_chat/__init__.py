@@ -5,7 +5,7 @@ from clientes.aura.routes.panel_chat.vista_api_chat import *
 from clientes.aura.routes.panel_chat.vista_enviar_mensaje import *
 from clientes.aura.routes.panel_chat.vista_toggle_ia import *
 from clientes.aura.routes.panel_chat.vista_programar_envio import *
-from clientes.aura.routes.panel_chat.vista_gestion_etiqueta import *
+from clientes.aura.routes.panel_chat.vista_gestion_etiqueta import *  # Importación agregada
 
 panel_chat_bp = Blueprint("panel_chat", __name__)
 
@@ -13,6 +13,7 @@ panel_chat_bp = Blueprint("panel_chat", __name__)
 panel_chat_bp.add_url_rule("/panel/chat/<nombre_nora>", view_func=panel_chat, methods=["GET"])
 
 # API Chat
+panel_chat_bp.add_url_rule("/panel/chat/<nombre_nora>", view_func=panel_chat, methods=["GET"])
 panel_chat_bp.add_url_rule("/api/chat/<telefono>", view_func=api_chat, methods=["GET"])
 panel_chat_bp.add_url_rule("/api/enviar-mensaje", view_func=api_enviar_mensaje, methods=["POST"])
 panel_chat_bp.add_url_rule("/api/toggle-ia/<telefono>", view_func=api_toggle_ia, methods=["POST"])
