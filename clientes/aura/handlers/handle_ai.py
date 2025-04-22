@@ -1,6 +1,8 @@
 import os
 import openai
 from dotenv import load_dotenv
+from typing import List, Optional, Tuple
+
 from clientes.aura.utils.error_logger import registrar_error
 from clientes.aura.utils.chat.buscar_conocimiento import obtener_base_conocimiento
 from clientes.aura.utils.supabase import supabase
@@ -13,29 +15,23 @@ def obtener_prompt_personalizado(numero_nora):
     Obtiene un prompt personalizado desde Supabase basado en el numero_nora.
     """
     try:
-        # Realizar la consulta a Supabase para obtener personalidad e instrucciones
         resultado = supabase.table("configuracion_bot") \
             .select("personalidad, instrucciones") \
             .eq("numero_nora", numero_nora) \
-            .single() \
-            .execute(postgrest_options={"method": "POST"})  # ✅ FIX AQUI
+            .execute()
 
-        # Verificar si se obtuvieron datos
         if resultado.data:
-            personalidad = resultado.data.get("personalidad", "")
-            instrucciones = resultado.data.get("instrucciones", "")
+            data = resultado.data[0]
+            personalidad = data.get("personalidad", "")
+            instrucciones = data.get("instrucciones", "")
             return f"{personalidad}\n\n{instrucciones}"
 
-        # Si no se encuentra un prompt personalizado
         print(f"⚠️ No se encontró un prompt personalizado para el número: {numero_nora}")
         return None
 
     except Exception as e:
-        # Registrar el error en caso de fallo
         registrar_error("IA", f"No se pudo cargar el prompt personalizado: {e}")
         return None
-
-from typing import List, Optional, Tuple, Union
 
 def manejar_respuesta_ai(
     mensaje_usuario: str,
@@ -49,7 +45,6 @@ def manejar_respuesta_ai(
     un historial opcional, un prompt y una base de conocimiento. Si no se proporciona, lo obtiene por numero_nora.
     """
     try:
-        # Obtener numero_nora desde Supabase si no se proporciona
         if numero_nora is None:
             try:
                 resultado = supabase.table("configuracion_bot").select("numero_nora").limit(1).execute()
@@ -64,17 +59,15 @@ def manejar_respuesta_ai(
     except Exception as e:
         registrar_error("IA", f"Error inesperado al manejar el número de Nora: {e}")
         numero_nora = "5215593372311"
+
     try:
-        # Si no se recibe la base de conocimiento, obtenerla desde Supabase
         if base_conocimiento is None:
             base_conocimiento = obtener_base_conocimiento(numero_nora)
             print(f"🔍 Base de conocimiento obtenida: {len(base_conocimiento)} registros.")
 
-        # Inicializar el historial si no se proporciona
         if historial is None:
             historial = []
 
-        # Si no hay historial y no se proporcionó un prompt, obtener uno desde Supabase
         if not historial:
             if not prompt:
                 prompt = obtener_prompt_personalizado(numero_nora)
@@ -86,37 +79,29 @@ def manejar_respuesta_ai(
                 )
             historial.append({"role": "system", "content": prompt})
 
-        # Agregar el mensaje del usuario al historial
         historial.append({"role": "user", "content": mensaje_usuario})
 
-        # Construir el contexto para la IA
         messages = []
-        if base_conocimiento:
+        if base_conocimiento and isinstance(base_conocimiento, list):
             for item in base_conocimiento:
-                messages.append({"role": "system", "content": item["contenido"]})
+                if isinstance(item, dict) and "contenido" in item:
+                    messages.append({"role": "system", "content": item["contenido"]})
         messages.extend(historial)
 
-        print(f"📜 Contexto construido para OpenAI: {messages}")
+        print(f"📜 Contexto para OpenAI construido con {len(messages)} bloques.")
 
-        # Llamar a la API de OpenAI
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=messages,
             temperature=0.1
         )
 
-        # Obtener la respuesta generada
         respuesta = response.choices[0].message.content.strip()
         print(f"✅ Respuesta generada por OpenAI: {respuesta}")
 
-        # Agregar la respuesta de la IA al historial
         historial.append({"role": "assistant", "content": respuesta})
 
         return respuesta, historial
 
     except openai.error.OpenAIError as e:
-        registrar_error("IA", f"Error al generar respuesta con OpenAI: {e}")
-        return "Lo siento, hubo un problema al generar la respuesta. Por favor, intenta nuevamente.", historial
-    except Exception as e:
-        registrar_error("IA", f"Error inesperado al generar respuesta: {e}")
-        return "Lo siento, ocurrió un error inesperado. Por favor, intenta nuevamente.", historial
+        registrar_error("IA", f"Error al generar respuesta
