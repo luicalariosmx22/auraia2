@@ -21,9 +21,13 @@
 
     <section class="seccion">
       <h3>⚙️ Módulos activos:</h3>
-      {% for modulo in modulos %}
-        <span class="badge">{{ modulo }}</span>
-      {% endfor %}
+      {% if modulos %}
+        {% for modulo in modulos %}
+          <span class="badge">{{ modulo }}</span>
+        {% endfor %}
+      {% else %}
+        <p>No hay módulos activos para esta Nora.</p>
+      {% endif %}
     </section>
 
     <section class="meta-grid">
@@ -59,19 +63,75 @@
       </div>
       {% endif %}
 
-      {% if "contactos" in modulos or "ia" in modulos %}
+      {% if "calendario" in modulos %}
       <div class="meta-card">
-        <h3>🟢 Comunicación en vivo</h3>
-        <p>Abre el panel tipo WhatsApp para hablar en tiempo real.</p>
-        <a href="{{ url_for('panel_chat_aura.panel_chat', nombre_nora=nombre_nora) }}" class="btn-neutral">💬 Panel tipo WhatsApp</a>
+        <h3>📅 Calendario y Citas</h3>
+        <p>Conecta con Google Calendar y permite agendar citas automáticamente.</p>
+        <a href="#" class="btn-neutral">🗓️ Gestionar calendario</a>
       </div>
       {% endif %}
 
-      {% if "respuestas" in modulos %}
+      {% if "qr_whatsapp_web" in modulos %}
       <div class="meta-card">
-        <h3>🤖 Respuestas Inteligentes</h3>
-        <p>Gestiona respuestas predefinidas que Nora puede dar automáticamente.</p>
-        <a href="{{ url_for('panel_cliente_respuestas.panel_respuestas', nombre_nora=nombre_nora) }}" class="btn-neutral">🧾 Configurar respuestas</a>
+        <h3>📱 Conexión WhatsApp Web</h3>
+        <p>Sin Twilio. Escanea un código QR y conecta con WhatsApp Web.</p>
+        <a href="#" class="btn-neutral">🔗 Vincular WhatsApp</a>
+      </div>
+      {% endif %}
+
+      {% if "open_table" in modulos %}
+      <div class="meta-card">
+        <h3>🍽️ Restaurantes</h3>
+        <p>Conecta tu Nora con OpenTable para gestionar reservaciones.</p>
+        <a href="#" class="btn-neutral">📆 Gestionar reservas</a>
+      </div>
+      {% endif %}
+
+      {% if "ads" in modulos %}
+      <div class="meta-card">
+        <h3>📈 Meta & Google Ads</h3>
+        <p>Conecta tus campañas de anuncios y visualiza estadísticas clave.</p>
+        <a href="#" class="btn-neutral">🎯 Conectar campañas</a>
+      </div>
+      {% endif %}
+
+      {% if "alertas" in modulos %}
+      <div class="meta-card">
+        <h3>🔔 Alertas inteligentes</h3>
+        <p>Programa alertas cuando ciertas palabras o eventos ocurran.</p>
+        <a href="#" class="btn-neutral">⚠️ Configurar alertas</a>
+      </div>
+      {% endif %}
+
+      {% if "retos" in modulos %}
+      <div class="meta-card">
+        <h3>🏆 Retos Automáticos</h3>
+        <p>Envía dinámicas o retos programados para tus usuarios.</p>
+        <a href="#" class="btn-neutral">🏁 Ver retos</a>
+      </div>
+      {% endif %}
+
+      {% if "coaching" in modulos %}
+      <div class="meta-card">
+        <h3>📚 Modo Coaching</h3>
+        <p>Convierte tu Nora en un entrenador experto en cualquier tema.</p>
+        <a href="#" class="btn-neutral">🎓 Activar coaching</a>
+      </div>
+      {% endif %}
+
+      {% if "rutinas" in modulos %}
+      <div class="meta-card">
+        <h3>📆 Rutinas Diarias</h3>
+        <p>Haz que Nora realice tareas repetitivas automáticamente.</p>
+        <a href="#" class="btn-neutral">🔁 Configurar rutinas</a>
+      </div>
+      {% endif %}
+
+      {% if "soporte" in modulos %}
+      <div class="meta-card">
+        <h3>🛠️ Soporte Técnico</h3>
+        <p>¿Tienes un problema? Manda un ticket a nuestro equipo.</p>
+        <a href="#" class="btn-neutral">💬 Enviar ticket</a>
       </div>
       {% endif %}
     </section>
