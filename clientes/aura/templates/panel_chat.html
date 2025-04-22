@@ -125,7 +125,6 @@
           if (data.success) {
             contactoActivo = data.contacto; // Guardar el contacto activo
             cargarEtiquetas(data.contacto); // ⬅️ Pasar el contacto a cargarEtiquetas
-            // …y cargar mensajes, etc.
             const contenedor = document.getElementById("chat-contenido");
             const nombre = document.getElementById("nombre-contacto");
             nombre.innerText = data.contacto.nombre || data.contacto.telefono;
@@ -133,8 +132,12 @@
             contenedor.innerHTML = "";
             data.mensajes.forEach(m => {
               const burbuja = document.createElement("div");
-              burbuja.className = m.emisor === "nora" ? "mensaje nora" : "mensaje usuario";
-              burbuja.innerHTML = `<span>${m.mensaje}</span><span class="hora">${m.hora || ""}</span>`;
+              burbuja.className = m.emisor === "nora" ? "mensaje nora" : "mensaje cliente";
+              burbuja.innerHTML = `
+                <div class="remitente">${m.emisor === "nora" ? "Nora" : data.contacto.nombre}</div>
+                <div class="contenido">${m.mensaje}</div>
+                <div class="hora">${m.hora || ""}</div>
+              `;
               contenedor.appendChild(burbuja);
             });
 
