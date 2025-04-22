@@ -1,0 +1,49 @@
+<div id="detalle-contacto" class="contacto-detalle">
+  <div class="detalle-header">
+    <h2 id="nombre-contacto">Nombre del contacto</h2>
+    <button class="cerrar-detalle" onclick="cerrarDetalle()">✖️</button>
+  </div>
+
+  <div class="detalle-seccion">
+    <label>✏️ Nombre:</label>
+    <input type="text" id="input-nombre-contacto" placeholder="Editar nombre...">
+  </div>
+
+  <div class="detalle-seccion">
+    <label>🏷️ Etiquetas:</label>
+    <div id="etiquetas-contacto">
+      <span class="etiqueta">cliente</span>
+      <span class="etiqueta">vip</span>
+    </div>
+    <input type="text" placeholder="Agregar etiqueta..." />
+  </div>
+
+  <div class="detalle-seccion">
+    <label>🤖 Inteligencia Artificial:</label>
+    <label class="switch">
+      <input type="checkbox" id="toggle-ia" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="detalle-seccion">
+    <label>📋 Resumen IA:</label>
+    <div class="resumen-ia">
+      <p>El cliente solicitó información sobre los cursos. Posible interés en agendar una asesoría.</p>
+    </div>
+  </div>
+
+  <div class="detalle-seccion">
+    <label>📝 Notas:</label>
+    <textarea placeholder="Escribe notas internas aquí..."></textarea>
+  </div>
+
+  <div class="detalle-seccion">
+    <label>⚡ Acciones:</label>
+    <div class="acciones-rapidas">
+      <button>📨 Enviar mensaje</button>
+      <button>⏰ Programar envío</button>
+      <button>📁 Ver historial</button>
+    </div>
+  </div>
+</div>
