@@ -7,58 +7,60 @@
 </head>
 <body>
     <header>
-        <div class="logo">🧠 Nora AI</div>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora" height="40">
+        </div>
         <div class="logout">
             <a href="{{ url_for('logout') }}">Cerrar sesión</a>
         </div>
     </header>
 
     <main>
-        <h1>⚙️ Entrenamiento de Nora: <strong>{{ nombre_nora }}</strong></h1>
+        <h1>⚙️ Entrena a Nora: {{ nombre_nora }}</h1>
 
         <section class="entrena-modulos">
 
-            <!-- 1. Activar o desactivar IA -->
+            <!-- 1. Estado de la IA -->
             <div class="modulo">
-                <h2>🔌 Estado de la Inteligencia Artificial</h2>
+                <h2>🔌 Activar o desactivar IA</h2>
                 <form action="{{ url_for('cliente_nora.estado_ia', nombre_nora=nombre_nora) }}" method="POST">
                     <label>
                         <input type="checkbox" name="ia_activa" value="true" {% if config.ia_activa %}checked{% endif %}>
-                        Activar IA (desactívala si quieres responder manualmente)
+                        Activar IA (si se desactiva, las respuestas serán manuales)
                     </label>
-                    <button type="submit">Guardar estado</button>
+                    <button type="submit">Guardar</button>
                 </form>
             </div>
 
-            <!-- 2. Nombre interno de Nora -->
+            <!-- 2. Mostrar nombre (solo lectura) -->
             <div class="modulo">
-                <h2>🆔 Nombre interno de Nora</h2>
-                <input type="text" value="{{ nombre_nora }}" readonly style="background: #f0f0f0;">
+                <h2>🏷 Nombre interno</h2>
+                <input type="text" value="{{ nombre_nora }}" readonly style="width: 100%; padding: 10px;">
             </div>
 
             <!-- 3. Personalidad -->
             <div class="modulo">
-                <h2>🎭 Personalidad de Nora</h2>
+                <h2>🎭 Personalidad</h2>
                 <form action="{{ url_for('cliente_nora.personalidad', nombre_nora=nombre_nora) }}" method="POST">
                     <textarea name="personalidad" rows="4" placeholder="Ej: Amable, profesional, tono relajado...">{{ config.personalidad or '' }}</textarea>
                     <button type="submit">Guardar personalidad</button>
                 </form>
             </div>
 
-            <!-- 4. Instrucciones -->
+            <!-- 4. Instrucciones clave -->
             <div class="modulo">
                 <h2>📋 Instrucciones clave</h2>
                 <form action="{{ url_for('cliente_nora.instrucciones', nombre_nora=nombre_nora) }}" method="POST">
-                    <textarea name="instrucciones" rows="5" placeholder="Ej: Nunca compartas enlaces externos, siempre pide el nombre, etc...">{{ config.instrucciones or '' }}</textarea>
+                    <textarea name="instrucciones" rows="5" placeholder="Ej: No compartir enlaces, pedir el nombre, etc...">{{ config.instrucciones or '' }}</textarea>
                     <button type="submit">Guardar instrucciones</button>
                 </form>
             </div>
 
-            <!-- 5. Centro de conocimiento -->
+            <!-- 5. Base de conocimiento -->
             <div class="modulo">
                 <h2>📚 Centro de conocimiento</h2>
                 <form action="{{ url_for('cliente_nora.guardar_conocimiento', nombre_nora=nombre_nora) }}" method="POST">
-                    <textarea name="base_conocimiento" rows="8" placeholder="Agrega información que Nora debe saber para responder en WhatsApp...">{{ config.base_conocimiento or '' }}</textarea>
+                    <textarea name="base_conocimiento" rows="7" placeholder="Toda la información clave que Nora debe usar en sus respuestas...">{{ config.base_conocimiento or '' }}</textarea>
                     <button type="submit">Guardar conocimiento</button>
                 </form>
             </div>

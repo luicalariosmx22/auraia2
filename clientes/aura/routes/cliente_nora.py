@@ -63,7 +63,7 @@ def configuracion_cliente(nombre_nora):
         config=config
     )
 
-# Nueva ruta para actualizar el estado de la IA
+# Ruta para actualizar el estado de la IA
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/estado_ia", methods=["POST"])
 def estado_ia(nombre_nora):
     try:
@@ -73,5 +73,40 @@ def estado_ia(nombre_nora):
     except Exception as e:
         print(f"❌ Error al actualizar estado de IA: {str(e)}")
         flash("❌ Error al actualizar estado de IA", "error")
+    return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
 
+# Ruta para manejar la personalidad
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/personalidad", methods=["POST"])
+def personalidad(nombre_nora):
+    try:
+        personalidad = request.form.get("personalidad", "").strip()
+        supabase.table("configuracion_bot").update({"personalidad": personalidad}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Personalidad actualizada correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar personalidad: {str(e)}")
+        flash("❌ Error al actualizar personalidad", "error")
+    return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
+
+# Ruta para manejar las instrucciones
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/instrucciones", methods=["POST"])
+def instrucciones(nombre_nora):
+    try:
+        instrucciones = request.form.get("instrucciones", "").strip()
+        supabase.table("configuracion_bot").update({"instrucciones": instrucciones}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Instrucciones actualizadas correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar instrucciones: {str(e)}")
+        flash("❌ Error al actualizar instrucciones", "error")
+    return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
+
+# Ruta para manejar el conocimiento
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento", methods=["POST"])
+def guardar_conocimiento(nombre_nora):
+    try:
+        conocimiento = request.form.get("base_conocimiento", "").strip()
+        supabase.table("configuracion_bot").update({"base_conocimiento": conocimiento}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Conocimiento actualizado correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar conocimiento: {str(e)}")
+        flash("❌ Error al actualizar conocimiento", "error")
     return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
