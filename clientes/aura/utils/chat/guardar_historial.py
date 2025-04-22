@@ -1,7 +1,7 @@
 # clientes/aura/utils/chat/guardar_historial.py
 from datetime import datetime
 from clientes.aura.utils.supabase import supabase
-from clientes.aura.app import socketio  # Importar la instancia de SocketIO
+from app import socketio  # Importar la instancia de SocketIO
 
 def guardar_historial(nombre_nora, telefono, mensajes):
     registros = [
