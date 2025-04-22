@@ -4,56 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Noras</title>
-    <!-- Enlace al archivo CSS panel_noras.css -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Admin Noras</h1>
+    <div class="admin-noras-container">
+        <header class="admin-header">
+            <h1>👩‍💼 Noras activas</h1>
+            <a href="/admin/nora/nueva" class="btn-primary">+ Crear nueva Nora</a>
+        </header>
 
-        <!-- Tabla de Rutas mejorada -->
-        <h2>Rutas Registradas</h2>
-        {% if rutas_filtradas %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Ruta</th>
-                    <th>Módulos Activados</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ruta in rutas_filtradas %}
-                <tr>
-                    <td>{{ ruta.ruta }}</td>
-                    <td>{{ ruta.modulos }}</td>
-                    <td class="actions">
-                        <button onclick="editarRuta('{{ ruta.ruta }}')">Editar</button>
-                        <button onclick="borrarRuta('{{ ruta.ruta }}')">Borrar</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p>No hay rutas registradas.</p>
-        {% endif %}
-
-        <!-- Información de la Nueva Nora -->
-        <h2>Nueva Nora</h2>
-        <p>{{ nueva_nora }}</p>
-
-        <!-- Tabla de Noras -->
-        <h2>Noras Registradas</h2>
         {% if noras %}
-        <table>
+        <table class="noras-table">
             <thead>
                 <tr>
                     <th>Nombre</th>
-                    <th>IA Activada</th>
+                    <th>IA</th>
                     <th>Módulos</th>
-                    <th>Última Actualización</th>
-                    <th>Tickets Pendientes</th>
+                    <th>Actualización</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -64,176 +31,39 @@
                     <td>{{ 'Sí' if nora.ia_activada else 'No' }}</td>
                     <td>{{ nora.modulos | join(', ') }}</td>
                     <td>{{ nora.ultima_actualizacion }}</td>
-                    <td>{{ nora.tickets_pendientes }}</td>
-                    <td>
-                        <!-- Botón para ir al Panel de Control -->
-                        <button onclick="irAlPanelCliente('{{ nora.nombre }}')">Panel de Control</button>
-                        <button onclick="editarNora('{{ nora.nombre }}')">Editar</button>
-                        <button onclick="borrarNora('{{ nora.nombre }}')">Borrar</button>
+                    <td class="acciones">
+                        <a href="/panel_cliente/{{ nora.nombre }}" class="btn-mini">Panel</a>
+                        <a href="/admin/nora/{{ nora.nombre }}/editar" class="btn-mini">Editar</a>
+                        <button onclick="borrarNora('{{ nora.nombre }}')" class="btn-danger">Borrar</button>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p>No hay Noras registradas.</p>
+        <p class="sin-noras">No hay Noras registradas aún.</p>
         {% endif %}
-
-        <!-- Panel de Debug -->
-        <div id="debug-panel" style="display: none; background: #f4f4f9; padding: 10px; border: 1px solid #ccc; margin-top: 20px;">
-            <h3>Panel de Debug</h3>
-            <pre id="debug-log" style="background: #ecf0f1; padding: 10px; border-radius: 4px; overflow-x: auto;"></pre>
-        </div>
-
-        <button onclick="toggleDebug()">Activar/Desactivar Debug</button>
-        <button onclick="limpiarDebug()">Limpiar Debug</button>
-        <!-- Botón para obtener información de rutas -->
-        <button onclick="obtenerDebugInfo()">Obtener Información de Rutas</button>
     </div>
 
-    <!-- Modal para mostrar detalles de la Nora -->
-    <div id="nora-details-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-        <h3>Detalles de la Nora</h3>
-        <p id="nora-details"></p>
-        <button onclick="cerrarModal()">Cerrar</button>
-    </div>
-
-    <!-- Scripts para las acciones de editar y borrar -->
     <script>
-        let debugEnabled = false;
-
-        function toggleDebug() {
-            debugEnabled = !debugEnabled;
-            const debugPanel = document.getElementById('debug-panel');
-            debugPanel.style.display = debugEnabled ? 'block' : 'none';
-            console.debug(`Debug ${debugEnabled ? 'activado' : 'desactivado'}`);
-        }
-
-        // Función para mostrar mensajes en el panel de debug
-        function logDebug(message) {
-            const debugPanel = document.getElementById('debug-panel');
-            const debugLog = document.getElementById('debug-log');
-            debugPanel.style.display = 'block';
-            debugLog.textContent += `${message}\n`;
-        }
-
-        function limpiarDebug() {
-            const debugLog = document.getElementById('debug-log');
-            debugLog.textContent = '';
-            console.debug('Panel de debug limpiado.');
-        }
-
-        function editarRuta(ruta) {
-            console.debug(`Redirigiendo a la edición de la ruta: ${ruta}`);
-            window.location.href = `/editar_ruta?ruta=${encodeURIComponent(ruta)}`;
-        }
-
-        // Función para validar la ruta
-        function validarRuta(ruta) {
-            if (!ruta || typeof ruta !== 'string') {
-                logDebug('Error: La ruta proporcionada no es válida.');
-                alert('La ruta proporcionada no es válida.');
-                return false;
-            }
-            return true;
-        }
-
-        // Modificar la función borrarRuta para incluir validación
-        function borrarRuta(ruta) {
-            if (!validarRuta(ruta)) {
-                return;
-            }
-            logDebug(`Intentando borrar la ruta: ${ruta}`);
-            if (confirm(`¿Estás seguro de que deseas borrar la ruta: ${ruta}?`)) {
-                fetch(`/borrar_ruta`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ ruta: ruta }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        logDebug(`Ruta borrada exitosamente: ${ruta}`);
-                        alert(`Ruta borrada: ${ruta}`);
-                        location.reload(); // Recargar la página para actualizar la tabla
-                    } else {
-                        logDebug(`Error al borrar la ruta: ${data.error}`);
-                        alert(`Error al borrar la ruta: ${data.error}`);
-                    }
-                })
-                .catch(error => {
-                    logDebug(`Error en la solicitud AJAX: ${error}`);
-                    console.error('Error:', error);
-                    alert('Ocurrió un error al borrar la ruta.');
-                });
-            }
-        }
-
-        function obtenerDebugInfo() {
-            fetch('/debug_info')
-                .then(response => response.json())
-                .then(data => {
-                    logDebug(`Información de Debug: ${JSON.stringify(data, null, 2)}`);
-                })
-                .catch(error => {
-                    logDebug(`Error al obtener información de debug: ${error}`);
-                });
-        }
-
-        function verDetallesNora(nombre) {
-            const modal = document.getElementById('nora-details-modal');
-            const details = document.getElementById('nora-details');
-            details.textContent = `Detalles de la Nora: ${nombre}`;
-            modal.style.display = 'block';
-        }
-
-        function cerrarModal() {
-            const modal = document.getElementById('nora-details-modal');
-            modal.style.display = 'none';
-        }
-
-        function editarNora(nombre) {
-            logDebug(`Redirigiendo a la edición de la Nora: ${nombre}`);
-            window.location.href = `/editar_nora?nombre=${encodeURIComponent(nombre)}`;
-        }
-
         function borrarNora(nombre) {
-            if (confirm(`¿Estás seguro de que deseas borrar la Nora: ${nombre}?`)) {
-                logDebug(`Intentando borrar la Nora: ${nombre}`);
+            if (confirm(`¿Borrar la Nora '${nombre}'? Esta acción no se puede deshacer.`)) {
                 fetch(`/borrar_nora`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ nombre: nombre }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre: nombre })
                 })
-                .then(response => response.json())
+                .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        logDebug(`Nora borrada exitosamente: ${nombre}`);
-                        alert(`Nora borrada: ${nombre}`);
-                        location.reload(); // Recargar la página para actualizar la tabla
+                        alert(`Nora '${nombre}' eliminada.`);
+                        location.reload();
                     } else {
-                        logDebug(`Error al borrar la Nora: ${data.error}`);
-                        alert(`Error al borrar la Nora: ${data.error}`);
+                        alert(`Error: ${data.error}`);
                     }
                 })
-                .catch(error => {
-                    logDebug(`Error en la solicitud AJAX: ${error}`);
-                    console.error('Error:', error);
-                    alert('Ocurrió un error al borrar la Nora.');
-                });
+                .catch(err => alert("Error al borrar la Nora."));
             }
-        }
-
-        function irAlPanelCliente(nombre_nora) {
-            if (!nombre_nora) {
-                alert("Falta el nombre de la Nora para redirigir al panel del cliente.");
-                return;
-            }
-            window.location.href = `/panel_cliente/${encodeURIComponent(nombre_nora)}`;
         }
     </script>
 </body>
