@@ -1,82 +1,89 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat de Nora – {{ nombre_nora }}</title>
-  <!-- Hojas de estilo -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/contact_info.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <script>
-    const contactos = [...{{ contactos | tojson }}];
-    const nombreNora = "{{ nombre_nora }}";
-    console.log("🧪 CONTACTOS:", contactos); // Verificar si contactos llega al navegador
-  </script>
+  <meta charset="UTF-8" />
+  <title>Panel de Chat - Nora</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}" />
 </head>
 <body>
-  <div class="chat-wrapper">
-
-    <!-- Sidebar (columna izquierda) -->
+  <div class="chat-container">
+    <!-- Sidebar de contactos -->
     <div class="sidebar">
-      <div class="buscador">
-        <input type="text" placeholder="🔍 Buscar contacto..." oninput="filtrarContactosPorNombre(this.value)">
-      </div>
-      <select onchange="filtrarContactosPorEtiqueta(this.value)">
-        <option value="">Todos</option>
-        <option value="cliente">Cliente</option>
-        <option value="vip">VIP</option>
-        <option value="interesado">Interesado</option>
-        <option value="no contestó">No contestó</option>
-      </select>
-      <ul id="lista-contactos" class="lista-contactos">
+      <h2>Contactos</h2>
+      <ul id="lista-contactos">
         {% for contacto in contactos %}
-          <li class="contacto-item" data-numero="{{ contacto.telefono }}">
-            {{ contacto.nombre }} - {{ contacto.telefono }}
-          </li>
+        <li onclick="cargarChat('{{ contacto.telefono }}')">
+          <strong>{{ contacto.nombre or contacto.telefono }}</strong>
+        </li>
         {% endfor %}
       </ul>
     </div>
 
-    <!-- Panel central (Mensajes) -->
-    <div class="col-centro">
-      <div id="chat-area" class="chat-area">
-        <!-- Spinner de carga -->
-        <div id="spinner-chat" class="spinner" style="display: none;">Cargando mensajes...</div>
-        <!-- Aquí se renderizan los mensajes -->
+    <!-- Panel de conversación -->
+    <div class="chat-box">
+      <div class="chat-header">
+        <h2 id="nombre-contacto">Selecciona un contacto</h2>
       </div>
-      <form id="form-enviar-mensaje" class="form-envio" onsubmit="enviarMensaje(event)">
-        <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
-        <button type="submit">Enviar</button>
-      </form>
-    </div>
 
-    <!-- Panel derecho (Info del contacto) -->
-    <div class="col-derecha">
-      <div class="info-contacto">
-        <h4 id="contacto-nombre">Contacto</h4>
-        <p><strong>Teléfono:</strong> <span id="contacto-telefono">---</span></p>
-        <p><strong>Etiquetas:</strong></p>
-        <div class="etiquetas-box" id="contacto-tags"></div>
-        <div class="etiqueta-input">
-          <input type="text" id="nueva-etiqueta" placeholder="Agregar etiqueta">
-          <button onclick="agregarEtiqueta(document.getElementById('contacto-telefono').innerText)">+</button>
-        </div>
-        <p><strong>IA activada:</strong>
-          <input type="checkbox" id="toggle-ia" onchange="toggleIA(this)">
-        </p>
+      <div id="chat-contenido" class="chat-mensajes">
+        <!-- Los mensajes se insertan aquí dinámicamente -->
       </div>
-      <div class="info-contacto">
-        <h4>Resumen IA</h4>
-        <p id="resumen-ia">Selecciona un contacto para ver resumen.</p>
+
+      <div class="chat-input">
+        <input type="text" id="mensajeInput" placeholder="Escribe un mensaje..." />
+        <button onclick="enviarMensaje()">Enviar</button>
       </div>
     </div>
-
   </div>
 
-  <!-- Scripts -->
-  <script src="{{ url_for('static', filename='js/panel_chat.js') }}"></script>
+  <script>
+    let telefonoActivo = null;
+
+    function cargarChat(telefono) {
+      telefonoActivo = telefono;
+      fetch(`/api/chat/${telefono}`)
+        .then(res => res.json())
+        .then(data => {
+          const contenedor = document.getElementById("chat-contenido");
+          const nombre = document.getElementById("nombre-contacto");
+          nombre.innerText = data.contacto.nombre || data.contacto.telefono;
+
+          contenedor.innerHTML = "";
+          data.mensajes.forEach(m => {
+            const burbuja = document.createElement("div");
+            burbuja.className = m.emisor === "nora" ? "mensaje nora" : "mensaje usuario";
+            burbuja.innerHTML = `<span>${m.mensaje}</span><span class="hora">${m.hora || ""}</span>`;
+            contenedor.appendChild(burbuja);
+          });
+
+          scrollAlFinal();
+        });
+    }
+
+    function scrollAlFinal() {
+      const contenedor = document.getElementById("chat-contenido");
+      contenedor.scrollTop = contenedor.scrollHeight;
+    }
+
+    function enviarMensaje() {
+      const input = document.getElementById("mensajeInput");
+      const texto = input.value.trim();
+      if (!texto || !telefonoActivo) return;
+
+      fetch("/api/enviar-mensaje", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ numero: telefonoActivo, mensaje: texto })
+      }).then(() => {
+        input.value = "";
+        cargarChat(telefonoActivo);
+      });
+    }
+
+    // Refrescar chat cada 5 segundos
+    setInterval(() => {
+      if (telefonoActivo) cargarChat(telefonoActivo);
+    }, 5000);
+  </script>
 </body>
 </html>
