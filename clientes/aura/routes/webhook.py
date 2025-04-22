@@ -7,6 +7,7 @@ from clientes.aura.handlers.handle_ai import manejar_respuesta_ai  # ✅ Importa
 from clientes.aura.utils.supabase import supabase
 from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.historial import guardar_en_historial, guardar_en_historial_batch  # ✅ Asegúrate de importar esto
+from clientes.aura.utils.twilio import enviar_mensaje_twilio  # Importa tu función de Twilio
 
 webhook_bp = Blueprint("webhook", __name__)
 
@@ -43,7 +44,7 @@ def webhook():
             resultado = response.data or []
         except Exception as e:
             print(f"❌ Error al consultar Supabase: {e}")
-            return "Error al consultar la base de datos", 500
+            return {"error": "Error al consultar la base de datos"}, 500
 
         if resultado:
             nombre_nora_detectado = resultado[0]["nombre_nora"]
@@ -71,7 +72,6 @@ def webhook():
         contacto_existente = response.data[0] if response.data else None
 
         if contacto_existente:
-            print(f"🔄 Actualizando contacto existente: {telefono_usuario}")
             supabase.table("contactos").update({
                 "nombre": nombre_emisor or contacto_existente["nombre"],
                 "imagen_perfil": imagen_perfil or contacto_existente.get("imagen_perfil"),
@@ -79,7 +79,6 @@ def webhook():
                 "mensaje_reciente": mensaje_usuario
             }).eq("telefono", telefono_usuario).execute()
         else:
-            print(f"🆕 Guardando nuevo contacto: {telefono_usuario}")
             supabase.table("contactos").insert({
                 "telefono": telefono_usuario,
                 "nombre": nombre_emisor or f"Usuario {telefono_usuario[-4:]}",
@@ -93,7 +92,6 @@ def webhook():
 
         # Recuperar historial del usuario
         historial = obtener_historial_usuario(telefono_usuario)
-        print(f"🔍 Historial recuperado: {historial}")
 
         # Generar respuesta con IA
         respuesta, historial_actualizado = manejar_respuesta_ai(mensaje_usuario, historial)
@@ -101,9 +99,14 @@ def webhook():
             print("🟡 No se generó una respuesta. Posiblemente sin IA o sin conocimiento.")
             return {"message": "No se pudo generar una respuesta"}, 200
 
-        # ✅ Guardar historial manualmente si hay respuesta
-        print(f"✅ Respuesta enviada: {respuesta}")
+        # ✅ Enviar respuesta a través de Twilio
+        try:
+            enviar_mensaje_twilio(telefono_usuario, respuesta)
+        except Exception as e:
+            print(f"❌ Error al enviar mensaje con Twilio: {e}")
+            return {"error": "Error al enviar mensaje con Twilio"}, 500
 
+        # ✅ Guardar historial manualmente si hay respuesta
         guardar_en_historial_batch([
             {
                 "telefono": telefono_usuario,
