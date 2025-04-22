@@ -1,6 +1,7 @@
 # 📁 clientes/aura/routes/webhook.py
 
 from flask import Blueprint, request
+from datetime import datetime
 from clientes.aura.handlers.process_message import procesar_mensaje
 from clientes.aura.utils.supabase import supabase
 from clientes.aura.utils.normalizador import normalizar_numero
@@ -33,10 +34,49 @@ def webhook():
             print(f"🎯 Detectado nombre_nora automáticamente: {nombre_nora_detectado}")
             data["NombreNora"] = nombre_nora_detectado  # ✅ Sobrescribir en data
         else:
-            print("⚠️ No se encontró configuración para este número. Usando 'nora' como fallback.")
-            data["NombreNora"] = "nora"
+            # 🚨 Registro adicional para depuración
+            print(f"⚠️ No se encontró configuración para el número: {numero_nora}")
+            print("🔍 Verifica si el número está registrado correctamente en la tabla 'configuracion_bot'.")
+            print("🔍 Datos recibidos:", data)
+
+            # Lanzar una excepción si el número no está configurado
+            raise ValueError(f"El número {numero_nora} no está configurado en la base de datos.")
 
         print(f"🎯 NombreNora validado: '{data['NombreNora']}'")
+
+        # 📞 Obtener número, nombre y foto del emisor
+        telefono_usuario = normalizar_numero(data.get("From", ""))
+        nombre_emisor = data.get("ProfileName", None)  # Capturar el nombre del perfil
+        imagen_perfil = data.get("ProfilePicUrl", None)  # Capturar la URL de la imagen de perfil
+        mensaje_usuario = data.get("Body", "")
+        nombre_nora = data["NombreNora"]
+
+        # 🔍 Verificar si el contacto ya existe
+        response = supabase.table("contactos").select("*").eq("telefono", telefono_usuario).execute()
+        contacto_existente = response.data[0] if response.data else None
+
+        if contacto_existente:
+            # 🛠️ Actualizar contacto existente
+            print(f"🔄 Actualizando contacto existente: {telefono_usuario}")
+            supabase.table("contactos").update({
+                "nombre": nombre_emisor or contacto_existente["nombre"],  # Reemplazar nombre si ProfileName está disponible
+                "imagen_perfil": imagen_perfil or contacto_existente.get("imagen_perfil"),  # Actualizar imagen si está disponible
+                "ultimo_mensaje": datetime.now().isoformat(),  # Actualizar fecha del último mensaje
+                "mensaje_reciente": mensaje_usuario  # Guardar el último mensaje recibido
+            }).eq("telefono", telefono_usuario).execute()
+        else:
+            # 🆕 Guardar el contacto si no existe
+            print(f"🆕 Guardando nuevo contacto: {telefono_usuario}")
+            supabase.table("contactos").insert({
+                "telefono": telefono_usuario,
+                "nombre": nombre_emisor or f"Usuario {telefono_usuario[-4:]}",  # Nombre del perfil o genérico
+                "imagen_perfil": imagen_perfil,  # Guardar la URL de la imagen de perfil
+                "primer_mensaje": datetime.now().isoformat(),
+                "ultimo_mensaje": datetime.now().isoformat(),
+                "mensaje_reciente": mensaje_usuario,  # Guardar el último mensaje recibido
+                "nombre_nora": nombre_nora,
+                "etiquetas": ["nuevo"]  # Etiqueta inicial para nuevos contactos
+            }).execute()
 
         # 🧠 Procesar el mensaje
         respuesta = procesar_mensaje(data)
@@ -45,10 +85,6 @@ def webhook():
         if respuesta:
             print(f"✅ Respuesta enviada: {respuesta}")
 
-            telefono_usuario = normalizar_numero(data.get("From", ""))
-            mensaje_usuario = data.get("Body", "")
-            nombre_nora = data["NombreNora"]
-
             # 📥 Historial del mensaje recibido
             guardar_en_historial(
                 telefono=telefono_usuario,
@@ -56,7 +92,7 @@ def webhook():
                 origen=telefono_usuario,
                 nombre_nora=nombre_nora,
                 tipo="recibido",
-                nombre=telefono_usuario
+                nombre=nombre_emisor or telefono_usuario
             )
 
             # 📤 Historial de la respuesta enviada
