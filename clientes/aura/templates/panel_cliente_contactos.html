@@ -1,7 +1,16 @@
 {% extends 'layout.html' %}
 {% block contenido %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_cliente_contactos.css') }}">
+
 <div class="meta-container">
+  <!-- Nuevo logo y enlace de cierre de sesión -->
+  <div class="logo">
+    <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora" height="40">
+  </div>
+  <div class="logout">
+    <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+  </div>
+
   <h2>📞 Contactos</h2>
 
   <!-- Filtros -->
