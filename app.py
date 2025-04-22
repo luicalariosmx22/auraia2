@@ -128,7 +128,8 @@ def registrar_rutas_en_supabase():
     except Exception as e:
         app.logger.error(f"Error al registrar rutas en Supabase: {str(e)}")
 
-app.logger.info(f"📋 Total de rutas registradas: {len(app.url_map.iter_rules())}")
+# Convertir iterador a lista para calcular la longitud
+app.logger.info(f"📋 Total de rutas registradas: {len(list(app.url_map.iter_rules()))}")
 
 # ========= RUTA INICIAL =========
 @app.route("/")
