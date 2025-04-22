@@ -52,6 +52,14 @@
       </div>
       {% endif %}
 
+      {% if "panel_chat" in modulos %}
+      <div class="meta-card">
+        <h3>💬 Panel de Chat</h3>
+        <p>Visualiza y responde en tiempo real desde una interfaz tipo WhatsApp.</p>
+        <a href="/panel_chat/{{ nombre_nora }}" class="btn-neutral">Ir al panel de chat</a>
+      </div>
+      {% endif %}
+
       {% if "calendario" in modulos %}
       <div class="meta-card">
         <h3>📅 Calendario y Citas</h3>
@@ -75,66 +83,6 @@
         <a href="#" class="btn-neutral">📆 Gestionar reservas</a>
       </div>
       {% endif %}
-
-      {% if "ads" in modulos %}
-      <div class="meta-card">
-        <h3>📈 Meta & Google Ads</h3>
-        <p>Conecta tus campañas de anuncios y visualiza estadísticas clave.</p>
-        <a href="#" class="btn-neutral">🎯 Conectar campañas</a>
-      </div>
-      {% endif %}
-
-      {% if "alertas" in modulos %}
-      <div class="meta-card">
-        <h3>🔔 Alertas inteligentes</h3>
-        <p>Programa alertas cuando ciertas palabras o eventos ocurran.</p>
-        <a href="#" class="btn-neutral">⚠️ Configurar alertas</a>
-      </div>
-      {% endif %}
-
-      {% if "retos" in modulos %}
-      <div class="meta-card">
-        <h3>🏆 Retos Automáticos</h3>
-        <p>Envía dinámicas o retos programados para tus usuarios.</p>
-        <a href="#" class="btn-neutral">🏁 Ver retos</a>
-      </div>
-      {% endif %}
-
-      {% if "coaching" in modulos %}
-      <div class="meta-card">
-        <h3>📚 Modo Coaching</h3>
-        <p>Convierte tu Nora en un entrenador experto en cualquier tema.</p>
-        <a href="#" class="btn-neutral">🎓 Activar coaching</a>
-      </div>
-      {% endif %}
-
-      {% if "rutinas" in modulos %}
-      <div class="meta-card">
-        <h3>📆 Rutinas Diarias</h3>
-        <p>Haz que Nora realice tareas repetitivas automáticamente.</p>
-        <a href="#" class="btn-neutral">🔁 Configurar rutinas</a>
-      </div>
-      {% endif %}
-
-      {% if "soporte" in modulos %}
-      <div class="meta-card">
-        <h3>🛠️ Soporte Técnico</h3>
-        <p>¿Tienes un problema? Manda un ticket a nuestro equipo.</p>
-        <a href="#" class="btn-neutral">💬 Enviar ticket</a>
-      </div>
-      {% endif %}
-    </section>
-
-    <!-- Nueva sección de módulos activos -->
-    <section class="modulos-activos">
-      <h2>🔧 Módulos activados</h2>
-      <div class="modulo-tags">
-        {% for modulo in modulos %}
-          <a href="/panel_cliente/{{ nombre_nora }}/{{ modulo }}" class="modulo-tag">
-            {{ modulo.replace('_', ' ').capitalize() }}
-          </a>
-        {% endfor %}
-      </div>
     </section>
   </div>
 </body>
