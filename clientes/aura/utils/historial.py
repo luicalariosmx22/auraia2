@@ -55,3 +55,15 @@ def guardar_en_historial(telefono, mensaje, origen, nombre_nora, tipo="mensaje",
         registrar_error("historial", f"No se pudo guardar historial: {e}", tipo="Supabase")
         print(f"❌ Error al guardar en historial: {e}")
         return {"success": False, "error": str(e)}
+
+def guardar_en_historial_batch(mensajes):
+    """
+    Guarda múltiples mensajes en el historial de la base de datos.
+    """
+    try:
+        # Lógica para guardar los mensajes en la base de datos
+        for mensaje in mensajes:
+            supabase.table("historial_conversaciones").insert(mensaje).execute()
+        print("✅ Mensajes guardados en el historial.")
+    except Exception as e:
+        print(f"❌ Error al guardar mensajes en el historial: {e}")
