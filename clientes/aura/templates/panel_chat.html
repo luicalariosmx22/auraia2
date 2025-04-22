@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Panel de Chat - Nora</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}" />
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script> <!-- Agregado para Socket.IO -->
 </head>
 <body>
   <div class="chat-container">
@@ -12,8 +13,11 @@
       <h2>Contactos</h2>
       <ul id="lista-contactos">
         {% for contacto in contactos %}
-        <li onclick="cargarChat('{{ contacto.telefono }}')">
-          <strong>{{ contacto.nombre or contacto.telefono }}</strong>
+        <li>
+          <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
+            <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
+            <span class="badge" id="badge-{{ contacto.telefono }}" style="display: none;">🔵</span>
+          </div>
         </li>
         {% endfor %}
       </ul>
@@ -37,10 +41,18 @@
   </div>
 
   <script>
-    let telefonoActivo = null;
+    const socket = io(); // Inicializar Socket.IO
 
-    function cargarChat(telefono) {
-      telefonoActivo = telefono;
+    let telefonoChatAbierto = null;
+
+    function abrirChat(telefono) {
+      telefonoChatAbierto = telefono;
+
+      // Ocultar la notificación azul si estaba activa
+      const badge = document.getElementById(`badge-${telefono}`);
+      if (badge) badge.style.display = "none";
+
+      // Aquí puedes cargar el historial o mensajes si no lo estás haciendo aún
       fetch(`/api/chat/${telefono}`)
         .then(res => res.json())
         .then(data => {
@@ -60,6 +72,27 @@
         });
     }
 
+    socket.on("nuevo_mensaje", function(data) {
+      const numero = data.telefono;
+
+      // Si el chat no está abierto actualmente
+      if (numero !== telefonoChatAbierto) {
+        const badge = document.getElementById(`badge-${numero}`);
+        if (badge) badge.style.display = "inline-block";
+      }
+
+      // Aquí puedes agregar lógica para insertar el mensaje en la conversación activa
+      if (numero === telefonoChatAbierto) {
+        const contenedor = document.getElementById("chat-contenido");
+        const burbuja = document.createElement("div");
+        burbuja.className = data.emisor === "nora" ? "mensaje nora" : "mensaje usuario";
+        burbuja.innerHTML = `<span>${data.mensaje}</span><span class="hora">${data.hora}</span>`;
+        contenedor.appendChild(burbuja);
+
+        scrollAlFinal();
+      }
+    });
+
     function scrollAlFinal() {
       const contenedor = document.getElementById("chat-contenido");
       contenedor.scrollTop = contenedor.scrollHeight;
@@ -68,22 +101,17 @@
     function enviarMensaje() {
       const input = document.getElementById("mensajeInput");
       const texto = input.value.trim();
-      if (!texto || !telefonoActivo) return;
+      if (!texto || !telefonoChatAbierto) return;
 
       fetch("/api/enviar-mensaje", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ numero: telefonoActivo, mensaje: texto })
+        body: JSON.stringify({ numero: telefonoChatAbierto, mensaje: texto })
       }).then(() => {
         input.value = "";
-        cargarChat(telefonoActivo);
+        abrirChat(telefonoChatAbierto);
       });
     }
-
-    // Refrescar chat cada 5 segundos
-    setInterval(() => {
-      if (telefonoActivo) cargarChat(telefonoActivo);
-    }, 5000);
   </script>
 </body>
 </html>

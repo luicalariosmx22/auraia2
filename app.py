@@ -8,6 +8,7 @@ from flask_session import Session
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
+from flask_socketio import SocketIO  # Agregado para WebSockets
 from clientes.aura.utils.debug_rutas import generar_html_rutas  # Importación correcta
 from clientes.aura.utils.supabase import supabase
 
@@ -24,6 +25,9 @@ app.session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
 app.secret_key = os.getenv("SECRET_KEY", "clave-secreta-por-defecto")
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+# Configuración de SocketIO
+socketio = SocketIO(app, cors_allowed_origins="*")  # Agregado para habilitar WebSockets
 
 # Logger en producción
 if not app.debug:
@@ -167,4 +171,4 @@ if __name__ == "__main__":
         print(f"❌ Error crítico: {str(e)}")
 
     port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host="0.0.0.0", port=port)
+    socketio.run(app, debug=False, host="0.0.0.0", port=port)  # Reemplazado para usar SocketIO
