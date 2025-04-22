@@ -148,6 +148,7 @@
 /* Input inferior */
 .chat-input {
   display: flex;
+  align-items: center;
   border-top: 1px solid #ddd;
   padding: 10px 20px;
   background-color: #fff;
@@ -342,4 +343,21 @@ input:checked + .slider::before {
   padding: 4px 6px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+/* Media queries para dispositivos móviles */
+@media (max-width: 768px) {
+  .chat-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .chat-box {
+    width: 100%;
+  }
 }
