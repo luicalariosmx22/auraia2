@@ -147,3 +147,37 @@ h3 {
 .modulo-tag:hover {
   background-color: #2980b9;
 }
+
+/* Estilos para los campos de texto y botones en .modulo */
+.modulo input[type="text"] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+  background-color: #f9f9f9;
+  transition: border 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.modulo input[type="text"]:focus {
+  outline: none;
+  border-color: #3498db;
+  background-color: #fff;
+  box-shadow: 0 0 4px rgba(52, 152, 219, 0.3);
+}
+
+.modulo button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.modulo button:hover {
+  background-color: #2980b9;
+}
