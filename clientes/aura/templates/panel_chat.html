@@ -103,6 +103,13 @@
     </div>
   </div>
 
+  <!-- Gestión de cobranza -->
+  <div class="cobranza">
+    <h3>Gestión de Cobranza</h3>
+    <button onclick="cargarCobranza()">Ver Clientes con Deudas</button>
+    <div id="lista-cobranza"></div>
+  </div>
+
   <!-- Sonido de notificación -->
   <audio id="notifSound" src="{{ url_for('static', filename='sounds/notificacion.mp3') }}" preload="auto"></audio>
 
@@ -331,7 +338,54 @@
         }
       });
     }
+
+    function cargarCobranza() {
+      fetch("/api/cobranza")
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            const lista = document.getElementById("lista-cobranza");
+            lista.innerHTML = ""; // Limpiar la lista
+
+            data.data.forEach(cliente => {
+              const div = document.createElement("div");
+              div.className = "cliente-cobranza";
+              div.innerHTML = `
+                <p><strong>${cliente.nombre}</strong> (${cliente.telefono})</p>
+                <p>Monto pendiente: $${cliente.monto_pendiente}</p>
+                <button onclick="registrarPago('${cliente.telefono}')">Registrar Pago</button>
+              `;
+              lista.appendChild(div);
+            });
+          } else {
+            alert(data.message || "No se encontraron datos de cobranza.");
+          }
+        })
+        .catch(err => console.error("Error al cargar cobranza:", err));
+    }
+
+    function registrarPago(telefono) {
+      const monto = prompt("Ingrese el monto pagado:");
+      if (!monto) return;
+
+      fetch(`/api/cobranza/${telefono}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ monto })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert("Pago registrado exitosamente.");
+            cargarCobranza(); // Recargar la lista
+          } else {
+            alert(data.message || "Error al registrar el pago.");
+          }
+        })
+        .catch(err => console.error("Error al registrar pago:", err));
+    }
   </script>
 </body>
 </html>
+``` 
 

@@ -361,3 +361,35 @@ input:checked + .slider::before {
     width: 100%;
   }
 }
+
+/* Cobranza */
+.cobranza {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.cliente-cobranza {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.cliente-cobranza p {
+  margin: 5px 0;
+}
+
+.cliente-cobranza button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.cliente-cobranza button:hover {
+  background-color: #45a049;
+}

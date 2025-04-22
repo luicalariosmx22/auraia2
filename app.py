@@ -69,6 +69,9 @@ from clientes.aura.routes.panel_chat.vista_panel_chat import vista_panel_chat_bp
 from clientes.aura.routes.panel_chat.vista_enviar_mensaje import vista_enviar_mensaje_bp
 from clientes.aura.routes.panel_chat.vista_toggle_ia import vista_toggle_ia_bp
 
+# Blueprint de cobranza
+from clientes.aura.routes.cobranza import cobranza_bp
+
 # Registro base
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
@@ -97,6 +100,9 @@ blueprints_estaticos = [
 for blueprint, prefix in blueprints_estaticos:
     if blueprint.name not in app.blueprints:
         app.register_blueprint(blueprint, url_prefix=prefix)
+
+# Registrar el blueprint de cobranza
+app.register_blueprint(cobranza_bp, url_prefix="/api")
 
 # 🔁 Registro dinámico de todas las Noras desde Supabase
 try:
