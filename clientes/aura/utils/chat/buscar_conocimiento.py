@@ -47,7 +47,7 @@ def buscar_conocimiento(numero_nora, mensaje_usuario):
         # Traer toda la configuración de esa Nora
         response = (
             supabase.table("configuracion_bot")
-            .select("*")
+            .select("base_conocimiento, personalidad, instrucciones")
             .eq("numero_nora", numero_nora)
             .single()
             .execute()
