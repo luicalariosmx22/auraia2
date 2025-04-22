@@ -3,6 +3,7 @@
 from flask import Blueprint, request
 from datetime import datetime
 from clientes.aura.handlers.process_message import procesar_mensaje
+from clientes.aura.handlers.handle_ai import manejar_respuesta_ai  # ✅ Importar manejar_respuesta_ai
 from clientes.aura.utils.supabase import supabase
 from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.historial import guardar_en_historial, guardar_en_historial_batch  # ✅ Asegúrate de importar esto
