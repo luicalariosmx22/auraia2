@@ -1,6 +1,6 @@
 body {
     font-family: 'Segoe UI', sans-serif;
-    background-color: #f5f7fa;
+    background-color: #f9f9fb;
     color: #333;
     margin: 0;
     padding: 2rem;
@@ -19,7 +19,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .logo-container {
@@ -29,7 +29,7 @@ body {
 }
 
 .logo-container img {
-    height: 40px;
+    height: 42px;
 }
 
 .btn-primary {
@@ -66,33 +66,32 @@ body {
     text-align: left;
 }
 
-.acciones a,
-.acciones button {
-    margin-right: 4px;
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    border-radius: 6px;
-    border: none;
-    text-decoration: none;
-    cursor: pointer;
+.acciones {
+    display: flex;
+    gap: 6px;
 }
 
-.btn-mini {
+.btn-accion {
     background-color: #2ecc71;
     color: white;
+    border: none;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
 }
 
-.btn-mini:hover {
+.btn-accion:hover {
     background-color: #27ae60;
 }
 
 .btn-danger {
-    background-color: #e74c3c;
-    color: white;
+    background-color: #e74c3c !important;
 }
 
 .btn-danger:hover {
-    background-color: #c0392b;
+    background-color: #c0392b !important;
 }
 
 .sin-noras {

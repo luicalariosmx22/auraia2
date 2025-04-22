@@ -12,7 +12,7 @@
         <!-- Header con logo -->
         <header class="admin-header">
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='images/aura-logo.svg') }}" alt="Aura Logo">
+                <img src="{{ url_for('static', filename='images/aura-logo.png') }}" alt="Aura Logo">
                 <h1>Noras activas</h1>
             </div>
             <a href="/admin/nora/nueva" class="btn-primary">+ Crear nueva Nora</a>
@@ -38,9 +38,9 @@
                     <td>{{ nora.modulos | join(', ') }}</td>
                     <td>{{ nora.ultima_actualizacion }}</td>
                     <td class="acciones">
-                        <a href="/panel_cliente/{{ nora.nombre }}" class="btn-mini">Panel</a>
-                        <a href="/admin/nora/{{ nora.nombre }}/editar" class="btn-mini">Editar</a>
-                        <button onclick="borrarNora('{{ nora.nombre }}')" class="btn-danger">Borrar</button>
+                        <a href="/panel_cliente/{{ nora.nombre }}" class="btn-accion">Panel</a>
+                        <a href="/admin/nora/{{ nora.nombre }}/editar" class="btn-accion">Editar</a>
+                        <button onclick="borrarNora('{{ nora.nombre }}')" class="btn-accion btn-danger">Borrar</button>
                     </td>
                 </tr>
                 {% endfor %}
