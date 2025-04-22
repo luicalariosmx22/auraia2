@@ -6,9 +6,10 @@ from clientes.aura.utils.error_logger import registrar_error
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None):
+def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None, base_conocimiento=None):
     """
-    Genera una respuesta utilizando OpenAI GPT-3.5-turbo basada en el mensaje del usuario y un historial opcional.
+    Genera una respuesta utilizando OpenAI GPT-3.5-turbo basada en el mensaje del usuario,
+    un historial opcional, un prompt y una base de conocimiento.
     """
     try:
         # Inicializar el historial si no se proporciona
@@ -30,6 +31,9 @@ def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None):
 
         # Construir el contexto para la IA
         messages = [{"role": "system", "content": prompt}] if prompt else []
+        if base_conocimiento:
+            for item in base_conocimiento:
+                messages.append({"role": "system", "content": item["contenido"]})
         messages.extend(historial)
 
         # Llamar a la API de OpenAI
@@ -53,9 +57,3 @@ def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None):
     except Exception as e:
         registrar_error("IA", f"Error inesperado al generar respuesta: {e}")
         return "Lo siento, ocurrió un error inesperado. Por favor, intenta nuevamente.", historial
-
-respuesta, historial_actualizado = manejar_respuesta_ai(mensaje_usuario, historial)
-if not respuesta:
-    print(f"🟡 No se generó una respuesta para el mensaje: {mensaje_usuario}")
-    print(f"Historial proporcionado: {historial}")
-    return {"message": "No se pudo generar una respuesta"}, 200

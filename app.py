@@ -11,6 +11,16 @@ from dotenv import load_dotenv
 from clientes.aura.utils.debug_rutas import generar_html_rutas
 from clientes.aura.utils.supabase import supabase
 from clientes.aura.extensions.socketio_instance import socketio
+from werkzeug.serving import WSGIRequestHandler
+
+class WerkzeugFilter(logging.Filter):
+    def filter(self, record):
+        # Solo filtra los logs que contienen '200 -'
+        return ' 200 -' not in record.getMessage()
+
+# Filtrar solo los logs de werkzeug
+werkzeug_logger = logging.getLogger('werkzeug')
+werkzeug_logger.addFilter(WerkzeugFilter())
 
 # Redirigir logs de polling a archivo separado
 socketio_log = logging.getLogger('socketio_polling')
