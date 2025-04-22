@@ -22,15 +22,26 @@ body {
     margin-bottom: 1.5rem;
 }
 
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-container img {
+    height: 40px;
+}
+
 .btn-primary {
     background-color: #3498db;
     color: white;
-    padding: 10px 16px;
+    padding: 8px 14px;
     border: none;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 500;
     transition: background 0.3s;
+    font-size: 0.9rem;
 }
 
 .btn-primary:hover {
@@ -40,6 +51,7 @@ body {
 .noras-table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 0.9rem;
 }
 
 .noras-table thead {
@@ -49,16 +61,16 @@ body {
 
 .noras-table th,
 .noras-table td {
-    padding: 12px;
+    padding: 10px;
     border-bottom: 1px solid #eee;
     text-align: left;
 }
 
 .acciones a,
 .acciones button {
-    margin-right: 6px;
-    padding: 6px 12px;
-    font-size: 0.85rem;
+    margin-right: 4px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
     border-radius: 6px;
     border: none;
     text-decoration: none;

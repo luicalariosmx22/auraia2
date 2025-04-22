@@ -8,11 +8,17 @@
 </head>
 <body>
     <div class="admin-noras-container">
+
+        <!-- Header con logo -->
         <header class="admin-header">
-            <h1>👩‍💼 Noras activas</h1>
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='images/aura-logo.svg') }}" alt="Aura Logo">
+                <h1>Noras activas</h1>
+            </div>
             <a href="/admin/nora/nueva" class="btn-primary">+ Crear nueva Nora</a>
         </header>
 
+        <!-- Tabla de Noras -->
         {% if noras %}
         <table class="noras-table">
             <thead>
@@ -62,7 +68,7 @@
                         alert(`Error: ${data.error}`);
                     }
                 })
-                .catch(err => alert("Error al borrar la Nora."));
+                .catch(() => alert("Error al borrar la Nora."));
             }
         }
     </script>
