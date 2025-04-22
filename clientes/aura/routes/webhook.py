@@ -15,11 +15,9 @@ def obtener_historial_usuario(telefono):
     """
     try:
         print(f"🔍 Buscando historial para el teléfono: {telefono}")
-        # Consulta la tabla historial_conversaciones
         response = supabase.table("historial_conversaciones").select("*").eq("telefono", telefono).order("timestamp", ascending=True).execute()
         print(f"🔍 Respuesta de Supabase: {response.data}")
         if response.data:
-            # Construir el historial a partir de los mensajes
             historial = [{"role": "user" if m["tipo"] == "recibido" else "assistant", "content": m["mensaje"]} for m in response.data]
             return historial
         return []  # Devuelve una lista vacía si no hay historial
@@ -92,8 +90,12 @@ def webhook():
                 "etiquetas": ["nuevo"]
             }).execute()
 
+        # Recuperar historial del usuario
+        historial = obtener_historial_usuario(telefono_usuario)
+        print(f"🔍 Historial recuperado: {historial}")
+
         # 🧠 Procesar el mensaje
-        respuesta = procesar_mensaje(data)
+        respuesta, historial_actualizado = manejar_respuesta_ai(mensaje_usuario, historial)
         if not respuesta:
             print("🟡 No se generó una respuesta. Posiblemente sin IA o sin conocimiento.")
             return {"message": "No se pudo generar una respuesta"}, 200

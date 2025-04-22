@@ -9,19 +9,20 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None):
     """
     Genera una respuesta utilizando OpenAI GPT-3.5-turbo basada en el mensaje del usuario y un historial opcional.
-
-    Args:
-        mensaje_usuario (str): Mensaje enviado por el usuario.
-        historial (list, optional): Lista de mensajes previos en la conversación.
-        prompt (str, optional): Contexto adicional para la IA. Si no se proporciona, se usa el mensaje del usuario.
-
-    Returns:
-        tuple: Respuesta generada por la IA y el historial actualizado.
     """
     try:
         # Inicializar el historial si no se proporciona
         if historial is None:
             historial = []
+
+        # Agregar un prompt inicial si el historial está vacío
+        if not historial:
+            prompt_inicial = (
+                "Eres un asistente virtual llamado Nora. "
+                "Tu objetivo es ayudar a los usuarios con sus preguntas de manera profesional y amigable. "
+                "Evita repetir saludos innecesarios y responde directamente a las preguntas."
+            )
+            historial.append({"role": "system", "content": prompt_inicial})
 
         # Agregar el mensaje del usuario al historial
         historial.append({"role": "user", "content": mensaje_usuario})
@@ -34,7 +35,7 @@ def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=messages,
-            temperature=0.2
+            temperature=0.1
         )
 
         # Obtener la respuesta generada
