@@ -19,15 +19,16 @@
       </div>
     </header>
 
-    <section class="seccion">
-      <h3>⚙️ Módulos activos:</h3>
-      {% if modulos %}
+    <section class="modulos-activos">
+      <h2>🔧 Módulos activados</h2>
+      <div class="modulo-grid">
         {% for modulo in modulos %}
-          <span class="badge">{{ modulo }}</span>
+          <a href="/panel_cliente/{{ nombre_nora }}/{{ modulo }}" class="modulo-card">
+            <span class="emoji">✨</span>
+            <span class="nombre">{{ modulo.replace('_', ' ').capitalize() }}</span>
+          </a>
         {% endfor %}
-      {% else %}
-        <p>No hay módulos activos para esta Nora.</p>
-      {% endif %}
+      </div>
     </section>
 
     <section class="meta-grid">
