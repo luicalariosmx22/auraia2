@@ -113,12 +113,18 @@ def gestionar_conocimiento(nombre_nora):
         mensaje_bienvenida = config_res.data.get("bienvenida", "")
 
         if request.method == "POST":
-            # Lógica para agregar conocimiento (ya implementada)
+            # Obtener datos del formulario
             conocimiento = request.form.get("base_conocimiento", "").strip()
             titulo = request.form.get("titulo", "").strip()
 
+            # Validar que el título sea obligatorio
             if not titulo:
-                flash("❌ Debes proporcionar un título para la tabla de conocimiento", "error")
+                flash("❌ Debes proporcionar un título para agrupar el conocimiento", "error")
+                return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
+
+            # Validar que el contenido del conocimiento no esté vacío
+            if not conocimiento:
+                flash("❌ Debes proporcionar contenido para la tabla de conocimiento", "error")
                 return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
 
             # Dividir el nuevo contenido en bloques por párrafo
