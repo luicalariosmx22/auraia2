@@ -94,7 +94,7 @@ def webhook():
         historial = obtener_historial_usuario(telefono_usuario)
         print(f"🔍 Historial recuperado: {historial}")
 
-        # 🧠 Procesar el mensaje
+        # Generar respuesta con IA
         respuesta, historial_actualizado = manejar_respuesta_ai(mensaje_usuario, historial)
         if not respuesta:
             print("🟡 No se generó una respuesta. Posiblemente sin IA o sin conocimiento.")

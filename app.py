@@ -12,6 +12,13 @@ from clientes.aura.utils.debug_rutas import generar_html_rutas  # Importación c
 from clientes.aura.utils.supabase import supabase
 from clientes.aura.extensions.socketio_instance import socketio  # Importar instancia de SocketIO
 
+# Redirigir logs de polling a archivo separado
+socketio_log = logging.getLogger('socketio_polling')
+socketio_log.setLevel(logging.INFO)
+handler = RotatingFileHandler("logs/socketio_polling.log", maxBytes=100000, backupCount=3)
+handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+socketio_log.addHandler(handler)
+
 # Cargar variables de entorno
 load_dotenv()
 
@@ -158,6 +165,11 @@ def debug_info():
         "rutas_registradas": [rule.rule for rule in app.url_map.iter_rules()],
         "estado": "OK",
     })
+
+@app.before_request
+def log_polling_requests():
+    if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
+        socketio_log.info(f"{request.remote_addr} - {request.method} {request.full_path}")
 
 # ========= INICIALIZACIÓN =========
 if __name__ == "__main__":
