@@ -29,17 +29,19 @@
         {% for contacto in contactos %}
         <li>
           <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
-            <!-- Foto del contacto -->
-            {% if contacto.imagen_perfil %}
-            <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
-            {% else %}
-            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
-            {% endif %}
-
-            <!-- Nombre del contacto -->
             <div class="info-contacto">
-              <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
-              <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
+              <!-- Foto del contacto -->
+              {% if contacto.imagen_perfil %}
+              <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
+              {% else %}
+              <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
+              {% endif %}
+
+              <!-- Nombre y último mensaje -->
+              <div class="texto-contacto">
+                <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
+                <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
+              </div>
             </div>
 
             <!-- Fecha del último contacto -->
@@ -277,4 +279,36 @@
   </script>
 </body>
 </html>
-``` 
+
+@panel_chat_bp.route("/<nombre_nora>")
+def panel_chat(nombre_nora):
+    """
+    Renderiza el panel de chat para una Nora específica.
+    """
+    print(f"🔍 Iniciando función panel_chat para Nora: {nombre_nora}")
+    if "user" not in session:
+        print("⚠️ Usuario no autenticado. Redirigiendo al login.")
+        return redirect(url_for("login.login_google"))
+
+    contactos = leer_contactos()
+
+    # Ordenar contactos por la fecha del último mensaje (descendente)
+    contactos_ordenados = sorted(contactos, key=lambda c: c.get("ultimo_mensaje", ""), reverse=True)
+
+    lista = []
+    for c in contactos_ordenados:
+        mensajes = leer_historial(c["telefono"])
+        for mensaje in mensajes:
+            if "fecha" in mensaje and isinstance(mensaje["fecha"], datetime.datetime):
+                mensaje["fecha"] = mensaje["fecha"].strftime('%d-%b')
+        lista.append({
+            **c,
+            "mensajes": mensajes,
+            "ultimo_mensaje": c.get("ultimo_mensaje", "Sin fecha"),
+            "mensaje_reciente": c.get("mensaje_reciente", "Sin mensajes"),
+            "etiquetas": c.get("etiquetas", []),
+            "imagen_perfil": c.get("imagen_perfil", None)
+        })
+
+    print(f"✅ Panel de chat renderizado para {len(contactos)} contactos.")
+    return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
