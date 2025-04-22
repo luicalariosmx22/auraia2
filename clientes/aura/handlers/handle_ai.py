@@ -16,15 +16,14 @@ def manejar_respuesta_ai(mensaje_usuario, historial=None, prompt=None, base_cono
         if historial is None:
             historial = []
 
-        # Agregar un prompt inicial si el historial está vacío
-        if not historial:
-            print("⚠️ No se encontró historial. Generando respuesta sin contexto.")
-            prompt_inicial = (
+        # Agregar un prompt predeterminado si no hay historial ni prompt
+        if not historial and not prompt:
+            print("⚠️ No se encontró historial ni prompt. Usando prompt predeterminado.")
+            prompt = (
                 "Eres un asistente virtual llamado Nora. "
                 "Tu objetivo es ayudar a los usuarios con sus preguntas de manera profesional y amigable. "
                 "Evita repetir saludos innecesarios y responde directamente a las preguntas."
             )
-            historial.append({"role": "system", "content": prompt_inicial})
 
         # Agregar el mensaje del usuario al historial
         historial.append({"role": "user", "content": mensaje_usuario})
