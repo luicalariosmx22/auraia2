@@ -85,7 +85,8 @@
                       {% for tabla in tablas %}
                           <li>
                               <strong>{{ tabla.titulo }}</strong>
-                              <form action="{{ url_for('cliente_nora.eliminar_conocimiento', nombre_nora=nombre_nora, tabla_id=tabla.id) }}" method="POST" style="display: inline;">
+                              <form action="{{ url_for('cliente_nora.panel_entrenamiento', nombre_nora=nombre_nora) }}" method="POST">
+
                                   <button type="submit" style="color: red;">Eliminar</button>
                               </form>
                           </li>

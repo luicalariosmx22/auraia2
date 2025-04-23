@@ -120,21 +120,18 @@ def gestionar_conocimiento(nombre_nora):
             # Validar que el título sea obligatorio
             if not titulo:
                 flash("❌ Debes proporcionar un título para agrupar el conocimiento", "error")
-                return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
-
             # Validar que el contenido del conocimiento no esté vacío
-            if not conocimiento:
-                flash("❌ Debes proporcionar contenido para la tabla de conocimiento", "error")
-                return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
+            elif not conocimiento:
+                flash("❌ El contenido del conocimiento está vacío", "error")
+            else:
+                # Dividir el contenido en bloques por párrafo
+                bloques = [b.strip() for b in conocimiento.split("\n\n") if b.strip()]
+                inserts = [{"numero_nora": numero_nora, "titulo": titulo, "contenido": bloque} for bloque in bloques]
 
-            # Dividir el nuevo contenido en bloques por párrafo
-            bloques = [b.strip() for b in conocimiento.split("\n\n") if b.strip()]
-            inserts = [{"numero_nora": numero_nora, "titulo": titulo, "contenido": bloque} for bloque in bloques]
-
-            # Insertar nuevos bloques en la tabla 'conocimiento_nora'
-            if inserts:
-                supabase.table("conocimiento_nora").insert(inserts).execute()
-                flash("✅ Conocimiento agregado correctamente", "success")
+                # Insertar los bloques en la tabla 'conocimiento_nora'
+                if inserts:
+                    supabase.table("conocimiento_nora").insert(inserts).execute()
+                    flash("✅ Conocimiento agregado correctamente", "success")
 
         # Obtener todas las tablas de conocimiento existentes para este cliente
         tablas_res = supabase.table("conocimiento_nora").select("id, titulo").eq("numero_nora", numero_nora).execute()
