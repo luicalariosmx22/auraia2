@@ -74,7 +74,7 @@
             <div class="modulo">
                 <h2>📚 Centro de conocimiento</h2>
                 <form action="{{ url_for('cliente_nora.gestionar_conocimiento', nombre_nora=nombre_nora) }}" method="POST">
-                    <input type="text" name="titulo" placeholder="Título de la tabla de conocimiento" required style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                    <input type="text" name="titulo" placeholder="Título de la tabla de conocimiento" required>
                     <textarea name="base_conocimiento" rows="7" placeholder="Toda la información clave que Nora debe usar en sus respuestas..." required></textarea>
                     <button type="submit">Agregar conocimiento</button>
                 </form>

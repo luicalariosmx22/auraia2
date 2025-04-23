@@ -182,3 +182,44 @@ def actualizar_bienvenida(nombre_nora):
         flash("❌ Error al actualizar mensaje de bienvenida", "error")
 
     return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
+
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenamiento", methods=["GET"])
+def panel_entrenamiento(nombre_nora):
+    try:
+        # Obtener configuración básica desde la tabla 'configuracion_bot'
+        config_res = supabase.table("configuracion_bot") \
+            .select("*") \
+            .eq("nombre_nora", nombre_nora) \
+            .single() \
+            .execute()
+
+        if not config_res.data:
+            flash("❌ No se encontró la configuración de esta Nora", "error")
+            return redirect(url_for("cliente_nora.configuracion_cliente", nombre_nora=nombre_nora))
+
+        config = config_res.data
+        numero_nora = config.get("numero_nora")
+        mensaje_bienvenida = config.get("bienvenida", "")
+
+        # Obtener todas las tablas de conocimiento relacionadas con esta Nora
+        tablas_res = supabase.table("conocimiento_nora") \
+            .select("id, titulo") \
+            .eq("numero_nora", numero_nora) \
+            .execute()
+        tablas = tablas_res.data or []
+
+    except Exception as e:
+        print(f"❌ Error al cargar panel de entrenamiento: {e}")
+        flash("❌ Error al cargar entrenamiento", "error")
+        config = {}
+        tablas = []
+        mensaje_bienvenida = ""
+
+    # Renderizar la plantilla con los datos obtenidos
+    return render_template(
+        "entrena_nora.html",
+        nombre_nora=nombre_nora,
+        config=config,
+        tablas=tablas,
+        mensaje_bienvenida=mensaje_bienvenida
+    )
