@@ -80,18 +80,20 @@
                 </form>
 
                 <h3>📋 Tablas de conocimiento existentes</h3>
-                <ul>
-                    {% for tabla in tablas %}
-                        <li>
-                            <strong>{{ tabla.titulo }}</strong>
-                            <form action="{{ url_for('cliente_nora.eliminar_conocimiento', nombre_nora=nombre_nora, tabla_id=tabla.id) }}" method="POST" style="display: inline;">
-                                <button type="submit" style="color: red;">Eliminar</button>
-                            </form>
-                        </li>
-                    {% else %}
-                        <p>No hay tablas de conocimiento registradas.</p>
-                    {% endfor %}
-                </ul>
+                {% if tablas %}
+                    <ul>
+                      {% for tabla in tablas %}
+                          <li>
+                              <strong>{{ tabla.titulo }}</strong>
+                              <form action="{{ url_for('cliente_nora.eliminar_conocimiento', nombre_nora=nombre_nora, tabla_id=tabla.id) }}" method="POST" style="display: inline;">
+                                  <button type="submit" style="color: red;">Eliminar</button>
+                              </form>
+                          </li>
+                      {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No hay tablas de conocimiento registradas.</p>
+                {% endif %}
             </div>
 
         </section>
