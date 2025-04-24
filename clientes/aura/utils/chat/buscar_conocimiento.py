@@ -53,6 +53,13 @@ def buscar_conocimiento(numero_nora, mensaje_usuario):
         instrucciones = config.get("instrucciones", "Responde de forma clara y útil.")
         base_conocimiento = config.get("base_conocimiento", "").strip()
 
+        # Verificar si personalidad e instrucciones fueron cargadas correctamente
+        if personalidad and instrucciones:
+            print(f"✅ Personalidad cargada: {personalidad}")
+            print(f"✅ Instrucciones cargadas: {instrucciones}")
+        else:
+            print("⚠️ Personalidad o instrucciones no están definidas correctamente.")
+
         if not base_conocimiento:
             print("⚠️ La base_conocimiento está vacía.")
             return None
