@@ -31,6 +31,14 @@
             </button>
         </form>
 
+        <h3>✉️ Mensaje de bienvenida</h3>
+        <p>Este mensaje se enviará automáticamente cuando el usuario escriba por primera vez.</p>
+        <form method="POST">
+            <textarea name="mensaje_bienvenida" rows="6" style="width: 100%;">{{ mensaje_bienvenida }}</textarea>
+            <input type="hidden" name="ia_activada" value="{{ ia_activada }}">
+            <button type="submit">💾 Guardar cambios</button>
+        </form>
+
         <br><br>
         <a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}" class="boton">← Volver al panel del cliente</a>
     </main>

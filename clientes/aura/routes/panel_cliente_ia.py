@@ -31,12 +31,18 @@ def panel_ia(nombre_nora):
         return f"❌ Error al cargar configuración para {nombre_nora}"
 
     if request.method == "POST":
+        # Obtener estado de IA y mensaje de bienvenida desde el formulario
         estado_nuevo = request.form.get("ia_activada") == "true"
+        mensaje_bienvenida = request.form.get("mensaje_bienvenida", "").strip()
         config["ia_activada"] = estado_nuevo
+        config["mensaje_bienvenida"] = mensaje_bienvenida
 
         # Guardar configuración en Supabase
         try:
-            response = supabase.table("configuracion_bot").update({"ia_activada": estado_nuevo}).eq("nombre_nora", nombre_nora).execute()
+            response = supabase.table("configuracion_bot").update({
+                "ia_activada": estado_nuevo,
+                "mensaje_bienvenida": mensaje_bienvenida
+            }).eq("nombre_nora", nombre_nora).execute()
             if not response.data:
                 print(f"❌ Error al actualizar configuración: {not response.data}")
                 return f"❌ Error al actualizar configuración para {nombre_nora}"
@@ -46,9 +52,11 @@ def panel_ia(nombre_nora):
 
         return redirect(url_for("panel_cliente_ia.panel_ia", nombre_nora=nombre_nora))
 
+    # Renderizar la plantilla con los datos de configuración
     return render_template(
         "panel_cliente_ia.html",
         user=user,
         ia_activada=config.get("ia_activada", True),
+        mensaje_bienvenida=config.get("mensaje_bienvenida", ""),
         nombre_nora=nombre_nora
     )
