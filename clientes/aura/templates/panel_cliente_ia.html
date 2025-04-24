@@ -39,6 +39,25 @@
             <button type="submit">💾 Guardar cambios</button>
         </form>
 
+        <hr>
+        <h3>📚 Conocimiento cargado en Nora</h3>
+        <p>Estos bloques son interpretados por la IA para responder mejor. Puedes editarlos o eliminarlos.</p>
+
+        {% for bloque in conocimientos %}
+            <form method="POST" action="/panel_cliente/ia/{{ nombre_nora }}/editar_conocimiento/{{ bloque.id }}" style="margin-bottom: 20px;">
+                <label><strong>Título:</strong></label><br>
+                <input type="text" name="titulo" value="{{ bloque.titulo }}" style="width: 100%;"><br><br>
+
+                <label><strong>Contenido:</strong></label><br>
+                <textarea name="contenido" rows="4" style="width: 100%;">{{ bloque.contenido }}</textarea><br>
+
+                <button type="submit">💾 Guardar</button>
+                <a href="/panel_cliente/ia/{{ nombre_nora }}/borrar_conocimiento/{{ bloque.id }}" style="color: red; margin-left: 10px;">🗑 Eliminar</a>
+            </form>
+        {% else %}
+            <p>❌ No hay contenido registrado aún.</p>
+        {% endfor %}
+
         <br><br>
         <a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}" class="boton">← Volver al panel del cliente</a>
     </main>
