@@ -57,10 +57,15 @@ def procesar_mensaje(data):
 
     if prompt_conocimiento:
         print("📖 Usando memoria como contexto")
-        respuesta = manejar_respuesta_ai(mensaje_usuario, prompt=prompt_conocimiento)
+        respuesta, historial = manejar_respuesta_ai(mensaje_usuario, prompt=prompt_conocimiento)
     else:
         print("🧠 Usando IA sin contexto")
-        respuesta = manejar_respuesta_ai(mensaje_usuario)
+        respuesta, historial = manejar_respuesta_ai(mensaje_usuario)
+
+    # Verificar si la respuesta fue generada correctamente
+    if not respuesta:
+        print("⚠️ No se pudo generar una respuesta. Usando mensaje predeterminado.")
+        respuesta = "Lo siento, no puedo responder en este momento. Por favor, intenta más tarde."
 
     # Guardar la respuesta generada en el historial
     guardar_en_historial(
