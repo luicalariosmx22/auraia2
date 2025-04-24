@@ -11,10 +11,10 @@ from clientes.aura.utils.supabase import supabase
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def obtener_prompt_personalizado(numero_nora: str) -> Optional[str]:
+def obtener_personalidad(numero_nora: str) -> Tuple[str, str]:
     """
-    Obtiene el prompt personalizado desde la base de datos para un número específico.
-    Esta versión usa limit(1) para evitar errores si hay 0 o más resultados.
+    Obtiene la personalidad e instrucciones desde la base de datos para un número específico.
+    Retorna ambos valores como strings.
     """
     try:
         resultado = (
@@ -25,30 +25,25 @@ def obtener_prompt_personalizado(numero_nora: str) -> Optional[str]:
             .limit(1)
             .execute()
         )
-
         if resultado.data:
             datos = resultado.data[0]
-            personalidad = datos.get("personalidad", "").strip()
-            instrucciones = datos.get("instrucciones", "").strip()
-
-            if not personalidad:
-                print("⚠️ La personalidad no está definida. Usando valor por defecto: 'profesional y amigable'.")
-                personalidad = "profesional y amigable"
-
-            if not instrucciones:
-                print("⚠️ Las instrucciones no están definidas. Usando valor por defecto: 'Responde de forma clara y útil.'")
-                instrucciones = "Responde de forma clara y útil."
-
-            prompt = f"{personalidad}\n\n{instrucciones}"
-            print(f"✅ Prompt personalizado generado: {prompt}")
-            return prompt
-
-        print(f"⚠️ No se encontró un prompt personalizado para el número: {numero_nora}")
-        return None
-
+            personalidad = datos.get("personalidad", "profesional y amigable").strip()
+            instrucciones = datos.get("instrucciones", "Responde de forma clara y útil.").strip()
+            return personalidad, instrucciones
+        return "profesional y amigable", "Responde de forma clara y útil."
     except Exception as e:
-        registrar_error("IA", f"No se pudo cargar el prompt personalizado: {e}")
-        return None
+        registrar_error("IA", f"No se pudo cargar personalidad e instrucciones: {e}")
+        return "profesional y amigable", "Responde de forma clara y útil."
+
+def construir_prompt(personalidad: str, instrucciones: str) -> str:
+    return f"{personalidad}\n\n{instrucciones}"
+
+def construir_contexto(base_conocimiento: List[dict], historial: List[dict]) -> List[dict]:
+    contexto = []
+    for item in base_conocimiento:
+        contexto.append({"role": "system", "content": item["contenido"]})
+    contexto.extend(historial)
+    return contexto
 
 def manejar_respuesta_ai(
     mensaje_usuario: str,
@@ -60,11 +55,7 @@ def manejar_respuesta_ai(
     try:
         if numero_nora is None:
             resultado = supabase.table("configuracion_bot").select("numero_nora").limit(1).execute()
-            if resultado.data:
-                numero_nora = resultado.data[0].get("numero_nora", "5215593372311")
-            else:
-                numero_nora = "5215593372311"
-                print("⚠️ No se encontró número_nora. Usando valor por defecto.")
+            numero_nora = resultado.data[0].get("numero_nora", "5215593372311") if resultado.data else "5215593372311"
 
         if base_conocimiento is None:
             base_conocimiento = obtener_base_conocimiento(numero_nora)
@@ -73,25 +64,13 @@ def manejar_respuesta_ai(
         if historial is None:
             historial = []
 
-        if not historial:
-            if not prompt:
-                prompt = obtener_prompt_personalizado(numero_nora)
-            if not prompt:
-                prompt = (
-                    "Eres un asistente virtual llamado Nora. "
-                    "Tu objetivo es ayudar a los usuarios con sus preguntas de manera profesional y amigable. "
-                    "Evita repetir saludos innecesarios y responde directamente a las preguntas."
-                )
-            historial.append({"role": "system", "content": prompt})
+        if not any(msg["role"] == "system" for msg in historial):
+            personalidad, instrucciones = obtener_personalidad(numero_nora)
+            prompt = construir_prompt(personalidad, instrucciones)
+            historial.insert(0, {"role": "system", "content": prompt})
 
         historial.append({"role": "user", "content": mensaje_usuario})
-
-        messages = []
-        if base_conocimiento:
-            for item in base_conocimiento:
-                messages.append({"role": "system", "content": item["contenido"]})
-
-        messages.extend(historial)
+        messages = construir_contexto(base_conocimiento, historial)
 
         print(f"📜 Contexto construido para OpenAI: {messages}")
 

@@ -5,12 +5,7 @@ from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.limpieza import limpiar_mensaje
 from clientes.aura.utils.historial import guardar_en_historial
 from clientes.aura.utils.twilio_sender import enviar_mensaje
-from clientes.aura.utils.settings_loader import cargar_settings
 from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
-from clientes.aura.utils.comunicacion_contextual import debe_saludar, debe_preguntar_si_hay_duda
-
-from utils.db.contactos import obtener_contacto
-from clientes.aura.utils.buscar_conocimiento import buscar_conocimiento
 from clientes.aura.utils.supabase import supabase
 
 def obtener_config_nora(nombre_nora):
@@ -30,20 +25,19 @@ def obtener_config_nora(nombre_nora):
 
 def procesar_mensaje(data):
     """
-    Procesa el mensaje recibido, busca en la memoria extendida y utiliza IA para generar una respuesta.
+    Procesa el mensaje recibido, limpia el texto, normaliza el número, obtiene historial y llama a la IA.
     """
-    # Obtener datos del mensaje
     numero_usuario = normalizar_numero(data.get("From"))
     mensaje_usuario = limpiar_mensaje(data.get("Body"))
     nombre_usuario = data.get("ProfileName", "Usuario")
     nombre_nora = data.get("NombreNora", "nora").lower()
 
-    # Configuración de la Nora
+    # Configuración y número real de Nora
     config = obtener_config_nora(nombre_nora)
     numero_nora = config.get("numero_nora", "5210000000000")
     print(f"🔧 Configuración para {nombre_nora} → número_nora={numero_nora}")
 
-    # Guardar el mensaje del usuario en el historial
+    # Guardar mensaje entrante en historial
     guardar_en_historial(
         telefono=numero_usuario,
         mensaje=mensaje_usuario,
@@ -52,22 +46,17 @@ def procesar_mensaje(data):
         tipo="usuario"
     )
 
-    # 🧠 Buscar en la memoria extendida (base de conocimiento)
-    prompt_conocimiento = buscar_conocimiento(numero_nora, mensaje_usuario)
+    # Generar respuesta desde IA con historial y contexto automáticamente manejados dentro de handle_ai
+    respuesta, historial = manejar_respuesta_ai(
+        mensaje_usuario=mensaje_usuario,
+        numero_nora=numero_nora
+    )
 
-    if prompt_conocimiento:
-        print("📖 Usando memoria como contexto")
-        respuesta, historial = manejar_respuesta_ai(mensaje_usuario, prompt=prompt_conocimiento)
-    else:
-        print("🧠 Usando IA sin contexto")
-        respuesta, historial = manejar_respuesta_ai(mensaje_usuario)
-
-    # Verificar si la respuesta fue generada correctamente
     if not respuesta:
         print("⚠️ No se pudo generar una respuesta. Usando mensaje predeterminado.")
         respuesta = "Lo siento, no puedo responder en este momento. Por favor, intenta más tarde."
 
-    # Guardar la respuesta generada en el historial
+    # Guardar respuesta en historial
     guardar_en_historial(
         telefono=numero_usuario,
         mensaje=respuesta,
