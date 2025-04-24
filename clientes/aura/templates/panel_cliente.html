@@ -30,8 +30,8 @@
 
       {% if "etiquetas" in modulos %}
       <div class="meta-card">
-        <h3>🏷️ Etiquetas</h3>
-        <p>Categoriza tus contactos con etiquetas personalizadas.</p>
+        <h3>🏷️ Etiquetas y Respuestas Guardadas</h3>
+        <p>Categoriza tus contactos con etiquetas personalizadas y responde de manera rapida.</p>
         <a href="{{ url_for('panel_cliente_etiquetas.panel_etiquetas', nombre_nora=nombre_nora) }}" class="btn-neutral">🔖 Ver etiquetas</a>
       </div>
       {% endif %}
@@ -128,9 +128,25 @@
       <div class="meta-card">
         <h3>💬 Panel de Chat</h3>
         <p>Visualiza y responde en tiempo real desde una interfaz tipo WhatsApp.</p>
-        <a href="/panel/chat/{{ nombre_nora }}" class="btn-destacado">💬 Ir al Panel de Chat</a>
+        <a href="/panel/chat/{{ nombre_nora }}" class="btn-neutral">💬 Ir al Panel de Chat</a>
       </div>
       {% endif %}
+
+      {% if "panel_conocimiento" in modulos %}
+<div class="meta-card">
+    <h3>📚 Panel de Conocimiento</h3>
+    <p>Gestiona y edita el conocimiento que Nora utiliza para responder.</p>
+    <a href="{{ url_for('panel_cliente_conocimiento.panel_conocimiento', nombre_nora=nombre_nora) }}" class="btn-neutral">📚 Gestionar conocimiento</a>
+</div>
+{% endif %}
+
+{% if "encuestas" in modulos %}
+<div class="meta-card">
+    <h3>📊 Encuestas</h3>
+    <p>Crea y gestiona encuestas para tus usuarios.</p>
+    <a href="#" class="btn-neutral">📝 Configurar encuestas</a>
+</div>
+{% endif %}
     </section>
 
     <!-- Nueva sección de módulos activos -->
