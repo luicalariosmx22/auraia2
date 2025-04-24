@@ -200,7 +200,7 @@ def panel_entrenamiento(nombre_nora):
 
         # Obtener todas las tablas de conocimiento relacionadas con esta Nora
         tablas_res = supabase.table("conocimiento_nora") \
-            .select("id, titulo") \
+            .select("id, titulo, contenido") \
             .eq("numero_nora", numero_nora) \
             .execute()
         tablas = tablas_res.data or []
