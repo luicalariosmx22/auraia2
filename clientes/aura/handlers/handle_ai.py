@@ -11,10 +11,10 @@ from clientes.aura.utils.supabase import supabase
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-
 def obtener_prompt_personalizado(numero_nora: str) -> Optional[str]:
     """
     Obtiene el prompt personalizado desde la base de datos para un número específico.
+    Esta versión usa limit(1) para evitar errores si hay 0 o más resultados.
     """
     try:
         resultado = (
@@ -22,15 +22,15 @@ def obtener_prompt_personalizado(numero_nora: str) -> Optional[str]:
             .table("configuracion_bot")
             .select("personalidad, instrucciones")
             .eq("numero_nora", numero_nora)
-            .single()
+            .limit(1)
             .execute()
         )
 
         if resultado.data:
-            personalidad = resultado.data.get("personalidad", "").strip()
-            instrucciones = resultado.data.get("instrucciones", "").strip()
+            datos = resultado.data[0]
+            personalidad = datos.get("personalidad", "").strip()
+            instrucciones = datos.get("instrucciones", "").strip()
 
-            # Verificar si personalidad e instrucciones están definidas
             if not personalidad:
                 print("⚠️ La personalidad no está definida. Usando valor por defecto: 'profesional y amigable'.")
                 personalidad = "profesional y amigable"
@@ -50,7 +50,6 @@ def obtener_prompt_personalizado(numero_nora: str) -> Optional[str]:
         registrar_error("IA", f"No se pudo cargar el prompt personalizado: {e}")
         return None
 
-
 def manejar_respuesta_ai(
     mensaje_usuario: str,
     numero_nora: Optional[str] = None,
@@ -58,9 +57,6 @@ def manejar_respuesta_ai(
     prompt: Optional[str] = None,
     base_conocimiento: Optional[List[dict]] = None
 ) -> Tuple[str, List[dict]]:
-    """
-    Genera una respuesta utilizando OpenAI GPT-3.5-turbo basada en el mensaje del usuario.
-    """
     try:
         if numero_nora is None:
             resultado = supabase.table("configuracion_bot").select("numero_nora").limit(1).execute()
@@ -94,6 +90,7 @@ def manejar_respuesta_ai(
         if base_conocimiento:
             for item in base_conocimiento:
                 messages.append({"role": "system", "content": item["contenido"]})
+
         messages.extend(historial)
 
         print(f"📜 Contexto construido para OpenAI: {messages}")
