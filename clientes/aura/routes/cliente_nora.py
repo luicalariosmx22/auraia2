@@ -151,7 +151,7 @@ def gestionar_conocimiento(nombre_nora):
         mensaje_bienvenida=mensaje_bienvenida
     )
 
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento/eliminar/<int:tabla_id>", methods=["POST"])
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento/eliminar/<tabla_id>", methods=["POST"])
 def eliminar_conocimiento(nombre_nora, tabla_id):
     try:
         # Eliminar la tabla de conocimiento por ID
