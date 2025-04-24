@@ -37,6 +37,26 @@ def procesar_mensaje(data):
     numero_nora = config.get("numero_nora", "5210000000000")
     print(f"🔧 Configuración para {nombre_nora} → número_nora={numero_nora}")
 
+    # Verificar si es la primera interacción
+    historial = supabase.table("historial_conversaciones") \
+        .select("id") \
+        .eq("telefono", numero_usuario) \
+        .limit(1) \
+        .execute().data
+
+    if not historial:
+        mensaje_bienvenida = config.get("mensaje_bienvenida", "").strip()
+        if mensaje_bienvenida:
+            print("📩 Enviando mensaje de bienvenida visible...")
+            enviar_mensaje(numero_usuario, mensaje_bienvenida, nombre_usuario)
+            guardar_en_historial(
+                telefono=numero_usuario,
+                mensaje=mensaje_bienvenida,
+                origen=numero_nora,
+                nombre_nora=nombre_nora,
+                tipo="respuesta"
+            )
+
     # Guardar mensaje entrante en historial
     guardar_en_historial(
         telefono=numero_usuario,
