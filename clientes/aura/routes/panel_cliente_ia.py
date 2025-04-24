@@ -26,6 +26,7 @@ def panel_ia(nombre_nora):
             print(f"❌ Error al cargar configuración: {not response.data}")
             return f"❌ No se encontró la configuración para {nombre_nora}"
         config = response.data[0]
+        print(f"✅ Configuración cargada: {config}")  # Depuración: Verificar configuración cargada
     except Exception as e:
         print(f"❌ Error al cargar configuración: {str(e)}")
         return f"❌ Error al cargar configuración para {nombre_nora}"
@@ -36,6 +37,7 @@ def panel_ia(nombre_nora):
         mensaje_bienvenida = request.form.get("mensaje_bienvenida", "").strip()
         config["ia_activada"] = estado_nuevo
         config["mensaje_bienvenida"] = mensaje_bienvenida
+        print(f"🔄 Actualizando configuración: ia_activada={estado_nuevo}, mensaje_bienvenida={mensaje_bienvenida}")  # Depuración
 
         # Guardar configuración en Supabase
         try:
@@ -46,6 +48,7 @@ def panel_ia(nombre_nora):
             if not response.data:
                 print(f"❌ Error al actualizar configuración: {not response.data}")
                 return f"❌ Error al actualizar configuración para {nombre_nora}"
+            print(f"✅ Configuración actualizada correctamente.")  # Depuración
         except Exception as e:
             print(f"❌ Error al actualizar configuración: {str(e)}")
             return f"❌ Error al actualizar configuración para {nombre_nora}"
@@ -59,11 +62,13 @@ def panel_ia(nombre_nora):
             .eq("numero_nora", config["numero_nora"]) \
             .order("titulo") \
             .execute().data
+        print(f"✅ Bloques de conocimiento cargados: {conocimientos}")  # Depuración: Verificar bloques cargados
     except Exception as e:
         print(f"❌ Error al cargar bloques de conocimiento: {e}")
         conocimientos = []
 
     # Renderizar la plantilla con los datos de configuración y bloques de conocimiento
+    print(f"🔍 Renderizando plantilla con: ia_activada={config.get('ia_activada', True)}, mensaje_bienvenida={config.get('mensaje_bienvenida', '')}, conocimientos={len(conocimientos)} bloques")  # Depuración
     return render_template(
         "panel_cliente_ia.html",
         user=user,
