@@ -13,20 +13,36 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def obtener_prompt_personalizado(numero_nora: str) -> Optional[str]:
+    """
+    Obtiene el prompt personalizado desde la base de datos para un número específico.
+    """
     try:
         resultado = (
             supabase
             .table("configuracion_bot")
             .select("personalidad, instrucciones")
             .eq("numero_nora", numero_nora)
-            .single()  # Cambiado a .single() para obtener un único registro como diccionario
+            .single()
             .execute()
         )
 
         if resultado.data:
-            personalidad = resultado.data.get("personalidad", "")
-            instrucciones = resultado.data.get("instrucciones", "")
-            return f"{personalidad}\n\n{instrucciones}"
+            personalidad = resultado.data.get("personalidad", "").strip()
+            instrucciones = resultado.data.get("instrucciones", "").strip()
+
+            # Verificar si personalidad e instrucciones están definidas
+            if not personalidad:
+                print("⚠️ La personalidad no está definida. Usando valor por defecto: 'profesional y amigable'.")
+                personalidad = "profesional y amigable"
+
+            if not instrucciones:
+                print("⚠️ Las instrucciones no están definidas. Usando valor por defecto: 'Responde de forma clara y útil.'")
+                instrucciones = "Responde de forma clara y útil."
+
+            prompt = f"{personalidad}\n\n{instrucciones}"
+            print(f"✅ Prompt personalizado generado: {prompt}")
+            return prompt
+
         print(f"⚠️ No se encontró un prompt personalizado para el número: {numero_nora}")
         return None
 

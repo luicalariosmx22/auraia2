@@ -35,30 +35,36 @@ def obtener_base_conocimiento(numero_nora: str, titulo: str = None):
         }]
 
 
-def buscar_conocimiento(numero_nora, mensaje_usuario):
+def buscar_conocimiento(numero_nora: str, mensaje_usuario: str):
+    """
+    Recupera la configuración general de la Nora y genera un prompt con personalidad e instrucciones
+    usando el campo base_conocimiento de configuracion_bot (texto plano).
+    """
     try:
-        print(f"📚 Cargando configuración para Nora con número: {numero_nora}")
+        print(f"📚 Usando contenido plano como contexto para Nora {numero_nora}")
         response = supabase.table("configuracion_bot") \
             .select("base_conocimiento, personalidad, instrucciones") \
             .eq("numero_nora", numero_nora) \
             .single() \
-            .execute()  # ✅ CORREGIDO
+            .execute()
 
         if not response.data:
             print(f"⚠️ No se encontró configuración para {numero_nora}")
             return None
 
         config = response.data
-        personalidad = config.get("personalidad", "profesional y amigable")
-        instrucciones = config.get("instrucciones", "Responde de forma clara y útil.")
+        personalidad = config.get("personalidad", "").strip()
+        instrucciones = config.get("instrucciones", "").strip()
         base_conocimiento = config.get("base_conocimiento", "").strip()
 
         # Verificar si personalidad e instrucciones fueron cargadas correctamente
-        if personalidad and instrucciones:
-            print(f"✅ Personalidad cargada: {personalidad}")
-            print(f"✅ Instrucciones cargadas: {instrucciones}")
-        else:
-            print("⚠️ Personalidad o instrucciones no están definidas correctamente.")
+        if not personalidad:
+            print("⚠️ La personalidad no está definida. Usando valor por defecto: 'profesional y amigable'.")
+            personalidad = "profesional y amigable"
+
+        if not instrucciones:
+            print("⚠️ Las instrucciones no están definidas. Usando valor por defecto: 'Responde de forma clara y útil.'")
+            instrucciones = "Responde de forma clara y útil."
 
         if not base_conocimiento:
             print("⚠️ La base_conocimiento está vacía.")
