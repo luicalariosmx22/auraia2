@@ -52,11 +52,53 @@ def panel_ia(nombre_nora):
 
         return redirect(url_for("panel_cliente_ia.panel_ia", nombre_nora=nombre_nora))
 
-    # Renderizar la plantilla con los datos de configuración
+    # Obtener los bloques de conocimiento para esta Nora
+    try:
+        conocimientos = supabase.table("conocimiento_nora") \
+            .select("id, titulo, contenido") \
+            .eq("numero_nora", config["numero_nora"]) \
+            .order("titulo") \
+            .execute().data
+    except Exception as e:
+        print(f"❌ Error al cargar bloques de conocimiento: {e}")
+        conocimientos = []
+
+    # Renderizar la plantilla con los datos de configuración y bloques de conocimiento
     return render_template(
         "panel_cliente_ia.html",
         user=user,
         ia_activada=config.get("ia_activada", True),
         mensaje_bienvenida=config.get("mensaje_bienvenida", ""),
-        nombre_nora=nombre_nora
+        nombre_nora=nombre_nora,
+        conocimientos=conocimientos  # <- nuevo
     )
+
+@panel_cliente_ia_bp.route("/panel_cliente/ia/<nombre_nora>/editar_conocimiento/<id>", methods=["POST"])
+def editar_conocimiento(nombre_nora, id):
+    """
+    Edita un bloque de conocimiento específico.
+    """
+    titulo = request.form.get("titulo", "").strip()
+    contenido = request.form.get("contenido", "").strip()
+    try:
+        supabase.table("conocimiento_nora").update({
+            "titulo": titulo,
+            "contenido": contenido
+        }).eq("id", id).execute()
+        print(f"✅ Bloque de conocimiento con ID {id} actualizado correctamente.")
+    except Exception as e:
+        print(f"❌ Error al editar conocimiento: {e}")
+    return redirect(url_for("panel_cliente_ia.panel_ia", nombre_nora=nombre_nora))
+
+
+@panel_cliente_ia_bp.route("/panel_cliente/ia/<nombre_nora>/borrar_conocimiento/<id>")
+def borrar_conocimiento(nombre_nora, id):
+    """
+    Borra un bloque de conocimiento específico.
+    """
+    try:
+        supabase.table("conocimiento_nora").delete().eq("id", id).execute()
+        print(f"✅ Bloque de conocimiento con ID {id} eliminado correctamente.")
+    except Exception as e:
+        print(f"❌ Error al borrar conocimiento: {e}")
+    return redirect(url_for("panel_cliente_ia.panel_ia", nombre_nora=nombre_nora))
