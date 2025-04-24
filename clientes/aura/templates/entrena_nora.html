@@ -16,7 +16,6 @@
     </header>
 
     <main>
-        <!-- Enlace para regresar al menú anterior -->
         <div class="back-menu">
             <a href="{{ url_for('cliente_nora.configuracion_cliente', nombre_nora=nombre_nora) }}" class="btn-back">⬅️ Volver al menú anterior</a>
         </div>
@@ -25,16 +24,7 @@
 
         <section class="entrena-modulos">
 
-            <!-- 1. Mensaje de bienvenida -->
-            <div class="modulo">
-                <h2>👋 Mensaje de bienvenida</h2>
-                <form action="{{ url_for('cliente_nora.actualizar_bienvenida', nombre_nora=nombre_nora) }}" method="POST">
-                    <textarea name="mensaje_bienvenida" rows="4" placeholder="Escribe el mensaje de bienvenida que Nora mostrará a los usuarios..." required>{{ mensaje_bienvenida }}</textarea>
-                    <button type="submit">Actualizar bienvenida</button>
-                </form>
-            </div>
-
-            <!-- 2. Estado de la IA -->
+            <!-- 1. Estado de la IA -->
             <div class="modulo">
                 <h2>🔌 Activar o desactivar IA</h2>
                 <form action="{{ url_for('cliente_nora.estado_ia', nombre_nora=nombre_nora) }}" method="POST">
@@ -46,13 +36,13 @@
                 </form>
             </div>
 
-            <!-- 3. Mostrar nombre (solo lectura) -->
+            <!-- 2. Mostrar nombre (solo lectura) -->
             <div class="modulo">
                 <h2>🏷 Nombre interno</h2>
                 <input type="text" value="{{ nombre_nora }}" readonly style="width: 100%; padding: 10px;">
             </div>
 
-            <!-- 4. Personalidad -->
+            <!-- 3. Personalidad -->
             <div class="modulo">
                 <h2>🎭 Personalidad</h2>
                 <form action="{{ url_for('cliente_nora.personalidad', nombre_nora=nombre_nora) }}" method="POST">
@@ -61,40 +51,13 @@
                 </form>
             </div>
 
-            <!-- 5. Instrucciones clave -->
+            <!-- 4. Instrucciones clave -->
             <div class="modulo">
                 <h2>📋 Instrucciones clave</h2>
                 <form action="{{ url_for('cliente_nora.instrucciones', nombre_nora=nombre_nora) }}" method="POST">
                     <textarea name="instrucciones" rows="5" placeholder="Ej: No compartir enlaces, pedir el nombre, etc...">{{ config.instrucciones or '' }}</textarea>
                     <button type="submit">Guardar instrucciones</button>
                 </form>
-            </div>
-
-            <!-- 6. Base de conocimiento -->
-            <div class="modulo">
-                <h2>📚 Centro de conocimiento</h2>
-                <form action="{{ url_for('cliente_nora.gestionar_conocimiento', nombre_nora=nombre_nora) }}" method="POST">
-                    <input type="text" name="titulo" placeholder="Título de la tabla de conocimiento" required>
-                    <textarea name="base_conocimiento" rows="7" placeholder="Toda la información clave que Nora debe usar en sus respuestas..." required></textarea>
-                    <button type="submit">Agregar conocimiento</button>
-                </form>
-
-                <h3>📋 Tablas de conocimiento existentes</h3>
-                {% if tablas %}
-                    <ul>
-                    {% for tabla in tablas %}
-                        <li>
-                            <strong>{{ tabla.titulo }}</strong>
-                            <p style="white-space: pre-line;">{{ tabla.contenido }}</p>
-                            <form action="{{ url_for('cliente_nora.eliminar_conocimiento', nombre_nora=nombre_nora, tabla_id=tabla.id) }}" method="POST">
-                                <button type="submit">🗑 Eliminar</button>
-                            </form>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No hay tablas de conocimiento registradas.</p>
-                {% endif %}
             </div>
 
         </section>

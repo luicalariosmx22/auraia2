@@ -13,177 +13,10 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 cliente_nora_bp = Blueprint("cliente_nora", __name__)
 
-# Ruta para mostrar la página de configuración del cliente
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/configuracion", methods=["GET", "POST"])
-def configuracion_cliente(nombre_nora):
-    try:
-        # Cargar configuración desde Supabase
-        response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
-        if not response.data:
-            return f"❌ No se encontró la configuración para {nombre_nora}", 404
-        config = response.data[0]
-    except Exception as e:
-        print(f"❌ Error al cargar configuración: {str(e)}")
-        return f"❌ Error al cargar configuración para {nombre_nora}", 500
-
-    if request.method == "POST":
-        # Obtener datos del formulario
-        nombre_visible = request.form.get("nombre_visible", "").strip()
-        respuestas_rapidas = request.form.get("respuestas_rapidas", "").strip()
-        informacion_empresa = request.form.get("informacion_empresa", "").strip()
-        mensaje_bienvenida = request.form.get("mensaje_bienvenida", "").strip()
-
-        # Actualizar configuración en Supabase
-        try:
-            config["nombre_visible"] = nombre_visible
-            config["respuestas_rapidas"] = respuestas_rapidas.split(",")  # Convertir a lista
-            config["informacion_empresa"] = informacion_empresa
-            config["mensaje_bienvenida"] = mensaje_bienvenida
-            response = supabase.table("configuracion_bot").update(config).eq("nombre_nora", nombre_nora).execute()
-            if not response.data:
-                flash("❌ Error al actualizar configuración", "error")
-                return redirect(request.url)
-        except Exception as e:
-            print(f"❌ Error al actualizar configuración: {str(e)}")
-            flash("❌ Error al actualizar configuración", "error")
-            return redirect(request.url)
-
-        print(f"✅ Configuración de cliente '{nombre_nora}' actualizada:")
-        print(f"    ➤ Nombre visible: {nombre_visible}")
-        print(f"    ➤ Respuestas rápidas: {respuestas_rapidas}")
-        print(f"    ➤ Información de la empresa: {informacion_empresa}")
-        print(f"    ➤ Mensaje de bienvenida: {mensaje_bienvenida}")
-
-        flash("✅ Configuración actualizada correctamente", "success")
-        return redirect(url_for("cliente_nora.configuracion_cliente", nombre_nora=nombre_nora))
-
-    return render_template(
-        "cliente_configuracion.html",
-        nombre_nora=nombre_nora,
-        config=config
-    )
-
-# Ruta para actualizar el estado de la IA
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/estado_ia", methods=["POST"])
-def estado_ia(nombre_nora):
-    try:
-        ia_activa = request.form.get("ia_activa") == "true"
-        supabase.table("configuracion_bot").update({"ia_activa": ia_activa}).eq("nombre_nora", nombre_nora).execute()
-        flash("✅ Estado de IA actualizado correctamente", "success")
-    except Exception as e:
-        print(f"❌ Error al actualizar estado de IA: {str(e)}")
-        flash("❌ Error al actualizar estado de IA", "error")
-    return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
-
-# Ruta para manejar la personalidad
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/personalidad", methods=["POST"])
-def personalidad(nombre_nora):
-    try:
-        personalidad = request.form.get("personalidad", "").strip()
-        supabase.table("configuracion_bot").update({"personalidad": personalidad}).eq("nombre_nora", nombre_nora).execute()
-        flash("✅ Personalidad actualizada correctamente", "success")
-    except Exception as e:
-        print(f"❌ Error al actualizar personalidad: {str(e)}")
-        flash("❌ Error al actualizar personalidad", "error")
-    return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
-
-# Ruta para manejar las instrucciones
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/instrucciones", methods=["POST"])
-def instrucciones(nombre_nora):
-    try:
-        instrucciones = request.form.get("instrucciones", "").strip()
-        supabase.table("configuracion_bot").update({"instrucciones": instrucciones}).eq("nombre_nora", nombre_nora).execute()
-        flash("✅ Instrucciones actualizadas correctamente", "success")
-    except Exception as e:
-        print(f"❌ Error al actualizar instrucciones: {str(e)}")
-        flash("❌ Error al actualizar instrucciones", "error")
-    return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
-
-# Ruta para manejar el conocimiento (ahora en tabla conocimiento_nora)
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento", methods=["GET", "POST"])
-def gestionar_conocimiento(nombre_nora):
-    try:
-        # Buscar el número asociado a esa Nora y el mensaje de bienvenida
-        config_res = supabase.table("configuracion_bot").select("numero_nora, mensaje_bienvenida").eq("nombre_nora", nombre_nora).single().execute()
-        if not config_res.data:
-            flash("❌ No se encontró la configuración para esta Nora", "error")
-            return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
-
-        numero_nora = config_res.data["numero_nora"]
-        mensaje_bienvenida = config_res.data.get("mensaje_bienvenida", "")
-
-        if request.method == "POST":
-            # Obtener datos del formulario
-            conocimiento = request.form.get("base_conocimiento", "").strip()
-            titulo = request.form.get("titulo", "").strip()
-
-            # Validar que el título sea obligatorio
-            if not titulo:
-                flash("❌ Debes proporcionar un título para agrupar el conocimiento", "error")
-            # Validar que el contenido del conocimiento no esté vacío
-            elif not conocimiento:
-                flash("❌ El contenido del conocimiento está vacío", "error")
-            else:
-                # Dividir el contenido en bloques por párrafo
-                bloques = [b.strip() for b in conocimiento.split("\n\n") if b.strip()]
-                inserts = [{"numero_nora": numero_nora, "titulo": titulo, "contenido": bloque} for bloque in bloques]
-
-                # Insertar los bloques en la tabla 'conocimiento_nora'
-                if inserts:
-                    supabase.table("conocimiento_nora").insert(inserts).execute()
-                    flash("✅ Conocimiento agregado correctamente", "success")
-
-        # Obtener todas las tablas de conocimiento existentes para este cliente
-        tablas_res = supabase.table("conocimiento_nora").select("id, titulo").eq("numero_nora", numero_nora).execute()
-        tablas = tablas_res.data or []
-
-    except Exception as e:
-        print(f"❌ Error al gestionar conocimiento: {str(e)}")
-        flash("❌ Error al gestionar conocimiento", "error")
-        tablas = []
-        mensaje_bienvenida = ""
-
-    # Renderizar la página con las tablas existentes y el mensaje de bienvenida
-    return render_template(
-        "entrena_nora.html",
-        nombre_nora=nombre_nora,
-        tablas=tablas,
-        mensaje_bienvenida=mensaje_bienvenida
-    )
-
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/conocimiento/eliminar/<tabla_id>", methods=["POST"])
-def eliminar_conocimiento(nombre_nora, tabla_id):
-    try:
-        # Eliminar la tabla de conocimiento por ID
-        supabase.table("conocimiento_nora").delete().eq("id", tabla_id).execute()
-        flash("✅ Tabla de conocimiento eliminada correctamente", "success")
-    except Exception as e:
-        print(f"❌ Error al eliminar tabla de conocimiento: {str(e)}")
-        flash("❌ Error al eliminar tabla de conocimiento", "error")
-
-    return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
-
-# Ruta para actualizar el mensaje de bienvenida
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/mensaje_bienvenida", methods=["POST"])
-def actualizar_bienvenida(nombre_nora):
-    try:
-        # Obtener el mensaje de bienvenida desde el formulario
-        mensaje_bienvenida = request.form.get("mensaje_bienvenida", "").strip()
-
-        # Actualizar el mensaje de bienvenida en la tabla 'configuracion_bot'
-        supabase.table("configuracion_bot").update({"mensaje_bienvenida": mensaje_bienvenida}).eq("nombre_nora", nombre_nora).execute()
-
-        flash("✅ Mensaje de bienvenida actualizado correctamente", "success")
-    except Exception as e:
-        print(f"❌ Error al actualizar mensaje de bienvenida: {str(e)}")
-        flash("❌ Error al actualizar mensaje de bienvenida", "error")
-
-    return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
-
+# Ruta para entrenamiento (personalidad, instrucciones, IA, nombre_nora)
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenamiento", methods=["GET"])
 def panel_entrenamiento(nombre_nora):
     try:
-        # Obtener configuración básica desde la tabla 'configuracion_bot'
         config_res = supabase.table("configuracion_bot") \
             .select("*") \
             .eq("nombre_nora", nombre_nora) \
@@ -195,28 +28,45 @@ def panel_entrenamiento(nombre_nora):
             return redirect(url_for("cliente_nora.configuracion_cliente", nombre_nora=nombre_nora))
 
         config = config_res.data
-        numero_nora = config.get("numero_nora")
-        mensaje_bienvenida = config.get("mensaje_bienvenida", "")
-
-        # Obtener todas las tablas de conocimiento relacionadas con esta Nora
-        tablas_res = supabase.table("conocimiento_nora") \
-            .select("id, titulo, contenido") \
-            .eq("numero_nora", numero_nora) \
-            .execute()
-        tablas = tablas_res.data or []
+        return render_template("entrena_nora.html", nombre_nora=nombre_nora, config=config)
 
     except Exception as e:
-        print(f"❌ Error al cargar panel de entrenamiento: {e}")
+        print(f"❌ Error al cargar entrenamiento: {e}")
         flash("❌ Error al cargar entrenamiento", "error")
-        config = {}
-        tablas = []
-        mensaje_bienvenida = ""
+        return redirect(url_for("cliente_nora.configuracion_cliente", nombre_nora=nombre_nora))
 
-    # Renderizar la plantilla con los datos obtenidos
-    return render_template(
-        "entrena_nora.html",
-        nombre_nora=nombre_nora,
-        config=config,
-        tablas=tablas,
-        mensaje_bienvenida=mensaje_bienvenida
-    )
+# Ruta para actualizar la personalidad
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/personalidad", methods=["POST"])
+def personalidad(nombre_nora):
+    try:
+        personalidad = request.form.get("personalidad", "").strip()
+        supabase.table("configuracion_bot").update({"personalidad": personalidad}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Personalidad actualizada correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar personalidad: {str(e)}")
+        flash("❌ Error al actualizar personalidad", "error")
+    return redirect(url_for("cliente_nora.panel_entrenamiento", nombre_nora=nombre_nora))
+
+# Ruta para actualizar las instrucciones
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/instrucciones", methods=["POST"])
+def instrucciones(nombre_nora):
+    try:
+        instrucciones = request.form.get("instrucciones", "").strip()
+        supabase.table("configuracion_bot").update({"instrucciones": instrucciones}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Instrucciones actualizadas correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar instrucciones: {str(e)}")
+        flash("❌ Error al actualizar instrucciones", "error")
+    return redirect(url_for("cliente_nora.panel_entrenamiento", nombre_nora=nombre_nora))
+
+# Ruta para activar o desactivar la IA
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/estado_ia", methods=["POST"])
+def estado_ia(nombre_nora):
+    try:
+        ia_activa = request.form.get("ia_activa") == "true"
+        supabase.table("configuracion_bot").update({"ia_activa": ia_activa}).eq("nombre_nora", nombre_nora).execute()
+        flash("✅ Estado de IA actualizado correctamente", "success")
+    except Exception as e:
+        print(f"❌ Error al actualizar estado de IA: {str(e)}")
+        flash("❌ Error al actualizar estado de IA", "error")
+    return redirect(url_for("cliente_nora.panel_entrenamiento", nombre_nora=nombre_nora))
