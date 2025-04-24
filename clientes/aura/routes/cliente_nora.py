@@ -31,14 +31,14 @@ def configuracion_cliente(nombre_nora):
         nombre_visible = request.form.get("nombre_visible", "").strip()
         respuestas_rapidas = request.form.get("respuestas_rapidas", "").strip()
         informacion_empresa = request.form.get("informacion_empresa", "").strip()
-        bienvenida = request.form.get("bienvenida", "").strip()
+        mensaje_bienvenida = request.form.get("mensaje_bienvenida", "").strip()
 
         # Actualizar configuración en Supabase
         try:
             config["nombre_visible"] = nombre_visible
             config["respuestas_rapidas"] = respuestas_rapidas.split(",")  # Convertir a lista
             config["informacion_empresa"] = informacion_empresa
-            config["bienvenida"] = bienvenida
+            config["mensaje_bienvenida"] = mensaje_bienvenida
             response = supabase.table("configuracion_bot").update(config).eq("nombre_nora", nombre_nora).execute()
             if not response.data:
                 flash("❌ Error al actualizar configuración", "error")
@@ -52,7 +52,7 @@ def configuracion_cliente(nombre_nora):
         print(f"    ➤ Nombre visible: {nombre_visible}")
         print(f"    ➤ Respuestas rápidas: {respuestas_rapidas}")
         print(f"    ➤ Información de la empresa: {informacion_empresa}")
-        print(f"    ➤ Bienvenida: {bienvenida}")
+        print(f"    ➤ Mensaje de bienvenida: {mensaje_bienvenida}")
 
         flash("✅ Configuración actualizada correctamente", "success")
         return redirect(url_for("cliente_nora.configuracion_cliente", nombre_nora=nombre_nora))
@@ -104,13 +104,13 @@ def instrucciones(nombre_nora):
 def gestionar_conocimiento(nombre_nora):
     try:
         # Buscar el número asociado a esa Nora y el mensaje de bienvenida
-        config_res = supabase.table("configuracion_bot").select("numero_nora, bienvenida").eq("nombre_nora", nombre_nora).single().execute()
+        config_res = supabase.table("configuracion_bot").select("numero_nora, mensaje_bienvenida").eq("nombre_nora", nombre_nora).single().execute()
         if not config_res.data:
             flash("❌ No se encontró la configuración para esta Nora", "error")
             return redirect(url_for("panel_cliente.panel_entrenamiento", nombre_nora=nombre_nora))
 
         numero_nora = config_res.data["numero_nora"]
-        mensaje_bienvenida = config_res.data.get("bienvenida", "")
+        mensaje_bienvenida = config_res.data.get("mensaje_bienvenida", "")
 
         if request.method == "POST":
             # Obtener datos del formulario
@@ -164,14 +164,14 @@ def eliminar_conocimiento(nombre_nora, tabla_id):
     return redirect(url_for("cliente_nora.gestionar_conocimiento", nombre_nora=nombre_nora))
 
 # Ruta para actualizar el mensaje de bienvenida
-@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/bienvenida", methods=["POST"])
+@cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/mensaje_bienvenida", methods=["POST"])
 def actualizar_bienvenida(nombre_nora):
     try:
         # Obtener el mensaje de bienvenida desde el formulario
         mensaje_bienvenida = request.form.get("mensaje_bienvenida", "").strip()
 
         # Actualizar el mensaje de bienvenida en la tabla 'configuracion_bot'
-        supabase.table("configuracion_bot").update({"bienvenida": mensaje_bienvenida}).eq("nombre_nora", nombre_nora).execute()
+        supabase.table("configuracion_bot").update({"mensaje_bienvenida": mensaje_bienvenida}).eq("nombre_nora", nombre_nora).execute()
 
         flash("✅ Mensaje de bienvenida actualizado correctamente", "success")
     except Exception as e:
@@ -196,7 +196,7 @@ def panel_entrenamiento(nombre_nora):
 
         config = config_res.data
         numero_nora = config.get("numero_nora")
-        mensaje_bienvenida = config.get("bienvenida", "")
+        mensaje_bienvenida = config.get("mensaje_bienvenida", "")
 
         # Obtener todas las tablas de conocimiento relacionadas con esta Nora
         tablas_res = supabase.table("conocimiento_nora") \
