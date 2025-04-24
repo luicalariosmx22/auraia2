@@ -1,6 +1,6 @@
 body {
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f6f9;
+  background-color: #f8f9fb;
   margin: 0;
   padding: 0;
   color: #333;
@@ -26,7 +26,7 @@ header .logout a {
 }
 
 main {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 30px 20px;
 }
@@ -34,77 +34,73 @@ main {
 h1 {
   color: #2c3e50;
   font-size: 28px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .entrena-modulos {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 30px;
 }
 
 .modulo {
-  background: #fff;
+  background: #ffffff;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  padding: 25px 20px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
   border: 1px solid #e0e0e0;
-  transition: all 0.2s ease-in-out;
-}
-
-.modulo:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
 }
 
 .modulo h2 {
   margin-top: 0;
   color: #3498db;
-  font-size: 20px;
+  font-size: 18px;
   margin-bottom: 15px;
-}
-
-.modulo form {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 10px;
 }
 
 textarea,
-input[type="text"],
-input[type="number"] {
+input[type="text"] {
   width: 100%;
-  padding: 12px;
+  padding: 12px 14px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 14px;
   resize: vertical;
-  background-color: #fff;
-  color: #333;
+  box-sizing: border-box;
+}
+
+textarea {
+  line-height: 1.6;
 }
 
 input[readonly] {
-  background-color: #f0f0f0;
-  color: #666;
-  border-style: dashed;
+  background-color: #f2f2f2;
+  color: #777;
+  border: 1px dashed #ccc;
 }
 
 button {
-  align-self: flex-start;
+  margin-top: 10px;
   background-color: #3498db;
-  color: #fff;
+  color: #ffffff;
   border: none;
   padding: 10px 18px;
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: background 0.3s ease;
 }
 
 button:hover {
   background-color: #2980b9;
-  transform: scale(1.03);
 }
 
 label {
@@ -114,15 +110,14 @@ label {
   gap: 8px;
 }
 
-ul {
-  list-style-type: none;
-  padding-left: 0;
+.back-menu {
+  text-align: left;
+  margin-bottom: 25px;
 }
 
-ul li {
-  background: #fdfdfd;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  border: 1px solid #eee;
+.back-menu a {
+  text-decoration: none;
+  color: #3498db;
+  font-weight: bold;
+  font-size: 14px;
 }
