@@ -62,7 +62,11 @@ def webhook():
         if not historial:
             print("⚠️ No se encontró historial. Generando respuesta sin contexto.")
 
-        respuesta, historial_actualizado = manejar_respuesta_ai(mensaje_usuario, historial)
+        respuesta, historial_actualizado = manejar_respuesta_ai(
+            mensaje_usuario=mensaje_usuario,
+            numero_nora=numero_nora_remitente,
+            historial=historial
+        )
         if not respuesta:
             print(f"🟡 No se generó una respuesta para el mensaje: {mensaje_usuario}")
             print(f"Historial proporcionado: {historial}")
