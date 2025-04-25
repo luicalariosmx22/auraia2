@@ -277,23 +277,19 @@ const socket = io();
 socket.on("nuevo_mensaje", (data) => {
     console.log("📩 Nuevo mensaje recibido:", data);
 
-    // Obtener el área de mensajes del chat
     const chat = document.getElementById("chat-area");
-
-    // Crear un nuevo elemento para el mensaje
     const nuevoMensaje = document.createElement("div");
     nuevoMensaje.classList.add("burbuja", data.remitente === "bot" ? "nora" : "usuario");
 
-    // Agregar contenido al mensaje
     nuevoMensaje.innerHTML = `
         <div class="remitente">${data.remitente === "bot" ? "Nora" : "Tú"}</div>
         <div class="contenido">${data.mensaje}</div>
         <div class="timestamp">${new Date().toLocaleTimeString()}</div>
     `;
 
-    // Añadir el mensaje al área de chat
     chat.appendChild(nuevoMensaje);
-
-    // Desplazar hacia abajo automáticamente
     chat.scrollTop = chat.scrollHeight;
+
+    // 🔥 Y también reordenamos contactos cada que llegue un nuevo mensaje
+    reordenarContactos();
 });
