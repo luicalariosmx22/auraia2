@@ -48,12 +48,12 @@ h1 {
   gap: 30px;
 }
 
-.modulo {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 25px 20px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
-  border: 1px solid #e0e0e0;
+.module {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .modulo h2 {
@@ -120,4 +120,122 @@ label {
   color: #3498db;
   font-weight: bold;
   font-size: 14px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.tabla-contactos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.tabla-contactos th,
+.tabla-contactos td {
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-mini {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.btn-tag {
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 12px;
+    margin-right: 5px;
+    margin-bottom: 4px;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.etiquetas {
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.select-small {
+    font-size: 12px;
+    padding: 4px 6px;
+}
+
+.main-container {
+    padding: 20px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.input-text {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    flex: 1;
+}
+
+.input-color {
+    width: 40px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+.btn-save, .btn-delete {
+    padding: 6px 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-save {
+    background-color: #2196F3;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+}
+
+.tag-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.tag-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 6px;
 }
