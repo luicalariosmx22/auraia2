@@ -20,8 +20,10 @@ def panel_contactos(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     try:
-        # Obtener contactos
-        response = supabase.table("contactos").select("id, nombre, telefono").eq("nombre_nora", nombre_nora).execute()
+        # Obtener contactos con los campos necesarios
+        response = supabase.table("contactos").select(
+            "id, nombre, telefono, correo, empresa, rfc, direccion, ciudad, cumpleanos, notas, ultimo_mensaje"
+        ).eq("nombre_nora", nombre_nora).execute()
         contactos = response.data or []
 
         # Obtener etiquetas disponibles
