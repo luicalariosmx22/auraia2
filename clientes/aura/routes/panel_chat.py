@@ -194,7 +194,7 @@ def panel_chat(nombre_nora):
     # Ordenar contactos por la fecha más reciente en su historial de mensajes
     contactos_ordenados = sorted(
         lista,
-        key=lambda c: obtener_fecha_mas_reciente(c.get("mensajes", [])),
+        key=lambda c: c.get('fecha_ultimo_mensaje', datetime.datetime(1900, 1, 1)),
         reverse=True
     )
 
