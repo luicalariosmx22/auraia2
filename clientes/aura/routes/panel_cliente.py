@@ -25,17 +25,28 @@ def panel_cliente(nombre_nora):
 
         # Consultar la tabla de módulos disponibles para obtener detalles
         modulos_query = supabase.table("modulos_disponibles").select("*").execute()
-        modulos_definidos = [m for m in modulos_query.data if m["nombre"] in modulos_activos]
+        modulos_supabase = modulos_query.data if modulos_query.data else []
+
+        # Construir la lista de módulos disponibles con detalles
+        modulos_disponibles = [
+            {
+                "nombre": m["nombre"],
+                "ruta": m.get("ruta", "").strip(),
+                "icono": m.get("icono", ""),
+                "descripcion": m.get("descripcion", "")
+            }
+            for m in modulos_supabase if m["nombre"] in modulos_activos
+        ]
 
     except Exception as e:
         print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
-        modulos_definidos = []
+        modulos_disponibles = []
 
     return render_template(
         "panel_cliente.html",
         nombre_nora=nombre_nora,
         user=session["user"],
-        modulos=modulos_definidos
+        modulos=modulos_disponibles
     )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
