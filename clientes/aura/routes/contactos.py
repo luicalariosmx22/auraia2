@@ -1,10 +1,10 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
-from datetime import datetime
-from googleapiclient.discovery import build
-from google.oauth2 import service_account
+print("✅ panel_cliente_contactos.py cargado correctamente")
+
+from flask import Blueprint, render_template, session, request, redirect, url_for, flash
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+import uuid
 
 # Configurar Supabase
 load_dotenv()
@@ -12,271 +12,90 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-contactos_bp = Blueprint("contactos", __name__)
+panel_cliente_contactos_bp = Blueprint("panel_cliente_contactos", __name__)
 
-# Aquí defines las rutas del Blueprint
-@contactos_bp.route("/contactos")
-def contactos():
-    return "Página de contactos"
-
-def leer_historial(telefono):
-    try:
-        response_historial = supabase.table("historial_conversaciones") \
-            .select("mensaje, timestamp") \
-            .eq("telefono", telefono) \
-            .order("timestamp", desc=True) \
-            .execute()
-        return response_historial.data
-    except Exception as e:
-        print(f"❌ Error al leer historial para {telefono}: {str(e)}")
-        return []
-
-def actualizar_contacto(telefono, data):
-    try:
-        response = supabase.table("contactos").update(data).eq("telefono", telefono).execute()
-        print(f"✅ Contacto actualizado: {response.data}")
-        return True
-    except Exception as e:
-        print(f"❌ Error al actualizar contacto: {str(e)}")
-        return False
-
-def obtener_contacto(telefono):
-    try:
-        response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
-        if response.data:
-            return response.data[0]
-        return None
-    except Exception as e:
-        print(f"❌ Error al obtener contacto: {str(e)}")
-        return None
-
-@contactos_bp.route('/<nombre_nora>/contactos', methods=['GET'])
-def ver_contactos(nombre_nora):
-    try:
-        print(f"📍 Ruta con Nora: {nombre_nora}")
-
-        # Obtener parámetros del filtro
-        busqueda = request.args.get('busqueda', '').strip().lower()
-        fecha_inicio = request.args.get('fecha_inicio')
-        fecha_fin = request.args.get('fecha_fin')
-        etiquetas_filtro = request.args.getlist('etiqueta')  # ✅ ahora acepta múltiples etiquetas
-
-        # Consulta base
-        query = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora)
-
-        # Filtro por nombre o teléfono
-        if busqueda:
-            query = query.or_(f"nombre.ilike.*{busqueda}*,telefono.ilike.*{busqueda}*")
-
-        # Filtro por fechas
-        if fecha_inicio:
-            query = query.gte("ultimo_mensaje", fecha_inicio)
-        if fecha_fin:
-            query = query.lte("ultimo_mensaje", fecha_fin)
-
-        # Filtro por etiquetas (debe tener todas las seleccionadas)
-        if etiquetas_filtro:
-            for etiqueta in etiquetas_filtro:
-                query = query.contains("etiquetas", [etiqueta])
-
-        # Ejecutar la consulta
-        try:
-            response = query.execute()
-            if response.status_code != 200:
-                raise Exception(f"Error en la consulta de contactos: {response.error_message}")
-
-            contactos = response.data or []
-            print(f"✅ Contactos encontrados: {len(contactos)}")
-        except Exception as e:
-            print(f"❌ Error al filtrar contactos: {str(e)}")
-            contactos = []
-
-        # Si la solicitud es AJAX, devolver JSON
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({"success": True, "contactos": contactos})
-
-        # Obtener etiquetas únicas
-        etiquetas_response = supabase.table("contactos").select("etiquetas").execute()
-        if etiquetas_response.status_code != 200:
-            raise Exception(f"Error en la consulta de etiquetas: {etiquetas_response.error_message}")
-
-        etiquetas = list(set(
-            et for c in etiquetas_response.data for et in c.get("etiquetas", []) if et
-        ))
-
-        return render_template('panel_cliente_contactos.html', contactos=contactos, etiquetas=etiquetas, nombre_nora=nombre_nora)
-    except Exception as e:
-        print(f"❌ Error al cargar contactos: {str(e)}")
-        return jsonify({"success": False, "error": "Error al cargar contactos"}), 500
-
-@contactos_bp.route('/contactos/agregar', methods=['POST'])
-def agregar_contacto():
-    try:
-        # Obtener datos del formulario
-        nombre = request.form.get('nombre', '').strip()
-        telefono = request.form.get('telefono', '').strip()
-        correo = request.form.get('correo', '').strip()
-        empresa = request.form.get('empresa', '').strip()
-        rfc = request.form.get('rfc', '').strip()
-        direccion = request.form.get('direccion', '').strip()
-        ciudad = request.form.get('ciudad', '').strip()
-        cumpleanos = request.form.get('cumpleanos', '').strip()
-        notas = request.form.get('notas', '').strip()
-
-        # Validar campos obligatorios
-        if not nombre or not telefono:
-            return jsonify({"success": False, "error": "El nombre y el teléfono son obligatorios"}), 400
-
-        # Validar formato de fecha
-        try:
-            if cumpleanos:
-                datetime.strptime(cumpleanos, '%Y-%m-%d')
-        except ValueError:
-            return jsonify({"success": False, "error": "El formato de la fecha de cumpleaños es inválido"}), 400
-
-        # Datos enviados a Supabase
-        data = {
-            "nombre": nombre,
-            "telefono": telefono,
-            "correo": correo,
-            "empresa": empresa,
-            "rfc": rfc,
-            "direccion": direccion,
-            "ciudad": ciudad,
-            "cumpleanos": cumpleanos,
-            "notas": notas,
-            "primer_mensaje": datetime.now().isoformat(),
-            "ultimo_mensaje": datetime.now().isoformat(),
-            "nombre_nora": request.form.get('nombre_nora')
-        }
-        print(f"📤 Datos enviados a Supabase: {data}")
-
-        # Insertar contacto en la base de datos
-        response = supabase.table("contactos").insert(data).execute()
-
-        if response.status_code != 201:
-            raise Exception(f"Error al insertar contacto: {response.error_message}")
-
-        print(f"✅ Contacto agregado: {response.data}")
-        return jsonify({"success": True})
-    except Exception as e:
-        print(f"❌ Error al agregar contacto: {str(e)}")
-        return jsonify({"success": False, "error": "Error al agregar contacto"}), 500
-
-@contactos_bp.route('/contactos/editar/<telefono>', methods=['GET', 'POST'])
-def editar_contacto(telefono):
-    print(f"✏️ Editando contacto {telefono}")
-
-    if request.method == 'POST':
-        try:
-            # Obtener datos del formulario
-            nombre = request.form.get('nombre', '').strip()
-            correo = request.form.get('correo', '').strip()
-            celular = request.form.get('celular', '').strip()
-            etiquetas = request.form.get('etiquetas', '').strip().split(',')
-
-            # Validar datos obligatorios
-            if not nombre:
-                return jsonify({"success": False, "error": "El nombre es obligatorio"}), 400
-
-            # Actualizar el contacto en la base de datos
-            data = {
-                "nombre": nombre,
-                "correo": correo,
-                "celular": celular,
-                "etiquetas": etiquetas
-            }
-            print(f"🔄 Actualizando contacto con datos: {data}")
-            response = actualizar_contacto(telefono, data)
-
-            if response:
-                print(f"✅ Contacto {telefono} actualizado correctamente")
-                return redirect(url_for('contactos.ver_contactos', nombre_nora=request.form.get('nombre_nora')))
-            else:
-                return jsonify({"success": False, "error": "Error al actualizar el contacto"}), 500
-        except Exception as e:
-            print(f"❌ Error al actualizar contacto {telefono}: {str(e)}")
-            return jsonify({"success": False, "error": "Error al actualizar el contacto"}), 500
+@panel_cliente_contactos_bp.route("/<nombre_nora>", methods=["GET", "POST"])
+def panel_contactos(nombre_nora):
+    if "user" not in session:
+        return redirect(url_for("login.login_google"))
 
     try:
-        # Si es una solicitud GET, obtener los datos del contacto
-        print(f"🔍 Obteniendo datos del contacto {telefono}")
-        contacto = obtener_contacto(telefono)
-
-        if not contacto:
-            print(f"⚠️ Contacto {telefono} no encontrado")
-            return jsonify({"success": False, "error": "Contacto no encontrado"}), 404
-
-        print(f"✅ Datos del contacto obtenidos: {contacto}")
-        return render_template('editar_contacto.html', contacto=contacto)
-    except Exception as e:
-        print(f"❌ Error al obtener datos del contacto {telefono}: {str(e)}")
-        return jsonify({"success": False, "error": "Error al obtener datos del contacto"}), 500
-
-@contactos_bp.route('/contactos/eliminar/<telefono>', methods=['DELETE'])
-def eliminar_contacto(telefono):
-    try:
-        response = supabase.table("contactos").delete().eq("telefono", telefono).execute()
-        print(f"🗑️ Contacto eliminado: {telefono}")
-        return jsonify({"success": True})
-    except Exception as e:
-        print(f"❌ Error al eliminar contacto: {str(e)}")
-        return jsonify({"success": False, "error": "Error al eliminar contacto"}), 500
-
-@contactos_bp.route('/contactos/exportar', methods=['GET'])
-def exportar_a_sheets():
-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-    SERVICE_ACCOUNT_FILE = 'path_to_your_service_account.json'
-    SPREADSHEET_ID = 'your_spreadsheet_id_here'
-    RANGE_ = 'Sheet1!A1'
-
-    try:
-        credentials = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-        service = build('sheets', 'v4', credentials=credentials)
-
-        response = supabase.table("contactos").select("*").execute()
+        # Obtener contactos
+        response = supabase.table("contactos").select("id, nombre, telefono").eq("nombre_nora", nombre_nora).execute()
         contactos = response.data or []
-        valores = [
-            [c.get("telefono"), c.get("nombre"), c.get("correo"), c.get("celular"), c.get("etiquetas"), c.get("primer_mensaje"), c.get("ultimo_mensaje")]
-            for c in contactos
-        ]
 
-        service.spreadsheets().values().update(
-            spreadsheetId=SPREADSHEET_ID,
-            range=RANGE_,
-            valueInputOption='RAW',
-            body={'values': valores}
-        ).execute()
+        # Obtener etiquetas disponibles
+        etiquetas_response = supabase.table("etiquetas").select("id, nombre, color").eq("nombre_nora", nombre_nora).eq("activa", True).execute()
+        etiquetas = etiquetas_response.data or []
 
-        return jsonify({"success": True})
+        # Obtener relaciones contacto-etiqueta
+        relacion_response = supabase.table("contacto_etiquetas").select("contacto_id, etiqueta_id").eq("nombre_nora", nombre_nora).execute()
+        relaciones = relacion_response.data or []
+
+        # Asociar etiquetas a contactos
+        etiquetas_dict = {e["id"]: e for e in etiquetas}
+        etiquetas_por_contacto = {}
+        for rel in relaciones:
+            contacto_id = rel["contacto_id"]
+            etiqueta_id = rel["etiqueta_id"]
+            etiquetas_por_contacto.setdefault(contacto_id, []).append(etiquetas_dict.get(etiqueta_id, {}))
+
+        for contacto in contactos:
+            contacto["etiquetas"] = etiquetas_por_contacto.get(contacto["id"], [])
+
+        return render_template(
+            "panel_cliente_contactos.html",
+            nombre_nora=nombre_nora,
+            contactos=contactos,
+            etiquetas=etiquetas,
+            user=session["user"]
+        )
     except Exception as e:
-        print(f"❌ Error al exportar contactos: {str(e)}")
-        return jsonify({"success": False, "error": "Error al exportar contactos"}), 500
+        print(f"❌ Error al cargar contactos para {nombre_nora}: {str(e)}")
+        flash("Error al cargar los contactos. Por favor, inténtalo de nuevo.", "error")
+        return render_template(
+            "panel_cliente_contactos.html",
+            nombre_nora=nombre_nora,
+            contactos=[],
+            etiquetas=[],
+            user=session["user"]
+        )
 
-@contactos_bp.route('/contactos/acciones', methods=['POST'])
-def acciones_contactos():
+@panel_cliente_contactos_bp.route("/<nombre_nora>/contactos/asignar_etiqueta", methods=["POST"])
+def asignar_etiqueta(nombre_nora):
+    if "user" not in session:
+        return redirect(url_for("login.login_google"))
+
+    contacto_id = request.form.get("contacto_id")
+    etiqueta_id = request.form.get("etiqueta_id")
     try:
-        accion = request.form.get('accion')
-        seleccionados = request.form.getlist('contactos_seleccionados')
-        if not seleccionados:
-            return jsonify({"success": False, "error": "No se seleccionaron contactos"}), 400
-
-        if accion == "eliminar":
-            response = supabase.table("contactos").delete().in_("telefono", seleccionados).execute()
-            print(f"✅ Contactos eliminados: {response.data}")
-            return jsonify({"success": True})
-
-        elif accion == "editar":
-            if len(seleccionados) != 1:
-                return jsonify({"success": False, "error": "Selecciona un solo contacto para editar"}), 400
-            telefono = seleccionados[0]
-            return redirect(url_for('contactos.editar_contacto', telefono=telefono))
-
-        return jsonify({"success": False, "error": "Acción no válida"}), 400
+        supabase.table("contacto_etiquetas").insert({
+            "id": str(uuid.uuid4()),
+            "contacto_id": contacto_id,
+            "etiqueta_id": etiqueta_id,
+            "nombre_nora": nombre_nora
+        }).execute()
+        flash(f"Etiqueta asignada correctamente al contacto.", "success")
+        print(f"✅ Etiqueta {etiqueta_id} asignada a contacto {contacto_id}")
     except Exception as e:
-        print(f"❌ Error en acción múltiple: {str(e)}")
-        return jsonify({"success": False, "error": "Error al procesar acción"}), 500
+        print(f"❌ Error al asignar etiqueta: {str(e)}")
+        flash("Error al asignar la etiqueta. Por favor, inténtalo de nuevo.", "error")
+    return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
 
-# Definir los módulos disponibles
-modulos = ["contactos", "mensajes", "usuarios"]  # Ajusta según tus necesidades
+@panel_cliente_contactos_bp.route("/<nombre_nora>/contactos/quitar_etiqueta", methods=["POST"])
+def quitar_etiqueta(nombre_nora):
+    if "user" not in session:
+        return redirect(url_for("login.login_google"))
+
+    contacto_id = request.form.get("contacto_id")
+    etiqueta_id = request.form.get("etiqueta_id")
+    try:
+        supabase.table("contacto_etiquetas").delete().eq("contacto_id", contacto_id).eq("etiqueta_id", etiqueta_id).eq("nombre_nora", nombre_nora).execute()
+        flash("Etiqueta eliminada correctamente del contacto.", "success")
+        print(f"✅ Etiqueta {etiqueta_id} quitada del contacto {contacto_id}")
+    except Exception as e:
+        print(f"❌ Error al quitar etiqueta: {str(e)}")
+        flash("Error al quitar la etiqueta. Por favor, inténtalo de nuevo.", "error")
+    return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
+
+print("✅ Blueprint de contactos cargado como '/contactos'")

@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Etiquetas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etiquetas – {{ nombre_nora }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_cliente.css') }}">
 </head>
 <body>
@@ -11,18 +12,35 @@
     </header>
     <main>
         <p>Aquí puedes gestionar las etiquetas para tus contactos.</p>
-        <form action="/panel/cliente/{{ nombre_nora }}/etiquetas" method="POST">
-            <label for="nueva_etiqueta">Agregar nueva etiqueta:</label>
-            <input type="text" id="nueva_etiqueta" name="nueva_etiqueta" placeholder="Escribe el nombre de la etiqueta">
-            <button type="submit">Agregar</button>
-        </form>
 
-        <h2>Etiquetas existentes:</h2>
-        <ul>
-            {% for etiqueta in etiquetas %}
-            <li>{{ etiqueta }}</li>
-            {% endfor %}
-        </ul>
+        <!-- Formulario para agregar nueva etiqueta -->
+        <div class="modulo">
+            <h2>Agregar nueva etiqueta:</h2>
+            <form action="{{ url_for('panel_cliente_etiquetas.panel_etiquetas', nombre_nora=nombre_nora) }}" method="POST">
+                <label for="nueva_etiqueta">Nombre de la etiqueta:</label>
+                <input 
+                    type="text" 
+                    id="nueva_etiqueta" 
+                    name="nueva_etiqueta" 
+                    placeholder="Escribe el nombre de la etiqueta" 
+                    required>
+                <button type="submit">Agregar</button>
+            </form>
+        </div>
+
+        <!-- Lista de etiquetas existentes -->
+        <div class="modulo">
+            <h2>Etiquetas existentes:</h2>
+            {% if etiquetas %}
+            <ul>
+                {% for etiqueta in etiquetas %}
+                <li style="margin-bottom: 8px;">🔹 {{ etiqueta }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No hay etiquetas disponibles.</p>
+            {% endif %}
+        </div>
     </main>
 </body>
 </html>
