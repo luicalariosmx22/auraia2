@@ -210,7 +210,7 @@ def panel_chat(nombre_nora):
     print(f"✅ Panel de chat renderizado para {len(contactos)} contactos.")
     return render_template(
         "panel_chat.html",
-        contactos=contactos_ordenados,
+        contactos=contactos_ordenados,  # ⬅️ Aquí
         nombre_nora=nombre_nora,
         etiquetas_unicas=sorted(etiquetas_unicas)
     )
