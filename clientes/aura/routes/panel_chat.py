@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from clientes.aura.utils.normalizador import normalizar_numero
 import os
 import datetime
+from dateutil import parser
 import openai
 from dateutil import parser  # Asegúrate de importar el módulo parser
 
