@@ -135,6 +135,18 @@ Resumen:
         print(f"❌ Error al generar resumen con IA: {e}")
         return "No se pudo generar el resumen con IA."
 
+def obtener_fecha_mas_reciente(mensajes):
+    """
+    Obtiene la fecha más reciente de los mensajes de un contacto.
+    """
+    if not mensajes:
+        return ""
+    try:
+        return max(m["hora"] for m in mensajes if "hora" in m and m["hora"])
+    except Exception as e:
+        print(f"❌ Error al obtener la fecha más reciente: {str(e)}")
+        return ""
+
 @panel_chat_bp.route("/<nombre_nora>")
 def panel_chat(nombre_nora):
     """
@@ -147,12 +159,9 @@ def panel_chat(nombre_nora):
 
     contactos = leer_contactos()
 
-    # Ordenar contactos por la fecha del último mensaje (descendente)
-    contactos_ordenados = sorted(contactos, key=lambda c: c.get("ultimo_mensaje", ""), reverse=True)
-
-    etiquetas_unicas = set()
+    # Crear la lista de contactos con sus mensajes
     lista = []
-    for c in contactos_ordenados:
+    for c in contactos:
         mensajes = leer_historial(c["telefono"])
         for mensaje in mensajes:
             if "fecha" in mensaje and isinstance(mensaje["fecha"], datetime.datetime):
@@ -165,10 +174,26 @@ def panel_chat(nombre_nora):
             "etiquetas": c.get("etiquetas", []),
             "imagen_perfil": c.get("imagen_perfil", None)
         })
+
+    # Ordenar contactos por la fecha del último mensaje real en el historial
+    contactos_ordenados = sorted(
+        lista,
+        key=lambda c: obtener_fecha_mas_reciente(c.get("mensajes", [])),
+        reverse=True
+    )
+
+    # Extraer etiquetas únicas
+    etiquetas_unicas = set()
+    for c in contactos_ordenados:
         etiquetas_unicas.update(c.get("etiquetas", []))
 
     print(f"✅ Panel de chat renderizado para {len(contactos)} contactos.")
-    return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora, etiquetas_unicas=sorted(etiquetas_unicas))
+    return render_template(
+        "panel_chat.html",
+        contactos=contactos_ordenados,
+        nombre_nora=nombre_nora,
+        etiquetas_unicas=sorted(etiquetas_unicas)
+    )
 
 @panel_chat_bp.route("/api/chat/<telefono>")
 def api_chat(telefono):

@@ -33,8 +33,7 @@ def guardar_en_historial(telefono, mensaje, origen, nombre_nora, tipo="mensaje",
             "nombre_nora": nombre_nora.lower(),
             "tipo": tipo,
             "nombre": nombre,
-            "hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
+            "hora": datetime.now().isoformat()        }
 
         # Eliminar claves con valor None
         nuevo_mensaje = {k: v for k, v in nuevo_mensaje.items() if v is not None}

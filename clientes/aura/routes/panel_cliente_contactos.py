@@ -1,9 +1,10 @@
 print("✅ panel_cliente_contactos.py cargado correctamente")
 
-from flask import Blueprint, render_template, session, request, redirect, url_for
+from flask import Blueprint, render_template, session, request, redirect, url_for, flash
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+import uuid
 
 # Configurar Supabase
 load_dotenv()
@@ -138,5 +139,79 @@ def editar_contacto(nombre_nora, telefono):
     except Exception as e:
         print(f"❌ Error al cargar contacto para edición: {str(e)}")
         return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
+
+@panel_cliente_contactos_bp.route("/<nombre_nora>/contactos/asignar_etiqueta", methods=["POST"])
+def asignar_etiqueta(nombre_nora):
+    if "user" not in session:
+        return redirect(url_for("login.login_google"))
+
+    contacto_id = request.form.get("contacto_id")
+    etiqueta_id = request.form.get("etiqueta_id")
+
+    print("➡️ Recibido para asignar:", contacto_id, etiqueta_id, nombre_nora)
+
+    try:
+        # Verificar si ya existe esa relación
+        existe = supabase.table("contacto_etiquetas") \
+            .select("id") \
+            .eq("contacto_id", contacto_id) \
+            .eq("etiqueta_id", etiqueta_id) \
+            .execute()
+
+        if existe.data:
+            print("⚠️ La etiqueta ya está asignada al contacto.")
+            flash("Etiqueta ya asignada.", "warning")
+        else:
+            # Insertar nueva relación
+            supabase.table("contacto_etiquetas").insert({
+                "id": str(uuid.uuid4()),
+                "contacto_id": contacto_id,
+                "etiqueta_id": etiqueta_id,
+                "nombre_nora": nombre_nora
+            }).execute()
+            print("✅ Etiqueta asignada correctamente.")
+            flash("Etiqueta asignada correctamente al contacto.", "success")
+    except Exception as e:
+        print(f"❌ Error al asignar etiqueta: {str(e)}")
+        flash("Error al asignar la etiqueta. Por favor, intenta de nuevo.", "error")
+
+    return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
+
+@panel_cliente_contactos_bp.route("/<nombre_nora>/contactos/quitar_etiqueta", methods=["POST"])
+def quitar_etiqueta(nombre_nora):
+    if "user" not in session:
+        return redirect(url_for("login.login_google"))
+
+    contacto_id = request.form.get("contacto_id")
+    etiqueta_id = request.form.get("etiqueta_id")
+
+    print("➡️ Intentando quitar etiqueta:", etiqueta_id, "de contacto:", contacto_id)
+
+    try:
+        # Buscar primero si existe la relación
+        existe = supabase.table("contacto_etiquetas") \
+            .select("id") \
+            .eq("contacto_id", contacto_id) \
+            .eq("etiqueta_id", etiqueta_id) \
+            .eq("nombre_nora", nombre_nora) \
+            .execute()
+
+        if not existe.data:
+            print("⚠️ La etiqueta ya había sido eliminada o no estaba asignada.")
+            flash("La etiqueta ya había sido eliminada.", "warning")
+        else:
+            supabase.table("contacto_etiquetas") \
+                .delete() \
+                .eq("contacto_id", contacto_id) \
+                .eq("etiqueta_id", etiqueta_id) \
+                .eq("nombre_nora", nombre_nora) \
+                .execute()
+            print("🗑 Etiqueta quitada correctamente del contacto.")
+            flash("Etiqueta eliminada correctamente del contacto.", "success")
+    except Exception as e:
+        print(f"❌ Error al quitar etiqueta: {str(e)}")
+        flash("Error al quitar la etiqueta. Intenta de nuevo.", "error")
+
+    return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
 
 print("✅ Blueprint de contactos cargado como '/contactos'")
