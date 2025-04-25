@@ -7,6 +7,7 @@ from clientes.aura.utils.normalizador import normalizar_numero
 import os
 import datetime
 import openai
+from dateutil import parser  # Asegúrate de importar el módulo parser
 
 # Configurar Supabase
 load_dotenv()
@@ -69,8 +70,11 @@ def leer_historial(telefono):
             return []
 
         for mensaje in response.data:
-            if isinstance(mensaje.get("hora"), datetime.datetime):
-                mensaje["hora"] = mensaje["hora"].strftime("%Y-%m-%d %H:%M:%S")
+            try:
+                mensaje["hora"] = parser.parse(mensaje["hora"])
+            except Exception as e:
+                print(f"⚠️ No se pudo parsear la fecha del mensaje: {mensaje.get('hora')} → {e}")
+                mensaje["hora"] = datetime.datetime.min
 
         print(f"✅ Historial cargado: {len(response.data)} registros.")
         return response.data
