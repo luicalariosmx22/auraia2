@@ -37,7 +37,10 @@
 
       <ul id="lista-contactos">
         {% for contacto in contactos %}
-        <li class="contacto-item" data-nombre="{{ contacto.nombre }}" data-etiquetas="{{ contacto.etiquetas | join(',') }}">
+        <li class="contacto-item" 
+            data-numero="{{ contacto.telefono }}" 
+            data-nombre="{{ contacto.nombre }}" 
+            data-etiquetas="{{ contacto.etiquetas | join(',') }}">
           <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
             <div class="info-contacto">
               <!-- Foto del contacto -->
@@ -387,5 +390,4 @@
   </script>
 </body>
 </html>
-``` 
 
