@@ -190,10 +190,16 @@ def panel_chat(nombre_nora):
             "imagen_perfil": c.get("imagen_perfil", None)
         })
 
-    # Ordenar contactos por la fecha del último mensaje
+    # Ordenar contactos por el campo 'ultimo_mensaje' directamente (si existe)
+    def parse_fecha(fecha):
+        try:
+            return datetime.datetime.strptime(fecha, "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            return datetime.datetime.min  # Si no hay fecha válida, queda al final
+
     contactos_ordenados = sorted(
         lista,
-        key=lambda c: parse_fecha(c.get("ultimo_mensaje")),
+        key=lambda c: parse_fecha(c.get("ultimo_mensaje", "")),
         reverse=True
     )
 
