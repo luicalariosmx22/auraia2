@@ -69,7 +69,7 @@ from clientes.aura.routes.panel_cliente import panel_cliente_bp
 from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
 from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp
 from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
-from clientes.aura.routes.admin_noras import admin_noras_bp
+from clientes.aura.routes/admin_noras import admin_noras_bp
 from clientes.aura.routes.admin_debug_master import admin_debug_master_bp
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 from clientes.aura.routes.admin_nora import admin_nora_bp
@@ -79,6 +79,7 @@ from clientes.aura.routes.panel_chat.vista_panel_chat import vista_panel_chat_bp
 from clientes.aura.routes.panel_chat.vista_enviar_mensaje import vista_enviar_mensaje_bp
 from clientes.aura.routes.panel_chat.vista_toggle_ia import vista_toggle_ia_bp
 from clientes.aura.routes.cobranza import cobranza_bp
+from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
@@ -100,7 +101,8 @@ blueprints_estaticos = [
     (panel_cliente_envios_bp, "/panel_cliente/envios"),
     (admin_debug_master_bp, "/admin/debug"),
     (admin_nora_bp, "/admin/nora"),
-    (cliente_nora_bp, "/panel_cliente")
+    (cliente_nora_bp, "/panel_cliente"),
+    (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento")  # Nuevo blueprint
 ]
 
 for blueprint, prefix in blueprints_estaticos:
