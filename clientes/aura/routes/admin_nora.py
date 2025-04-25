@@ -76,12 +76,12 @@ def editar_nora(nombre_nora):
 
 @admin_nora_bp.route("/admin/nora/nueva", methods=["GET", "POST"])
 def crear_nora():
-    modulos_disponibles = [
-        "contactos", "ia", "respuestas", "envios",
-        "qr_whatsapp_web", "multi_nora", "pagos",
-        "redes_sociales", "diseño_personalizado",
-        "open_table", "google_calendar"
-    ]
+    try:
+        response_modulos = supabase.table("modulos_disponibles").select("nombre").execute()
+        modulos_disponibles = [m["nombre"] for m in response_modulos.data] if response_modulos.data else []
+    except Exception as e:
+        print(f"❌ Error al obtener módulos disponibles: {e}")
+        modulos_disponibles = []
 
     if request.method == "POST":
         nombre_interno = request.form.get("nombre_interno", "").strip().lower().replace(" ", "").replace("_", "")
