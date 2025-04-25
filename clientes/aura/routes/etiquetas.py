@@ -52,3 +52,25 @@ def panel_etiquetas(nombre_nora):
         nombre_nora=nombre_nora,
         etiquetas=etiquetas
     )
+
+@etiquetas_bp.route("/<nombre_nora>/etiquetas/editar/<etiqueta_id>", methods=["POST"])
+def editar_etiqueta(nombre_nora, etiqueta_id):
+    nuevo_nombre = request.form.get("nuevo_nombre", "").strip()
+    nuevo_color = request.form.get("nuevo_color", "#2196F3")
+
+    if not nuevo_nombre:
+        flash("El nombre no puede estar vacío.", "error")
+        return redirect(url_for("panel_cliente_etiquetas.panel_etiquetas", nombre_nora=nombre_nora))
+
+    try:
+        # Actualizar la etiqueta en la base de datos
+        supabase.table("etiquetas").update({
+            "nombre": nuevo_nombre,
+            "color": nuevo_color
+        }).eq("id", etiqueta_id).execute()
+        flash("Etiqueta actualizada correctamente.", "success")
+    except Exception as e:
+        print(f"❌ Error al editar etiqueta: {str(e)}")
+        flash("Error al editar la etiqueta.", "error")
+
+    return redirect(url_for("panel_cliente_etiquetas.panel_etiquetas", nombre_nora=nombre_nora))
