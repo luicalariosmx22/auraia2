@@ -178,28 +178,27 @@ def panel_chat(nombre_nora):
     lista = []
     for c in contactos:
         mensajes = leer_historial(c["telefono"])
-        for mensaje in mensajes:
-            if "fecha" in mensaje and isinstance(mensaje["fecha"], datetime.datetime):
-                mensaje["fecha"] = mensaje["fecha"].strftime('%d-%b')
+        ultimo_mensaje = c.get("ultimo_mensaje")
+
+        # Convertimos la fecha si existe, si no, le ponemos la más antigua
+        try:
+            fecha_ultimo = datetime.datetime.strptime(ultimo_mensaje, "%Y-%m-%d %H:%M:%S") if ultimo_mensaje else datetime.datetime.min
+        except Exception as e:
+            print(f"⚠️ Error al analizar la fecha del último mensaje: {ultimo_mensaje} → {e}")
+            fecha_ultimo = datetime.datetime.min
+
         lista.append({
             **c,
             "mensajes": mensajes,
-            "ultimo_mensaje": c.get("ultimo_mensaje", "Sin fecha"),
-            "mensaje_reciente": c.get("mensaje_reciente", "Sin mensajes"),
+            "fecha_ultimo_mensaje": fecha_ultimo,
             "etiquetas": c.get("etiquetas", []),
             "imagen_perfil": c.get("imagen_perfil", None)
         })
 
-    # Ordenar contactos por el campo 'ultimo_mensaje' directamente (si existe)
-    def parse_fecha(fecha):
-        try:
-            return datetime.datetime.strptime(fecha, "%Y-%m-%d %H:%M:%S")
-        except Exception:
-            return datetime.datetime.min  # Si no hay fecha válida, queda al final
-
+    # Ordenar por la fecha del último mensaje ya parseada
     contactos_ordenados = sorted(
         lista,
-        key=lambda c: parse_fecha(c.get("ultimo_mensaje", "")),
+        key=lambda c: c["fecha_ultimo_mensaje"],
         reverse=True
     )
 
