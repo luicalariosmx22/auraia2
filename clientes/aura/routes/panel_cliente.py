@@ -19,17 +19,23 @@ def panel_cliente(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     try:
+        # Obtener los módulos activos desde la configuración de la Nora
         response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
-        modulos = response.data[0]["modulos"] if response.data else []
+        modulos_activos = response.data[0]["modulos"] if response.data else []
+
+        # Consultar la tabla de módulos disponibles para obtener detalles
+        modulos_query = supabase.table("modulos_disponibles").select("*").execute()
+        modulos_definidos = [m for m in modulos_query.data if m["nombre"] in modulos_activos]
+
     except Exception as e:
         print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
-        modulos = []
+        modulos_definidos = []
 
     return render_template(
         "panel_cliente.html",
         nombre_nora=nombre_nora,
         user=session["user"],
-        modulos=modulos
+        modulos=modulos_definidos
     )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])

@@ -3,42 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <title>Editar Nora: {{ nombre_nora }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
 </head>
 <body>
 
-<h2>✏️ Editar Nora: {{ nombre_nora }}</h2>
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <ul>
-      {% for category, message in messages %}
-        <li class="estado {{ category }}">{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
-<form method="POST">
-    <div class="seccion">
-        <label for="nuevo_nombre">Nuevo nombre visible de la Nora:</label><br>
-        <input type="text" id="nuevo_nombre" name="nuevo_nombre" value="{{ config.nombre_visible or nombre_nora }}" required>
+<header>
+    <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora" height="40">
     </div>
-
-    <div class="seccion">
-        <strong>Selecciona los módulos a activar:</strong><br><br>
-        {% for modulo in modulos_disponibles %}
-            <label>
-                <input type="checkbox" name="modulos" value="{{ modulo }}"
-                    {% if modulo in config.modulos %}checked{% endif %}>
-                {{ modulo }}
-            </label><br>
-        {% endfor %}
+    <div class="logout">
+        <a href="{{ url_for('logout') }}">Cerrar sesión</a>
     </div>
+</header>
 
-    <button type="submit" class="btn">💾 Guardar cambios</button>
-    <a href="{{ url_for('admin_noras.vista_admin') }}" class="btn btn-secundario">🔙 Regresar</a>
-</form>
+<main>
+    <h1>🛠 Editar Nora: {{ nombre_nora }}</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li class="estado {{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <section class="entrena-modulos">
+        <form method="POST" class="modulo">
+            <h2>🏷 Nombre visible</h2>
+            <input type="text" id="nuevo_nombre" name="nuevo_nombre" value="{{ config.nombre_visible or nombre_nora }}" required>
+
+            <h2>📦 Módulos activos</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                {% for modulo in modulos %}
+<div class="meta-card">
+    <h3>{{ modulo.icono }} {{ modulo.nombre.replace('_', ' ').capitalize() }}</h3>
+    <p>{{ modulo.descripcion }}</p>
+    <a href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) }}" class="btn-neutral">Abrir módulo</a>
+</div>
+{% endfor %}
+            </div>
+
+            <br>
+            <button type="submit">💾 Guardar cambios</button>
+            <a href="{{ url_for('admin_noras.vista_admin') }}" class="btn-back">🔙 Regresar</a>
+        </form>
+    </section>
+</main>
 
 </body>
 </html>
