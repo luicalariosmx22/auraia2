@@ -2,25 +2,28 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Contactos – Nora</title>
+  <title>Panel de Contactos – Nora</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
 </head>
 <body>
-<div class="main-container">
+<main class="main-container">
 
+  <!-- Encabezado -->
   <header class="header">
     <div class="logo">
       <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora" height="40">
     </div>
     <div class="logout">
-      <a href="{{ url_for('logout') }}" class="btn-primary">Cerrar sesión</a>
+      <a href="{{ url_for('logout') }}" class="btn-secondary">Cerrar sesión</a>
     </div>
   </header>
 
+  <h1>📞 Contactos para {{ nombre_nora }}</h1>
+
   <!-- Agregar contacto -->
   <section class="module">
-    <h2>➕ Agregar nuevo contacto</h2>
+    <h2>Agregar nuevo contacto</h2>
     <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/agregar" class="form">
       <div class="form-group">
         <input type="text" name="telefono" placeholder="Teléfono" required>
@@ -37,9 +40,9 @@
     </form>
   </section>
 
-  <!-- Filtro -->
+  <!-- Filtros -->
   <section class="module">
-    <h2>🔍 Filtrar contactos</h2>
+    <h2>Filtrar contactos</h2>
     <form action="/panel_cliente/contactos/{{ nombre_nora }}" method="get" class="form">
       <div class="form-group">
         <input type="text" name="busqueda" placeholder="Buscar por nombre o teléfono" value="{{ request.args.get('busqueda', '') }}">
@@ -55,10 +58,10 @@
     </form>
   </section>
 
-  <!-- Lista de contactos -->
+  <!-- Listado de contactos -->
   <section class="module">
     <h2>📋 {{ contactos|length }} contacto{{ 's' if contactos|length != 1 else '' }} encontrado{{ 's' if contactos|length != 1 else '' }}</h2>
-    <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/acciones">
+    <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/acciones" class="form">
       <table class="tabla-contactos">
         <thead>
           <tr>
@@ -83,6 +86,47 @@
             <td>{{ c.telefono }}</td>
             <td>
               {{ c.nombre }}
-              <div class="etiquetas">
+              <div class="etiqueta-group">
                 {% for etiqueta in c.etiquetas %}
-                <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/contact
+                <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/contactos/quitar_etiqueta" class="form-inline">
+                  <input type="hidden" name="contacto_id" value="{{ c.id }}">
+                  <input type="hidden" name="etiqueta_id" value="{{ etiqueta.id }}">
+                  <button type="submit" class="btn-tag" style="background-color: {{ etiqueta.color }};">
+                    {{ etiqueta.nombre }} ✕
+                  </button>
+                </form>
+                {% endfor %}
+              </div>
+              <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/contactos/asignar_etiqueta" class="form-inline">
+                <input type="hidden" name="contacto_id" value="{{ c.id }}">
+                <select name="etiqueta_id" class="select-small">
+                  {% for e in etiquetas %}
+                  <option value="{{ e.id }}">{{ e.nombre }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="btn-mini">➕</button>
+              </form>
+            </td>
+            <td>{{ c.correo or '' }}</td>
+            <td>{{ c.empresa or '' }}</td>
+            <td>{{ c.rfc or '' }}</td>
+            <td>{{ c.direccion or '' }}</td>
+            <td>{{ c.ciudad or '' }}</td>
+            <td>{{ c.cumpleanos or '' }}</td>
+            <td>{{ c.notas or '' }}</td>
+            <td>{{ c.ultimo_mensaje[:10] if c.ultimo_mensaje }}</td>
+            <td>
+              <button class="btn-mini" name="accion" value="editar" title="Editar">✏️</button>
+              <button class="btn-mini" name="accion" value="eliminar" title="Eliminar">🗑</button>
+              <input type="hidden" name="contactos_seleccionados" value="{{ c.telefono }}">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </form>
+  </section>
+
+</main>
+</body>
+</html>
