@@ -24,6 +24,8 @@
                     name="nueva_etiqueta" 
                     placeholder="Escribe el nombre de la etiqueta" 
                     required>
+                <label for="color_etiqueta">Color:</label>
+                <input type="color" id="color_etiqueta" name="color_etiqueta" value="#2196F3">
                 <button type="submit">Agregar</button>
             </form>
         </div>
@@ -34,7 +36,16 @@
             {% if etiquetas %}
             <ul>
                 {% for etiqueta in etiquetas %}
-                <li style="margin-bottom: 8px;">🔹 {{ etiqueta }}</li>
+                <li style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+                    <form method="POST" action="{{ url_for('panel_cliente_etiquetas.editar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}" style="display: inline-flex; align-items: center; gap: 5px;">
+                        <input type="text" name="nuevo_nombre" value="{{ etiqueta.nombre }}" required>
+                        <input type="color" name="nuevo_color" value="{{ etiqueta.color }}">
+                        <button type="submit">💾</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('panel_cliente_etiquetas.eliminar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}">
+                        <button type="submit" style="background-color:#f44336; color:white;">🗑</button>
+                    </form>
+                </li>
                 {% endfor %}
             </ul>
             {% else %}

@@ -19,13 +19,26 @@ def panel_contactos(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     try:
-        # Obtener contactos desde Supabase
-        response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).execute()
+        response = supabase.table("contactos").select(
+            "id, nombre, telefono, correo, empresa, rfc, direccion, ciudad, cumpleanos, notas, ultimo_mensaje"
+        ).eq("nombre_nora", nombre_nora).execute()
         contactos = response.data if response.data else []
 
-        # Obtener etiquetas únicas
-        etiquetas_response = supabase.table("contactos").select("etiquetas").eq("nombre_nora", nombre_nora).execute()
-        etiquetas = list(set(et for c in etiquetas_response.data for et in c.get("etiquetas", []) if et)) if etiquetas_response.data else []
+        etiquetas_response = supabase.table("etiquetas").select("id, nombre, color").eq("nombre_nora", nombre_nora).eq("activa", True).execute()
+        etiquetas = etiquetas_response.data if etiquetas_response.data else []
+
+        relacion_response = supabase.table("contacto_etiquetas").select("contacto_id, etiqueta_id").eq("nombre_nora", nombre_nora).execute()
+        relaciones = relacion_response.data or []
+
+        etiquetas_dict = {e["id"]: e for e in etiquetas}
+        etiquetas_por_contacto = {}
+        for rel in relaciones:
+            contacto_id = rel["contacto_id"]
+            etiqueta_id = rel["etiqueta_id"]
+            etiquetas_por_contacto.setdefault(contacto_id, []).append(etiquetas_dict.get(etiqueta_id, {}))
+
+        for contacto in contactos:
+            contacto["etiquetas"] = etiquetas_por_contacto.get(contacto["id"], [])
 
         return render_template(
             "panel_cliente_contactos.html",
@@ -50,14 +63,18 @@ def agregar_contacto(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     try:
-        # Agregar contacto a Supabase
         data = {
             "nombre_nora": nombre_nora,
             "telefono": request.form.get("telefono"),
             "nombre": request.form.get("nombre"),
             "correo": request.form.get("correo"),
             "celular": request.form.get("celular"),
-            "etiquetas": [request.form.get("etiqueta")] if request.form.get("etiqueta") else []
+            "empresa": request.form.get("empresa"),
+            "rfc": request.form.get("rfc"),
+            "direccion": request.form.get("direccion"),
+            "ciudad": request.form.get("ciudad"),
+            "cumpleanos": request.form.get("cumpleanos"),
+            "notas": request.form.get("notas")
         }
         supabase.table("contactos").insert(data).execute()
         print(f"✅ Contacto agregado: {data}")
@@ -79,7 +96,6 @@ def acciones_contactos(nombre_nora):
                 supabase.table("contactos").delete().eq("nombre_nora", nombre_nora).eq("telefono", telefono).execute()
             print(f"✅ Contactos eliminados: {contactos_seleccionados}")
         elif accion == "editar":
-            # Redirigir a la página de edición del primer contacto seleccionado
             if contactos_seleccionados:
                 return redirect(url_for("panel_cliente_contactos.editar_contacto", nombre_nora=nombre_nora, telefono=contactos_seleccionados[0]))
     except Exception as e:
@@ -93,12 +109,16 @@ def editar_contacto(nombre_nora, telefono):
 
     if request.method == "POST":
         try:
-            # Actualizar contacto en Supabase
             data = {
                 "nombre": request.form.get("nombre"),
                 "correo": request.form.get("correo"),
                 "celular": request.form.get("celular"),
-                "etiquetas": [request.form.get("etiqueta")] if request.form.get("etiqueta") else []
+                "empresa": request.form.get("empresa"),
+                "rfc": request.form.get("rfc"),
+                "direccion": request.form.get("direccion"),
+                "ciudad": request.form.get("ciudad"),
+                "cumpleanos": request.form.get("cumpleanos"),
+                "notas": request.form.get("notas")
             }
             supabase.table("contactos").update(data).eq("nombre_nora", nombre_nora).eq("telefono", telefono).execute()
             print(f"✅ Contacto actualizado: {data}")
@@ -107,7 +127,6 @@ def editar_contacto(nombre_nora, telefono):
         return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
 
     try:
-        # Obtener contacto desde Supabase
         response = supabase.table("contactos").select("*").eq("nombre_nora", nombre_nora).eq("telefono", telefono).execute()
         contacto = response.data[0] if response.data else {}
         return render_template(
