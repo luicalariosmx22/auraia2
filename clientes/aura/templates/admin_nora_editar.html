@@ -36,13 +36,16 @@
 
             <h2>📦 Módulos activos</h2>
             <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                {% for modulo in modulos %}
-<div class="meta-card">
-    <h3>{{ modulo.icono }} {{ modulo.nombre.replace('_', ' ').capitalize() }}</h3>
-    <p>{{ modulo.descripcion }}</p>
-    <a href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) }}" class="btn-neutral">Abrir módulo</a>
-</div>
-{% endfor %}
+                {% if modulos_disponibles %}
+                    {% for modulo in modulos_disponibles %}
+                        <label style="background: #f3f3f3; padding: 10px 14px; border-radius: 8px; cursor: pointer;">
+                            <input type="checkbox" name="modulos" value="{{ modulo }}" {% if modulo in config.modulos %}checked{% endif %}>
+                            {{ modulo.replace('_', ' ').capitalize() }}
+                        </label>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: red;">❌ No se encontraron módulos disponibles.</p>
+                {% endif %}
             </div>
 
             <br>
