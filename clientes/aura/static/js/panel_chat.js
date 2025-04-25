@@ -49,6 +49,10 @@ async function cargarChat(numero) {
     console.log("✅ Historial cargado correctamente. Renderizando mensajes...");
     renderizarMensajes(data.mensajes, data.contacto);
     actualizarInfoContacto(data.contacto, data.contacto.resumen || "Sin resumen aún.");
+
+    // 🔥 REORDENAR AL FINAL DESPUÉS DE CARGAR
+    reordenarContactos();
+
   } catch (error) {
     console.error("❌ Error al cargar el historial de chat:", error);
     manejarError(error, "Error al cargar el historial de chat.");
@@ -221,6 +225,20 @@ function filtrarContactosPorEtiqueta(etiqueta) {
     const etiquetas = Array.from(item.querySelectorAll(".etiqueta")).map(e => e.innerText.toLowerCase());
     item.style.display = etiqueta === "" || etiquetas.includes(etiqueta.toLowerCase()) ? "" : "none";
   });
+}
+
+// Reordenar contactos
+function reordenarContactos() {
+  const lista = document.getElementById("lista-contactos");
+  const items = Array.from(lista.querySelectorAll(".contacto-item"));
+
+  items.sort((a, b) => {
+    const fechaA = new Date(a.querySelector(".fecha-ultimo-contacto").innerText || "1900-01-01");
+    const fechaB = new Date(b.querySelector(".fecha-ultimo-contacto").innerText || "1900-01-01");
+    return fechaB - fechaA; // Ordenar de más reciente a más antiguo
+  });
+
+  items.forEach(item => lista.appendChild(item)); // Reinsertar en orden
 }
 
 // Inicializar la página
