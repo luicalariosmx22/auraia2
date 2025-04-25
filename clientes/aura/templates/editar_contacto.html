@@ -1,16 +1,41 @@
 {% extends 'layout.html' %}
 {% block contenido %}
-<div class="meta-container">
+<div class="main-container">
   <h2>✏️ Editar contacto</h2>
-  <form method="POST">
+  <form method="POST" class="form">
     <input type="hidden" name="nombre_nora" value="{{ contacto.nombre_nora }}">
     <div class="form-group">
-      <input type="text" name="nombre" value="{{ contacto.nombre }}" placeholder="Nombre" required>
-      <input type="email" name="correo" value="{{ contacto.correo }}" placeholder="Correo">
-      <input type="text" name="celular" value="{{ contacto.celular }}" placeholder="Celular">
-      <input type="text" name="etiquetas" value="{{ contacto.etiquetas | join(', ') }}" placeholder="Etiquetas separadas por coma">
+      <label for="nombre">Nombre:</label>
+      <input type="text" id="nombre" name="nombre" value="{{ contacto.nombre }}" placeholder="Nombre" required>
+
+      <label for="correo">Correo:</label>
+      <input type="email" id="correo" name="correo" value="{{ contacto.correo }}" placeholder="Correo">
+
+      <label for="telefono">Teléfono:</label>
+      <input type="text" id="telefono" name="telefono" value="{{ contacto.telefono }}" placeholder="Teléfono" required>
+
+      <label for="empresa">Empresa:</label>
+      <input type="text" id="empresa" name="empresa" value="{{ contacto.empresa }}" placeholder="Empresa">
+
+      <label for="rfc">RFC:</label>
+      <input type="text" id="rfc" name="rfc" value="{{ contacto.rfc }}" placeholder="RFC">
+
+      <label for="direccion">Dirección:</label>
+      <input type="text" id="direccion" name="direccion" value="{{ contacto.direccion }}" placeholder="Dirección">
+
+      <label for="ciudad">Ciudad:</label>
+      <input type="text" id="ciudad" name="ciudad" value="{{ contacto.ciudad }}" placeholder="Ciudad">
+
+      <label for="cumpleanos">Cumpleaños:</label>
+      <input type="date" id="cumpleanos" name="cumpleanos" value="{{ contacto.cumpleanos }}">
+
+      <label for="notas">Notas:</label>
+      <textarea id="notas" name="notas" placeholder="Notas" rows="3">{{ contacto.notas }}</textarea>
+
+      <label for="etiquetas">Etiquetas:</label>
+      <input type="text" id="etiquetas" name="etiquetas" value="{{ contacto.etiquetas | join(', ') }}" placeholder="Etiquetas separadas por coma">
     </div>
-    <button type="submit" class="btn-neutral">Guardar cambios</button>
+    <button type="submit" class="btn-primary">Guardar cambios</button>
   </form>
 </div>
 {% endblock %}
