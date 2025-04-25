@@ -170,11 +170,11 @@ function seleccionarContacto(telefono) {
 
 // Enviar un mensaje al contacto seleccionado
 async function enviarMensaje(event) {
-  event.preventDefault(); // Evitar recargar la página
+  event.preventDefault();
 
   const input = document.getElementById("mensaje-input");
   const mensaje = input.value.trim();
-  if (!mensaje) return; // No enviar mensajes vacíos
+  if (!mensaje) return;
 
   const telefono = localStorage.getItem("numeroActivo");
   if (!telefono || telefono === "null" || telefono === "undefined") {
@@ -197,8 +197,25 @@ async function enviarMensaje(event) {
     const data = await response.json();
     if (data.success) {
       console.log("✅ Mensaje enviado:", mensaje);
-      input.value = ""; // Limpiar input
-      // Esperamos a que el mensaje se renderice por Socket.IO
+      input.value = "";
+
+      // 🔥 Actualizar visualmente el contacto
+      const contactoItem = document.querySelector(`.contacto-item[data-numero="${telefono}"]`);
+      if (contactoItem) {
+        const ultimoMensaje = contactoItem.querySelector(".ultimo-mensaje");
+        const fechaContacto = contactoItem.querySelector(".fecha-ultimo-contacto");
+
+        if (ultimoMensaje) {
+          ultimoMensaje.textContent = mensaje;
+        }
+        if (fechaContacto) {
+          const ahora = new Date();
+          fechaContacto.textContent = ahora.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+        }
+      }
+
+      // 🔥 REORDENAR
+      reordenarContactos();
     } else {
       mostrarError("Error al enviar el mensaje.");
     }
@@ -277,19 +294,38 @@ const socket = io();
 socket.on("nuevo_mensaje", (data) => {
     console.log("📩 Nuevo mensaje recibido:", data);
 
-    const chat = document.getElementById("chat-area");
-    const nuevoMensaje = document.createElement("div");
-    nuevoMensaje.classList.add("burbuja", data.remitente === "bot" ? "nora" : "usuario");
+    const telefono = data.telefono;
 
-    nuevoMensaje.innerHTML = `
-        <div class="remitente">${data.remitente === "bot" ? "Nora" : "Tú"}</div>
-        <div class="contenido">${data.mensaje}</div>
-        <div class="timestamp">${new Date().toLocaleTimeString()}</div>
-    `;
+    // Actualizar último mensaje en la lista de contactos
+    const contactoItem = document.querySelector(`.contacto-item[data-numero="${telefono}"]`);
+    if (contactoItem) {
+        const ultimoMensaje = contactoItem.querySelector(".ultimo-mensaje");
+        const fechaContacto = contactoItem.querySelector(".fecha-ultimo-contacto");
 
-    chat.appendChild(nuevoMensaje);
-    chat.scrollTop = chat.scrollHeight;
+        if (ultimoMensaje) {
+            ultimoMensaje.textContent = data.mensaje; // Actualiza el mensaje
+        }
+        if (fechaContacto) {
+            const ahora = new Date();
+            fechaContacto.textContent = ahora.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+        }
+    }
 
-    // 🔥 Y también reordenamos contactos cada que llegue un nuevo mensaje
+    // Insertar el mensaje en el chat si el chat abierto corresponde
+    if (telefono === localStorage.getItem("numeroActivo")) {
+        const chat = document.getElementById("chat-area");
+        const nuevoMensaje = document.createElement("div");
+        nuevoMensaje.classList.add("burbuja", data.remitente === "bot" ? "nora" : "usuario");
+
+        nuevoMensaje.innerHTML = `
+            <div class="remitente">${data.remitente === "bot" ? "Nora" : "Tú"}</div>
+            <div class="contenido">${data.mensaje}</div>
+            <div class="timestamp">${new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</div>
+        `;
+        chat.appendChild(nuevoMensaje);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    // 🔥 REORDENAR toda la lista
     reordenarContactos();
 });
