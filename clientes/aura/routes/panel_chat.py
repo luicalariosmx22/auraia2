@@ -53,6 +53,27 @@ def leer_contactos():
                 contacto["nombre"] = f"Usuario {contacto['telefono'][-10:]}"
             contactos.append(contacto)
 
+        # 🔥 Cargar solo el mensaje más reciente
+        for contacto in contactos:
+            try:
+                historial = (
+                    supabase
+                    .table("historial_conversaciones")
+                    .select("*")
+                    .eq("telefono", contacto["telefono"])
+                    .order("hora", desc=True)
+                    .limit(1)
+                    .execute()
+                )
+                if historial.data:
+                    contacto["mensajes"] = historial.data
+                    contacto["ultimo_mensaje"] = historial.data[0]["hora"]
+                    contacto["mensaje_reciente"] = historial.data[0]["mensaje"]
+            except Exception as e:
+                print(f"⚠️ No se pudo cargar historial para {contacto['telefono']}: {e}")
+                contacto["mensajes"] = []
+                contacto["ultimo_mensaje"] = ""
+                contacto["mensaje_reciente"] = ""
         print(f"✅ Contactos cargados: {len(contactos)} contactos.")
         return contactos
     except Exception as e:
