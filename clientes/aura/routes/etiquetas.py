@@ -74,3 +74,14 @@ def editar_etiqueta(nombre_nora, etiqueta_id):
         flash("Error al editar la etiqueta.", "error")
 
     return redirect(url_for("panel_cliente_etiquetas.panel_etiquetas", nombre_nora=nombre_nora))
+
+@etiquetas_bp.route("/<nombre_nora>/etiquetas/eliminar/<etiqueta_id>", methods=["POST"])
+def eliminar_etiqueta(nombre_nora, etiqueta_id):
+    try:
+        # Marcar la etiqueta como inactiva en la base de datos
+        supabase.table("etiquetas").update({"activa": False}).eq("id", etiqueta_id).execute()
+        flash("Etiqueta eliminada correctamente.", "success")
+    except Exception as e:
+        print(f"❌ Error al eliminar etiqueta: {str(e)}")
+        flash("Error al eliminar la etiqueta.", "error")
+    return redirect(url_for("panel_cliente_etiquetas.panel_etiquetas", nombre_nora=nombre_nora))
