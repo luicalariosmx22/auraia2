@@ -109,14 +109,24 @@ def editar_contacto_service(numero, request):
         contacto_id = contacto["id"]
 
         if request.method == 'POST':
-            nuevo_nombre = request.form.get('nombre', '').strip()
+            # Crear el diccionario con los datos actualizados
+            update_data = {
+                "nombre": request.form.get("nombre", contacto.get("nombre", "")).strip(),
+                "correo": request.form.get("correo", contacto.get("correo", "")).strip(),
+                "empresa": request.form.get("empresa", contacto.get("empresa", "")).strip(),
+                "rfc": request.form.get("rfc", contacto.get("rfc", "")).strip(),
+                "direccion": request.form.get("direccion", contacto.get("direccion", "")).strip(),
+                "ciudad": request.form.get("ciudad", contacto.get("ciudad", "")).strip(),
+                "cumpleanos": request.form.get("cumpleanos", contacto.get("cumpleanos", "")),
+                "notas": request.form.get("notas", contacto.get("notas", "")).strip(),
+            }
+
+            # Actualizar los datos del contacto
+            supabase.table("contactos").update(update_data).eq("telefono", numero).execute()
+
+            # Manejar etiquetas
             nuevas_etiquetas = request.form.getlist('etiquetas')
             nombre_nora = contacto.get("nombre_nora", "")
-
-            supabase.table("contactos").update({
-                "nombre": nuevo_nombre or contacto["nombre"]
-            }).eq("telefono", numero).execute()
-
             remover_etiquetas(contacto_id)
             asignar_etiquetas(contacto_id, nuevas_etiquetas, nombre_nora)
 
