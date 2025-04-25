@@ -16,12 +16,13 @@ admin_nora_bp = Blueprint("admin_nora", __name__)
 
 @admin_nora_bp.route("/admin/nora/<nombre_nora>/editar", methods=["GET", "POST"])
 def editar_nora(nombre_nora):
-    modulos_disponibles = [
-        "contactos", "ia", "respuestas", "envios",
-        "qr_whatsapp_web", "multi_nora", "pagos",
-        "redes_sociales", "diseño_personalizado",
-        "open_table", "google_calendar"
-    ]
+    # Consultar módulos disponibles desde la tabla en Supabase
+    try:
+        response_modulos = supabase.table("modulos_disponibles").select("nombre").execute()
+        modulos_disponibles = [m["nombre"] for m in response_modulos.data] if response_modulos.data else []
+    except Exception as e:
+        print(f"❌ Error al obtener módulos disponibles: {e}")
+        modulos_disponibles = []
 
     # Cargar configuración desde Supabase
     try:
