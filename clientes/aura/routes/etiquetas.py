@@ -22,9 +22,9 @@ def panel_etiquetas(nombre_nora):
 
     # Obtener etiquetas desde la base de datos
     try:
-        response = supabase.table("etiquetas").select("nombre").eq("nombre_nora", nombre_nora).execute()
+        response = supabase.table("etiquetas").select("id, nombre, color").eq("nombre_nora", nombre_nora).eq("activa", True).execute()
         print(f"🔍 Respuesta de la base de datos: {response.data}")  # Depuración: Verificar la respuesta
-        etiquetas = [row["nombre"] for row in response.data if row.get("nombre")]
+        etiquetas = response.data or []
     except Exception as e:
         print(f"❌ Error al cargar etiquetas: {str(e)}")
         etiquetas = []
