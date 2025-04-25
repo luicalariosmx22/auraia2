@@ -30,12 +30,12 @@ def panel_cliente(nombre_nora):
         # Construir la lista de módulos disponibles con detalles
         modulos_disponibles = [
             {
-                "nombre": m["nombre"],
-                "ruta": m.get("ruta", "").strip(),
+                "nombre": m["nombre"].strip(),
+                "ruta": (m.get("ruta") or "").strip(),
                 "icono": m.get("icono", ""),
                 "descripcion": m.get("descripcion", "")
             }
-            for m in modulos_supabase if m["nombre"] in modulos_activos
+            for m in modulos_supabase if m["nombre"].strip() in [mod.strip() for mod in modulos_activos]
         ]
 
     except Exception as e:
