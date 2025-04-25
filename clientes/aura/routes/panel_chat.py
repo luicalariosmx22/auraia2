@@ -8,7 +8,17 @@ import os
 import datetime
 from dateutil import parser
 import openai
-from dateutil import parser  # Asegúrate de importar el módulo parser
+from dateutil import parser
+
+def parse_fecha(fecha_str):
+    """
+    Intenta analizar una fecha desde una cadena. Si falla, devuelve datetime.datetime.min.
+    """
+    try:
+        return parser.parse(fecha_str)
+    except Exception as e:
+        print(f"⚠️ Error al analizar la fecha '{fecha_str}': {e}")
+        return datetime.datetime.min
 
 # Configurar Supabase
 load_dotenv()
@@ -180,10 +190,10 @@ def panel_chat(nombre_nora):
             "imagen_perfil": c.get("imagen_perfil", None)
         })
 
-    # Ordenar contactos por la fecha del último mensaje real en el historial
+    # Ordenar contactos por la fecha del último mensaje
     contactos_ordenados = sorted(
         lista,
-        key=lambda c: obtener_fecha_mas_reciente(c.get("mensajes", [])),
+        key=lambda c: parse_fecha(c.get("ultimo_mensaje")),
         reverse=True
     )
 
