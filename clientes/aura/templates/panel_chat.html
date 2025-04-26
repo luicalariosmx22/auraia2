@@ -59,7 +59,11 @@
 
             <!-- Fecha del último contacto -->
             <span class="fecha-ultimo-contacto">
-              {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
+              {% if contacto.fecha_ultimo_mensaje %}
+                {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
+              {% else %}
+                Sin fecha
+              {% endif %}
             </span>
 
             <!-- Etiquetas -->
