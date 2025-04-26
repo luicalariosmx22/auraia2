@@ -3,7 +3,8 @@
 from flask import render_template, session, redirect, url_for
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.panel_chat_utils import leer_contactos
-import datetime  # 🔥 Agregado aquí
+import datetime
+from dateutil import parser  # ✅ Agregado para mejor manejo de fechas
 
 @panel_chat_bp.route("/panel/chat/<nombre_nora>")
 def panel_chat(nombre_nora):
@@ -20,15 +21,16 @@ def panel_chat(nombre_nora):
     lista = []
     for contacto in contactos:
         print(f"🔍 Procesando contacto: {contacto.get('telefono', 'desconocido')}")
-        ultimo_mensaje = contacto.get("ultimo_mensaje")
-        mensaje_reciente = contacto.get("mensaje_reciente")
 
-        try:
-            fecha_ultimo = datetime.datetime.strptime(ultimo_mensaje, "%Y-%m-%d %H:%M:%S") if ultimo_mensaje else datetime.datetime(1900, 1, 1)
-            print(f"✅ Fecha parseada: {fecha_ultimo}")
-        except Exception as e:
-            print(f"⚠️ Error al parsear fecha: {e}")
-            fecha_ultimo = datetime.datetime(1900, 1, 1)
+        ultimo_mensaje = contacto.get("ultimo_mensaje")
+        fecha_ultimo = datetime.datetime(1900, 1, 1)  # Default
+
+        if ultimo_mensaje:
+            try:
+                fecha_ultimo = parser.parse(ultimo_mensaje)
+                print(f"✅ Fecha último mensaje parseada: {fecha_ultimo}")
+            except Exception as e:
+                print(f"⚠️ Error parseando 'ultimo_mensaje': {e}")
 
         lista.append({
             **contacto,
