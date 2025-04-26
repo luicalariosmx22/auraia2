@@ -15,25 +15,21 @@ from werkzeug.serving import WSGIRequestHandler
 
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
-        # Solo filtra los logs que contienen '200 -'
         return ' 200 -' not in record.getMessage()
 
-# Filtrar solo los logs de werkzeug
 werkzeug_logger = logging.getLogger('werkzeug')
 werkzeug_logger.addFilter(WerkzeugFilter())
 
-# Redirigir logs de polling a archivo separado
 socketio_log = logging.getLogger('socketio_polling')
 socketio_log.setLevel(logging.INFO)
 handler = RotatingFileHandler("logs/socketio_polling.log", maxBytes=100000, backupCount=3)
 handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
 socketio_log.addHandler(handler)
 
-# Cargar variables de entorno
 load_dotenv()
 
-# Silenciar logs de Twilio
 logging.getLogger("twilio.http_client").setLevel(logging.WARNING)
+
 app = Flask(
     __name__,
     template_folder='clientes/aura/templates',
@@ -45,10 +41,8 @@ app.secret_key = os.getenv("SECRET_KEY", "clave-secreta-por-defecto")
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Inicializar SocketIO con la aplicación Flask
 socketio.init_app(app, cors_allowed_origins="*")
 
-# Logger en producción
 if not app.debug:
     file_handler = RotatingFileHandler("error.log", maxBytes=10240, backupCount=10)
     file_handler.setLevel(logging.ERROR)
@@ -84,7 +78,7 @@ registrar_blueprints_debug(app)
 
 blueprints_estaticos = [
     (admin_verificador_bp, None),
-    (panel_chat_bp, "/panel_chat"),
+    (panel_chat_bp, None),  # 🔥 CAMBIO: aquí ahora va None
     (admin_nora_dashboard_bp, None),
     (webhook_bp, None),
     (etiquetas_bp, "/panel_cliente_etiquetas"),
@@ -94,7 +88,7 @@ blueprints_estaticos = [
     (admin_debug_master_bp, "/admin/debug"),
     (admin_nora_bp, "/admin/nora"),
     (cliente_nora_bp, "/panel_cliente"),
-    (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento")  # Nuevo blueprint
+    (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento")
 ]
 
 for blueprint, prefix in blueprints_estaticos:
@@ -112,7 +106,6 @@ try:
 except Exception as e:
     app.logger.error(f"Error al registrar Noras dinámicas: {e}")
 
-# ========= FUNCIONES AUXILIARES =========
 def validar_o_generar_uuid(valor):
     try:
         return str(uuid.UUID(valor))
@@ -134,10 +127,8 @@ def registrar_rutas_en_supabase():
     except Exception as e:
         app.logger.error(f"Error al registrar rutas en Supabase: {str(e)}")
 
-# Convertir iterador a lista para calcular la longitud
 app.logger.info(f"📋 Total de rutas registradas: {len(list(app.url_map.iter_rules()))}")
 
-# ========= RUTA INICIAL =========
 @app.route("/")
 def home():
     if "user" not in session:
