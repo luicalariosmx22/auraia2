@@ -34,7 +34,7 @@ def panel_chat(nombre_nora):
 
         lista.append({
             **c,
-            "fecha_ultimo_mensaje": fecha_ultimo,  # Agregamos la fecha parseada
+            "fecha_ultimo_mensaje": fecha_ultimo.strftime("%d %b %H:%M") if fecha_ultimo else None  # ✅ FECHA FORMATEADA
         })
 
     # Ordenar contactos por la fecha parseada del campo 'ultimo_mensaje'
