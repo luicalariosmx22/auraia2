@@ -212,10 +212,10 @@ def panel_chat(nombre_nora):
             "fecha_ultimo_mensaje": fecha_ultimo,  # Agregamos la fecha parseada
         })
 
-    # Ordenar contactos por la fecha más reciente en su historial de mensajes
+    # Ordenar contactos por la fecha parseada del campo 'ultimo_mensaje'
     contactos_ordenados = sorted(
         lista,
-        key=lambda c: c.get('fecha_ultimo_mensaje', datetime.datetime(1900, 1, 1)),
+        key=lambda c: c.get("fecha_ultimo_mensaje", datetime.datetime(1900, 1, 1)),
         reverse=True
     )
 

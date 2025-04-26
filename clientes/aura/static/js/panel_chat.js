@@ -210,7 +210,14 @@ async function enviarMensaje(event) {
         }
         if (fechaContacto) {
           const ahora = new Date();
-          fechaContacto.textContent = ahora.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+          const fechaCompleta = ahora.getFullYear() + '-' +
+              String(ahora.getMonth() + 1).padStart(2, '0') + '-' +
+              String(ahora.getDate()).padStart(2, '0') + ' ' +
+              String(ahora.getHours()).padStart(2, '0') + ':' +
+              String(ahora.getMinutes()).padStart(2, '0') + ':' +
+              String(ahora.getSeconds()).padStart(2, '0');
+
+          fechaContacto.textContent = fechaCompleta;
         }
       }
 
@@ -306,8 +313,15 @@ socket.on("nuevo_mensaje", (data) => {
             ultimoMensaje.textContent = data.mensaje; // Actualiza el mensaje
         }
         if (fechaContacto) {
-            const ahora = new Date();
-            fechaContacto.textContent = ahora.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+          const ahora = new Date();
+          const fechaCompleta = ahora.getFullYear() + '-' +
+              String(ahora.getMonth() + 1).padStart(2, '0') + '-' +
+              String(ahora.getDate()).padStart(2, '0') + ' ' +
+              String(ahora.getHours()).padStart(2, '0') + ':' +
+              String(ahora.getMinutes()).padStart(2, '0') + ':' +
+              String(ahora.getSeconds()).padStart(2, '0');
+
+          fechaContacto.textContent = fechaCompleta;
         }
     }
 

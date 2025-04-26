@@ -58,7 +58,9 @@
             </div>
 
             <!-- Fecha del último contacto -->
-            <span class="fecha-ultimo-contacto">{{ contacto.ultimo_mensaje | default("Sin fecha") }}</span>
+            <span class="fecha-ultimo-contacto">
+              {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje else "Sin fecha" }}
+            </span>
 
             <!-- Etiquetas -->
             <div class="etiquetas-contacto">
