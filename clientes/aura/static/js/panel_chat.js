@@ -168,21 +168,74 @@ function seleccionarContacto(telefono) {
   cargarChat(telefono);
 }
 
+// Reordenar contactos
+function reordenarContactos() {
+  console.log("🔍 Iniciando reordenamiento de contactos...");
+  const lista = document.getElementById("lista-contactos");
+  const items = Array.from(lista.querySelectorAll(".contacto-item"));
+
+  console.log("🔍 Ordenando contactos por fecha del último mensaje...");
+  items.sort((a, b) => {
+    const fechaA = new Date(a.querySelector(".fecha-ultimo-contacto").innerText || "1900-01-01");
+    const fechaB = new Date(b.querySelector(".fecha-ultimo-contacto").innerText || "1900-01-01");
+    return fechaB - fechaA; // Ordenar de más reciente a más antiguo
+  });
+
+  console.log("🔍 Reinsertando contactos en el DOM...");
+  items.forEach(item => lista.appendChild(item)); // Reinsertar en orden
+  console.log("✅ Contactos reordenados.");
+}
+
+// Filtrar contactos por nombre
+function filtrarContactosPorNombre(nombre) {
+  console.log(`🔍 Filtrando contactos por nombre: ${nombre}`);
+  const listaContactos = document.getElementById("lista-contactos");
+  const items = listaContactos.querySelectorAll(".contacto-item");
+
+  items.forEach(item => {
+    const nombreContacto = item.querySelector(".contacto-nombre").innerText.toLowerCase();
+    const visible = nombreContacto.includes(nombre.toLowerCase());
+    console.log(`🔍 Contacto: ${nombreContacto}, Visible: ${visible}`);
+    item.style.display = visible ? "" : "none";
+  });
+}
+
+// Filtrar contactos por etiqueta
+function filtrarContactosPorEtiqueta(etiqueta) {
+  console.log(`🔍 Filtrando contactos por etiqueta: ${etiqueta}`);
+  const listaContactos = document.getElementById("lista-contactos");
+  const items = listaContactos.querySelectorAll(".contacto-item");
+
+  items.forEach(item => {
+    const etiquetas = Array.from(item.querySelectorAll(".etiqueta")).map(e => e.innerText.toLowerCase());
+    const visible = etiqueta === "" || etiquetas.includes(etiqueta.toLowerCase());
+    console.log(`🔍 Contacto etiquetas: ${etiquetas}, Visible: ${visible}`);
+    item.style.display = visible ? "" : "none";
+  });
+}
+
 // Enviar un mensaje al contacto seleccionado
 async function enviarMensaje(event) {
   event.preventDefault();
+  console.log("🔍 Iniciando envío de mensaje...");
 
   const input = document.getElementById("mensaje-input");
   const mensaje = input.value.trim();
-  if (!mensaje) return;
+  console.log(`🔍 Mensaje a enviar: ${mensaje}`);
+  if (!mensaje) {
+    console.warn("⚠️ Mensaje vacío. Cancelando envío.");
+    return;
+  }
 
   const telefono = localStorage.getItem("numeroActivo");
+  console.log(`🔍 Enviando mensaje al número: ${telefono}`);
   if (!telefono || telefono === "null" || telefono === "undefined") {
     mostrarError("No se ha seleccionado un contacto válido.");
     return;
   }
 
   try {
+    console.log("🔍 Enviando solicitud al servidor...");
     const response = await fetch("/api/enviar-mensaje", {
       method: "POST",
       headers: {
@@ -195,8 +248,9 @@ async function enviarMensaje(event) {
     });
 
     const data = await response.json();
+    console.log("🔍 Respuesta del servidor:", data);
     if (data.success) {
-      console.log("✅ Mensaje enviado:", mensaje);
+      console.log("✅ Mensaje enviado correctamente.");
       input.value = "";
 
       // 🔥 Actualizar visualmente el contacto
@@ -206,56 +260,27 @@ async function enviarMensaje(event) {
         const fechaContacto = contactoItem.querySelector(".fecha-ultimo-contacto");
 
         if (ultimoMensaje) {
+          console.log("🔍 Actualizando último mensaje en la lista de contactos...");
           ultimoMensaje.textContent = mensaje;
         }
         if (fechaContacto) {
+          console.log("🔍 Actualizando fecha del último mensaje...");
           const ahora = new Date();
           fechaContacto.textContent = ahora.toISOString().slice(0, 19).replace("T", " ");
         }
       }
 
       // 🔥 REORDENAR
+      console.log("🔍 Reordenando contactos después del envío...");
       reordenarContactos();
     } else {
+      console.error("❌ Error al enviar el mensaje.");
       mostrarError("Error al enviar el mensaje.");
     }
   } catch (err) {
+    console.error("❌ Error al enviar el mensaje:", err);
     manejarError(err, "Error al enviar el mensaje.");
   }
-}
-
-// Filtrar contactos por nombre
-function filtrarContactosPorNombre(nombre) {
-  const listaContactos = document.getElementById("lista-contactos");
-  const items = listaContactos.querySelectorAll(".contacto-item");
-  items.forEach(item => {
-    const nombreContacto = item.querySelector(".contacto-nombre").innerText.toLowerCase();
-    item.style.display = nombreContacto.includes(nombre.toLowerCase()) ? "" : "none";
-  });
-}
-
-// Filtrar contactos por etiqueta
-function filtrarContactosPorEtiqueta(etiqueta) {
-  const listaContactos = document.getElementById("lista-contactos");
-  const items = listaContactos.querySelectorAll(".contacto-item");
-  items.forEach(item => {
-    const etiquetas = Array.from(item.querySelectorAll(".etiqueta")).map(e => e.innerText.toLowerCase());
-    item.style.display = etiqueta === "" || etiquetas.includes(etiqueta.toLowerCase()) ? "" : "none";
-  });
-}
-
-// Reordenar contactos
-function reordenarContactos() {
-  const lista = document.getElementById("lista-contactos");
-  const items = Array.from(lista.querySelectorAll(".contacto-item"));
-
-  items.sort((a, b) => {
-    const fechaA = new Date(a.querySelector(".fecha-ultimo-contacto").innerText || "1900-01-01");
-    const fechaB = new Date(b.querySelector(".fecha-ultimo-contacto").innerText || "1900-01-01");
-    return fechaB - fechaA; // Ordenar de más reciente a más antiguo
-  });
-
-  items.forEach(item => lista.appendChild(item)); // Reinsertar en orden
 }
 
 // Inicializar la página

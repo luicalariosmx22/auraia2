@@ -20,11 +20,13 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 def leer_contactos():
     print("🔍 Iniciando función leer_contactos...")
     try:
+        print("🔍 Consultando tabla 'contactos' en Supabase...")
         response = supabase.table("contactos").select("*").execute()
         if not response.data:
             print("⚠️ No se encontraron contactos en la tabla 'contactos'.")
             return []
 
+        print("🔍 Procesando contactos obtenidos...")
         contactos = []
         for contacto in response.data:
             if not contacto.get("nombre"):
@@ -41,8 +43,10 @@ def leer_contactos():
 def leer_historial(telefono):
     print(f"🔍 Iniciando función leer_historial para el teléfono: {telefono}")
     telefono = normalizar_numero(telefono)
+    print(f"🔍 Teléfono normalizado: {telefono}")
 
     try:
+        print("🔍 Consultando tabla 'historial_conversaciones' en Supabase...")
         response = (
             supabase
             .table("historial_conversaciones")
@@ -55,9 +59,11 @@ def leer_historial(telefono):
             print(f"⚠️ No se encontró historial para {telefono}.")
             return []
 
+        print("🔍 Procesando mensajes del historial...")
         for mensaje in response.data:
             try:
                 mensaje["hora"] = parser.parse(mensaje["hora"])
+                print(f"✅ Fecha parseada: {mensaje['hora']}")
             except Exception as e:
                 print(f"⚠️ No se pudo parsear la fecha del mensaje: {mensaje.get('hora')} → {e}")
                 mensaje["hora"] = datetime.datetime.min
@@ -71,6 +77,7 @@ def leer_historial(telefono):
 
 def guardar_historial(nombre_nora, telefono, mensajes):
     print(f"🔍 Iniciando función guardar_historial para el teléfono: {telefono}")
+    print(f"🔍 Preparando registros para guardar...")
     registros = [
         {
             "nombre_nora": nombre_nora,
@@ -82,7 +89,10 @@ def guardar_historial(nombre_nora, telefono, mensajes):
         }
         for mensaje in mensajes
     ]
+    print(f"🔍 Registros preparados: {len(registros)}")
+
     try:
+        print("🔍 Insertando registros en la tabla 'historial_conversaciones'...")
         response = supabase.table("historial_conversaciones").insert(registros).execute()
         if not response.data:
             print("❌ Error al guardar historial.")
@@ -98,6 +108,7 @@ def generar_resumen_ia(mensajes):
         print("⚠️ No hay suficientes mensajes para generar un resumen.")
         return "No hay suficientes mensajes para generar un resumen."
 
+    print("🔍 Preparando texto para el resumen...")
     texto = "\n".join([f"{m['emisor']}: {m['mensaje']}" for m in mensajes[-20:]])
     prompt = f"""
 Eres un asistente profesional. Resume brevemente esta conversación entre un cliente y una IA llamada Nora. El resumen debe identificar si el cliente está interesado en algo, si ya fue atendido, y si hay seguimiento pendiente:
@@ -106,6 +117,7 @@ Eres un asistente profesional. Resume brevemente esta conversación entre un cli
 
 Resumen:
 """
+    print("🔍 Enviando solicitud a OpenAI...")
     try:
         respuesta = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -121,10 +133,15 @@ Resumen:
 
 
 def obtener_fecha_mas_reciente(mensajes):
+    print("🔍 Iniciando función obtener_fecha_mas_reciente...")
     if not mensajes:
+        print("⚠️ No hay mensajes para procesar.")
         return ""
     try:
-        return max(m["hora"] for m in mensajes if "hora" in m and m["hora"])
+        print("🔍 Calculando la fecha más reciente...")
+        fecha_mas_reciente = max(m["hora"] for m in mensajes if "hora" in m and m["hora"])
+        print(f"✅ Fecha más reciente: {fecha_mas_reciente}")
+        return fecha_mas_reciente
     except Exception as e:
         print(f"❌ Error al obtener la fecha más reciente: {str(e)}")
         return ""

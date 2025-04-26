@@ -124,17 +124,24 @@
     let telefonoChatAbierto = null;
 
     function abrirChat(telefono) {
+      console.log(`🔍 Abriendo chat para el teléfono: ${telefono}`);
       telefonoChatAbierto = telefono;
 
       // Ocultar la notificación azul si estaba activa
       const badge = document.getElementById(`badge-${telefono}`);
-      if (badge) badge.style.display = "none";
+      if (badge) {
+        console.log("🔍 Ocultando notificación azul...");
+        badge.style.display = "none";
+      }
 
       // Cargar historial de mensajes
+      console.log("🔍 Solicitando historial de mensajes...");
       fetch(`/api/chat/${telefono}`)
         .then(res => res.json())
         .then(data => {
+          console.log("🔍 Respuesta recibida:", data);
           if (data.success) {
+            console.log("✅ Historial cargado correctamente.");
             contactoActivo = data.contacto; // Guardar el contacto activo
             cargarEtiquetas(data.contacto); // ⬅️ Pasar el contacto a cargarEtiquetas
             const contenedor = document.getElementById("chat-contenido");
@@ -143,6 +150,7 @@
 
             contenedor.innerHTML = "";
             data.mensajes.forEach(m => {
+              console.log(`🔍 Renderizando mensaje: ${m.mensaje}`);
               const burbuja = document.createElement("div");
               burbuja.className = m.emisor === "nora" ? "mensaje nora" : "mensaje cliente";
               burbuja.innerHTML = `
@@ -154,14 +162,19 @@
             });
 
             scrollAlFinal();
+          } else {
+            console.error("❌ Error al cargar el historial.");
           }
-        });
+        })
+        .catch(err => console.error("❌ Error en la solicitud:", err));
     }
 
     socket.on("nuevo_mensaje", function(data) {
+      console.log("📩 Nuevo mensaje recibido:", data);
       const numero = data.telefono;
 
       if (numero !== telefonoChatAbierto) {
+        console.log("🔍 Mostrando notificación para un nuevo mensaje...");
         const badge = document.getElementById(`badge-${numero}`);
         const contactoDiv = document.getElementById(`contacto-${numero}`);
         const audio = document.getElementById("notifSound");
@@ -177,16 +190,22 @@
     });
 
     function scrollAlFinal() {
+      console.log("🔍 Desplazando el chat al final...");
       const contenedor = document.getElementById("chat-contenido");
       contenedor.scrollTop = contenedor.scrollHeight;
     }
 
     function enviarMensaje() {
+      console.log("🔍 Enviando mensaje...");
       const input = document.getElementById("mensajeInput");
       const mensaje = input.value.trim();
 
-      if (!mensaje) return;
+      if (!mensaje) {
+        console.warn("⚠️ Mensaje vacío. Cancelando envío.");
+        return;
+      }
 
+      console.log(`🔍 Mensaje a enviar: ${mensaje}`);
       // Agregar el mensaje al chat
       const contenedor = document.getElementById("chat-contenido");
       const burbuja = document.createElement("div");
@@ -202,6 +221,7 @@
       input.value = "";
 
       // Enviar el mensaje al servidor
+      console.log("🔍 Enviando mensaje al servidor...");
       fetch("/api/enviar-mensaje", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -210,12 +230,12 @@
         .then(res => res.json())
         .then(data => {
           if (data.success) {
-            console.log("Mensaje enviado correctamente.");
+            console.log("✅ Mensaje enviado correctamente.");
           } else {
-            console.error("Error al enviar el mensaje.");
+            console.error("❌ Error al enviar el mensaje.");
           }
         })
-        .catch(err => console.error("Error en la solicitud:", err));
+        .catch(err => console.error("❌ Error en la solicitud:", err));
     }
 
     let contactoActivo = null;

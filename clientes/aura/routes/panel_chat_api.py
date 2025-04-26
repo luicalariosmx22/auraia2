@@ -7,17 +7,20 @@ import datetime
 
 @panel_chat_bp.route("/api/chat/<telefono>")
 def api_chat(telefono):
-    print(f"\U0001f50d Iniciando función api_chat para el teléfono: {telefono}")
+    print(f"🔍 Iniciando función api_chat para el teléfono: {telefono}")
     try:
         telefono = normalizar_numero(telefono)
-        print(f"\U0001f50d Teléfono normalizado: {telefono}")
+        print(f"🔍 Teléfono normalizado: {telefono}")
 
+        print("🔍 Leyendo contactos...")
         contactos = leer_contactos()
         print(f"✅ Contactos cargados: {len(contactos)}")
 
+        print("🔍 Buscando contacto específico...")
         contacto = next((c for c in contactos if normalizar_numero(c["telefono"]) == telefono), {})
-        print(f"\U0001f50d Contacto encontrado: {contacto}")
+        print(f"✅ Contacto encontrado: {contacto}")
 
+        print("🔍 Leyendo historial de mensajes...")
         historial = leer_historial(telefono)
         print(f"✅ Historial cargado: {len(historial)} mensajes")
 
@@ -39,9 +42,9 @@ def api_chat(telefono):
 
 @panel_chat_bp.route("/api/enviar-mensaje", methods=["POST"])
 def api_enviar_mensaje():
-    print("\U0001f50d Iniciando función api_enviar_mensaje...")
+    print("🔍 Iniciando función api_enviar_mensaje...")
     data = request.json
-    print(f"\U0001f50d Datos recibidos: {data}")
+    print(f"🔍 Datos recibidos: {data}")
     telefono = normalizar_numero(data.get("numero"))
     texto = data.get("mensaje")
 
@@ -49,23 +52,29 @@ def api_enviar_mensaje():
         print("❌ Datos incompletos para enviar mensaje.")
         return jsonify({"success": False, "error": "Datos incompletos"}), 400
 
+    print("🔍 Leyendo historial de mensajes...")
     historial = leer_historial(telefono)
+    print(f"✅ Historial cargado: {len(historial)} mensajes")
+
+    print("🔍 Agregando nuevo mensaje al historial...")
     historial.append({
         "emisor": "usuario",
         "mensaje": texto,
         "fecha": datetime.datetime.now().strftime("%d-%b %H:%M")
     })
 
+    print("🔍 Guardando historial actualizado...")
     guardar_historial("Nora", telefono, historial)
     print(f"✅ Mensaje enviado y guardado en el historial para {telefono}.")
     return jsonify({"success": True})
 
 @panel_chat_bp.route("/api/toggle-ia/<telefono>", methods=["POST"])
 def api_toggle_ia(telefono):
-    print(f"\U0001f50d Iniciando función api_toggle_ia para el teléfono: {telefono}")
+    print(f"🔍 Iniciando función api_toggle_ia para el teléfono: {telefono}")
     from clientes.aura.routes.panel_chat_utils import supabase  # Importación puntual
     telefono = normalizar_numero(telefono)
     try:
+        print("🔍 Consultando contacto en la base de datos...")
         response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
         if not response.data:
             print(f"❌ Error al cargar contacto para {telefono}.")
@@ -73,6 +82,7 @@ def api_toggle_ia(telefono):
 
         contacto = response.data[0]
         nuevo_estado = not contacto.get("ia_activada", True)
+        print(f"🔍 Cambiando estado de IA a: {nuevo_estado}")
         supabase.table("contactos").update({"ia_activada": nuevo_estado}).eq("telefono", telefono).execute()
         print(f"✅ Estado de IA cambiado para {telefono}: {nuevo_estado}")
         return jsonify({"success": True})
@@ -82,11 +92,12 @@ def api_toggle_ia(telefono):
 
 @panel_chat_bp.route("/api/programar-envio", methods=["POST"])
 def api_programar_envio():
-    print("\U0001f50d Iniciando función api_programar_envio...")
+    print("🔍 Iniciando función api_programar_envio...")
     data = request.json
-    print(f"\U0001f50d Datos recibidos: {data}")
+    print(f"🔍 Datos recibidos: {data}")
     try:
         from clientes.aura.routes.panel_chat_utils import supabase  # Importación puntual
+        print("🔍 Insertando datos en la tabla 'envios_programados'...")
         response = supabase.table("envios_programados").insert({
             "numero": data.get("numero"),
             "mensaje": data.get("mensaje"),
@@ -104,13 +115,14 @@ def api_programar_envio():
 
 @panel_chat_bp.route("/api/etiqueta/<telefono>", methods=["POST", "DELETE"])
 def api_gestion_etiqueta(telefono):
-    print(f"\U0001f50d Iniciando función api_gestion_etiqueta para el teléfono: {telefono}")
+    print(f"🔍 Iniciando función api_gestion_etiqueta para el teléfono: {telefono}")
     from clientes.aura.routes.panel_chat_utils import supabase  # Importación puntual
     body = request.get_json()
     etiqueta = body.get("etiqueta", "").strip().lower()
     telefono = normalizar_numero(telefono)
 
     try:
+        print("🔍 Consultando contacto en la base de datos...")
         response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
         if not response.data:
             print(f"❌ Contacto no encontrado para el teléfono: {telefono}")
@@ -118,6 +130,7 @@ def api_gestion_etiqueta(telefono):
 
         contacto = response.data[0]
         etiquetas = set(contacto.get("etiquetas", []))
+        print(f"🔍 Etiquetas actuales: {etiquetas}")
 
         if request.method == "POST":
             etiquetas.add(etiqueta)
@@ -126,7 +139,9 @@ def api_gestion_etiqueta(telefono):
             etiquetas.discard(etiqueta)
             print(f"✅ Etiqueta '{etiqueta}' eliminada del contacto {telefono}.")
 
+        print("🔍 Actualizando etiquetas en la base de datos...")
         supabase.table("contactos").update({"etiquetas": list(etiquetas)}).eq("telefono", telefono).execute()
+        print("✅ Etiquetas actualizadas correctamente.")
         return jsonify({"success": True})
     except Exception as e:
         print(f"❌ Error en api_gestion_etiqueta para el teléfono {telefono}: {str(e)}")
