@@ -70,7 +70,7 @@ def procesar_mensaje(data):
     numero_usuario = normalizar_numero(data.get("From"))
     mensaje_usuario = limpiar_mensaje(data.get("Body"))
     nombre_usuario = data.get("ProfileName", "Usuario")
-    imagen_perfil = data.get("ProfilePicUrl")
+    imagen_perfil = data.get("ProfilePicUrl")  # 🔥 Ahora también leemos la foto si viene
     nombre_nora = data.get("NombreNora", "nora").lower()
 
     # Configuración y número real de Nora
@@ -107,6 +107,7 @@ def procesar_mensaje(data):
         tipo="usuario"
     )
 
+    # Actualizar contacto con el último mensaje y foto de perfil
     # 🔥 Aquí sí funciona real
     actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil)
 
@@ -131,5 +132,4 @@ def procesar_mensaje(data):
 
     # Enviar respuesta al usuario
     enviar_mensaje(numero_usuario, respuesta, nombre_usuario)
-
     return respuesta
