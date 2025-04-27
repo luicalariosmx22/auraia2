@@ -1,19 +1,20 @@
-print("✅ admin_actualizar_contactos.py cargado correctamente")
+print("\u2705 admin_actualizar_contactos.py cargado correctamente")
 
 from flask import Blueprint, redirect, url_for, session, flash
 from dotenv import load_dotenv
 import os
 from supabase import create_client
 
-# Configuración Supabase
+# Cargar variables de entorno
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# Definir blueprint
 admin_actualizar_contactos_bp = Blueprint("admin_actualizar_contactos", __name__)
 
-@admin_actualizar_contactos_bp.route("/admin/actualizar_contactos/<nombre_nora>")
+@admin_actualizar_contactos_bp.route("/<nombre_nora>")
 def actualizar_contactos_admin(nombre_nora):
     if "user" not in session or not session.get("is_admin"):
         flash("Acceso no autorizado.", "error")
@@ -47,7 +48,7 @@ def actualizar_contactos_admin(nombre_nora):
                 supabase.table("contactos").update(update_data).eq("telefono", telefono).eq("nombre_nora", nombre_nora).execute()
 
         flash(f"✅ Contactos de '{nombre_nora}' actualizados exitosamente.", "success")
-        return redirect(url_for("admin_dashboard.dashboard_admin"))  # Redirecciona al dashboard admin o donde prefieras
+        return redirect(url_for("admin_dashboard.dashboard_admin"))
 
     except Exception as e:
         print(f"❌ Error actualizando contactos: {e}")
