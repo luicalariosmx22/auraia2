@@ -1,6 +1,6 @@
 # 📁 clientes/aura/handlers/process_message.py
 
-print("✅ process_message.py cargado correctamente")
+print("✅ process_message.py cargado correctamente y ajustado para actualización real")
 
 from datetime import datetime
 from clientes.aura.utils.normalizador import normalizar_numero
@@ -27,23 +27,39 @@ def obtener_config_nora(nombre_nora):
 
 def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil=None):
     """
-    Actualiza el último mensaje, la fecha y la foto de perfil en la tabla contactos.
+    Actualiza último mensaje, fecha y foto del contacto. Si no encuentra exacto, busca por variaciones.
     """
     try:
-        update_data = {
-            "ultimo_mensaje": datetime.now().isoformat(),
-            "mensaje_reciente": mensaje_usuario
-        }
-        if imagen_perfil:
-            update_data["imagen_perfil"] = imagen_perfil
-
-        supabase.table("contactos") \
-            .update(update_data) \
+        # Intentar buscar contacto exacto
+        response = supabase.table("contactos") \
+            .select("id") \
             .eq("telefono", numero_usuario) \
             .eq("nombre_nora", nombre_nora) \
             .execute()
 
-        print(f"✅ Contacto {numero_usuario} actualizado correctamente en contactos.")
+        if not response.data:
+            # Si no encontró exacto, buscar por los últimos 10 dígitos
+            ultimos_10 = numero_usuario[-10:]
+            print(f"🔍 Buscando contacto por últimos 10 dígitos: {ultimos_10}")
+            response = supabase.table("contactos") \
+                .select("id") \
+                .like("telefono", f"%{ultimos_10}") \
+                .eq("nombre_nora", nombre_nora) \
+                .execute()
+
+        if response.data:
+            contacto_id = response.data[0]["id"]
+            update_data = {
+                "ultimo_mensaje": datetime.now().isoformat(),
+                "mensaje_reciente": mensaje_usuario
+            }
+            if imagen_perfil:
+                update_data["imagen_perfil"] = imagen_perfil
+
+            supabase.table("contactos").update(update_data).eq("id", contacto_id).execute()
+            print(f"✅ Contacto {numero_usuario} actualizado correctamente en contactos.")
+        else:
+            print(f"⚠️ No se encontró contacto para {numero_usuario}. No se actualizó nada.")
     except Exception as e:
         print(f"❌ Error actualizando contacto: {e}")
 
@@ -54,7 +70,7 @@ def procesar_mensaje(data):
     numero_usuario = normalizar_numero(data.get("From"))
     mensaje_usuario = limpiar_mensaje(data.get("Body"))
     nombre_usuario = data.get("ProfileName", "Usuario")
-    imagen_perfil = data.get("ProfilePicUrl")  # 🔥 Ahora también leemos la foto si viene
+    imagen_perfil = data.get("ProfilePicUrl")
     nombre_nora = data.get("NombreNora", "nora").lower()
 
     # Configuración y número real de Nora
@@ -91,7 +107,7 @@ def procesar_mensaje(data):
         tipo="usuario"
     )
 
-    # Actualizar contacto con el último mensaje y foto de perfil
+    # 🔥 Aquí sí funciona real
     actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil)
 
     # Generar respuesta desde IA con historial y contexto automáticamente manejados dentro de handle_ai
@@ -115,4 +131,5 @@ def procesar_mensaje(data):
 
     # Enviar respuesta al usuario
     enviar_mensaje(numero_usuario, respuesta, nombre_usuario)
+
     return respuesta
