@@ -1,4 +1,4 @@
-print("🔥 ESTE ES EL APP.PY QUE SE ESTÁ EJECUTANDO")
+print("🚀 VERSIÓN CORREGIDA DEL APP.PY - SÍ ESTOY ACTUALIZADO 🚀")
 
 import os
 import uuid
@@ -63,8 +63,8 @@ from clientes.aura.routes.panel_cliente import panel_cliente_bp
 from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
 from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp
 from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
-from clientes.aura.routes/admin_noras import admin_noras_bp
-from clientes.aura.routes/admin_debug_master import admin_debug_master_bp
+from clientes.aura.routes.admin_noras import admin_noras_bp  # 👈 Added import
+from clientes.aura.routes.admin_debug_master import admin_debug_master_bp
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 from clientes.aura.routes.admin_nora import admin_nora_bp
 from clientes.aura.routes.cliente_nora import cliente_nora_bp
