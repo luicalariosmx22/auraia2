@@ -1,6 +1,6 @@
 # 📁 clientes/aura/handlers/process_message.py
 
-print("✅ process_message.py cargado correctamente y ajustado para actualización real")
+print("✅ process_message.py cargado correctamente al chile y ajustado para actualización real")
 
 from datetime import datetime
 from clientes.aura.utils.normalizador import normalizar_numero
