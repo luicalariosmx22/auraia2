@@ -33,10 +33,13 @@ def parse_fecha(fecha_str):
         print(f"⚠️ Error al parsear fecha: {e}")
         return datetime.datetime.min
 
-def leer_contactos():
-    print("🔵 Iniciando lectura de contactos desde 'contactos'...")
+def leer_contactos(nombre_nora=None):  # 👈 Added optional parameter
+    print(f"🔵 Iniciando lectura de contactos desde 'contactos'... nombre_nora={nombre_nora}")
     try:
-        response = supabase.table("contactos").select("*").execute()
+        query = supabase.table("contactos").select("*")
+        if nombre_nora:
+            query = query.eq("nombre_nora", nombre_nora)  # 👈 Filter by nombre_nora if provided
+        response = query.execute()
         print(f"✅ Contactos leídos: {len(response.data) if response.data else 0}")
         return response.data or []
     except Exception as e:

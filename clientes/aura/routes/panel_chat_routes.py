@@ -14,12 +14,16 @@ def panel_chat(nombre_nora):
         print("⚠️ Usuario no autenticado. Redirigiendo a login.")
         return redirect(url_for("login.login_google"))
 
-    print("🔍 Leyendo contactos desde la base de datos...")
-    contactos = leer_contactos()
+    print(f"🔍 Leyendo contactos de {nombre_nora} desde la base de datos...")
+    contactos = leer_contactos(nombre_nora)  # 👈 Pass nombre_nora as a parameter
+
     print(f"✅ Contactos obtenidos: {len(contactos)}")
 
     lista = []
     for contacto in contactos:
+        if contacto.get("nombre_nora") != nombre_nora:
+            continue  # ⬅️ Filter: process only contacts for the correct Nora
+
         print(f"🔍 Procesando contacto: {contacto.get('telefono', 'desconocido')}")
 
         ultimo_mensaje = contacto.get("ultimo_mensaje")

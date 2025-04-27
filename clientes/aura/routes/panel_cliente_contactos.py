@@ -22,7 +22,7 @@ def panel_contactos(nombre_nora):
     try:
         response = supabase.table("contactos").select(
             "id, nombre, telefono, correo, empresa, rfc, direccion, ciudad, cumpleanos, notas, ultimo_mensaje"
-        ).eq("nombre_nora", nombre_nora).execute()
+        ).eq("nombre_nora", nombre_nora).order('ultimo_mensaje', desc=True).execute()  # 👈 Change: Added ordering
         contactos = response.data if response.data else []
 
         etiquetas_response = supabase.table("etiquetas").select("id, nombre, color").eq("nombre_nora", nombre_nora).eq("activa", True).execute()
