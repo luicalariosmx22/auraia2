@@ -31,11 +31,13 @@ def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_per
     """
     try:
         # Intentar buscar contacto exacto
+        print(f"🔍 Intentando actualizar contacto exacto para {numero_usuario} en Nora {nombre_nora}...")
         response = supabase.table("contactos") \
             .select("id") \
             .eq("telefono", numero_usuario) \
             .eq("nombre_nora", nombre_nora) \
             .execute()
+        print(f"🔍 Respuesta exacta: {response.data}")
 
         if not response.data:
             # Si no encontró exacto, buscar por los últimos 10 dígitos
@@ -46,18 +48,20 @@ def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_per
                 .like("telefono", f"%{ultimos_10}") \
                 .eq("nombre_nora", nombre_nora) \
                 .execute()
+            print(f"🔍 Respuesta por últimos 10 dígitos: {response.data}")
 
         if response.data:
             contacto_id = response.data[0]["id"]
             update_data = {
-                "ultimo_mensaje": datetime.now().isoformat(),
-                "mensaje_reciente": mensaje_usuario
+                "ultimo_mensaje": datetime.now().isoformat(),  # Ensure timestamp is added
+                "mensaje_reciente": mensaje_usuario  # Ensure recent message is updated
             }
             if imagen_perfil:
                 update_data["imagen_perfil"] = imagen_perfil
 
-            supabase.table("contactos").update(update_data).eq("id", contacto_id).execute()
-            print(f"✅ Contacto {numero_usuario} actualizado correctamente en contactos.")
+            print(f"🔄 Actualizando contacto ID {contacto_id} con datos: {update_data}")
+            update_response = supabase.table("contactos").update(update_data).eq("id", contacto_id).execute()
+            print(f"✅ Respuesta de actualización: {update_response}")
         else:
             print(f"⚠️ No se encontró contacto para {numero_usuario}. No se actualizó nada.")
     except Exception as e:
