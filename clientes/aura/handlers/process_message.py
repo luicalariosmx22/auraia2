@@ -61,7 +61,11 @@ def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_per
 
             print(f"🔄 Actualizando contacto ID {contacto_id} con datos: {update_data}")
             update_response = supabase.table("contactos").update(update_data).eq("id", contacto_id).execute()
-            print(f"✅ Respuesta de actualización: {update_response}")
+            print(f"✅ Respuesta de actualización: {update_response.data}")
+            if update_response.data:
+                print(f"✅ Contacto {numero_usuario} actualizado correctamente.")
+            else:
+                print(f"⚠️ La actualización no devolvió datos. Verifica la consulta.")
         else:
             print(f"⚠️ No se encontró contacto para {numero_usuario}. No se actualizó nada.")
     except Exception as e:
