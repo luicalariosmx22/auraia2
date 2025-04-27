@@ -1,5 +1,7 @@
 # 📁 clientes/aura/handlers/process_message.py
 
+print("✅ process_message.py cargado correctamente")
+
 from datetime import datetime
 from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.limpieza import limpiar_mensaje
@@ -23,6 +25,28 @@ def obtener_config_nora(nombre_nora):
         print(f"❌ Error al obtener configuración: {e}")
         return {}
 
+def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil=None):
+    """
+    Actualiza el último mensaje, la fecha y la foto de perfil en la tabla contactos.
+    """
+    try:
+        update_data = {
+            "ultimo_mensaje": datetime.now().isoformat(),
+            "mensaje_reciente": mensaje_usuario
+        }
+        if imagen_perfil:
+            update_data["imagen_perfil"] = imagen_perfil
+
+        supabase.table("contactos") \
+            .update(update_data) \
+            .eq("telefono", numero_usuario) \
+            .eq("nombre_nora", nombre_nora) \
+            .execute()
+
+        print(f"✅ Contacto {numero_usuario} actualizado correctamente en contactos.")
+    except Exception as e:
+        print(f"❌ Error actualizando contacto: {e}")
+
 def procesar_mensaje(data):
     """
     Procesa el mensaje recibido, limpia el texto, normaliza el número, obtiene historial y llama a la IA.
@@ -30,6 +54,7 @@ def procesar_mensaje(data):
     numero_usuario = normalizar_numero(data.get("From"))
     mensaje_usuario = limpiar_mensaje(data.get("Body"))
     nombre_usuario = data.get("ProfileName", "Usuario")
+    imagen_perfil = data.get("ProfilePicUrl")  # 🔥 Ahora también leemos la foto si viene
     nombre_nora = data.get("NombreNora", "nora").lower()
 
     # Configuración y número real de Nora
@@ -65,6 +90,9 @@ def procesar_mensaje(data):
         nombre_nora=nombre_nora,
         tipo="usuario"
     )
+
+    # Actualizar contacto con el último mensaje y foto de perfil
+    actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil)
 
     # Generar respuesta desde IA con historial y contexto automáticamente manejados dentro de handle_ai
     respuesta, historial = manejar_respuesta_ai(
