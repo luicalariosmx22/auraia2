@@ -29,7 +29,7 @@ def api_chat(telefono):
         return jsonify({
             "success": True,
             "contacto": contacto or {},
-            "mensajes": historial,
+            "mensajes": leer_historial(contacto["telefono"], contacto["nombre_nora"], limite=10),  # Updated to include contacto["nombre_nora"]
             "resumen_ia": resumen
         })
     except Exception as e:

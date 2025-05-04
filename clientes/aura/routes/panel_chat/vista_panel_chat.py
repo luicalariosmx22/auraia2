@@ -12,7 +12,7 @@ def panel_chat(nombre_nora):
     contactos = leer_contactos(nombre_nora)  # Filtrar contactos por Nora
     lista = []
     for c in contactos:
-        mensajes = leer_historial(c["telefono"], limite=10)
+        mensajes = leer_historial(c["telefono"], nombre_nora, limite=10)  # Updated to include nombre_nora
         lista.append({**c, "mensajes": mensajes})
 
     return render_template("panel_chat.html", contactos=lista, nombre_nora=nombre_nora)
