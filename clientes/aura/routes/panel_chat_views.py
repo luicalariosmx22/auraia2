@@ -1,12 +1,14 @@
 print("✅ panel_chat_views.py cargado correctamente")
 
 from flask import render_template, session, redirect, url_for
-from clientes.aura.routes.panel_chat_utils import (
-    leer_contactos,
-    parse_fecha
-)
-from clientes.aura.routes.panel_chat import panel_chat_bp
+from supabase import create_client
+import os
 import datetime
+from clientes.aura.routes.panel_chat import panel_chat_bp
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @panel_chat_bp.route("/<nombre_nora>")
 def panel_chat(nombre_nora):
@@ -18,8 +20,12 @@ def panel_chat(nombre_nora):
         print("⚠️ Usuario no autenticado. Redirigiendo al login.")
         return redirect(url_for("login.login_google"))
 
-    print("🔍 Leyendo contactos...")
-    contactos = leer_contactos()
+    print("🔍 Leyendo contactos desde Supabase...")
+    response = supabase.table("contactos").select(
+        "id, nombre, telefono, correo, empresa, rfc, direccion, ciudad, cumpleanos, notas, ultimo_mensaje"
+    ).eq("nombre_nora", nombre_nora).order('ultimo_mensaje', desc=True).execute()
+
+    contactos = response.data if response.data else []
     print(f"✅ Contactos leídos: {len(contactos)}")
 
     # Crear la lista de contactos con su ultimo_mensaje ya formateado

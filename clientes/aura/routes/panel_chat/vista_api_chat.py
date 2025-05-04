@@ -4,6 +4,12 @@ from clientes.aura.utils.chat.leer_contactos import leer_contactos
 from clientes.aura.utils.chat.leer_historial import leer_historial
 from clientes.aura.utils.chat.generar_resumen import generar_resumen_ia
 from clientes.aura.utils.normalizador import normalizar_numero
+from supabase import create_client
+import os
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 vista_api_chat_bp = Blueprint("vista_api_chat", __name__)
 
@@ -14,12 +20,9 @@ def api_chat(telefono):
         telefono = normalizar_numero(telefono)
         historial = leer_historial(telefono, limite=20, offset=offset)
 
-        contacto = None
-        contactos = leer_contactos()
-        for c in contactos:
-            if normalizar_numero(c["telefono"])[-10:] == telefono[-10:]:
-                contacto = c
-                break
+        # Consulta directa a Supabase para obtener el contacto
+        contacto_response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
+        contacto = contacto_response.data[0] if contacto_response.data else {}
 
         resumen = generar_resumen_ia(historial)
 

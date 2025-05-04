@@ -84,13 +84,16 @@
         <h2 id="nombre-contacto">Selecciona un contacto</h2>
       </div>
 
-      <div id="chat-contenido" class="chat-mensajes">
+      <div id="spinner-chat" style="display: none; text-align: center; padding: 10px;">
+        <p>Cargando chat...</p>
+      </div>
+      <div id="chat-area" class="chat-mensajes">
         <!-- Los mensajes se insertan aquí dinámicamente -->
       </div>
 
       <div class="chat-input">
         <input type="text" id="mensajeInput" placeholder="Escribe un mensaje..." />
-        <button onclick="enviarMensaje()">Enviar</button>
+        <button onclick="enviarMensaje(event)">Enviar</button>
       </div>
     </div>
   </div>
@@ -148,7 +151,7 @@
             console.log("✅ Historial cargado correctamente.");
             contactoActivo = data.contacto; // Guardar el contacto activo
             cargarEtiquetas(data.contacto); // ⬅️ Pasar el contacto a cargarEtiquetas
-            const contenedor = document.getElementById("chat-contenido");
+            const contenedor = document.getElementById("chat-area");
             const nombre = document.getElementById("nombre-contacto");
             nombre.innerText = data.contacto.nombre || data.contacto.telefono;
 
@@ -195,11 +198,11 @@
 
     function scrollAlFinal() {
       console.log("🔍 Desplazando el chat al final...");
-      const contenedor = document.getElementById("chat-contenido");
+      const contenedor = document.getElementById("chat-area");
       contenedor.scrollTop = contenedor.scrollHeight;
     }
 
-    function enviarMensaje() {
+    function enviarMensaje(event) {
       console.log("🔍 Enviando mensaje...");
       const input = document.getElementById("mensajeInput");
       const mensaje = input.value.trim();
@@ -211,7 +214,7 @@
 
       console.log(`🔍 Mensaje a enviar: ${mensaje}`);
       // Agregar el mensaje al chat
-      const contenedor = document.getElementById("chat-contenido");
+      const contenedor = document.getElementById("chat-area");
       const burbuja = document.createElement("div");
       burbuja.className = "mensaje cliente";
       burbuja.innerHTML = `
