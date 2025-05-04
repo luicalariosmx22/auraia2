@@ -307,9 +307,6 @@ function seleccionarContacto(elemento) {
 
 // Abrir chat para un contacto
 function abrirChat(telefono) {
-  console.log(`🔍 Abriendo chat para el teléfono: ${telefono}`);
-  telefonoChatAbierto = telefono;
-
   // Quitar la clase 'selected' de todos los contactos
   document.querySelectorAll('.contacto-item').forEach(item => {
     item.classList.remove('selected');

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Panel de Chat - Nora</title>
-  <link rel="stylesheet" href="/static/css/panel_chat.css" /> <!-- Corrected path -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}"> <!-- Added sidebar.css -->
+  <link rel="stylesheet" href="/static/css/panel_chat.css?v=12345" /> <!-- Added versioning -->
+  <link rel="stylesheet" href="/static/css/sidebar.css?v=12345" /> <!-- Added versioning -->
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script> <!-- Agregado para Socket.IO -->
   <style>
     /* Efecto de vibración */
@@ -349,7 +349,7 @@
       });
     }
   </script>
-  <script src="/static/js/panel_chat.js"></script> <!-- Correctly referenced panel_chat.js -->
+  <script src="/static/js/panel_chat.js?v=12345"></script> <!-- Added versioning -->
 </body>
 </html>
 
