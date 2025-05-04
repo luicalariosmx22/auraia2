@@ -79,22 +79,38 @@ def procesar_mensaje(data):
     mensaje_usuario = limpiar_mensaje(data.get("Body"))
     nombre_usuario = data.get("ProfileName", "Usuario")
     imagen_perfil = data.get("ProfilePicUrl")  # 🔥 Ahora también leemos la foto si viene
-    nombre_nora = data.get("NombreNora", "nora").lower()
+    numero_nora_recibido = normalizar_numero(data.get("To"))
 
-    # Configuración y número real de Nora
-    config = obtener_config_nora(nombre_nora)
-    numero_nora = config.get("numero_nora", "5210000000000")
-    print(f"🔧 Configuración para {nombre_nora} → número_nora={numero_nora}")
+    # 🔍 Buscar en Supabase cuál es el nombre_nora usando el número To
+    try:
+        response = supabase.table("configuracion_bot") \
+            .select("nombre_nora, numero_nora") \
+            .eq("numero_nora", numero_nora_recibido) \
+            .limit(1) \
+            .execute()
+        if response.data:
+            nombre_nora = response.data[0]["nombre_nora"].lower()
+            numero_nora = response.data[0]["numero_nora"]
+            print(f"🔧 Configuración encontrada: nombre_nora={nombre_nora}, numero_nora={numero_nora}")
+        else:
+            print(f"⚠️ No se encontró configuración para {numero_nora_recibido}. Usando valor por defecto.")
+            nombre_nora = "nora"
+            numero_nora = numero_nora_recibido
+    except Exception as e:
+        print(f"❌ Error buscando configuración: {e}")
+        nombre_nora = "nora"
+        numero_nora = numero_nora_recibido
 
     # Verificar si es la primera interacción
     historial = supabase.table("historial_conversaciones") \
         .select("id") \
         .eq("telefono", numero_usuario) \
+        .eq("nombre_nora", nombre_nora) \
         .limit(1) \
         .execute().data
 
     if not historial:
-        mensaje_bienvenida = config.get("mensaje_bienvenida", "").strip()
+        mensaje_bienvenida = config.get("mensaje_bienvenida", "").strip() if 'config' in locals() else ""
         if mensaje_bienvenida:
             print("📩 Enviando mensaje de bienvenida visible...")
             enviar_mensaje(numero_usuario, mensaje_bienvenida, nombre_usuario)
@@ -116,10 +132,9 @@ def procesar_mensaje(data):
     )
 
     # Actualizar contacto con el último mensaje y foto de perfil
-    # 🔥 Aquí sí funciona real
     actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil)
 
-    # Generar respuesta desde IA con historial y contexto automáticamente manejados dentro de handle_ai
+    # Generar respuesta desde IA
     respuesta, historial = manejar_respuesta_ai(
         mensaje_usuario=mensaje_usuario,
         numero_nora=numero_nora
