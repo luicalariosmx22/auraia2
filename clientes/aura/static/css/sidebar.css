@@ -1,5 +1,108 @@
 /* sidebar.css */
 
+.sidebar {
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  width: 30%;
+  max-width: 350px;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.buscador {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.buscador input,
+.buscador select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.lista-contactos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.contacto-item {
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.contacto-item:hover {
+  background-color: #f5f5f5;
+}
+
+.info-contacto {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.foto-contacto {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.texto-contacto {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.contacto-nombre {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+.ultimo-mensaje {
+  font-size: 12px;
+  color: #777;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fecha-mensaje {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 3px;
+}
+
+.contacto-etiquetas {
+  margin-top: 5px;
+}
+
+.etiqueta {
+  display: inline-block;
+  background-color: #128c7e;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-right: 5px;
+  margin-top: 3px;
+}
+
 /* Estilo general de la barra lateral */
 .sidebar {
   background-color: #fff; /* Cambiar fondo a blanco */

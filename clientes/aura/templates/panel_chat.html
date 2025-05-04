@@ -54,13 +54,45 @@
     <div class="chat-container">
       <!-- Sidebar -->
       <div class="sidebar">
-        <div class="search-bar">
-          <input type="text" id="searchContact" placeholder="Buscar por nombre..." />
+        <div class="buscador">
+          <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
+          <select id="filtro-etiqueta" onchange="filtrarContactos()">
+            <option value="">Todas las etiquetas</option>
+            {% for etiqueta in etiquetas_unicas %}
+            <option value="{{ etiqueta }}">{{ etiqueta }}</option>
+            {% endfor %}
+          </select>
         </div>
-        <div class="contact-list" id="contactList">
-          <!-- Contactos cargados aquí -->
-          <div class="loading-message">Cargando contactos...</div>
-        </div>
+
+        <ul class="lista-contactos" id="lista-contactos">
+          {% for contacto in contactos %}
+          <li class="contacto-item" data-numero="{{ contacto.telefono }}" data-nombre="{{ contacto.nombre }}" data-etiquetas="{{ contacto.etiquetas | join(',') }}">
+            <div class="info-contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
+              {% if contacto.imagen_perfil %}
+              <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
+              {% else %}
+              <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
+              {% endif %}
+              <div class="texto-contacto">
+                <span class="contacto-nombre">{{ contacto.nombre or contacto.telefono }}</span>
+                <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
+                <span class="fecha-mensaje">
+                  {% if contacto.fecha_ultimo_mensaje %}
+                    {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
+                  {% else %}
+                    Sin fecha
+                  {% endif %}
+                </span>
+                <div class="contacto-etiquetas">
+                  {% for etiqueta in contacto.etiquetas %}
+                  <span class="etiqueta">{{ etiqueta }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
       </div>
 
       <!-- Chat Window -->
