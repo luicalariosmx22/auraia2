@@ -25,9 +25,9 @@ def obtener_config_nora(nombre_nora):
         print(f"❌ Error al obtener configuración: {e}")
         return {}
 
-def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil=None):
+def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil=None, nombre_contacto=None):
     """
-    Actualiza último mensaje, fecha y foto del contacto. Si no encuentra exacto, busca por variaciones.
+    Actualiza último mensaje, fecha y foto del contacto. Si no existe, lo crea automáticamente.
     """
     try:
         # Intentar buscar contacto exacto
@@ -53,8 +53,8 @@ def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_per
         if response.data:
             contacto_id = response.data[0]["id"]
             update_data = {
-                "ultimo_mensaje": datetime.now().isoformat(),  # Ensure timestamp is added
-                "mensaje_reciente": mensaje_usuario  # Ensure recent message is updated
+                "ultimo_mensaje": datetime.now().isoformat(),
+                "mensaje_reciente": mensaje_usuario
             }
             if imagen_perfil:
                 update_data["imagen_perfil"] = imagen_perfil
@@ -67,9 +67,24 @@ def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_per
             else:
                 print(f"⚠️ La actualización no devolvió datos. Verifica la consulta.")
         else:
-            print(f"⚠️ No se encontró contacto para {numero_usuario}. No se actualizó nada.")
+            # 🔥 No existe: crear nuevo contacto automáticamente
+            print(f"🆕 Contacto no encontrado. Creando nuevo contacto para {numero_usuario} en Nora {nombre_nora}...")
+            nuevo_contacto = {
+                "telefono": numero_usuario,
+                "nombre_nora": nombre_nora,
+                "mensaje_reciente": mensaje_usuario,
+                "ultimo_mensaje": datetime.now().isoformat(),
+            }
+            if nombre_contacto:
+                nuevo_contacto["nombre_contacto"] = nombre_contacto
+            if imagen_perfil:
+                nuevo_contacto["imagen_perfil"] = imagen_perfil
+
+            insert_response = supabase.table("contactos").insert(nuevo_contacto).execute()
+            print(f"✅ Contacto creado: {insert_response.data}")
+
     except Exception as e:
-        print(f"❌ Error actualizando contacto: {e}")
+        print(f"❌ Error actualizando/creando contacto: {e}")
 
 def procesar_mensaje(data):
     """
@@ -132,7 +147,7 @@ def procesar_mensaje(data):
     )
 
     # Actualizar contacto con el último mensaje y foto de perfil
-    actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil)
+    actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil, nombre_contacto=nombre_usuario)
 
     # Generar respuesta desde IA
     respuesta, historial = manejar_respuesta_ai(
