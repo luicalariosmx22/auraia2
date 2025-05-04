@@ -2,8 +2,8 @@
 
 /* Estilo general de la barra lateral */
 .sidebar {
-  background-color: #e9f2fc; /* Fondo azul claro */
-  border-right: 2px solid #c4e2ff; /* Borde azul */
+  background-color: #fff; /* Cambiar fondo a blanco */
+  border-right: 1px solid #ddd; /* Cambiar borde */
   box-shadow: inset -2px 0 5px rgba(0, 128, 255, 0.05);
   display: flex;
   flex-direction: column;
@@ -32,6 +32,21 @@
   color: #adb5bd; /* Texto gris claro */
 }
 
+/* Filtros */
+.filtros {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.filtros input,
+.filtros select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
 /* Lista de contactos */
 .lista-contactos {
   list-style: none;
@@ -48,7 +63,8 @@
   cursor: pointer;
   transition: background-color 0.2s, border-left 0.2s;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 10px; /* Espaciado entre elementos */
 }
 
 .contacto-item:hover {
@@ -60,6 +76,21 @@
   border-left: 4px solid #0099ff; /* Indicador azul */
 }
 
+/* Foto del contacto */
+.foto-contacto {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Texto del contacto */
+.texto-contacto {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 /* Nombre del contacto */
 .contacto-nombre {
   font-weight: bold;
@@ -67,6 +98,12 @@
   color: #000;
   display: inline-block;
   margin-right: 5px;
+}
+
+.nombre {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
 }
 
 /* Teléfono del contacto */
@@ -79,9 +116,8 @@
 /* Último mensaje */
 .ultimo-mensaje {
   display: block;
-  font-size: 0.9rem;
-  color: #666;
-  margin-top: 5px;
+  font-size: 12px;
+  color: #777;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
