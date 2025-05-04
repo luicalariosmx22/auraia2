@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for
 from clientes.aura.utils.chat.leer_contactos import leer_contactos
 from clientes.aura.utils.chat.leer_historial import leer_historial
-from clientes.aura.routes.panel_chat import panel_chat_bp  # 👈 Importa el blueprint principal
+from clientes.aura.routes.panel_chat.blueprint import panel_chat_bp  # Updated import
 
 @panel_chat_bp.route("/panel/chat/<nombre_nora>")
 def panel_chat(nombre_nora):
