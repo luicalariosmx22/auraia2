@@ -305,6 +305,51 @@ function seleccionarContacto(elemento) {
   cargarMensajes(nombre);
 }
 
+// Abrir chat para un contacto
+function abrirChat(telefono) {
+  console.log(`🔍 Abriendo chat para el teléfono: ${telefono}`);
+  telefonoChatAbierto = telefono;
+
+  // Quitar la clase 'selected' de todos los contactos
+  document.querySelectorAll('.contacto-item').forEach(item => {
+    item.classList.remove('selected');
+  });
+
+  // Agregar la clase 'selected' al contacto actual
+  const contactoActual = document.querySelector(`.contacto-item[data-numero="${telefono}"]`);
+  if (contactoActual) {
+    contactoActual.classList.add('selected');
+  }
+
+  // Cargar mensajes del contacto
+  fetch(`/api/chat/${telefono}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const contenedor = document.getElementById("chat-mensajes");
+        const nombre = document.getElementById("nombre-contacto");
+        nombre.innerText = data.contacto.nombre || data.contacto.telefono;
+
+        contenedor.innerHTML = "";
+        data.mensajes.forEach(m => {
+          const burbuja = document.createElement("div");
+          burbuja.className = m.emisor === "nora" ? "mensaje nora" : "mensaje cliente";
+          burbuja.innerHTML = `
+            <div class="remitente">${m.emisor === "nora" ? "Nora" : data.contacto.nombre}</div>
+            <div class="contenido">${m.mensaje}</div>
+            <div class="hora">${m.hora || ""}</div>
+          `;
+          contenedor.appendChild(burbuja);
+        });
+
+        scrollAlFinal();
+      } else {
+        console.error("❌ Error al cargar el historial.");
+      }
+    })
+    .catch(err => console.error("❌ Error en la solicitud:", err));
+}
+
 // Inicializar la página
 document.addEventListener("DOMContentLoaded", function () {
   const contactos = document.querySelectorAll(".contacto-item");
