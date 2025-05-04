@@ -307,15 +307,21 @@ function seleccionarContacto(elemento) {
 
 // Abrir chat para un contacto
 function abrirChat(telefono) {
+  console.log(`📥 Abriendo chat para teléfono: ${telefono}`);
+  
   // Quitar la clase 'selected' de todos los contactos
   document.querySelectorAll('.contacto-item').forEach(item => {
     item.classList.remove('selected');
   });
+  console.log("✅ Clase 'selected' removida de todos los contactos.");
 
   // Agregar la clase 'selected' al contacto actual
   const contactoActual = document.querySelector(`.contacto-item[data-numero="${telefono}"]`);
   if (contactoActual) {
     contactoActual.classList.add('selected');
+    console.log(`✅ Clase 'selected' añadida al contacto: ${telefono}`);
+  } else {
+    console.log(`⚠️ No se encontró el contacto con teléfono: ${telefono}`);
   }
 
   // Cargar mensajes del contacto
