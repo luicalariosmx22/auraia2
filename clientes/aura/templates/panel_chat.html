@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Panel de Chat - Nora</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}" />
+  <link rel="stylesheet" href="/static/css/panel_chat.css" /> <!-- Corrected path -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}"> <!-- Added sidebar.css -->
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script> <!-- Agregado para Socket.IO -->
   <style>
@@ -349,6 +349,7 @@
       });
     }
   </script>
+  <script src="/static/js/panel_chat.js"></script> <!-- Correctly referenced panel_chat.js -->
 </body>
 </html>
 

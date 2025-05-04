@@ -382,3 +382,9 @@ document.getElementById("enviar-btn").addEventListener("click", enviarMensaje);
 document.getElementById("mensaje-input").addEventListener("keypress", function(e) {
     if (e.key === "Enter") enviarMensaje();
 });
+
+document.querySelectorAll('.sidebar .contacto').forEach(contacto => {
+  contacto.addEventListener('click', () => {
+    seleccionarContacto(contacto);
+  });
+});
