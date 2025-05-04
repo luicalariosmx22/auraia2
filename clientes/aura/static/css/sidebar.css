@@ -119,7 +119,7 @@
 /* Responsividad */
 @media (max-width: 768px) {
   .sidebar {
-    grid-column: 1 / span 3; /* Ocupa toda la fila en pantallas pequeñas */
+    /* grid-column: 1 / span 3; */ /* Commented out as Flexbox is used */
     height: auto;
     border-right: none;
     border-bottom: 2px solid #c4e2ff;

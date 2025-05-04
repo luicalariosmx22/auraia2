@@ -234,3 +234,37 @@ body {
     display: flex;
     height: 100vh; /* ocupa toda la pantalla */
 }
+
+/* ==== NUEVO: estructura de panel para sidebar y chat ==== */
+.panel-wrapper {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 300px; /* Sidebar fija */
+    flex-shrink: 0;
+    overflow-y: auto;
+    border-right: 1px solid #ddd; /* Línea divisoria */
+}
+
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fa;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .panel-wrapper {
+        flex-direction: column;
+    }
+}
