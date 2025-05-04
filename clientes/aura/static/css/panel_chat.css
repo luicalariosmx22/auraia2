@@ -6,11 +6,33 @@
 
 .sidebar {
     width: 30%;
-    max-width: 350px;
-    min-width: 250px;
-    background-color: #fff;
+    background-color: #ffffff;
     border-right: 1px solid #ddd;
     overflow-y: auto;
+}
+
+.sidebar .contacto {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #f0f2f5;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.sidebar .contacto:hover {
+    background-color: #f5f5f5;
+}
+
+.sidebar .contacto.selected {
+    background-color: #e0f7fa;
+}
+
+.sidebar .contacto img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
 }
 
 .chat-container {
@@ -18,7 +40,80 @@
     display: flex;
     flex-direction: column;
     background-color: #e5ddd5;
-    position: relative;
+}
+
+.chat-header {
+    padding: 15px;
+    background-color: #ededed;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.chat-header h3 {
+    margin: 0;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    max-width: 60%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.message.sent {
+    background-color: #dcf8c6;
+    align-self: flex-end;
+}
+
+.message.received {
+    background-color: #ffffff;
+    align-self: flex-start;
+}
+
+.message .timestamp {
+    font-size: 12px;
+    color: #999;
+    text-align: right;
+}
+
+.chat-footer {
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+    display: flex;
+}
+
+.chat-footer input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+
+.chat-footer button {
+    padding: 10px 20px;
+    background-color: #128c7e;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.chat-footer button:hover {
+    background-color: #0b6c5a;
 }
 
 body {
