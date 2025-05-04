@@ -22,80 +22,74 @@
 </head>
 <body>
   <div class="chat-container">
-    <!-- Sidebar de contactos -->
-    <div class="sidebar">
-      <h2>Contactos</h2>
-      <div class="filtros">
-        <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
-        <select id="filtro-etiqueta" onchange="filtrarContactos()">
-          <option value="">Todas las etiquetas</option>
-          {% for etiqueta in etiquetas_unicas %}
-          <option value="{{ etiqueta }}">{{ etiqueta }}</option>
-          {% endfor %}
-        </select>
-      </div>
+    <div class="contacto-header">
+        <h3 id="nombre-contacto">Nombre del Contacto</h3>
+    </div>
 
-      <ul id="lista-contactos">
-        {% for contacto in contactos %}
-        <li class="contacto-item" 
-            data-numero="{{ contacto.telefono }}" 
-            data-nombre="{{ contacto.nombre }}" 
-            data-etiquetas="{{ contacto.etiquetas | join(',') }}">
-          <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
-            <div class="info-contacto">
-              <!-- Foto del contacto -->
-              {% if contacto.imagen_perfil %}
-              <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
-              {% else %}
-              <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
-              {% endif %}
+    <div class="chat-messages" id="chat-mensajes">
+        <!-- Los mensajes se insertarán dinámicamente aquí -->
+    </div>
 
-              <!-- Nombre y último mensaje -->
-              <div class="texto-contacto">
-                <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
-                <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
-              </div>
-            </div>
+    <div class="chat-input">
+        <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
+        <button id="enviar-btn">Enviar</button>
+    </div>
+  </div>
 
-            <!-- Fecha del último contacto -->
-            <span class="fecha-ultimo-contacto">
-              {% if contacto.fecha_ultimo_mensaje %}
-                {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
-              {% else %}
-                Sin fecha
-              {% endif %}
-            </span>
+  <!-- Sidebar de contactos -->
+  <div class="sidebar">
+    <h2>Contactos</h2>
+    <div class="filtros">
+      <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
+      <select id="filtro-etiqueta" onchange="filtrarContactos()">
+        <option value="">Todas las etiquetas</option>
+        {% for etiqueta in etiquetas_unicas %}
+        <option value="{{ etiqueta }}">{{ etiqueta }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-            <!-- Etiquetas -->
-            <div class="etiquetas-contacto">
-              {% for etiqueta in contacto.etiquetas %}
-              <span class="etiqueta">{{ etiqueta }}</span>
-              {% endfor %}
+    <ul id="lista-contactos">
+      {% for contacto in contactos %}
+      <li class="contacto-item" 
+          data-numero="{{ contacto.telefono }}" 
+          data-nombre="{{ contacto.nombre }}" 
+          data-etiquetas="{{ contacto.etiquetas | join(',') }}">
+        <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
+          <div class="info-contacto">
+            <!-- Foto del contacto -->
+            {% if contacto.imagen_perfil %}
+            <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
+            {% else %}
+            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
+            {% endif %}
+
+            <!-- Nombre y último mensaje -->
+            <div class="texto-contacto">
+              <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
+              <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
             </div>
           </div>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
 
-    <!-- Panel de conversación -->
-    <div class="chat-box">
-      <div class="chat-header">
-        <h2 id="nombre-contacto">Selecciona un contacto</h2>
-      </div>
+          <!-- Fecha del último contacto -->
+          <span class="fecha-ultimo-contacto">
+            {% if contacto.fecha_ultimo_mensaje %}
+              {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
+            {% else %}
+              Sin fecha
+            {% endif %}
+          </span>
 
-      <div id="spinner-chat" style="display: none; text-align: center; padding: 10px;">
-        <p>Cargando chat...</p>
-      </div>
-      <div id="chat-area" class="chat-mensajes">
-        <!-- Los mensajes se insertan aquí dinámicamente -->
-      </div>
-
-      <div class="chat-input">
-        <input type="text" id="mensajeInput" placeholder="Escribe un mensaje..." />
-        <button onclick="enviarMensaje(event)">Enviar</button>
-      </div>
-    </div>
+          <!-- Etiquetas -->
+          <div class="etiquetas-contacto">
+            {% for etiqueta in contacto.etiquetas %}
+            <span class="etiqueta">{{ etiqueta }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
   </div>
 
   <!-- Detalle del contacto -->
@@ -151,7 +145,7 @@
             console.log("✅ Historial cargado correctamente.");
             contactoActivo = data.contacto; // Guardar el contacto activo
             cargarEtiquetas(data.contacto); // ⬅️ Pasar el contacto a cargarEtiquetas
-            const contenedor = document.getElementById("chat-area");
+            const contenedor = document.getElementById("chat-mensajes");
             const nombre = document.getElementById("nombre-contacto");
             nombre.innerText = data.contacto.nombre || data.contacto.telefono;
 
@@ -198,13 +192,13 @@
 
     function scrollAlFinal() {
       console.log("🔍 Desplazando el chat al final...");
-      const contenedor = document.getElementById("chat-area");
+      const contenedor = document.getElementById("chat-mensajes");
       contenedor.scrollTop = contenedor.scrollHeight;
     }
 
     function enviarMensaje(event) {
       console.log("🔍 Enviando mensaje...");
-      const input = document.getElementById("mensajeInput");
+      const input = document.getElementById("mensaje-input");
       const mensaje = input.value.trim();
 
       if (!mensaje) {
@@ -214,7 +208,7 @@
 
       console.log(`🔍 Mensaje a enviar: ${mensaje}`);
       // Agregar el mensaje al chat
-      const contenedor = document.getElementById("chat-area");
+      const contenedor = document.getElementById("chat-mensajes");
       const burbuja = document.createElement("div");
       burbuja.className = "mensaje cliente";
       burbuja.innerHTML = `

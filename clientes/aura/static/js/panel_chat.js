@@ -68,7 +68,7 @@ function renderizarMensajes(mensajes, contacto) {
 
   mensajes.forEach(mensaje => {
     const div = document.createElement("div");
-    div.className = `burbuja ${mensaje.emisor === "nora" ? "nora" : "contacto"}`;
+    div.className = mensaje.emisor === "nora" ? "message sent" : "message received"; // Updated class names
 
     // Mostrar el remitente
     const remitente = document.createElement("div");
@@ -353,4 +353,10 @@ socket.on("nuevo_mensaje", (data) => {
 
     // 🔥 REORDENAR toda la lista
     reordenarContactos();
+});
+
+// Add event listeners for sending messages
+document.getElementById("enviar-btn").addEventListener("click", enviarMensaje);
+document.getElementById("mensaje-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") enviarMensaje();
 });

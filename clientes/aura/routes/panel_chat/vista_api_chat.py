@@ -17,12 +17,13 @@ def api_chat(telefono):
     try:
         offset = int(request.args.get("offset", 0))
         telefono = normalizar_numero(telefono)
-        historial = leer_historial(telefono, limite=20, offset=offset)
-
-        # Consulta directa a Supabase para obtener el contacto
-        contacto_response = supabase.table("contactos").select("*").eq("telefono", telefono).execute()
+        
+        # Obtener nombre_nora desde el contacto (para filtrar bien)
+        contacto_response = supabase.table("contactos").select("*").eq("telefono", telefono).limit(1).execute()
         contacto = contacto_response.data[0] if contacto_response.data else {}
+        nombre_nora = contacto.get("nombre_nora", "nora")
 
+        historial = leer_historial(telefono, nombre_nora, limite=20, offset=offset)
         resumen = generar_resumen_ia(historial)
 
         return jsonify({
