@@ -436,3 +436,103 @@ document.querySelectorAll('.sidebar .contacto').forEach(contacto => {
     seleccionarContacto(contacto);
   });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const contactList = document.getElementById("contactList");
+  const chatHeader = document.getElementById("chatHeader");
+  const chatMessages = document.getElementById("chatMessages");
+  const sendButton = document.getElementById("sendButton");
+  const messageInput = document.getElementById("messageInput");
+
+  // Simulación de carga de contactos
+  console.log("Cargando contactos...");
+  fetch("/api/chat/contacts")
+    .then((response) => response.json())
+    .then((contacts) => {
+      console.log("Contactos cargados:", contacts);
+      contactList.innerHTML = ""; // Limpiar mensaje de carga
+      contacts.forEach((contact) => {
+        const contactItem = document.createElement("div");
+        contactItem.classList.add("contact-item");
+        contactItem.innerHTML = `
+          <img src="${contact.image || 'default-profile.png'}" alt="Avatar" class="avatar" />
+          <div class="contact-info">
+            <p class="contact-name">${contact.name}</p>
+            <p class="last-message">${contact.lastMessage}</p>
+          </div>
+        `;
+        contactItem.addEventListener("click", () => {
+          loadChat(contact);
+        });
+        contactList.appendChild(contactItem);
+      });
+    })
+    .catch((error) => {
+      console.error("Error al cargar contactos:", error);
+      contactList.innerHTML = "<p>Error al cargar contactos.</p>";
+    });
+
+  // Función para cargar el chat de un contacto
+  function loadChat(contact) {
+    console.log("Cargando chat para:", contact.name);
+    chatHeader.innerHTML = `
+      <img src="${contact.image || 'default-profile.png'}" alt="Avatar" class="avatar" />
+      <div class="chat-info">
+        <p class="contact-name">${contact.name}</p>
+        <p class="status">Conectado</p>
+      </div>
+    `;
+    fetch(`/api/chat/${contact.phone}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Mensajes cargados:", data.messages);
+        chatMessages.innerHTML = ""; // Limpiar mensaje de "No hay mensajes"
+        data.messages.forEach((message) => {
+          const messageElement = document.createElement("div");
+          messageElement.classList.add(
+            "message",
+            message.sender === "me" ? "own-message" : "contact-message"
+          );
+          messageElement.innerHTML = `
+            <p>${message.text}</p>
+            <span class="timestamp">${message.timestamp}</span>
+          `;
+          chatMessages.appendChild(messageElement);
+        });
+      })
+      .catch((error) => {
+        console.error("Error al cargar mensajes:", error);
+        chatMessages.innerHTML = "<p>Error al cargar mensajes.</p>";
+      });
+  }
+
+  // Enviar mensaje
+  sendButton.addEventListener("click", () => {
+    const message = messageInput.value.trim();
+    if (message) {
+      console.log("Enviando mensaje:", message);
+      fetch("/api/enviar-mensaje", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: message }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Mensaje enviado:", data);
+          // Agregar mensaje al chat
+          const messageElement = document.createElement("div");
+          messageElement.classList.add("message", "own-message");
+          messageElement.innerHTML = `
+            <p>${message}</p>
+            <span class="timestamp">Ahora</span>
+          `;
+          chatMessages.appendChild(messageElement);
+          messageInput.value = ""; // Limpiar input
+          chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll al final
+        })
+        .catch((error) => {
+          console.error("Error al enviar mensaje:", error);
+        });
+    }
+  });
+});

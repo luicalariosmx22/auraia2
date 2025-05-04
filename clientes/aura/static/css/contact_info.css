@@ -12,6 +12,40 @@
   gap: 1rem;
 }
 
+/* Información detallada del contacto */
+.contact-details {
+  padding: 15px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+}
+
+.contact-details .contact-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.contact-details .contact-status {
+  font-size: 14px;
+  color: #555;
+  margin-top: 5px;
+}
+
+.contact-tags {
+  margin-top: 10px;
+}
+
+.contact-tag {
+  display: inline-block;
+  background-color: #e0f7fa;
+  color: #00796b;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  margin-right: 5px;
+  margin-top: 5px;
+}
+
 /* Texto general dentro de la información del contacto */
 .info-contacto p {
   color: #555; /* Gris oscuro */

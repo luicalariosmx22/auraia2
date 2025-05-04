@@ -12,24 +12,17 @@
 }
 
 /* Buscador */
-.buscador {
+.search-bar {
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
 
-.buscador input {
+.search-bar input {
   width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  background-color: #f0f2f5; /* Fondo gris claro */
-  font-size: 1rem;
-  color: #495057; /* Texto gris oscuro */
-  outline: none;
-}
-
-.buscador input::placeholder {
-  color: #adb5bd; /* Texto gris claro */
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 /* Filtros */
@@ -48,108 +41,54 @@
 }
 
 /* Lista de contactos */
-.lista-contactos {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.contact-list {
+  flex-grow: 1;
   overflow-y: auto;
-  max-height: calc(100% - 60px); /* Ajustar altura para incluir el buscador */
+  background-color: #f9f9f9;
 }
 
 /* Elementos de la lista de contactos */
-.contacto-item {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-  cursor: pointer;
-  transition: background-color 0.2s, border-left 0.2s;
+.contact-item {
   display: flex;
   align-items: center;
-  gap: 10px; /* Espaciado entre elementos */
+  padding: 10px;
+  transition: background-color 0.2s;
+  cursor: pointer;
 }
 
-.contacto-item:hover {
-  background-color: #f0f0f0; /* Fondo gris claro al pasar el cursor */
+.contact-item:hover {
+  background-color: #f1f1f1;
 }
 
-.contacto-item.activo {
-  background-color: #d6ecff; /* Fondo azul claro */
-  border-left: 4px solid #0099ff; /* Indicador azul */
+.contact-item.active {
+  background-color: #e0e0e0;
 }
 
 /* Foto del contacto */
-.foto-contacto {
-  width: 40px;
-  height: 40px;
+.avatar {
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  object-fit: cover;
+  margin-right: 10px;
 }
 
 /* Texto del contacto */
-.texto-contacto {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.contact-info {
+  flex-grow: 1;
 }
 
 /* Nombre del contacto */
-.contacto-nombre {
-  font-weight: bold;
-  font-size: 1rem;
-  color: #000;
-  display: inline-block;
-  margin-right: 5px;
-}
-
-.nombre {
+.contact-name {
   font-weight: bold;
   font-size: 14px;
   color: #333;
 }
 
-/* Teléfono del contacto */
-.contacto-telefono {
-  font-size: 0.9rem;
-  color: #6c757d; /* Gris medio */
-  margin-top: 2px;
-}
-
 /* Último mensaje */
-.ultimo-mensaje {
-  display: block;
+.last-message {
   font-size: 12px;
-  color: #777;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Fecha del último mensaje */
-.fecha-mensaje {
-  display: inline-block;
-  font-size: 0.8rem;
   color: #888;
-  margin-left: 10px;
-  font-style: italic;
-}
-
-/* Etiquetas asociadas al contacto */
-.contacto-etiquetas {
-  margin-top: 5px;
-}
-
-.etiqueta {
-  display: inline-block;
-  background-color: #0099ff; /* Azul */
-  color: #fff; /* Texto blanco */
-  font-size: 0.8rem;
-  padding: 2px 6px;
-  border-radius: 12px;
-  margin-left: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.etiqueta:hover {
-  background-color: #007bff; /* Azul más oscuro */
+  margin-top: 3px;
 }
 
 /* Responsividad */
@@ -161,21 +100,21 @@
     border-bottom: 2px solid #c4e2ff;
   }
 
-  .lista-contactos {
+  .contact-list {
     max-height: 300px; /* Limitar altura en pantallas pequeñas */
   }
 
-  .contacto-item {
+  .contact-item {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
   }
 
-  .contacto-nombre {
+  .contact-name {
     font-size: 0.9rem;
   }
 
-  .ultimo-mensaje {
+  .last-message {
     font-size: 0.8rem;
   }
 }

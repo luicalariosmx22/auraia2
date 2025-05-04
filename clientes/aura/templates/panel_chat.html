@@ -50,56 +50,34 @@
   </style>
 </head>
 <body>
-  <div class="whatsapp-container">
-    <!-- Panel lateral -->
+  <div class="chat-container">
+    <!-- Sidebar -->
     <div class="sidebar">
-      <h2>Contactos</h2>
-      <div class="filtros">
-        <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
-        <select id="filtro-etiqueta" onchange="filtrarContactos()">
-          <option value="">Todas las etiquetas</option>
-          {% for etiqueta in etiquetas_unicas %}
-          <option value="{{ etiqueta }}">{{ etiqueta }}</option>
-          {% endfor %}
-        </select>
+      <div class="search-bar">
+        <input type="text" id="searchContact" placeholder="Buscar por nombre..." />
       </div>
-      <ul id="lista-contactos">
-        {% for contacto in contactos %}
-        <li class="contacto-item" 
-            data-numero="{{ contacto.telefono }}" 
-            data-nombre="{{ contacto.nombre }}" 
-            data-etiquetas="{{ contacto.etiquetas | join(',') }}">
-          <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
-            {% if contacto.imagen_perfil %}
-            <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
-            {% else %}
-            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
-            {% endif %}
-            <div class="texto-contacto">
-              <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
-              <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
-            </div>
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
+      <div class="contact-list" id="contactList">
+        <!-- Contactos cargados aquí -->
+        <div class="loading-message">Cargando contactos...</div>
+      </div>
     </div>
 
-    <!-- Panel derecho -->
-    <div class="chat-container">
-      <!-- Encabezado del contacto activo -->
-      <div class="chat-header">
-        <h3 id="nombre-contacto">Nombre del Contacto</h3>
-        <span class="status" id="estado-contacto">Conectado</span>
+    <!-- Chat Window -->
+    <div class="chat-window">
+      <!-- Header -->
+      <div class="chat-header" id="chatHeader">
+        <p class="debug-message">Selecciona un contacto para comenzar.</p>
       </div>
-      <!-- Área de mensajes -->
-      <div class="chat-messages" id="chat-mensajes">
-        <!-- Los mensajes se insertarán dinámicamente aquí -->
+
+      <!-- Messages -->
+      <div class="chat-messages" id="chatMessages">
+        <p class="debug-message">No hay mensajes cargados.</p>
       </div>
-      <!-- Footer para enviar mensajes -->
-      <div class="chat-footer">
-        <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
-        <button id="enviar-btn" onclick="enviarMensaje()">Enviar</button>
+
+      <!-- Input -->
+      <div class="message-input">
+        <input type="text" id="messageInput" placeholder="Escribe un mensaje..." />
+        <button id="sendButton">Enviar</button>
       </div>
     </div>
   </div>
