@@ -229,3 +229,8 @@ body {
   75% { transform: translateX(-2px); }
   100% { transform: translateX(0); }
 }
+
+.main-container {
+    display: flex;
+    height: 100vh; /* ocupa toda la pantalla */
+}

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Panel de Chat - Nora</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_chat.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}"> <!-- Added sidebar.css -->
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script> <!-- Agregado para Socket.IO -->
   <style>
     /* Efecto de vibración */
@@ -18,107 +19,129 @@
       75% { transform: translateX(-2px); }
       100% { transform: translateX(0); }
     }
+
+    /* Commented out CSS now handled by sidebar.css */
+    /*
+    .sidebar {
+      width: 25%;
+      background-color: #ffffff;
+      border-right: 1px solid #ddd;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .filtros {
+      margin-bottom: 10px;
+    }
+
+    .contacto-item {
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      background-color: #f9f9f9;
+      transition: background-color 0.2s;
+    }
+
+    .contacto-item:hover {
+      background-color: #e6e6e6;
+    }
+    */
   </style>
 </head>
 <body>
-  <div class="chat-container">
-    <div class="contacto-header">
-        <h3 id="nombre-contacto">Nombre del Contacto</h3>
+  <div class="main-container">
+    <div class="chat-container">
+      <div class="contacto-header">
+          <h3 id="nombre-contacto">Nombre del Contacto</h3>
+      </div>
+
+      <div class="chat-messages" id="chat-mensajes">
+          <!-- Los mensajes se insertarán dinámicamente aquí -->
+      </div>
+
+      <div class="chat-input">
+          <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
+          <button id="enviar-btn">Enviar</button>
+      </div>
     </div>
 
-    <div class="chat-messages" id="chat-mensajes">
-        <!-- Los mensajes se insertarán dinámicamente aquí -->
-    </div>
+    <!-- Sidebar de contactos -->
+    <div class="sidebar">
+      <h2>Contactos</h2>
+      <div class="filtros">
+        <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
+        <select id="filtro-etiqueta" onchange="filtrarContactos()">
+          <option value="">Todas las etiquetas</option>
+          {% for etiqueta in etiquetas_unicas %}
+          <option value="{{ etiqueta }}">{{ etiqueta }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-    <div class="chat-input">
-        <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
-        <button id="enviar-btn">Enviar</button>
-    </div>
-  </div>
+      <ul id="lista-contactos">
+        {% for contacto in contactos %}
+        <li class="contacto-item" 
+            data-numero="{{ contacto.telefono }}" 
+            data-nombre="{{ contacto.nombre }}" 
+            data-etiquetas="{{ contacto.etiquetas | join(',') }}">
+          <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
+            <div class="info-contacto">
+              <!-- Foto del contacto -->
+              {% if contacto.imagen_perfil %}
+              <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
+              {% else %}
+              <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
+              {% endif %}
 
-  <!-- Sidebar de contactos -->
-  <div class="sidebar">
-    <h2>Contactos</h2>
-    <div class="filtros">
-      <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
-      <select id="filtro-etiqueta" onchange="filtrarContactos()">
-        <option value="">Todas las etiquetas</option>
-        {% for etiqueta in etiquetas_unicas %}
-        <option value="{{ etiqueta }}">{{ etiqueta }}</option>
-        {% endfor %}
-      </select>
-    </div>
+              <!-- Nombre y último mensaje -->
+              <div class="texto-contacto">
+                <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
+                <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
+              </div>
+            </div>
 
-    <ul id="lista-contactos">
-      {% for contacto in contactos %}
-      <li class="contacto-item" 
-          data-numero="{{ contacto.telefono }}" 
-          data-nombre="{{ contacto.nombre }}" 
-          data-etiquetas="{{ contacto.etiquetas | join(',') }}">
-        <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
-          <div class="info-contacto">
-            <!-- Foto del contacto -->
-            {% if contacto.imagen_perfil %}
-            <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
-            {% else %}
-            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
-            {% endif %}
+            <!-- Fecha del último contacto -->
+            <span class="fecha-ultimo-contacto">
+              {% if contacto.fecha_ultimo_mensaje %}
+                {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
+              {% else %}
+                Sin fecha
+              {% endif %}
+            </span>
 
-            <!-- Nombre y último mensaje -->
-            <div class="texto-contacto">
-              <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
-              <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
+            <!-- Etiquetas -->
+            <div class="etiquetas-contacto">
+              {% for etiqueta in contacto.etiquetas %}
+              <span class="etiqueta">{{ etiqueta }}</span>
+              {% endfor %}
             </div>
           </div>
-
-          <!-- Fecha del último contacto -->
-          <span class="fecha-ultimo-contacto">
-            {% if contacto.fecha_ultimo_mensaje %}
-              {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
-            {% else %}
-              Sin fecha
-            {% endif %}
-          </span>
-
-          <!-- Etiquetas -->
-          <div class="etiquetas-contacto">
-            {% for etiqueta in contacto.etiquetas %}
-            <span class="etiqueta">{{ etiqueta }}</span>
-            {% endfor %}
-          </div>
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <!-- Detalle del contacto -->
-  <div class="contacto-detalle">
-    <div class="detalle-header">
-      <h3>Detalles del Contacto</h3>
-      <button onclick="cerrarDetalle()">✖</button>
+        </li>
+        {% endfor %}
+      </ul>
     </div>
 
-    <div class="detalle-seccion">
-      <label for="etiquetas-container">Etiquetas</label>
-      <div id="etiquetas-container" class="etiquetas">
-        <!-- Las etiquetas existentes se insertarán aquí dinámicamente -->
+    <!-- Detalle del contacto -->
+    <div class="contacto-detalle">
+      <div class="detalle-header">
+        <h3>Detalles del Contacto</h3>
+        <button onclick="cerrarDetalle()">✖</button>
       </div>
-      <input type="text" id="nueva-etiqueta" placeholder="Agregar nueva etiqueta" />
-      <button onclick="agregarEtiqueta()">Agregar</button>
+
+      <div class="detalle-seccion">
+        <label for="etiquetas-container">Etiquetas</label>
+        <div id="etiquetas-container" class="etiquetas">
+          <!-- Las etiquetas existentes se insertarán aquí dinámicamente -->
+        </div>
+        <input type="text" id="nueva-etiqueta" placeholder="Agregar nueva etiqueta" />
+        <button onclick="agregarEtiqueta()">Agregar</button>
+      </div>
     </div>
+
+    <!-- Sonido de notificación -->
+    <audio id="notifSound" src="{{ url_for('static', filename='sounds/notificacion.mp3') }}" preload="auto"></audio>
   </div>
-
-  <!-- Gestión de cobranza -->
-  <div class="cobranza">
-    <h3>Gestión de Cobranza</h3>
-    <button onclick="cargarCobranza()">Ver Clientes con Deudas</button>
-    <div id="lista-cobranza"></div>
-  </div>
-
-  <!-- Sonido de notificación -->
-  <audio id="notifSound" src="{{ url_for('static', filename='sounds/notificacion.mp3') }}" preload="auto"></audio>
-
   <script>
     const socket = io(); // Inicializar Socket.IO
 
@@ -363,52 +386,6 @@
           contacto.style.display = "none";
         }
       });
-    }
-
-    function cargarCobranza() {
-      fetch("/api/cobranza")
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            const lista = document.getElementById("lista-cobranza");
-            lista.innerHTML = ""; // Limpiar la lista
-
-            data.data.forEach(cliente => {
-              const div = document.createElement("div");
-              div.className = "cliente-cobranza";
-              div.innerHTML = `
-                <p><strong>${cliente.nombre}</strong> (${cliente.telefono})</p>
-                <p>Monto pendiente: $${cliente.monto_pendiente}</p>
-                <button onclick="registrarPago('${cliente.telefono}')">Registrar Pago</button>
-              `;
-              lista.appendChild(div);
-            });
-          } else {
-            alert(data.message || "No se encontraron datos de cobranza.");
-          }
-        })
-        .catch(err => console.error("Error al cargar cobranza:", err));
-    }
-
-    function registrarPago(telefono) {
-      const monto = prompt("Ingrese el monto pagado:");
-      if (!monto) return;
-
-      fetch(`/api/cobranza/${telefono}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ monto })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            alert("Pago registrado exitosamente.");
-            cargarCobranza(); // Recargar la lista
-          } else {
-            alert(data.message || "Error al registrar el pago.");
-          }
-        })
-        .catch(err => console.error("Error al registrar pago:", err));
     }
   </script>
 </body>
