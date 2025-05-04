@@ -14,6 +14,7 @@ def leer_contactos(nombre_nora):
             .table("contactos")
             .select("*")
             .eq("nombre_nora", nombre_nora)
+            .order("ultimo_mensaje", desc=True)  # 👈 ORDENAR POR ÚLTIMO MENSAJE
             .execute()
         )
         return response.data or []
