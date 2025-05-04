@@ -1,5 +1,6 @@
 # clientes/aura/routes/panel_chat/vista_api_chat.py
-from flask import Blueprint, request, jsonify
+from flask import request, jsonify
+from clientes.aura.routes.panel_chat.blueprint import panel_chat_bp
 from clientes.aura.utils.chat.leer_contactos import leer_contactos
 from clientes.aura.utils.chat.leer_historial import leer_historial
 from clientes.aura.utils.chat.generar_resumen import generar_resumen_ia
@@ -11,9 +12,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-vista_api_chat_bp = Blueprint("vista_api_chat", __name__)
-
-@vista_api_chat_bp.route("/api/chat/<telefono>")
+@panel_chat_bp.route("/api/chat/<telefono>")  # Use panel_chat_bp
 def api_chat(telefono):
     try:
         offset = int(request.args.get("offset", 0))
