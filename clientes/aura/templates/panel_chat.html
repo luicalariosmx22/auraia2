@@ -51,6 +51,7 @@
 </head>
 <body>
   <div class="whatsapp-container">
+    <!-- Panel lateral -->
     <div class="sidebar">
       <h2>Contactos</h2>
       <div class="filtros">
@@ -83,16 +84,22 @@
         {% endfor %}
       </ul>
     </div>
+
+    <!-- Panel derecho -->
     <div class="chat-container">
-      <div class="contacto-header">
-          <h3 id="nombre-contacto">Nombre del Contacto</h3>
+      <!-- Encabezado del contacto activo -->
+      <div class="chat-header">
+        <h3 id="nombre-contacto">Nombre del Contacto</h3>
+        <span class="status" id="estado-contacto">Conectado</span>
       </div>
+      <!-- Área de mensajes -->
       <div class="chat-messages" id="chat-mensajes">
         <!-- Los mensajes se insertarán dinámicamente aquí -->
       </div>
-      <div class="chat-input">
-          <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
-          <button id="enviar-btn">Enviar</button>
+      <!-- Footer para enviar mensajes -->
+      <div class="chat-footer">
+        <input type="text" id="mensaje-input" placeholder="Escribe un mensaje..." />
+        <button id="enviar-btn" onclick="enviarMensaje()">Enviar</button>
       </div>
     </div>
   </div>

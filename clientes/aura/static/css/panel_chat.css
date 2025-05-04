@@ -25,7 +25,9 @@
 }
 
 .sidebar .contacto.selected {
-    background-color: #e0f7fa;
+    background-color: #e0f7fa; /* Color de fondo para el contacto seleccionado */
+    border-left: 4px solid #128c7e; /* Línea de color para destacar */
+    padding-left: 6px; /* Ajustar el padding para compensar la línea */
 }
 
 .sidebar .contacto img {
@@ -48,10 +50,18 @@
     display: flex;
     align-items: center;
     border-bottom: 1px solid #ddd;
+    justify-content: space-between; /* Espaciado entre título y estado */
 }
 
 .chat-header h3 {
     margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.chat-header .status {
+    font-size: 14px;
+    color: #666;
 }
 
 .chat-messages {

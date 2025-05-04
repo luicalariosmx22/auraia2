@@ -4,6 +4,7 @@ let contactoActual = null;
 let historial = [];
 let offset = 0;
 let numeroActual = null;
+let contactoSeleccionado = null;
 
 // Mostrar errores al usuario
 function mostrarError(mensaje) {
@@ -281,6 +282,27 @@ async function enviarMensaje(event) {
     console.error("❌ Error al enviar el mensaje:", err);
     manejarError(err, "Error al enviar el mensaje.");
   }
+}
+
+// Función para seleccionar un contacto
+function seleccionarContacto(elemento) {
+  // Quitar la clase 'selected' de todos los contactos
+  const contactos = document.querySelectorAll('.sidebar .contacto');
+  contactos.forEach(contacto => contacto.classList.remove('selected'));
+
+  // Agregar la clase 'selected' al contacto actual
+  elemento.classList.add('selected');
+
+  // Actualizar el encabezado con el nombre del contacto
+  const nombre = elemento.querySelector('.nombre').innerText;
+  document.getElementById('nombre-contacto').innerText = nombre;
+  document.getElementById('estado-contacto').innerText = "Conectado"; // Puedes ajustar esto dinámicamente
+
+  // Guardar el contacto seleccionado
+  contactoSeleccionado = nombre;
+
+  // Cargar mensajes del contacto
+  cargarMensajes(nombre);
 }
 
 // Inicializar la página
