@@ -72,16 +72,17 @@ def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_per
             nuevo_contacto = {
                 "telefono": numero_usuario,
                 "nombre_nora": nombre_nora,
-                "mensaje_reciente": mensaje_usuario,
-                "ultimo_mensaje": datetime.now().isoformat(),
+                "ultimo_mensaje": datetime.now().isoformat(),  # Fixed key
+                "mensaje_reciente": mensaje_usuario  # Fixed key
             }
             if nombre_contacto:
-                nuevo_contacto["nombre_contacto"] = nombre_contacto
+                nuevo_contacto["nombre"] = nombre_contacto  # ✅ La columna REAL es 'nombre'
             if imagen_perfil:
                 nuevo_contacto["imagen_perfil"] = imagen_perfil
 
+            print(f"➕ Creando nuevo contacto con datos: {nuevo_contacto}")
             insert_response = supabase.table("contactos").insert(nuevo_contacto).execute()
-            print(f"✅ Contacto creado: {insert_response.data}")
+            print(f"✅ Respuesta de creación: {insert_response.data}")
 
     except Exception as e:
         print(f"❌ Error actualizando/creando contacto: {e}")
