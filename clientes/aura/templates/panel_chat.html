@@ -69,7 +69,9 @@
     <!-- Sidebar de contactos -->
     <div class="sidebar">
       <h2>Contactos</h2>
-      <div class="filtros">
+
+      <!-- Buscador (updated to use the buscador class) -->
+      <div class="buscador">
         <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
         <select id="filtro-etiqueta" onchange="filtrarContactos()">
           <option value="">Todas las etiquetas</option>
@@ -79,63 +81,53 @@
         </select>
       </div>
 
-      <ul id="lista-contactos">
+      <!-- Lista de contactos (updated to use the lista-contactos class) -->
+      <ul id="lista-contactos" class="lista-contactos">
         {% for contacto in contactos %}
-        <li class="contacto-item" 
-            data-numero="{{ contacto.telefono }}" 
-            data-nombre="{{ contacto.nombre }}" 
-            data-etiquetas="{{ contacto.etiquetas | join(',') }}">
-          <div class="contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
-            <div class="info-contacto">
-              <!-- Foto del contacto -->
-              {% if contacto.imagen_perfil %}
-              <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
-              {% else %}
-              <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
-              {% endif %}
+        <li class="contacto-item"
+            data-numero="{{ contacto.telefono }}"
+            data-nombre="{{ contacto.nombre }}"
+            data-etiquetas="{{ contacto.etiquetas | join(',') }}"
+            onclick="abrirChat('{{ contacto.telefono }}')">
+          
+          <!-- Nombre y último mensaje -->
+          <span class="contacto-nombre">{{ contacto.nombre or contacto.telefono }}</span>
+          <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
 
-              <!-- Nombre y último mensaje -->
-              <div class="texto-contacto">
-                <span class="nombre">{{ contacto.nombre or contacto.telefono }}</span>
-                <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
-              </div>
-            </div>
-
-            <!-- Fecha del último contacto -->
-            <span class="fecha-ultimo-contacto">
-              {% if contacto.fecha_ultimo_mensaje %}
-                {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
-              {% else %}
-                Sin fecha
-              {% endif %}
-            </span>
-
-            <!-- Etiquetas -->
-            <div class="etiquetas-contacto">
-              {% for etiqueta in contacto.etiquetas %}
-              <span class="etiqueta">{{ etiqueta }}</span>
-              {% endfor %}
-            </div>
+          <!-- Etiquetas -->
+          <div class="contacto-etiquetas">
+            {% for etiqueta in contacto.etiquetas %}
+            <span class="etiqueta">{{ etiqueta }}</span>
+            {% endfor %}
           </div>
+
+          <!-- Fecha -->
+          <span class="fecha-mensaje">
+            {% if contacto.fecha_ultimo_mensaje %}
+              {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
+            {% else %}
+              Sin fecha
+            {% endif %}
+          </span>
         </li>
         {% endfor %}
       </ul>
-    </div>
 
-    <!-- Detalle del contacto -->
-    <div class="contacto-detalle">
-      <div class="detalle-header">
-        <h3>Detalles del Contacto</h3>
-        <button onclick="cerrarDetalle()">✖</button>
-      </div>
-
-      <div class="detalle-seccion">
-        <label for="etiquetas-container">Etiquetas</label>
-        <div id="etiquetas-container" class="etiquetas">
-          <!-- Las etiquetas existentes se insertarán aquí dinámicamente -->
+      <!-- Detalle del contacto -->
+      <div class="contacto-detalle">
+        <div class="detalle-header">
+          <h3>Detalles del Contacto</h3>
+          <button onclick="cerrarDetalle()">✖</button>
         </div>
-        <input type="text" id="nueva-etiqueta" placeholder="Agregar nueva etiqueta" />
-        <button onclick="agregarEtiqueta()">Agregar</button>
+
+        <div class="detalle-seccion">
+          <label for="etiquetas-container">Etiquetas</label>
+          <div id="etiquetas-container" class="etiquetas">
+            <!-- Las etiquetas existentes se insertarán aquí dinámicamente -->
+          </div>
+          <input type="text" id="nueva-etiqueta" placeholder="Agregar nueva etiqueta" />
+          <button onclick="agregarEtiqueta()">Agregar</button>
+        </div>
       </div>
     </div>
 
