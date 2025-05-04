@@ -9,6 +9,3 @@ from clientes.aura.routes.panel_chat import vista_enviar_mensaje
 from clientes.aura.routes.panel_chat import vista_toggle_ia
 from clientes.aura.routes.panel_chat import vista_programar_envio
 from clientes.aura.routes.panel_chat import vista_gestion_etiqueta
-from clientes.aura.routes.panel_chat.vista_api_chat import vista_api_chat_bp
-
-panel_chat_bp.register_blueprint(vista_api_chat_bp)  # Register the blueprint
