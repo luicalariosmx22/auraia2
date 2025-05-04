@@ -6,8 +6,12 @@
 
 .sidebar {
     width: 30%;
-    background-color: #ffffff;
+    max-width: 350px;
+    min-width: 250px;
+    background-color: #fff;
     border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
 }
 
@@ -42,6 +46,8 @@
     display: flex;
     flex-direction: column;
     background-color: #e5ddd5;
+    position: relative;
+    overflow: hidden;
 }
 
 .chat-header {
@@ -66,7 +72,7 @@
 
 .chat-messages {
     flex: 1;
-    padding: 15px;
+    padding: 20px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -246,7 +252,7 @@ body {
 
 .chat-messages {
   flex: 1;
-  padding: 15px;
+  padding: 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -264,28 +270,33 @@ body {
 
 .mensaje.nora {
   align-self: flex-start;
-  background-color: #fff;
-  border: 1px solid #ddd; /* Borde gris */
+  background-color: #dcf8c6;
 }
 
 .mensaje.cliente {
   align-self: flex-end;
-  background-color: #dcf8c6; /* Verde claro */
+  background-color: #fff;
 }
 
-.mensaje .hora {
-  display: block;
-  font-size: 0.75rem;
-  color: #888;
-  margin-top: 5px;
+.remitente {
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 2px;
+}
+
+.hora {
+    font-size: 0.7rem;
+    color: #999;
+    text-align: right;
+    margin-top: 5px;
 }
 
 /* Input de chat */
 .chat-input {
-  padding: 10px;
-  background-color: #f0f0f0; /* Fondo gris claro */
-  border-top: 1px solid #ddd;
   display: flex;
+  padding: 10px;
+  background: #f0f0f0; /* Fondo gris claro */
+  border-top: 1px solid #ddd;
   gap: 10px; /* Espaciado entre input y botón */
 }
 
@@ -293,21 +304,23 @@ body {
   flex: 1;
   padding: 10px;
   border-radius: 20px;
-  border: 1px solid #ccc;
+  border: none;
   outline: none;
+  margin-right: 10px;
 }
 
 .chat-input button {
-  padding: 10px 20px;
+  padding: 10px 15px;
   border: none;
   border-radius: 20px;
-  background-color: #0084ff; /* Azul */
+  background: #009688; /* Azul */
   color: white;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
 .chat-input button:hover {
-  background: #1ebe5d;
+  background: #00796b;
 }
 
 /* Detalles del contacto */

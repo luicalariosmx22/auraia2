@@ -4,7 +4,7 @@ from clientes.aura.utils.chat.leer_contactos import leer_contactos
 from clientes.aura.utils.chat.leer_historial import leer_historial
 from clientes.aura.routes.panel_chat.blueprint import panel_chat_bp  # Updated import
 
-@panel_chat_bp.route("/panel/chat/<nombre_nora>", methods=["GET"])  # Added methods=["GET"]
+@panel_chat_bp.route("/panel/chat/<nombre_nora>", methods=["GET"])  # Confirm route
 def panel_chat(nombre_nora):
     print(f"📥 Recibida solicitud para panel de chat con nombre_nora: {nombre_nora}")
     if "user" not in session:

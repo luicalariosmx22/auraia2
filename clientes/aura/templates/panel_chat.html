@@ -50,34 +50,36 @@
   </style>
 </head>
 <body>
-  <div class="chat-container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="search-bar">
-        <input type="text" id="searchContact" placeholder="Buscar por nombre..." />
-      </div>
-      <div class="contact-list" id="contactList">
-        <!-- Contactos cargados aquí -->
-        <div class="loading-message">Cargando contactos...</div>
-      </div>
-    </div>
-
-    <!-- Chat Window -->
-    <div class="chat-window">
-      <!-- Header -->
-      <div class="chat-header" id="chatHeader">
-        <p class="debug-message">Selecciona un contacto para comenzar.</p>
+  <div class="whatsapp-container">
+    <div class="chat-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="search-bar">
+          <input type="text" id="searchContact" placeholder="Buscar por nombre..." />
+        </div>
+        <div class="contact-list" id="contactList">
+          <!-- Contactos cargados aquí -->
+          <div class="loading-message">Cargando contactos...</div>
+        </div>
       </div>
 
-      <!-- Messages -->
-      <div class="chat-messages" id="chatMessages">
-        <p class="debug-message">No hay mensajes cargados.</p>
-      </div>
+      <!-- Chat Window -->
+      <div class="chat-window">
+        <!-- Header -->
+        <div class="chat-header" id="chatHeader">
+          <p class="debug-message">Selecciona un contacto para comenzar.</p>
+        </div>
 
-      <!-- Input -->
-      <div class="message-input">
-        <input type="text" id="messageInput" placeholder="Escribe un mensaje..." />
-        <button id="sendButton">Enviar</button>
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages">
+          <p class="debug-message">No hay mensajes cargados.</p>
+        </div>
+
+        <!-- Input -->
+        <div class="message-input">
+          <input type="text" id="messageInput" placeholder="Escribe un mensaje..." />
+          <button id="sendButton">Enviar</button>
+        </div>
       </div>
     </div>
   </div>
