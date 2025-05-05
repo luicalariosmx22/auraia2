@@ -32,9 +32,12 @@ def api_chat(telefono):
         resumen = generar_resumen_ia(historial)
         print(f"📝 Resumen generado: {resumen}")
 
+        if not contacto.get('nombre'):
+            contacto['nombre'] = contacto.get('telefono', 'Sin nombre')
+
         return jsonify({
             "success": True,
-            "contacto": contacto or {},
+            "contacto": contacto,
             "mensajes": historial,
             "resumen_ia": resumen
         })
