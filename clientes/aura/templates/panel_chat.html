@@ -133,7 +133,8 @@
 
       // Cargar historial de mensajes
       console.log("🔍 Solicitando historial de mensajes...");
-      fetch(`/api/chat/${telefono}`)
+      const nombreNora = "aura"; // O toma dinámicamente según tu sistema
+      fetch(`/api/chat/${nombreNora}/${telefono}`)
         .then(res => res.json())
         .then(data => {
           console.log("🔍 Respuesta recibida:", data);
