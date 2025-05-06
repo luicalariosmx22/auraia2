@@ -3,7 +3,7 @@
 from flask import Blueprint, render_template, jsonify, session
 import requests
 import os
-from clientes.aura.utils.supabase_client import supabase
+from clientes.aura.utils.supabase import supabase
 
 meta_ads_bp = Blueprint('panel_cliente_meta_ads', __name__, template_folder='templates')
 
