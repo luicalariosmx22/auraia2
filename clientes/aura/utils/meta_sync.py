@@ -3,8 +3,8 @@
 import os
 import requests
 from datetime import datetime, timedelta
-from .supabase_client import supabase  # 👈 Import relativo corregido
-from .twilio_sender import enviar_mensaje_whatsapp  # 👈 Import relativo corregido
+from clientes.aura.utils.supabase_client import supabase  # ✅ Ya corregido
+from clientes.aura.utils.whatsapp_sender import enviar_mensaje_whatsapp  # ✅ Ya corregido
 
 # 🚀 Variables desde Railway
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
