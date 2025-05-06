@@ -101,6 +101,99 @@
     {% endif %}
   </section>
 
+  <!-- Nueva sección para cuentas publicitarias y campañas -->
+  <div class="container mx-auto p-4">
+    <h2 class="text-2xl font-bold mb-4">📊 Cuentas Publicitarias para {{ nombre_visible }}</h2>
+
+    {% if cuentas_ads %}
+    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="py-2 px-4 border-b">Nombre del Cliente</th>
+                <th class="py-2 px-4 border-b">ID Cuenta</th>
+                <th class="py-2 px-4 border-b">Estado</th>
+                <th class="py-2 px-4 border-b">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cuenta in cuentas_ads %}
+            <tr class="border-b hover:bg-gray-50">
+                <td class="py-2 px-4">{{ cuenta.nombre_cliente }}</td>
+                <td class="py-2 px-4">{{ cuenta.id_cuenta_publicitaria }}</td>
+                <td class="py-2 px-4">
+                    {% if cuenta.account_status == 1 %}
+                        ✅ Activa
+                    {% elif cuenta.account_status == 2 %}
+                        ⏸️ Pausada
+                    {% elif cuenta.account_status == 3 %}
+                        🚫 Cerrada/Inhabilitada
+                    {% elif cuenta.account_status == 7 %}
+                        ⚠️ Cuenta en revisión
+                    {% else %}
+                        ❓ Desconocido ({{ cuenta.account_status }})
+                    {% endif %}
+                </td>
+                <td class="py-2 px-4">
+                    <a href="?cuenta={{ cuenta.id_cuenta_publicitaria }}" class="text-blue-500 hover:underline">
+                        Ver Campañas
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if campañas %}
+    <div class="mt-6">
+        <h3 class="text-xl font-semibold mb-2">📋 Campañas para {{ cuenta_seleccionada.nombre_cliente }} (ID: {{ cuenta_seleccionada.id_cuenta_publicitaria }})</h3>
+        {% if campañas|length == 0 %}
+            <p>No hay campañas activas para esta cuenta.</p>
+        {% else %}
+            <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-2 px-4 border-b">Nombre</th>
+                        <th class="py-2 px-4 border-b">Estado</th>
+                        <th class="py-2 px-4 border-b">Presupuesto Diario</th>
+                        <th class="py-2 px-4 border-b">Resultados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campana in campañas %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-4">{{ campana.name }}</td>
+                        <td class="py-2 px-4">{{ campana.status }}</td>
+                        <td class="py-2 px-4">
+                            {% if campana.daily_budget %}
+                                {{ campana.daily_budget | int / 100 | round(2) }} {{ moneda }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="py-2 px-4">
+                            {% if campana.insights %}
+                                👁️ {{ campana.insights.impressions }} impresiones |
+                                🖱️ {{ campana.insights.clicks }} clics |
+                                💸 {{ campana.insights.spend }} {{ moneda }}
+                            {% else %}
+                                No hay datos
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4" role="alert">
+        <strong class="font-bold">⚠️ No hay cuentas publicitarias configuradas aún.</strong>
+    </div>
+    {% endif %}
+  </div>
+
 </main>
 </body>
 </html>
