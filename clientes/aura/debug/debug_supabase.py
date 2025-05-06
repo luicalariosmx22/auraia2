@@ -1,7 +1,7 @@
 # Archivo: debug_supabase.py
 # Este archivo contiene funciones para verificar la configuración y conexión de Supabase.
 
-from clientes.aura.utils.supabase import supabase
+from clientes.aura.utils.supabase_client import supabase
 
 def run_verificacion():
     """

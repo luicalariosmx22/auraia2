@@ -1,4 +1,4 @@
-from clientes.aura.utils.supabase import supabase
+from clientes.aura.utils.supabase_client import supabase
 
 def cargar_base_conocimiento(nombre_nora):
     """

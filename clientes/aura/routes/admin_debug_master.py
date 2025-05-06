@@ -9,7 +9,7 @@ from clientes.aura.debug import debug_supabase
 from clientes.aura.utils.debug_rutas import generar_html_rutas
 from clientes.aura.routes.debug_verificar import verificar_sistema
 from clientes.aura.utils.verificador_rutas import RutaChecker
-from clientes.aura.utils.supabase import supabase
+from clientes.aura.utils.supabase_client import supabase
 
 # Configurar logs
 logging.basicConfig(level=logging.DEBUG)
