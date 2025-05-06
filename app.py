@@ -57,10 +57,6 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(enviar_reporte_semanal, 'cron', day_of_week='mon', hour=9, minute=0)  # 🔄 Cada lunes 9 AM
 scheduler.start()
 
-@app.before_first_request
-def iniciar_scheduler():
-    app.logger.info("⏰ Scheduler iniciado para enviar reportes semanales.")
-
 # ========= REGISTRO DE BLUEPRINTS =========
 from clientes.aura.registro.registro_login import registrar_blueprints_login
 from clientes.aura.registro.registro_base import registrar_blueprints_base
