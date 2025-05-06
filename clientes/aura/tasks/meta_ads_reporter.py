@@ -10,8 +10,9 @@ from flask import current_app
 from datetime import datetime, timedelta
 from clientes.aura.utils.supabase import supabase
 from clientes.aura.utils.whatsapp_utils import enviar_mensaje_whatsapp  # ⚠️ Usa la función que tengas para enviar WhatsApp
+import os
 
-ACCESS_TOKEN_GLOBAL = 'TU_ACCESS_TOKEN_GLOBAL'  # ⚠️ Cargar desde la DB más adelante
+ACCESS_TOKEN_GLOBAL = os.getenv("META_ACCESS_TOKEN")  # ✅ Load from environment
 
 print("🚀 [Meta Ads Reporter] Módulo cargado correctamente.")
 
