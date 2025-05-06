@@ -4,7 +4,8 @@ import os
 import requests
 from supabase import create_client
 from datetime import datetime, timedelta
-from clientes.aura.utils import twilio_sender  # ✅ Importamos desde twilio_sender
+from twilio_sender import enviar_mensaje_whatsapp  # ✅ Usamos tu módulo existente
+import supabase as supabase_lib  # ✅ Importamos la librería real
 
 # 🚀 Variables desde Railway
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
@@ -18,7 +19,7 @@ SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 GRAPH_URL = os.getenv('GRAPH_URL')
 META_ACCESS_TOKEN = os.getenv('META_ACCESS_TOKEN')
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase_client = supabase_lib.create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Mapeamos los estados a su significado
 ESTADOS_MAPA = {
@@ -44,7 +45,7 @@ def normalizar_numero(numero):
 
 def enviar_alerta_estado(nombre_cliente, nuevo_estado):
     """
-    Enviar alerta de cambio de estado usando twilio_sender.
+    Enviar alerta de cambio de estado usando enviar_mensaje_whatsapp.
     """
     estado_desc = ESTADOS_MAPA.get(int(nuevo_estado), f'❓ Desconocido ({nuevo_estado})')
     mensaje = (
@@ -53,7 +54,7 @@ def enviar_alerta_estado(nombre_cliente, nuevo_estado):
         f"*Nuevo estado:* {estado_desc}"
     )
     try:
-        twilio_sender.enviar_mensaje(DESTINO, mensaje)
+        enviar_mensaje_whatsapp(DESTINO, mensaje)
         print(f"✅ WhatsApp enviado a {DESTINO} para '{nombre_cliente}'.")
     except Exception as e:
         print(f"❌ Error enviando WhatsApp para '{nombre_cliente}': {e}")
@@ -76,7 +77,7 @@ def obtener_estado_cuenta(cuenta_id):
 
 def supabase_update_estado(nombre_cliente, nuevo_estado, fecha_notificacion):
     """
-    ✅ Actualiza en Supabase el estado y la última notificación de una cuenta publicitaria.
+    Actualiza en Supabase el estado y la última notificación de una cuenta publicitaria.
     """
     try:
         print(f"🔄 [Supabase] Actualizando estado para '{nombre_cliente}' a {nuevo_estado} en {fecha_notificacion}")
@@ -84,7 +85,7 @@ def supabase_update_estado(nombre_cliente, nuevo_estado, fecha_notificacion):
             "estado_actual": nuevo_estado,
             "ultima_notificacion": fecha_notificacion.strftime("%Y-%m-%dT%H:%M:%S")
         }
-        response = supabase.table("meta_ads_cuentas").update(data).eq("nombre_cliente", nombre_cliente).execute()
+        response = supabase_client.table("meta_ads_cuentas").update(data).eq("nombre_cliente", nombre_cliente).execute()
         print(f"✅ [Supabase] Estado actualizado correctamente para '{nombre_cliente}'.")
     except Exception as e:
         print(f"❌ [Supabase] Error al actualizar estado para '{nombre_cliente}': {e}")
@@ -95,7 +96,7 @@ def sincronizar_datos_ads():
     """
     Sincroniza los datos de las cuentas publicitarias y envía notificaciones si hay cambios.
     """
-    cuentas = supabase.table("meta_ads_cuentas").select("*").execute().data
+    cuentas = supabase_client.table("meta_ads_cuentas").select("*").execute().data
     print("🚀 [Meta Sync] Iniciando la sincronización de cuentas publicitarias...")
     print(f"🔍 Revisando {len(cuentas)} cuentas publicitarias encontradas...")
 
