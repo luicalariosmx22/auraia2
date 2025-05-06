@@ -30,7 +30,7 @@ def panel_cliente_ads(nombre_nora):
             url = f"https://graph.facebook.com/v19.0/{cuenta['id_cuenta_publicitaria']}/campaigns"
             params = {
                 'fields': 'id,name,status,effective_status,daily_budget,insights{impressions,clicks,reach,spend,objective}',
-                'access_token': cuenta.get('access_token')  # ✅ Token de acceso desde Supabase
+                'access_token': "EAAPJAAprGjgBO0EhhY0fcZB0mZBV8wFTU0Oewxnlfc9dtpgoTL1N3O2xCaFtJ5ul2mFdVVK7PCFkYZAS7ae3Q7IL0cHPcaSZBZBfmIfEXopwVanGPF5u4kUvgWDjGoSZBJJ0PwsMZBxyMCyLSMpYwrTrTyYK8BYxCiDFc0oEZCMltaKd4Qxzkm0HZAfrb7dJp2VxpbpUKhhD75FwMcCoQZBZAOAZB5TZCBVOwaZAXFJp2xWXJoKmrenU45GogRCLbGAAit6QZDZD"  # 🔥 Hardcoded token for testing
             }
             response = requests.get(url, params=params)
             print(f"🟢 [Meta API] URL consultada: {response.url}")
