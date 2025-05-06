@@ -10,6 +10,10 @@ ads_bp = Blueprint('ads_bp', __name__, url_prefix='/panel_cliente')
 ACCESS_TOKEN_GLOBAL = 'TU_ACCESS_TOKEN_GLOBAL'  # ✅ Replace or load from .env in the future
 
 def obtener_reporte_campanas(cuenta_id, fecha_inicio=None, fecha_fin=None):
+    # Aseguramos que el ID incluya el prefijo "act_"
+    if not cuenta_id.startswith("act_"):
+        cuenta_id = f"act_{cuenta_id}"
+
     url = f"https://graph.facebook.com/v19.0/{cuenta_id}/campaigns"
     params = {
         'fields': 'id,name,status,effective_status,daily_budget,insights{impressions,clicks,reach,spend,objective}',
