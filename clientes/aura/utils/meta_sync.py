@@ -16,8 +16,21 @@ SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-def enviar_alerta_cambio(nombre_cliente, estado_anterior, estado_actual):
-    mensaje = f"🔔 La cuenta '{nombre_cliente}' cambió de estado: {estado_anterior} ➔ {estado_actual}."
+# Mapeamos los estados a su significado
+ESTADOS_MAPA = {
+    1: '🟢 Activa',
+    2: '🟡 Pausada',
+    3: '🔴 Cerrada/Inhabilitada',
+    7: '⚠️ En Revisión'
+}
+
+def enviar_alerta_estado(nombre_cliente, nuevo_estado):
+    estado_desc = ESTADOS_MAPA.get(nuevo_estado, f'❓ Desconocido ({nuevo_estado})')
+    mensaje = (
+        f"🔔 *Cambio detectado en cuenta publicitaria*\n\n"
+        f"*Nombre:* {nombre_cliente}\n"
+        f"*Nuevo estado:* {estado_desc}"
+    )
     twilio_client.messages.create(
         body=mensaje,
         from_=f'whatsapp:{TWILIO_FROM}',
@@ -34,8 +47,9 @@ def sincronizar_datos_ads():
         datos = obtener_datos_cuenta(id_cuenta)
 
         nuevo_estado = datos["estado"]
-        if estado_anterior and nuevo_estado != estado_anterior:
-            enviar_alerta_cambio(cuenta["nombre_cliente"], estado_anterior, nuevo_estado)
+
+        if estado_anterior is not None and nuevo_estado != estado_anterior:
+            enviar_alerta_estado(cuenta["nombre_cliente"], nuevo_estado)
 
         supabase.table("meta_ads_cuentas").update({
             "estado_actual": nuevo_estado,
@@ -43,3 +57,6 @@ def sincronizar_datos_ads():
             "anuncios_activos": datos["anuncios_activos"],
             "gasto_7_dias": datos["gasto_7_dias"]
         }).eq("id_cuenta_publicitaria", id_cuenta).execute()
+
+if __name__ == "__main__":
+    sincronizar_datos_ads()
