@@ -9,6 +9,25 @@ ads_bp = Blueprint('ads_bp', __name__, url_prefix='/panel_cliente')
 
 ACCESS_TOKEN_GLOBAL = 'TU_ACCESS_TOKEN_GLOBAL'  # ✅ Replace or load from .env in the future
 
+def obtener_reporte_campanas(cuenta_id, fecha_inicio=None, fecha_fin=None):
+    url = f"https://graph.facebook.com/v19.0/{cuenta_id}/campaigns"
+    params = {
+        'fields': 'id,name,status,effective_status,daily_budget,insights{impressions,clicks,reach,spend,objective}',
+        'access_token': ACCESS_TOKEN_GLOBAL
+    }
+    if fecha_inicio and fecha_fin:
+        params['time_range'] = {
+            'since': fecha_inicio,
+            'until': fecha_fin
+        }
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        return response.json().get('data', [])
+    except Exception as e:
+        current_app.logger.error(f"[Meta Ads] Error en obtener_reporte_campanas: {str(e)}")
+        return []
+
 @ads_bp.route('/<nombre_nora>/ads')
 def panel_ads(nombre_nora):
     if 'user_email' not in session:
