@@ -38,6 +38,8 @@ def panel_cliente(nombre_nora):
             for m in modulos_supabase if m["nombre"].strip() in [mod.strip() for mod in modulos_activos]
         ]
 
+        print("🔎 Módulos cargados:", modulos_disponibles)  # Debug print statement
+
     except Exception as e:
         print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
         modulos_disponibles = []
