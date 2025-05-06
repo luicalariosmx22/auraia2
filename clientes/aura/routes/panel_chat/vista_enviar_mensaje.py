@@ -7,12 +7,7 @@ from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.chat.leer_historial import leer_historial
 from clientes.aura.utils.chat.guardar_historial import guardar_historial
 from clientes.aura.utils.twilio_sender import enviar_mensaje
-
-# Si usas SocketIO para mensajes en tiempo real
-try:
-    from app import socketio  # asegúrate que esto esté disponible
-except ImportError:
-    socketio = None
+from clientes.aura.extensiones import socketio  # Importar socketio desde extensiones
 
 vista_enviar_mensaje_bp = Blueprint("vista_enviar_mensaje", __name__)
 

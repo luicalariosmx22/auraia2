@@ -46,6 +46,9 @@ from clientes.aura.routes.admin_actualizar_contactos import admin_actualizar_con
 from clientes.aura.registro.registro_comercial import registrar_blueprints_comercial
 from clientes.aura.registro.registro_invitado import registrar_blueprints_invitado
 
+# ⬇️ IMPORTAMOS la instancia global de socketio
+from clientes.aura.extensiones import socketio
+
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
         return ' 200 -' not in record.getMessage()
@@ -74,7 +77,8 @@ app.secret_key = os.getenv("SECRET_KEY", "clave-secreta-por-defecto")
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-socketio.init_app(app, cors_allowed_origins="*")
+# ⬇️ Inicializamos socketio usando la instancia global
+socketio.init_app(app)
 
 if not app.debug:
     file_handler = RotatingFileHandler("error.log", maxBytes=10240, backupCount=10)
@@ -203,5 +207,5 @@ if __name__ == "__main__":
         app.logger.error(f"Error crítico: {str(e)}")
 
     port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, debug=False, host="0.0.0.0", port=port, allow_unsafe_werkzeug=True)
+    socketio.run(app, host="0.0.0.0", port=port)
     scheduler.shutdown()  # Apagar el scheduler al cerrar la aplicación
