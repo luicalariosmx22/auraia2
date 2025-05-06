@@ -1,5 +1,5 @@
 from datetime import datetime
-from supabase import create_client
+from clientes.aura.utils import supabase_client as supabase
 from dotenv import load_dotenv
 import os
 from utils.normalizador import normalizar_numero  # ✅ Importado
@@ -8,7 +8,6 @@ from utils.normalizador import normalizar_numero  # ✅ Importado
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Función para obtener los datos de un contacto
 def obtener_datos_contacto(numero):

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from typing import List, Optional, Tuple
 from clientes.aura.utils.error_logger import registrar_error
 from clientes.aura.utils.chat.buscar_conocimiento import obtener_base_conocimiento
-from clientes.aura.utils.supabase import supabase
+from clientes.aura.utils import supabase_client as supabase
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")

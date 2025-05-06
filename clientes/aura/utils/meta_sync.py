@@ -5,7 +5,7 @@ import requests
 from supabase import create_client
 from datetime import datetime, timedelta
 from twilio_sender import enviar_mensaje_whatsapp  # ✅ Usamos tu módulo existente
-import supabase as supabase_lib  # ✅ Importamos la librería real
+from clientes.aura.utils import supabase_client  # ✅ Actualizamos el nombre del módulo
 
 # 🚀 Variables desde Railway
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
@@ -19,7 +19,7 @@ SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 GRAPH_URL = os.getenv('GRAPH_URL')
 META_ACCESS_TOKEN = os.getenv('META_ACCESS_TOKEN')
 
-supabase_client = supabase_lib.create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase_client = supabase_client.create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Mapeamos los estados a su significado
 ESTADOS_MAPA = {

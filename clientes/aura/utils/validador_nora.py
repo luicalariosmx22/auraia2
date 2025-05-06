@@ -1,6 +1,6 @@
 # 📁 clientes/aura/utils/validador_nora.py
 
-from clientes.aura.utils.supabase import supabase
+from clientes.aura.utils import supabase_client as supabase
 
 def obtener_noras_validas():
     """
