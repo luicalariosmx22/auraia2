@@ -4,7 +4,7 @@ from clientes.aura.utils.blueprint_utils import safe_register_blueprint  # ✅ I
 from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
 from clientes.aura.routes.admin_noras import admin_noras_bp
 from clientes.aura.routes.admin_nora import admin_nora_bp
-from clientes.aura.routes.admin_envios_programados import envios_programados_bp
+# from clientes.aura.routes.admin_envios_programados import envios_programados_bp  # ❌ Comentado
 
 def registrar_blueprints_admin(app):
     """
@@ -16,7 +16,7 @@ def registrar_blueprints_admin(app):
         safe_register_blueprint(app, admin_noras_bp, url_prefix="/admin/noras")
         safe_register_blueprint(app, admin_dashboard_bp, url_prefix="/admin/dashboard")
         safe_register_blueprint(app, admin_nora_bp, url_prefix="/admin/nora/<nombre_nora>/editar")
-        safe_register_blueprint(app, envios_programados_bp, url_prefix="/panel/envios-programados")
+        # safe_register_blueprint(app, envios_programados_bp, url_prefix="/panel/envios-programados")  # ❌ Comentado
 
         print("✅ Todos los blueprints de administración registrados correctamente.")
 
