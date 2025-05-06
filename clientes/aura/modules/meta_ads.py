@@ -8,6 +8,7 @@ meta_ads_bp = Blueprint('meta_ads_bp', __name__)
 
 @meta_ads_bp.route('/meta_ads/test', methods=['GET'])
 def test_meta_ads():
+    print("🧪 Ruta /test accedida.")
     token = os.getenv('META_ACCESS_TOKEN')
     cuenta_id = '721441716870946'  # ✅ Cuenta publicitaria ACTUALIZADA para la prueba
 

@@ -13,6 +13,8 @@ from clientes.aura.utils.whatsapp_utils import enviar_mensaje_whatsapp  # ⚠️
 
 ACCESS_TOKEN_GLOBAL = 'TU_ACCESS_TOKEN_GLOBAL'  # ⚠️ Cargar desde la DB más adelante
 
+print("🚀 [Meta Ads Reporter] Módulo cargado correctamente.")
+
 def generar_reporte_mensaje(cuenta, resumen, mejor_anuncio):
     semana_actual = datetime.now()
     semana_inicio = (semana_actual - timedelta(days=7)).strftime('%d de %B')
@@ -36,6 +38,7 @@ def generar_reporte_mensaje(cuenta, resumen, mejor_anuncio):
     return mensaje
 
 def consultar_metricas(cuenta_id_meta):
+    print(f"🌐 Consultando métricas para: {cuenta_id_meta}")
     url = f"https://graph.facebook.com/v19.0/{cuenta_id_meta}/campaigns"
     params = {
         'fields': 'id,name,status,effective_status,insights{impressions,clicks,reach,spend,objective,conversations}',
@@ -45,19 +48,23 @@ def consultar_metricas(cuenta_id_meta):
         response = requests.get(url, params=params)
         response.raise_for_status()
         campañas = response.json().get('data', [])
+        print(f"✅ Campañas encontradas: {len(campañas)}")
         return campañas
     except Exception as e:
         current_app.logger.error(f"[Meta Ads Reporter] Error al obtener métricas: {str(e)}")
         return []
 
 def enviar_reporte_semanal():
+    print("📤 [Meta Ads Reporter] Ejecutando enviar_reporte_semanal...")
     cuentas = supabase.table('meta_ads_cuentas').select('*').eq('conectada', True).execute()
+    print(f"🔍 Cuentas conectadas: {len(cuentas.data) if cuentas.data else 0}")
 
     if not cuentas.data:
         current_app.logger.info("[Meta Ads Reporter] No hay cuentas conectadas.")
         return
 
     for cuenta in cuentas.data:
+        print(f"➡️ Procesando cuenta: {cuenta['nombre_cliente']}")
         campañas = consultar_metricas(cuenta['id_cuenta_publicitaria'])
 
         if not campañas:
@@ -104,6 +111,7 @@ def enviar_reporte_semanal():
         numeros = [r['numero_telefono'] for r in receptores.data] if receptores.data else []
 
         for numero in numeros:
+            print(f"📲 Enviando WhatsApp a: {numero}")
             enviar_mensaje_whatsapp(numero, mensaje)
 
         supabase.table('meta_ads_reportes').insert({

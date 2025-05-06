@@ -14,7 +14,10 @@ from clientes.aura.extensions.socketio_instance import socketio
 from werkzeug.serving import WSGIRequestHandler
 from apscheduler.schedulers.background import BackgroundScheduler
 from clientes.aura.tasks.meta_ads_reporter import enviar_reporte_semanal
+
+print("📥 Importando módulo Meta Ads...")
 from clientes.aura.modules.meta_ads import meta_ads_bp  # ✅ Import del módulo Meta Ads
+print("✅ Módulo Meta Ads importado correctamente.")
 
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
@@ -102,9 +105,14 @@ blueprints_estaticos = [
     (meta_ads_bp, "/panel_cliente/meta_ads"),  # ✅ NUEVO blueprint para Meta Ads
 ]
 
+print("🔄 Registrando blueprints estáticos...")
 for blueprint, prefix in blueprints_estaticos:
+    print(f"➡️ Registrando blueprint: {blueprint.name} con prefijo: {prefix}")
     if blueprint.name not in app.blueprints:
         app.register_blueprint(blueprint, url_prefix=prefix)
+        print(f"✅ Blueprint registrado: {blueprint.name} con prefijo: {prefix}")
+    else:
+        print(f"⚠️ Blueprint ya estaba registrado: {blueprint.name}")
 
 app.register_blueprint(cobranza_bp, url_prefix="/api")
 
