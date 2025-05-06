@@ -51,67 +51,60 @@
 </head>
 <body>
   <div class="whatsapp-container">
-    <div class="chat-container">
-      <!-- Sidebar -->
-      <div class="sidebar">
-        <div class="buscador">
-          <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
-          <select id="filtro-etiqueta" onchange="filtrarContactos()">
-            <option value="">Todas las etiquetas</option>
-            {% for etiqueta in etiquetas_unicas %}
-            <option value="{{ etiqueta }}">{{ etiqueta }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <ul class="lista-contactos" id="lista-contactos">
-          {% for contacto in contactos %}
-          <li class="contacto-item" data-numero="{{ contacto.telefono }}" data-nombre="{{ contacto.nombre }}" data-etiquetas="{{ contacto.etiquetas | join(',') }}">
-            <div class="info-contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
-              {% if contacto.imagen_perfil %}
-              <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
-              {% else %}
-              <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
-              {% endif %}
-              <div class="texto-contacto">
-                <span class="contacto-nombre">{{ contacto.nombre or contacto.telefono }}</span>
-                <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
-                <span class="fecha-mensaje">
-                  {% if contacto.fecha_ultimo_mensaje %}
-                    {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
-                  {% else %}
-                    Sin fecha
-                  {% endif %}
-                </span>
-                <div class="contacto-etiquetas">
-                  {% for etiqueta in contacto.etiquetas %}
-                  <span class="etiqueta">{{ etiqueta }}</span>
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-          </li>
+    <!-- Sidebar (lista de contactos) -->
+    <div class="sidebar" id="sidebar">
+      <div class="buscador">
+        <input type="text" id="filtro-nombre" placeholder="Buscar por nombre..." oninput="filtrarContactos()" />
+        <select id="filtro-etiqueta" onchange="filtrarContactos()">
+          <option value="">Todas las etiquetas</option>
+          {% for etiqueta in etiquetas_unicas %}
+          <option value="{{ etiqueta }}">{{ etiqueta }}</option>
           {% endfor %}
-        </ul>
+        </select>
       </div>
 
-      <!-- Chat Window -->
-      <div class="chat-window">
-        <!-- Header -->
-        <div class="chat-header" id="chatHeader">
-          <p class="debug-message">Selecciona un contacto para comenzar.</p>
-        </div>
+      <ul class="lista-contactos" id="lista-contactos">
+        {% for contacto in contactos %}
+        <li class="contacto-item" data-numero="{{ contacto.telefono }}" data-nombre="{{ contacto.nombre }}" data-etiquetas="{{ contacto.etiquetas | join(',') }}">
+          <div class="info-contacto" id="contacto-{{ contacto.telefono }}" onclick="abrirChat('{{ contacto.telefono }}')">
+            {% if contacto.imagen_perfil %}
+            <img src="{{ contacto.imagen_perfil }}" alt="Foto de {{ contacto.nombre }}" class="foto-contacto" />
+            {% else %}
+            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Foto predeterminada" class="foto-contacto" />
+            {% endif %}
+            <div class="texto-contacto">
+              <span class="contacto-nombre">{{ contacto.nombre or contacto.telefono }}</span>
+              <span class="ultimo-mensaje">{{ contacto.mensaje_reciente or "Sin mensajes" }}</span>
+              <span class="fecha-mensaje">
+                {% if contacto.fecha_ultimo_mensaje %}
+                  {{ contacto.fecha_ultimo_mensaje.strftime('%Y-%m-%d %H:%M:%S') if contacto.fecha_ultimo_mensaje.year != 1900 else "Sin fecha" }}
+                {% else %}
+                  Sin fecha
+                {% endif %}
+              </span>
+              <div class="contacto-etiquetas">
+                {% for etiqueta in contacto.etiquetas %}
+                <span class="etiqueta">{{ etiqueta }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
 
-        <!-- Messages -->
-        <div class="chat-messages" id="chatMessages">
-          <p class="debug-message">No hay mensajes cargados.</p>
-        </div>
-
-        <!-- Input -->
-        <div class="message-input">
-          <input type="text" id="messageInput" placeholder="Escribe un mensaje..." />
-          <button id="sendButton">Enviar</button>
-        </div>
+    <!-- Chat principal -->
+    <div class="chat-container" id="chat-container">
+      <div id="chat-header">
+        <h2>Selecciona un contacto</h2>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <!-- Aquí se insertan los mensajes dinámicamente -->
+      </div>
+      <div id="chat-input" class="chat-input">
+        <input type="text" id="mensaje" placeholder="Escribe un mensaje...">
+        <button id="enviar">Enviar</button>
       </div>
     </div>
   </div>
@@ -133,7 +126,8 @@
 
       // Cargar historial de mensajes
       console.log("🔍 Solicitando historial de mensajes...");
-      fetch(`/api/chat/${telefono}`)
+      const nombreNora = "aura"; // O toma dinámicamente según tu sistema
+      fetch(`/api/chat/${nombreNora}/${telefono}`)
         .then(res => res.json())
         .then(data => {
           console.log("🔍 Respuesta recibida:", data);
@@ -151,7 +145,7 @@
               const burbuja = document.createElement("div");
               burbuja.className = m.emisor === "nora" ? "mensaje nora" : "mensaje cliente";
               burbuja.innerHTML = `
-                <div class="remitente">${m.emisor === "nora" ? "Nora" : data.contacto.nombre}</div>
+                <div class="remitente">${m.emisor === "nora" ? "Nora" : (data.contacto.nombre || data.contacto.telefono)}</div>
                 <div class="contenido">${m.mensaje}</div>
                 <div class="hora">${m.hora || ""}</div>
               `;
@@ -361,7 +355,7 @@
       });
     }
   </script>
-  <script src="/static/js/panel_chat.js?v=12345"></script> <!-- Added versioning -->
+  <script src="/static/js/panel_chat.js?v=12345"></script>
 </body>
 </html>
 
