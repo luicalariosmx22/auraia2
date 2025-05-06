@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, jsonify, session, flash
-from clientes.aura.utils.supabase import supabase  # ✅ Correct import
+from clientes.aura.utils.supabase_client import supabase  # ✅ Ajuste Copilot
 from flask import current_app
 import requests
 
