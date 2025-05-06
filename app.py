@@ -65,7 +65,15 @@ scheduler.add_job(enviar_reporte_semanal, 'cron', day_of_week='mon', hour=9, min
 scheduler.start()
 
 # 👇 Para registrar los blueprints sin duplicarlos:
-from clientes.aura.utils.blueprint_utils import safe_register_blueprint  # ✅ ahora VIENE de blueprint_utils
+def safe_register_blueprint(app, blueprint, **kwargs):
+    """
+    Registra un blueprint de forma segura, evitando duplicados.
+    """
+    if blueprint.name not in app.blueprints:
+        app.register_blueprint(blueprint, **kwargs)
+        print(f"✅ Blueprint '{blueprint.name}' registrado")
+    else:
+        print(f"⚠️ Blueprint ya estaba registrado: {blueprint.name}")
 
 # ========= REGISTRO DE BLUEPRINTS =========
 from clientes.aura.registro.registro_login import registrar_blueprints_login
@@ -91,9 +99,12 @@ from clientes.aura.routes.admin_actualizar_contactos import admin_actualizar_con
 from clientes.aura.registro.registro_comercial import registrar_blueprints_comercial
 from clientes.aura.registro.registro_invitado import registrar_blueprints_invitado
 
-registrar_blueprints_admin(app)
+# Login y autenticación
 registrar_blueprints_login(app)
+
+# Blueprints globales
 registrar_blueprints_base(app)
+registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
 registrar_blueprints_comercial(app)  # ✅ Nuevo registro
 registrar_blueprints_invitado(app)  # ✅ Nuevo registro
@@ -117,13 +128,11 @@ blueprints_estaticos = [
 print("🔄 Registrando blueprints estáticos...")
 for blueprint, prefix in blueprints_estaticos:
     print(f"➡️ Intentando registrar blueprint: {blueprint.name} con prefijo: {prefix}")
-    if blueprint.name in app.blueprints:
-        print(f"⚠️ Blueprint '{blueprint.name}' ya estaba registrado, lo saltamos.")
-    else:
-        safe_register_blueprint(app, blueprint, url_prefix=prefix)
+    safe_register_blueprint(app, blueprint, url_prefix=prefix)
 
 app.register_blueprint(cobranza_bp, url_prefix="/api")
 
+# Blueprints dinámicos por Nora
 try:
     response = supabase.table("configuracion_bot").select("nombre_nora").execute()
     nombre_noras = [n["nombre_nora"] for n in response.data] if response.data else []
