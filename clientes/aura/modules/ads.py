@@ -15,34 +15,40 @@ def panel_cliente_ads(nombre_nora):
     print(f"👤 Nora cargada: {nombre_nora}")
 
     # Variables para almacenar datos
-    cuenta = None
-    campañas = []
+    cuentas = []
+    campañas_por_cuenta = []
     reportes = []
 
     try:
-        # ✅ Obtener la cuenta publicitaria desde Supabase
-        cuenta_response = supabase.table('meta_ads_cuentas').select('*').eq('nombre_visible', nombre_nora).limit(1).execute()
-        cuenta = cuenta_response.data[0] if cuenta_response.data else None
-        print(f"📊 Cuenta obtenida: {cuenta['nombre_cliente'] if cuenta else '❌ No encontrada'}")
+        # ✅ Obtener todas las cuentas publicitarias asociadas al nombre_nora
+        cuentas_response = supabase.table('meta_ads_cuentas').select('*').eq('nombre_visible', nombre_nora).execute()
+        cuentas = cuentas_response.data if cuentas_response.data else []
+        print(f"📊 Total de cuentas obtenidas: {len(cuentas)}")
 
-        # ✅ Obtener campañas activas desde Meta API si la cuenta está conectada
-        if cuenta and cuenta.get('conectada') and cuenta.get('id_cuenta_publicitaria'):
-            url = f"https://graph.facebook.com/v19.0/{cuenta['id_cuenta_publicitaria']}/campaigns"
-            params = {
-                'fields': 'id,name,status,effective_status,daily_budget,insights{impressions,clicks,reach,spend,objective}',
-                'access_token': "EAAPJAAprGjgBO0EhhY0fcZB0mZBV8wFTU0Oewxnlfc9dtpgoTL1N3O2xCaFtJ5ul2mFdVVK7PCFkYZAS7ae3Q7IL0cHPcaSZBZBfmIfEXopwVanGPF5u4kUvgWDjGoSZBJJ0PwsMZBxyMCyLSMpYwrTrTyYK8BYxCiDFc0oEZCMltaKd4Qxzkm0HZAfrb7dJp2VxpbpUKhhD75FwMcCoQZBZAOAZB5TZCBVOwaZAXFJp2xWXJoKmrenU45GogRCLbGAAit6QZDZD"  # 🔥 Hardcoded token for testing
-            }
-            response = requests.get(url, params=params)
-            print(f"🟢 [Meta API] URL consultada: {response.url}")
-            try:
-                response.raise_for_status()
-                data_json = response.json()
-                print(f"🟢 [Meta API] Respuesta completa: {data_json}")
-                campañas = data_json.get('data', [])
-            except Exception as e:
-                print(f"❌ [Meta API] Error: {str(e)}")
-                print(f"🔴 Respuesta de error: {response.text}")
-                campañas = []
+        # ✅ Consultar campañas para cada cuenta conectada
+        for cuenta in cuentas:
+            campañas = []
+            if cuenta.get('conectada') and cuenta.get('id_cuenta_publicitaria'):
+                url = f"https://graph.facebook.com/v19.0/{cuenta['id_cuenta_publicitaria']}/campaigns"
+                params = {
+                    'fields': 'id,name,status,effective_status,daily_budget,insights{impressions,clicks,reach,spend,objective}',
+                    'access_token': cuenta['access_token']  # 🔑 Usa el token propio de la cuenta
+                }
+                response = requests.get(url, params=params)
+                print(f"🟢 [Meta API] URL consultada: {response.url}")
+                try:
+                    response.raise_for_status()
+                    data_json = response.json()
+                    print(f"🟢 [Meta API] Respuesta completa: {data_json}")
+                    campañas = data_json.get('data', [])
+                except Exception as e:
+                    print(f"❌ [Meta API] Error: {str(e)}")
+                    print(f"🔴 Respuesta de error: {response.text}")
+            
+            campañas_por_cuenta.append({
+                'cuenta': cuenta,
+                'campañas': campañas
+            })
 
         # ✅ Obtener reportes históricos desde Supabase
         reportes_response = supabase.table('meta_ads_reportes').select('*').eq('nombre_visible', nombre_nora).order('fecha_envio', desc=True).limit(10).execute()
@@ -56,8 +62,8 @@ def panel_cliente_ads(nombre_nora):
     return render_template(
         'panel_cliente_ads.html',
         nombre_nora=nombre_nora,
-        cuenta=cuenta,
-        campañas=campañas,
+        cuentas=cuentas,
+        campañas_por_cuenta=campañas_por_cuenta,
         reportes=reportes
     )
 

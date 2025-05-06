@@ -4,3 +4,4 @@ echo "__pycache__/
 *.db
 .env.*
 bot_data.json" > .gitignore
+meta_ads_cuentas_insert.sql

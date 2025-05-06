@@ -45,38 +45,43 @@
   <!-- Campañas Activas -->
   <section class="module">
     <h2>📈 Campañas Activas</h2>
-    {% if campañas %}
-      <table class="tabla-contactos">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Estado</th>
-            <th>Presupuesto</th>
-            <th>Impresiones</th>
-            <th>Clics</th>
-            <th>Alcance</th>
-            <th>Gasto</th>
-            <th>Objetivo</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for c in campañas %}
-          <tr>
-            <td>{{ c.name }}</td>
-            <td>{{ c.status }}</td>
-            <td>${{ c.daily_budget or '-' }}</td>
-            <td>{{ c.insights.impressions if c.insights else '-' }}</td>
-            <td>{{ c.insights.clicks if c.insights else '-' }}</td>
-            <td>{{ c.insights.reach if c.insights else '-' }}</td>
-            <td>${{ c.insights.spend if c.insights else '-' }}</td>
-            <td>{{ c.insights.objective if c.insights else '-' }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p class="text-muted">No se encontraron campañas activas o aún no conectado.</p>
-    {% endif %}
+    {% for item in campañas_por_cuenta %}
+      <div class="cuenta-box">
+        <h3>Cuenta: {{ item.cuenta.nombre_cliente }} (ID: {{ item.cuenta.id_cuenta_publicitaria }})</h3>
+        <p>Status: {{ item.cuenta.account_status }}</p>
+
+        {% if item.campañas %}
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Estado</th>
+                <th>Impresiones</th>
+                <th>Clicks</th>
+                <th>Alcance</th>
+                <th>Gasto</th>
+                <th>Objetivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for campaña in item.campañas %}
+                <tr>
+                  <td>{{ campaña.name }}</td>
+                  <td>{{ campaña.status }}</td>
+                  <td>{{ campaña.insights.impressions if campaña.insights }}</td>
+                  <td>{{ campaña.insights.clicks if campaña.insights }}</td>
+                  <td>{{ campaña.insights.reach if campaña.insights }}</td>
+                  <td>{{ campaña.insights.spend if campaña.insights }}</td>
+                  <td>{{ campaña.insights.objective if campaña.insights }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No hay campañas activas para esta cuenta.</p>
+        {% endif %}
+      </div>
+    {% endfor %}
   </section>
 
   <!-- Histórico de Reportes -->
