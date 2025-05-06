@@ -106,7 +106,7 @@ def safe_register_blueprint(app, blueprint, **kwargs):
 
 # ========= REGISTRO DE BLUEPRINTS =========
 
-# Login y autenticación
+# ✅ Ahora sí pasamos 2 argumentos: app + la función safe_register_blueprint
 registrar_blueprints_login(app, safe_register_blueprint)
 
 # Blueprints globales
