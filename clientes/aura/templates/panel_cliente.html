@@ -27,12 +27,21 @@
       <div class="meta-card">
         <h3>{{ modulo.icono }} {{ modulo.nombre.replace('_', ' ').capitalize() }}</h3>
         <p>{{ modulo.descripcion }}</p>
-        <a 
-          href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) if modulo.ruta else '/panel_cliente/' ~ nombre_nora ~ '/' ~ modulo.nombre }}" 
-          class="btn-neutral" 
-          aria-label="Acceder al módulo {{ modulo.nombre.replace('_', ' ').capitalize() }}">
-          🔗 Acceder
-        </a>
+        {% if modulo.ruta %}
+          <a 
+            href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) }}"
+            class="btn-neutral"
+            aria-label="Acceder al módulo {{ modulo.nombre.replace('_', ' ').capitalize() }}">
+            🔗 Acceder
+          </a>
+        {% else %}
+          <a 
+            href="/panel_cliente/{{ nombre_nora }}/{{ modulo.nombre }}"
+            class="btn-neutral"
+            aria-label="Acceder al módulo {{ modulo.nombre.replace('_', ' ').capitalize() }}">
+            ⚠️ Acceder (URL fallback)
+          </a>
+        {% endif %}
       </div>
       {% endfor %}
     </section>

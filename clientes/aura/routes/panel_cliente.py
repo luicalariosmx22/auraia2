@@ -13,6 +13,9 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_cliente_bp = Blueprint("panel_cliente", __name__)
 
+def es_ruta_valida(ruta):
+    return ruta and '.' in ruta and len(ruta.split('.')) == 2
+
 @panel_cliente_bp.route("/<nombre_nora>")
 def panel_cliente(nombre_nora):
     if "user" not in session:
@@ -31,7 +34,7 @@ def panel_cliente(nombre_nora):
         modulos_disponibles = [
             {
                 "nombre": m["nombre"].strip(),
-                "ruta": (m.get("ruta") or "").strip(),
+                "ruta": (m.get("ruta") or "").strip() if es_ruta_valida(m.get("ruta", "")) else "",
                 "icono": m.get("icono", ""),
                 "descripcion": m.get("descripcion", "")
             }
