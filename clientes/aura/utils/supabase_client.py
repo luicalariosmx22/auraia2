@@ -9,3 +9,5 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 print("✅ supabase_client.py cargado correctamente y cliente listo")
+print(f"✅ Tipo de supabase: {type(supabase)}")
+print(f"✅ Métodos de supabase: {dir(supabase)}")

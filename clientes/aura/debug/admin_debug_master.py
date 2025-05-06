@@ -1,3 +1,3 @@
-from clientes.aura.utils import supabase_client as supabase
+from clientes.aura.utils.supabase_client import supabase
 
 # Add your code here
