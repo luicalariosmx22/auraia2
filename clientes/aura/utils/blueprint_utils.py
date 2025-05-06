@@ -14,6 +14,8 @@ def safe_register_blueprint(app: Flask, blueprint: Blueprint, url_prefix: str = 
         app.register_blueprint(blueprint, url_prefix=url_prefix)
         print(f"✅ Blueprint registrado: {name} con prefijo: {url_prefix}")
 
+print("🚀 DEBUG: blueprints_utils.py cargado - función registrar_blueprints_login actualizada")
+
 def registrar_blueprints_login(app, safe_register_blueprint=None):
     if safe_register_blueprint:
         # ✅ Registramos el blueprint de manera segura usando la función proporcionada.
