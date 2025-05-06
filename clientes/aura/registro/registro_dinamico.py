@@ -74,5 +74,12 @@ def registrar_blueprints_por_nora(app, nombre_nora):
                 app.register_blueprint(panel_cliente_conocimiento_bp, url_prefix="/panel_cliente/conocimiento")
                 print("✅ Blueprint 'panel_cliente_conocimiento' registrado en /panel_cliente/conocimiento")
 
+        # Ads (ruta: /panel_cliente/ads/<nombre_nora>)
+        if "ads" in modulos:
+            if "ads_bp" not in app.blueprints:
+                from clientes.aura.modules.ads import ads_bp
+                app.register_blueprint(ads_bp, url_prefix="/panel_cliente/ads")
+                print("✅ Blueprint 'ads' registrado en /panel_cliente/ads/<nombre_nora>")
+
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos: {str(e)}")
