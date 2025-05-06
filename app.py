@@ -12,6 +12,8 @@ from clientes.aura.utils.debug_rutas import generar_html_rutas
 from clientes.aura.utils.supabase import supabase
 from clientes.aura.extensions.socketio_instance import socketio
 from werkzeug.serving import WSGIRequestHandler
+from apscheduler.schedulers.background import BackgroundScheduler
+from clientes.aura.tasks.meta_ads_reporter import enviar_reporte_semanal
 
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
@@ -49,6 +51,15 @@ if not app.debug:
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     app.logger.addHandler(file_handler)
+
+# ✅ Scheduler para reportes automáticos
+scheduler = BackgroundScheduler()
+scheduler.add_job(enviar_reporte_semanal, 'cron', day_of_week='mon', hour=9, minute=0)  # 🔄 Cada lunes 9 AM
+scheduler.start()
+
+@app.before_first_request
+def iniciar_scheduler():
+    app.logger.info("⏰ Scheduler iniciado para enviar reportes semanales.")
 
 # ========= REGISTRO DE BLUEPRINTS =========
 from clientes.aura.registro.registro_login import registrar_blueprints_login
@@ -167,3 +178,4 @@ if __name__ == "__main__":
 
     port = int(os.environ.get("PORT", 5000))
     socketio.run(app, debug=False, host="0.0.0.0", port=port, allow_unsafe_werkzeug=True)
+    scheduler.shutdown()  # Apagar el scheduler al cerrar la aplicación

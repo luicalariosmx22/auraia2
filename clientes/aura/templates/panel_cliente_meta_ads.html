@@ -1,0 +1,71 @@
+<!-- Archivo: clientes/aura/templates/panel_cliente_meta_ads.html -->
+
+{% extends 'base_cliente.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>📊 Panel Meta Ads - {{ cuenta.nombre_cliente if cuenta else 'No registrado' }}</h2>
+
+    <div class="card my-3 p-3">
+        {% if cuenta %}
+            <p><strong>ID Cuenta Publicitaria:</strong> {{ cuenta.id_cuenta_publicitaria }}</p>
+            <p><strong>Estado de Conexión:</strong>
+                {% if cuenta.conectada %}
+                    <span class="text-success">🟢 Conectada</span>
+                {% else %}
+                    <span class="text-danger">🔴 No conectada</span>
+                {% endif %}
+            </p>
+        {% else %}
+            <p class="text-warning">⚠️ No hay una cuenta publicitaria configurada aún.</p>
+        {% endif %}
+    </div>
+
+    <h4>📢 Campañas Activas</h4>
+    {% if campañas %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Presupuesto</th>
+                    <th>Impresiones</th>
+                    <th>Clics</th>
+                    <th>Alcance</th>
+                    <th>Gasto</th>
+                    <th>Objetivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in campañas %}
+                    <tr>
+                        <td>{{ c.name }}</td>
+                        <td>{{ c.status }}</td>
+                        <td>${{ c.daily_budget }}</td>
+                        <td>{{ c.insights.impressions if c.insights else '-' }}</td>
+                        <td>{{ c.insights.clicks if c.insights else '-' }}</td>
+                        <td>{{ c.insights.reach if c.insights else '-' }}</td>
+                        <td>${{ c.insights.spend if c.insights else '-' }}</td>
+                        <td>{{ c.insights.objective if c.insights else '-' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No se encontraron campañas activas o aún no conectado.</p>
+    {% endif %}
+
+    <h4>📄 Histórico de Reportes</h4>
+    {% if reportes %}
+        <ul class="list-group">
+            {% for r in reportes %}
+                <li class="list-group-item">
+                    <strong>{{ r.fecha_envio }}:</strong><br>
+                    <pre style="white-space: pre-wrap;">{{ r.mensaje }}</pre>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No hay reportes enviados todavía.</p>
+    {% endif %}
+</div>
+{% endblock %}
