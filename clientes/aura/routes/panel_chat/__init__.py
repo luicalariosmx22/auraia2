@@ -1,5 +1,7 @@
 # clientes/aura/routes/panel_chat/__init__.py
 
+print("✅ __init__.py del panel_chat cargado correctamente")
+
 from clientes.aura.routes.panel_chat.blueprint import panel_chat_bp
 
 # Solo importamos las vistas para que sus rutas queden registradas automáticamente

@@ -1,11 +1,12 @@
 # clientes/aura/routes/panel_chat/vista_enviar_mensaje.py
-print("✅ vista_enviar_mensaje.py cargado correctamente")
+print("✅ vista_enviar_mensaje.py cargado correctamente (supabase actualizado)")
 
 from flask import Blueprint, request, jsonify
 from datetime import datetime
 from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.chat.leer_historial import leer_historial
 from clientes.aura.utils.chat.guardar_historial import guardar_historial
+from clientes.aura.utils.twilio_sender import enviar_mensaje
 
 # Si usas SocketIO para mensajes en tiempo real
 try:
@@ -42,3 +43,23 @@ def api_enviar_mensaje():
         }, broadcast=True)
 
     return jsonify({"success": True})
+
+@vista_enviar_mensaje_bp.route('/enviar_mensaje', methods=['POST'])
+def enviar_mensaje_chat():
+    data = request.json
+    numero = data.get("numero")
+    mensaje = data.get("mensaje")
+    nombre = data.get("nombre", "Usuario")
+
+    if not numero or not mensaje:
+        return jsonify({"error": "Faltan parámetros"}), 400
+
+    enviar_mensaje(numero, mensaje, nombre)
+    guardar_historial({
+        "telefono": numero,
+        "mensaje": mensaje,
+        "tipo": "manual",
+        "nombre_nora": data.get("nombre_nora", "nora")
+    })
+
+    return jsonify({"success": True, "message": "Mensaje enviado y guardado correctamente."})
