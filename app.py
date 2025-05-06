@@ -102,7 +102,7 @@ blueprints_estaticos = [
     (cliente_nora_bp, "/panel_cliente"),
     (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento"),
     (admin_actualizar_contactos_bp, "/admin/actualizar_contactos"),  # 👈 Register blueprint
-    (ads_bp, "/panel_cliente/ads"),  # ✅ Updated blueprint registration
+    (ads_bp, None),  # ✅ Dynamic routes for Ads
 ]
 
 print("🔄 Registrando blueprints estáticos...")
