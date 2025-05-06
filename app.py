@@ -105,7 +105,6 @@ blueprints_estaticos = [
     (cliente_nora_bp, "/panel_cliente"),
     (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento"),
     (admin_actualizar_contactos_bp, "/admin/actualizar_contactos"),
-    (panel_cliente_ads_bp, "/panel_cliente/ads"),  # 🔥 Reemplazo del antiguo blueprint
 ]
 
 print("🔄 Registrando blueprints estáticos...")
