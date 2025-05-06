@@ -22,6 +22,30 @@ print("✅ Módulo Ads importado correctamente.")
 # 👇 Import actualizado
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 
+# ✅ Importación de funciones de registro
+from clientes.aura.registro.registro_login import registrar_blueprints_login
+from clientes.aura.registro.registro_base import registrar_blueprints_base
+from clientes.aura.registro.registro_admin import registrar_blueprints_admin
+from clientes.aura.registro.registro_debug import registrar_blueprints_debug
+from clientes.aura.routes.panel_chat import panel_chat_bp
+from clientes.aura.routes.webhook import webhook_bp
+from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp
+from clientes.aura.routes.etiquetas import etiquetas_bp
+from clientes.aura.routes.panel_cliente import panel_cliente_bp
+from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
+from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp
+from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
+from clientes.aura.routes.admin_noras import admin_noras_bp  # 👈 Added import
+from clientes.aura.routes.admin_debug_master import admin_debug_master_bp
+from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+from clientes.aura.routes.admin_nora import admin_nora_bp
+from clientes.aura.routes.cliente_nora import cliente_nora_bp
+from clientes.aura.routes.cobranza import cobranza_bp
+from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
+from clientes.aura.routes.admin_actualizar_contactos import admin_actualizar_contactos_bp  # 👈 Added import
+from clientes.aura.registro.registro_comercial import registrar_blueprints_comercial
+from clientes.aura.registro.registro_invitado import registrar_blueprints_invitado
+
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
         return ' 200 -' not in record.getMessage()
@@ -69,49 +93,28 @@ def safe_register_blueprint(app, blueprint, **kwargs):
     """
     Registra un blueprint de forma segura, evitando duplicados.
     """
-    if blueprint.name not in app.blueprints:
-        app.register_blueprint(blueprint, **kwargs)
-        print(f"✅ Blueprint '{blueprint.name}' registrado")
+    unique_name = kwargs.pop("name", blueprint.name)
+    if unique_name not in app.blueprints:
+        app.register_blueprint(blueprint, name=unique_name, **kwargs)
+        print(f"✅ Blueprint '{unique_name}' registrado")
     else:
-        print(f"⚠️ Blueprint ya estaba registrado: {blueprint.name}")
+        print(f"⚠️ Blueprint ya estaba registrado: {unique_name}")
 
 # ========= REGISTRO DE BLUEPRINTS =========
-from clientes.aura.registro.registro_login import registrar_blueprints_login
-from clientes.aura.registro.registro_base import registrar_blueprints_base
-from clientes.aura.registro.registro_admin import registrar_blueprints_admin
-from clientes.aura.registro.registro_debug import registrar_blueprints_debug
-from clientes.aura.routes.panel_chat import panel_chat_bp
-from clientes.aura.routes.webhook import webhook_bp
-from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp
-from clientes.aura.routes.etiquetas import etiquetas_bp
-from clientes.aura.routes.panel_cliente import panel_cliente_bp
-from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
-from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp
-from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
-from clientes.aura.routes.admin_noras import admin_noras_bp  # 👈 Added import
-from clientes.aura.routes.admin_debug_master import admin_debug_master_bp
-from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
-from clientes.aura.routes.admin_nora import admin_nora_bp
-from clientes.aura.routes.cliente_nora import cliente_nora_bp
-from clientes.aura.routes.cobranza import cobranza_bp
-from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
-from clientes.aura.routes.admin_actualizar_contactos import admin_actualizar_contactos_bp  # 👈 Added import
-from clientes.aura.registro.registro_comercial import registrar_blueprints_comercial
-from clientes.aura.registro.registro_invitado import registrar_blueprints_invitado
 
 # Login y autenticación
-registrar_blueprints_login(app)
+registrar_blueprints_login(app, safe_register_blueprint)
 
 # Blueprints globales
-registrar_blueprints_base(app)
-registrar_blueprints_admin(app)
-registrar_blueprints_debug(app)
-registrar_blueprints_comercial(app)  # ✅ Nuevo registro
-registrar_blueprints_invitado(app)  # ✅ Nuevo registro
+registrar_blueprints_base(app, safe_register_blueprint)
+registrar_blueprints_admin(app, safe_register_blueprint)
+registrar_blueprints_debug(app, safe_register_blueprint)
+registrar_blueprints_comercial(app, safe_register_blueprint)
+registrar_blueprints_invitado(app, safe_register_blueprint)
 
 blueprints_estaticos = [
     (admin_verificador_bp, None),
-    (panel_chat_bp, None),  # 🔥 CAMBIO: aquí ahora va None
+    (panel_chat_bp, None),
     (admin_nora_dashboard_bp, None),
     (webhook_bp, None),
     (etiquetas_bp, "/panel_cliente_etiquetas"),
@@ -127,7 +130,6 @@ blueprints_estaticos = [
 
 print("🔄 Registrando blueprints estáticos...")
 for blueprint, prefix in blueprints_estaticos:
-    print(f"➡️ Intentando registrar blueprint: {blueprint.name} con prefijo: {prefix}")
     safe_register_blueprint(app, blueprint, url_prefix=prefix)
 
 app.register_blueprint(cobranza_bp, url_prefix="/api")
@@ -138,8 +140,8 @@ try:
     nombre_noras = [n["nombre_nora"] for n in response.data] if response.data else []
 
     for nombre in nombre_noras:
-        registrar_blueprints_por_nora(app, nombre)
-    registrar_blueprints_por_nora(app, nombre_nora="aura")  # Cambia "aura" por cada Nora real si necesario
+        registrar_blueprints_por_nora(app, nombre, safe_register_blueprint)
+    registrar_blueprints_por_nora(app, nombre_nora="aura", safe_register_blueprint)  # Cambia "aura" por cada Nora real si necesario
 except Exception as e:
     app.logger.error(f"Error al registrar Noras dinámicas: {e}")
 

@@ -19,6 +19,8 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
+    from clientes.aura.modules.ads import ads_bp  # ✅ Import del módulo Ads dinámico
+
     print(f"🔍 Registrando blueprints dinámicos para {nombre_nora}...")
 
     try:
@@ -30,6 +32,16 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         safe_register_blueprint(app, etiquetas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas")
         safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/chat")
         safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
-        safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
+
+        # ✅ Registrar la ruta dinámica del módulo Ads
+        if f"{nombre_nora}_ads" not in app.blueprints:  # Comprobar que el blueprint no esté registrado
+            app.add_url_rule(
+                f"/panel_cliente/{nombre_nora}/ads",
+                view_func=ads_bp.view_functions['panel_cliente_ads'],
+                endpoint=f"{nombre_nora}_ads"
+            )
+            print(f"✅ Blueprint 'ads' registrado para {nombre_nora}")
+        else:
+            print(f"⚠️ Blueprint 'ads' ya estaba registrado para {nombre_nora}")
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")

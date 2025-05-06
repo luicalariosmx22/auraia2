@@ -1,7 +1,7 @@
 # clientes/aura/routes/panel_chat/vista_enviar_mensaje.py
 print("✅ vista_enviar_mensaje.py cargado correctamente (supabase actualizado)")
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
 from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.chat.leer_historial import leer_historial
@@ -61,5 +61,14 @@ def enviar_mensaje_chat():
         "tipo": "manual",
         "nombre_nora": data.get("nombre_nora", "nora")
     })
+
+    # Emitir en tiempo real usando current_app para evitar ciclos circulares
+    socketio = current_app.extensions.get('socketio')
+    if socketio:
+        socketio.emit("nuevo_mensaje", {
+            "telefono": numero,
+            "mensaje": mensaje,
+            "emisor": "manual"
+        }, broadcast=True)
 
     return jsonify({"success": True, "message": "Mensaje enviado y guardado correctamente."})
