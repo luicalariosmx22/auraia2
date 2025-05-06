@@ -4,7 +4,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Ads – Nora AI</title>
+  <title>Ads para {{ nombre_nora }} – Nora AI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
 </head>
@@ -23,12 +23,13 @@
 
   <h1>📊 Ads para {{ nombre_nora }}</h1>
 
-  <!-- Info de la Cuenta Publicitaria -->
+  <!-- Cuenta Publicitaria -->
   <section class="module">
-    <h2>Cuenta Publicitaria</h2>
+    <h2>📢 Cuenta Publicitaria</h2>
     {% if cuenta %}
       <p><strong>Cliente:</strong> {{ cuenta.nombre_cliente }}</p>
       <p><strong>ID Cuenta Publicitaria:</strong> {{ cuenta.id_cuenta_publicitaria }}</p>
+      <p><strong>Última Sincronización:</strong> {{ cuenta.ultima_sincron or 'Sin registros' }}</p>
       <p><strong>Estado:</strong>
         {% if cuenta.conectada %}
           <span style="color:green;">🟢 Conectada</span>
@@ -43,7 +44,7 @@
 
   <!-- Campañas Activas -->
   <section class="module">
-    <h2>📢 Campañas Activas</h2>
+    <h2>📈 Campañas Activas</h2>
     {% if campañas %}
       <table class="tabla-contactos">
         <thead>
