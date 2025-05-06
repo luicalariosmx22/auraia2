@@ -1,5 +1,5 @@
 from datetime import datetime
-from clientes.aura.utils import supabase_client as supabase
+from clientes.aura.utils.supabase_client import supabase
 from dotenv import load_dotenv
 import os
 from utils.normalizador import normalizar_numero  # ✅ Importado

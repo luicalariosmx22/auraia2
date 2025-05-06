@@ -5,7 +5,7 @@
 Este módulo guarda mensajes en Supabase para ser enviados después (via trigger o función aparte).
 """
 
-from clientes.aura.utils import supabase_client as supabase
+from clientes.aura.utils.supabase_client import supabase
 
 def enviar_mensaje_whatsapp(numero_destino, mensaje, cuenta_id=None):
     """

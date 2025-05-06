@@ -5,7 +5,7 @@ import requests
 from supabase import create_client
 from datetime import datetime, timedelta
 from twilio_sender import enviar_mensaje_whatsapp  # ✅ Usamos tu módulo existente
-from clientes.aura.utils import supabase_client  # ✅ Actualizamos el nombre del módulo
+from clientes.aura.utils.supabase_client import supabase  # ✅ Actualizamos el nombre del módulo
 
 # 🚀 Variables desde Railway
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
@@ -19,7 +19,7 @@ SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 GRAPH_URL = os.getenv('GRAPH_URL')
 META_ACCESS_TOKEN = os.getenv('META_ACCESS_TOKEN')
 
-supabase_client = supabase_client.create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase = supabase.create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Mapeamos los estados a su significado
 ESTADOS_MAPA = {
@@ -85,7 +85,7 @@ def supabase_update_estado(nombre_cliente, nuevo_estado, fecha_notificacion):
             "estado_actual": nuevo_estado,
             "ultima_notificacion": fecha_notificacion.strftime("%Y-%m-%dT%H:%M:%S")
         }
-        response = supabase_client.table("meta_ads_cuentas").update(data).eq("nombre_cliente", nombre_cliente).execute()
+        response = supabase.table("meta_ads_cuentas").update(data).eq("nombre_cliente", nombre_cliente).execute()
         print(f"✅ [Supabase] Estado actualizado correctamente para '{nombre_cliente}'.")
     except Exception as e:
         print(f"❌ [Supabase] Error al actualizar estado para '{nombre_cliente}': {e}")
@@ -96,7 +96,7 @@ def sincronizar_datos_ads():
     """
     Sincroniza los datos de las cuentas publicitarias y envía notificaciones si hay cambios.
     """
-    cuentas = supabase_client.table("meta_ads_cuentas").select("*").execute().data
+    cuentas = supabase.table("meta_ads_cuentas").select("*").execute().data
     print("🚀 [Meta Sync] Iniciando la sincronización de cuentas publicitarias...")
     print(f"🔍 Revisando {len(cuentas)} cuentas publicitarias encontradas...")
 

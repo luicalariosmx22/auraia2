@@ -1,7 +1,7 @@
 # clientes/aura/utils/db/historial.py
 
 from datetime import datetime
-from clientes.aura.utils import supabase_client as supabase
+from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.normalizador import normalizar_numero
 from clientes.aura.utils.error_logger import registrar_error
 

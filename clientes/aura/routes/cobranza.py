@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from clientes.aura.utils import supabase_client as supabase
+from clientes.aura.utils.supabase_client import supabase
 
 cobranza_bp = Blueprint("cobranza", __name__)
 

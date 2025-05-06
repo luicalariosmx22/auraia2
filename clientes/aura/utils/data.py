@@ -1,3 +1,3 @@
-from clientes.aura.utils import supabase_client as supabase
+from clientes.aura.utils.supabase_client import supabase
 
-# ...existing code...
+supabase.table("nombre_tabla").select(...).execute()

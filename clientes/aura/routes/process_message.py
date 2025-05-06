@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from clientes.aura.utils import supabase_client as supabase
+from clientes.aura.utils.supabase_client import supabase
 
 process_message_bp = Blueprint('process_message', __name__)
 

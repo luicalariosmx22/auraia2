@@ -1,5 +1,5 @@
 from flask import Blueprint, request, redirect, url_for, session
-from clientes.aura.utils import supabase_client as supabase
+from clientes.aura.utils.supabase_client import supabase
 
 admin_nora_bp = Blueprint("admin_nora", __name__)
 
