@@ -117,7 +117,6 @@ for blueprint, prefix in blueprints_estaticos:
         print(f"⚠️ Blueprint ya estaba registrado: {blueprint.name}")
 
 app.register_blueprint(cobranza_bp, url_prefix="/api")
-app.register_blueprint(panel_cliente_ads_bp, url_prefix="/panel_cliente/ads")
 
 try:
     response = supabase.table("configuracion_bot").select("nombre_nora").execute()
