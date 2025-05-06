@@ -21,7 +21,7 @@ def panel_cliente_ads(nombre_nora):
 
     try:
         # ✅ Obtener la cuenta publicitaria desde Supabase
-        cuenta_response = supabase.table('meta_ads_cuentas').select('*').eq('nombre_nora', nombre_nora).limit(1).execute()
+        cuenta_response = supabase.table('meta_ads_cuentas').select('*').eq('nombre_visible', nombre_nora).limit(1).execute()
         cuenta = cuenta_response.data[0] if cuenta_response.data else None
         print(f"📊 Cuenta obtenida: {cuenta['nombre_cliente'] if cuenta else '❌ No encontrada'}")
 
@@ -45,7 +45,7 @@ def panel_cliente_ads(nombre_nora):
                 campañas = []
 
         # ✅ Obtener reportes históricos desde Supabase
-        reportes_response = supabase.table('meta_ads_reportes').select('*').eq('nombre_nora', nombre_nora).order('fecha_envio', desc=True).limit(10).execute()
+        reportes_response = supabase.table('meta_ads_reportes').select('*').eq('nombre_visible', nombre_nora).order('fecha_envio', desc=True).limit(10).execute()
         reportes = reportes_response.data if reportes_response.data else []
         print(f"📄 Reportes históricos encontrados: {len(reportes)}")
 
