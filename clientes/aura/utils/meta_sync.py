@@ -76,15 +76,16 @@ print("🚀 [Meta Sync] La sincronización comenzó correctamente...")
 
 def sincronizar_datos_ads():
     cuentas = supabase.table("meta_ads_cuentas").select("*").execute().data
+    print("🚀 [Meta Sync] Iniciando la sincronización de cuentas publicitarias...")
     print(f"🔍 Revisando {len(cuentas)} cuentas publicitarias encontradas...")
 
     for cuenta in cuentas:
         id_cuenta = cuenta["id_cuenta_publicitaria"]
         nombre_cliente = cuenta["nombre_cliente"]
         estado_anterior = cuenta.get("estado_actual", None)
-        ultima_notificacion = cuenta.get("ultima_notificacion", None)  # Nueva columna para track de última alerta
+        ultima_notificacion = cuenta.get("ultima_notificacion", None)
 
-        print(f"➡️ Cuenta: {nombre_cliente} | Estado anterior: {estado_anterior}")
+        print(f"➡️ Cuenta: {nombre_cliente} | Antes: {estado_anterior}")
 
         nuevo_estado = obtener_estado_cuenta(id_cuenta)
 
@@ -92,38 +93,57 @@ def sincronizar_datos_ads():
             print(f"⚠️ No se pudo obtener el estado para la cuenta {id_cuenta}.")
             continue
 
-        print(f"➡️ Cuenta: {nombre_cliente} | Estado nuevo: {nuevo_estado}")
+        print(f"➡️ Cuenta: {nombre_cliente} | Ahora: {nuevo_estado}")
 
         ahora = datetime.utcnow()
 
         if nuevo_estado != estado_anterior:
-            # Hubo cambio de estado → actualizamos y notificamos
-            print(f"📲 Enviando WhatsApp por cambio de estado en {nombre_cliente} a {nuevo_estado}")
-            enviar_alerta_estado(nombre_cliente, int(nuevo_estado))
+            # 🚨 Cambió de estado → Avisamos SIEMPRE
+            if int(nuevo_estado) == 1 and int(estado_anterior) == 3:
+                # 🔔 Se recuperó (de rojo a verde)
+                print(f"✅ La cuenta '{nombre_cliente}' volvió a estar activa (de rojo a verde).")
+                enviar_alerta_estado(
+                    nombre_cliente,
+                    int(nuevo_estado)
+                )
+            else:
+                # Cualquier otro cambio
+                print(f"📲 Cambio detectado en {nombre_cliente}: ahora está en estado {nuevo_estado}")
+                enviar_alerta_estado(
+                    nombre_cliente,
+                    int(nuevo_estado)
+                )
+            # ✅ Guardamos el nuevo estado y hora
             supabase.table("meta_ads_cuentas").update({
                 "estado_actual": nuevo_estado,
                 "ultima_notificacion": ahora.isoformat()
             }).eq("id_cuenta_publicitaria", id_cuenta).execute()
 
         elif int(nuevo_estado) == 3:
-            # Estado rojo persistente: revisa si pasaron más de 24h desde la última notificación
+            # 🔁 Sigue en estado rojo → recordatorio cada 24h
             if ultima_notificacion:
                 ultima_dt = datetime.strptime(ultima_notificacion, "%Y-%m-%dT%H:%M:%S")
                 if ahora - ultima_dt >= timedelta(hours=24):
-                    print(f"📲 Reenvío (24h) por estado rojo persistente para {nombre_cliente}")
-                    enviar_alerta_estado(nombre_cliente, int(nuevo_estado))
+                    print(f"📲 Reenvío (24h) estado rojo persistente para {nombre_cliente}")
+                    enviar_alerta_estado(
+                        nombre_cliente,
+                        int(nuevo_estado)
+                    )
                     supabase.table("meta_ads_cuentas").update({
                         "ultima_notificacion": ahora.isoformat()
                     }).eq("id_cuenta_publicitaria", id_cuenta).execute()
             else:
-                # Por si no hay registro previo (primer rojo)
-                print(f"📲 Primera notificación de estado rojo para {nombre_cliente}")
-                enviar_alerta_estado(nombre_cliente, int(nuevo_estado))
+                # No hay registro previo (primera vez en rojo)
+                print(f"📲 Primer aviso rojo para {nombre_cliente}")
+                enviar_alerta_estado(
+                    nombre_cliente,
+                    int(nuevo_estado)
+                )
                 supabase.table("meta_ads_cuentas").update({
                     "ultima_notificacion": ahora.isoformat()
                 }).eq("id_cuenta_publicitaria", id_cuenta).execute()
 
-    print("✅ [Meta Sync] Sincronización finalizada.")
+    print("✅ [Meta Sync] Sincronización completada.")
 
 if __name__ == "__main__":
     sincronizar_datos_ads()
