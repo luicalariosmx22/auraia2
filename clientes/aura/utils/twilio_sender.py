@@ -43,7 +43,7 @@ def registrar_envio(numero, mensaje, sid, estado):
         print(f"❌ Error al registrar el envío en Supabase: {str(e)}")
         registrar_error("Supabase", f"Error al registrar envío en Supabase: {e}")
 
-def enviar_mensaje_whatsapp(destino, mensaje):
+def enviar_mensaje(destino, mensaje):  # 🔥 Cambiado de enviar_mensaje_whatsapp ➔ enviar_mensaje
     """
     Envía un mensaje de WhatsApp utilizando Twilio.
     """
