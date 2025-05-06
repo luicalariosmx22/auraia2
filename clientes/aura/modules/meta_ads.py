@@ -1,10 +1,15 @@
 # Archivo: clientes/aura/modules/meta_ads.py
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, render_template, jsonify
 import requests
 import os
 
-meta_ads_bp = Blueprint('meta_ads_bp', __name__)
+meta_ads_bp = Blueprint('panel_cliente_meta_ads', __name__, template_folder='templates')
+
+@meta_ads_bp.route('/')
+def index_meta_ads():
+    print("📥 [Meta Ads Module] Página principal accedida.")
+    return render_template('panel_cliente_meta_ads.html')
 
 @meta_ads_bp.route('/meta_ads/test', methods=['GET'])
 def test_meta_ads():

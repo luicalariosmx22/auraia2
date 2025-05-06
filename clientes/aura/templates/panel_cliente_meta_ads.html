@@ -1,71 +1,100 @@
 <!-- Archivo: clientes/aura/templates/panel_cliente_meta_ads.html -->
 
-{% extends 'base_cliente.html' %}
-{% block content %}
-<div class="container mt-4">
-    <h2>📊 Panel Meta Ads - {{ cuenta.nombre_cliente if cuenta else 'No registrado' }}</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta Ads – Nora AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
+</head>
+<body>
+<main class="main-container">
 
-    <div class="card my-3 p-3">
-        {% if cuenta %}
-            <p><strong>ID Cuenta Publicitaria:</strong> {{ cuenta.id_cuenta_publicitaria }}</p>
-            <p><strong>Estado de Conexión:</strong>
-                {% if cuenta.conectada %}
-                    <span class="text-success">🟢 Conectada</span>
-                {% else %}
-                    <span class="text-danger">🔴 No conectada</span>
-                {% endif %}
-            </p>
-        {% else %}
-            <p class="text-warning">⚠️ No hay una cuenta publicitaria configurada aún.</p>
-        {% endif %}
+  <!-- Encabezado -->
+  <header class="header">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora" height="40">
     </div>
+    <div class="logout">
+      <a href="{{ url_for('logout') }}" class="btn-secondary">Cerrar sesión</a>
+    </div>
+  </header>
 
-    <h4>📢 Campañas Activas</h4>
+  <h1>📊 Meta Ads para {{ nombre_nora }}</h1>
+
+  <!-- Info de la Cuenta Publicitaria -->
+  <section class="module">
+    <h2>Cuenta Publicitaria</h2>
+    {% if cuenta %}
+      <p><strong>Cliente:</strong> {{ cuenta.nombre_cliente }}</p>
+      <p><strong>ID Cuenta Publicitaria:</strong> {{ cuenta.id_cuenta_publicitaria }}</p>
+      <p><strong>Estado:</strong>
+        {% if cuenta.conectada %}
+          <span style="color:green;">🟢 Conectada</span>
+        {% else %}
+          <span style="color:red;">🔴 No conectada</span>
+        {% endif %}
+      </p>
+    {% else %}
+      <p class="text-warning">⚠️ No hay una cuenta publicitaria configurada aún.</p>
+    {% endif %}
+  </section>
+
+  <!-- Campañas Activas -->
+  <section class="module">
+    <h2>📢 Campañas Activas</h2>
     {% if campañas %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Estado</th>
-                    <th>Presupuesto</th>
-                    <th>Impresiones</th>
-                    <th>Clics</th>
-                    <th>Alcance</th>
-                    <th>Gasto</th>
-                    <th>Objetivo</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for c in campañas %}
-                    <tr>
-                        <td>{{ c.name }}</td>
-                        <td>{{ c.status }}</td>
-                        <td>${{ c.daily_budget }}</td>
-                        <td>{{ c.insights.impressions if c.insights else '-' }}</td>
-                        <td>{{ c.insights.clicks if c.insights else '-' }}</td>
-                        <td>{{ c.insights.reach if c.insights else '-' }}</td>
-                        <td>${{ c.insights.spend if c.insights else '-' }}</td>
-                        <td>{{ c.insights.objective if c.insights else '-' }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      <table class="tabla-contactos">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Presupuesto</th>
+            <th>Impresiones</th>
+            <th>Clics</th>
+            <th>Alcance</th>
+            <th>Gasto</th>
+            <th>Objetivo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in campañas %}
+          <tr>
+            <td>{{ c.name }}</td>
+            <td>{{ c.status }}</td>
+            <td>${{ c.daily_budget or '-' }}</td>
+            <td>{{ c.insights.impressions if c.insights else '-' }}</td>
+            <td>{{ c.insights.clicks if c.insights else '-' }}</td>
+            <td>{{ c.insights.reach if c.insights else '-' }}</td>
+            <td>${{ c.insights.spend if c.insights else '-' }}</td>
+            <td>{{ c.insights.objective if c.insights else '-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     {% else %}
-        <p class="text-muted">No se encontraron campañas activas o aún no conectado.</p>
+      <p class="text-muted">No se encontraron campañas activas o aún no conectado.</p>
     {% endif %}
+  </section>
 
-    <h4>📄 Histórico de Reportes</h4>
+  <!-- Histórico de Reportes -->
+  <section class="module">
+    <h2>📄 Histórico de Reportes</h2>
     {% if reportes %}
-        <ul class="list-group">
-            {% for r in reportes %}
-                <li class="list-group-item">
-                    <strong>{{ r.fecha_envio }}:</strong><br>
-                    <pre style="white-space: pre-wrap;">{{ r.mensaje }}</pre>
-                </li>
-            {% endfor %}
-        </ul>
+      <ul class="list-group">
+        {% for r in reportes %}
+          <li class="list-group-item">
+            <strong>{{ r.fecha_envio }}:</strong><br>
+            <pre style="white-space: pre-wrap;">{{ r.mensaje }}</pre>
+          </li>
+        {% endfor %}
+      </ul>
     {% else %}
-        <p class="text-muted">No hay reportes enviados todavía.</p>
+      <p class="text-muted">No hay reportes enviados todavía.</p>
     {% endif %}
-</div>
-{% endblock %}
+  </section>
+
+</main>
+</body>
+</html>
