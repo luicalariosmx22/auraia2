@@ -2,9 +2,9 @@
 
 import os
 import requests
-from twilio.rest import Client
 from supabase import create_client
 from datetime import datetime, timedelta
+from clientes.aura.utils import twilio_sender  # ✅ Importamos desde twilio_sender
 
 # 🚀 Variables desde Railway
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
@@ -19,7 +19,6 @@ GRAPH_URL = os.getenv('GRAPH_URL')
 META_ACCESS_TOKEN = os.getenv('META_ACCESS_TOKEN')
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 # Mapeamos los estados a su significado
 ESTADOS_MAPA = {
@@ -44,17 +43,20 @@ def normalizar_numero(numero):
         return f"+{numero}"
 
 def enviar_alerta_estado(nombre_cliente, nuevo_estado):
-    estado_desc = ESTADOS_MAPA.get(nuevo_estado, f'❓ Desconocido ({nuevo_estado})')
+    """
+    Enviar alerta de cambio de estado usando twilio_sender.
+    """
+    estado_desc = ESTADOS_MAPA.get(int(nuevo_estado), f'❓ Desconocido ({nuevo_estado})')
     mensaje = (
         f"🔔 *Cambio detectado en cuenta publicitaria*\n\n"
         f"*Nombre:* {nombre_cliente}\n"
         f"*Nuevo estado:* {estado_desc}"
     )
-    twilio_client.messages.create(
-        body=mensaje,
-        from_=f'whatsapp:{TWILIO_FROM}',
-        to=f'whatsapp:{normalizar_numero(DESTINO)}'
-    )
+    try:
+        twilio_sender.enviar_mensaje(DESTINO, mensaje)
+        print(f"✅ WhatsApp enviado a {DESTINO} para '{nombre_cliente}'.")
+    except Exception as e:
+        print(f"❌ Error enviando WhatsApp para '{nombre_cliente}': {e}")
 
 def obtener_estado_cuenta(cuenta_id):
     print(f"[Meta] Consultando cuenta publicitaria {cuenta_id}")
@@ -72,9 +74,27 @@ def obtener_estado_cuenta(cuenta_id):
             print(f"⚠️ Respuesta completa: {e.response.text}")
         return None
 
+def supabase_update_estado(nombre_cliente, nuevo_estado, fecha_notificacion):
+    """
+    ✅ Actualiza en Supabase el estado y la última notificación de una cuenta publicitaria.
+    """
+    try:
+        print(f"🔄 [Supabase] Actualizando estado para '{nombre_cliente}' a {nuevo_estado} en {fecha_notificacion}")
+        data = {
+            "estado_actual": nuevo_estado,
+            "ultima_notificacion": fecha_notificacion.strftime("%Y-%m-%dT%H:%M:%S")
+        }
+        response = supabase.table("meta_ads_cuentas").update(data).eq("nombre_cliente", nombre_cliente).execute()
+        print(f"✅ [Supabase] Estado actualizado correctamente para '{nombre_cliente}'.")
+    except Exception as e:
+        print(f"❌ [Supabase] Error al actualizar estado para '{nombre_cliente}': {e}")
+
 print("🚀 [Meta Sync] La sincronización comenzó correctamente...")
 
 def sincronizar_datos_ads():
+    """
+    Sincroniza los datos de las cuentas publicitarias y envía notificaciones si hay cambios.
+    """
     cuentas = supabase.table("meta_ads_cuentas").select("*").execute().data
     print("🚀 [Meta Sync] Iniciando la sincronización de cuentas publicitarias...")
     print(f"🔍 Revisando {len(cuentas)} cuentas publicitarias encontradas...")
@@ -98,50 +118,25 @@ def sincronizar_datos_ads():
         ahora = datetime.utcnow()
 
         if nuevo_estado != estado_anterior:
-            # 🚨 Cambió de estado → Avisamos SIEMPRE
             if int(nuevo_estado) == 1 and int(estado_anterior) == 3:
-                # 🔔 Se recuperó (de rojo a verde)
                 print(f"✅ La cuenta '{nombre_cliente}' volvió a estar activa (de rojo a verde).")
-                enviar_alerta_estado(
-                    nombre_cliente,
-                    int(nuevo_estado)
-                )
+                enviar_alerta_estado(nombre_cliente, int(nuevo_estado))
             else:
-                # Cualquier otro cambio
                 print(f"📲 Cambio detectado en {nombre_cliente}: ahora está en estado {nuevo_estado}")
-                enviar_alerta_estado(
-                    nombre_cliente,
-                    int(nuevo_estado)
-                )
-            # ✅ Guardamos el nuevo estado y hora
-            supabase.table("meta_ads_cuentas").update({
-                "estado_actual": nuevo_estado,
-                "ultima_notificacion": ahora.isoformat()
-            }).eq("id_cuenta_publicitaria", id_cuenta).execute()
+                enviar_alerta_estado(nombre_cliente, int(nuevo_estado))
+            supabase_update_estado(nombre_cliente, nuevo_estado, ahora)
 
         elif int(nuevo_estado) == 3:
-            # 🔁 Sigue en estado rojo → recordatorio cada 24h
             if ultima_notificacion:
                 ultima_dt = datetime.strptime(ultima_notificacion, "%Y-%m-%dT%H:%M:%S")
                 if ahora - ultima_dt >= timedelta(hours=24):
                     print(f"📲 Reenvío (24h) estado rojo persistente para {nombre_cliente}")
-                    enviar_alerta_estado(
-                        nombre_cliente,
-                        int(nuevo_estado)
-                    )
-                    supabase.table("meta_ads_cuentas").update({
-                        "ultima_notificacion": ahora.isoformat()
-                    }).eq("id_cuenta_publicitaria", id_cuenta).execute()
+                    enviar_alerta_estado(nombre_cliente, int(nuevo_estado))
+                    supabase_update_estado(nombre_cliente, nuevo_estado, ahora)
             else:
-                # No hay registro previo (primera vez en rojo)
                 print(f"📲 Primer aviso rojo para {nombre_cliente}")
-                enviar_alerta_estado(
-                    nombre_cliente,
-                    int(nuevo_estado)
-                )
-                supabase.table("meta_ads_cuentas").update({
-                    "ultima_notificacion": ahora.isoformat()
-                }).eq("id_cuenta_publicitaria", id_cuenta).execute()
+                enviar_alerta_estado(nombre_cliente, int(nuevo_estado))
+                supabase_update_estado(nombre_cliente, nuevo_estado, ahora)
 
     print("✅ [Meta Sync] Sincronización completada.")
 
