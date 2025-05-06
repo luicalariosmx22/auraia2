@@ -140,8 +140,8 @@ try:
     nombre_noras = [n["nombre_nora"] for n in response.data] if response.data else []
 
     for nombre in nombre_noras:
-        registrar_blueprints_por_nora(app, nombre, safe_register_blueprint)
-    registrar_blueprints_por_nora(app, nombre_nora="aura", safe_register_blueprint)  # Cambia "aura" por cada Nora real si necesario
+        registrar_blueprints_por_nora(app, nombre_nora=nombre, safe_register_blueprint=safe_register_blueprint)
+    registrar_blueprints_por_nora(app, nombre_nora="aura", safe_register_blueprint=safe_register_blueprint)  # Cambia "aura" por cada Nora real si necesario
 except Exception as e:
     app.logger.error(f"Error al registrar Noras dinámicas: {e}")
 
