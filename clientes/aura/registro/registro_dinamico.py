@@ -22,47 +22,92 @@ def registrar_blueprints_por_nora(app, nombre_nora):
         # Panel principal
         if "panel_cliente" in modulos:
             from clientes.aura.routes.panel_cliente import panel_cliente_bp
-            safe_register_blueprint(app, panel_cliente_bp, url_prefix=f"/panel_cliente/{nombre_nora}")
+            dynamic_bp_name = f"{nombre_nora}_panel_cliente"
+            if dynamic_bp_name not in app.blueprints:
+                safe_register_blueprint(app, panel_cliente_bp, url_prefix=f"/panel_cliente/{nombre_nora}")
+                print(f"✅ Blueprint dinámico '{dynamic_bp_name}' registrado.")
+            else:
+                print(f"⚠️ Blueprint dinámico '{dynamic_bp_name}' ya estaba registrado.")
 
         # Contactos
         if "panel_cliente_contactos" in modulos:
             from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
-            safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
+            dynamic_bp_name = f"{nombre_nora}_panel_cliente_contactos"
+            if dynamic_bp_name not in app.blueprints:
+                safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
+                print(f"✅ Blueprint dinámico '{dynamic_bp_name}' registrado.")
+            else:
+                print(f"⚠️ Blueprint dinámico '{dynamic_bp_name}' ya estaba registrado.")
 
         # Envíos
         if "panel_cliente_envios" in modulos:
             from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
-            safe_register_blueprint(app, panel_cliente_envios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/envios")
+            dynamic_bp_name = f"{nombre_nora}_panel_cliente_envios"
+            if dynamic_bp_name not in app.blueprints:
+                safe_register_blueprint(app, panel_cliente_envios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/envios")
+                print(f"✅ Blueprint dinámico '{dynamic_bp_name}' registrado.")
+            else:
+                print(f"⚠️ Blueprint dinámico '{dynamic_bp_name}' ya estaba registrado.")
 
         # IA
         if "panel_cliente_ia" in modulos:
             from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
-            safe_register_blueprint(app, panel_cliente_ia_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ia")
+            dynamic_bp_name = f"{nombre_nora}_panel_cliente_ia"
+            if dynamic_bp_name not in app.blueprints:
+                safe_register_blueprint(app, panel_cliente_ia_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ia")
+                print(f"✅ Blueprint dinámico '{dynamic_bp_name}' registrado.")
+            else:
+                print(f"⚠️ Blueprint dinámico '{dynamic_bp_name}' ya estaba registrado.")
 
         # Respuestas
         if "panel_cliente_respuestas" in modulos:
             from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
-            safe_register_blueprint(app, panel_cliente_respuestas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/respuestas")
+            dynamic_bp_name = f"{nombre_nora}_panel_cliente_respuestas"
+            if dynamic_bp_name not in app.blueprints:
+                safe_register_blueprint(app, panel_cliente_respuestas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/respuestas")
+                print(f"✅ Blueprint dinámico '{dynamic_bp_name}' registrado.")
+            else:
+                print(f"⚠️ Blueprint dinámico '{dynamic_bp_name}' ya estaba registrado.")
 
         # Etiquetas
         if "panel_cliente_etiquetas" in modulos:
             from clientes.aura.routes.etiquetas import etiquetas_bp
-            safe_register_blueprint(app, etiquetas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas")
+            dynamic_bp_name = f"{nombre_nora}_panel_cliente_etiquetas"
+            if dynamic_bp_name not in app.blueprints:
+                safe_register_blueprint(app, etiquetas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas")
+                print(f"✅ Blueprint dinámico '{dynamic_bp_name}' registrado.")
+            else:
+                print(f"⚠️ Blueprint dinámico '{dynamic_bp_name}' ya estaba registrado.")
 
         # Panel Chat
         if "panel_chat" in modulos:
             from clientes.aura.routes.panel_chat import panel_chat_bp
-            safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_chat/{nombre_nora}")
+            dynamic_bp_name = f"{nombre_nora}_panel_chat"
+            if dynamic_bp_name not in app.blueprints:
+                safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_chat/{nombre_nora}")
+                print(f"✅ Blueprint dinámico '{dynamic_bp_name}' registrado.")
+            else:
+                print(f"⚠️ Blueprint dinámico '{dynamic_bp_name}' ya estaba registrado.")
 
         # Panel de conocimiento
         if "panel_conocimiento" in modulos:
             from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
-            safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
+            dynamic_bp_name = f"{nombre_nora}_panel_cliente_conocimiento"
+            if dynamic_bp_name not in app.blueprints:
+                safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
+                print(f"✅ Blueprint dinámico '{dynamic_bp_name}' registrado.")
+            else:
+                print(f"⚠️ Blueprint dinámico '{dynamic_bp_name}' ya estaba registrado.")
 
         # Ads
         if "ads" in modulos:
             from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
-            safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
+            dynamic_bp_name = f"{nombre_nora}_panel_cliente_ads"
+            if dynamic_bp_name not in app.blueprints:
+                safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
+                print(f"✅ Blueprint dinámico '{dynamic_bp_name}' registrado.")
+            else:
+                print(f"⚠️ Blueprint dinámico '{dynamic_bp_name}' ya estaba registrado.")
 
         print(f"✅ Todos los blueprints dinámicos para {nombre_nora} registrados correctamente.")
 

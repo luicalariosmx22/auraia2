@@ -88,11 +88,15 @@ from clientes.aura.routes.cliente_nora import cliente_nora_bp
 from clientes.aura.routes.cobranza import cobranza_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.admin_actualizar_contactos import admin_actualizar_contactos_bp  # 👈 Added import
+from clientes.aura.registro.registro_comercial import registrar_blueprints_comercial
+from clientes.aura.registro.registro_invitado import registrar_blueprints_invitado
 
 registrar_blueprints_admin(app)
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
 registrar_blueprints_debug(app)
+registrar_blueprints_comercial(app)  # ✅ Nuevo registro
+registrar_blueprints_invitado(app)  # ✅ Nuevo registro
 
 blueprints_estaticos = [
     (admin_verificador_bp, None),
@@ -126,6 +130,7 @@ try:
 
     for nombre in nombre_noras:
         registrar_blueprints_por_nora(app, nombre)
+    registrar_blueprints_por_nora(app, nombre_nora="aura")  # Cambia "aura" por cada Nora real si necesario
 except Exception as e:
     app.logger.error(f"Error al registrar Noras dinámicas: {e}")
 
