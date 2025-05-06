@@ -1,10 +1,12 @@
+from clientes.aura.utils.blueprint_utils import safe_register_blueprint
+
 def registrar_blueprints_base(app):
     try:
         from clientes.aura.routes.admin_dashboard import admin_dashboard_bp
         from clientes.aura.routes.webhook import webhook_bp
 
-        app.register_blueprint(admin_dashboard_bp)
-        app.register_blueprint(webhook_bp)
+        safe_register_blueprint(app, admin_dashboard_bp)
+        safe_register_blueprint(app, webhook_bp)
 
         print("✅ Base blueprints registrados")
     except Exception as e:

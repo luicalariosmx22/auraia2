@@ -2,10 +2,9 @@
 
 import os
 import requests
-from supabase import create_client
 from datetime import datetime, timedelta
-from twilio_sender import enviar_mensaje_whatsapp  # ✅ Usamos tu módulo existente
-from clientes.aura.utils.supabase_client import supabase  # ✅ Actualizamos el nombre del módulo
+from .supabase_client import supabase  # 👈 Import relativo corregido
+from .twilio_sender import enviar_mensaje_whatsapp  # 👈 Import relativo corregido
 
 # 🚀 Variables desde Railway
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')

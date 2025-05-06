@@ -113,7 +113,10 @@ blueprints_estaticos = [
 print("🔄 Registrando blueprints estáticos...")
 for blueprint, prefix in blueprints_estaticos:
     print(f"➡️ Intentando registrar blueprint: {blueprint.name} con prefijo: {prefix}")
-    safe_register_blueprint(app, blueprint, url_prefix=prefix)
+    if blueprint.name in app.blueprints:
+        print(f"⚠️ Blueprint '{blueprint.name}' ya estaba registrado, lo saltamos.")
+    else:
+        safe_register_blueprint(app, blueprint, url_prefix=prefix)
 
 app.register_blueprint(cobranza_bp, url_prefix="/api")
 
