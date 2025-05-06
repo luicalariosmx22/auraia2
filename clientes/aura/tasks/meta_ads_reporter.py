@@ -8,7 +8,7 @@ Consulta semanalmente los datos y envía reporte automático por WhatsApp.
 import requests
 from flask import current_app
 from datetime import datetime, timedelta
-from clientes.aura.utils.supabase_client import supabase
+from clientes.aura.utils.supabase import supabase
 from clientes.aura.utils.whatsapp_utils import enviar_mensaje_whatsapp  # ⚠️ Usa la función que tengas para enviar WhatsApp
 
 ACCESS_TOKEN_GLOBAL = 'TU_ACCESS_TOKEN_GLOBAL'  # ⚠️ Cargar desde la DB más adelante
@@ -51,8 +51,7 @@ def consultar_metricas(cuenta_id_meta):
         return []
 
 def enviar_reporte_semanal():
-    supabase_client = supabase
-    cuentas = supabase_client.table('meta_ads_cuentas').select('*').eq('conectada', True).execute()
+    cuentas = supabase.table('meta_ads_cuentas').select('*').eq('conectada', True).execute()
 
     if not cuentas.data:
         current_app.logger.info("[Meta Ads Reporter] No hay cuentas conectadas.")
@@ -101,13 +100,13 @@ def enviar_reporte_semanal():
 
         mensaje = generar_reporte_mensaje(cuenta, resumen, mejor_anuncio if mejor_anuncio else "No disponible")
 
-        receptores = supabase_client.table('meta_ads_receptores').select('*').eq('cuenta_id', cuenta['id']).eq('activo', True).execute()
+        receptores = supabase.table('meta_ads_receptores').select('*').eq('cuenta_id', cuenta['id']).eq('activo', True).execute()
         numeros = [r['numero_telefono'] for r in receptores.data] if receptores.data else []
 
         for numero in numeros:
             enviar_mensaje_whatsapp(numero, mensaje)
 
-        supabase_client.table('meta_ads_reportes').insert({
+        supabase.table('meta_ads_reportes').insert({
             'cuenta_id': cuenta['id'],
             'mensaje': mensaje,
             'numeros_destino': numeros,
