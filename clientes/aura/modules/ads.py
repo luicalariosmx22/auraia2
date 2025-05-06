@@ -6,8 +6,8 @@ import requests
 ads_bp = Blueprint('ads_bp', __name__, template_folder='templates')
 
 # ✅ Ruta dinámica para cada Nora AI
-@ads_bp.route('/panel_cliente/<nombre_nora>/ads/')
-def index_ads(nombre_nora):
+@ads_bp.route('/panel_cliente/<nombre_nora>/ads')
+def panel_cliente_ads(nombre_nora):
     print(f"📥 [Ads Module] Página principal accedida para Nora: {nombre_nora}")
 
     # Obtener la Nora actual desde la ruta dinámica

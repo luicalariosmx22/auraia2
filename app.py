@@ -16,7 +16,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from clientes.aura.tasks.meta_ads_reporter import enviar_reporte_semanal
 
 print("📥 Importando módulo Ads...")
-from clientes.aura.modules.meta_ads import ads_bp  # ✅ Importa el módulo Ads
+from clientes.aura.modules.ads import ads_bp  # ✅ Updated import
 print("✅ Módulo Ads importado correctamente.")
 
 class WerkzeugFilter(logging.Filter):
