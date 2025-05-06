@@ -33,9 +33,16 @@ def panel_cliente_ads(nombre_nora):
                 'access_token': cuenta.get('access_token')  # ✅ Token de acceso desde Supabase
             }
             response = requests.get(url, params=params)
-            response.raise_for_status()
-            campañas = response.json().get('data', [])
-            print(f"📢 Campañas activas obtenidas: {len(campañas)}")
+            print(f"🟢 [Meta API] URL consultada: {response.url}")
+            try:
+                response.raise_for_status()
+                data_json = response.json()
+                print(f"🟢 [Meta API] Respuesta completa: {data_json}")
+                campañas = data_json.get('data', [])
+            except Exception as e:
+                print(f"❌ [Meta API] Error: {str(e)}")
+                print(f"🔴 Respuesta de error: {response.text}")
+                campañas = []
 
         # ✅ Obtener reportes históricos desde Supabase
         reportes_response = supabase.table('meta_ads_reportes').select('*').eq('nombre_nora', nombre_nora).order('fecha_envio', desc=True).limit(10).execute()
