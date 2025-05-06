@@ -14,6 +14,7 @@ from clientes.aura.extensions.socketio_instance import socketio
 from werkzeug.serving import WSGIRequestHandler
 from apscheduler.schedulers.background import BackgroundScheduler
 from clientes.aura.tasks.meta_ads_reporter import enviar_reporte_semanal
+from clientes.aura.modules.meta_ads import meta_ads_bp  # ✅ Import del módulo Meta Ads
 
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
@@ -98,6 +99,7 @@ blueprints_estaticos = [
     (cliente_nora_bp, "/panel_cliente"),
     (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento"),
     (admin_actualizar_contactos_bp, "/admin/actualizar_contactos"),  # 👈 Register blueprint
+    (meta_ads_bp, "/panel_cliente/meta_ads"),  # ✅ NUEVO blueprint para Meta Ads
 ]
 
 for blueprint, prefix in blueprints_estaticos:
