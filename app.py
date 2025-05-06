@@ -65,15 +65,7 @@ scheduler.add_job(enviar_reporte_semanal, 'cron', day_of_week='mon', hour=9, min
 scheduler.start()
 
 # 👇 Para registrar los blueprints sin duplicarlos:
-def safe_register_blueprint(app, blueprint, url_prefix=None):
-    """
-    Registra un blueprint solo si no está ya registrado.
-    """
-    if blueprint.name not in app.blueprints:
-        app.register_blueprint(blueprint, url_prefix=url_prefix)
-        print(f"✅ Blueprint '{blueprint.name}' registrado correctamente.")
-    else:
-        print(f"⚠️ Blueprint '{blueprint.name}' ya estaba registrado. Saltando.")
+from clientes.aura.utils.blueprint_utils import safe_register_blueprint  # ✅ ahora VIENE de blueprint_utils
 
 # ========= REGISTRO DE BLUEPRINTS =========
 from clientes.aura.registro.registro_login import registrar_blueprints_login
@@ -97,9 +89,9 @@ from clientes.aura.routes.cobranza import cobranza_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.admin_actualizar_contactos import admin_actualizar_contactos_bp  # 👈 Added import
 
+registrar_blueprints_admin(app)
 registrar_blueprints_login(app)
 registrar_blueprints_base(app)
-registrar_blueprints_admin(app)
 registrar_blueprints_debug(app)
 
 blueprints_estaticos = [
