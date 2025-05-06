@@ -2,6 +2,9 @@ from flask import current_app
 from clientes.aura.handlers.insertar_rutas import insertar_ruta
 from datetime import datetime
 
+# 👇 Importamos la función safe_register_blueprint
+from app import safe_register_blueprint
+
 def registrar_rutas_en_supabase():
     """
     Registra las rutas activas de la aplicación en Supabase.
@@ -18,3 +21,20 @@ def registrar_rutas_en_supabase():
         print(f"✅ Rutas registradas en Supabase: {response}")
     except Exception as e:
         print(f"❌ Error al registrar rutas en Supabase: {str(e)}")
+
+def registrar_rutas_base(app):
+    """
+    Registra los blueprints base usando safe_register_blueprint.
+    """
+    try:
+        from clientes.aura.routes.panel_chat import panel_chat_bp
+        from clientes.aura.routes.webhook import webhook_bp
+        # ... otros imports base
+
+        safe_register_blueprint(app, panel_chat_bp)
+        safe_register_blueprint(app, webhook_bp)
+        # ... registrar los demás igual
+
+        print("✅ Rutas base registradas correctamente.")
+    except Exception as e:
+        print(f"❌ Error al registrar rutas base: {e}")

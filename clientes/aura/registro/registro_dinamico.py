@@ -1,6 +1,7 @@
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+from app import safe_register_blueprint  # Import the safe_register_blueprint utility
 
 # Configurar Supabase
 load_dotenv()
@@ -20,66 +21,50 @@ def registrar_blueprints_por_nora(app, nombre_nora):
 
         # Panel principal
         if "panel_cliente" in modulos:
-            if "panel_cliente" not in app.blueprints:
-                from clientes.aura.routes.panel_cliente import panel_cliente_bp
-                app.register_blueprint(panel_cliente_bp, url_prefix="/panel_cliente")
-                print("✅ Blueprint 'panel_cliente' registrado en /panel_cliente")
-        
-        # Contactos (ruta: /panel_cliente/contactos/<nombre_nora>)
+            from clientes.aura.routes.panel_cliente import panel_cliente_bp
+            safe_register_blueprint(app, panel_cliente_bp, url_prefix=f"/panel_cliente/{nombre_nora}")
+
+        # Contactos
         if "panel_cliente_contactos" in modulos:
-            if "panel_cliente_contactos" not in app.blueprints:
-                from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
-                app.register_blueprint(panel_cliente_contactos_bp, url_prefix="/panel_cliente/contactos")
-                print("✅ Blueprint 'panel_cliente_contactos' registrado en /panel_cliente/contactos")
+            from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
+            safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
 
-        # Envíos (ruta: /panel_cliente/envios/<nombre_nora>)
+        # Envíos
         if "panel_cliente_envios" in modulos:
-            if "panel_cliente_envios" not in app.blueprints:
-                from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
-                app.register_blueprint(panel_cliente_envios_bp, url_prefix="/panel_cliente/envios")
-                print("✅ Blueprint 'panel_cliente_envios' registrado en /panel_cliente/envios")
+            from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
+            safe_register_blueprint(app, panel_cliente_envios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/envios")
 
-        # IA (ruta: /panel_cliente/ia/<nombre_nora>)
+        # IA
         if "panel_cliente_ia" in modulos:
-            if "panel_cliente_ia" not in app.blueprints:
-                from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
-                app.register_blueprint(panel_cliente_ia_bp, url_prefix="/panel_cliente/ia")
-                print("✅ Blueprint 'panel_cliente_ia' registrado en /panel_cliente/ia")
+            from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
+            safe_register_blueprint(app, panel_cliente_ia_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ia")
 
-        # Respuestas (ruta: /panel_cliente/respuestas/<nombre_nora>)
+        # Respuestas
         if "panel_cliente_respuestas" in modulos:
-            if "panel_cliente_respuestas" not in app.blueprints:
-                from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
-                app.register_blueprint(panel_cliente_respuestas_bp, url_prefix="/panel_cliente/respuestas")
-                print("✅ Blueprint 'panel_cliente_respuestas' registrado en /panel_cliente/respuestas")
+            from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
+            safe_register_blueprint(app, panel_cliente_respuestas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/respuestas")
 
-        # Etiquetas (ruta: /panel_cliente/etiquetas/<nombre_nora>)
+        # Etiquetas
         if "panel_cliente_etiquetas" in modulos:
-            if "panel_cliente_etiquetas" not in app.blueprints:
-                from clientes.aura.routes.etiquetas import etiquetas_bp
-                app.register_blueprint(etiquetas_bp, url_prefix="/panel_cliente/etiquetas")
-                print("✅ Blueprint 'panel_cliente_etiquetas' registrado en /panel_cliente/etiquetas")
+            from clientes.aura.routes.etiquetas import etiquetas_bp
+            safe_register_blueprint(app, etiquetas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas")
 
-        # Panel Chat (ruta: /panel_chat/<nombre_nora>)
+        # Panel Chat
         if "panel_chat" in modulos:
-            if "panel_chat" not in app.blueprints:
-                from clientes.aura.routes.panel_chat import panel_chat_bp
-                app.register_blueprint(panel_chat_bp, url_prefix="/panel_chat")
-                print("✅ Blueprint 'panel_chat' registrado en /panel_chat")
+            from clientes.aura.routes.panel_chat import panel_chat_bp
+            safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_chat/{nombre_nora}")
 
-        # Panel de conocimiento (ruta: /panel_cliente/conocimiento/<nombre_nora>)
+        # Panel de conocimiento
         if "panel_conocimiento" in modulos:
-            if "panel_cliente_conocimiento" not in app.blueprints:
-                from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
-                app.register_blueprint(panel_cliente_conocimiento_bp, url_prefix="/panel_cliente/conocimiento")
-                print("✅ Blueprint 'panel_cliente_conocimiento' registrado en /panel_cliente/conocimiento")
+            from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
+            safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
 
-        # Ads (ruta: /panel_cliente/ads)
+        # Ads
         if "ads" in modulos:
-            if "panel_cliente_ads" not in app.blueprints:
-                from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
-                app.register_blueprint(panel_cliente_ads_bp, url_prefix="/panel_cliente/ads")
-                print("✅ Blueprint 'panel_cliente_ads' registrado en /panel_cliente/ads")
+            from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
+            safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
+
+        print(f"✅ Todos los blueprints dinámicos para {nombre_nora} registrados correctamente.")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos: {str(e)}")

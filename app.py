@@ -64,6 +64,17 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(enviar_reporte_semanal, 'cron', day_of_week='mon', hour=9, minute=0)  # 🔄 Cada lunes 9 AM
 scheduler.start()
 
+# 👇 Para registrar los blueprints sin duplicarlos:
+def safe_register_blueprint(app, blueprint, url_prefix=None):
+    """
+    Registra un blueprint solo si no está ya registrado.
+    """
+    if blueprint.name not in app.blueprints:
+        app.register_blueprint(blueprint, url_prefix=url_prefix)
+        print(f"✅ Blueprint '{blueprint.name}' registrado correctamente.")
+    else:
+        print(f"⚠️ Blueprint '{blueprint.name}' ya estaba registrado. Saltando.")
+
 # ========= REGISTRO DE BLUEPRINTS =========
 from clientes.aura.registro.registro_login import registrar_blueprints_login
 from clientes.aura.registro.registro_base import registrar_blueprints_base
@@ -109,12 +120,8 @@ blueprints_estaticos = [
 
 print("🔄 Registrando blueprints estáticos...")
 for blueprint, prefix in blueprints_estaticos:
-    print(f"➡️ Registrando blueprint: {blueprint.name} con prefijo: {prefix}")
-    if blueprint.name not in app.blueprints:
-        app.register_blueprint(blueprint, url_prefix=prefix)
-        print(f"✅ Blueprint registrado: {blueprint.name} con prefijo: {prefix}")
-    else:
-        print(f"⚠️ Blueprint ya estaba registrado: {blueprint.name}")
+    print(f"➡️ Intentando registrar blueprint: {blueprint.name} con prefijo: {prefix}")
+    safe_register_blueprint(app, blueprint, url_prefix=prefix)
 
 app.register_blueprint(cobranza_bp, url_prefix="/api")
 
