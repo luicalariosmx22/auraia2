@@ -1,7 +1,7 @@
 # Archivo: clientes/aura/modules/meta_ads.py
 
 from flask import Blueprint, render_template, session, redirect, url_for, current_app
-from clientes.aura.utils.supabase import supabase
+from clientes.aura.utils.supabase_client import supabase
 import requests
 from datetime import datetime
 

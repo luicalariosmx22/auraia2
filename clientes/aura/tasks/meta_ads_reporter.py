@@ -8,7 +8,7 @@ Consulta semanalmente los datos y envía reporte automático por WhatsApp.
 import requests
 from flask import current_app
 from datetime import datetime, timedelta
-from clientes.aura.utils.supabase import supabase
+from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.whatsapp_utils import enviar_mensaje_whatsapp  # ⚠️ Usa la función que tengas para enviar WhatsApp
 import os
 

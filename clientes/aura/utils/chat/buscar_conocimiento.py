@@ -1,5 +1,5 @@
 import logging
-from clientes.aura.utils.supabase import supabase
+from clientes.aura.utils.supabase_client import supabase
 
 logger = logging.getLogger(__name__)
 
