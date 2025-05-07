@@ -34,10 +34,13 @@
               {% for empresa in cliente.empresas %}
                 <li>
                   <strong>{{ empresa.nombre_empresa }}</strong>
-                  {% if empresa.giro %} – {{ empresa.giro }}{% endif %}
+                  <a href="{{ empresa.url_editar }}" class="text-blue-600 hover:underline ml-2">✏️ Editar</a>
                 </li>
               {% endfor %}
             </ul>
+          </div>
+          <div class="mt-2 text-sm">
+            <a href="{{ cliente.url_nueva_ads }}" class="text-blue-600 hover:underline">➕ Vincular cuenta Ads</a>
           </div>
         {% endif %}
 

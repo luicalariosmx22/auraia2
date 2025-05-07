@@ -25,6 +25,10 @@ def vista_clientes(nombre_nora):
             .execute()
         cliente["empresas"] = empresas_data.data if empresas_data.data else []
 
+        for empresa in cliente["empresas"]:
+            empresa["url_editar"] = url_for('panel_cliente_clientes_bp.editar_empresa', nombre_nora=nombre_nora, empresa_id=empresa["id"])
+        cliente["url_nueva_ads"] = url_for('panel_cliente_clientes_bp.nueva_cuenta_ads', nombre_nora=nombre_nora, cliente_id=cliente["id"])
+
         # Cuentas publicitarias asociadas
         ads_data = supabase.table("meta_ads_cuentas") \
             .select("*") \
@@ -93,3 +97,65 @@ def nuevo_cliente(nombre_nora):
             return redirect(url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora))
 
     return render_template('panel_cliente_clientes_nuevo.html', nombre_nora=nombre_nora, user=session.get("user"))
+
+# ----------- EMPRESAS: Formulario edit / share -----------------
+
+@panel_cliente_clientes_bp.route('/panel_cliente/<nombre_nora>/empresa/<empresa_id>/editar', methods=["GET", "POST"])
+def editar_empresa(nombre_nora, empresa_id):
+    if not session.get("user"):
+        return redirect(url_for('login_bp.login'))
+
+    if not modulo_activo_para_nora(nombre_nora, 'clientes'):
+        return "Módulo no activo", 403
+
+    # Cargar empresa
+    empresa_resp = supabase.table("cliente_empresas").select("*").eq("id", empresa_id).single().execute()
+    if empresa_resp.error or not empresa_resp.data:
+        return "Empresa no encontrada", 404
+    empresa = empresa_resp.data
+
+    if request.method == "POST":
+        campos = {
+            "nombre_empresa": request.form.get("nombre_empresa"),
+            "giro": request.form.get("giro"),
+            "telefono_empresa": request.form.get("telefono_empresa"),
+            "email_empresa": request.form.get("email_empresa"),
+            "sitio_web": request.form.get("sitio_web")
+        }
+        supabase.table("cliente_empresas").update(campos).eq("id", empresa_id).execute()
+        flash("Empresa actualizada", "success")
+        return redirect(url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora))
+
+    return render_template('panel_cliente_empresa_form.html', nombre_nora=nombre_nora, empresa=empresa, user=session.get("user"))
+
+# ----------- VINCULAR CUENTA ADS -----------------
+
+@panel_cliente_clientes_bp.route('/panel_cliente/<nombre_nora>/cliente/<cliente_id>/ads/nueva', methods=["GET", "POST"])
+def nueva_cuenta_ads(nombre_nora, cliente_id):
+    if not session.get("user"):
+        return redirect(url_for('login_bp.login'))
+
+    if not modulo_activo_para_nora(nombre_nora, 'clientes'):
+        return "Módulo no activo", 403
+
+    # Validar cliente
+    cli = supabase.table("clientes").select("id,nombre_cliente").eq("id", cliente_id).single().execute()
+    if cli.error or not cli.data:
+        return "Cliente no encontrado", 404
+    cliente = cli.data
+
+    if request.method == "POST":
+        cuenta_data = {
+            "id": str(uuid.uuid4()),
+            "cliente_id": cliente_id,
+            "nombre_nora": nombre_nora,
+            "tipo_plataforma": request.form.get("tipo_plataforma"),
+            "ad_account_id": request.form.get("ad_account_id"),
+            "nombre_cuenta": request.form.get("nombre_cuenta"),
+            "activo": True
+        }
+        supabase.table("meta_ads_cuentas").insert(cuenta_data).execute()
+        flash("Cuenta publicitaria vinculada", "success")
+        return redirect(url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora))
+
+    return render_template('panel_cliente_vincular_ads.html', nombre_nora=nombre_nora, cliente=cliente, user=session.get("user"))

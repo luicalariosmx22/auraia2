@@ -1,0 +1,25 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_empresa_form.html -->
+{% extends "base_cliente.html" %}
+{% block content %}
+<div class="max-w-xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
+  <h2 class="text-xl font-bold mb-4">Editar empresa</h2>
+  <form method="post">
+    <div class="mb-3"><label class="block text-sm">Nombre empresa</label>
+      <input type="text" name="nombre_empresa" value="{{ empresa.nombre_empresa }}" class="w-full border px-2 py-1 rounded">
+    </div>
+    <div class="mb-3"><label class="block text-sm">Giro</label>
+      <input type="text" name="giro" value="{{ empresa.giro }}" class="w-full border px-2 py-1 rounded">
+    </div>
+    <div class="mb-3"><label class="block text-sm">Teléfono</label>
+      <input type="text" name="telefono_empresa" value="{{ empresa.telefono_empresa }}" class="w-full border px-2 py-1 rounded">
+    </div>
+    <div class="mb-3"><label class="block text-sm">Email</label>
+      <input type="email" name="email_empresa" value="{{ empresa.email_empresa }}" class="w-full border px-2 py-1 rounded">
+    </div>
+    <div class="mb-3"><label class="block text-sm">Sitio web</label>
+      <input type="text" name="sitio_web" value="{{ empresa.sitio_web }}" class="w-full border px-2 py-1 rounded">
+    </div>
+    <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Guardar cambios</button>
+  </form>
+</div>
+{% endblock %}

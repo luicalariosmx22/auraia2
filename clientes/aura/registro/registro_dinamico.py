@@ -1,6 +1,7 @@
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+import json
 
 from clientes.aura.routes.panel_cliente import panel_cliente_bp
 from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
@@ -29,41 +30,49 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         # ✅ Este es el contenedor base del panel cliente, siempre se registra
         safe_register_blueprint(app, panel_cliente_bp, url_prefix=f"/panel_cliente/{nombre_nora}")
 
-        if modulo_activo_para_nora(nombre_nora, "contactos"):
-            safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
+        # Obtener los módulos activos de la tabla configuracion_bot
+        modulos_activados = supabase.table('configuracion_bot').select('modulos').eq('nombre_nora', nombre_nora).single().execute()
 
-        if modulo_activo_para_nora(nombre_nora, "envios"):
-            safe_register_blueprint(app, panel_cliente_envios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/envios")
+        # Verificar si se encontraron los datos
+        if modulos_activados.data:
+            # Convertir el string JSON a una lista de Python
+            modulos = json.loads(modulos_activados.data['modulos'])
 
-        if modulo_activo_para_nora(nombre_nora, "ia"):
-            safe_register_blueprint(app, panel_cliente_ia_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ia")
+            # Registrar blueprints según los módulos activos
+            if "contactos" in modulos:
+                safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
 
-        if modulo_activo_para_nora(nombre_nora, "respuestas"):
-            safe_register_blueprint(app, panel_cliente_respuestas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/respuestas")
+            if "etiquetas" in modulos:
+                safe_register_blueprint(app, etiquetas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas")
 
-        if modulo_activo_para_nora(nombre_nora, "etiquetas"):
-            safe_register_blueprint(app, etiquetas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas")
+            if "envios" in modulos:
+                safe_register_blueprint(app, panel_cliente_envios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/envios")
 
-        if modulo_activo_para_nora(nombre_nora, "chat"):
-            safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/chat")
+            if "ia" in modulos:
+                safe_register_blueprint(app, panel_cliente_ia_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ia")
 
-        if modulo_activo_para_nora(nombre_nora, "conocimiento"):
-            safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
+            if "respuestas" in modulos:
+                safe_register_blueprint(app, panel_cliente_respuestas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/respuestas")
 
-        if modulo_activo_para_nora(nombre_nora, "clientes"):
-            safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")
+            if "chat" in modulos:
+                safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/chat")
 
-        # ✅ Registrar la ruta dinámica del módulo Ads si está activo
-        if modulo_activo_para_nora(nombre_nora, "ads"):
-            if f"{nombre_nora}_ads" not in app.blueprints:
-                app.add_url_rule(
-                    f"/panel_cliente/{nombre_nora}/ads",
-                    view_func=panel_cliente_ads_bp.view_functions['panel_cliente_ads'],  # Usamos la función correcta del blueprint
-                    endpoint=f"{nombre_nora}_ads"
-                )
-                print(f"✅ Blueprint 'ads' registrado para {nombre_nora}")
-            else:
-                print(f"⚠️ Blueprint 'ads' ya estaba registrado para {nombre_nora}")
+            if "conocimiento" in modulos:
+                safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
+
+            if "clientes" in modulos:
+                safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")
+
+            if "ads" in modulos:
+                if f"{nombre_nora}_ads" not in app.blueprints:
+                    app.add_url_rule(
+                        f"/panel_cliente/{nombre_nora}/ads",
+                        view_func=panel_cliente_ads_bp.view_functions['panel_cliente_ads'],
+                        endpoint=f"{nombre_nora}_ads"
+                    )
+                    print(f"✅ Blueprint 'ads' registrado para {nombre_nora}")
+                else:
+                    print(f"⚠️ Blueprint 'ads' ya estaba registrado para {nombre_nora}")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")
