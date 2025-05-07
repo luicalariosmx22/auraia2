@@ -80,7 +80,7 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                     app.add_url_rule(
                         f"/panel_cliente/{nombre_nora}/ads",
                         view_func=panel_cliente_ads_bp.view_functions['panel_ads'],  # Usamos la función correcta del blueprint
-                        endpoint=f"panel_cliente_ads.panel_ads"  # Asegurarse de que el endpoint coincida con el nombre en Supabase
+                        endpoint=f"panel_cliente_ads_bp.panel_ads"  # Asegurarse de que el endpoint coincida con el nombre del blueprint
                     )
                     print(f"✅ Blueprint 'ads' registrado para {nombre_nora}")
                 else:
