@@ -46,6 +46,9 @@ from clientes.aura.registro.registro_invitado import registrar_blueprints_invita
 # ⬇️ IMPORTAMOS la instancia global de socketio
 from clientes.aura.extensiones import socketio
 
+# ✅ Asegurar este import
+from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
         return ' 200 -' not in record.getMessage()
