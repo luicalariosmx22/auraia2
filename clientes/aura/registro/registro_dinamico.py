@@ -11,7 +11,6 @@ from clientes.aura.routes.etiquetas import etiquetas_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
-from clientes.aura.routes.panel_cliente_clientes.vista_panel_clientes import panel_cliente_clientes_bp
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
 
 # Configurar Supabase
