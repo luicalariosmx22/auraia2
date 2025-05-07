@@ -33,3 +33,13 @@ def vista_clientes(nombre_nora):
         cliente["ads_cuentas"] = ads_data.data if ads_data.data else []
 
     return render_template('panel_cliente_clientes.html', nombre_nora=nombre_nora, clientes=clientes, user=session.get("user"))
+
+@panel_cliente_clientes_bp.route('/panel_cliente/<nombre_nora>/clientes/nuevo', methods=["GET"])
+def nuevo_cliente(nombre_nora):
+    if not session.get("user"):
+        return redirect(url_for('login_bp.login'))
+
+    if not modulo_activo_para_nora(nombre_nora, 'clientes'):
+        return "Módulo no activo", 403
+
+    return render_template('panel_cliente_clientes_nuevo.html', nombre_nora=nombre_nora, user=session.get("user"))
