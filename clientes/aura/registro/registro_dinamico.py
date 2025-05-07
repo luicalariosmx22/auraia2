@@ -79,12 +79,12 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 if f"{nombre_nora}_ads" not in app.blueprints:
                     app.add_url_rule(
                         f"/panel_cliente/{nombre_nora}/ads",
-                        view_func=panel_cliente_ads_bp.view_functions['panel_ads'],  # Usamos la función correcta del blueprint
-                        endpoint=f"panel_cliente_ads_bp.panel_ads"  # Asegurarse de que el endpoint coincida con el nombre del blueprint
+                        view_func=panel_cliente_ads_bp.view_functions['panel_cliente_ads'],  # Usamos la función correcta del blueprint
+                        endpoint=f"panel_cliente_ads"  # El endpoint debe coincidir con el nombre del blueprint sin _bp
                     )
-                    print(f"✅ Blueprint 'ads' registrado para {nombre_nora}")
+                    print(f"✅ Blueprint 'panel_cliente_ads' registrado para {nombre_nora}")
                 else:
-                    print(f"⚠️ Blueprint 'ads' ya estaba registrado para {nombre_nora}")
+                    print(f"⚠️ Blueprint 'panel_cliente_ads' ya estaba registrado para {nombre_nora}")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")
