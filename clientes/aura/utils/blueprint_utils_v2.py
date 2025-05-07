@@ -1,7 +1,7 @@
 # ✅ Archivo: clientes/aura/utils/blueprint_utils.py
 
 from flask import Flask, Blueprint
-from clientes.aura.auth.login_google import login_bp  # 🛠 Import login_bp
+from clientes.aura.routes.login import login_bp  # 🛠 Corrected import to use the actual login_bp
 
 def safe_register_blueprint(app: Flask, blueprint: Blueprint, url_prefix: str = None):
     """
