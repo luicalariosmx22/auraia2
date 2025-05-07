@@ -1,8 +1,7 @@
-def registrar_blueprints_invitado(app):
+def registrar_blueprints_invitado(app, safe_register_blueprint):  # 🛠 Added safe_register_blueprint as an argument
     try:
-        # Ejemplo de una landing page pública o demo
         from clientes.aura.routes.landing import landing_bp
-        app.register_blueprint(landing_bp)
+        safe_register_blueprint(app, landing_bp)  # 🛠 Use safe_register_blueprint instead of app.register_blueprint
 
         print("✅ Invitado blueprints registrados")
     except Exception as e:
