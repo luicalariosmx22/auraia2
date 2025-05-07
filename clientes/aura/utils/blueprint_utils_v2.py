@@ -1,6 +1,7 @@
 # ✅ Archivo: clientes/aura/utils/blueprint_utils.py
 
 from flask import Flask, Blueprint
+from clientes.aura.auth.login_google import login_bp  # 🛠 Import login_bp
 
 def safe_register_blueprint(app: Flask, blueprint: Blueprint, url_prefix: str = None):
     """
@@ -16,10 +17,5 @@ def safe_register_blueprint(app: Flask, blueprint: Blueprint, url_prefix: str = 
 # 🚀 Debug para confirmar que este archivo sí se está cargando
 print("🚀 DEBUG: blueprints_utils_v2.py cargado - función registrar_blueprints_login actualizada")
 
-def registrar_blueprints_login(app, safe_register_blueprint=None):
-    if safe_register_blueprint:
-        # ✅ Registramos el blueprint de manera segura usando la función proporcionada.
-        safe_register_blueprint(app, login_bp)
-    else:
-        # ✅ Registro directo (sin manejo seguro).
-        app.register_blueprint(login_bp)
+def registrar_blueprints_login(app, safe_register_blueprint):
+    safe_register_blueprint(app, login_bp)  # 🛠 Register login_bp
