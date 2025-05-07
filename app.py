@@ -22,8 +22,9 @@ print("✅ Módulo Ads importado correctamente.")
 # 👇 Import actualizado
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 
-# ✅ Importación de funciones de registro
-from clientes.aura.registro.registro_login import registrar_blueprints_login
+# ✅ Nueva import del archivo renombrado
+from clientes.aura.utils.blueprint_utils_v2 import registrar_blueprints_login
+
 from clientes.aura.registro.registro_base import registrar_blueprints_base
 from clientes.aura.registro.registro_admin import registrar_blueprints_admin
 from clientes.aura.registro.registro_debug import registrar_blueprints_debug
@@ -36,14 +37,10 @@ from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos
 from clientes.aura.routes.admin_verificador_rutas import admin_verificador_bp
 from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
 from clientes.aura.routes.admin_noras import admin_noras_bp  # 👈 Added import
-from clientes.aura.routes.admin_debug_master import admin_debug_master_bp
-from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 from clientes.aura.routes.admin_nora import admin_nora_bp
 from clientes.aura.routes.cliente_nora import cliente_nora_bp
 from clientes.aura.routes.cobranza import cobranza_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
-from clientes.aura.routes.admin_actualizar_contactos import admin_actualizar_contactos_bp  # 👈 Added import
-from clientes.aura.registro.registro_comercial import registrar_blueprints_comercial
 from clientes.aura.registro.registro_invitado import registrar_blueprints_invitado
 
 # ⬇️ IMPORTAMOS la instancia global de socketio
@@ -106,14 +103,13 @@ def safe_register_blueprint(app, blueprint, **kwargs):
 
 # ========= REGISTRO DE BLUEPRINTS =========
 
-# ✅ Ahora sí pasamos 2 argumentos: app + la función safe_register_blueprint
+# ✅ Registro del login con función segura
 registrar_blueprints_login(app, safe_register_blueprint)
 
 # Blueprints globales
 registrar_blueprints_base(app, safe_register_blueprint)
 registrar_blueprints_admin(app, safe_register_blueprint)
 registrar_blueprints_debug(app, safe_register_blueprint)
-registrar_blueprints_comercial(app, safe_register_blueprint)
 registrar_blueprints_invitado(app, safe_register_blueprint)
 
 blueprints_estaticos = [
@@ -125,11 +121,9 @@ blueprints_estaticos = [
     (panel_cliente_bp, "/panel_cliente"),
     (panel_cliente_contactos_bp, "/panel_cliente/contactos"),
     (panel_cliente_envios_bp, "/panel_cliente/envios"),
-    (admin_debug_master_bp, "/admin/debug"),
     (admin_nora_bp, "/admin/nora"),
     (cliente_nora_bp, "/panel_cliente"),
     (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento"),
-    (admin_actualizar_contactos_bp, "/admin/actualizar_contactos"),
 ]
 
 print("🔄 Registrando blueprints estáticos...")
