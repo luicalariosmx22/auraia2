@@ -12,7 +12,7 @@ from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
-from clientes.aura.utils.validar_modulo_activo import modulo_activo_para_nora
+from utils.validar_modulo_activo import modulo_activo_para_nora
 
 # Configurar Supabase
 load_dotenv()

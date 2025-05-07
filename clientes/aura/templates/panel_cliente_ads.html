@@ -40,6 +40,16 @@
       text-decoration: none;
       color: #fff;
     }
+
+    /* Caja de error */
+    .error-box {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      margin: 10px 20px;
+    }
   </style>
 </head>
 <body>
@@ -47,6 +57,12 @@
 <div class="barra-ads-top">
   <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora">
 </div>
+
+{% if error %}
+  <div class="error-box">
+    <strong>❌ Error:</strong> {{ error }}
+  </div>
+{% endif %}
 
 <main class="main-container">
 
