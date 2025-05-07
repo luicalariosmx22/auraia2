@@ -11,6 +11,8 @@ from clientes.aura.routes.etiquetas import etiquetas_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
+from clientes.aura.routes.panel_cliente_clientes.vista_panel_clientes import panel_cliente_clientes_bp
+from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
 
 # Configurar Supabase
 load_dotenv()
@@ -32,6 +34,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         safe_register_blueprint(app, etiquetas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas")
         safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/chat")
         safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
+        safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")  # 🛠 Ensure dynamic registration
+        safe_register_blueprint(app, panel_cliente_clientes_bp)
 
         # ✅ Registrar la ruta dinámica del módulo Ads
         if f"{nombre_nora}_ads" not in app.blueprints:  # Comprobar que el blueprint no esté registrado

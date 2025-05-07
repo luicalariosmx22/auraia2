@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Meta tags -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Cliente</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <div class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
+      <div>
+        <!-- Logo -->
+        <div class="mb-6">
+          <img src="/static/images/logo.png" alt="Logo" class="w-32 mx-auto">
+        </div>
+
+        <nav class="space-y-2">
+          <a href="/panel_cliente/{{ nombre_nora }}/dashboard" class="block px-3 py-2 rounded-lg hover:bg-gray-200">🏠 Dashboard</a>
+          <a href="/panel_cliente/{{ nombre_nora }}/clientes" class="block px-3 py-2 rounded-lg hover:bg-gray-200">👥 Clientes</a>
+          {% if 'clientes_premium' in modulos %}
+          <a href="/panel_cliente/{{ nombre_nora }}/clientes_premium" class="block px-3 py-2 rounded-lg hover:bg-gray-200">🌟 Clientes Premium</a>
+          {% endif %}
+        </nav>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-6">
+        <p class="text-sm text-gray-600 text-center">© 2023 AuraAI</p>
+      </div>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="flex-1 p-8">
+      {% block contenido %}
+      {% endblock %}
+    </main>
+  </div>
+
+</body>
+</html>
