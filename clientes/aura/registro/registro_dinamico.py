@@ -13,6 +13,7 @@ from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
+from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import panel_cliente_whatsapp_bp
 from utils.validar_modulo_activo import modulo_activo_para_nora
 
 # Configurar Supabase
@@ -68,6 +69,10 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
 
             if "clientes" in modulos:
                 safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")
+
+            # Registrar el blueprint de WhatsApp Web si el módulo está activo
+            if "whatsapp" in modulos:
+                safe_register_blueprint(app, panel_cliente_whatsapp_bp, url_prefix=f"/panel_cliente/{nombre_nora}/whatsapp")
 
             # ✅ Registrar la ruta dinámica del módulo Ads si está activo
             if "ads" in modulos:
