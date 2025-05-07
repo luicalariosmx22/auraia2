@@ -69,12 +69,13 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "clientes" in modulos:
                 safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")
 
+            # ✅ Registrar la ruta dinámica del módulo Ads si está activo
             if "ads" in modulos:
                 if f"{nombre_nora}_ads" not in app.blueprints:
                     app.add_url_rule(
                         f"/panel_cliente/{nombre_nora}/ads",
-                        view_func=panel_cliente_ads_bp.view_functions['panel_cliente_ads'],
-                        endpoint=f"{nombre_nora}_ads"
+                        view_func=panel_cliente_ads_bp.view_functions['panel_ads'],  # Usamos la función correcta del blueprint
+                        endpoint=f"panel_cliente_ads.panel_ads"  # Asegurarse de que el endpoint coincida con el nombre en Supabase
                     )
                     print(f"✅ Blueprint 'ads' registrado para {nombre_nora}")
                 else:
