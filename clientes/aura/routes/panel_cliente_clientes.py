@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for
 from utils.validar_modulo_activo import modulo_activo_para_nora
-from database.supabase_conn import supabase
+from clientes.aura.utils.supabase_client import supabase
 
 panel_cliente_clientes_bp = Blueprint('panel_cliente_clientes_bp', __name__)
 
