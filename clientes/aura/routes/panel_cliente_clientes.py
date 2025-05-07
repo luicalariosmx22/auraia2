@@ -62,8 +62,10 @@ def nuevo_cliente(nombre_nora):
         tipo = request.form.get("tipo")
         email = request.form.get("email")
         telefono = request.form.get("telefono")
+        nombre_empresa = request.form.get("nombre_empresa")
 
-        data = {
+        # Insertar cliente
+        cliente_data = {
             "nombre_nora": nombre_nora,
             "nombre_cliente": nombre_cliente,
             "tipo": tipo,
@@ -71,12 +73,23 @@ def nuevo_cliente(nombre_nora):
             "telefono": telefono
         }
 
-        resultado = supabase.table("clientes").insert(data).execute()
+        resultado_cliente = supabase.table("clientes").insert(cliente_data).execute()
 
-        if resultado.error:
+        if resultado_cliente.error or not resultado_cliente.data:
             flash("Error al guardar el cliente", "error")
         else:
-            flash("Cliente guardado correctamente", "success")
+            cliente_id = resultado_cliente.data[0]["id"]
+
+            # Insertar empresa con nombre real
+            empresa_data = {
+                "nombre_nora": nombre_nora,
+                "nombre_cliente": nombre_cliente,
+                "cliente_id": cliente_id,
+                "nombre_empresa": nombre_empresa
+            }
+            supabase.table("cliente_empresas").insert(empresa_data).execute()
+
+            flash("Cliente y empresa guardados correctamente", "success")
             return redirect(url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora))
 
     return render_template('panel_cliente_clientes_nuevo.html', nombre_nora=nombre_nora, user=session.get("user"))

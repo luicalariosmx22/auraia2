@@ -14,7 +14,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 def modulo_activo_para_nora(nombre_nora: str, nombre_modulo: str) -> bool:
     try:
         response = supabase.table("configuracion_bot") \
-            .select("modulos_activos") \
+            .select("modulos") \
             .eq("nombre_nora", nombre_nora) \
             .limit(1) \
             .execute()
@@ -22,7 +22,7 @@ def modulo_activo_para_nora(nombre_nora: str, nombre_modulo: str) -> bool:
         if not response.data:
             return False
 
-        modulos = response.data[0].get("modulos_activos", [])
+        modulos = response.data[0].get("modulos", [])
         return nombre_modulo in modulos
 
     except Exception as e:
