@@ -1,7 +1,6 @@
 # ✅ Archivo: clientes/aura/utils/blueprint_utils.py
 
 from flask import Flask, Blueprint
-from clientes.aura.routes.login import login_bp
 
 def safe_register_blueprint(app: Flask, blueprint: Blueprint, url_prefix: str = None):
     """
