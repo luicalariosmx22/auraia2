@@ -11,9 +11,9 @@ from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuest
 from clientes.aura.routes.etiquetas import etiquetas_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
-from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
 from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import panel_cliente_whatsapp_bp
+from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from utils.validar_modulo_activo import modulo_activo_para_nora
 
 # Configurar Supabase
@@ -76,15 +76,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
 
             # ✅ Registrar la ruta dinámica del módulo Ads si está activo
             if "ads" in modulos:
-                if f"{nombre_nora}_ads" not in app.blueprints:
-                    app.add_url_rule(
-                        f"/panel_cliente/{nombre_nora}/ads",
-                        view_func=panel_cliente_ads_bp.view_functions['panel_cliente_ads'],  # Usamos la función correcta del blueprint
-                        endpoint=f"panel_cliente_ads"  # El endpoint debe coincidir con el nombre del blueprint sin _bp
-                    )
-                    print(f"✅ Blueprint 'panel_cliente_ads' registrado para {nombre_nora}")
-                else:
-                    print(f"⚠️ Blueprint 'panel_cliente_ads' ya estaba registrado para {nombre_nora}")
+                safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
+                print(f"✅ Blueprint 'panel_cliente_ads' registrado para {nombre_nora}")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")

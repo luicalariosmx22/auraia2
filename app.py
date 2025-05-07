@@ -127,6 +127,7 @@ blueprints_estaticos = [
     (admin_nora_bp, "/admin/nora"),
     (cliente_nora_bp, "/panel_cliente"),
     (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento"),
+    (panel_cliente_ads_bp, f"/panel_cliente/{{nombre_nora}}/ads"),  # ✅ Added blueprint registration
 ]
 
 print("🔄 Registrando blueprints estáticos...")

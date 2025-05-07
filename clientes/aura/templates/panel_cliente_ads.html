@@ -116,7 +116,7 @@
             {{ cuenta.gasto_7dias if cuenta.gasto_7dias else '—' }} {{ moneda }}
           </td>
           <td>
-            <a href="?cuenta={{ cuenta.id_cuenta_publicitaria }}" class="btn-ver-campañas">
+            <a href="{{ url_for('panel_cliente_ads.panel_ads', nombre_nora=cuenta.id_cuenta_publicitaria) }}" class="btn-ver-campañas">
               Ver Campañas
             </a>
           </td>
