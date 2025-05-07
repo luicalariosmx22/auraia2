@@ -58,7 +58,7 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if f"{nombre_nora}_ads" not in app.blueprints:
                 app.add_url_rule(
                     f"/panel_cliente/{nombre_nora}/ads",
-                    view_func=ads_bp.view_functions['panel_ads'],  # Correct function name
+                    view_func=panel_cliente_ads_bp.view_functions['panel_cliente_ads'],  # Usamos la función correcta del blueprint
                     endpoint=f"{nombre_nora}_ads"
                 )
                 print(f"✅ Blueprint 'ads' registrado para {nombre_nora}")
