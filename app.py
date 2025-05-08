@@ -49,6 +49,9 @@ from clientes.aura.extensiones import socketio
 # ✅ Asegurar este import
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 
+from gunicorn.app.base import BaseApplication
+from gunicorn.six import iteritems
+
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
         return ' 200 -' not in record.getMessage()
@@ -197,6 +200,25 @@ def log_polling_requests():
     if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
         socketio_log.info(f"{request.remote_addr} - {request.method} {request.full_path}")
 
+class GunicornApplication(BaseApplication):
+    def __init__(self, app, options=None):
+        self.application = app
+        self.options = options or {}
+
+    def load(self):
+        return self.application
+
+    def load_config(self):
+        for key, value in iteritems(self.options):
+            self.cfg.set(key, value)
+
+# Configuración de Gunicorn
+options = {
+    'bind': '0.0.0.0:' + str(os.getenv('PORT', 5000)),  # Usa el puerto asignado por Railway
+    'workers': 4,  # Número de workers
+    'worker_class': 'eventlet',  # Usar eventlet para WebSockets
+}
+
 if __name__ == "__main__":
     try:
         registrar_rutas_en_supabase()
@@ -204,6 +226,6 @@ if __name__ == "__main__":
     except Exception as e:
         app.logger.error(f"Error crítico: {str(e)}")
 
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="0.0.0.0", port=port)
+    gunicorn_app = GunicornApplication(socketio, options)
+    gunicorn_app.run()
     scheduler.shutdown()  # Apagar el scheduler al cerrar la aplicación
