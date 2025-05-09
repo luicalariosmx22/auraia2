@@ -6,12 +6,12 @@ import { io } from 'socket.io-client';
 
 const {
   SUPABASE_URL,
-  SUPABASE_SERVICE_KEY,
+  SUPABASE_KEY,        // 🔄 usamos el nombre presente en Railway
   NOMBRE_NORA,
   SOCKET_SERVER_URL
 } = process.env;
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const socket = io(SOCKET_SERVER_URL, { transports: ['websocket'] });
 
 async function loadSession() {
