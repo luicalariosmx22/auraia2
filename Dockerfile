@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y \
     libmariadb-dev \
     gcc \
     g++ \
-    make
+    make \
+    libxml2-dev \
+    libxslt-dev
 
 # Establecer el directorio de trabajo
 WORKDIR /app
@@ -19,14 +21,17 @@ WORKDIR /app
 # Copiar todos los archivos del proyecto
 COPY . /app/
 
+# Limpiar caché de pip y actualizar pip
+RUN pip cache purge && \
+    pip install --upgrade pip setuptools wheel
+
 # Crear y activar un entorno virtual y asegurarse de instalar herramientas necesarias
 RUN python3 -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
-    pip install --upgrade pip setuptools wheel && \
     pip install -r requirements.txt
 
 # Exponer el puerto (asegurarse de que esté disponible en Railway)
 EXPOSE $PORT
 
-# Comando para ejecutar la app con Gunicorn
+# Comando para ejecutar la app con Gunicorn y gevent
 CMD ["/opt/venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]
