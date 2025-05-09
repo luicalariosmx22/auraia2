@@ -25,12 +25,11 @@ COPY . /app/
 RUN pip cache purge && \
     pip install --upgrade pip setuptools wheel
 
-# Crear y activar un entorno virtual y asegurarse de instalar herramientas necesarias
+# Crear y activar un entorno virtual, asegurándose de instalar las dependencias en él
 RUN python3 -m venv /opt/venv && \
-    . /opt/venv/bin/activate && \
-    pip install -r requirements.txt
+    /opt/venv/bin/pip install -r requirements.txt  # Instalación de dependencias en el entorno virtual
 
-# Verificar que Flask se haya instalado correctamente
+# Verificar que Flask esté instalado correctamente dentro del entorno virtual
 RUN /opt/venv/bin/pip show Flask
 
 # Exponer el puerto (asegurarse de que esté disponible en Railway)
