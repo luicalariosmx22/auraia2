@@ -11,5 +11,5 @@ supabase==1.0.3
 google-api-python-client==2.92.0
 flask_socketio==5.3.6
 apscheduler==3.10.4
-dnspython==2.1.0  # Añadir o actualizar esta versión
-gevent==21.1.2
+dnspython==2.1.0
+gevent==21.1.2  # Añadido para WebSockets
