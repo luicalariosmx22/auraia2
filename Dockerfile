@@ -28,8 +28,10 @@ RUN pip cache purge && \
 # Crear y activar un entorno virtual y asegurarse de instalar herramientas necesarias
 RUN python3 -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
-    pip install -r requirements.txt && \
-    pip show Flask
+    pip install -r requirements.txt
+
+# Verificar que Flask se haya instalado correctamente
+RUN . /opt/venv/bin/activate && pip show Flask
 
 # Exponer el puerto (asegurarse de que esté disponible en Railway)
 EXPOSE $PORT
