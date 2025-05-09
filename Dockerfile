@@ -31,10 +31,10 @@ RUN python3 -m venv /opt/venv && \
     pip install -r requirements.txt
 
 # Verificar que Flask se haya instalado correctamente
-RUN . /opt/venv/bin/activate && pip show Flask
+RUN /opt/venv/bin/pip show Flask
 
 # Exponer el puerto (asegurarse de que esté disponible en Railway)
 EXPOSE $PORT
 
-# Comando para ejecutar la app con Gunicorn y gevent
+# Comando para ejecutar la app con Gunicorn y gevent, asegurándonos de que se use el entorno virtual
 CMD ["/opt/venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]
