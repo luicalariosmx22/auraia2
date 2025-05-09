@@ -50,7 +50,6 @@ from clientes.aura.extensiones import socketio
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 
 from gunicorn.app.base import BaseApplication
-from gunicorn.six import iteritems
 
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
@@ -209,7 +208,7 @@ class GunicornApplication(BaseApplication):
         return self.application
 
     def load_config(self):
-        for key, value in iteritems(self.options):
+        for key, value in self.options.items():  # ✅ Use `.items()` instead of `iteritems()`
             self.cfg.set(key, value)
 
 # Configuración de Gunicorn
