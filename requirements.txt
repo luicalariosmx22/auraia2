@@ -13,3 +13,4 @@ flask_socketio==5.3.6
 apscheduler==3.10.4
 eventlet==0.33.0  # Añadido para WebSockets
 dnspython==2.1.0  # Añadir o actualizar esta versión
+gevent==21.1.2
