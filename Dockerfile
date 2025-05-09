@@ -19,14 +19,11 @@ WORKDIR /app
 # Copiar todos los archivos del proyecto
 COPY . /app/
 
-# Crear y activar un entorno virtual
-RUN python -m venv /opt/venv
-
-# Asegúrate de usar el entorno virtual y actualizar pip
-RUN /opt/venv/bin/pip install --upgrade pip
-
-# Instalar las dependencias
-RUN /opt/venv/bin/pip install -r requirements.txt
+# Crear y activar un entorno virtual y asegurarse de instalar herramientas necesarias
+RUN python3 -m venv /opt/venv && \
+    . /opt/venv/bin/activate && \
+    pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements.txt
 
 # Exponer el puerto (asegurarse de que esté disponible en Railway)
 EXPOSE $PORT
