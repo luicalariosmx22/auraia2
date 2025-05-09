@@ -1,14 +1,14 @@
 # Usar una imagen base de Python
 FROM python:3.10-slim
 
-# Instalar herramientas necesarias para la compilación de paquetes Cython
+# Instalar herramientas necesarias para la compilación de paquetes Cython y MariaDB
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
     libpq-dev \
     libffi-dev \
     libssl-dev \
-    libmysqlclient-dev
+    libmariadb-dev  # Cambié a libmariadb-dev en lugar de libmysqlclient-dev
 
 # Establecer el directorio de trabajo
 WORKDIR /app
