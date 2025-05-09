@@ -13,3 +13,4 @@ flask_socketio==5.3.6
 apscheduler==3.10.4
 dnspython==2.1.0
 gevent==21.8.0  # Cambia a esta versión disponible
+Cython==0.29.23
