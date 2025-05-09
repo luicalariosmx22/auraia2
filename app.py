@@ -50,6 +50,8 @@ from clientes.aura.extensiones import socketio
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 
 from gunicorn.app.base import BaseApplication
+from gevent import monkey
+monkey.patch_all()  # ✅ Apply gevent monkey patching
 
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
@@ -208,14 +210,14 @@ class GunicornApplication(BaseApplication):
         return self.application
 
     def load_config(self):
-        for key, value in self.options.items():  # ✅ Use `.items()` instead of `iteritems()`
+        for key, value in self.options.items():  # ✅ Use `.items()` for Python 3
             self.cfg.set(key, value)
 
-# Configuración de Gunicorn
+# Configuración de Gunicorn con gevent
 options = {
     'bind': '0.0.0.0:' + str(os.getenv('PORT', 5000)),  # Usa el puerto asignado por Railway
     'workers': 4,  # Número de workers
-    'worker_class': 'eventlet',  # Usar eventlet para WebSockets
+    'worker_class': 'gevent',  # ✅ Usar gevent en lugar de eventlet
 }
 
 if __name__ == "__main__":
