@@ -77,7 +77,7 @@ app = Flask(
 )
 
 app.session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
-app.secret_key = os.getenv("SECRET_KEY", "clave-secreta-por-defecto")
+app.secret_key = os.environ.get("SECRET_KEY", "clave-secreta-por-defecto")
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
@@ -215,12 +215,12 @@ class GunicornApplication(BaseApplication):
 
 # Configuración de Gunicorn con gevent
 options = {
-    'bind': '0.0.0.0:' + str(os.getenv('PORT', 5000)),  # Usa el puerto asignado por Railway
+    'bind': '0.0.0.0:' + str(os.environ.get('PORT', 5000)),  # Obtener el puerto del entorno
     'workers': 4,  # Número de workers
     'worker_class': 'gevent',  # ✅ Usar gevent en lugar de eventlet
 }
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # Solo se ejecuta cuando el script es el principal
     try:
         registrar_rutas_en_supabase()
         generar_html_rutas(app, output_path="clientes/aura/templates/debug_rutas.html")
