@@ -103,10 +103,6 @@ def safe_register_blueprint(app, blueprint, **kwargs):
     Registra un blueprint de forma segura, evitando duplicados.
     """
     unique_name = kwargs.pop("name", blueprint.name)
-    print(f"🔍 Registrando blueprint: {unique_name}")
-    print(f"    - Tipo de app: {type(app)}")
-    print(f"    - Tipo de blueprint: {type(blueprint)}")
-    print(f"    - Tipo de kwargs: {type(kwargs)}")
     if unique_name not in app.blueprints:
         app.register_blueprint(blueprint, name=unique_name, **kwargs)
         print(f"✅ Blueprint '{unique_name}' registrado")
@@ -208,8 +204,8 @@ def log_polling_requests():
 
 class GunicornApplication(BaseApplication):
     def __init__(self, app, options=None):
-        self.options = options or {}
         self.application = app
+        self.options = options or {}
         self.cfg = None  # Inicializar self.cfg
         super().__init__()  # Llamar al constructor de BaseApplication
 
