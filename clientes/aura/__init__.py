@@ -56,9 +56,9 @@ def safe_register_blueprint(app, blueprint, **kwargs):
     unique_name = kwargs.pop("name", blueprint.name)
     if unique_name not in app.blueprints:
         app.register_blueprint(blueprint, name=unique_name, **kwargs)
-        app.logger.info(f"✅ Blueprint '{unique_name}' registrado con nombre '{unique_name}'")
+        print(f"✅ Blueprint '{unique_name}' registrado con nombre '{unique_name}'")  # <--- CAMBIADO A PRINT
     else:
-        app.logger.warning(f"⚠️ Blueprint '{unique_name}' ya estaba registrado.")
+        print(f"⚠️ Blueprint '{unique_name}' ya estaba registrado.")  # <--- CAMBIADO A PRINT
 
 # Funciones que estaban en tu app.py original (podrían ir a utils si prefieres)
 def validar_o_generar_uuid(valor):
