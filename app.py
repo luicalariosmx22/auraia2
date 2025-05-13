@@ -211,14 +211,16 @@ class GunicornApplication(BaseApplication):
         self.options = options or {}
         self.application = app
         self.cfg = None  # Inicializar self.cfg
-
-    def load(self):
-        return self.application
+        super().__init__()  # Llamar al constructor de BaseApplication
 
     def load_config(self):
         self.cfg = self.cfg_cls.make_settings()  # Inicializar self.cfg correctamente
         for key, value in self.options.items():
-            self.cfg.set(key, value)
+            if key in self.cfg.settings and value is not None:
+                self.cfg.set(key, value)
+
+    def load(self):
+        return self.application
 
 # Configuración de Gunicorn con gevent
 options = {
