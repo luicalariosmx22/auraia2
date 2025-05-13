@@ -165,26 +165,33 @@ def create_app(config_class=Config):
     registrar_blueprints_debug(app, safe_register_blueprint)
     registrar_blueprints_invitado(app, safe_register_blueprint)
 
+    # Blueprints estáticos
     blueprints_estaticos = [
-        (admin_verificador_bp, None), # Asegúrate que admin_verificador_bp esté importado
-        (panel_chat_bp, None),
-        (admin_nora_dashboard_bp, None), # Asegúrate que el bp usado en url_for se llame así
-        (webhook_bp, None),
-        (etiquetas_bp, "/panel_cliente_etiquetas"),
-        (panel_cliente_bp, "/panel_cliente"), # Nombre del blueprint: panel_cliente_bp
-        (panel_cliente_contactos_bp, "/panel_cliente/contactos"),
-        (panel_cliente_envios_bp, "/panel_cliente/envios"),
-        (admin_nora_bp, "/admin/nora"),
-        (admin_noras_bp, "/admin/noras"), # Añadido (asegúrate de importarlo)
-        (cliente_nora_bp, "/panel_cliente"),
-        (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento"),
-        (panel_cliente_ads_bp, f"/panel_cliente/{{nombre_nora}}/ads"),
-        # (ads_bp, None), # ¿Aún necesitas este? Si sí, impórtalo.
+        # (admin_verificador_bp, None),  # Probablemente registrado en registro_admin.py o registro_debug.py
+        # (panel_chat_bp, None),  # Probablemente registrado en registro_dinamico.py
+        # (admin_nora_dashboard_bp, None),  # Probablemente registrado en registro_admin.py
+        # (webhook_bp, None),  # Registrado en registro_base.py
+        # (etiquetas_bp, "/panel_cliente_etiquetas"),  # Probablemente registrado en registro_dinamico.py
+        # (panel_cliente_bp, "/panel_cliente"),  # Registrado en registro_dinamico.py
+        # (panel_cliente_contactos_bp, "/panel_cliente/contactos"),  # Registrado en registro_dinamico.py
+        # (panel_cliente_envios_bp, "/panel_cliente/envios"),  # Registrado en registro_dinamico.py
+        # (admin_nora_bp, "/admin/nora"),  # Registrado en registro_admin.py
+        # (admin_noras_bp, "/admin/noras"),  # Registrado en registro_admin.py
+        # (cliente_nora_bp, "/panel_cliente"),  # Decide si este es único o parte de registro_dinamico.py
+        # (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento"),  # Registrado en registro_dinamico.py
+        # (panel_cliente_ads_bp, f"/panel_cliente/{{nombre_nora}}/ads"),  # Registrado en registro_dinamico.py
+        # (cobranza_bp, "/api", name="cobranza_api")  # Si lo registras en otro lado, quítalo. Si solo aquí, déjalo.
     ]
-    for blueprint, prefix in blueprints_estaticos:
-        safe_register_blueprint(app, blueprint, url_prefix=prefix)
 
-    safe_register_blueprint(app, cobranza_bp, url_prefix="/api", name="cobranza_api") # Añade un 'name' para el endpoint
+    # Procesar lo que quede en la lista blueprints_estaticos
+    # if blueprints_estaticos:
+    #     for blueprint, prefix in blueprints_estaticos:
+    #         safe_register_blueprint(app, blueprint, url_prefix=prefix)
+
+    # Si cobranza_bp se registra en otro lado, también quita esta línea:
+    # safe_register_blueprint(app, cobranza_bp, url_prefix="/api", name="cobranza_api")
+
+    app.logger.info("Registro de Blueprints completado.")
 
     # Blueprints dinámicos
     try:
