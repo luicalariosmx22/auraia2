@@ -57,6 +57,14 @@ from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_no
 from gunicorn.app.base import BaseApplication
 from typing import Dict, Any
 
+import flask
+import gunicorn
+import werkzeug
+
+print(f"Flask version: {flask.__version__}")
+print(f"Gunicorn version: {gunicorn.__version__}")
+print(f"Werkzeug version: {werkzeug.__version__}")
+
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
         return ' 200 -' not in record.getMessage()
