@@ -3,6 +3,7 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, session as flask_session, redirect, url_for, request, jsonify
+from flask_session.sessions import SessionInterface
 from dotenv import load_dotenv
 
 # Tus módulos modulares
@@ -51,6 +52,18 @@ class WerkzeugFilter(logging.Filter):
         if 'socket.io' in record.getMessage() and 'polling' in record.getMessage():
             return False
         return ' 200 -' not in record.getMessage()
+
+class CustomSessionInterface(SessionInterface):
+    def open_session(self, app, request):
+        # Sobrescribe el acceso a session_cookie_name
+        sid = request.cookies.get(app.config.get('SESSION_COOKIE_NAME', 'session'))
+        if not sid:
+            return None
+        return self.session_class(sid)
+
+    def save_session(self, app, session, response):
+        # Implementa el guardado de la sesión si es necesario
+        pass
 
 def safe_register_blueprint(app, blueprint, **kwargs):
     unique_name = kwargs.pop("name", blueprint.name)
@@ -236,6 +249,9 @@ def create_app(config_class=Config):
             socketio_polling_logger = logging.getLogger('socketio_polling_custom')
             socketio_polling_logger.info(f"{request.remote_addr} - {request.method} {request.full_path}")
     print("Handler before_request definido.")
+
+    # Configurar la interfaz de sesión personalizada
+    app.session_interface = CustomSessionInterface()
 
     # Registrar rutas en Supabase al final, después de que todo esté registrado
     # Esta función ahora se llama registrar_rutas_en_supabase_db y toma 'app'
