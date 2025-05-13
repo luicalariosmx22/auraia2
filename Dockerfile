@@ -1,38 +1,43 @@
 # Usar una imagen base de Python
-FROM python:3.10-slim
+FROM python:3.10-slim  # [1] Usamos una imagen base ligera de Python 3.10
 
 # Instalar herramientas necesarias para la compilación de paquetes Cython
+# y otras dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    python3-dev \
-    libpq-dev \
-    libffi-dev \
-    libssl-dev \
-    libmariadb-dev \
-    gcc \
-    g++ \
-    make \
-    libxml2-dev \
-    libxslt-dev
+    build-essential \  # Herramientas esenciales para compilar software
+    python3-dev \    # Headers de Python para compilar extensiones
+    libpq-dev \      # Dependencias para PostgreSQL
+    libffi-dev \     # Dependencias para libffi
+    libssl-dev \     # Dependencias para SSL
+    libmariadb-dev \ # Dependencias para MariaDB
+    gcc \            # Compilador de C
+    g++ \            # Compilador de C++
+    make \           # Herramienta de construcción
+    libxml2-dev \    # Dependencias para libxml2
+    libxslt-dev      # Dependencias para libxslt
 
-# Establecer el directorio de trabajo
-WORKDIR /app  # Asegúrate de estar en /app
+# Establecer el directorio de trabajo dentro del contenedor
+WORKDIR /app       # [2] Establecemos /app como el directorio principal
 
 # Copiar todos los archivos del proyecto al contenedor
-COPY . /app/
+COPY . /app/       # [3] Copiamos el contenido del directorio local a /app
 
-# Limpiar caché de pip y actualizar pip
+# Limpiar la caché de pip y actualizar pip, setuptools y wheel
 RUN pip cache purge && \
-    pip install --upgrade pip setuptools wheel
+    pip install --upgrade pip setuptools wheel  # [4] Mejoramos las herramientas de empaquetado
 
-# Instalar las dependencias directamente (sin entorno virtual)
-RUN pip install -r requirements.txt
+# Crear y activar un entorno virtual
+RUN python3 -m venv /opt/venv  # [5] Creamos un entorno virtual en /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"   # [6] Modificamos el PATH para usar el entorno virtual
 
-# Verificar que Flask se haya instalado correctamente
-RUN pip show Flask
+# Instalar las dependencias de Python desde requirements.txt
+RUN /opt/venv/bin/pip install -r requirements.txt  # [7] Instalamos los paquetes en el entorno virtual
 
-# Exponer el puerto (asegurarse de que esté disponible en Railway)
-EXPOSE $PORT
+# Verificar que Flask se haya instalado correctamente (opcional)
+RUN /opt/venv/bin/pip show Flask  # [8] Verificamos la instalación de Flask
 
-# Comando para ejecutar la app con Gunicorn y gevent, asegurándonos de que se use el entorno virtual
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]
+# Exponer el puerto que la aplicación escuchará
+EXPOSE $PORT      # [9] Exponemos el puerto para que Railway pueda acceder
+
+# Comando para ejecutar la aplicación con Gunicorn y gevent
+CMD ["/opt/venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]  # [10] Ejecutamos Gunicorn dentro del entorno virtual
