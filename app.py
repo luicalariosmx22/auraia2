@@ -206,8 +206,8 @@ def log_polling_requests():
 
 class GunicornApplication(BaseApplication):
     def __init__(self, app, options=None):
-        self.application = app
         self.options = options or {}
+        self.application = app
         self.cfg = None  # Inicializar self.cfg
         super().__init__()  # Llamar al constructor de BaseApplication
 
