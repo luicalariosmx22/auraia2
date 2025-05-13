@@ -4,10 +4,48 @@ import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, session as flask_session, redirect, url_for, request, jsonify
 from dotenv import load_dotenv
-from .app_config import Config
-from .extensiones import socketio, session_ext, scheduler
-from apscheduler.triggers.cron import CronTrigger
 
+# Tus módulos modulares
+from .app_config import Config
+from .extensiones import socketio, session_ext, scheduler # ¡Corregido a 'extensiones.py'!
+
+# Para APScheduler
+from apscheduler.triggers.cron import CronTrigger
+from .tasks.meta_ads_reporter import enviar_reporte_semanal
+
+# Para Blueprints y registro
+# Importa tus funciones de registro de blueprints
+from .registro.registro_login import registrar_blueprints_login # Asumiendo que existe y tiene esta función
+from .registro.registro_base import registrar_blueprints_base
+from .registro.registro_admin import registrar_blueprints_admin
+from .registro.registro_debug import registrar_blueprints_debug
+from .registro.registro_invitado import registrar_blueprints_invitado
+from .registro.registro_dinamico import registrar_blueprints_por_nora # Para los dinámicos
+
+# Importa los objetos Blueprint (_bp) que se usan en la lista 'blueprints_estaticos'
+# o que se registran directamente.
+from .routes.admin_verificador_rutas import admin_verificador_bp # Lo tenías en app.py original
+from .routes.panel_chat import panel_chat_bp
+from .routes.webhook import webhook_bp
+from .routes.admin_nora_dashboard import admin_nora_dashboard_bp
+from .routes.etiquetas import etiquetas_bp
+from .routes.panel_cliente import panel_cliente_bp
+from .routes.panel_cliente_contactos import panel_cliente_contactos_bp
+from .routes.panel_cliente_envios import panel_cliente_envios_bp
+from .routes.admin_nora import admin_nora_bp
+from .routes.admin_noras import admin_noras_bp # Lo tenías en app.py original
+from .routes.cliente_nora import cliente_nora_bp
+from .routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
+from .routes.panel_cliente_ads import panel_cliente_ads_bp
+from .routes.cobranza import cobranza_bp
+# from .modules.ads import ads_bp # ¿Aún necesitas este o fue reemplazado por panel_cliente_ads_bp?
+
+# Para la lógica de blueprints dinámicos
+from .utils.supabase_client import supabase
+import uuid # Para validar_o_generar_uuid
+from datetime import datetime # Para registrar_rutas_en_supabase
+
+# --- Clases y Funciones de Utilidad (Definidas aquí o importadas si las mueves a utils) ---
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
         if 'socket.io' in record.getMessage() and 'polling' in record.getMessage():
@@ -15,15 +53,44 @@ class WerkzeugFilter(logging.Filter):
         return ' 200 -' not in record.getMessage()
 
 def safe_register_blueprint(app, blueprint, **kwargs):
-    """
-    Registra un blueprint de forma segura, evitando duplicados.
-    """
     unique_name = kwargs.pop("name", blueprint.name)
     if unique_name not in app.blueprints:
         app.register_blueprint(blueprint, name=unique_name, **kwargs)
-        app.logger.info(f"✅ Blueprint '{unique_name}' registrado")
+        app.logger.info(f"✅ Blueprint '{unique_name}' registrado con nombre '{unique_name}'")
     else:
-        app.logger.warning(f"⚠️ Blueprint ya estaba registrado: {unique_name}")
+        app.logger.warning(f"⚠️ Blueprint '{unique_name}' ya estaba registrado.")
+
+# Funciones que estaban en tu app.py original (podrían ir a utils si prefieres)
+def validar_o_generar_uuid(valor):
+    try:
+        return str(uuid.UUID(str(valor))) # Asegurar que valor es string
+    except (ValueError, TypeError, AttributeError): # AttributeError por si valor es None
+        return str(uuid.uuid4())
+
+def registrar_rutas_en_supabase_db(app_instance): # Renombrado para evitar confusión con tu archivo registrar_rutas.py
+    rutas = []
+    for rule in app_instance.url_map.iter_rules():
+        # Usar el nombre del blueprint si está disponible, sino 'default' o el nombre del endpoint
+        blueprint_name = rule.endpoint.split('.')[0] if '.' in rule.endpoint else 'default_route'
+        # Si el endpoint no tiene blueprint, podrías querer loguearlo o manejarlo diferente
+        if blueprint_name == rule.endpoint and blueprint_name not in app_instance.blueprints:
+            blueprint_name = 'app_level_route' # O alguna otra designación
+
+        rutas.append({
+            "id": validar_o_generar_uuid(None), # Pasar None para generar siempre nuevo UUID
+            "ruta": rule.rule,
+            "blueprint": blueprint_name,
+            "metodo": ", ".join(sorted(list(rule.methods - {"HEAD", "OPTIONS"}))),
+            "registrado_en": datetime.now().isoformat()
+        })
+    if rutas: # Solo intentar insertar si hay rutas
+        try:
+            # Asumo que 'supabase' es tu cliente de Supabase importado
+            response = supabase.table("rutas_registradas").upsert(rutas, on_conflict='ruta,metodo').execute() # Usar upsert
+            app_instance.logger.info(f"Rutas (re)insertadas/actualizadas en Supabase. Respuesta: {response}")
+        except Exception as e:
+            app_instance.logger.error(f"Error al (re)insertar/actualizar rutas en Supabase: {str(e)}", exc_info=True)
+
 
 def create_app(config_class=Config):
     app = Flask(
@@ -31,25 +98,30 @@ def create_app(config_class=Config):
         template_folder='templates',
         static_folder='static'
     )
-
     load_dotenv()
     app.config.from_object(config_class)
+    app.logger.info("🚀 Aplicación Flask creada y configuración inicial cargada por la factory.")
 
-    app.session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
-
-    app.logger.info("🚀 APLICACIÓN FLASK CREADA Y CONFIGURACIÓN INICIAL CARGADA 🚀")
-
+    # Inicializar extensiones
     session_ext.init_app(app)
     socketio.init_app(app)
     app.logger.info("Extensiones Flask-Session y Flask-SocketIO inicializadas.")
 
+    # Configurar Logging
+    # (Tu lógica de logging que ya tenías aquí, incluyendo WerkzeugFilter, error.log, socketio_polling.log, Twilio)
     if not app.debug:
-        error_file_handler = RotatingFileHandler("error.log", maxBytes=10240, backupCount=10)
-        error_file_handler.setLevel(logging.ERROR)
-        error_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        error_file_handler.setFormatter(error_formatter)
-        app.logger.addHandler(error_file_handler)
-        app.logger.info("Handler de logging para errores de app configurado (error.log).")
+        try:
+            if not os.path.exists('logs') and os.name != 'nt':
+                try: os.makedirs('logs')
+                except OSError as e: app.logger.warning(f"No se pudo crear carpeta 'logs': {e}")
+            error_file_handler = RotatingFileHandler("error.log", maxBytes=10240, backupCount=10)
+            error_file_handler.setLevel(logging.ERROR)
+            error_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            error_file_handler.setFormatter(error_formatter)
+            app.logger.addHandler(error_file_handler)
+            app.logger.info("Handler de logging para errores de app configurado (error.log).")
+        except Exception as e:
+            app.logger.error(f"No se pudo configurar el archivo de log para errores de app: {e}")
 
         werkzeug_logger = logging.getLogger('werkzeug')
         werkzeug_logger.addFilter(WerkzeugFilter())
@@ -58,8 +130,6 @@ def create_app(config_class=Config):
         socketio_polling_log = logging.getLogger('socketio_polling_custom')
         socketio_polling_log.setLevel(logging.INFO)
         try:
-            if not os.path.exists('logs'):
-                os.makedirs('logs')
             socketio_polling_file_handler = RotatingFileHandler("logs/socketio_polling.log", maxBytes=100000, backupCount=3)
             socketio_polling_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
             socketio_polling_log.addHandler(socketio_polling_file_handler)
@@ -70,8 +140,8 @@ def create_app(config_class=Config):
     logging.getLogger("twilio.http_client").setLevel(logging.WARNING)
     app.logger.info("Nivel de logging para twilio.http_client establecido a WARNING.")
 
+    # Registrar Tareas APScheduler
     if not scheduler.running:
-        from .tasks.meta_ads_reporter import enviar_reporte_semanal
         scheduler.add_job(
             func=enviar_reporte_semanal,
             trigger=CronTrigger(day_of_week='mon', hour=10, minute=0, timezone='America/Hermosillo'),
@@ -87,27 +157,8 @@ def create_app(config_class=Config):
     else:
         app.logger.info("APScheduler ya estaba corriendo.")
 
-    app.logger.info("Inicio de registro de Blueprints (aún por completar)...")
-
-    from .utils.blueprint_utils_v2 import registrar_blueprints_login
-    from .registro.registro_base import registrar_blueprints_base
-    from .registro.registro_admin import registrar_blueprints_admin
-    from .registro.registro_debug import registrar_blueprints_debug
-    from .registro.registro_invitado import registrar_blueprints_invitado
-    from .routes.panel_chat import panel_chat_bp
-    from .routes.webhook import webhook_bp
-    from .routes.admin_nora_dashboard import admin_nora_dashboard_bp
-    from .routes.etiquetas import etiquetas_bp
-    from .routes.panel_cliente import panel_cliente_bp
-    from .routes.panel_cliente_contactos import panel_cliente_contactos_bp
-    from .routes.admin_verificador_rutas import admin_verificador_bp
-    from .routes.panel_cliente_envios import panel_cliente_envios_bp
-    from .routes.admin_nora import admin_nora_bp
-    from .routes.cliente_nora import cliente_nora_bp
-    from .routes.cobranza import cobranza_bp
-    from .routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
-    from .routes.panel_cliente_ads import panel_cliente_ads_bp
-
+    # --- Registrar Blueprints ---
+    app.logger.info("Iniciando registro de Blueprints...")
     registrar_blueprints_login(app, safe_register_blueprint)
     registrar_blueprints_base(app, safe_register_blueprint)
     registrar_blueprints_admin(app, safe_register_blueprint)
@@ -115,32 +166,47 @@ def create_app(config_class=Config):
     registrar_blueprints_invitado(app, safe_register_blueprint)
 
     blueprints_estaticos = [
-        (admin_verificador_bp, None),
+        (admin_verificador_bp, None), # Asegúrate que admin_verificador_bp esté importado
         (panel_chat_bp, None),
-        (admin_nora_dashboard_bp, None),
+        (admin_nora_dashboard_bp, None), # Asegúrate que el bp usado en url_for se llame así
         (webhook_bp, None),
         (etiquetas_bp, "/panel_cliente_etiquetas"),
-        (panel_cliente_bp, "/panel_cliente"),
+        (panel_cliente_bp, "/panel_cliente"), # Nombre del blueprint: panel_cliente_bp
         (panel_cliente_contactos_bp, "/panel_cliente/contactos"),
         (panel_cliente_envios_bp, "/panel_cliente/envios"),
         (admin_nora_bp, "/admin/nora"),
+        (admin_noras_bp, "/admin/noras"), # Añadido (asegúrate de importarlo)
         (cliente_nora_bp, "/panel_cliente"),
         (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento"),
         (panel_cliente_ads_bp, f"/panel_cliente/{{nombre_nora}}/ads"),
+        # (ads_bp, None), # ¿Aún necesitas este? Si sí, impórtalo.
     ]
-
     for blueprint, prefix in blueprints_estaticos:
         safe_register_blueprint(app, blueprint, url_prefix=prefix)
 
-    app.register_blueprint(cobranza_bp, url_prefix="/api")
+    safe_register_blueprint(app, cobranza_bp, url_prefix="/api", name="cobranza_api") # Añade un 'name' para el endpoint
 
-    app.logger.info("Inicio de definición de rutas de app (aún por completar)...")
+    # Blueprints dinámicos
+    try:
+        response = supabase.table("configuracion_bot").select("nombre_nora").execute()
+        nombre_noras = [n["nombre_nora"] for n in response.data] if response.data else []
+        app.logger.info(f"Nora(s) encontradas en Supabase para registro dinámico: {nombre_noras}")
+        for nombre in nombre_noras:
+            registrar_blueprints_por_nora(app, nombre_nora=nombre, safe_register_blueprint=safe_register_blueprint)
+        # Considera si necesitas registrar 'aura' explícitamente aquí o si ya viene de Supabase
+        # registrar_blueprints_por_nora(app, nombre_nora="aura", safe_register_blueprint=safe_register_blueprint)
+    except Exception as e:
+        app.logger.error(f"Error al registrar Noras dinámicas: {e}", exc_info=True)
+    app.logger.info("Registro de Blueprints completado.")
+
+    # --- Rutas de Nivel de Aplicación ---
+    app.logger.info("Definiendo rutas de nivel de aplicación...")
     @app.route("/")
     def home():
         if "user" not in flask_session:
-            return redirect(url_for("login_bp.login_google"))
+            return redirect(url_for("login_bp.login_google")) # Asume que el blueprint de login se llama 'login_bp'
         if flask_session.get("is_admin"):
-            return redirect(url_for("admin_nora_dashboard_bp.dashboard_admin"))
+            return redirect(url_for("admin_nora_dashboard_bp.dashboard_admin")) # Verifica este nombre de blueprint
         else:
             return redirect(url_for("panel_cliente_bp.configuracion_cliente", nombre_nora=flask_session.get("nombre_nora", "aura")))
 
@@ -156,20 +222,27 @@ def create_app(config_class=Config):
             "estado": "OK",
         })
 
-    @app.route('/healthz')  # Ruta de health check
+    @app.route('/healthz')
     def health_check():
         return "OK", 200
+    app.logger.info("Rutas de nivel de aplicación definidas.")
 
-    @app.route('/healthz_factory')
-    def health_check_factory():
-        return "OK from factory", 200
-
-    app.logger.info("Inicio de handlers before_request (aún por completar)...")
+    # --- before_request handler ---
+    app.logger.info("Definiendo handler before_request...")
     @app.before_request
     def log_polling_requests():
         if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
-            app.logger.info(f"{request.remote_addr} - {request.method} {request.full_path}")
+            # Obtener el logger configurado para socketio polling
+            socketio_polling_logger = logging.getLogger('socketio_polling_custom')
+            socketio_polling_logger.info(f"{request.remote_addr} - {request.method} {request.full_path}")
+    app.logger.info("Handler before_request definido.")
+
+    # Registrar rutas en Supabase al final, después de que todo esté registrado
+    # Esta función ahora se llama registrar_rutas_en_supabase_db y toma 'app'
+    # registrar_rutas_en_supabase_db(app) # Puedes llamar a esto aquí si quieres
+    # app.logger.info("Intento de registro de rutas en Supabase completado.")
+
 
     app.logger.info(f"📋 Total de rutas registradas: {len(list(app.url_map.iter_rules()))}")
-    app.logger.info("Función create_app completada (parcialmente).")
+    app.logger.info("Función create_app completada.")
     return app
