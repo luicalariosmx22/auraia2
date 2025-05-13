@@ -17,7 +17,8 @@ RUN pip cache purge && pip install --upgrade pip setuptools wheel
 
 # Crear y activar entorno virtual
 RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"  # Usar el PATH del entorno virtual
+# Usar el PATH del entorno virtual
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Instalar dependencias de Python
 RUN /opt/venv/bin/pip install -r requirements.txt
