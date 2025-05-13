@@ -109,7 +109,11 @@ def create_app(config_class=Config):
 
     app.config.from_object(config_class)
 
-    print(f"DEBUG: SESSION_COOKIE_NAME DESPUÉS de from_object: {app.config.get('SESSION_COOKIE_NAME')}")
+    # Asegurarse de que SESSION_COOKIE_NAME esté configurado
+    if 'SESSION_COOKIE_NAME' not in app.config:
+        app.config['SESSION_COOKIE_NAME'] = 'aura_session'
+
+    print(f"DEBUG: SESSION_COOKIE_NAME configurado como: {app.config['SESSION_COOKIE_NAME']}")
     print(f"DEBUG: SECRET_KEY DESPUÉS de from_object: {app.config.get('SECRET_KEY')}")
     print(f"DEBUG: SESSION_TYPE DESPUÉS de from_object: {app.config.get('SESSION_TYPE')}")
     # --- FIN DE CAMBIOS PARA DEPURACIÓN ---
