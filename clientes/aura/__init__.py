@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask, session as flask_session, redirect, url_for, request, jsonify
 from dotenv import load_dotenv
 from .app_config import Config
-from .extensions import socketio, session_ext, scheduler
+from .extensiones import socketio, session_ext, scheduler
 from apscheduler.triggers.cron import CronTrigger
 
 class WerkzeugFilter(logging.Filter):
