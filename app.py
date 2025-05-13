@@ -57,6 +57,7 @@ from clientes.aura.extensiones import socketio
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 
 from gunicorn.app.base import BaseApplication
+from gunicorn.config import Config  # <--- AÑADE ESTA LÍNEA
 from typing import Dict, Any
 
 import flask
