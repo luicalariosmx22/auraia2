@@ -28,7 +28,8 @@ RUN pip cache purge && \
 
 # Crear y activar un entorno virtual
 RUN python3 -m venv /opt/venv  # [5] Creamos un entorno virtual en /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"   # [6] Modificamos el PATH para usar el entorno virtual
+# Modificamos el PATH para usar el entorno virtual
+ENV PATH="/opt/venv/bin:$PATH"   # [6]
 
 # Instalar las dependencias de Python desde requirements.txt
 RUN /opt/venv/bin/pip install -r requirements.txt  # [7] Instalamos los paquetes en el entorno virtual
