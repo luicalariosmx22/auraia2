@@ -55,6 +55,7 @@ from clientes.aura.extensiones import socketio
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 
 from gunicorn.app.base import BaseApplication
+from typing import Dict, Any
 
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
@@ -204,32 +205,38 @@ def log_polling_requests():
     if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
         socketio_log.info(f"{request.remote_addr} - {request.method} {request.full_path}")
 
-from gunicorn.app.base import BaseApplication
-
 class GunicornApplication(BaseApplication):
     """
     Wrapper para lanzar Gunicorn desde código.
+
+    Corrige el AttributeError: 'GunicornApplication' object has no attribute
+    'cfg_cls' llamando al constructor de BaseApplication y verificando que
+    `cfg_cls` exista antes de usarlo.
     """
-    def __init__(self, app, options: dict | None = None):
-        self.options = options or {}
+
+    def __init__(self, app, options: Dict[str, Any] | None = None):
+        self.options: Dict[str, Any] = options or {}
         self.application = app
-        # ① ESTO CREA cfg_cls y cfg EN EL OBJETO
-        super().__init__()  # ← necesaria
+        # ⚠️ ¡Es esencial llamar al padre!  crea cfg_cls y cfg
+        super().__init__()
 
-    # -------------------------------------------------
-    # Los dos ganchos obligatorios que Gunicorn espera
-    # -------------------------------------------------
+    # ────────────────────────────────────────────────────────────
+    # Métodos requeridos por BaseApplication
+    # ────────────────────────────────────────────────────────────
     def load_config(self):
-        # ② Debug rápido — verifica que cfg_cls exista
-        import logging, pprint
-        logging.basicConfig(level=logging.DEBUG)
-        logging.debug(f"attrs: {pprint.pformat(self.__dict__.keys())}")
+        # Asegurarse de que cfg_cls existe; si no, abortar con mensaje claro
+        if not hasattr(self, "cfg_cls"):
+            raise RuntimeError(
+                "GunicornApplication no tiene cfg_cls. "
+                "¿Se ejecutó super().__init__()?"
+            )
 
-        # Si todo va bien, estas líneas ya no lanzarán AttributeError
         self.cfg = self.cfg_cls.make_settings()
+
+        # Aplicar solo las opciones permitidas que no sean None
         for key, value in self.options.items():
             if key in self.cfg.settings and value is not None:
-                self.cfg.set(key, value)
+                self.cfg.set(key.lower(), value)
 
     def load(self):
         return self.application
