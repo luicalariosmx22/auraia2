@@ -25,19 +25,14 @@ COPY . /app/
 RUN pip cache purge && \
     pip install --upgrade pip setuptools wheel
 
-# Crear y activar un entorno virtual, asegurándose de instalar las dependencias en él
-RUN python3 -m venv /opt/venv
-# Asegurar que /opt/venv/bin esté en el PATH
-ENV PATH="/opt/venv/bin:$PATH"
+# Instalar las dependencias de requirements.txt directamente
+RUN pip install -r requirements.txt  # Instalar directamente sin crear un entorno virtual
 
-RUN /opt/venv/bin/pip install -r requirements.txt  # Instalación de dependencias en el entorno virtual
-
-# Verificar que Flask esté instalado correctamente dentro del entorno virtual
-RUN /opt/venv/bin/pip show Flask
+# Verificar que Flask se haya instalado correctamente
+RUN pip show Flask
 
 # Exponer el puerto (asegurarse de que esté disponible en Railway)
 EXPOSE $PORT
 
 # Comando para ejecutar la app con Gunicorn y gevent, asegurándonos de que se use el entorno virtual
-WORKDIR /app  # Asegurar explícitamente el WORKDIR antes de CMD
-CMD ["/opt/venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]
