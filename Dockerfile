@@ -16,28 +16,28 @@ RUN apt-get update && apt-get install -y \
     libxslt-dev
 
 # Establecer el directorio de trabajo
-WORKDIR /app
+WORKDIR /app  # Asegúrate de estar en /app
 
-# Copiar todos los archivos del proyecto
+# Copiar todos los archivos del proyecto al contenedor
 COPY . /app/
 
 # Limpiar caché de pip y actualizar pip
 RUN pip cache purge && \
     pip install --upgrade pip setuptools wheel
 
-# Crear y activar un entorno virtual, asegurándose de instalar las dependencias en él
-RUN python3 -m venv /opt/venv
-# Asegurar que /opt/venv/bin esté en el PATH
-ENV PATH="/opt/venv/bin:$PATH"
+# Crear y activar un entorno virtual y asegurarse de instalar herramientas necesarias
+RUN python3 -m venv /opt/venv && \
+    . /opt/venv/bin/activate && \
+    pip install -r requirements.txt
 
-RUN /opt/venv/bin/pip install -r requirements.txt  # Instalación de dependencias en el entorno virtual
-
-# Verificar que Flask esté instalado correctamente dentro del entorno virtual
+# Verificar que Flask se haya instalado correctamente
 RUN /opt/venv/bin/pip show Flask
+
+# Asegurarse de que la variable de entorno 'PORT' esté configurada
+ENV PORT 5000
 
 # Exponer el puerto (asegurarse de que esté disponible en Railway)
 EXPOSE $PORT
 
 # Comando para ejecutar la app con Gunicorn y gevent, asegurándonos de que se use el entorno virtual
-WORKDIR /app  # Asegurar explícitamente el WORKDIR antes de CMD
 CMD ["/opt/venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]
