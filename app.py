@@ -269,7 +269,7 @@ class GunicornApplication(BaseApplication):
         app.logger.info("[GunicornApplication] load_config: Iniciando carga de configuración.")
         try:
             # 1. Crea el objeto de configuración usando la clase Config importada directamente.
-            self.cfg = Config()  # <--- ESTE ES EL CAMBIO IMPORTANTE
+            self.cfg = Config()  # <--- ESTE ES EL CAMBIO
             app.logger.info("[GunicornApplication] load_config: self.cfg inicializado directamente usando Config().")
 
             # 2. Aplica las opciones que pasaste a GunicornApplication.
