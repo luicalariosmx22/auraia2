@@ -1,6 +1,7 @@
 print("🚀 VERSIÓN CORREGIDA DEL APP.PY - SÍ ESTOY ACTUALIZADO 🚀")
 
 from gevent import monkey
+
 monkey.patch_all()  # ✅ Apply gevent monkey patching
 
 import os
@@ -20,6 +21,7 @@ from clientes.aura.tasks.meta_ads_reporter import enviar_reporte_semanal
 
 print("📥 Importando módulo Ads...")
 from clientes.aura.modules.ads import ads_bp  # ✅ Updated import
+
 print("✅ Módulo Ads importado correctamente.")
 
 # 👇 Import actualizado
