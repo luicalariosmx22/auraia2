@@ -262,19 +262,23 @@ class GunicornApplication(BaseApplication):
     # Métodos requeridos por BaseApplication
     # ────────────────────────────────────────────────────────────
     def load_config(self):
-        # Asegurarse de que cfg_cls existe; si no, abortar con mensaje claro
-        if not hasattr(self, "cfg_cls"):
-            raise RuntimeError(
-                "GunicornApplication no tiene cfg_cls. "
-                "¿Se ejecutó super().__init__()?"
-            )
+        # 1. Llama al load_config de la clase base (BaseApplication)
+        # Esto inicializará self.cfg correctamente usando self.cfg_cls()
+        super().load_config()
 
-        self.cfg = self.cfg_cls.make_settings()
+        # 2. Aplica tus opciones programáticas al self.cfg ya existente.
+        if self.cfg is None:
+            # Precaución: inicializa self.cfg si no fue creado por super().load_config().
+            self.cfg = self.__class__.cfg_cls()
 
-        # Aplicar solo las opciones permitidas que no sean None
         for key, value in self.options.items():
-            if key in self.cfg.settings and value is not None:
-                self.cfg.set(key.lower(), value)
+            # Gunicorn espera que los nombres de las configuraciones estén en minúsculas.
+            setting_name = key.lower()
+            if hasattr(self.cfg, setting_name):  # Verifica si la configuración es válida
+                self.cfg.set(setting_name, value)
+            # else:
+                # Podrías loguear una advertencia si una opción no es reconocida.
+                # print(f"Advertencia: Opción de Gunicorn desconocida '{key}'")
 
     def load(self):
         return self.application
