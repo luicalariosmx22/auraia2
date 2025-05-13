@@ -203,14 +203,16 @@ def log_polling_requests():
 
 class GunicornApplication(BaseApplication):
     def __init__(self, app, options=None):
-        self.application = app
         self.options = options or {}
+        self.application = app
+        self.cfg = None  # Inicializar self.cfg
 
     def load(self):
         return self.application
 
     def load_config(self):
-        for key, value in self.options.items():  # ✅ Use `.items()` for Python 3
+        self.cfg = self.cfg_cls.make_settings()  # Inicializar self.cfg correctamente
+        for key, value in self.options.items():
             self.cfg.set(key, value)
 
 # Configuración de Gunicorn con gevent
