@@ -1,5 +1,8 @@
 print("🚀 VERSIÓN CORREGIDA DEL APP.PY - SÍ ESTOY ACTUALIZADO 🚀")
 
+from gevent import monkey
+monkey.patch_all()  # ✅ Apply gevent monkey patching
+
 import os
 import uuid
 import logging
@@ -50,8 +53,6 @@ from clientes.aura.extensiones import socketio
 from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
 
 from gunicorn.app.base import BaseApplication
-from gevent import monkey
-monkey.patch_all()  # ✅ Apply gevent monkey patching
 
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
@@ -102,6 +103,10 @@ def safe_register_blueprint(app, blueprint, **kwargs):
     Registra un blueprint de forma segura, evitando duplicados.
     """
     unique_name = kwargs.pop("name", blueprint.name)
+    print(f"🔍 Registrando blueprint: {unique_name}")
+    print(f"    - Tipo de app: {type(app)}")
+    print(f"    - Tipo de blueprint: {type(blueprint)}")
+    print(f"    - Tipo de kwargs: {type(kwargs)}")
     if unique_name not in app.blueprints:
         app.register_blueprint(blueprint, name=unique_name, **kwargs)
         print(f"✅ Blueprint '{unique_name}' registrado")
