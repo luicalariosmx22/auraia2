@@ -204,15 +204,29 @@ def log_polling_requests():
     if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
         socketio_log.info(f"{request.remote_addr} - {request.method} {request.full_path}")
 
+from gunicorn.app.base import BaseApplication
+
 class GunicornApplication(BaseApplication):
-    def __init__(self, app, options=None):
+    """
+    Wrapper para lanzar Gunicorn desde código.
+    """
+    def __init__(self, app, options: dict | None = None):
         self.options = options or {}
         self.application = app
-        # 🔧 Inicializa correctamente BaseApplication para crear cfg y cfg_cls
-        super().__init__()
+        # ① ESTO CREA cfg_cls y cfg EN EL OBJETO
+        super().__init__()  # ← necesaria
 
+    # -------------------------------------------------
+    # Los dos ganchos obligatorios que Gunicorn espera
+    # -------------------------------------------------
     def load_config(self):
-        self.cfg = self.cfg_cls.make_settings()  # Inicializar self.cfg correctamente
+        # ② Debug rápido — verifica que cfg_cls exista
+        import logging, pprint
+        logging.basicConfig(level=logging.DEBUG)
+        logging.debug(f"attrs: {pprint.pformat(self.__dict__.keys())}")
+
+        # Si todo va bien, estas líneas ya no lanzarán AttributeError
+        self.cfg = self.cfg_cls.make_settings()
         for key, value in self.options.items():
             if key in self.cfg.settings and value is not None:
                 self.cfg.set(key, value)
