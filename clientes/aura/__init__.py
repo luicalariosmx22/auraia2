@@ -99,7 +99,21 @@ def create_app(config_class=Config):
         static_folder='static'
     )
     load_dotenv()
+
+    # --- INICIO DE CAMBIOS PARA DEPURACIÓN ---
+    print(f"DEBUG: Objeto config_class ANTES de from_object: {config_class}")
+    if hasattr(config_class, 'SESSION_COOKIE_NAME'):
+        print(f"DEBUG: config_class TIENE SESSION_COOKIE_NAME: {getattr(config_class, 'SESSION_COOKIE_NAME')}")
+    else:
+        print("DEBUG: config_class NO TIENE SESSION_COOKIE_NAME")
+
     app.config.from_object(config_class)
+
+    print(f"DEBUG: SESSION_COOKIE_NAME DESPUÉS de from_object: {app.config.get('SESSION_COOKIE_NAME')}")
+    print(f"DEBUG: SECRET_KEY DESPUÉS de from_object: {app.config.get('SECRET_KEY')}")
+    print(f"DEBUG: SESSION_TYPE DESPUÉS de from_object: {app.config.get('SESSION_TYPE')}")
+    # --- FIN DE CAMBIOS PARA DEPURACIÓN ---
+
     print("🚀 Aplicación Flask creada y configuración inicial cargada por la factory.")
 
     # Inicializar extensiones
