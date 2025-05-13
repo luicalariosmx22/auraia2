@@ -59,11 +59,26 @@ from typing import Dict, Any
 
 import flask
 import gunicorn
-import werkzeug
+
+try:
+    # Método moderno para obtener la versión de Werkzeug
+    from werkzeug import __version__ as werkzeug_version
+except ImportError:
+    try:
+        # Fallback para versiones más antiguas o si Werkzeug no está accesible
+        import werkzeug
+        werkzeug_version = werkzeug.__version__
+    except (ImportError, AttributeError):
+        try:
+            # Otro fallback usando pkg_resources
+            import pkg_resources
+            werkzeug_version = pkg_resources.get_distribution("werkzeug").version
+        except Exception:
+            werkzeug_version = "No se pudo determinar la versión de Werkzeug"
 
 print(f"Flask version: {flask.__version__}")
 print(f"Gunicorn version: {gunicorn.__version__}")
-print(f"Werkzeug version: {werkzeug.__version__}")
+print(f"Werkzeug version: {werkzeug_version}")
 
 class WerkzeugFilter(logging.Filter):
     def filter(self, record):
