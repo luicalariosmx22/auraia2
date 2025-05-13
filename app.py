@@ -249,45 +249,40 @@ class GunicornApplication(BaseApplication):
     Wrapper para lanzar Gunicorn desde código.
     """
     def __init__(self, app_object, options: Dict[str, Any] | None = None):
-        # Usamos app_object como nombre del parámetro para evitar confusión con self.app de BaseApplication
+        print("[GunicornApplication] __init__: Inicializando.")
         self.options: Dict[str, Any] = options or {}
         self.application_obj = app_object  # Guardamos el objeto Flask aquí
-        # Logueamos antes de llamar al super
-        app.logger.info("[GunicornApplication] __init__: Inicializando. Opciones: %s", self.options)
+        print(f"[GunicornApplication] __init__: Opciones recibidas: {self.options}")
         try:
             super().__init__()
-            app.logger.info("[GunicornApplication] __init__: super().__init__() completado.")
+            print("[GunicornApplication] __init__: super().__init__() completado.")
         except Exception as e:
-            app.logger.error("[GunicornApplication] __init__: ERROR durante super().__init__(): %s", str(e), exc_info=True)
+            print(f"[GunicornApplication] __init__: ERROR durante super().__init__(): {str(e)}")
             raise
 
     def load_config(self):
-        app.logger.info("[GunicornApplication] load_config: Iniciando carga de configuración.")
+        print("[GunicornApplication] load_config: Iniciando carga de configuración.")
         try:
             # 1. Crea el objeto de configuración usando la clase Config importada directamente.
-            self.cfg = Config()  # <--- ESTE ES EL CAMBIO IMPORTANTE
-            app.logger.info("[GunicornApplication] load_config: self.cfg inicializado directamente usando Config().")
+            self.cfg = Config()
+            print("[GunicornApplication] load_config: self.cfg inicializado directamente usando Config().")
 
             # 2. Aplica las opciones que pasaste a GunicornApplication.
-            app.logger.info("[GunicornApplication] load_config: Aplicando opciones programáticas al cfg.")
+            print("[GunicornApplication] load_config: Aplicando opciones programáticas al cfg.")
             for key, value in self.options.items():
                 setting_name = key.lower()
-                # Verificamos si la configuración existe en el objeto cfg de Gunicorn
-                if setting_name in self.cfg.settings:  # Usamos self.cfg.settings para verificar
+                if setting_name in self.cfg.settings:  # Verifica si la configuración existe en el objeto cfg.
                     self.cfg.set(setting_name, value)
-                    app.logger.debug("[GunicornApplication] load_config: Opción aplicada: %s = %s", setting_name, value)
+                    print(f"[GunicornApplication] load_config: Opción aplicada: {setting_name} = {value}")
                 else:
-                    app.logger.warning("[GunicornApplication] load_config: Opción de Gunicorn desconocida o no es un 'setting': '%s'", key)
-
-            app.logger.info("[GunicornApplication] load_config: Configuración cargada exitosamente.")
-
+                    print(f"[GunicornApplication] load_config: Opción desconocida o no válida: '{key}'")
+            print("[GunicornApplication] load_config: Configuración cargada exitosamente.")
         except Exception as e:
-            app.logger.error("[GunicornApplication] load_config: ERROR durante load_config: %s", str(e), exc_info=True)
+            print(f"[GunicornApplication] load_config: ERROR durante load_config: {str(e)}")
             raise
 
     def load(self):
-        app.logger.info("[GunicornApplication] load: Cargando la aplicación Flask.")
-        # Devuelve el objeto Flask que guardamos
+        print("[GunicornApplication] load: Cargando la aplicación Flask.")
         return self.application_obj
 
 # Configuración de Gunicorn con gevent
@@ -302,29 +297,27 @@ options = {
 # Lanzar la aplicación con Gunicorn
 # ──────────────────────────────────────────
 if __name__ == "__main__":
-    app.logger.info("============================================================")
-    app.logger.info("INICIANDO BLOQUE if __name__ == '__main__':")
-    app.logger.info("Intentando iniciar Gunicorn programáticamente...")
-    app.logger.info("Opciones de Gunicorn a usar: %s", options)
+    print("============================================================")
+    print("INICIANDO BLOQUE if __name__ == '__main__':")
+    print("Intentando iniciar Gunicorn programáticamente...")
+    print(f"Opciones de Gunicorn a usar: {options}")
 
     try:
-        # Pasamos 'app' (tu instancia de Flask) y 'options' a GunicornApplication
+        print("[GunicornApplication] Creando instancia de GunicornApplication...")
         gunicorn_app = GunicornApplication(app, options)
-        app.logger.info("Instancia de GunicornApplication creada.")
-        
-        app.logger.info("Llamando a gunicorn_app.run()...")
-        gunicorn_app.run()  # Esto bloqueará si Gunicorn se inicia correctamente
-        
-        # Si gunicorn_app.run() retorna, significa que Gunicorn se detuvo
-        app.logger.info("gunicorn_app.run() ha finalizado.")
+        print("[GunicornApplication] Instancia creada exitosamente.")
 
+        print("[GunicornApplication] Llamando a gunicorn_app.run()...")
+        gunicorn_app.run()  # Esto bloqueará si Gunicorn se inicia correctamente
+
+        print("[GunicornApplication] gunicorn_app.run() ha finalizado.")
     except SystemExit as se:
-        app.logger.error("SystemExit capturado en __main__: Código de salida %s. Gunicorn probablemente falló al iniciar.", se.code, exc_info=True)
+        print(f"[GunicornApplication] SystemExit capturado: Código de salida {se.code}.")
         if se.code != 0:
-            raise  # Relanza la excepción si fue una salida con error
+            raise
     except Exception as e:
-        app.logger.error("ERROR FATAL al intentar iniciar o ejecutar Gunicorn en __main__: %s", str(e), exc_info=True)
+        print(f"[GunicornApplication] ERROR FATAL al intentar iniciar o ejecutar Gunicorn: {str(e)}")
         raise
     finally:
-        app.logger.info("Bloque if __name__ == '__main__' finalizado.")
-        app.logger.info("============================================================")
+        print("[GunicornApplication] Bloque if __name__ == '__main__' finalizado.")
+        print("============================================================")
