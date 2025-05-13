@@ -208,8 +208,8 @@ class GunicornApplication(BaseApplication):
     def __init__(self, app, options=None):
         self.options = options or {}
         self.application = app
-        self.cfg = None  # Inicializar self.cfg
-        super().__init__()  # Llamar al constructor de BaseApplication
+        # 🔧 Inicializa correctamente BaseApplication para crear cfg y cfg_cls
+        super().__init__()
 
     def load_config(self):
         self.cfg = self.cfg_cls.make_settings()  # Inicializar self.cfg correctamente
