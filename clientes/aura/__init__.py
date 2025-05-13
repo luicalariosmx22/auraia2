@@ -100,12 +100,12 @@ def create_app(config_class=Config):
     )
     load_dotenv()
     app.config.from_object(config_class)
-    app.logger.info("🚀 Aplicación Flask creada y configuración inicial cargada por la factory.")
+    print("🚀 Aplicación Flask creada y configuración inicial cargada por la factory.")
 
     # Inicializar extensiones
     session_ext.init_app(app)
     socketio.init_app(app)
-    app.logger.info("Extensiones Flask-Session y Flask-SocketIO inicializadas.")
+    print("Extensiones Flask-Session y Flask-SocketIO inicializadas.")
 
     # Configurar Logging
     # (Tu lógica de logging que ya tenías aquí, incluyendo WerkzeugFilter, error.log, socketio_polling.log, Twilio)
@@ -113,19 +113,19 @@ def create_app(config_class=Config):
         try:
             if not os.path.exists('logs') and os.name != 'nt':
                 try: os.makedirs('logs')
-                except OSError as e: app.logger.warning(f"No se pudo crear carpeta 'logs': {e}")
+                except OSError as e: print(f"No se pudo crear carpeta 'logs': {e}")
             error_file_handler = RotatingFileHandler("error.log", maxBytes=10240, backupCount=10)
             error_file_handler.setLevel(logging.ERROR)
             error_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
             error_file_handler.setFormatter(error_formatter)
             app.logger.addHandler(error_file_handler)
-            app.logger.info("Handler de logging para errores de app configurado (error.log).")
+            print("Handler de logging para errores de app configurado (error.log).")
         except Exception as e:
-            app.logger.error(f"No se pudo configurar el archivo de log para errores de app: {e}")
+            print(f"No se pudo configurar el archivo de log para errores de app: {e}")
 
         werkzeug_logger = logging.getLogger('werkzeug')
         werkzeug_logger.addFilter(WerkzeugFilter())
-        app.logger.info("Filtro de logging para Werkzeug añadido.")
+        print("Filtro de logging para Werkzeug añadido.")
 
         socketio_polling_log = logging.getLogger('socketio_polling_custom')
         socketio_polling_log.setLevel(logging.INFO)
@@ -133,12 +133,12 @@ def create_app(config_class=Config):
             socketio_polling_file_handler = RotatingFileHandler("logs/socketio_polling.log", maxBytes=100000, backupCount=3)
             socketio_polling_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
             socketio_polling_log.addHandler(socketio_polling_file_handler)
-            app.logger.info("Handler de logging para socketio_polling configurado (logs/socketio_polling.log).")
+            print("Handler de logging para socketio_polling configurado (logs/socketio_polling.log).")
         except Exception as e:
-            app.logger.error(f"No se pudo configurar el archivo de log para socketio_polling: {e}")
+            print(f"No se pudo configurar el archivo de log para socketio_polling: {e}")
 
     logging.getLogger("twilio.http_client").setLevel(logging.WARNING)
-    app.logger.info("Nivel de logging para twilio.http_client establecido a WARNING.")
+    print("Nivel de logging para twilio.http_client establecido a WARNING.")
 
     # Registrar Tareas APScheduler
     if not scheduler.running:
@@ -151,63 +151,38 @@ def create_app(config_class=Config):
         )
         try:
             scheduler.start()
-            app.logger.info("APScheduler iniciado y trabajo 'enviar_reporte_semanal' añadido.")
+            print("APScheduler iniciado y trabajo 'enviar_reporte_semanal' añadido.")
         except Exception as e:
-            app.logger.error(f"Error al iniciar APScheduler o añadir job: {e}", exc_info=True)
+            print(f"Error al iniciar APScheduler o añadir job: {e}")
     else:
-        app.logger.info("APScheduler ya estaba corriendo.")
+        print("APScheduler ya estaba corriendo.")
 
     # --- Registrar Blueprints ---
-    app.logger.info("Iniciando registro de Blueprints...")
+    print("Iniciando registro de Blueprints...")
     registrar_blueprints_login(app, safe_register_blueprint)
     registrar_blueprints_base(app, safe_register_blueprint)
     registrar_blueprints_admin(app, safe_register_blueprint)
     registrar_blueprints_debug(app, safe_register_blueprint)
     registrar_blueprints_invitado(app, safe_register_blueprint)
 
-    # Blueprints estáticos
-    blueprints_estaticos = [
-        # (admin_verificador_bp, None),  # Probablemente registrado en registro_admin.py o registro_debug.py
-        # (panel_chat_bp, None),  # Probablemente registrado en registro_dinamico.py
-        # (admin_nora_dashboard_bp, None),  # Probablemente registrado en registro_admin.py
-        # (webhook_bp, None),  # Registrado en registro_base.py
-        # (etiquetas_bp, "/panel_cliente_etiquetas"),  # Probablemente registrado en registro_dinamico.py
-        # (panel_cliente_bp, "/panel_cliente"),  # Registrado en registro_dinamico.py
-        # (panel_cliente_contactos_bp, "/panel_cliente/contactos"),  # Registrado en registro_dinamico.py
-        # (panel_cliente_envios_bp, "/panel_cliente/envios"),  # Registrado en registro_dinamico.py
-        # (admin_nora_bp, "/admin/nora"),  # Registrado en registro_admin.py
-        # (admin_noras_bp, "/admin/noras"),  # Registrado en registro_admin.py
-        # (cliente_nora_bp, "/panel_cliente"),  # Decide si este es único o parte de registro_dinamico.py
-        # (panel_cliente_conocimiento_bp, "/panel_cliente/conocimiento"),  # Registrado en registro_dinamico.py
-        # (panel_cliente_ads_bp, f"/panel_cliente/{{nombre_nora}}/ads"),  # Registrado en registro_dinamico.py
-        # (cobranza_bp, "/api", name="cobranza_api")  # Si lo registras en otro lado, quítalo. Si solo aquí, déjalo.
-    ]
 
-    # Procesar lo que quede en la lista blueprints_estaticos
-    # if blueprints_estaticos:
-    #     for blueprint, prefix in blueprints_estaticos:
-    #         safe_register_blueprint(app, blueprint, url_prefix=prefix)
-
-    # Si cobranza_bp se registra en otro lado, también quita esta línea:
-    # safe_register_blueprint(app, cobranza_bp, url_prefix="/api", name="cobranza_api")
-
-    app.logger.info("Registro de Blueprints completado.")
+    print("Registro de Blueprints completado.")
 
     # Blueprints dinámicos
     try:
         response = supabase.table("configuracion_bot").select("nombre_nora").execute()
         nombre_noras = [n["nombre_nora"] for n in response.data] if response.data else []
-        app.logger.info(f"Nora(s) encontradas en Supabase para registro dinámico: {nombre_noras}")
+        print(f"Nora(s) encontradas en Supabase para registro dinámico: {nombre_noras}")
         for nombre in nombre_noras:
             registrar_blueprints_por_nora(app, nombre_nora=nombre, safe_register_blueprint=safe_register_blueprint)
         # Considera si necesitas registrar 'aura' explícitamente aquí o si ya viene de Supabase
         # registrar_blueprints_por_nora(app, nombre_nora="aura", safe_register_blueprint=safe_register_blueprint)
     except Exception as e:
-        app.logger.error(f"Error al registrar Noras dinámicas: {e}", exc_info=True)
-    app.logger.info("Registro de Blueprints completado.")
+        print(f"Error al registrar Noras dinámicas: {e}")
+    print("Registro de Blueprints completado.")
 
     # --- Rutas de Nivel de Aplicación ---
-    app.logger.info("Definiendo rutas de nivel de aplicación...")
+    print("Definiendo rutas de nivel de aplicación...")
     @app.route("/")
     def home():
         if "user" not in flask_session:
@@ -232,24 +207,24 @@ def create_app(config_class=Config):
     @app.route('/healthz')
     def health_check():
         return "OK", 200
-    app.logger.info("Rutas de nivel de aplicación definidas.")
+    print("Rutas de nivel de aplicación definidas.")
 
     # --- before_request handler ---
-    app.logger.info("Definiendo handler before_request...")
+    print("Definiendo handler before_request...")
     @app.before_request
     def log_polling_requests():
         if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
             # Obtener el logger configurado para socketio polling
             socketio_polling_logger = logging.getLogger('socketio_polling_custom')
             socketio_polling_logger.info(f"{request.remote_addr} - {request.method} {request.full_path}")
-    app.logger.info("Handler before_request definido.")
+    print("Handler before_request definido.")
 
     # Registrar rutas en Supabase al final, después de que todo esté registrado
     # Esta función ahora se llama registrar_rutas_en_supabase_db y toma 'app'
     # registrar_rutas_en_supabase_db(app) # Puedes llamar a esto aquí si quieres
-    # app.logger.info("Intento de registro de rutas en Supabase completado.")
+    # print("Intento de registro de rutas en Supabase completado.")
 
 
-    app.logger.info(f"📋 Total de rutas registradas: {len(list(app.url_map.iter_rules()))}")
-    app.logger.info("Función create_app completada.")
+    print(f"📋 Total de rutas registradas: {len(list(app.url_map.iter_rules()))}")
+    print("Función create_app completada.")
     return app
