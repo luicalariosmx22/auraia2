@@ -239,6 +239,10 @@ def debug_info():
         "estado": "OK",
     })
 
+@app.route('/healthz')  # Ruta de health check
+def health_check():
+    return "OK", 200
+
 @app.before_request
 def log_polling_requests():
     if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
