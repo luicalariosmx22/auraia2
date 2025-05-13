@@ -296,6 +296,9 @@ options = {
     'workers': int(os.environ.get('WEB_CONCURRENCY', 4)),  # Configurable por variable de entorno
     'worker_class': 'gevent',
     'timeout': 120,  # Ejemplo: Aumentar el timeout si tienes operaciones largas
+    'loglevel': 'debug',  # <--- AÑADE ESTO TEMPORALMENTE SI NECESITAS MÁS DETALLE
+    'accesslog': '-',     # Log de acceso a stdout
+    'errorlog': '-',      # Log de error a stderr (o stdout)
 }
 
 # ──────────────────────────────────────────
