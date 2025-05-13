@@ -264,25 +264,25 @@ class GunicornApplication(BaseApplication):
     def load_config(self):
         app.logger.info("[GunicornApplication] load_config: Iniciando carga de configuración.")
         try:
-            # 1. Crea el objeto de configuración desde self.cfg_cls.
-            self.cfg = self.cfg_cls()
-            app.logger.info("[GunicornApplication] load_config: self.cfg inicializado desde self.cfg_cls().")
+            # 1. Crea el objeto de configuración usando la clase Config importada directamente.
+            self.cfg = Config()  # <--- ESTE ES EL CAMBIO IMPORTANTE
+            app.logger.info("[GunicornApplication] load_config: self.cfg inicializado directamente usando Config().")
 
-            # 2. Aplica las opciones programáticas al objeto cfg.
+            # 2. Aplica las opciones que pasaste a GunicornApplication.
             app.logger.info("[GunicornApplication] load_config: Aplicando opciones programáticas al cfg.")
             for key, value in self.options.items():
                 setting_name = key.lower()
-                # Verifica si la configuración existe en el objeto cfg de Gunicorn.
-                if setting_name in self.cfg.settings:
+                # Verificamos si la configuración existe en el objeto cfg de Gunicorn
+                if setting_name in self.cfg.settings:  # Usamos self.cfg.settings para verificar
                     self.cfg.set(setting_name, value)
                     app.logger.debug("[GunicornApplication] load_config: Opción aplicada: %s = %s", setting_name, value)
                 else:
                     app.logger.warning("[GunicornApplication] load_config: Opción de Gunicorn desconocida o no es un 'setting': '%s'", key)
-            
+
             app.logger.info("[GunicornApplication] load_config: Configuración cargada exitosamente.")
+
         except Exception as e:
             app.logger.error("[GunicornApplication] load_config: ERROR durante load_config: %s", str(e), exc_info=True)
-            # Relanza la excepción para indicar que falló la carga de configuración.
             raise
 
     def load(self):
