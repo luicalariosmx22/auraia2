@@ -303,21 +303,20 @@ if __name__ == "__main__":
     print(f"Opciones de Gunicorn a usar: {options}")
 
     try:
-        print("[GunicornApplication] Creando instancia de GunicornApplication...")
         gunicorn_app = GunicornApplication(app, options)
-        print("[GunicornApplication] Instancia creada exitosamente.")
-
-        print("[GunicornApplication] Llamando a gunicorn_app.run()...")
+        print("Instancia de GunicornApplication creada.")
+        
+        print("Llamando a gunicorn_app.run()...")
         gunicorn_app.run()  # Esto bloqueará si Gunicorn se inicia correctamente
-
-        print("[GunicornApplication] gunicorn_app.run() ha finalizado.")
+        
+        print("gunicorn_app.run() ha finalizado.")
     except SystemExit as se:
-        print(f"[GunicornApplication] SystemExit capturado: Código de salida {se.code}.")
+        print(f"SystemExit capturado: Código de salida {se.code}.")
         if se.code != 0:
             raise
     except Exception as e:
-        print(f"[GunicornApplication] ERROR FATAL al intentar iniciar o ejecutar Gunicorn: {str(e)}")
+        print(f"ERROR FATAL al intentar iniciar o ejecutar Gunicorn: {str(e)}")
         raise
     finally:
-        print("[GunicornApplication] Bloque if __name__ == '__main__' finalizado.")
+        print("Bloque if __name__ == '__main__' finalizado.")
         print("============================================================")
