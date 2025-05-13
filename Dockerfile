@@ -25,22 +25,14 @@ COPY . /app/
 RUN pip cache purge && \
     pip install --upgrade pip setuptools wheel
 
-# Cambiar temporalmente al usuario root para instalar las dependencias
-USER root
-
-# Crear y activar un entorno virtual y asegurarse de instalar herramientas necesarias
-RUN python3 -m venv /opt/venv && \
-    . /opt/venv/bin/activate && \
-    pip install -r requirements.txt
-
-# Volver al usuario por defecto (model-server)
-USER model-server
+# Instalar las dependencias directamente (sin entorno virtual)
+RUN pip install -r requirements.txt
 
 # Verificar que Flask se haya instalado correctamente
-RUN /opt/venv/bin/pip show Flask
+RUN pip show Flask
 
 # Exponer el puerto (asegurarse de que esté disponible en Railway)
 EXPOSE $PORT
 
 # Comando para ejecutar la app con Gunicorn y gevent, asegurándonos de que se use el entorno virtual
-CMD ["/opt/venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]
