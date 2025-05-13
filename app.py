@@ -227,13 +227,9 @@ options = {
     'worker_class': 'gevent',  # ✅ Usar gevent en lugar de eventlet
 }
 
-if __name__ == "__main__":  # Solo se ejecuta cuando el script es el principal
-    try:
-        registrar_rutas_en_supabase()
-        generar_html_rutas(app, output_path="clientes/aura/templates/debug_rutas.html")
-    except Exception as e:
-        app.logger.error(f"Error crítico: {str(e)}")
-
-    gunicorn_app = GunicornApplication(socketio, options)
+# ──────────────────────────────────────────
+# Lanzar la aplicación con Gunicorn (solo modo local)
+# ──────────────────────────────────────────
+if __name__ == "__main__":
+    gunicorn_app = GunicornApplication(app, options)
     gunicorn_app.run()
-    scheduler.shutdown()  # Apagar el scheduler al cerrar la aplicación
