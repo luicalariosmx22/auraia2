@@ -4,6 +4,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, session as flask_session, redirect, url_for, request, jsonify
 from flask_session.sessions import SessionInterface
+from flask_session import Session
 from dotenv import load_dotenv
 
 # Tus módulos modulares
@@ -134,7 +135,7 @@ def create_app(config_class=Config):
     print("🚀 Aplicación Flask creada y configuración inicial cargada por la factory.")
 
     # Inicializar extensiones
-    session_ext.init_app(app)
+    Session(app)  # Ensure proper activation of Flask-Session
     socketio.init_app(app)
     print("Extensiones Flask-Session y Flask-SocketIO inicializadas.")
 
