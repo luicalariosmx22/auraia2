@@ -1,12 +1,11 @@
 from flask import Blueprint, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
 import os
-from clientes.aura.utils.supabase_client import supabase
 
 print("DEBUG: Este es el archivo login.py que se está ejecutando")
 
-# Blueprint con prefijo vacío para que funcione /login y /login/google/callback
-login_bp = Blueprint("login", __name__, url_prefix="")
+# Blueprint sin prefijo para que funcione /login y /login/google/callback
+login_bp = Blueprint("login", __name__)
 
 # Cargar variables de entorno
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -46,7 +45,7 @@ def login_google():
 
 # ========= Callback corregido =========
 @login_bp.route("/login/google/callback")
-def login_callback():
+def callback():
     print(f"DEBUG: Parámetros recibidos en el callback: {request.args}")
 
     oauth = OAuth2Session(
@@ -78,23 +77,15 @@ def login_callback():
         print(f"ERROR: Fallo al obtener la información del usuario: {e}")
         return f"❌ Error al obtener la información del usuario: {e}", 500
 
-    correo = user_info.get("email")
-    result = supabase.table("configuracion_bot").select("*").eq("correo_cliente", correo).execute()
+    # Configura la sesión del usuario
+    session["user"] = {
+        "name": user_info.get("name"),
+        "email": user_info.get("email"),
+        "picture": user_info.get("picture")
+    }
 
-    if result.data and len(result.data) > 0:
-        datos = result.data[0]
-        session["user"] = {
-            "name": user_info.get("name"),
-            "email": correo,
-            "picture": user_info.get("picture")
-        }
-        session["nombre_nora"] = datos["nombre_nora"]
-        session["is_admin"] = datos.get("tipo_usuario") == "admin"
+    from clientes.aura.utils.auth_utils import is_admin_user
+    session["is_admin"] = is_admin_user(session["user"]["email"])
 
-        return redirect(
-            url_for("admin_nora_dashboard_bp.dashboard_admin")
-            if session["is_admin"]
-            else url_for("panel_cliente_bp.configuracion_cliente", nombre_nora=session["nombre_nora"])
-        )
-
-    return "❌ No se encontró ninguna Nora vinculada a este correo.", 403
+    print(f"✅ Sesión configurada: {session}")
+    return redirect("/admin" if session["is_admin"] else "/panel_cliente")
