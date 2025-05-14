@@ -25,8 +25,14 @@ def panel_cliente(nombre_nora):
         # 1. Obtener configuración de la Nora
         result = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         config = result.data[0] if result.data else {}
-        modulos_activos = config.get("modulos", [])
-        print("🧠 Módulos activos:", modulos_activos)
+
+        raw_modulos = config.get("modulos", [])
+        if isinstance(raw_modulos, str):
+            modulos_activos = [m.strip() for m in raw_modulos.split(",")]
+        else:
+            modulos_activos = raw_modulos
+
+        print("🧠 Módulos activos (procesados):", modulos_activos)
 
         # 2. Obtener todos los módulos visuales posibles (no por nombre_nora)
         result_modulos = supabase.table("modulos_disponibles").select("*").execute()
