@@ -48,11 +48,12 @@ def callback():
 
     oauth = OAuth2Session(
         GOOGLE_CLIENT_ID,
-        redirect_uri=GOOGLE_REDIRECT_URI,  # Usa la variable de entorno aquí
+        redirect_uri=GOOGLE_REDIRECT_URI,
         state=session.get("oauth_state")
     )
 
     try:
+        # Intenta obtener el token de Google
         token = oauth.fetch_token(
             TOKEN_URL,
             client_secret=GOOGLE_CLIENT_SECRET,
@@ -60,12 +61,21 @@ def callback():
         )
         print(f"DEBUG: Token recibido: {token}")
     except Exception as e:
+        # Captura cualquier error durante el intercambio del token
         print(f"ERROR: Fallo al obtener el token: {e}")
-        return "❌ Error al obtener el token", 500
+        return f"❌ Error al obtener el token: {e}", 500
 
-    resp = oauth.get(USER_INFO_URL)
-    user_info = resp.json()
+    try:
+        # Intenta obtener la información del usuario
+        resp = oauth.get(USER_INFO_URL)
+        user_info = resp.json()
+        print(f"DEBUG: Información del usuario recibida: {user_info}")
+    except Exception as e:
+        # Captura cualquier error al obtener la información del usuario
+        print(f"ERROR: Fallo al obtener la información del usuario: {e}")
+        return f"❌ Error al obtener la información del usuario: {e}", 500
 
+    # Configura la sesión del usuario
     session["user"] = {
         "name": user_info.get("name"),
         "email": user_info.get("email"),
@@ -75,8 +85,5 @@ def callback():
     from clientes.aura.utils.auth_utils import is_admin_user
     session["is_admin"] = is_admin_user(session["user"]["email"])
 
-    # Depuración: Verifica el contenido de la sesión
     print(f"✅ Sesión configurada: {session}")
-
-    # ✅ Redirección segura usando ruta directa primero
     return redirect("/admin" if session["is_admin"] else "/panel_cliente")
