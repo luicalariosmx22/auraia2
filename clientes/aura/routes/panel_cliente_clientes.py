@@ -47,6 +47,7 @@ def vista_clientes():
 
 @panel_cliente_clientes_bp.route("/nuevo", methods=["GET", "POST"])
 def nuevo_cliente():
+    print("✅ Entrando a  cliente")
     nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
         return redirect(url_for('login.login_screen'))
@@ -119,9 +120,10 @@ def editar_empresa(empresa_id):
 
     # Cargar empresa
     empresa_resp = supabase.table("cliente_empresas").select("*").eq("id", empresa_id).single().execute()
-    if empresa_resp.error or not empresa_resp.data:
-        return "Empresa no encontrada", 404
     empresa = empresa_resp.data
+
+    if not empresa:
+        return "Empresa no encontrada", 404
 
     if request.method == "POST":
         campos = {

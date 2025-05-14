@@ -10,6 +10,11 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
+  <!-- Botón de regreso -->
+  <div class="p-4">
+    <a href="/admin/nora/editar?nombre={{ nombre_nora }}" class="text-sm text-blue-600 hover:underline">← Regresar al panel</a>
+  </div>
+
   <div class="min-h-screen flex">
     <!-- Sidebar -->
     <aside class="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
@@ -35,7 +40,7 @@
     </aside>
 
     <!-- Contenido principal -->
-    <main class="flex-1 p-8">
+    <main class="max-w-6xl mx-auto p-6">
       {% block contenido %}
       {% endblock %}
     </main>
