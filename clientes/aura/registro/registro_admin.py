@@ -13,7 +13,7 @@ def registrar_blueprints_admin(app, safe_register_blueprint):
     ✅ Registra TODOS los blueprints de administración de forma segura.
     """
     try:
-        safe_register_blueprint(app, admin_noras_bp, url_prefix="/admin/noras")
+        safe_register_blueprint(app, admin_noras_bp, url_prefix="")
         safe_register_blueprint(app, admin_dashboard_bp, url_prefix="/admin/dashboard")
         safe_register_blueprint(app, admin_nora_bp, url_prefix="/admin/nora")
         safe_register_blueprint(app, admin_nora_dashboard_bp, url_prefix="/admin/nora/dashboard")

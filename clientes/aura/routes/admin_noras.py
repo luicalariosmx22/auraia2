@@ -12,9 +12,9 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-admin_noras_bp = Blueprint("admin_noras", __name__)
+admin_noras_bp = Blueprint("admin_noras", __name__, url_prefix="/admin/noras")
 
-@admin_noras_bp.route("/admin/noras")
+@admin_noras_bp.route("/")
 def vista_admin():
     lista_noras = []
 
@@ -57,7 +57,7 @@ def vista_admin():
     return render_template("admin_noras.html", noras=lista_noras)
 
 
-@admin_noras_bp.route("/admin")
+@admin_noras_bp.route("/redir")
 def redireccionar_a_noras():
     return redirect(url_for("admin_noras.vista_admin"))
 
@@ -71,7 +71,7 @@ def debug_info():
         return jsonify({"error": str(e), "estado": "ERROR"})
 
 
-@admin_noras_bp.route("/admin/debug/rutas", methods=["GET"])
+@admin_noras_bp.route("/debug/rutas", methods=["GET"])
 def debug_rutas():
     """
     Devuelve todas las rutas registradas en la aplicación Flask.
