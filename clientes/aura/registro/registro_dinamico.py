@@ -22,6 +22,13 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+def safe_register_blueprint(app, blueprint, **kwargs):
+    if blueprint.name not in app.blueprints:
+        app.register_blueprint(blueprint, **kwargs)
+        print(f"✅ Blueprint '{blueprint.name}' registrado con prefijo '{kwargs.get('url_prefix', '')}'")
+    else:
+        print(f"⚠️ Blueprint '{blueprint.name}' ya estaba registrado.")
+
 def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
     from clientes.aura.modules.ads import ads_bp  # ✅ Import del módulo Ads dinámico
 
@@ -78,6 +85,10 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "ads" in modulos:
                 safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
                 print(f"✅ Blueprint 'panel_cliente_ads' registrado para {nombre_nora}")
+
+            # Registrar el blueprint de login si el módulo está activo
+            if "login" in modulos:
+                safe_register_blueprint(app, login_bp, url_prefix=f"/login")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")
