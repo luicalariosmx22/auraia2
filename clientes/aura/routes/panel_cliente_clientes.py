@@ -17,6 +17,12 @@ def vista_clientes():
     clientes_data = supabase.table("clientes").select("*").eq("nombre_nora", nombre_nora).execute()
     clientes = clientes_data.data if clientes_data.data else []
 
+    # ✅ Debug para verificar si se están recuperando
+    print(f"🟡 [clientes] nombre_nora = {nombre_nora}")
+    print(f"📦 Total encontrados: {len(clientes)}")
+    if clientes:
+        print("🔍 Primer cliente:", clientes[0])
+
     for cliente in clientes:
         # Empresas asociadas a este cliente
         empresas_data = supabase.table("cliente_empresas") \
