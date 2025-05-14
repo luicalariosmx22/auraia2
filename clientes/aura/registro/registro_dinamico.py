@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 import json
 
-from clientes.aura.routes.panel_cliente import panel_cliente_bp
+from clientes.aura.routes.panel_cliente import crear_blueprint_panel_cliente
 from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
 from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
 from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
@@ -35,8 +35,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
     print(f"🔍 Registrando blueprints dinámicos para {nombre_nora}...")
 
     try:
-        # ✅ Este es el contenedor base del panel cliente, siempre se registra
-        safe_register_blueprint(app, panel_cliente_bp, url_prefix=f"/panel_cliente/{nombre_nora}")
+        # Crear y registrar el blueprint dinámico del panel cliente
+        bp = crear_blueprint_panel_cliente(nombre_nora)
+        safe_register_blueprint(app, bp, url_prefix=f"/panel_cliente/{nombre_nora}")
 
         # Obtener los módulos activos de la tabla configuracion_bot
         modulos_activados = supabase.table('configuracion_bot').select('modulos').eq('nombre_nora', nombre_nora).single().execute()
