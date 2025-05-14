@@ -29,27 +29,24 @@
       Verifica en Supabase que haya módulos activos para esta Nora.
     </div>
     {% endif %}
-    <section class="meta-grid">
+    <section class="modulos-grid">
       {% for modulo in modulos %}
-      <div class="meta-card">
-        <h3>{{ modulo.icono }} {{ modulo.nombre.replace('_', ' ').capitalize() }}</h3>
-        <p>{{ modulo.descripcion }}</p>
-        {% if modulo.ruta %}
-          <a 
-            href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) }}"
-            class="btn-neutral"
-            aria-label="Acceder al módulo {{ modulo.nombre.replace('_', ' ').capitalize() }}">
-            🔗 Acceder
-          </a>
-        {% else %}
-          <a 
-            href="/panel_cliente/{{ nombre_nora }}/{{ modulo.nombre }}"
-            class="btn-neutral"
-            aria-label="Acceder al módulo {{ modulo.nombre.replace('_', ' ').capitalize() }}">
-            ⚠️ Acceder (URL fallback)
-          </a>
-        {% endif %}
-      </div>
+        <div class="modulo-card">
+          <div class="modulo-icono">{{ modulo.icono or "🧩" }}</div>
+          <div class="modulo-info">
+            <h3>{{ modulo.nombre.replace('_', ' ').capitalize() }}</h3>
+            <p>{{ modulo.descripcion or "Módulo activo" }}</p>
+          </div>
+          {% if modulo.ruta %}
+            <a 
+              class="modulo-boton" 
+              href="{{ url_for(modulo.ruta.split('.')[-1], nombre_nora=nombre_nora) }}">
+              Abrir módulo
+            </a>
+          {% else %}
+            <p class="modulo-warning">⚠️ Ruta no definida</p>
+          {% endif %}
+        </div>
       {% endfor %}
     </section>
 
