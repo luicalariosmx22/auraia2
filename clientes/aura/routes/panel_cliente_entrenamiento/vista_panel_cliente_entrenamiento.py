@@ -19,14 +19,13 @@ def entrenamiento_cliente():
 
     nombre_nora = request.path.split("/")[3]
 
-    # Obtener configuración actual
-    response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).single().execute()
-    config = response.data if response and response.data else {}
+    # ✅ Corrección aquí: sin .single()
+    response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
+    config = response.data[0] if response.data else {}
 
     if not config:
         return f"❌ No se encontró configuración para {nombre_nora}", 404
 
-    # Si es POST, guardar cambios
     if request.method == "POST":
         personalidad = request.form.get("personalidad", "").strip()
         respuestas_rapidas = request.form.get("respuestas_rapidas", "").strip()
