@@ -23,22 +23,18 @@
 
     <!-- Sección de Módulos -->
     <div class="modulo-listado">
-      {% if modulos and modulos|length > 0 %}
-        <div class="modulos-activos-grid">
+      {% if modulos %}
+        <div class="modulos-grid">
           {% for modulo in modulos %}
-            <a href="{{ modulo.ruta }}" class="modulo-card">
-              <div class="icono">{{ modulo.icono or "🧩" }}</div>
-              <div class="nombre">{{ modulo.nombre }}</div>
+            <a href="{{ modulo.ruta or '#' }}" class="modulo-card">
+              <div class="icono">{{ modulo.icono or '🔧' }}</div>
+              <div class="titulo">{{ modulo.nombre }}</div>
               <div class="descripcion">{{ modulo.descripcion }}</div>
             </a>
           {% endfor %}
         </div>
       {% else %}
-        <div class="alerta">
-          ⚠️ No hay módulos disponibles para esta Nora.<br>
-          Nombre recibido: <strong>{{ nombre_visible }}</strong><br>
-          Verifica en Supabase que haya módulos activos para esta Nora.
-        </div>
+        <p style="color: #999; padding: 1rem 0;">⚠️ No hay módulos activos configurados en Supabase para esta Nora.</p>
       {% endif %}
     </div>
 
