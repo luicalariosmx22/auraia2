@@ -52,11 +52,16 @@ def callback():
         state=session.get("oauth_state")
     )
 
-    token = oauth.fetch_token(
-        TOKEN_URL,
-        client_secret=GOOGLE_CLIENT_SECRET,
-        authorization_response=request.url,
-    )
+    try:
+        token = oauth.fetch_token(
+            TOKEN_URL,
+            client_secret=GOOGLE_CLIENT_SECRET,
+            authorization_response=request.url,
+        )
+        print(f"DEBUG: Token recibido: {token}")
+    except Exception as e:
+        print(f"ERROR: Fallo al obtener el token: {e}")
+        return "❌ Error al obtener el token", 500
 
     resp = oauth.get(USER_INFO_URL)
     user_info = resp.json()
