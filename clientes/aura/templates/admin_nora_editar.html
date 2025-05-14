@@ -1,59 +1,47 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Nora: {{ nombre_nora }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
-</head>
-<body>
+{% extends "base_admin.html" %}
 
-<header>
-    <div class="logo">
-        <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora" height="40">
+{% block titulo %}Editar Nora: {{ nombre_nora }}{% endblock %}
+
+{% block contenido %}
+<div class="admin-main">
+  <h1>🛠 Editar Nora: {{ nombre_nora }}</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul>
+        {% for category, message in messages %}
+          <li class="estado {{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" class="card" style="max-width: 700px;">
+    <div class="seccion">
+      <label for="nuevo_nombre"><strong>🏷 Nombre visible</strong></label><br>
+      <input type="text" id="nuevo_nombre" name="nuevo_nombre" value="{{ config.nombre_visible or nombre_nora }}" required style="width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; border: 1px solid #ccc;">
     </div>
-    <div class="logout">
-        <a href="{{ url_for('logout') }}">Cerrar sesión</a>
-    </div>
-</header>
 
-<main>
-    <h1>🛠 Editar Nora: {{ nombre_nora }}</h1>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul>
-          {% for category, message in messages %}
-            <li class="estado {{ category }}">{{ message }}</li>
+    <div class="seccion" style="margin-top: 2rem;">
+      <strong>📦 Módulos activos</strong><br><br>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        {% if modulos_disponibles %}
+          {% for modulo in modulos_disponibles %}
+            <label style="background: #f3f3f3; padding: 10px 14px; border-radius: 8px; cursor: pointer;">
+              <input type="checkbox" name="modulos" value="{{ modulo }}" {% if modulo in config.modulos %}checked{% endif %}>
+              {{ modulo.replace('_', ' ').capitalize() }}
+            </label>
           {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+        {% else %}
+          <p style="color: red;">❌ No se encontraron módulos disponibles.</p>
+        {% endif %}
+      </div>
+    </div>
 
-    <section class="entrena-modulos">
-        <form method="POST" class="modulo">
-            <h2>🏷 Nombre visible</h2>
-            <input type="text" id="nuevo_nombre" name="nuevo_nombre" value="{{ config.nombre_visible or nombre_nora }}" required>
-
-            <h2>📦 Módulos activos</h2>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                {% if modulos_disponibles %}
-                    {% for modulo in modulos_disponibles %}
-                        <label style="background: #f3f3f3; padding: 10px 14px; border-radius: 8px; cursor: pointer;">
-                            <input type="checkbox" name="modulos" value="{{ modulo }}" {% if modulo in config.modulos %}checked{% endif %}>
-                            {{ modulo.replace('_', ' ').capitalize() }}
-                        </label>
-                    {% endfor %}
-                {% else %}
-                    <p style="color: red;">❌ No se encontraron módulos disponibles.</p>
-                {% endif %}
-            </div>
-
-            <br>
-            <button type="submit">💾 Guardar cambios</button>
-            <a href="{{ url_for('admin_noras.vista_admin') }}" class="btn-back">🔙 Regresar</a>
-        </form>
-    </section>
-</main>
-
-</body>
-</html>
+    <div class="acciones" style="margin-top: 2.5rem;">
+      <button type="submit" class="btn-primary">💾 Guardar cambios</button>
+      <a href="{{ url_for('admin_noras.vista_admin') }}" class="btn-secondary" style="margin-left: 1rem;">🔙 Regresar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
