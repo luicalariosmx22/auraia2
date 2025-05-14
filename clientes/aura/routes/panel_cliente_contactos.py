@@ -22,7 +22,7 @@ def panel_contactos(nombre_nora):
     try:
         response = supabase.table("contactos").select(
             "id, nombre, telefono, correo, empresa, rfc, direccion, ciudad, cumpleanos, notas, ultimo_mensaje"
-        ).eq("nombre_nora", nombre_nora).order('ultimo_mensaje', desc=True).execute()  # 👈 Change: Added ordering
+        ).eq("nombre_nora", nombre_nora).order('ultimo_mensaje', desc=True).execute()
         contactos = response.data if response.data else []
 
         etiquetas_response = supabase.table("etiquetas").select("id, nombre, color").eq("nombre_nora", nombre_nora).eq("activa", True).execute()
@@ -49,7 +49,7 @@ def panel_contactos(nombre_nora):
             user=session["user"]
         )
     except Exception as e:
-        print(f"❌ Error al cargar contactos para {nombre_nora}: {str(e)}")
+        print(f"❌ Error al cargar contactos: {str(e)}")
         return render_template(
             "panel_cliente_contactos.html",
             nombre_nora=nombre_nora,
