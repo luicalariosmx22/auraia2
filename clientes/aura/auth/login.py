@@ -82,9 +82,9 @@ def login_callback():
         session["nombre_nora"] = datos["nombre_nora"]
 
         return redirect(
-            url_for("admin_nora_dashboard_bp.dashboard_admin")
-            if session["is_admin"]
-            else url_for("panel_cliente_bp.configuracion_cliente", nombre_nora=session["nombre_nora"])
+            url_for("admin_dashboard.dashboard_admin")
+            if session.get("is_admin")
+            else url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session.get("nombre_nora"))
         )
 
     except Exception as e:
