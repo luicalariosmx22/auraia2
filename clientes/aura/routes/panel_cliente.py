@@ -87,7 +87,7 @@ def panel_cliente(nombre_nora):
         nombre_nora=nombre_nora,
         nombre_visible=nombre_nora.capitalize(),
         user=session.get("user", {"name": "Usuario"}),
-        modulos=modulos_disponibles  # 🔴 Ya no se envía 'config'
+        modulos=modulos_disponibles  # ❌ config eliminado porque no se usa y causa errores
     )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])

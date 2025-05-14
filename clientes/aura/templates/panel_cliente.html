@@ -67,19 +67,13 @@
 {{ user | tojson(indent=2) }}
       </pre>
 
-      <pre><strong>configuracion_bot (completa):</strong>
-{{ config | tojson(indent=2) }}
-      </pre>
-
       <pre><strong>modulos (finales enviados):</strong>
 {{ modulos | tojson(indent=2) }}
       </pre>
 
       <details style="margin: 2rem 0; background: #f5f5f5; padding: 1rem; border: 1px solid #ccc;">
         <summary>🧪 Ver configuración serializada (debug)</summary>
-        <pre style="font-size: 0.85rem; margin-top: 1rem;">
-{{ config | tojson(indent=2) }}
-        </pre>
+        <!-- Removed config block to avoid crashes -->
       </details>
     </section>
   </div>
