@@ -22,33 +22,25 @@
     </header>
 
     <!-- Sección de Módulos -->
-    {% if not modulos %}
-    <div style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 6px; margin-bottom: 2rem;">
-      ⚠️ No hay módulos disponibles para esta Nora.<br>
-      Nombre recibido: <strong>{{ nombre_visible }}</strong><br>
-      Verifica en Supabase que haya módulos activos para esta Nora.
-    </div>
-    {% endif %}
-    <section class="modulos-grid">
-      {% for modulo in modulos %}
-        <div class="modulo-card">
-          <div class="modulo-icono">{{ modulo.icono or "🧩" }}</div>
-          <div class="modulo-info">
-            <h3>{{ modulo.nombre.replace('_', ' ').capitalize() }}</h3>
-            <p>{{ modulo.descripcion or "Módulo activo" }}</p>
-          </div>
-          {% if modulo.ruta %}
-            <a 
-              class="modulo-boton" 
-              href="/panel_cliente/{{ nombre_nora }}/{{ modulo.nombre }}">
-              Abrir módulo
+    <div class="modulo-listado">
+      {% if modulos and modulos|length > 0 %}
+        <div class="modulos-activos-grid">
+          {% for modulo in modulos %}
+            <a href="{{ modulo.ruta }}" class="modulo-card">
+              <div class="icono">{{ modulo.icono or "🧩" }}</div>
+              <div class="nombre">{{ modulo.nombre }}</div>
+              <div class="descripcion">{{ modulo.descripcion }}</div>
             </a>
-          {% else %}
-            <p class="modulo-warning">⚠️ Ruta no definida</p>
-          {% endif %}
+          {% endfor %}
         </div>
-      {% endfor %}
-    </section>
+      {% else %}
+        <div class="alerta">
+          ⚠️ No hay módulos disponibles para esta Nora.<br>
+          Nombre recibido: <strong>{{ nombre_visible }}</strong><br>
+          Verifica en Supabase que haya módulos activos para esta Nora.
+        </div>
+      {% endif %}
+    </div>
 
     <!-- Módulos Activos -->
     <section class="modulos-activos">
