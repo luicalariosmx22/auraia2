@@ -20,13 +20,12 @@
   {% endwith %}
 
   <form method="post" action="">
-    <!-- Campo obligatorio -->
+    <!-- Obligatorios -->
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Nombre del cliente *</label>
       <input type="text" name="nombre_cliente" required class="w-full border px-3 py-2 rounded mt-1">
     </div>
 
-    <!-- Campo obligatorio -->
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Correo electrónico *</label>
       <input type="email" name="email" required class="w-full border px-3 py-2 rounded mt-1">
@@ -52,43 +51,43 @@
       <label class="block text-sm font-medium text-gray-700">Ciudad</label>
       <input type="text" name="ciudad" class="w-full border px-3 py-2 rounded mt-1">
     </div>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Estado</label>
       <input type="text" name="estado" class="w-full border px-3 py-2 rounded mt-1">
     </div>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">País</label>
       <input type="text" name="pais" class="w-full border px-3 py-2 rounded mt-1">
     </div>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Puesto</label>
       <input type="text" name="puesto" class="w-full border px-3 py-2 rounded mt-1">
     </div>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Género</label>
       <input type="text" name="genero" class="w-full border px-3 py-2 rounded mt-1">
     </div>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Fecha de cumpleaños</label>
       <input type="date" name="cumple" class="w-full border px-3 py-2 rounded mt-1">
     </div>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Notas</label>
       <textarea name="notas" class="w-full border px-3 py-2 rounded mt-1"></textarea>
     </div>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Medio de contacto</label>
       <input type="text" name="medio_contact" class="w-full border px-3 py-2 rounded mt-1">
     </div>
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Etapa</label>
-      <input type="text" name="etapa" class="w-full border px-3 py-2 rounded mt-1">
-    </div>
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Idioma</label>
-      <input type="text" name="idioma" class="w-full border px-3 py-2 rounded mt-1">
-    </div>
-    <div class="mb-4 flex items-center gap-2"></div>
+
+    <div class="mb-4 flex items-center gap-2">
       <input type="checkbox" name="acepta_promo" id="acepta_promo" class="h-4 w-4">
       <label for="acepta_promo" class="text-sm text-gray-700">Acepta recibir promociones</label>
     </div>

@@ -123,6 +123,34 @@ def editar_empresa(empresa_id):
 
     return render_template('panel_cliente_empresa_form.html', nombre_nora=nombre_nora, empresa=empresa, user=session.get("user"))
 
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/ligar_cliente", methods=["GET", "POST"])
+def ligar_cliente(empresa_id):
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("user"):
+        return redirect(url_for("login.login_screen"))
+
+    # Cargar empresa
+    empresa_resp = supabase.table("cliente_empresas").select("*").eq("id", empresa_id).single().execute()
+    empresa = empresa_resp.data
+    if not empresa:
+        flash("❌ Empresa no encontrada", "error")
+        return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
+
+    if request.method == "POST":
+        cliente_id = request.form.get("cliente_id")
+        if cliente_id:
+            supabase.table("cliente_empresas").update({
+                "cliente_id": cliente_id
+            }).eq("id", empresa_id).execute()
+            flash("✅ Cliente vinculado correctamente", "success")
+            return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
+
+    # Obtener clientes activos de esta Nora
+    clientes = supabase.table("clientes").select("id, nombre_cliente") \
+        .eq("nombre_nora", nombre_nora).execute().data or []
+
+    return render_template("ligar_cliente_empresa.html", empresa=empresa, clientes=clientes, nombre_nora=nombre_nora)
+
 # ----------- VINCULAR CUENTA ADS -----------------
 
 @panel_cliente_clientes_bp.route("/cliente/<cliente_id>/ads/nueva", methods=["GET", "POST"])
@@ -155,3 +183,40 @@ def nueva_cuenta_ads(cliente_id):
         return redirect(url_for('panel_cliente_clientes_bp.vista_clientes'))
 
     return render_template('panel_cliente_vincular_ads.html', nombre_nora=nombre_nora, cliente=cliente, user=session.get("user"))
+
+# ----------- LIGAR EMPRESA A CLIENTE -----------------
+
+@panel_cliente_clientes_bp.route("/cliente/<cliente_id>/ligar_empresa", methods=["GET", "POST"])
+def ligar_empresa(cliente_id):
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("user"):
+        return redirect(url_for("login.login_screen"))
+
+    # Obtener cliente actual
+    cliente_resp = supabase.table("clientes").select("*").eq("id", cliente_id).single().execute()
+    if not cliente_resp.data:
+        flash("❌ Cliente no encontrado", "error")
+        return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
+    cliente = cliente_resp.data
+
+    # Si se envía el formulario para vincular
+    if request.method == "POST":
+        empresa_id = request.form.get("empresa_id")
+        if empresa_id:
+            supabase.table("cliente_empresas").update({
+                "cliente_id": cliente_id
+            }).eq("id", empresa_id).execute()
+            flash("✅ Empresa ligada correctamente", "success")
+            return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
+
+    # Obtener empresas no ligadas
+    empresas_disp = supabase.table("cliente_empresas").select("*") \
+        .eq("nombre_nora", nombre_nora).is_("cliente_id", "null").execute().data or []
+
+    # Enriquecer empresas con cliente si existe
+    for empresa in empresas_disp:
+        if empresa.get("cliente_id"):
+            cliente_resp = supabase.table("clientes").select("id, nombre_cliente").eq("id", empresa["cliente_id"]).single().execute()
+            empresa["cliente"] = cliente_resp.data
+
+    return render_template("ligar_empresa_cliente.html", cliente=cliente, empresas=empresas_disp, nombre_nora=nombre_nora)

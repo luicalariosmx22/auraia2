@@ -1,0 +1,43 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="max-w-2xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
+  <h2 class="text-xl font-bold mb-4">Ligar empresa a {{ cliente.nombre_cliente }}</h2>
+
+  {% if empresas %}
+    <form method="post">
+      <label class="block text-sm font-medium mb-2">Selecciona una empresa disponible:</label>
+      <select name="empresa_id" class="w-full border px-3 py-2 rounded mb-4">
+        {% for empresa in empresas %}
+          <option value="{{ empresa.id }}">{{ empresa.nombre_empresa }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700">Ligar empresa</button>
+    </form>
+
+    <!-- Mostrar detalle de empresas -->
+    {% for empresa in empresas %}
+      <div class="bg-white shadow-md rounded-xl p-6 mb-6 border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ empresa.nombre_empresa }}</h3>
+
+        <div class="text-sm text-gray-700 mb-2">
+          {% if empresa.cliente %}
+            <p>👤 Cliente vinculado: <strong>{{ empresa.cliente.nombre_cliente }}</strong></p>
+          {% else %}
+            <p class="text-red-600">⚠️ Empresa sin cliente vinculado</p>
+            <a href="{{ url_for('panel_cliente_clientes_bp.ligar_cliente', empresa_id=empresa.id, nombre_nora=nombre_nora) }}"
+               class="text-blue-600 hover:underline">➕ Ligar cliente</a>
+          {% endif %}
+        </div>
+
+        <a href="{{ empresa.url_editar }}" class="text-sm text-blue-600 hover:underline">✏️ Editar empresa</a>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-gray-600 text-sm">No hay empresas disponibles para ligar.</p>
+  {% endif %}
+
+  <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}"
+     class="mt-6 inline-block text-sm text-blue-600 hover:underline">← Regresar al panel</a>
+</div>
+{% endblock %}

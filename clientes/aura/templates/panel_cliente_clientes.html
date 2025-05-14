@@ -31,15 +31,6 @@
     ➕ Agregar nuevo cliente
   </a>
 
-  <!-- Loop temporal para debug -->
-  {% for cliente in clientes %}
-    <div class="border p-4 mb-4">
-      <p><strong>Nombre:</strong> {{ cliente.nombre_cliente }}</p>
-      <p><strong>Email:</strong> {{ cliente.email }}</p>
-      <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
-    </div>
-  {% endfor %}
-
   {% if clientes %}
     {% for cliente in clientes %}
       <div class="bg-white shadow-md rounded-xl p-6 mb-6 border border-gray-200">
@@ -65,11 +56,13 @@
                 </li>
               {% endfor %}
             </ul>
-            <div class="mt-2 text-sm">
-              <a href="{{ cliente.url_nueva_ads }}" class="text-blue-600 hover:underline">➕ Vincular cuenta Ads</a>
-            </div>
           </div>
         {% endif %}
+
+        <div class="mt-2 text-sm">
+          <a href="{{ url_for('panel_cliente_clientes_bp.ligar_empresa', cliente_id=cliente.id, nombre_nora=nombre_nora) }}"
+             class="text-blue-600 hover:underline">➕ Ligar empresa</a>
+        </div>
 
         {% if cliente.ads_cuentas %}
           <div class="mt-4">
@@ -97,4 +90,4 @@
     </div>
   {% endif %}
 </div>
-{% endblock %} <!-- estaba cerrando 'content', ahora debe cerrar 'contenido' -->
+{% endblock %}
