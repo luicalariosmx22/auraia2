@@ -35,6 +35,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
     print(f"🔍 Registrando blueprints dinámicos para {nombre_nora}...")
 
     try:
+        # 🧪 Debug print statement
+        print(f"🧪 Registrando panel_cliente para {nombre_nora}")
         # Crear y registrar el blueprint dinámico del panel cliente
         bp = crear_blueprint_panel_cliente(nombre_nora)
         safe_register_blueprint(app, bp, url_prefix=f"/panel_cliente/{nombre_nora}")
