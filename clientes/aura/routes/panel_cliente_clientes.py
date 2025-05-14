@@ -61,9 +61,9 @@ def nuevo_cliente():
         telefono = request.form.get("telefono", "").strip()
         nombre_empresa = request.form.get("nombre_empresa", "").strip()
 
-        # Validación
-        if not nombre_cliente or not tipo or not email or not telefono or not nombre_empresa:
-            flash("❌ Todos los campos son obligatorios", "error")
+        # Validación solo nombre y correo obligatorios
+        if not nombre_cliente or not email:
+            flash("❌ El nombre y correo son obligatorios", "error")
             return redirect(request.url)
 
         # Insertar cliente

@@ -20,11 +20,13 @@
   {% endwith %}
 
   <form method="post" action="">
-    <!-- Obligatorios -->
+    <!-- Campo obligatorio -->
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Nombre del cliente *</label>
       <input type="text" name="nombre_cliente" required class="w-full border px-3 py-2 rounded mt-1">
     </div>
+
+    <!-- Campo obligatorio -->
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Correo electrónico *</label>
       <input type="email" name="email" required class="w-full border px-3 py-2 rounded mt-1">
@@ -35,6 +37,7 @@
       <label class="block text-sm font-medium text-gray-700">Teléfono</label>
       <input type="text" name="telefono" class="w-full border px-3 py-2 rounded mt-1">
     </div>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Tipo</label>
       <select name="tipo" class="w-full border px-3 py-2 rounded mt-1">
@@ -44,6 +47,7 @@
         <option value="curso">Curso</option>
       </select>
     </div>
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Ciudad</label>
       <input type="text" name="ciudad" class="w-full border px-3 py-2 rounded mt-1">
@@ -84,7 +88,7 @@
       <label class="block text-sm font-medium text-gray-700">Idioma</label>
       <input type="text" name="idioma" class="w-full border px-3 py-2 rounded mt-1">
     </div>
-    <div class="mb-4 flex items-center gap-2">
+    <div class="mb-4 flex items-center gap-2"></div>
       <input type="checkbox" name="acepta_promo" id="acepta_promo" class="h-4 w-4">
       <label for="acepta_promo" class="text-sm text-gray-700">Acepta recibir promociones</label>
     </div>
