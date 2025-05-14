@@ -4,8 +4,8 @@
 {% extends "base_cliente.html" %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="text-xl font-bold mb-4">Clientes registrados</h2>
+<div class="container mx-auto max-w-5xl px-4 py-8">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">👥 Clientes registrados</h2>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -17,30 +17,29 @@
     {% endif %}
   {% endwith %}
 
-  <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}" class="inline-block bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-700 mb-4">
+  <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}"
+     class="inline-block bg-blue-600 text-white text-sm px-5 py-2 rounded-md hover:bg-blue-700 shadow mb-8 transition">
     ➕ Agregar nuevo cliente
   </a>
 
   {% if clientes %}
     {% for cliente in clientes %}
-      <div class="bg-white shadow-md rounded-xl p-4 mb-6">
+      <div class="bg-white shadow-md rounded-xl p-6 mb-6 border border-gray-200">
         <div class="flex justify-between items-center mb-2">
-          <h3 class="text-lg font-semibold">{{ cliente.nombre_cliente }}</h3>
-          <span class="text-sm text-gray-500">{{ cliente.tipo }}</span>
+          <h3 class="text-lg font-semibold text-gray-800">{{ cliente.nombre_cliente }}</h3>
+          <span class="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-600 rounded">{{ cliente.tipo|capitalize }}</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
-          {% if cliente.telefono %}<p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>{% endif %}
-          {% if cliente.email %}<p><strong>Email:</strong> {{ cliente.email }}</p>{% endif %}
-          {% if cliente.cumple %}<p><strong>Cumpleaños:</strong> {{ cliente.cumple }}</p>{% endif %}
-          {% if cliente.puesto %}<p><strong>Puesto:</strong> {{ cliente.puesto }}</p>{% endif %}
-          {% if cliente.ciudad %}<p><strong>Ciudad:</strong> {{ cliente.ciudad }}</p>{% endif %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700 mb-2">
+          {% if cliente.telefono %}<p><strong>📞 Teléfono:</strong> {{ cliente.telefono }}</p>{% endif %}
+          {% if cliente.email %}<p><strong>✉️ Email:</strong> {{ cliente.email }}</p>{% endif %}
+          {% if cliente.ciudad %}<p><strong>📍 Ciudad:</strong> {{ cliente.ciudad }}</p>{% endif %}
         </div>
 
         {% if cliente.empresas %}
           <div class="mt-4">
-            <h4 class="text-md font-semibold mb-2">Empresas asociadas</h4>
-            <ul class="list-disc list-inside text-sm text-gray-600">
+            <h4 class="text-md font-semibold text-gray-800 mb-2">🏢 Empresas asociadas</h4>
+            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
               {% for empresa in cliente.empresas %}
                 <li>
                   <strong>{{ empresa.nombre_empresa }}</strong>
@@ -48,16 +47,16 @@
                 </li>
               {% endfor %}
             </ul>
-          </div>
-          <div class="mt-2 text-sm">
-            <a href="{{ cliente.url_nueva_ads }}" class="text-blue-600 hover:underline">➕ Vincular cuenta Ads</a>
+            <div class="mt-2 text-sm">
+              <a href="{{ cliente.url_nueva_ads }}" class="text-blue-600 hover:underline">➕ Vincular cuenta Ads</a>
+            </div>
           </div>
         {% endif %}
 
         {% if cliente.ads_cuentas %}
           <div class="mt-4">
-            <h4 class="text-md font-semibold mb-2">Cuentas Publicitarias</h4>
-            <ul class="text-sm text-gray-600">
+            <h4 class="text-md font-semibold text-gray-800 mb-2">📢 Cuentas Publicitarias</h4>
+            <ul class="text-sm text-gray-600 space-y-1">
               {% for cuenta in cliente.ads_cuentas %}
                 <li>
                   <span class="font-medium">{{ cuenta.tipo_plataforma|capitalize }}:</span>
@@ -70,7 +69,14 @@
       </div>
     {% endfor %}
   {% else %}
-    <p class="text-gray-600">No hay clientes registrados aún.</p>
+    <div class="bg-white text-center shadow-md border border-gray-200 rounded-xl p-10 mt-12">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">🫥 Aún no tienes clientes registrados</h3>
+      <p class="text-gray-600 text-sm mb-6">Crea tu primer cliente y vincula su empresa para comenzar a gestionar sus cuentas y campañas.</p>
+      <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}"
+         class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
+        ➕ Crear primer cliente
+      </a>
+    </div>
   {% endif %}
 </div>
 {% endblock %}
