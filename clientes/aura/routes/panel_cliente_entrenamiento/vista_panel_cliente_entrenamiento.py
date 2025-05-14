@@ -17,9 +17,8 @@ def entrenamiento_cliente():
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
-    nombre_nora = request.path.split("/")[3]
+    nombre_nora = request.path.split("/")[2]  # ✅ CORREGIDO: estaba en [3]
 
-    # ✅ Corrección aquí: sin .single()
     response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
     config = response.data[0] if response.data else {}
 
