@@ -61,13 +61,16 @@ def panel_cliente(nombre_nora):
         }
 
         # 4. Filtrar visuales solo con los módulos activos
-        modulos_disponibles = []
-        for m in modulos_activos:
-            key = m.strip().lower()
-            if key in modulos_dict:
-                modulos_disponibles.append(modulos_dict[key])
-            else:
-                print(f"⚠️ Módulo activo '{key}' no tiene descripción visual.")
+        modulos_disponibles = [
+            {
+                "nombre": modulos_dict[nombre.lower()]["nombre"].replace("_", " ").capitalize(),
+                "ruta": modulos_dict[nombre.lower()]["ruta"],
+                "icono": modulos_dict[nombre.lower()]["icono"] or "🧩",
+                "descripcion": modulos_dict[nombre.lower()]["descripcion"] or "Módulo activo"
+            }
+            for nombre in modulos_activos
+            if nombre.lower() in modulos_dict
+        ]
 
         print("✅ Módulos visibles para el panel:", modulos_disponibles)
 
