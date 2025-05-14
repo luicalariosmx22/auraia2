@@ -81,6 +81,64 @@ def editar_nora(nombre_nora):
         modulos_disponibles=modulos_disponibles
     )
 
+# 👉 Soporte directo para /nora/editar?nombre=aura sin redirección
+@admin_nora_bp.route("/editar", methods=["GET", "POST"])
+def editar_nora_desde_query():
+    nombre_nora = request.args.get("nombre")
+    if not nombre_nora:
+        return "❌ Parámetro 'nombre' requerido", 400
+
+    # Consultar módulos disponibles desde la tabla en Supabase
+    try:
+        response_modulos = supabase.table("modulos_disponibles").select("nombre").execute()
+        modulos_disponibles = [m["nombre"] for m in response_modulos.data] if response_modulos.data else []
+    except Exception as e:
+        print(f"❌ Error al obtener módulos disponibles: {e}")
+        modulos_disponibles = []
+
+    # Cargar configuración desde Supabase
+    try:
+        response = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
+        if not response.data:
+            return f"❌ No se encontró la configuración para {nombre_nora}", 404
+        config = response.data[0]
+    except Exception as e:
+        print(f"❌ Error al cargar configuración: {str(e)}")
+        return f"❌ Error al cargar configuración para {nombre_nora}", 500
+
+    if request.method == "POST":
+        nuevo_nombre = request.form.get("nuevo_nombre", "").strip()
+        nuevos_modulos = request.form.getlist("modulos")
+
+        if not nuevo_nombre:
+            flash("❌ Debes ingresar un nombre para la Nora", "error")
+            return redirect(request.url)
+
+        if not nuevos_modulos:
+            flash("❌ Debes seleccionar al menos un módulo", "error")
+            return redirect(request.url)
+
+        try:
+            config["nombre_visible"] = nuevo_nombre
+            config["modulos"] = nuevos_modulos
+            response = supabase.table("configuracion_bot").update(config).eq("nombre_nora", nombre_nora).execute()
+            if not response.data:
+                flash("❌ Error al actualizar configuración", "error")
+                return redirect(request.url)
+        except Exception as e:
+            print(f"❌ Error al actualizar configuración: {str(e)}")
+            flash("❌ Error al actualizar configuración", "error")
+            return redirect(request.url)
+
+        flash("✅ Configuración actualizada correctamente", "success")
+        return redirect(request.url)
+
+    return render_template(
+        "admin_nora_editar.html",
+        nombre_nora=nombre_nora,
+        config=config,
+        modulos_disponibles=modulos_disponibles
+    )
 
 @admin_nora_bp.route("/admin/nora/nueva", methods=["GET", "POST"])
 def crear_nora():
