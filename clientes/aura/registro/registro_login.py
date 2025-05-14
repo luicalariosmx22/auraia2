@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect, url_for
+from flask import Blueprint, request, redirect, url_for
 
 login_bp = Blueprint("login_bp", __name__)
 
@@ -6,14 +6,18 @@ login_bp = Blueprint("login_bp", __name__)
 def login_google():
     print("DEBUG: Entrando a login_google")
     if request.method == "GET":
-        print("DEBUG: Método GET")
-        return render_template("login_google.html")
+        # Redirige al flujo de autenticación de Google
+        google_auth_url = (
+            "https://accounts.google.com/o/oauth2/auth"
+            "?client_id=TU_CLIENT_ID"
+            "&redirect_uri=TU_REDIRECT_URI"
+            "&response_type=code"
+            "&scope=email profile"
+        )
+        return redirect(google_auth_url)
     elif request.method == "POST":
-        print("DEBUG: Método POST")
+        # Maneja la respuesta de Google después de la autenticación
         return redirect(url_for("home"))
-    else:
-        print("DEBUG: Método no soportado")
-        return "Método no soportado", 405
 
 def registrar_blueprints_login(app, safe_register_blueprint):
     safe_register_blueprint(app, login_bp, url_prefix="/login")

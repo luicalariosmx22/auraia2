@@ -74,3 +74,17 @@ def callback():
 def logout():
     session.clear()
     return redirect(url_for("login_page"))
+
+@google_login_bp.route("/callback", methods=["GET"])
+def google_callback():
+    # Obtén el código de autorización de la solicitud
+    auth_code = request.args.get("code")
+    if not auth_code:
+        return "Error: No se recibió el código de autorización", 400
+
+    # Intercambia el código de autorización por un token de acceso
+    # Aquí puedes usar una biblioteca como `requests` para hacer la solicitud
+    # a Google y obtener el token de acceso.
+
+    # Lógica para autenticar al usuario en tu aplicación
+    return redirect(url_for("home"))
