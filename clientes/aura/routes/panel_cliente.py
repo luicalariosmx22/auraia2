@@ -79,7 +79,8 @@ def panel_cliente(nombre_nora):
         nombre_nora=nombre_nora,
         nombre_visible=nombre_nora.capitalize(),
         user=session.get("user", {"name": "Usuario"}),
-        modulos=modulos_disponibles
+        modulos=modulos_disponibles,
+        config=config  # 🧪 para debug visual
     )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])

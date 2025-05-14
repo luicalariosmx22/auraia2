@@ -64,6 +64,25 @@
         {% endfor %}
       </div>
     </section>
+
+    <!-- Diagnóstico Backend -->
+    <section style="background: #f9f9f9; padding: 1rem; border: 1px solid #ccc; margin-bottom: 2rem;">
+      <h2 style="margin-top: 0;">🧪 Diagnóstico Backend</h2>
+
+      <pre><strong>nombre_nora:</strong> {{ nombre_nora }}</pre>
+
+      <pre><strong>user:</strong>
+{{ user | tojson(indent=2) }}
+      </pre>
+
+      <pre><strong>configuracion_bot (completa):</strong>
+{{ config | tojson(indent=2) }}
+      </pre>
+
+      <pre><strong>modulos (finales enviados):</strong>
+{{ modulos | tojson(indent=2) }}
+      </pre>
+    </section>
   </div>
 </body>
 </html>
