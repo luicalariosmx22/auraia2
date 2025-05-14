@@ -22,31 +22,35 @@ def panel_cliente(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     try:
-        # 1. Traer la configuración de la Nora
+        # 1. Obtener configuración de la Nora
         result = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         config = result.data[0] if result.data else {}
         modulos_activos = config.get("modulos", [])
-        print("🧠 Modulos activos:", modulos_activos)
+        print("🧠 Módulos activos:", modulos_activos)
 
-        # 2. Traer todos los módulos posibles
-        result_disponibles = supabase.table("modulos_disponibles").select("*").execute()
-        modulos_definidos = result_disponibles.data if result_disponibles.data else []
+        # 2. Obtener todos los módulos visuales posibles (no por nombre_nora)
+        result_modulos = supabase.table("modulos_disponibles").select("*").execute()
+        modulos_definidos = result_modulos.data or []
 
-        # 3. Normalizar y filtrar
-        modulos_activos_normalizados = [mod.strip().lower() for mod in modulos_activos]
-
-        modulos_disponibles = [
-            {
+        # 3. Mapeo visual: convertir modulos_definidos a dict por nombre
+        modulos_dict = {
+            m["nombre"].strip().lower(): {
                 "nombre": m["nombre"].strip(),
                 "ruta": m.get("ruta", "").strip() if es_ruta_valida(m.get("ruta", "")) else "",
                 "icono": m.get("icono", ""),
                 "descripcion": m.get("descripcion", "")
             }
             for m in modulos_definidos
-            if m.get("nombre", "").strip().lower() in modulos_activos_normalizados
+        }
+
+        # 4. Construir lista final de módulos activos que coincidan
+        modulos_disponibles = [
+            modulos_dict[mod.lower()]
+            for mod in modulos_activos
+            if mod.lower() in modulos_dict
         ]
 
-        print("✅ Modulos visibles para panel:", modulos_disponibles)
+        print("✅ Módulos visibles para panel:", modulos_disponibles)
 
     except Exception as e:
         print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
