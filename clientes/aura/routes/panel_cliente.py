@@ -13,7 +13,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def es_ruta_valida(ruta):
-    return ruta and '.' in ruta and len(ruta.split('.')) == 2
+    return isinstance(ruta, str) and ruta.startswith("/panel_cliente/")
 
 def serializar_config(obj):
     if isinstance(obj, dict):
