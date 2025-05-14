@@ -1,0 +1,30 @@
+<!-- ✅ Archivo: templates/base_admin.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block titulo %}Panel Admin{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+</head>
+<body>
+  <header>
+    <div class="logo">🧠 Nora AI</div>
+    <div class="logout">
+      <a href="/logout">Cerrar sesión</a>
+    </div>
+  </header>
+
+  <nav class="sidebar">
+    <ul>
+      <li><a href="/admin" class="{% if request.path == '/admin' %}active{% endif %}">🏠 Panel</a></li>
+      <li><a href="/admin/noras" class="{% if request.path.startswith('/admin/noras') %}active{% endif %}">📋 Ver Noras</a></li>
+      <li><a href="/admin/debug/rutas">🧪 Verificador de Rutas</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    {% block contenido %}
+    {% endblock %}
+  </main>
+</body>
+</html>

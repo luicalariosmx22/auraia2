@@ -1,52 +1,16 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Panel Administrador - Nora AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
-</head>
-<body>
-    <header>
-        <div class="logo">🧠 Nora AI</div>
-        <div class="logout">
-            <a href="/logout">Cerrar sesión</a>
-        </div>
-    </header>
+{% extends "base_admin.html" %}
 
-    <nav class="sidebar">
-        <ul>
-            <li><a href="/admin" class="active">🏠 Panel</a></li>
-            <li><a href="/admin/noras">📋 Ver Noras</a></li>
-            <li><a href="#">➕ Agregar Nora</a></li>
-            <li><a href="#">🚨 Errores</a></li>
-            <li>
-                <a href="/admin/verificador_rutas">🧠 Verificador de Rutas</a>
-            </li>
-        </ul>
-    </nav>
+{% block titulo %}Panel Administrador{% endblock %}
 
-    <main>
-        <h1>Panel de Administrador</h1>
-        <section class="stats">
-            <div class="card">
-                <h2>{{ total_noras }}</h2>
-                <p>Noras activas</p>
-            </div>
-            <div class="card">
-                <h2>{{ total_errores }}</h2>
-                <p>Errores registrados</p>
-            </div>
-            <div class="card">
-                <h2>{{ ultimo_deployment }}</h2>
-                <p>Último deployment</p>
-            </div>
-        </section>
-
-        <!-- Nueva sección agregada -->
-        <section>
-            <h3>🧪 Verificación de Rutas y Blueprints</h3>
-            <a href="/admin/debug/rutas" class="btn-primary">🔍 Verificador de Rutas</a>
-        </section>
-    </main>
-</body>
-</html>
+{% block contenido %}
+    <h1>Panel de Administrador</h1>
+    <section class="stats">
+        <div class="card"><h2>{{ total_noras }}</h2><p>Noras activas</p></div>
+        <div class="card"><h2>{{ total_errores }}</h2><p>Errores registrados</p></div>
+        <div class="card"><h2>{{ ultimo_deployment }}</h2><p>Último deployment</p></div>
+    </section>
+    <section>
+        <h3>🧪 Verificación de Rutas y Blueprints</h3>
+        <a href="/admin/debug/rutas" class="btn-primary">🔍 Verificador de Rutas</a>
+    </section>
+{% endblock %}

@@ -1,76 +1,45 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Noras</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_noras.css') }}">
-</head>
-<body>
-    <div class="admin-noras-container">
+{% extends "base_admin.html" %}
 
-        <!-- Header con logo -->
-        <header class="admin-header">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='images/aura-logo.png') }}" alt="Aura Logo">
-                <h1>Noras activas</h1>
-            </div>
-            <a href="/admin/nora/nueva" class="btn-primary">+ Crear nueva Nora</a>
-        </header>
+{% block titulo %}Admin Noras{% endblock %}
 
-        <!-- Tabla de Noras -->
-        {% if noras %}
-        <table class="noras-table">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>IA</th>
-                    <th>Módulos</th>
-                    <th>Actualización</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for nora in noras %}
-                <tr>
-                    <td>{{ nora.nombre }}</td>
-                    <td>{{ 'Sí' if nora.ia_activada else 'No' }}</td>
-                    <td>{{ nora.modulos | join(', ') }}</td>
-                    <td>{{ nora.ultima_actualizacion }}</td>
-                    <td class="acciones">
-                        <a href="/panel_cliente/{{ nora.nombre }}" class="btn-accion">Panel</a>
-                        <a href="/admin/nora/{{ nora.nombre }}/editar" class="btn-accion">Editar</a>
-                        <button onclick="borrarNora('{{ nora.nombre }}')" class="btn-accion btn-danger">Borrar</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p class="sin-noras">No hay Noras registradas aún.</p>
-        {% endif %}
-    </div>
-
-    <script>
-        function borrarNora(nombre) {
-            if (confirm(`¿Borrar la Nora '${nombre}'? Esta acción no se puede deshacer.`)) {
-                fetch(`/borrar_nora`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre: nombre })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`Nora '${nombre}' eliminada.`);
-                        location.reload();
-                    } else {
-                        alert(`Error: ${data.error}`);
-                    }
-                })
-                .catch(() => alert("Error al borrar la Nora."));
-            }
-        }
-    </script>
-</body>
-</html>
+{% block contenido %}
+  <div class="admin-noras-container">
+    <header class="admin-header">
+      <div class="logo-container">
+        <img src="{{ url_for('static', filename='images/aura-logo.png') }}" alt="Aura Logo">
+        <h1>Noras activas</h1>
+      </div>
+      <a href="/admin/nora/nueva" class="btn-primary">+ Crear nueva Nora</a>
+    </header>
+    {% if noras %}
+    <table class="noras-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>IA</th>
+          <th>Módulos</th>
+          <th>Actualización</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for nora in noras %}
+        <tr>
+          <td>{{ nora.nombre }}</td>
+          <td>{{ 'Sí' if nora.ia_activada else 'No' }}</td>
+          <td>{{ nora.modulos | join(', ') }}</td>
+          <td>{{ nora.ultima_actualizacion }}</td>
+          <td class="acciones">
+            <a href="/panel_cliente/{{ nora.nombre }}" class="btn-accion">Panel</a>
+            <a href="/admin/nora/{{ nora.nombre }}/editar" class="btn-accion">Editar</a>
+            <button onclick="borrarNora('{{ nora.nombre }}')" class="btn-accion btn-danger">Borrar</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="sin-noras">No hay Noras registradas aún.</p>
+    {% endif %}
+  </div>
+{% endblock %}
