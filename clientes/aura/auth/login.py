@@ -2,6 +2,8 @@ from flask import Blueprint, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
 import os
 
+print("DEBUG: Este es el archivo login.py que se está ejecutando")
+
 # Blueprint sin prefijo para que funcione /login y /login/google/callback
 login_bp = Blueprint("login", __name__)
 
