@@ -32,20 +32,22 @@ def panel_cliente(nombre_nora):
         modulos_supabase_result = supabase.table("modulos_disponibles").select("*").execute()
         modulos_supabase = modulos_supabase_result.data if modulos_supabase_result.data else []
 
-        # ✅ Normalizar claves y validar presencia
+        # Normaliza y filtra correctamente
         modulos_activos_normalizados = [mod.strip().lower() for mod in modulos_activos]
 
         modulos_disponibles = [
             {
                 "nombre": m["nombre"].strip(),
-                "ruta": (m.get("ruta") or "").strip() if es_ruta_valida(m.get("ruta", "")) else "",
+                "ruta": m.get("ruta", "").strip() if es_ruta_valida(m.get("ruta", "")) else "",
                 "icono": m.get("icono", ""),
                 "descripcion": m.get("descripcion", "")
             }
-            for m in modulos_supabase if m["nombre"].strip().lower() in modulos_activos_normalizados
+            for m in modulos_supabase
+            if m.get("nombre", "").strip().lower() in modulos_activos_normalizados
         ]
 
-        print("🔎 Módulos cargados:", modulos_disponibles)
+        print("🔎 Módulos encontrados en Supabase:", [m.get("nombre") for m in modulos_supabase])
+        print("✅ Módulos que se mostrarán en el panel:", [m["nombre"] for m in modulos_disponibles])
 
     except Exception as e:
         print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
