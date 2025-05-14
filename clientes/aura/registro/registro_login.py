@@ -1,7 +1,6 @@
 import os
 from flask import Blueprint, request, redirect, url_for, render_template
-
-login_bp = Blueprint("login_bp", __name__)
+from clientes.aura.auth.login import login_bp
 
 @login_bp.route("/google", methods=["GET", "POST"])
 def login_google():
@@ -32,4 +31,4 @@ def login_google():
         return f"❌ Error en login_google: {e}", 500
 
 def registrar_blueprints_login(app, safe_register_blueprint):
-    safe_register_blueprint(app, login_bp, url_prefix="/login")
+    safe_register_blueprint(app, login_bp, url_prefix="")

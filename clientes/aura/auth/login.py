@@ -1,6 +1,7 @@
 from flask import Blueprint, redirect, request, session, url_for
 from requests_oauthlib import OAuth2Session
 import os
+from clientes.aura.utils.supabase_client import supabase
 
 print("DEBUG: Este es el archivo login.py que se está ejecutando")
 
@@ -45,47 +46,41 @@ def login_google():
 
 # ========= Callback corregido =========
 @login_bp.route("/login/google/callback")
-def callback():
-    print(f"DEBUG: Parámetros recibidos en el callback: {request.args}")
-
-    oauth = OAuth2Session(
-        GOOGLE_CLIENT_ID,
-        redirect_uri=GOOGLE_REDIRECT_URI,
-        state=session.get("oauth_state")
-    )
-
+def login_callback():
     try:
-        # Intenta obtener el token de Google
+        oauth = OAuth2Session(
+            GOOGLE_CLIENT_ID,
+            redirect_uri=GOOGLE_REDIRECT_URI,
+            state=session.get("oauth_state")
+        )
+
         token = oauth.fetch_token(
             TOKEN_URL,
             client_secret=GOOGLE_CLIENT_SECRET,
             authorization_response=request.url,
         )
-        print(f"DEBUG: Token recibido: {token}")
+        user_info = oauth.get(USER_INFO_URL).json()
+        correo = user_info.get("email")
+
+        result = supabase.table("configuracion_bot").select("*").eq("correo_cliente", correo).execute()
+
+        if not result.data:
+            return "❌ Este correo no tiene acceso autorizado.", 403
+
+        datos = result.data[0]
+        session["user"] = {
+            "name": user_info.get("name"),
+            "email": correo,
+            "picture": user_info.get("picture")
+        }
+        session["is_admin"] = datos.get("tipo_usuario") == "admin"
+        session["nombre_nora"] = datos["nombre_nora"]
+
+        return redirect(
+            url_for("admin_nora_dashboard_bp.dashboard_admin")
+            if session["is_admin"]
+            else url_for("panel_cliente_bp.configuracion_cliente", nombre_nora=session["nombre_nora"])
+        )
+
     except Exception as e:
-        # Captura cualquier error durante el intercambio del token
-        print(f"ERROR: Fallo al obtener el token: {e}")
-        return f"❌ Error al obtener el token: {e}", 500
-
-    try:
-        # Intenta obtener la información del usuario
-        resp = oauth.get(USER_INFO_URL)
-        user_info = resp.json()
-        print(f"DEBUG: Información del usuario recibida: {user_info}")
-    except Exception as e:
-        # Captura cualquier error al obtener la información del usuario
-        print(f"ERROR: Fallo al obtener la información del usuario: {e}")
-        return f"❌ Error al obtener la información del usuario: {e}", 500
-
-    # Configura la sesión del usuario
-    session["user"] = {
-        "name": user_info.get("name"),
-        "email": user_info.get("email"),
-        "picture": user_info.get("picture")
-    }
-
-    from clientes.aura.utils.auth_utils import is_admin_user
-    session["is_admin"] = is_admin_user(session["user"]["email"])
-
-    print(f"✅ Sesión configurada: {session}")
-    return redirect("/admin" if session["is_admin"] else "/panel_cliente")
+        return f"❌ Error inesperado: {str(e)}", 500

@@ -215,21 +215,22 @@ def create_app(config_class=Config):
     @app.route("/")
     def home():
         if "user" not in flask_session:
-            return redirect(url_for("login_bp.login_google")) # Asume que el blueprint de login se llama 'login_bp'
+            return redirect(url_for("login.login_google"))  # Updated blueprint name
         if flask_session.get("is_admin"):
-            return redirect(url_for("admin_nora_dashboard_bp.dashboard_admin")) # Verifica este nombre de blueprint
+            return redirect(url_for("admin_nora_dashboard_bp.dashboard_admin"))
         else:
             return redirect(url_for("panel_cliente_bp.configuracion_cliente", nombre_nora=flask_session.get("nombre_nora", "aura")))
 
     @app.route("/logout")
     def logout():
         flask_session.clear()
-        return redirect(url_for("login_bp.login_google"))
+        return redirect(url_for("login.login_google"))  # Updated blueprint name
 
     @app.route('/debug_info', methods=['GET'])
     def debug_info():
         return jsonify({
-            "rutas_registradas": [rule.rule for rule in app.url_map.iter_rules()],
+            "blueprints_registrados": list(app.blueprints.keys()),  # Added registered blueprints
+            "rutas_registradas": [str(rule) for rule in app.url_map.iter_rules()],
             "estado": "OK",
         })
 
