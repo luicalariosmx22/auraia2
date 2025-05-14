@@ -196,6 +196,8 @@ def create_app(config_class=Config):
     registrar_blueprints_debug(app, safe_register_blueprint)
     registrar_blueprints_invitado(app, safe_register_blueprint)
 
+    from clientes.aura.registro.registro_login import login_bp
+    app.register_blueprint(login_bp, url_prefix="/login")
 
     print("Registro de Blueprints completado.")
 
