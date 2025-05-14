@@ -29,7 +29,14 @@ def dashboard_admin():
             print("❌ No se encontraron Noras.")
         else:
             total_noras = len(response.data)
-            lista_noras = response.data
+            lista_noras = []
+            for item in response.data:
+                lista_noras.append({
+                    "nombre": item.get("nombre_nora", "Sin nombre"),
+                    "ia_activada": item.get("ia_activada", False),
+                    "modulos": item.get("modulos", []) or [],  # Ensure modulos defaults to an empty list
+                    "ultima_actualizacion": item.get("updated_at", "Sin fecha")
+                })
             print(f"✅ Total de Noras encontradas: {total_noras}")
     except Exception as e:
         print(f"❌ Error al obtener Noras: {str(e)}")
