@@ -47,35 +47,24 @@ def vista_clientes():
 
 @panel_cliente_clientes_bp.route("/nuevo", methods=["GET", "POST"])
 def nuevo_cliente():
-    print("✅ Entrando a  cliente")
     nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
-        return redirect(url_for('login.login_screen'))
+        return redirect(url_for("login.login_screen"))
 
-    if not modulo_activo_para_nora(nombre_nora, 'clientes'):
+    if not modulo_activo_para_nora(nombre_nora, "clientes"):
         return "Módulo no activo", 403
 
-    if session.get("user") and session.get("user").get("email"):
-        user_email = session["user"]["email"]
-    else:
-        user_email = "sin_email@desconocido.com"
-
-    if session.get("user") and session.get("user").get("name"):
-        user_name = session["user"]["name"]
-    else:
-        user_name = "Desconocido"
-
-    if session.get("user") and session.get("user").get("sub"):
-        user_id = session["user"]["sub"]
-    else:
-        user_id = "sin_id"
-
     if request.method == "POST":
-        nombre_cliente = request.form.get("nombre_cliente")
-        tipo = request.form.get("tipo")
-        email = request.form.get("email")
-        telefono = request.form.get("telefono")
-        nombre_empresa = request.form.get("nombre_empresa")
+        nombre_cliente = request.form.get("nombre_cliente", "").strip()
+        tipo = request.form.get("tipo", "").strip()
+        email = request.form.get("email", "").strip()
+        telefono = request.form.get("telefono", "").strip()
+        nombre_empresa = request.form.get("nombre_empresa", "").strip()
+
+        # Validación
+        if not nombre_cliente or not tipo or not email or not telefono or not nombre_empresa:
+            flash("❌ Todos los campos son obligatorios", "error")
+            return redirect(request.url)
 
         # Insertar cliente
         cliente_data = {
@@ -87,25 +76,25 @@ def nuevo_cliente():
         }
 
         resultado_cliente = supabase.table("clientes").insert(cliente_data).execute()
+        if not resultado_cliente.data:
+            flash("❌ Error al guardar el cliente", "error")
+            return redirect(request.url)
 
-        if resultado_cliente.error or not resultado_cliente.data:
-            flash("Error al guardar el cliente", "error")
-        else:
-            cliente_id = resultado_cliente.data[0]["id"]
+        cliente_id = resultado_cliente.data[0]["id"]
 
-            # Insertar empresa con nombre real
-            empresa_data = {
-                "nombre_nora": nombre_nora,
-                "nombre_cliente": nombre_cliente,
-                "cliente_id": cliente_id,
-                "nombre_empresa": nombre_empresa
-            }
-            supabase.table("cliente_empresas").insert(empresa_data).execute()
+        # Insertar empresa vinculada
+        empresa_data = {
+            "nombre_nora": nombre_nora,
+            "nombre_cliente": nombre_cliente,
+            "cliente_id": cliente_id,
+            "nombre_empresa": nombre_empresa
+        }
+        supabase.table("cliente_empresas").insert(empresa_data).execute()
 
-            flash("Cliente y empresa guardados correctamente", "success")
-            return redirect(url_for('panel_cliente_clientes_bp.vista_clientes'))
+        flash("✅ Cliente y empresa guardados correctamente", "success")
+        return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
 
-    return render_template('panel_cliente_clientes_nuevo.html', nombre_nora=nombre_nora, user=session.get("user"))
+    return render_template("panel_cliente_clientes_nuevo.html", nombre_nora=nombre_nora, user=session.get("user"))
 
 # ----------- EMPRESAS: Formulario edit / share -----------------
 
