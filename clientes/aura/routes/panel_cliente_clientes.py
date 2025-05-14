@@ -4,8 +4,9 @@ from clientes.aura.utils.supabase_client import supabase
 
 panel_cliente_clientes_bp = Blueprint('panel_cliente_clientes_bp', __name__)
 
-@panel_cliente_clientes_bp.route('/panel_cliente/<nombre_nora>/clientes')
-def vista_clientes(nombre_nora):
+@panel_cliente_clientes_bp.route("/")
+def vista_clientes():
+    nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
         return redirect(url_for('login_bp.login'))
 
@@ -26,8 +27,8 @@ def vista_clientes(nombre_nora):
         cliente["empresas"] = empresas_data.data if empresas_data.data else []
 
         for empresa in cliente["empresas"]:
-            empresa["url_editar"] = url_for('panel_cliente_clientes_bp.editar_empresa', nombre_nora=nombre_nora, empresa_id=empresa["id"])
-        cliente["url_nueva_ads"] = url_for('panel_cliente_clientes_bp.nueva_cuenta_ads', nombre_nora=nombre_nora, cliente_id=cliente["id"])
+            empresa["url_editar"] = url_for('panel_cliente_clientes_bp.editar_empresa', empresa_id=empresa["id"])
+        cliente["url_nueva_ads"] = url_for('panel_cliente_clientes_bp.nueva_cuenta_ads', cliente_id=cliente["id"])
 
         # Cuentas publicitarias asociadas
         ads_data = supabase.table("meta_ads_cuentas") \
@@ -38,8 +39,9 @@ def vista_clientes(nombre_nora):
 
     return render_template('panel_cliente_clientes.html', nombre_nora=nombre_nora, clientes=clientes, user=session.get("user"))
 
-@panel_cliente_clientes_bp.route('/panel_cliente/<nombre_nora>/clientes/nuevo', methods=["GET", "POST"])
-def nuevo_cliente(nombre_nora):
+@panel_cliente_clientes_bp.route("/nuevo", methods=["GET", "POST"])
+def nuevo_cliente():
+    nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
         return redirect(url_for('login_bp.login'))
 
@@ -94,14 +96,15 @@ def nuevo_cliente(nombre_nora):
             supabase.table("cliente_empresas").insert(empresa_data).execute()
 
             flash("Cliente y empresa guardados correctamente", "success")
-            return redirect(url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora))
+            return redirect(url_for('panel_cliente_clientes_bp.vista_clientes'))
 
     return render_template('panel_cliente_clientes_nuevo.html', nombre_nora=nombre_nora, user=session.get("user"))
 
 # ----------- EMPRESAS: Formulario edit / share -----------------
 
-@panel_cliente_clientes_bp.route('/panel_cliente/<nombre_nora>/empresa/<empresa_id>/editar', methods=["GET", "POST"])
-def editar_empresa(nombre_nora, empresa_id):
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/editar", methods=["GET", "POST"])
+def editar_empresa(empresa_id):
+    nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
         return redirect(url_for('login_bp.login'))
 
@@ -124,14 +127,15 @@ def editar_empresa(nombre_nora, empresa_id):
         }
         supabase.table("cliente_empresas").update(campos).eq("id", empresa_id).execute()
         flash("Empresa actualizada", "success")
-        return redirect(url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora))
+        return redirect(url_for('panel_cliente_clientes_bp.vista_clientes'))
 
     return render_template('panel_cliente_empresa_form.html', nombre_nora=nombre_nora, empresa=empresa, user=session.get("user"))
 
 # ----------- VINCULAR CUENTA ADS -----------------
 
-@panel_cliente_clientes_bp.route('/panel_cliente/<nombre_nora>/cliente/<cliente_id>/ads/nueva', methods=["GET", "POST"])
-def nueva_cuenta_ads(nombre_nora, cliente_id):
+@panel_cliente_clientes_bp.route("/cliente/<cliente_id>/ads/nueva", methods=["GET", "POST"])
+def nueva_cuenta_ads(cliente_id):
+    nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
         return redirect(url_for('login_bp.login'))
 
@@ -156,6 +160,6 @@ def nueva_cuenta_ads(nombre_nora, cliente_id):
         }
         supabase.table("meta_ads_cuentas").insert(cuenta_data).execute()
         flash("Cuenta publicitaria vinculada", "success")
-        return redirect(url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora))
+        return redirect(url_for('panel_cliente_clientes_bp.vista_clientes'))
 
     return render_template('panel_cliente_vincular_ads.html', nombre_nora=nombre_nora, cliente=cliente, user=session.get("user"))
