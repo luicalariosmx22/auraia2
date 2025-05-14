@@ -59,6 +59,12 @@ def panel_cliente(nombre_nora):
 
         print("✅ Módulos visibles para panel:", modulos_disponibles)
 
+        print("🔍 DEBUG FINAL:")
+        print("🔸 Nombre Nora:", nombre_nora)
+        print("🔸 Módulos activos:", modulos_activos)
+        print("🔸 Total definidos:", len(modulos_definidos))
+        print("🔸 Módulos disponibles para mostrar:", modulos_disponibles)
+
     except Exception as e:
         print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
         modulos_disponibles = []
