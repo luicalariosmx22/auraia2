@@ -57,3 +57,15 @@ def panel_envios(nombre_nora):
         nombre_nora=nombre_nora,
         user=session["user"]
     )
+
+@panel_cliente_envios_bp.route("/", methods=["GET", "POST"])
+def panel_envios():
+    if "user" not in session:
+        return redirect(url_for("login.login_google"))
+
+    nombre_nora = request.path.split("/")[3]
+
+    resultados = supabase.table("envios_programados").select("*").eq("nombre_nora", nombre_nora).order("fecha_envio", desc=True).execute()
+    envios = resultados.data if resultados.data else []
+
+    return render_template("panel_cliente_envios.html", envios=envios, nombre_nora=nombre_nora, user=session["user"])
