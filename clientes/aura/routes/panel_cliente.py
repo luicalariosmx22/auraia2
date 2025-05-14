@@ -50,6 +50,7 @@ def panel_cliente(nombre_nora):
     return render_template(
         "panel_cliente.html",
         nombre_nora=nombre_nora,
+        nombre_visible=nombre_nora,  # ✅ para que se muestre correctamente
         user=session["user"],
         modulos=modulos_disponibles
     )
