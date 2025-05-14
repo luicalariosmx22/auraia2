@@ -65,7 +65,7 @@ def crear_blueprint_panel_cliente(nombre_nora):
             modulos_disponibles = [
                 {
                     "nombre": modulos_dict[nombre.lower()]["nombre"].replace("_", " ").capitalize(),
-                    "ruta": modulos_dict[nombre.lower()]["ruta"],
+                    "ruta": f"/panel_cliente/{nombre_nora}/{nombre.lower()}",
                     "icono": modulos_dict[nombre.lower()]["icono"] or "🧩",
                     "descripcion": modulos_dict[nombre.lower()]["descripcion"] or "Módulo activo"
                 }
