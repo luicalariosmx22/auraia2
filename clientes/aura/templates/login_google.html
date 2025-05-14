@@ -19,9 +19,17 @@
       border-radius: 12px;
       box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
       text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-box img {
+      width: 100px;
+      margin-bottom: 20px;
     }
     .login-box h2 {
       margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
     }
     .google-btn {
       background-color: #4285F4;
@@ -33,14 +41,22 @@
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
+      margin-top: 20px;
     }
     .google-btn:hover {
       background-color: #357ae8;
+    }
+    .login-box p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
   <div class="login-box">
+    <!-- Logo de Nora AI -->
+    <img src="/static/images/nora_logo.png" alt="Nora AI Logo" />
     <h2>Bienvenido a Nora AI</h2>
     <p>Por favor, inicia sesión con tu cuenta de Google</p>
     <a href="/login/google" class="google-btn">Iniciar sesión con Google</a>

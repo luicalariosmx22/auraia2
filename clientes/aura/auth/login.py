@@ -8,7 +8,7 @@ login_bp = Blueprint("login", __name__)
 # Cargar variables de entorno
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
+GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")  # Usa la variable de entorno aquí
 
 SCOPE = [
     "https://www.googleapis.com/auth/userinfo.email",
@@ -23,12 +23,12 @@ USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 # ========= Iniciar login =========
 @login_bp.route("/login")
 def login_google():
-    if not REDIRECT_URI:
+    if not GOOGLE_REDIRECT_URI:
         return "❌ ERROR: GOOGLE_REDIRECT_URI no está definido en variables de entorno."
 
     oauth = OAuth2Session(
         GOOGLE_CLIENT_ID,
-        redirect_uri=REDIRECT_URI,
+        redirect_uri=GOOGLE_REDIRECT_URI,  # Usa la variable de entorno aquí
         scope=SCOPE
     )
 
@@ -46,7 +46,7 @@ def login_google():
 def callback():
     oauth = OAuth2Session(
         GOOGLE_CLIENT_ID,
-        redirect_uri=REDIRECT_URI,
+        redirect_uri=GOOGLE_REDIRECT_URI,  # Usa la variable de entorno aquí
         state=session.get("oauth_state")
     )
 
