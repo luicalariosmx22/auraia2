@@ -52,7 +52,12 @@ def panel_cliente(nombre_nora):
 
         # 4. Filtrar visuales solo con los módulos activos
         modulos_disponibles = [
-            modulos_dict[nombre.lower()]
+            {
+                "nombre": modulos_dict[nombre.lower()]["nombre"].replace("_", " ").capitalize(),
+                "ruta": modulos_dict[nombre.lower()]["ruta"],
+                "icono": modulos_dict[nombre.lower()]["icono"] or "🧩",
+                "descripcion": modulos_dict[nombre.lower()]["descripcion"] or "Módulo activo"
+            }
             for nombre in modulos_activos
             if nombre.lower() in modulos_dict
         ]
