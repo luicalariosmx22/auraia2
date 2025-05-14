@@ -41,6 +41,10 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         bp = crear_blueprint_panel_cliente(nombre_nora)
         safe_register_blueprint(app, bp, url_prefix=f"/panel_cliente/{nombre_nora}")
 
+        # 👉 Registra el módulo 'entrenamiento' para cada Nora
+        from clientes.aura.routes.panel_cliente_entrenamiento.vista_panel_cliente_entrenamiento import panel_cliente_entrenamiento_bp
+        safe_register_blueprint(app, panel_cliente_entrenamiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/entrenamiento")
+
         # Obtener los módulos activos de la tabla configuracion_bot
         modulos_activados = supabase.table('configuracion_bot').select('modulos').eq('nombre_nora', nombre_nora).single().execute()
 
