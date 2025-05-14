@@ -1,0 +1,22 @@
+<!-- ✅ Archivo: templates/base_admin_horizontal.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block titulo %}Panel Admin{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">🧠 Nora AI</div>
+    <nav class="topnav">
+      <a href="/admin" class="active">Panel</a>
+      <a href="/logout">Cerrar sesión</a>
+    </nav>
+  </header>
+
+  <main class="admin-main">
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>

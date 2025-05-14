@@ -1,16 +1,55 @@
-{% extends "base_admin.html" %}
+{% extends "base_admin_horizontal.html" %}
 
 {% block titulo %}Panel Administrador{% endblock %}
 
 {% block contenido %}
-    <h1>Panel de Administrador</h1>
-    <section class="stats">
-        <div class="card"><h2>{{ total_noras }}</h2><p>Noras activas</p></div>
-        <div class="card"><h2>{{ total_errores }}</h2><p>Errores registrados</p></div>
-        <div class="card"><h2>{{ ultimo_deployment }}</h2><p>Último deployment</p></div>
-    </section>
-    <section>
-        <h3>🧪 Verificación de Rutas y Blueprints</h3>
-        <a href="/admin/debug/rutas" class="btn-primary">🔍 Verificador de Rutas</a>
-    </section>
+<h1>Panel de Administración</h1>
+
+<section class="stats">
+  <div class="card"><h2>{{ total_noras }}</h2><p>Noras activas</p></div>
+  <div class="card"><h2>{{ total_errores }}</h2><p>Errores registrados</p></div>
+  <div class="card"><h2>{{ ultimo_deployment }}</h2><p>Último deployment</p></div>
+</section>
+
+<section class="acciones">
+  <a href="/admin/nora/nueva" class="btn-primary">+ Crear nueva Nora</a>
+  <a href="/admin/debug/rutas" class="btn-secondary">🧪 Verificador de rutas</a>
+</section>
+
+<section class="lista-noras">
+  <h2>Lista de Noras</h2>
+  {% if noras %}
+  <table class="noras-table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>IA</th>
+        <th>Módulos</th>
+        <th>Actualización</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for nora in noras %}
+      <tr>
+        <td>{{ nora.nombre }}</td>
+        <td>{% if nora.ia_activada %}Sí{% else %}No{% endif %}</td>
+        <td>{{ nora.modulos | join(", ") }}</td>
+        <td>{{ nora.ultima_actualizacion }}</td>
+        <td>
+          <a href="/admin/nora/{{ nora.nombre }}">Panel</a> |
+          <a href="/admin/editar_nora?nombre={{ nora.nombre }}">Editar</a> |
+          <form action="/admin/borrar_nora" method="POST" style="display:inline">
+            <input type="hidden" name="nombre" value="{{ nora.nombre }}">
+            <button type="submit">Borrar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p>No hay Noras registradas aún.</p>
+  {% endif %}
+</section>
 {% endblock %}
