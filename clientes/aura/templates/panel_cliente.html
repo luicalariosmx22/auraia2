@@ -24,7 +24,7 @@
     <!-- Sección de Módulos -->
     <div class="modulo-listado">
       {% if modulos %}
-        <div class="modulos-grid">
+        <div class="modulos-activos-grid">
           {% for modulo in modulos %}
             <a href="{{ modulo.ruta or '#' }}" class="modulo-card">
               <div class="icono">{{ modulo.icono or '🔧' }}</div>
