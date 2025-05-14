@@ -79,6 +79,11 @@ def crear_blueprint_panel_cliente(nombre_nora):
 
     @bp.route("/")
     def configuracion_cliente():
-        return render_template("panel_cliente.html", nombre_nora=nombre_nora)
+        return render_template(
+            "panel_cliente.html",
+            nombre_nora=nombre_nora,
+            nombre_visible=nombre_nora.capitalize(),
+            user=session.get("user", {"name": "Usuario"})
+        )
 
     return bp
