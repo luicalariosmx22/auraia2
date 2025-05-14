@@ -22,17 +22,17 @@ def panel_cliente(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     try:
-        # Obtener los módulos activos desde la configuración de la Nora
-        response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
-        config = response.data[0] if response.data else {}
+        # 1. Traer la configuración de la Nora
+        result = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
+        config = result.data[0] if result.data else {}
         modulos_activos = config.get("modulos", [])
-        print("🔧 Modulos activos en configuración:", modulos_activos)
+        print("🧠 Modulos activos:", modulos_activos)
 
-        # Traer descripción y rutas desde Supabase
-        modulos_supabase_result = supabase.table("modulos_disponibles").select("*").execute()
-        modulos_supabase = modulos_supabase_result.data if modulos_supabase_result.data else []
+        # 2. Traer todos los módulos posibles
+        result_disponibles = supabase.table("modulos_disponibles").select("*").execute()
+        modulos_definidos = result_disponibles.data if result_disponibles.data else []
 
-        # Normaliza y filtra correctamente
+        # 3. Normalizar y filtrar
         modulos_activos_normalizados = [mod.strip().lower() for mod in modulos_activos]
 
         modulos_disponibles = [
@@ -42,12 +42,11 @@ def panel_cliente(nombre_nora):
                 "icono": m.get("icono", ""),
                 "descripcion": m.get("descripcion", "")
             }
-            for m in modulos_supabase
+            for m in modulos_definidos
             if m.get("nombre", "").strip().lower() in modulos_activos_normalizados
         ]
 
-        print("🔎 Módulos encontrados en Supabase:", [m.get("nombre") for m in modulos_supabase])
-        print("✅ Módulos que se mostrarán en el panel:", [m["nombre"] for m in modulos_disponibles])
+        print("✅ Modulos visibles para panel:", modulos_disponibles)
 
     except Exception as e:
         print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
