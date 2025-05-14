@@ -1,262 +1,126 @@
 body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f5f7fa;
-    color: #2a2a2a;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f6fa;
+  color: #333;
 }
 
-header {
-    background-color: #2A4F8D;
-    color: white;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #253858;
+  padding: 1rem 2rem;
+  color: white;
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
-.logout a {
-    color: white;
-    text-decoration: none;
-    font-weight: 500;
+.topnav a {
+  color: white;
+  margin-left: 2rem;
+  text-decoration: none;
+  font-weight: 500;
 }
 
-.sidebar {
-    width: 200px;
-    background-color: #ffffff;
-    height: 100vh;
-    position: fixed;
-    top: 64px;
-    left: 0;
-    padding-top: 1rem;
-    border-right: 1px solid #e0e0e0;
+.topnav a:hover {
+  text-decoration: underline;
 }
 
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar li {
-    margin: 1rem 0;
-}
-
-.sidebar a {
-    color: #2A4F8D;
-    text-decoration: none;
-    padding: 0.75rem 1.5rem;
-    display: block;
-    font-weight: 500;
-}
-
-.sidebar a:hover {
-    background-color: #e6ecf5;
-    border-left: 4px solid #2A4F8D;
-}
-
-main {
-    margin-left: 200px;
-    padding: 2rem;
-}
-
-main h1 {
-    margin-bottom: 1.5rem;
-    color: #2A4F8D;
-}
-
-main form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-main form div {
-    display: flex;
-    flex-direction: column;
-}
-
-main form label {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-main form textarea {
-    resize: vertical;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-main form button {
-    padding: 0.7rem 1.5rem;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-main form button:hover {
-    background-color: #0056b3;
+.admin-main {
+  padding: 2rem 3rem;
 }
 
 .stats {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .card {
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 1.5rem 2rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    flex: 1;
-    min-width: 250px;
-    text-align: center;
+  background: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  flex: 1;
 }
 
 .card h2 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: #2A4F8D;
+  margin: 0;
+  font-size: 2rem;
+  color: #2d6cdf;
 }
 
 .card p {
-    font-size: 1rem;
-    color: #666;
-}
-/* --- Estilos tabla Ver Nora’s --- */
-.noras-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    margin-top: 2rem;
-    box-shadow: 0 0 5px rgba(0,0,0,0.05);
-    border-radius: 8px;
-    overflow: hidden;
+  margin: 0.3rem 0 0;
+  font-size: 1rem;
+  color: #777;
 }
 
-.noras-table th,
-.noras-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+.acciones {
+  margin-bottom: 2rem;
+}
+
+.acciones a {
+  display: inline-block;
+  margin-right: 1rem;
+  padding: 0.7rem 1.2rem;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #2d6cdf;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #ddd;
+  color: #333;
+}
+
+.noras-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.noras-table th, .noras-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
 }
 
 .noras-table th {
-    background-color: #f0f4f9;
-    color: #2A4F8D;
-    font-weight: 600;
+  background-color: #f2f4f8;
+  font-weight: bold;
+  color: #444;
 }
 
-.badge {
-    display: inline-block;
-    background-color: #2A4F8D;
-    color: white;
-    padding: 0.3rem 0.6rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    margin-right: 4px;
-}
-form {
-    max-width: 500px;
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+.noras-table tr:hover {
+  background-color: #f9f9f9;
 }
 
-input[type="text"], select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.noras-table form {
+  display: inline;
 }
 
-.checkbox-group label {
-    display: block;
-    margin-top: 0.3rem;
+.noras-table button {
+  background: #d9534f;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-button {
-    padding: 0.6rem;
-    background-color: #2A4F8D;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.flash {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 0.8rem;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-}
-.boton {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #0046ad;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
-    margin-top: 10px;
-    transition: background-color 0.3s ease;
-}
-
-.boton:hover {
-    background-color: #003080;
-}
-
-.boton.rojo {
-    background-color: #d9534f;
-}
-
-.boton.verde {
-    background-color: #5cb85c;
-}
-
-.boton.gris {
-    background-color: #6c757d;
-}
-.btn-activar {
-    background-color: #5cb85c; /* Verde bonito */
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 0.9rem;
-    transition: background-color 0.3s ease;
-}
-
-.btn-activar:hover {
-    background-color: #449d44;
-}
-
-.btn-desactivar {
-    background-color: #d9534f; /* Rojo bonito */
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 0.9rem;
-    transition: background-color 0.3s ease;
-}
-
-.btn-desactivar:hover {
-    background-color: #c9302c;
+.noras-table button:hover {
+  background: #c9302c;
 }
