@@ -14,6 +14,14 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 admin_nora_bp = Blueprint("admin_nora", __name__)
 
+# 👉 Agrega soporte para /nora/editar?nombre=... redireccionando a la ruta con <nombre_nora>
+@admin_nora_bp.route("/admin/nora/editar", methods=["GET"])
+def redireccionar_editar_nora():
+    nombre = request.args.get("nombre")
+    if not nombre:
+        return "❌ Parámetro 'nombre' requerido", 400
+    return redirect(url_for("admin_nora.editar_nora", nombre_nora=nombre))
+
 @admin_nora_bp.route("/admin/nora/<nombre_nora>/editar", methods=["GET", "POST"])
 def editar_nora(nombre_nora):
     # Consultar módulos disponibles desde la tabla en Supabase
