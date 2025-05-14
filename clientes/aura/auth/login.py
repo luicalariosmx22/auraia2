@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, request, session, url_for
+from flask import Blueprint, redirect, request, session, url_for, render_template
 from requests_oauthlib import OAuth2Session
 import os
 from clientes.aura.utils.supabase_client import supabase
@@ -23,8 +23,13 @@ AUTHORIZATION_BASE_URL = "https://accounts.google.com/o/oauth2/auth"
 TOKEN_URL = "https://accounts.google.com/o/oauth2/token"
 USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 
-# ========= Iniciar login =========
+# ========= Mostrar pantalla login =========
 @login_bp.route("/login")
+def login_screen():
+    return render_template("login_google.html")
+
+# ========= Iniciar login =========
+@login_bp.route("/login/start")
 def login_google():
     print("DEBUG: Entrando a login_google")
     
