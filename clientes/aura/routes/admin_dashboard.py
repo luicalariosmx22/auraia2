@@ -32,6 +32,7 @@ def dashboard_admin():
 
     total_noras = 0
     total_errores = 0
+    lista_noras = []
 
     # Contar Noras desde Supabase
     try:
@@ -41,6 +42,7 @@ def dashboard_admin():
             print("⚠️ No se encontraron Noras en la tabla 'configuracion_bot'.")
         else:
             total_noras = len(response.data)
+            lista_noras = response.data  # Pass the list of Noras
             print(f"✅ Total de Noras encontradas: {total_noras}")
     except Exception as e:
         print(f"❌ Error al contar Noras: {str(e)}")
@@ -61,7 +63,8 @@ def dashboard_admin():
     return render_template("admin_dashboard.html",
         total_noras=total_noras,
         total_errores=total_errores,
-        ultimo_deployment="hace 5 minutos"  # puedes actualizar esto después
+        ultimo_deployment="hace 5 minutos",
+        noras=lista_noras  # Include the list of Noras
     )
 
 @admin_dashboard_bp.route("/admin/debug/rutas")
