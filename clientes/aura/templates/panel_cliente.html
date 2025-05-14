@@ -40,7 +40,7 @@
           {% if modulo.ruta %}
             <a 
               class="modulo-boton" 
-              href="{{ url_for(modulo.ruta.split('.')[-1], nombre_nora=nombre_nora) }}">
+              href="/panel_cliente/{{ nombre_nora }}/{{ modulo.nombre }}">
               Abrir módulo
             </a>
           {% else %}
