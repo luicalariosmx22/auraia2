@@ -14,12 +14,13 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_cliente_contactos_bp = Blueprint("panel_cliente_contactos", __name__)
 
-@panel_cliente_contactos_bp.route("/<nombre_nora>", methods=["GET", "POST"])
-def panel_contactos(nombre_nora):
+@panel_cliente_contactos_bp.route("/", methods=["GET", "POST"])
+def panel_contactos():
     if "user" not in session:
         return redirect(url_for("login.login_google"))
 
     try:
+        nombre_nora = request.path.split("/")[3]
         response = supabase.table("contactos").select(
             "id, nombre, telefono, correo, empresa, rfc, direccion, ciudad, cumpleanos, notas, ultimo_mensaje"
         ).eq("nombre_nora", nombre_nora).order('ultimo_mensaje', desc=True).execute()
