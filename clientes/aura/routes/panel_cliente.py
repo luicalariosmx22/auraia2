@@ -17,14 +17,16 @@ panel_cliente_bp = Blueprint("panel_cliente", __name__)
 def es_ruta_valida(ruta):
     return ruta and '.' in ruta and len(ruta.split('.')) == 2
 
-def serializar_config(config):
-    limpio = {}
-    for k, v in config.items():
-        if isinstance(v, datetime.timedelta):
-            limpio[k] = str(v)
-        else:
-            limpio[k] = v
-    return limpio
+# ✅ Función para evitar error de serialización en HTML
+def serializar_config(obj):
+    if isinstance(obj, dict):
+        return {k: serializar_config(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [serializar_config(i) for i in obj]
+    elif isinstance(obj, datetime.timedelta):
+        return str(obj)
+    else:
+        return obj
 
 @panel_cliente_bp.route("/<nombre_nora>")
 def panel_cliente(nombre_nora):
@@ -32,22 +34,22 @@ def panel_cliente(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     try:
-        # 1. Traer la configuración de la Nora
+        # 1. Configuración de la Nora
         result = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         config = result.data[0] if result.data else {}
 
-        # ✅ Convertir string de módulos en lista
+        # 2. Leer los módulos activos
         raw_modulos = config.get("modulos", [])
         if isinstance(raw_modulos, str):
             modulos_activos = [m.strip() for m in raw_modulos.split(",")]
         else:
             modulos_activos = raw_modulos
 
-        # 2. Traer todas las definiciones visuales
-        result_disponibles = supabase.table("modulos_disponibles").select("*").execute()
-        modulos_definidos = result_disponibles.data or []
+        # 3. Traer las definiciones de módulos
+        resultado_def = supabase.table("modulos_disponibles").select("*").execute()
+        modulos_definidos = resultado_def.data or []
 
-        # 3. Indexar disponibles por nombre
+        # 4. Indexar los módulos definidos
         modulos_dict = {
             m.get("nombre", "").strip().lower(): {
                 "nombre": m.get("nombre", "").strip(),
@@ -58,7 +60,7 @@ def panel_cliente(nombre_nora):
             for m in modulos_definidos
         }
 
-        # 4. Filtrar visuales solo con los módulos activos
+        # 5. Filtrar solo los módulos activos que sí tienen visual definido
         modulos_disponibles = [
             {
                 "nombre": modulos_dict[nombre.lower()]["nombre"].replace("_", " ").capitalize(),
@@ -73,7 +75,8 @@ def panel_cliente(nombre_nora):
         print("✅ Módulos visibles para panel:", modulos_disponibles)
 
     except Exception as e:
-        print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
+        print(f"❌ Error en panel_cliente: {str(e)}")
+        config = {}
         modulos_disponibles = []
 
     return render_template(
@@ -81,7 +84,8 @@ def panel_cliente(nombre_nora):
         nombre_nora=nombre_nora,
         nombre_visible=nombre_nora.capitalize(),
         user=session.get("user", {"name": "Usuario"}),
-        modulos=modulos_disponibles
+        modulos=modulos_disponibles,
+        config=serializar_config(config)  # ✅ Para evitar error en el HTML
     )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
