@@ -30,7 +30,6 @@ from .routes.panel_chat import panel_chat_bp
 from .routes.webhook import webhook_bp
 from .routes.admin_nora_dashboard import admin_nora_dashboard_bp
 from .routes.etiquetas import etiquetas_bp
-from .routes.panel_cliente import panel_cliente_bp
 from .routes.panel_cliente_contactos import panel_cliente_contactos_bp
 from .routes.panel_cliente_envios import panel_cliente_envios_bp
 from .routes.admin_nora import admin_nora_bp
