@@ -23,9 +23,8 @@ USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 # ========= Iniciar login =========
 @login_bp.route("/login")
 def login_google():
-    if not GOOGLE_REDIRECT_URI:
-        return "❌ ERROR: GOOGLE_REDIRECT_URI no está definido en variables de entorno."
-
+    print("DEBUG: Entrando a login_google")
+    
     oauth = OAuth2Session(
         GOOGLE_CLIENT_ID,
         redirect_uri=GOOGLE_REDIRECT_URI,  # Usa la variable de entorno aquí
@@ -38,6 +37,7 @@ def login_google():
         prompt="select_account"
     )
 
+    print(f"DEBUG: URL de autenticación generada: {authorization_url}")
     session["oauth_state"] = state
     return redirect(authorization_url)
 
