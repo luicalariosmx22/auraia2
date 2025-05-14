@@ -7,6 +7,15 @@
 <div class="container mx-auto max-w-5xl px-4 py-8">
   <h2 class="text-2xl font-bold text-gray-800 mb-6">👥 Clientes registrados</h2>
 
+  <!-- Bloque temporal de debug después del header -->
+  <p class="text-gray-500 text-sm">📦 Clientes cargados: {{ clientes | length }}</p>
+
+  {% if clientes %}
+    <p class="text-green-600 text-sm">✅ Sí hay clientes, mostrando...</p>
+  {% else %}
+    <p class="text-red-600 text-sm">❌ No hay clientes que mostrar</p>
+  {% endif %}
+
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <ul class="mb-4">
@@ -21,6 +30,15 @@
      class="inline-block bg-blue-600 text-white text-sm px-5 py-2 rounded-md hover:bg-blue-700 shadow mb-8 transition">
     ➕ Agregar nuevo cliente
   </a>
+
+  <!-- Loop temporal para debug -->
+  {% for cliente in clientes %}
+    <div class="border p-4 mb-4">
+      <p><strong>Nombre:</strong> {{ cliente.nombre_cliente }}</p>
+      <p><strong>Email:</strong> {{ cliente.email }}</p>
+      <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
+    </div>
+  {% endfor %}
 
   {% if clientes %}
     {% for cliente in clientes %}
