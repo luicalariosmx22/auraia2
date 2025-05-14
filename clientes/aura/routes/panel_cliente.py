@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, session, redirect, url_for
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+import datetime
 
 # Configurar Supabase
 load_dotenv()
@@ -15,6 +16,15 @@ panel_cliente_bp = Blueprint("panel_cliente", __name__)
 
 def es_ruta_valida(ruta):
     return ruta and '.' in ruta and len(ruta.split('.')) == 2
+
+def serializar_config(config):
+    limpio = {}
+    for k, v in config.items():
+        if isinstance(v, datetime.timedelta):
+            limpio[k] = str(v)
+        else:
+            limpio[k] = v
+    return limpio
 
 @panel_cliente_bp.route("/<nombre_nora>")
 def panel_cliente(nombre_nora):
@@ -51,18 +61,15 @@ def panel_cliente(nombre_nora):
         }
 
         # 4. Filtrar visuales solo con los módulos activos
-        modulos_disponibles = [
-            {
-                "nombre": modulos_dict[nombre.lower()]["nombre"].replace("_", " ").capitalize(),
-                "ruta": modulos_dict[nombre.lower()]["ruta"],
-                "icono": modulos_dict[nombre.lower()]["icono"] or "🧩",
-                "descripcion": modulos_dict[nombre.lower()]["descripcion"] or "Módulo activo"
-            }
-            for nombre in modulos_activos
-            if nombre.lower() in modulos_dict
-        ]
+        modulos_disponibles = []
+        for m in modulos_activos:
+            key = m.strip().lower()
+            if key in modulos_dict:
+                modulos_disponibles.append(modulos_dict[key])
+            else:
+                print(f"⚠️ Módulo activo '{key}' no tiene descripción visual.")
 
-        print("✅ Módulos visibles para panel:", modulos_disponibles)
+        print("✅ Módulos visibles para el panel:", modulos_disponibles)
 
         print("🔍 DEBUG FINAL:")
         print("🔸 Nombre Nora:", nombre_nora)
@@ -71,7 +78,8 @@ def panel_cliente(nombre_nora):
         print("🔸 Módulos disponibles para mostrar:", modulos_disponibles)
 
     except Exception as e:
-        print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
+        print(f"❌ Error en panel_cliente: {str(e)}")
+        config = {}
         modulos_disponibles = []
 
     return render_template(
@@ -80,7 +88,7 @@ def panel_cliente(nombre_nora):
         nombre_visible=nombre_nora.capitalize(),
         user=session.get("user", {"name": "Usuario"}),
         modulos=modulos_disponibles,
-        config=config  # 🧪 para debug visual
+        config=serializar_config(config)  # ✅ Evita error por timedelta
     )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
