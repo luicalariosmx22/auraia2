@@ -24,13 +24,17 @@ def panel_cliente(nombre_nora):
     try:
         # Obtener los módulos activos desde la configuración de la Nora
         response = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).execute()
-        modulos_activos = response.data[0]["modulos"] if response.data else []
+        config = response.data[0] if response.data else {}
+        modulos_activos = config.get("modulos", [])
+        print("🔧 Modulos activos en configuración:", modulos_activos)
 
-        # Consultar la tabla de módulos disponibles para obtener detalles
-        modulos_query = supabase.table("modulos_disponibles").select("*").execute()
-        modulos_supabase = modulos_query.data if modulos_query.data else []
+        # Traer descripción y rutas desde Supabase
+        modulos_supabase_result = supabase.table("modulos_disponibles").select("*").execute()
+        modulos_supabase = modulos_supabase_result.data if modulos_supabase_result.data else []
 
-        # Construir la lista de módulos disponibles con detalles
+        # ✅ Normalizar claves y validar presencia
+        modulos_activos_normalizados = [mod.strip().lower() for mod in modulos_activos]
+
         modulos_disponibles = [
             {
                 "nombre": m["nombre"].strip(),
@@ -38,10 +42,10 @@ def panel_cliente(nombre_nora):
                 "icono": m.get("icono", ""),
                 "descripcion": m.get("descripcion", "")
             }
-            for m in modulos_supabase if m["nombre"].strip() in [mod.strip() for mod in modulos_activos]
+            for m in modulos_supabase if m["nombre"].strip().lower() in modulos_activos_normalizados
         ]
 
-        print("🔎 Módulos cargados:", modulos_disponibles)  # Debug print statement
+        print("🔎 Módulos cargados:", modulos_disponibles)
 
     except Exception as e:
         print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
