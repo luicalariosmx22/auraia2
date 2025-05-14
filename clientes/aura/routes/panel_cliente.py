@@ -23,7 +23,7 @@ def serializar_config(obj):
         return {k: serializar_config(v) for k, v in obj.items()}
     elif isinstance(obj, list):
         return [serializar_config(i) for i in obj]
-    elif isinstance(obj, datetime.timedelta):
+    elif isinstance(obj, (datetime.timedelta, datetime.datetime)):
         return str(obj)
     else:
         return obj
@@ -79,13 +79,16 @@ def panel_cliente(nombre_nora):
         config = {}
         modulos_disponibles = []
 
+    config_serializado = serializar_config(config)
+    print("🧪 Configuración serializada:", config_serializado)
+
     return render_template(
         "panel_cliente.html",
         nombre_nora=nombre_nora,
         nombre_visible=nombre_nora.capitalize(),
         user=session.get("user", {"name": "Usuario"}),
         modulos=modulos_disponibles,
-        config=serializar_config(config)  # ✅ Para evitar error en el HTML
+        config=config_serializado
     )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
