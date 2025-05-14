@@ -44,7 +44,7 @@
       <div class="modulo-tags">
         {% for modulo in modulos %}
         <a 
-          href="/panel_cliente/{{ nombre_nora }}/{{ modulo.nombre }}" 
+          href="{{ modulo.ruta or '#' }}" 
           class="modulo-tag" 
           aria-label="Etiqueta del módulo {{ modulo.nombre.replace('_', ' ').capitalize() }}">
           {{ modulo.nombre.replace('_', ' ').capitalize() }}
