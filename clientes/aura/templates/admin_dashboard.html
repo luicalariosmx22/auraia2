@@ -25,22 +25,24 @@
         <th>Nombre</th>
         <th>IA</th>
         <th>Módulos</th>
-        <th>Actualización</th>
+        <th>Última actualización</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
       {% for nora in noras %}
       <tr>
-        <td>{{ nora.nombre }}</td>
-        <td>{% if nora.ia_activada %}Sí{% else %}No{% endif %}</td>
-        <td>{{ nora.modulos | join(", ") }}</td>
-        <td>{{ nora.ultima_actualizacion }}</td>
+        <td>{{ nora["nombre"] }}</td>
+        <td>{% if nora["ia_activada"] %}✅{% else %}—{% endif %}</td>
+        <td>{{ nora["modulos"] | join(", ") }}</td>
+        <td>{{ nora["ultima_actualizacion"][:19] }}</td>
         <td>
-          <a href="/admin/nora/{{ nora.nombre }}">Panel</a> |
-          <a href="/admin/editar_nora?nombre={{ nora.nombre }}">Editar</a> |
-          <form action="/admin/borrar_nora" method="POST" style="display:inline">
-            <input type="hidden" name="nombre" value="{{ nora.nombre }}">
+          <a href="/panel_cliente/{{ nora['nombre'] }}">Panel</a> |
+          <a href="/panel_cliente/{{ nora['nombre'] }}/contactos">Contactos</a> |
+          <a href="/panel_cliente/{{ nora['nombre'] }}/ads">Ads</a> |
+          <a href="/admin/nora/editar?nombre={{ nora['nombre'] }}">Editar</a> |
+          <form action="/admin/noras/borrar_nora" method="post" style="display:inline;">
+            <input type="hidden" name="nombre" value="{{ nora['nombre'] }}">
             <button type="submit">Borrar</button>
           </form>
         </td>
@@ -49,7 +51,7 @@
     </tbody>
   </table>
   {% else %}
-    <p>No hay Noras registradas aún.</p>
+    <p class="sin-noras">No hay Noras registradas aún.</p>
   {% endif %}
 </section>
 {% endblock %}

@@ -15,10 +15,6 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 admin_dashboard_bp = Blueprint("admin_dashboard", __name__)
 
 @admin_dashboard_bp.route("/")
-def home_redirect():
-    return redirect(url_for("admin_dashboard.dashboard_admin"))
-
-@admin_dashboard_bp.route("/admin")
 def dashboard_admin():
     # Verificar si el usuario tiene una sesión activa
     if "user" not in session:
