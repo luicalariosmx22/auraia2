@@ -17,12 +17,9 @@ panel_cliente_ia_bp = Blueprint("panel_cliente_ia", __name__)
 def panel_ia():
     if "user" not in session:
         return redirect(url_for("login.login_google"))
-
     nombre_nora = request.path.split("/")[3]
-
     resultados = supabase.table("ia_ajustes").select("*").eq("nombre_nora", nombre_nora).execute()
     ajustes = resultados.data[0] if resultados.data else {}
-
     return render_template("panel_cliente_ia.html", ajustes=ajustes, nombre_nora=nombre_nora, user=session["user"])
 
 

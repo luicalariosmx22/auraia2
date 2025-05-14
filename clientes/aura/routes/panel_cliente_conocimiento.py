@@ -16,12 +16,9 @@ panel_cliente_conocimiento_bp = Blueprint("panel_cliente_conocimiento", __name__
 def conocimiento_nora():
     if "user" not in session:
         return redirect(url_for("login.login_google"))
-
     nombre_nora = request.path.split("/")[3]
-
     bloques_data = supabase.table("conocimiento").select("*").eq("nombre_nora", nombre_nora).order("fecha", desc=True).execute()
     bloques = bloques_data.data if bloques_data.data else []
-
     return render_template("panel_cliente_conocimiento.html", bloques=bloques, nombre_nora=nombre_nora, user=session["user"])
 
 
