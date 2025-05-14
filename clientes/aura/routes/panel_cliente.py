@@ -36,14 +36,12 @@ def panel_cliente(nombre_nora):
         result = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         config = result.data[0] if result.data else {}
 
-        # ✅ Solución: convertir string de módulos en lista
+        # ✅ Convertir string de módulos en lista
         raw_modulos = config.get("modulos", [])
         if isinstance(raw_modulos, str):
             modulos_activos = [m.strip() for m in raw_modulos.split(",")]
         else:
             modulos_activos = raw_modulos
-
-        print("🧠 Módulos activos (procesados):", modulos_activos)
 
         # 2. Traer todas las definiciones visuales
         result_disponibles = supabase.table("modulos_disponibles").select("*").execute()
@@ -72,17 +70,10 @@ def panel_cliente(nombre_nora):
             if nombre.lower() in modulos_dict
         ]
 
-        print("✅ Módulos visibles para el panel:", modulos_disponibles)
-
-        print("🔍 DEBUG FINAL:")
-        print("🔸 Nombre Nora:", nombre_nora)
-        print("🔸 Módulos activos:", modulos_activos)
-        print("🔸 Total definidos:", len(modulos_definidos))
-        print("🔸 Módulos disponibles para mostrar:", modulos_disponibles)
+        print("✅ Módulos visibles para panel:", modulos_disponibles)
 
     except Exception as e:
-        print(f"❌ Error en panel_cliente: {str(e)}")
-        config = {}
+        print(f"❌ Error al obtener módulos para {nombre_nora}: {str(e)}")
         modulos_disponibles = []
 
     return render_template(
@@ -90,8 +81,7 @@ def panel_cliente(nombre_nora):
         nombre_nora=nombre_nora,
         nombre_visible=nombre_nora.capitalize(),
         user=session.get("user", {"name": "Usuario"}),
-        modulos=modulos_disponibles,
-        config=serializar_config(config)  # ✅ Evita error por timedelta
+        modulos=modulos_disponibles
     )
 
 @panel_cliente_bp.route("/<nombre_nora>/entrenamiento", methods=["GET", "POST"])
