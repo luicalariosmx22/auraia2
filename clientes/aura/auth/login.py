@@ -44,6 +44,8 @@ def login_google():
 # ========= Callback corregido =========
 @login_bp.route("/login/google/callback")
 def callback():
+    print(f"DEBUG: Parámetros recibidos en el callback: {request.args}")
+
     oauth = OAuth2Session(
         GOOGLE_CLIENT_ID,
         redirect_uri=GOOGLE_REDIRECT_URI,  # Usa la variable de entorno aquí
