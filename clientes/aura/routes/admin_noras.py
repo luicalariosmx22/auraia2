@@ -53,6 +53,7 @@ def vista_admin():
     except Exception as e:
         print(f"❌ Error al procesar Noras: {str(e)}")
 
+    print(f"✅ Renderizando admin_noras.html con {len(lista_noras)} Noras")
     return render_template("admin_noras.html", noras=lista_noras)
 
 
