@@ -8,7 +8,7 @@ panel_cliente_clientes_bp = Blueprint('panel_cliente_clientes_bp', __name__)
 def vista_clientes():
     nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
-        return redirect(url_for('login_bp.login'))
+        return redirect(url_for('login.login_screen'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
         return "Módulo no activo", 403
@@ -49,7 +49,7 @@ def vista_clientes():
 def nuevo_cliente():
     nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
-        return redirect(url_for('login_bp.login'))
+        return redirect(url_for('login.login_screen'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
         return "Módulo no activo", 403
@@ -112,7 +112,7 @@ def nuevo_cliente():
 def editar_empresa(empresa_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
-        return redirect(url_for('login_bp.login'))
+        return redirect(url_for('login.login_screen'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
         return "Módulo no activo", 403
@@ -143,7 +143,7 @@ def editar_empresa(empresa_id):
 def nueva_cuenta_ads(cliente_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
-        return redirect(url_for('login_bp.login'))
+        return redirect(url_for('login.login_screen'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
         return "Módulo no activo", 403
