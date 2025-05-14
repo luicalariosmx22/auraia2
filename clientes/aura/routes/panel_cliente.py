@@ -22,10 +22,11 @@ def panel_cliente(nombre_nora):
         return redirect(url_for("login.login_google"))
 
     try:
-        # 1. Obtener configuración de la Nora
+        # 1. Traer la configuración de la Nora
         result = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
         config = result.data[0] if result.data else {}
 
+        # ✅ Solución: convertir string de módulos en lista
         raw_modulos = config.get("modulos", [])
         if isinstance(raw_modulos, str):
             modulos_activos = [m.strip() for m in raw_modulos.split(",")]
@@ -34,14 +35,14 @@ def panel_cliente(nombre_nora):
 
         print("🧠 Módulos activos (procesados):", modulos_activos)
 
-        # 2. Obtener todos los módulos visuales posibles (no por nombre_nora)
-        result_modulos = supabase.table("modulos_disponibles").select("*").execute()
-        modulos_definidos = result_modulos.data or []
+        # 2. Traer todas las definiciones visuales
+        result_disponibles = supabase.table("modulos_disponibles").select("*").execute()
+        modulos_definidos = result_disponibles.data or []
 
-        # 3. Mapeo visual: convertir modulos_definidos a dict por nombre
+        # 3. Indexar disponibles por nombre
         modulos_dict = {
-            m["nombre"].strip().lower(): {
-                "nombre": m["nombre"].strip(),
+            m.get("nombre", "").strip().lower(): {
+                "nombre": m.get("nombre", "").strip(),
                 "ruta": m.get("ruta", "").strip() if es_ruta_valida(m.get("ruta", "")) else "",
                 "icono": m.get("icono", ""),
                 "descripcion": m.get("descripcion", "")
@@ -49,11 +50,11 @@ def panel_cliente(nombre_nora):
             for m in modulos_definidos
         }
 
-        # 4. Construir lista final de módulos activos que coincidan
+        # 4. Filtrar visuales solo con los módulos activos
         modulos_disponibles = [
-            modulos_dict[mod.lower()]
-            for mod in modulos_activos
-            if mod.lower() in modulos_dict
+            modulos_dict[nombre.lower()]
+            for nombre in modulos_activos
+            if nombre.lower() in modulos_dict
         ]
 
         print("✅ Módulos visibles para panel:", modulos_disponibles)
@@ -65,8 +66,8 @@ def panel_cliente(nombre_nora):
     return render_template(
         "panel_cliente.html",
         nombre_nora=nombre_nora,
-        nombre_visible=nombre_nora,  # ✅ para que se muestre correctamente
-        user=session["user"],
+        nombre_visible=nombre_nora.capitalize(),
+        user=session.get("user", {"name": "Usuario"}),
         modulos=modulos_disponibles
     )
 
