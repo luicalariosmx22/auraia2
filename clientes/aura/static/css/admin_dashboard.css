@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f6fa;
+  background-color: #f8f9fc;
   color: #333;
 }
 
@@ -9,24 +9,38 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #253858;
+  background-color: #ffffff;
   padding: 1rem 2rem;
-  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+}
+
+.logo-text {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2d6cdf;
 }
 
 .topnav a {
-  color: white;
+  color: #444;
   margin-left: 2rem;
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.2s ease;
 }
 
 .topnav a:hover {
+  color: #2d6cdf;
   text-decoration: underline;
 }
 
@@ -36,41 +50,44 @@ body {
 
 .stats {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
 }
 
 .card {
   background: white;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   flex: 1;
+  min-width: 220px;
 }
 
 .card h2 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 2.1rem;
   color: #2d6cdf;
 }
 
 .card p {
-  margin: 0.3rem 0 0;
+  margin-top: 0.4rem;
   font-size: 1rem;
   color: #777;
 }
 
 .acciones {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .acciones a {
   display: inline-block;
-  margin-right: 1rem;
-  padding: 0.7rem 1.2rem;
+  margin-right: 1.2rem;
+  padding: 0.75rem 1.5rem;
   text-decoration: none;
   border-radius: 6px;
   font-weight: 500;
+  transition: background 0.2s ease;
 }
 
 .btn-primary {
@@ -78,17 +95,25 @@ body {
   color: white;
 }
 
+.btn-primary:hover {
+  background-color: #1b4ea0;
+}
+
 .btn-secondary {
-  background-color: #ddd;
+  background-color: #f0f0f0;
   color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #e0e0e0;
 }
 
 .noras-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -99,8 +124,8 @@ body {
 }
 
 .noras-table th {
-  background-color: #f2f4f8;
-  font-weight: bold;
+  background-color: #f5f7fa;
+  font-weight: 600;
   color: #444;
 }
 
@@ -116,7 +141,7 @@ body {
   background: #d9534f;
   color: white;
   border: none;
-  padding: 0.3rem 0.6rem;
+  padding: 0.4rem 0.7rem;
   border-radius: 4px;
   cursor: pointer;
 }

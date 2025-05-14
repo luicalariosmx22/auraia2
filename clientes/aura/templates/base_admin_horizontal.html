@@ -1,4 +1,4 @@
-<!-- ✅ Archivo: templates/base_admin_horizontal.html -->
+<!-- ✅ Archivo: templates/base_admin_horizontal.html actualizado con logo, colores y enlaces -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,9 +8,13 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="logo">🧠 Nora AI</div>
+    <div class="topbar-left">
+      <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Nora Logo" class="logo-img">
+      <span class="logo-text">Nora AI</span>
+    </div>
     <nav class="topnav">
-      <a href="/admin" class="active">Panel</a>
+      <a href="/admin">Panel</a>
+      <a href="/admin/nora/nueva">Crear Nora</a>
       <a href="/logout">Cerrar sesión</a>
     </nav>
   </header>
