@@ -56,42 +56,37 @@ def nuevo_cliente():
 
     if request.method == "POST":
         nombre_cliente = request.form.get("nombre_cliente", "").strip()
-        tipo = request.form.get("tipo", "").strip()
         email = request.form.get("email", "").strip()
-        telefono = request.form.get("telefono", "").strip()
-        nombre_empresa = request.form.get("nombre_empresa", "").strip()
 
-        # Validación solo nombre y correo obligatorios
+        # Validación mínima
         if not nombre_cliente or not email:
-            flash("❌ El nombre y correo son obligatorios", "error")
+            flash("❌ El nombre y el correo electrónico son obligatorios", "error")
             return redirect(request.url)
 
-        # Insertar cliente
         cliente_data = {
             "nombre_nora": nombre_nora,
             "nombre_cliente": nombre_cliente,
-            "tipo": tipo,
             "email": email,
-            "telefono": telefono
+            "telefono": request.form.get("telefono", "").strip(),
+            "tipo": request.form.get("tipo", "").strip(),
+            "ciudad": request.form.get("ciudad", "").strip(),
+            "estado": request.form.get("estado", "").strip(),
+            "pais": request.form.get("pais", "").strip(),
+            "puesto": request.form.get("puesto", "").strip(),
+            "genero": request.form.get("genero", "").strip(),
+            "cumple": request.form.get("cumple", "").strip(),
+            "notas": request.form.get("notas", "").strip(),
+            "medio_contact": request.form.get("medio_contact", "").strip(),
+            "acepta_promo": request.form.get("acepta_promo") == "on"
         }
 
-        resultado_cliente = supabase.table("clientes").insert(cliente_data).execute()
-        if not resultado_cliente.data:
+        # Insertar cliente
+        resultado = supabase.table("clientes").insert(cliente_data).execute()
+        if not resultado.data:
             flash("❌ Error al guardar el cliente", "error")
             return redirect(request.url)
 
-        cliente_id = resultado_cliente.data[0]["id"]
-
-        # Insertar empresa vinculada
-        empresa_data = {
-            "nombre_nora": nombre_nora,
-            "nombre_cliente": nombre_cliente,
-            "cliente_id": cliente_id,
-            "nombre_empresa": nombre_empresa
-        }
-        supabase.table("cliente_empresas").insert(empresa_data).execute()
-
-        flash("✅ Cliente y empresa guardados correctamente", "success")
+        flash("✅ Cliente guardado correctamente", "success")
         return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
 
     return render_template("panel_cliente_clientes_nuevo.html", nombre_nora=nombre_nora, user=session.get("user"))
