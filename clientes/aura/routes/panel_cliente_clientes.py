@@ -58,18 +58,18 @@ def nuevo_cliente():
 
         cliente_data = {
             "nombre_nora": nombre_nora,
-            "nombre_cliente": nombre_cliente,
-            "email": email,
-            "telefono": request.form.get("telefono", "").strip(),
-            "tipo": request.form.get("tipo", "").strip(),
-            "ciudad": request.form.get("ciudad", "").strip(),
-            "estado": request.form.get("estado", "").strip(),
-            "pais": request.form.get("pais", "").strip(),
-            "puesto": request.form.get("puesto", "").strip(),
-            "genero": request.form.get("genero", "").strip(),
-            "cumple": request.form.get("cumple", "").strip(),
-            "notas": request.form.get("notas", "").strip(),
-            "medio_contact": request.form.get("medio_contact", "").strip(),
+            "nombre_cliente": request.form.get("nombre_cliente", "").strip(),
+            "email": request.form.get("email", "").strip(),
+            "telefono": request.form.get("telefono", "").strip() or None,
+            "tipo": request.form.get("tipo", "").strip() or None,
+            "ciudad": request.form.get("ciudad", "").strip() or None,
+            "estado": request.form.get("estado", "").strip() or None,
+            "pais": request.form.get("pais", "").strip() or None,
+            "puesto": request.form.get("puesto", "").strip() or None,
+            "genero": request.form.get("genero", "").strip() or None,
+            "cumple": request.form.get("cumple") or None,
+            "notas": request.form.get("notas", "").strip() or None,
+            "medio_contact": request.form.get("medio_contact", "").strip() or None,
             "acepta_promo": request.form.get("acepta_promo") == "on"
         }
 
@@ -281,7 +281,6 @@ def vista_empresas():
     empresas = supabase.table("cliente_empresas") \
         .select("*") \
         .eq("nombre_nora", nombre_nora) \
-        .order("created_at", desc=True) \
         .execute().data or []
 
     # Agregar info del cliente si está ligada
@@ -320,21 +319,20 @@ def editar_cliente(cliente_id):
 
     if request.method == "POST":
         campos = {
-            "nombre_cliente": request.form.get("nombre_cliente").strip(),
-            "email": request.form.get("email").strip(),
-            "telefono": request.form.get("telefono").strip(),
-            "tipo": request.form.get("tipo").strip(),
-            "ciudad": request.form.get("ciudad").strip(),
-            "estado": request.form.get("estado").strip(),
-            "pais": request.form.get("pais").strip(),
-            "puesto": request.form.get("puesto").strip(),
-            "genero": request.form.get("genero").strip(),
-            "cumple": request.form.get("cumple").strip(),
-            "notas": request.form.get("notas").strip(),
-            "medio_contact": request.form.get("medio_contact").strip(),
+            "nombre_cliente": request.form.get("nombre_cliente", "").strip(),
+            "email": request.form.get("email", "").strip(),
+            "telefono": request.form.get("telefono", "").strip() or None,
+            "tipo": request.form.get("tipo", "").strip() or None,
+            "ciudad": request.form.get("ciudad", "").strip() or None,
+            "estado": request.form.get("estado", "").strip() or None,
+            "pais": request.form.get("pais", "").strip() or None,
+            "puesto": request.form.get("puesto", "").strip() or None,
+            "genero": request.form.get("genero", "").strip() or None,
+            "cumple": request.form.get("cumple") or None,
+            "notas": request.form.get("notas", "").strip() or None,
+            "medio_contact": request.form.get("medio_contact", "").strip() or None,
             "acepta_promo": request.form.get("acepta_promo") == "on"
         }
-
         supabase.table("clientes").update(campos).eq("id", cliente_id).execute()
         flash("✅ Cliente actualizado correctamente", "success")
         return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
