@@ -143,6 +143,16 @@ def nueva_empresa():
             "telefono_empresa": request.form.get("telefono_empresa", "").strip(),
             "email_empresa": request.form.get("email_empresa", "").strip(),
             "sitio_web": request.form.get("sitio_web", "").strip(),
+            "direccion": request.form.get("direccion", "").strip(),
+            "ciudad": request.form.get("ciudad", "").strip(),
+            "estado": request.form.get("estado", "").strip(),
+            "pais": request.form.get("pais", "").strip(),
+            "cp": request.form.get("cp", "").strip(),
+            "facebook": request.form.get("facebook", "").strip(),
+            "instagram": request.form.get("instagram", "").strip(),
+            "whatsapp": request.form.get("whatsapp", "").strip(),
+            "pagina_web": request.form.get("pagina_web", "").strip(),
+            "notas": request.form.get("notas", "").strip(),
             "activo": True
         }
 
@@ -260,3 +270,33 @@ def ligar_empresa(cliente_id):
                           empresas=empresas_disp,
                           nombre_nora=nombre_nora,
                           modulo_activo="clientes")
+
+@panel_cliente_clientes_bp.route("/empresas", methods=["GET"])
+def vista_empresas():
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("user"):
+        return redirect(url_for("login.login_screen"))
+
+    # Obtener empresas de esta Nora
+    empresas = supabase.table("cliente_empresas") \
+        .select("*") \
+        .eq("nombre_nora", nombre_nora) \
+        .order("created_at", desc=True) \
+        .execute().data or []
+
+    # Agregar info del cliente si está ligada
+    for empresa in empresas:
+        if empresa.get("cliente_id"):
+            cliente = supabase.table("clientes") \
+                .select("id, nombre_cliente") \
+                .eq("id", empresa["cliente_id"]) \
+                .single().execute().data
+            empresa["cliente"] = cliente
+        empresa["url_editar"] = url_for("panel_cliente_clientes_bp.editar_empresa", empresa_id=empresa["id"])
+        empresa["url_ligar"] = url_for("panel_cliente_clientes_bp.ligar_cliente", empresa_id=empresa["id"], nombre_nora=nombre_nora)
+
+    return render_template("panel_cliente_empresas.html",
+                           nombre_nora=nombre_nora,
+                           empresas=empresas,
+                           modulo_activo="clientes",
+                           user=session.get("user"))
