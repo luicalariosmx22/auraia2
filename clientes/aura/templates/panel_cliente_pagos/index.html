@@ -3,6 +3,17 @@
 
 {% block contenido %}
 
+  <div class="mb-4 flex gap-4">
+    <!-- ➕ Crear nuevo recibo -->
+    <a href="{{ url_for('panel_cliente_pagos_nuevo.nuevo_recibo', nombre_nora=nombre_nora) }}"
+       class="flex items-center text-indigo-700 hover:underline">
+      <span class="text-xl mr-2">➕</span> Nuevo recibo
+    </a>
+    <a href="{{ url_for('panel_cliente_pagos_servicios.servicios_lista', nombre_nora=nombre_nora) }}" class="flex items-center text-green-700 hover:underline">
+      <span class="text-xl mr-2">🛎️</span> Servicios productos
+    </a>
+  </div>
+
   {% if pagos %}
   <div class="overflow-x-auto bg-white shadow-md rounded-lg">
     <table class="min-w-full divide-y divide-gray-200">

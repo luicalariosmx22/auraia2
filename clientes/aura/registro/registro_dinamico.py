@@ -104,7 +104,10 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 # Registro del blueprint para servicios dentro del módulo de pagos
                 from clientes.aura.routes.panel_cliente_pagos.vista_servicios import panel_cliente_pagos_servicios_bp
                 safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos/servicios")
-                # Registro del blueprint de recibos en módulo pagos
+                # 👉 Registro del blueprint para **crear nuevo recibo**
+                from clientes.aura.routes.panel_cliente_pagos.vista_recibo_nuevo import panel_cliente_pagos_nuevo_bp
+                safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
+                # Registro del blueprint de recibos (detalle y PDF)
                 from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
                 safe_register_blueprint(app, panel_cliente_pagos_recibo_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
 
