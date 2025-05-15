@@ -1,21 +1,22 @@
 {% extends "base_cliente.html" %}
-{% block content %}
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+{% block content %}
+<div class="py-12 px-4 sm:px-6 lg:px-8">
   <h1 class="text-2xl font-bold text-gray-800 mb-6">💳 Pagos registrados</h1>
 
+  {% if pagos %}
   <div class="overflow-x-auto bg-white shadow-md rounded-lg">
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50 text-sm text-gray-700 uppercase text-left">
         <tr>
-          <th scope="col" class="px-4 py-3">Empresa</th>
-          <th scope="col" class="px-4 py-3">Cliente</th>
-          <th scope="col" class="px-4 py-3">Concepto</th>
-          <th scope="col" class="px-4 py-3">Monto</th>
-          <th scope="col" class="px-4 py-3">Vence</th>
-          <th scope="col" class="px-4 py-3">Pago</th>
-          <th scope="col" class="px-4 py-3">Estatus</th>
-          <th scope="col" class="px-4 py-3">Acciones</th>
+          <th class="px-4 py-3">Empresa</th>
+          <th class="px-4 py-3">Cliente</th>
+          <th class="px-4 py-3">Concepto</th>
+          <th class="px-4 py-3">Monto</th>
+          <th class="px-4 py-3">Vence</th>
+          <th class="px-4 py-3">Pago</th>
+          <th class="px-4 py-3">Estatus</th>
+          <th class="px-4 py-3">Acciones</th>
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-gray-100 text-sm">
@@ -50,6 +51,11 @@
       </tbody>
     </table>
   </div>
+  {% else %}
+  <div class="text-gray-600 bg-white p-6 rounded-lg shadow text-center">
+    <p class="text-lg">No hay pagos registrados todavía.</p>
+    <p class="text-sm mt-2">Puedes agregar un nuevo pago desde la sección correspondiente.</p>
+  </div>
+  {% endif %}
 </div>
-
 {% endblock %}
