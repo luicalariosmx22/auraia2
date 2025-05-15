@@ -1,5 +1,6 @@
 from flask import Blueprint, request, flash, redirect, url_for
 from flask_login import login_required
+from clientes.aura.utils.login_required import login_required
 import textwrap
 from pathlib import Path
 from supabase import create_client
