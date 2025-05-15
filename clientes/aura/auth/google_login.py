@@ -54,14 +54,14 @@ def callback():
     resp = oauth.get(USER_INFO_URL)
     user_info = resp.json()
 
+    session["email"] = user_info.get("email")
+    session["name"] = user_info.get("name")
     session["user"] = {
-        "name": user_info.get("name"),
-        "email": user_info.get("email"),
         "picture": user_info.get("picture")
     }
 
     from clientes.aura.utils.auth_utils import is_admin_user
-    session["is_admin"] = is_admin_user(session["user"]["email"])
+    session["is_admin"] = is_admin_user(session["email"])
 
     return redirect(
         url_for("admin_dashboard.dashboard_admin")

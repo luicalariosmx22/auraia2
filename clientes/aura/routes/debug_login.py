@@ -8,8 +8,8 @@ def login_info():
     if "user" in session:
         return jsonify({
             "logged_in": True,
-            "name": session["user"].get("name"),
-            "email": session["user"].get("email"),
+            "name": session.get("name"),
+            "email": session.get("email"),
             "is_admin": session.get("is_admin", False)
         })
     else:

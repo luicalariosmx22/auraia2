@@ -143,7 +143,7 @@ def panel_cliente():
         print("✅ Datos cargados con éxito para el panel cliente.")
         return render_template(
             "panel_cliente.html",
-            user=session["user"],
+            user={"name": session.get("name", "Usuario")},
             nombre_nora=nombre_nora,
             nombre_visible=nombre_visible,
             modulos=modulos,

@@ -7,7 +7,7 @@ panel_cliente_clientes_bp = Blueprint('panel_cliente_clientes_bp', __name__)
 @panel_cliente_clientes_bp.route("/")
 def vista_clientes():
     nombre_nora = request.path.split("/")[2]
-    if not session.get("user"):
+    if not session.get("email"):
         return redirect(url_for("login.login_screen"))
 
     if not modulo_activo_para_nora(nombre_nora, "clientes"):
@@ -34,14 +34,14 @@ def vista_clientes():
         "panel_cliente_clientes.html",
         nombre_nora=nombre_nora,
         clientes=clientes,
-        user=session.get("user"),
+        user={"name": session.get("name", "Usuario")},
         modulo_activo="clientes"  # ✅ esto activa el menú correcto
     )
 
 @panel_cliente_clientes_bp.route("/nuevo", methods=["GET", "POST"])
 def nuevo_cliente():
     nombre_nora = request.path.split("/")[2]
-    if not session.get("user"):
+    if not session.get("email"):
         return redirect(url_for("login.login_screen"))
 
     if not modulo_activo_para_nora(nombre_nora, "clientes"):
@@ -84,7 +84,7 @@ def nuevo_cliente():
 
     return render_template("panel_cliente_clientes_nuevo.html",
                           nombre_nora=nombre_nora,
-                          user=session.get("user"),
+                          user={"name": session.get("name", "Usuario")},
                           modulo_activo="clientes")
 
 # ----------- EMPRESAS: Formulario edit / share -----------------
@@ -92,7 +92,7 @@ def nuevo_cliente():
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/editar", methods=["GET", "POST"])
 def editar_empresa(empresa_id):
     nombre_nora = request.path.split("/")[2]
-    if not session.get("user"):
+    if not session.get("email"):
         return redirect(url_for('login.login_screen'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
@@ -120,13 +120,13 @@ def editar_empresa(empresa_id):
     return render_template("panel_cliente_empresa_form.html",
                           nombre_nora=nombre_nora,
                           empresa=empresa,
-                          user=session.get("user"),
+                          user={"name": session.get("name", "Usuario")},
                           modulo_activo="clientes")
 
 @panel_cliente_clientes_bp.route("/empresa/nueva", methods=["GET", "POST"])
 def nueva_empresa():
     nombre_nora = request.path.split("/")[2]
-    if not session.get("user"):
+    if not session.get("email"):
         return redirect(url_for("login.login_screen"))
 
     if request.method == "POST":
@@ -162,13 +162,13 @@ def nueva_empresa():
 
     return render_template("panel_cliente_empresa_nueva.html",
                           nombre_nora=nombre_nora,
-                          user=session.get("user"),
+                          user={"name": session.get("name", "Usuario")},
                           modulo_activo="clientes")
 
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/ligar_cliente", methods=["GET", "POST"])
 def ligar_cliente(empresa_id):
     nombre_nora = request.path.split("/")[2]
-    if not session.get("user"):
+    if not session.get("email"):
         return redirect(url_for("login.login_screen"))
 
     # Cargar empresa
@@ -202,7 +202,7 @@ def ligar_cliente(empresa_id):
 @panel_cliente_clientes_bp.route("/cliente/<cliente_id>/ads/nueva", methods=["GET", "POST"])
 def nueva_cuenta_ads(cliente_id):
     nombre_nora = request.path.split("/")[2]
-    if not session.get("user"):
+    if not session.get("email"):
         return redirect(url_for('login.login_screen'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
@@ -228,14 +228,14 @@ def nueva_cuenta_ads(cliente_id):
         flash("Cuenta publicitaria vinculada", "success")
         return redirect(url_for('panel_cliente_clientes_bp.vista_clientes'))
 
-    return render_template('panel_cliente_vincular_ads.html', nombre_nora=nombre_nora, cliente=cliente, user=session.get("user"))
+    return render_template('panel_cliente_vincular_ads.html', nombre_nora=nombre_nora, cliente=cliente, user={"name": session.get("name", "Usuario")})
 
 # ----------- LIGAR EMPRESA A CLIENTE -----------------
 
 @panel_cliente_clientes_bp.route("/cliente/<cliente_id>/ligar_empresa", methods=["GET", "POST"])
 def ligar_empresa(cliente_id):
     nombre_nora = request.path.split("/")[2]
-    if not session.get("user"):
+    if not session.get("email"):
         return redirect(url_for("login.login_screen"))
 
     # Obtener cliente actual
@@ -274,7 +274,7 @@ def ligar_empresa(cliente_id):
 @panel_cliente_clientes_bp.route("/empresas", methods=["GET"])
 def vista_empresas():
     nombre_nora = request.path.split("/")[2]
-    if not session.get("user"):
+    if not session.get("email"):
         return redirect(url_for("login.login_screen"))
 
     # Obtener empresas de esta Nora
@@ -298,12 +298,12 @@ def vista_empresas():
                            nombre_nora=nombre_nora,
                            empresas=empresas,
                            modulo_activo="clientes",
-                           user=session.get("user"))
+                           user={"name": session.get("name", "Usuario")})
 
 @panel_cliente_clientes_bp.route("/cliente/<cliente_id>/editar", methods=["GET", "POST"])
 def editar_cliente(cliente_id):
     nombre_nora = request.path.split("/")[2]
-    if not session.get("user"):
+    if not session.get("email"):
         return redirect(url_for('login.login_screen'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
@@ -340,5 +340,5 @@ def editar_cliente(cliente_id):
     return render_template("panel_cliente_cliente_editar.html",
                            cliente=cliente,
                            nombre_nora=nombre_nora,
-                           user=session.get("user"),
+                           user={"name": session.get("name", "Usuario")},
                            modulo_activo="clientes")

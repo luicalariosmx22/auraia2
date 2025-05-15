@@ -20,7 +20,7 @@ def panel_ia():
     nombre_nora = request.path.split("/")[3]
     resultados = supabase.table("ia_ajustes").select("*").eq("nombre_nora", nombre_nora).execute()
     ajustes = resultados.data[0] if resultados.data else {}
-    return render_template("panel_cliente_ia.html", ajustes=ajustes, nombre_nora=nombre_nora, user=session["user"])
+    return render_template("panel_cliente_ia.html", ajustes=ajustes, nombre_nora=nombre_nora, user={"name": session.get("name", "Usuario")})
 
 
 @panel_cliente_ia_bp.route("/editar_conocimiento/<id>", methods=["POST"])

@@ -63,11 +63,8 @@ def login_callback():
 
         session.permanent = True  # 🔐 mantiene la sesión entre vistas
 
-        session["user"] = {
-            "name": user_info.get("name"),
-            "email": correo,
-            "picture": user_info.get("picture")
-        }
+        session["email"] = user_info.get("email")
+        session["name"] = user_info.get("name")
         session["is_admin"] = datos.get("tipo_usuario") == "admin"
         session["nombre_nora"] = datos["nombre_nora"]
 

@@ -19,7 +19,7 @@ def conocimiento_nora():
     nombre_nora = request.path.split("/")[3]
     bloques_data = supabase.table("conocimiento").select("*").eq("nombre_nora", nombre_nora).order("fecha", desc=True).execute()
     bloques = bloques_data.data if bloques_data.data else []
-    return render_template("panel_cliente_conocimiento.html", bloques=bloques, nombre_nora=nombre_nora, user=session["user"])
+    return render_template("panel_cliente_conocimiento.html", bloques=bloques, nombre_nora=nombre_nora, user={"name": session.get("name", "Usuario")})
 
 
 @panel_cliente_conocimiento_bp.route("/eliminar/<bloque_id>", methods=["POST"])

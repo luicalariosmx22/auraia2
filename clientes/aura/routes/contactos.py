@@ -50,7 +50,7 @@ def panel_contactos(nombre_nora):
             nombre_nora=nombre_nora,
             contactos=contactos,
             etiquetas=etiquetas,
-            user=session["user"]
+            user={"name": session.get("name", "Usuario")}
         )
     except Exception as e:
         print(f"❌ Error al cargar contactos para {nombre_nora}: {str(e)}")
@@ -60,7 +60,7 @@ def panel_contactos(nombre_nora):
             nombre_nora=nombre_nora,
             contactos=[],
             etiquetas=[],
-            user=session["user"]
+            user={"name": session.get("name", "Usuario")}
         )
 
 @panel_cliente_contactos_bp.route("/<nombre_nora>/contactos/asignar_etiqueta", methods=["POST"])

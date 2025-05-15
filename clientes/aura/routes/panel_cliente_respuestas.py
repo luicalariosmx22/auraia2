@@ -86,7 +86,7 @@ def panel_respuestas(nombre_nora):
         "panel_cliente_respuestas.html",
         nombre_nora=nombre_nora,
         respuestas=respuestas,
-        user=session["user"]
+        user={"name": session.get("name", "Usuario")}
     )
 
 @panel_cliente_respuestas_bp.route("/", methods=["GET", "POST"])
@@ -96,4 +96,4 @@ def panel_respuestas():
     nombre_nora = request.path.split("/")[3]
     respuestas_data = supabase.table("respuestas_rapidas").select("*").eq("nombre_nora", nombre_nora).order("fecha", desc=True).execute()
     respuestas = respuestas_data.data if respuestas_data.data else []
-    return render_template("panel_cliente_respuestas.html", respuestas=respuestas, nombre_nora=nombre_nora, user=session["user"])
+    return render_template("panel_cliente_respuestas.html", respuestas=respuestas, nombre_nora=nombre_nora, user={"name": session.get("name", "Usuario")})

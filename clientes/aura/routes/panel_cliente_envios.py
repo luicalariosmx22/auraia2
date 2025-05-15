@@ -55,7 +55,7 @@ def panel_envios(nombre_nora):
         "panel_cliente_envios.html",
         envios=envios,
         nombre_nora=nombre_nora,
-        user=session["user"]
+        user={"name": session.get("name", "Usuario")}
     )
 
 @panel_cliente_envios_bp.route("/", methods=["GET", "POST"])
@@ -65,4 +65,4 @@ def panel_envios():
     nombre_nora = request.path.split("/")[3]
     resultados = supabase.table("envios_programados").select("*").eq("nombre_nora", nombre_nora).order("fecha_envio", desc=True).execute()
     envios = resultados.data if resultados.data else []
-    return render_template("panel_cliente_envios.html", envios=envios, nombre_nora=nombre_nora, user=session["user"])
+    return render_template("panel_cliente_envios.html", envios=envios, nombre_nora=nombre_nora, user={"name": session.get("name", "Usuario")})

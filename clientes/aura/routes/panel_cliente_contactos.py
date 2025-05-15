@@ -47,7 +47,7 @@ def panel_contactos():
             nombre_nora=nombre_nora,
             contactos=contactos,
             etiquetas=etiquetas,
-            user=session["user"]
+            user={"name": session.get("name", "Usuario")}
         )
     except Exception as e:
         print(f"❌ Error al cargar contactos: {str(e)}")
@@ -56,7 +56,7 @@ def panel_contactos():
             nombre_nora=nombre_nora,
             contactos=[],
             etiquetas=[],
-            user=session["user"]
+            user={"name": session.get("name", "Usuario")}
         )
 
 @panel_cliente_contactos_bp.route("/<nombre_nora>/agregar", methods=["POST"])
@@ -135,7 +135,7 @@ def editar_contacto(nombre_nora, telefono):
             "editar_contacto.html",
             nombre_nora=nombre_nora,
             contacto=contacto,
-            user=session["user"]
+            user={"name": session.get("name", "Usuario")}
         )
     except Exception as e:
         print(f"❌ Error al cargar contacto para edición: {str(e)}")
