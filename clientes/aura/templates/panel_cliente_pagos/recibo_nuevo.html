@@ -5,7 +5,13 @@ REWRITE ENTIRE FILE
 {% extends "base_cliente.html" %}
 {% block contenido %}
 <div class="py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
-  <h1 class="text-2xl font-bold text-gray-800 mb-6">🧾 Nuevo Recibo</h1>
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">
+    🧾 {{ pago and 'Editar Recibo #' ~ pago.id[:8] or 'Nuevo Recibo' }}
+  </h1>
+
+  {% if pago %}
+    <input type="hidden" name="pago_id" value="{{ pago.id }}">
+  {% endif %}
 
   <form method="POST" class="space-y-6 bg-white p-6 rounded-lg shadow">
     <!-- Empresa -->
@@ -14,7 +20,7 @@ REWRITE ENTIRE FILE
       <select name="empresa_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
         <option value="">— Selecciona una empresa —</option>
         {% for e in empresas %}
-          <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+          <option value="{{ e.id }}" {% if pago and pago.empresa_id==e.id %}selected{% endif %}>{{ e.nombre_empresa }}</option>
         {% endfor %}
       </select>
     </div>
@@ -22,7 +28,7 @@ REWRITE ENTIRE FILE
     <!-- Concepto -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Concepto *</label>
-      <input type="text" name="concepto" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+      <input type="text" name="concepto" value="{{ pago.concepto if pago else '' }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     </div>
 
     <!-- Tipo de pago -->
@@ -30,18 +36,18 @@ REWRITE ENTIRE FILE
       <div>
         <label class="block text-sm font-medium text-gray-700">Tipo de pago *</label>
         <select name="tipo" x-model="tipo" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-          <option value="unico">Único</option>
-          <option value="recurrente">Recurrente</option>
+          <option value="unico" {% if pago and pago.tipo=='unico' %}selected{% endif %}>Único</option>
+          <option value="recurrente" {% if pago and pago.tipo=='recurrente' %}selected{% endif %}>Recurrente</option>
         </select>
       </div>
 
       <div x-show="tipo==='recurrente'">
         <label class="block text-sm font-medium text-gray-700">Periodicidad *</label>
         <select name="periodicidad" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-          <option value="mensual">Mensual</option>
-          <option value="trimestral">Trimestral</option>
-          <option value="semestral">Semestral</option>
-          <option value="anual">Anual</option>
+          <option value="mensual" {% if pago and pago.periodicidad=='mensual' %}selected{% endif %}>Mensual</option>
+          <option value="trimestral" {% if pago and pago.periodicidad=='trimestral' %}selected{% endif %}>Trimestral</option>
+          <option value="semestral" {% if pago and pago.periodicidad=='semestral' %}selected{% endif %}>Semestral</option>
+          <option value="anual" {% if pago and pago.periodicidad=='anual' %}selected{% endif %}>Anual</option>
         </select>
       </div>
     </div>
@@ -49,21 +55,21 @@ REWRITE ENTIRE FILE
     <!-- Fechas -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Fecha de vencimiento *</label>
-      <input type="date" name="fecha_vencimiento" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+      <input type="date" name="fecha_vencimiento" value="{{ pago.fecha_vencimiento if pago else '' }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     </div>
 
     <div>
       <label class="block text-sm font-medium text-gray-700">Fecha de pago</label>
-      <input type="date" name="fecha_pago" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+      <input type="date" name="fecha_pago" value="{{ pago.fecha_pago if pago and pago.fecha_pago else '' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     </div>
 
     <!-- Estatus -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Estatus *</label>
-      <select name="estatus" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-        <option value="pendiente">Pendiente</option>
-        <option value="pagado">Pagado</option>
-        <option value="vencido">Vencido</option>
+      <select name="estatus" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></select>
+        <option value="pendiente" {% if pago and pago.estatus=='pendiente' %}selected{% endif %}>Pendiente</option>
+        <option value="pagado" {% if pago and pago.estatus=='pagado' %}selected{% endif %}>Pagado</option>
+        <option value="vencido" {% if pago and pago.estatus=='vencido' %}selected{% endif %}>Vencido</option>
       </select>
     </div>
 
@@ -73,7 +79,7 @@ REWRITE ENTIRE FILE
       <select name="forma_pago_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
         <option value="">— Selecciona forma de pago —</option>
         {% for fp in formas_pago %}
-          <option value="{{ fp.id }}">{{ fp.nombre }}</option>
+          <option value="{{ fp.id }}" {% if pago and pago.forma_pago_id==fp.id %}selected{% endif %}>{{ fp.nombre }}</option>
         {% endfor %}
       </select>
     </div>
@@ -81,7 +87,7 @@ REWRITE ENTIRE FILE
     <!-- Notas -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Notas</label>
-      <textarea name="notas" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+      <textarea name="notas" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ pago.notas if pago else '' }}</textarea>
     </div>
 
     <!-- Selector de servicios -->
@@ -89,7 +95,7 @@ REWRITE ENTIRE FILE
       <label class="block text-sm font-medium text-gray-700">Añadir servicios</label>
 
       <!-- Filtro por categoría -->
-      <select x-model="filtroCategoria" class="mt-1 block w-full border-gray-300 rounded-md sm:text-sm">
+      <select x-model="filtroCategoria" class="mt-1 block w-full border-gray-300 rounded-md sm:text-sm"></select>
         <option value="">— Todas las categorías —</option>
         {% for cat in categorias %}
           <option value="{{ cat }}">{{ cat }}</option>
@@ -153,7 +159,7 @@ REWRITE ENTIRE FILE
         return {
           buscar: '', filtroCategoria: '',
           servicios: {{ servicios|tojson }},
-          items: [],
+          items: {{ items_existentes|tojson if items_existentes else '[]' }},
           filtrados() {
             return this.servicios.filter(s =>
               (!this.filtroCategoria || s.categoria === this.filtroCategoria) &&
@@ -175,8 +181,10 @@ REWRITE ENTIRE FILE
     </script>
 
     <!-- Guardar -->
-    <div class="flex justify-end">
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Guardar recibo</button>
+    <div class="flex justify-end"></div>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+        {{ pago and 'Actualizar recibo' or 'Guardar recibo' }}
+      </button>
     </div>
   </form>
 </div>

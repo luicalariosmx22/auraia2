@@ -11,7 +11,8 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @panel_cliente_pagos_nuevo_bp.route("/nuevo", methods=["GET", "POST"])
-def nuevo_recibo(nombre_nora):
+@panel_cliente_pagos_nuevo_bp.route("/editar/<pago_id>", methods=["GET", "POST"])
+def nuevo_recibo(nombre_nora, pago_id=None):
     """
     Alta de un nuevo recibo.
     • Permite añadir uno o varios servicios ya registrados (buscables por nombre -o- filtrables por categoría).
@@ -20,6 +21,8 @@ def nuevo_recibo(nombre_nora):
     supa = supabase
 
     if request.method == "POST":
+        # ⬇️ si viene hidden pago_id es edición
+        pago_id = request.form.get("pago_id") or pago_id
         # ---------- Procesar servicios seleccionados ----------
         items = []
         ids      = request.form.getlist("servicio_id[]")
@@ -65,8 +68,14 @@ def nuevo_recibo(nombre_nora):
             "notas":           request.form.get("notas") or "",
             "nombre_nora":     nombre_nora,
         }
-        result = supa.table("pagos").insert(recibo_data).execute()
-        pago_id = result.data[0]["id"]
+        if pago_id:
+            # Update recibo existente
+            supa.table("pagos").update(recibo_data).eq("id", pago_id).execute()
+            supa.table("pagos_items").delete().eq("pago_id", pago_id).execute()
+        else:
+            # Nuevo recibo
+            result = supa.table("pagos").insert(recibo_data).execute()
+            pago_id = result.data[0]["id"]
 
         # ---------- Insertar cada ítem en pagos_items ----------
         for it in items:
@@ -87,6 +96,12 @@ def nuevo_recibo(nombre_nora):
         )
 
     # ---------- Vista GET ----------
+    pago = None
+    items_existentes = []
+    if pago_id:
+        pago  = supa.table("pagos").select("*").eq("id", pago_id).single().execute().data
+        items_existentes = supa.table("pagos_items").select("servicio_id,nombre,cantidad,costo_unit").eq("pago_id", pago_id).execute().data
+
     # ⚠️ Algunos proyectos tienen la tabla como `cliente_empresas`
     #    y otros simplemente `empresas`. Intentamos ambos →
     try:
@@ -140,6 +155,8 @@ def nuevo_recibo(nombre_nora):
         "panel_cliente_pagos/recibo_nuevo.html",
         empresas=empresas,
         servicios=servicios,
+        pago=pago,
+        items_existentes=items_existentes,
         formas_pago=formas_pago,
         categorias=categorias,
         nombre_nora=nombre_nora,
