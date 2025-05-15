@@ -6,6 +6,7 @@ import os, shutil, subprocess, tempfile
 from pathlib import Path
 from clientes.aura.utils.login_required import login_required
 from fpdf import FPDF          # ← usaremos solo fpdf2, sin WeasyPrint
+from PyPDF2 import PdfFileWriter
 
 panel_cliente_pagos_recibo_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
 
@@ -96,6 +97,8 @@ def exportar_pdf(nombre_nora, pago_id):
         pdf.ln()
 
     pdf_bytes = pdf.output(dest="S").encode("latin1")
+    pdf_writer = PdfFileWriter()
+    # pdf_writer.write(pdf_bytes)  # ← Esto no es necesario, puedes omitirlo si no vas a manipular el PDF
 
     response = make_response(pdf_bytes)
     response.headers["Content-Type"] = "application/pdf"
