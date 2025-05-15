@@ -1,7 +1,11 @@
 # ✅ Archivo: clientes/aura/routes/panel_cliente_pagos/vista_recibo_pago.py
+import pdfkit
 from flask import Blueprint, render_template, session, redirect, url_for, make_response, request, flash
 from supabase import create_client
 import os
+import shutil
+import subprocess
+import tempfile
 from clientes.aura.utils.login_required import login_required
 
 panel_cliente_pagos_recibo_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
@@ -36,31 +40,73 @@ def ver_recibo(nombre_nora, pago_id):
 @panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>/pdf")
 @login_required
 def exportar_pdf(nombre_nora, pago_id):
-    from weasyprint import HTML  # Import aquí adentro para evitar error en producción
+    """
+    Genera un PDF del recibo usando wkhtmltopdf (pdfkit).
+    • Renderiza una plantilla HTML (recibo_pdf.html) y la convierte en PDF.
+    """
+    pago = (
+        supabase.table("pagos")
+            .select("*")
+            .eq("id", pago_id)
+            .single()
+            .execute()
+            .data
+    )
+    if not pago:
+        flash("Recibo no encontrado", "error")
+        return redirect(url_for(".ver_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
 
-    # Validar módulo activo
-    config = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).limit(1).execute()
-    modulos = config.data[0]["modulos"] if config.data else []
-    if "pagos" not in modulos:
-        return "Módulo de pagos no disponible para esta Nora", 403
+    items = (
+        supabase.table("pagos_items")
+            .select("nombre,cantidad,costo_unit,servicio_id")
+            .eq("pago_id", pago_id)
+            .execute()
+            .data
+    )
 
-    # Obtener el pago
-    pago_resp = supabase.table("pagos").select("*").eq("id", pago_id).single().execute()
-    pago = pago_resp.data
-    if not pago: return "Pago no encontrado", 404
+    # Renderizamos HTML en string
+    html = render_template(
+        "panel_cliente_pagos/recibo_pdf.html",
+        pago=pago,
+        items=items,
+        nombre_nora=nombre_nora,
+    )
 
-    # Obtener nombres
-    cliente = supabase.table("clientes").select("nombre_cliente").eq("id", pago["cliente_id"]).single().execute().data
-    empresa = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", pago["empresa_id"]).single().execute().data
+    # Opciones básicas de pdfkit
+    options = {
+        "page-size": "Letter",
+        "encoding": "UTF-8",
+        "quiet": "",
+    }
 
-    pago["cliente_nombre"] = cliente["nombre_cliente"] if cliente else "—"
-    pago["empresa_nombre"] = empresa["nombre_empresa"] if empresa else "—"
+    # ---------- Generar PDF ----------
+    try:
+        pdf_bytes = pdfkit.from_string(html, False, options=options)
+    except OSError as e:
+        # wkhtmltopdf suele fallar si faltan librerías del sistema (glib / gobject).
+        # Intentamos usar el binario CLI directamente como fallback
+        wkhtml = shutil.which("wkhtmltopdf")
+        if not wkhtml:
+            flash("wkhtmltopdf no está instalado en el servidor", "error")
+            return redirect(url_for(".ver_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
 
-    html_render = render_template("panel_cliente_pagos/recibo_detalle.html", pago=pago, nombre_nora=nombre_nora)
-    pdf = HTML(string=html_render).write_pdf()
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename=recibo_{pago_id}.pdf'
+        with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as tmp_html:
+            tmp_html.write(html.encode("utf-8"))
+            tmp_html_path = tmp_html.name
+        tmp_pdf_path = tmp_html_path.replace(".html", ".pdf")
+
+        try:
+            subprocess.check_call([wkhtml, tmp_html_path, tmp_pdf_path])
+            with open(tmp_pdf_path, "rb") as f:
+                pdf_bytes = f.read()
+        finally:
+            for p in (tmp_html_path, tmp_pdf_path):
+                try: os.remove(p)
+                except: pass
+
+    response = make_response(pdf_bytes)
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f'attachment; filename="recibo_{pago_id[:8]}.pdf"'
     return response
 
 # ---------- Enviar por correo ----------
@@ -101,4 +147,11 @@ def enviar_whatsapp(nombre_nora, pago_id):
 @panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>/editar")
 @login_required
 def editar_recibo(nombre_nora, pago_id):
-    return redirect(url_for("panel_cliente_pagos_nuevo.nuevo_recibo", nombre_nora=nombre_nora) + f"?editar={pago_id}")
+    # Llevamos al endpoint /<pago_id> para que la vista cargue el recibo correcto
+    return redirect(
+        url_for(
+            "panel_cliente_pagos_nuevo.nuevo_recibo",
+            nombre_nora=nombre_nora,
+            pago_id=pago_id,       # usa la ruta /<pago_id>
+        )
+    )
