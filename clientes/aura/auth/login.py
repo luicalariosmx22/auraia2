@@ -53,26 +53,28 @@ def login_google():
 @login_bp.route("/login/google/callback")
 def login_callback():
     try:
-        oauth = OAuth2Session(
-            GOOGLE_CLIENT_ID,
-            redirect_uri=GOOGLE_REDIRECT_URI,
-            state=session.get("oauth_state")
-        )
-
-        token = oauth.fetch_token(
-            TOKEN_URL,
-            client_secret=GOOGLE_CLIENT_SECRET,
+        from clientes.aura.utils.google_auth import get_google_auth
+        google = get_google_auth(state=session.get("state"))
+        token = google.fetch_token(
+            "https://accounts.google.com/o/oauth2/token",
+            client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
             authorization_response=request.url,
         )
-        user_info = oauth.get(USER_INFO_URL).json()
-        correo = user_info.get("email")
+        session["token"] = token
+        google = get_google_auth(token=token)
+        resp = google.get("https://www.googleapis.com/oauth2/v1/userinfo")
+        user_info = resp.json()
 
+        correo = user_info.get("email")
         result = supabase.table("configuracion_bot").select("*").eq("correo_cliente", correo).execute()
 
         if not result.data:
             return "❌ Este correo no tiene acceso autorizado.", 403
 
         datos = result.data[0]
+
+        session.permanent = True  # ✅ ACTIVA SESIÓN PERMANENTE
+
         session["user"] = {
             "name": user_info.get("name"),
             "email": correo,
@@ -88,4 +90,4 @@ def login_callback():
         )
 
     except Exception as e:
-        return f"❌ Error inesperado: {str(e)}", 500
+        return f"Error en login: {str(e)}"
