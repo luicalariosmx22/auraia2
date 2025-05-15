@@ -14,6 +14,8 @@ from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conoci
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
 from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import panel_cliente_whatsapp_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
+from clientes.aura.routes.panel_cliente_pagos.vista_panel_cliente_pagos import panel_cliente_pagos_bp
+from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import vista_recibo_pago_bp
 from utils.validar_modulo_activo import modulo_activo_para_nora
 
 # Configurar Supabase
@@ -96,6 +98,10 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             # Registrar el blueprint de login si el módulo está activo
             if "login" in modulos:
                 safe_register_blueprint(app, login_bp, url_prefix=f"/login")
+
+            if "pagos" in modulos:
+                safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
+                safe_register_blueprint(app, vista_recibo_pago_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")

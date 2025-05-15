@@ -1,0 +1,71 @@
+{% set factura_id = pago.id[:6].upper() %}
+{% set estatus = pago.estatus|lower %}
+{% set etiqueta = 'NO PAGADO' if estatus == 'pendiente' else estatus.upper() %}
+{% set color = 'bg-yellow-500' if estatus == 'pendiente' else 'bg-green-600' if estatus == 'pagado' else 'bg-red-600' %}
+
+<div class="max-w-3xl mx-auto p-8 bg-white shadow-lg rounded font-sans text-sm text-gray-800 relative">
+  <div class="absolute top-0 left-0 px-3 py-1 text-white text-xs rounded-br {{ color }}">
+    {{ etiqueta }}
+  </div>
+
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <img src="/static/logo_aura.png" class="w-24 mb-2">
+      <p class="text-sm font-bold">Aura Marketing - Ads</p>
+      <p>Blvd. Solidaridad y Blvd Colosio</p>
+      <p>Hermosillo Sonora 83249</p>
+      <p>Mexico</p>
+    </div>
+    <div class="text-right">
+      <h2 class="text-2xl font-bold">RECIBO</h2>
+      <p class="text-sm text-gray-600"># INV-{{ factura_id }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div>
+      <p><strong>Nombre del Cliente:</strong></p>
+      <p class="text-blue-700 underline">{{ cliente.nombre_cliente }}</p>
+    </div>
+    <div>
+      <p><strong>Fecha del recibo:</strong> {{ pago.fecha_pago or pago.fecha_vencimiento }}</p>
+      <p><strong>Términos:</strong> Pagadero a la recepción</p>
+      <p><strong>Fecha de vencimiento:</strong> {{ pago.fecha_vencimiento }}</p>
+    </div>
+  </div>
+
+  <table class="w-full border border-gray-300 mb-6 text-sm">
+    <thead class="bg-gray-100">
+      <tr class="text-left">
+        <th class="border px-2 py-1">#</th>
+        <th class="border px-2 py-1">Artículo & Descripción</th>
+        <th class="border px-2 py-1 text-center">Cant.</th>
+        <th class="border px-2 py-1 text-right">Costo</th>
+        <th class="border px-2 py-1 text-right">Cantidad</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in pago.tickets|from_json %}
+      <tr>
+        <td class="border px-2 py-1">1</td>
+        <td class="border px-2 py-1">{{ item }}</td>
+        <td class="border px-2 py-1 text-center">1</td>
+        <td class="border px-2 py-1 text-right">${{ "%.2f"|format(pago.monto) }}</td>
+        <td class="border px-2 py-1 text-right">${{ "%.2f"|format(pago.monto) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="text-right space-y-1">
+    <p><strong>Subtotal:</strong> ${{ "%.2f"|format(pago.monto) }}</p>
+    <p><strong>Total:</strong> MXN${{ "%.2f"|format(pago.monto) }}</p>
+    <p class="bg-gray-100 p-2 inline-block rounded mt-2 font-bold text-red-700">
+      Saldo adeudado: MXN${{ "%.2f"|format(pago.monto) }}
+    </p>
+  </div>
+
+  <div class="mt-8 text-right text-xs text-gray-500">
+    Plantilla de PDF: ‘Standard Template’
+  </div>
+</div>

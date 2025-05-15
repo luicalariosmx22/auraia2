@@ -1,0 +1,46 @@
+{% extends "base_cliente.html" %}
+{% block content %}
+<div class="p-6">
+  <h2 class="text-2xl font-bold mb-6">💳 Recibos</h2>
+
+  <table class="min-w-full bg-white shadow rounded overflow-hidden text-sm">
+    <thead class="bg-gray-100 text-gray-700">
+      <tr>
+        <th class="text-left p-3">Empresa</th>
+        <th class="text-left p-3">Cliente</th>
+        <th class="text-left p-3">Concepto</th>
+        <th class="text-center p-3">Estatus</th>
+        <th class="text-right p-3">Monto</th>
+        <th class="text-center p-3">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pago in pagos %}
+      <tr class="border-t">
+        <td class="p-3">{{ pago.empresa_nombre }}</td>
+        <td class="p-3">{{ pago.cliente_nombre }}</td>
+        <td class="p-3">{{ pago.concepto }}</td>
+        <td class="p-3 text-center">
+          {% if pago.estatus == 'pendiente' %}
+            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded">Pendiente</span>
+          {% elif pago.estatus == 'pagado' %}
+            <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">Pagado</span>
+          {% elif pago.estatus == 'vencido' %}
+            <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded">Vencido</span>
+          {% else %}
+            <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">---</span>
+          {% endif %}
+        </td>
+        <td class="p-3 text-right">${{ "%.2f"|format(pago.monto) }}</td>
+        <td class="p-3 text-center space-x-2">
+          <a href="/panel_cliente/{{ nombre_nora }}/pagos/{{ pago.id }}/recibo" class="text-blue-600 hover:underline text-xs">Ver recibo</a>
+          {% if pago.estatus != 'pagado' %}
+            <a href="#" class="text-green-600 hover:underline text-xs">Registrar pago</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
