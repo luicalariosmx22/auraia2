@@ -1,46 +1,55 @@
-{% extends "base_cliente.html" %}
+{% extends "base.html" %}
 {% block content %}
-<div class="p-6">
-  <h2 class="text-2xl font-bold mb-6">💳 Recibos</h2>
 
-  <table class="min-w-full bg-white shadow rounded overflow-hidden text-sm">
-    <thead class="bg-gray-100 text-gray-700">
-      <tr>
-        <th class="text-left p-3">Empresa</th>
-        <th class="text-left p-3">Cliente</th>
-        <th class="text-left p-3">Concepto</th>
-        <th class="text-center p-3">Estatus</th>
-        <th class="text-right p-3">Monto</th>
-        <th class="text-center p-3">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for pago in pagos %}
-      <tr class="border-t">
-        <td class="p-3">{{ pago.empresa_nombre }}</td>
-        <td class="p-3">{{ pago.cliente_nombre }}</td>
-        <td class="p-3">{{ pago.concepto }}</td>
-        <td class="p-3 text-center">
-          {% if pago.estatus == 'pendiente' %}
-            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded">Pendiente</span>
-          {% elif pago.estatus == 'pagado' %}
-            <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">Pagado</span>
-          {% elif pago.estatus == 'vencido' %}
-            <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded">Vencido</span>
-          {% else %}
-            <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">---</span>
-          {% endif %}
-        </td>
-        <td class="p-3 text-right">${{ "%.2f"|format(pago.monto) }}</td>
-        <td class="p-3 text-center space-x-2">
-          <a href="/panel_cliente/{{ nombre_nora }}/pagos/{{ pago.id }}/recibo" class="text-blue-600 hover:underline text-xs">Ver recibo</a>
-          {% if pago.estatus != 'pagado' %}
-            <a href="#" class="text-green-600 hover:underline text-xs">Registrar pago</a>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">💳 Pagos registrados</h1>
+
+  <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50 text-sm text-gray-700 uppercase text-left">
+        <tr>
+          <th scope="col" class="px-4 py-3">Empresa</th>
+          <th scope="col" class="px-4 py-3">Cliente</th>
+          <th scope="col" class="px-4 py-3">Concepto</th>
+          <th scope="col" class="px-4 py-3">Monto</th>
+          <th scope="col" class="px-4 py-3">Vence</th>
+          <th scope="col" class="px-4 py-3">Pago</th>
+          <th scope="col" class="px-4 py-3">Estatus</th>
+          <th scope="col" class="px-4 py-3">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-100 text-sm">
+        {% for pago in pagos %}
+        <tr>
+          <td class="px-4 py-2">{{ pago.empresa_nombre }}</td>
+          <td class="px-4 py-2">{{ pago.cliente_nombre }}</td>
+          <td class="px-4 py-2">{{ pago.concepto }}</td>
+          <td class="px-4 py-2">${{ "%.2f"|format(pago.monto) }}</td>
+          <td class="px-4 py-2">{{ pago.fecha_vencimiento }}</td>
+          <td class="px-4 py-2">
+            {% if pago.fecha_pago %}
+              {{ pago.fecha_pago }}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td class="px-4 py-2">
+            {% if pago.estatus == "pagado" %}
+              <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">Pagado</span>
+            {% elif pago.estatus == "pendiente" %}
+              <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">Pendiente</span>
+            {% else %}
+              <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium">Vencido</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-2">
+            <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Ver recibo</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
+
 {% endblock %}
