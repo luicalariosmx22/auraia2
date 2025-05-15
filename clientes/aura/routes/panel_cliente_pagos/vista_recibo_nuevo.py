@@ -104,8 +104,9 @@ def nuevo_recibo(nombre_nora):
     ]
     categorias = sorted({s["categoria"] for s in servicios if s["categoria"]})
 
+    # El HTML vive ahora en panel_cliente_pagos/recibo_nuevo.html
     return render_template(
-        "recibo_nuevo.html",
+        "panel_cliente_pagos/recibo_nuevo.html",
         empresas=empresas,
         servicios=servicios,
         categorias=categorias,

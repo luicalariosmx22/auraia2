@@ -4,36 +4,36 @@
   <h1 class="text-2xl font-bold text-gray-800 mb-6">🧾 Nuevo Recibo</h1>
 
   <form method="POST" class="space-y-6 bg-white p-6 rounded-lg shadow">
+    <!-- Empresa -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Empresa *</label>
       <select name="empresa_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
         <option value="">— Selecciona una empresa —</option>
         {% for e in empresas %}
-        <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+          <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
         {% endfor %}
       </select>
     </div>
 
+    <!-- Concepto -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Concepto *</label>
       <input type="text" name="concepto" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Monto *</label>
-      <input type="number" name="monto" step="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-    </div>
-
+    <!-- Fecha de vencimiento -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Fecha de vencimiento *</label>
       <input type="date" name="fecha_vencimiento" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     </div>
 
+    <!-- Fecha de pago -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Fecha de pago</label>
       <input type="date" name="fecha_pago" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     </div>
 
+    <!-- Estatus -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Estatus *</label>
       <select name="estatus" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
@@ -43,28 +43,19 @@
       </select>
     </div>
 
+    <!-- Forma de pago -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Forma de pago</label>
       <input type="text" name="forma_pago" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     </div>
 
+    <!-- Notas -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Notas</label>
       <textarea name="notas" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
     </div>
 
-    <!-- 🔁 Servicios opcionales relacionados -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Servicios asociados</label>
-      <select name="servicios" multiple class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-        {% for s in servicios %}
-        <option value="{{ s.id }}">{{ s.titulo }} (${{ "%.2f"|format(s.costo) }})</option>
-        {% endfor %}
-      </select>
-      <p class="text-xs text-gray-500 mt-1">Puedes seleccionar uno o varios</p>
-    </div>
-
-    <!-- ▼ Añadir servicios ▼ -->
+    <!-- Añadir servicios dinámicamente -->
     <div x-data="serviciosPicker()" class="mt-6">
       <label class="block text-sm font-medium text-gray-700">Añadir servicios</label>
 
@@ -77,14 +68,12 @@
       </select>
 
       <!-- Búsqueda por nombre -->
-      <input type="text" x-model="buscar" placeholder="Buscar servicio..."
-             class="mt-2 block w-full border-gray-300 rounded-md sm:text-sm">
+      <input type="text" x-model="buscar" placeholder="Buscar servicio..." class="mt-2 block w-full border-gray-300 rounded-md sm:text-sm">
 
-      <!-- Lista de resultados -->
+      <!-- Resultados -->
       <div class="mt-2 max-h-40 overflow-y-auto border border-gray-200 rounded">
         <template x-for="srv in filtrados()" :key="srv.id">
-          <button type="button" @click="agregar(srv)"
-                  class="w-full text-left px-3 py-1 hover:bg-indigo-50">
+          <button type="button" @click="agregar(srv)" class="w-full text-left px-3 py-1 hover:bg-indigo-50">
             <span x-text="srv.nombre"></span>
             <span class="text-xs text-gray-500" x-text="'$'+srv.costo.toFixed(2)"></span>
           </button>
@@ -92,26 +81,29 @@
         <p x-show="filtrados().length === 0" class="text-xs text-gray-500 p-2">Sin resultados…</p>
       </div>
 
-      <!-- Tabla de servicios seleccionados + líneas manuales -->
+      <!-- Tabla servicios seleccionados -->
       <table class="w-full text-sm mt-4">
         <thead>
           <tr class="text-left text-gray-500">
-            <th class="py-1">Servicio</th><th class="py-1 w-20">Cant.</th><th class="py-1 w-28">Costo</th><th></th>
+            <th class="py-1">Servicio</th>
+            <th class="py-1 w-20">Cant.</th>
+            <th class="py-1 w-28">Costo</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <!-- filas dinámicas -->
           <template x-for="(it, idx) in items" :key="idx">
             <tr>
               <td class="py-1">
                 <input type="hidden" :name="'servicio_id[]'" :value="it.id || ''">
-                <input type="text"  :name="'nombre_servicio[]'" x-model="it.nombre"
-                       class="w-full border-gray-300 rounded-md" :readonly="!!it.id">
+                <input type="text" :name="'nombre_servicio[]'" x-model="it.nombre" class="w-full border-gray-300 rounded-md" :readonly="!!it.id">
               </td>
-              <td class="py-1"><input type="number" step="0.01" min="0.01" :name="'cantidad[]'" x-model="it.cantidad"
-                       class="w-full border-gray-300 rounded-md text-right"></td>
-              <td class="py-1"><input type="number" step="0.01" min="0.00" :name="'costo[]'" x-model="it.costo"
-                       class="w-full border-gray-300 rounded-md text-right"></td>
+              <td class="py-1">
+                <input type="number" step="0.01" min="0.01" :name="'cantidad[]'" x-model="it.cantidad" class="w-full border-gray-300 rounded-md text-right">
+              </td>
+              <td class="py-1">
+                <input type="number" step="0.01" min="0.00" :name="'costo[]'" x-model="it.costo" class="w-full border-gray-300 rounded-md text-right">
+              </td>
               <td class="py-1">
                 <button type="button" @click="items.splice(idx,1)" class="text-red-500 text-xs">✕</button>
               </td>
@@ -120,10 +112,10 @@
         </tbody>
       </table>
 
-      <!-- Añadir fila manual -->
-      <button type="button" @click="agregarManual()"
-              class="mt-2 text-indigo-600 hover:underline text-sm">+ Añadir línea manual</button>
+      <!-- Añadir línea manual -->
+      <button type="button" @click="agregarManual()" class="mt-2 text-indigo-600 hover:underline text-sm">+ Añadir línea manual</button>
 
+      <!-- Total -->
       <template x-if="items.length">
         <p class="text-right mt-4 font-semibold">
           Total: $<span x-text="total().toFixed(2)"></span>
@@ -131,6 +123,7 @@
       </template>
     </div>
 
+    <!-- Script Alpine.js -->
     <script>
       function serviciosPicker() {
         return {
@@ -157,6 +150,7 @@
       }
     </script>
 
+    <!-- Submit -->
     <div class="flex justify-end">
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Guardar recibo</button>
     </div>
