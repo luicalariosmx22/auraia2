@@ -100,8 +100,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 safe_register_blueprint(app, login_bp, url_prefix=f"/login")
 
             if "pagos" in modulos:
-                safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
-                safe_register_blueprint(app, vista_recibo_pago_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
+                safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
+                safe_register_blueprint(app, vista_recibo_pago_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")
