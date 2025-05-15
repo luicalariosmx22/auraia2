@@ -123,6 +123,38 @@ def editar_empresa(empresa_id):
                           user=session.get("user"),
                           modulo_activo="clientes")
 
+@panel_cliente_clientes_bp.route("/empresa/nueva", methods=["GET", "POST"])
+def nueva_empresa():
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("user"):
+        return redirect(url_for("login.login_screen"))
+
+    if request.method == "POST":
+        nombre_empresa = request.form.get("nombre_empresa", "").strip()
+        if not nombre_empresa:
+            flash("❌ El nombre de la empresa es obligatorio", "error")
+            return redirect(request.url)
+
+        empresa_data = {
+            "id": str(uuid.uuid4()),
+            "nombre_nora": nombre_nora,
+            "nombre_empresa": nombre_empresa,
+            "giro": request.form.get("giro", "").strip(),
+            "telefono_empresa": request.form.get("telefono_empresa", "").strip(),
+            "email_empresa": request.form.get("email_empresa", "").strip(),
+            "sitio_web": request.form.get("sitio_web", "").strip(),
+            "activo": True
+        }
+
+        supabase.table("cliente_empresas").insert(empresa_data).execute()
+        flash("✅ Empresa creada correctamente", "success")
+        return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
+
+    return render_template("panel_cliente_empresa_nueva.html",
+                          nombre_nora=nombre_nora,
+                          user=session.get("user"),
+                          modulo_activo="clientes")
+
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/ligar_cliente", methods=["GET", "POST"])
 def ligar_cliente(empresa_id):
     nombre_nora = request.path.split("/")[2]
