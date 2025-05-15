@@ -6,6 +6,7 @@ import os, shutil, subprocess, tempfile
 from pathlib import Path
 from clientes.aura.utils.login_required import login_required
 from fpdf import FPDF          # ← usaremos solo fpdf2, sin WeasyPrint
+from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileWriter
 
 panel_cliente_pagos_recibo_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
