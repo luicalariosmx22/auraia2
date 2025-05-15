@@ -113,7 +113,9 @@
       </table>
 
       <!-- Añadir línea manual -->
-      <button type="button" @click="agregarManual()" class="mt-2 text-indigo-600 hover:underline text-sm">+ Añadir línea manual</button>
+      <button type="button"
+              @click.prevent="agregarManual()"
+              class="mt-2 text-indigo-600 hover:underline text-sm">+ Añadir línea manual</button>
 
       <!-- Total -->
       <template x-if="items.length">
@@ -144,7 +146,7 @@
             this.items.push({ id: null, nombre: '', cantidad: 1, costo: 0 })
           },
           total() {
-            return this.items.reduce((t,i)=>t+i.cantidad*i.costo,0)
+            return this.items.reduce((t,i)=>t + (parseFloat(i.cantidad) || 0) * (parseFloat(i.costo) || 0), 0)
           }
         }
       }
