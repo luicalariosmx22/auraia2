@@ -14,19 +14,23 @@
     <!-- Logo y navegación -->
     <div class="flex items-center gap-6">
       <img src="/static/images/logo.png" alt="Nora Logo" class="h-8">
-      <nav class="flex gap-4 text-sm font-medium text-gray-700">
-        {% if modulo_activo == 'clientes' %}
+      {% if modulo_activo == 'clientes' %}
+        <nav class="flex gap-4 text-sm font-medium text-gray-700">
           <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">👥 Clientes</a>
           <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">➕ Agregar cliente</a>
           <a href="{{ url_for('panel_cliente_clientes_bp.nueva_empresa', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">🏢 Agregar empresa</a>
           <a href="/panel_cliente/{{ nombre_nora }}/empresas" class="hover:text-blue-600">📁 Empresas</a>
-        {% elif modulo_activo == 'pagos' %}
+        </nav>
+      {% elif modulo_activo == 'pagos' %}
+        <nav class="flex gap-4 text-sm font-medium text-gray-700">
           <a href="/panel_cliente/{{ nombre_nora }}/pagos" class="hover:text-blue-600">💳 Pagos</a>
           <a href="/panel_cliente/{{ nombre_nora }}/pagos/nueva" class="hover:text-blue-600">➕ Crear orden</a>
-        {% elif modulo_activo == 'chat' %}
+        </nav>
+      {% elif modulo_activo == 'chat' %}
+        <nav class="flex gap-4 text-sm font-medium text-gray-700">
           <a href="/panel_cliente/{{ nombre_nora }}/panel_chat" class="hover:text-blue-600">💬 Chat</a>
-        {% endif %}
-      </nav>
+        </nav>
+      {% endif %}
     </div>
 
     <!-- Regresar n -->
