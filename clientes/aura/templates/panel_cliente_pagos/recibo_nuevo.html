@@ -64,6 +64,99 @@
       <p class="text-xs text-gray-500 mt-1">Puedes seleccionar uno o varios</p>
     </div>
 
+    <!-- ▼ Añadir servicios ▼ -->
+    <div x-data="serviciosPicker()" class="mt-6">
+      <label class="block text-sm font-medium text-gray-700">Añadir servicios</label>
+
+      <!-- Filtro por categoría -->
+      <select x-model="filtroCategoria" class="mt-1 block w-full border-gray-300 rounded-md sm:text-sm">
+        <option value="">— Todas las categorías —</option>
+        {% for cat in categorias %}
+          <option value="{{ cat }}">{{ cat }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- Búsqueda por nombre -->
+      <input type="text" x-model="buscar" placeholder="Buscar servicio..."
+             class="mt-2 block w-full border-gray-300 rounded-md sm:text-sm">
+
+      <!-- Lista de resultados -->
+      <div class="mt-2 max-h-40 overflow-y-auto border border-gray-200 rounded">
+        <template x-for="srv in filtrados()" :key="srv.id">
+          <button type="button" @click="agregar(srv)"
+                  class="w-full text-left px-3 py-1 hover:bg-indigo-50">
+            <span x-text="srv.nombre"></span>
+            <span class="text-xs text-gray-500" x-text="'$'+srv.costo.toFixed(2)"></span>
+          </button>
+        </template>
+        <p x-show="filtrados().length === 0" class="text-xs text-gray-500 p-2">Sin resultados…</p>
+      </div>
+
+      <!-- Tabla de servicios seleccionados + líneas manuales -->
+      <table class="w-full text-sm mt-4">
+        <thead>
+          <tr class="text-left text-gray-500">
+            <th class="py-1">Servicio</th><th class="py-1 w-20">Cant.</th><th class="py-1 w-28">Costo</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- filas dinámicas -->
+          <template x-for="(it, idx) in items" :key="idx">
+            <tr>
+              <td class="py-1">
+                <input type="hidden" :name="'servicio_id[]'" :value="it.id || ''">
+                <input type="text"  :name="'nombre_servicio[]'" x-model="it.nombre"
+                       class="w-full border-gray-300 rounded-md" :readonly="!!it.id">
+              </td>
+              <td class="py-1"><input type="number" step="0.01" min="0.01" :name="'cantidad[]'" x-model="it.cantidad"
+                       class="w-full border-gray-300 rounded-md text-right"></td>
+              <td class="py-1"><input type="number" step="0.01" min="0.00" :name="'costo[]'" x-model="it.costo"
+                       class="w-full border-gray-300 rounded-md text-right"></td>
+              <td class="py-1">
+                <button type="button" @click="items.splice(idx,1)" class="text-red-500 text-xs">✕</button>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+
+      <!-- Añadir fila manual -->
+      <button type="button" @click="agregarManual()"
+              class="mt-2 text-indigo-600 hover:underline text-sm">+ Añadir línea manual</button>
+
+      <template x-if="items.length">
+        <p class="text-right mt-4 font-semibold">
+          Total: $<span x-text="total().toFixed(2)"></span>
+        </p>
+      </template>
+    </div>
+
+    <script>
+      function serviciosPicker() {
+        return {
+          buscar: '', filtroCategoria: '',
+          servicios: {{ servicios|tojson }},
+          items: [],
+          filtrados() {
+            return this.servicios.filter(s =>
+              (!this.filtroCategoria || s.categoria === this.filtroCategoria) &&
+              s.nombre.toLowerCase().includes(this.buscar.toLowerCase()) &&
+              !this.items.find(i => i.id === s.id)
+            )
+          },
+          agregar(srv) {
+            this.items.push({ id: srv.id, nombre: srv.nombre, cantidad: 1, costo: srv.costo })
+          },
+          agregarManual() {
+            this.items.push({ id: null, nombre: '', cantidad: 1, costo: 0 })
+          },
+          total() {
+            return this.items.reduce((t,i)=>t+i.cantidad*i.costo,0)
+          }
+        }
+      }
+    </script>
+
     <div class="flex justify-end">
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Guardar recibo</button>
     </div>

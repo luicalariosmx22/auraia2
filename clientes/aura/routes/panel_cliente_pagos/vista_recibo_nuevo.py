@@ -11,32 +11,68 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @panel_cliente_pagos_nuevo_bp.route("/nuevo", methods=["GET", "POST"])
-@login_required
 def nuevo_recibo(nombre_nora):
-    empresas = supabase.table("cliente_empresas").select("id, nombre_empresa, cliente_id").eq("nombre_nora", nombre_nora).execute().data
-    servicios = supabase.table("servicios").select("*").eq("nombre_nora", nombre_nora).execute().data
+    """
+    Alta de un nuevo recibo.
+    • Permite añadir uno o varios servicios ya registrados (buscables por nombre -o- filtrables por categoría).
+    • Opcionalmente el usuario puede agregar líneas manuales (servicio, cantidad, costo).
+    """
+    supa = supabase
 
     if request.method == "POST":
-        empresa_id = request.form.get("empresa_id")
-        empresa = next((e for e in empresas if e["id"] == empresa_id), None)
-        cliente_id = empresa["cliente_id"] if empresa else None
+        # ---------- Procesar servicios seleccionados ----------
+        items = []
+        ids      = request.form.getlist("servicio_id[]")
+        cant     = request.form.getlist("cantidad[]")
+        costos   = request.form.getlist("costo[]")
+        nombres  = request.form.getlist("nombre_servicio[]")  # vienen cuando es manual
 
-        data = {
-            "id": str(uuid.uuid4()),
-            "nombre_nora": nombre_nora,
-            "cliente_id": cliente_id,
-            "empresa_id": empresa_id,
-            "concepto": request.form.get("concepto", "").strip(),
-            "monto": float(request.form.get("monto")),
-            "fecha_vencimiento": request.form.get("fecha_vencimiento"),
-            "fecha_pago": request.form.get("fecha_pago") or None,
-            "estatus": request.form.get("estatus"),
-            "forma_pago": request.form.get("forma_pago", "").strip() or None,
-            "notas": request.form.get("notas", "").strip() or None
+        for i in range(len(cant)):
+            if not cant[i]:
+                continue  # fila vacía
+            item = {
+                "servicio_id": ids[i] or None,
+                "nombre":      nombres[i] if nombres[i] else None,
+                "cantidad":    float(cant[i]),
+                "costo_unit":  float(costos[i]),
+            }
+            items.append(item)
+
+        total = sum(it["cantidad"] * it["costo_unit"] for it in items)
+
+        # ---------- Insertar recibo ----------
+        recibo_data = {
+            "empresa_id":      request.form["empresa_id"],
+            "concepto":        request.form["concepto"],
+            "monto":           total,
+            "fecha_vencimiento": request.form["fecha_vencimiento"],
+            "fecha_pago":      request.form.get("fecha_pago") or None,
+            "estatus":         request.form["estatus"],
+            "forma_pago":      request.form["forma_pago"],
+            "notas":           request.form.get("notas") or "",
+            "items":           items,
+            "nombre_nora":     nombre_nora,
         }
+        result = supa.table("pagos").insert(recibo_data).execute()
+        pago_id = result.data[0]["id"]
 
-        supabase.table("pagos").insert(data).execute()
-        flash("✅ Recibo registrado correctamente", "success")
-        return redirect(url_for("panel_cliente_pagos.panel_cliente_pagos", nombre_nora=nombre_nora))
+        return redirect(
+            url_for(
+                "panel_cliente_pagos_recibo.ver_recibo",
+                nombre_nora=nombre_nora,
+                pago_id=pago_id,
+            )
+        )
 
-    return render_template("panel_cliente_pagos/recibo_nuevo.html", empresas=empresas, servicios=servicios, nombre_nora=nombre_nora)
+    # ---------- Vista GET ----------
+    empresas   = supa.table("empresas").select("id,nombre").eq("nombre_nora", nombre_nora).execute().data
+    servicios  = supa.table("servicios").select("id,nombre,costo,categoria").eq("nombre_nora", nombre_nora).execute().data
+    categorias = sorted(set(s["categoria"] for s in servicios))
+
+    return render_template(
+        "recibo_nuevo.html",
+        empresas=empresas,
+        servicios=servicios,
+        categorias=categorias,
+        nombre_nora=nombre_nora,
+    )
