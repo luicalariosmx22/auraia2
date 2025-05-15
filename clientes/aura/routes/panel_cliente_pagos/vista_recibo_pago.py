@@ -21,7 +21,7 @@ def ver_recibo_pago(nombre_nora, pago_id):
         return abort(404)
 
     pago = pago_resp.data[0]
-    cliente = supabase.table("clientes").select("nombre_cliente").eq("id", pago["cliente_id"]).limit(1).execute().data[0]
-    empresa = supabase.table("cliente_empresas").select("nombre_empresa, direccion, ciudad").eq("id", pago["empresa_id"]).limit(1).execute().data[0]
+    cliente = supabase.table("clientes").select("nombre").eq("id", pago["cliente_id"]).limit(1).execute().data[0]
+    empresa = supabase.table("empresas").select("nombre, direccion, ciudad").eq("id", pago["empresa_id"]).limit(1).execute().data[0]
 
     return render_template("panel_cliente_pagos/recibo.html", pago=pago, cliente=cliente, empresa=empresa, nombre_nora=nombre_nora)
