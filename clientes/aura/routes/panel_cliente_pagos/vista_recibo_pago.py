@@ -2,10 +2,8 @@
 import pdfkit
 from flask import Blueprint, render_template, session, redirect, url_for, make_response, request, flash
 from supabase import create_client
-import os
-import shutil
-import subprocess
-import tempfile
+import os, shutil, subprocess, tempfile
+from pathlib import Path
 from clientes.aura.utils.login_required import login_required
 
 panel_cliente_pagos_recibo_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
@@ -82,27 +80,23 @@ def exportar_pdf(nombre_nora, pago_id):
     # ---------- Generar PDF ----------
     try:
         pdf_bytes = pdfkit.from_string(html, False, options=options)
-    except OSError as e:
-        # wkhtmltopdf suele fallar si faltan librerías del sistema (glib / gobject).
-        # Intentamos usar el binario CLI directamente como fallback
+    except OSError:
+        # wkhtmltopdf faltan libs → fallback a binario
         wkhtml = shutil.which("wkhtmltopdf")
         if not wkhtml:
-            flash("wkhtmltopdf no está instalado en el servidor", "error")
+            flash("⚠️ wkhtmltopdf o sus librerías no están instaladas", "error")
             return redirect(url_for(".ver_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
 
-        with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as tmp_html:
-            tmp_html.write(html.encode("utf-8"))
-            tmp_html_path = tmp_html.name
-        tmp_pdf_path = tmp_html_path.replace(".html", ".pdf")
-
+        tmp_dir = Path(tempfile.mkdtemp())
+        tmp_html_path = tmp_dir / "recibo.html"
+        tmp_pdf_path  = tmp_dir / "recibo.pdf"
+        tmp_html_path.write_text(html, encoding="utf-8")
         try:
-            subprocess.check_call([wkhtml, tmp_html_path, tmp_pdf_path])
+            subprocess.check_call([wkhtml, str(tmp_html_path), str(tmp_pdf_path)])
             with open(tmp_pdf_path, "rb") as f:
                 pdf_bytes = f.read()
         finally:
-            for p in (tmp_html_path, tmp_pdf_path):
-                try: os.remove(p)
-                except: pass
+            shutil.rmtree(tmp_dir, ignore_errors=True)
 
     response = make_response(pdf_bytes)
     response.headers["Content-Type"] = "application/pdf"
@@ -147,11 +141,4 @@ def enviar_whatsapp(nombre_nora, pago_id):
 @panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>/editar")
 @login_required
 def editar_recibo(nombre_nora, pago_id):
-    # Llevamos al endpoint /<pago_id> para que la vista cargue el recibo correcto
-    return redirect(
-        url_for(
-            "panel_cliente_pagos_nuevo.nuevo_recibo",
-            nombre_nora=nombre_nora,
-            pago_id=pago_id,       # usa la ruta /<pago_id>
-        )
-    )
+    return redirect(url_for("panel_cliente_pagos_nuevo.nuevo_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
