@@ -65,14 +65,26 @@ def nuevo_recibo(nombre_nora):
         )
 
     # ---------- Vista GET ----------
-    # La tabla real en Supabase se llama `cliente_empresas`
-    empresas   = (
-        supa.table("cliente_empresas")
-            .select("id,nombre_empresa,cliente_id")
-            .eq("nombre_nora", nombre_nora)
-            .execute()
-            .data
-    )
+    # ⚠️ Algunos proyectos tienen la tabla como `cliente_empresas`
+    #    y otros simplemente `empresas`. Intentamos ambos →
+    try:
+        empresas = (
+            supa.table("cliente_empresas")
+                .select("id,nombre_empresa")
+                .eq("nombre_nora", nombre_nora)
+                .order("nombre_empresa")
+                .execute()
+                .data
+        )
+    except Exception:
+        empresas = (
+            supa.table("empresas")
+                .select("id,nombre_empresa")
+                .eq("nombre_nora", nombre_nora)
+                .order("nombre_empresa")
+                .execute()
+                .data
+        )
     servicios  = supa.table("servicios").select("id,nombre,costo,categoria").eq("nombre_nora", nombre_nora).execute().data
     categorias = sorted(set(s["categoria"] for s in servicios))
 
