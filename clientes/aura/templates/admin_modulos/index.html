@@ -1,0 +1,22 @@
+{% extends "base_admin.html" %}
+{% block contenido %}
+<div class="p-6 space-y-8">
+  <h2 class="text-3xl font-bold">🛠️ Creador & Verificador de Módulos</h2>
+
+  <!-- Crear -->
+  <form action="{{ url_for('admin_modulos.generar') }}" method="post" class="space-y-4">
+    <h3 class="text-xl font-semibold">Crear nuevo módulo con IA</h3>
+    <input name="nombre_modulo" placeholder="Nombre interno (ej: crm)" class="border p-2 w-full rounded" required>
+    <textarea name="descripcion" placeholder="Descripción breve" class="border p-2 w-full rounded" rows="3"></textarea>
+    <input name="icono" placeholder="Emoji/icono (ej: 🛠️)" class="border p-2 w-full rounded">
+    <button class="bg-blue-600 text-white py-2 px-4 rounded">Generar módulo</button>
+  </form>
+
+  <!-- Verificar -->
+  <form action="{{ url_for('admin_modulos.verificar_existente') }}" method="post" class="space-y-4">
+    <h3 class="text-xl font-semibold">Verificar módulo existente</h3>
+    <input name="nombre_modulo_verificar" placeholder="Nombre interno (ej: chat)" class="border p-2 w-full rounded" required>
+    <button class="bg-green-600 text-white py-2 px-4 rounded">Verificar</button>
+  </form>
+</div>
+{% endblock %}
