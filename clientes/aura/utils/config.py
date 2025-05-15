@@ -19,7 +19,7 @@ def login_requerido(f):
     def decorado(*args, **kwargs):
         # Verificar si el usuario está autenticado
         if "user" not in session:
-            return redirect(url_for("login.login_google"))
+            return redirect(url_for("login.login"))
         return f(*args, **kwargs)
     return decorado
 

@@ -220,7 +220,7 @@ app.logger.info(f"📋 Total de rutas registradas: {len(list(app.url_map.iter_ru
 @app.route("/")
 def home():
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     if session.get("is_admin"):
         return redirect(url_for("admin_dashboard.dashboard_admin"))
@@ -230,7 +230,7 @@ def home():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for("login.login_google"))
+    return redirect(url_for("login.login"))
 
 @app.route('/debug_info', methods=['GET'])
 def debug_info():

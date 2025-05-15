@@ -15,7 +15,7 @@ etiquetas_bp = Blueprint("panel_cliente_etiquetas", __name__)
 @etiquetas_bp.route("/<nombre_nora>/etiquetas", methods=["GET", "POST"])
 def panel_etiquetas(nombre_nora):
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     # Depuración: Verificar el valor de nombre_nora
     print(f"🔍 nombre_nora recibido: {nombre_nora}")

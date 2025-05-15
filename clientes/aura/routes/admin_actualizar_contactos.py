@@ -18,7 +18,7 @@ admin_actualizar_contactos_bp = Blueprint("admin_actualizar_contactos", __name__
 def actualizar_contactos_admin(nombre_nora):
     if "user" not in session or not session.get("is_admin"):
         flash("Acceso no autorizado.", "error")
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     try:
         print(f"🔍 Iniciando actualización de contactos para: {nombre_nora}")

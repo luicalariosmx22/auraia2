@@ -15,7 +15,7 @@ panel_cliente_entrenamiento_bp = Blueprint("panel_cliente_entrenamiento", __name
 @panel_cliente_entrenamiento_bp.route("/", methods=["GET", "POST"])
 def entrenamiento_cliente():
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     nombre_nora = request.path.split("/")[2]  # ✅ CORREGIDO: estaba en [3]
 

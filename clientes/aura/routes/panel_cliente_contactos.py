@@ -17,7 +17,7 @@ panel_cliente_contactos_bp = Blueprint("panel_cliente_contactos", __name__)
 @panel_cliente_contactos_bp.route("/", methods=["GET", "POST"])
 def panel_contactos():
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     try:
         nombre_nora = request.path.split("/")[3]
@@ -62,7 +62,7 @@ def panel_contactos():
 @panel_cliente_contactos_bp.route("/<nombre_nora>/agregar", methods=["POST"])
 def agregar_contacto(nombre_nora):
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     try:
         data = {
@@ -87,7 +87,7 @@ def agregar_contacto(nombre_nora):
 @panel_cliente_contactos_bp.route("/<nombre_nora>/acciones", methods=["POST"])
 def acciones_contactos(nombre_nora):
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     try:
         accion = request.form.get("accion")
@@ -107,7 +107,7 @@ def acciones_contactos(nombre_nora):
 @panel_cliente_contactos_bp.route("/<nombre_nora>/editar/<telefono>", methods=["GET", "POST"])
 def editar_contacto(nombre_nora, telefono):
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     if request.method == "POST":
         try:
@@ -144,7 +144,7 @@ def editar_contacto(nombre_nora, telefono):
 @panel_cliente_contactos_bp.route("/<nombre_nora>/contactos/asignar_etiqueta", methods=["POST"])
 def asignar_etiqueta(nombre_nora):
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     contacto_id = request.form.get("contacto_id")
     etiqueta_id = request.form.get("etiqueta_id")
@@ -181,7 +181,7 @@ def asignar_etiqueta(nombre_nora):
 @panel_cliente_contactos_bp.route("/<nombre_nora>/contactos/quitar_etiqueta", methods=["POST"])
 def quitar_etiqueta(nombre_nora):
     if "user" not in session:
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     contacto_id = request.form.get("contacto_id")
     etiqueta_id = request.form.get("etiqueta_id")

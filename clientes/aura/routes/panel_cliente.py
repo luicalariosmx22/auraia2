@@ -33,6 +33,7 @@ def crear_blueprint_panel_cliente(nombre_nora):
         print(f"🧪 Entrando a configuracion_cliente de {nombre_nora}")
 
         if "user" not in session:
+            # Ajuste: endpoint correcto es 'login.login'
             return redirect(url_for("login.login"))
 
         try:

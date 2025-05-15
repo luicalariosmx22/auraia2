@@ -8,7 +8,7 @@ admin_verificador_bp = Blueprint("admin_verificador_rutas", __name__)
 @admin_verificador_bp.route("/admin/verificador_rutas")
 def verificador_rutas():
     if "user" not in session or not session.get("is_admin"):
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     rutas = []
     for rule in current_app.url_map.iter_rules():

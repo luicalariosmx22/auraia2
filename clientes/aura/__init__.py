@@ -202,7 +202,7 @@ def create_app(config_class=Config):
     @app.route("/")
     def home():
         if "user" not in flask_session:
-            return redirect(url_for("login.login_google"))  # Updated blueprint name
+            return redirect(url_for("login.login"))
         if flask_session.get("is_admin"):
             return redirect(url_for("admin_nora_dashboard_bp.dashboard_admin"))
         else:
@@ -211,7 +211,7 @@ def create_app(config_class=Config):
     @app.route("/logout")
     def logout():
         flask_session.clear()
-        return redirect(url_for("login.login_google"))  # Updated blueprint name
+        return redirect(url_for("login.login"))
 
     @app.route('/debug_info', methods=['GET'])
     def debug_info():

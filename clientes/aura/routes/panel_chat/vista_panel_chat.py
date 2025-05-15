@@ -9,7 +9,7 @@ def panel_chat(nombre_nora):
     print(f"📥 Recibida solicitud para panel de chat con nombre_nora: {nombre_nora}")
     if "user" not in session:
         print("⚠️ Usuario no autenticado, redirigiendo a login.")
-        return redirect(url_for("login.login_google"))
+        return redirect(url_for("login.login"))
 
     try:
         contactos = leer_contactos(nombre_nora)
