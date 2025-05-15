@@ -1,3 +1,4 @@
+<!-- File: clientes/aura/templates/panel_cliente_pagos/index.html -->
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
@@ -17,7 +18,7 @@
   <a href="{{ url_for('panel_cliente_pagos_servicios.servicios_lista', nombre_nora=nombre_nora) }}" class="flex items-center text-green-700 hover:underline">
     🧾 <span class="ml-1">Servicios</span>
   </a>
-  <a href="{{ url_for('panel_cliente_pagos_bp.panel_cliente_pagos', nombre_nora=nombre_nora) }}" class="flex items-center text-indigo-700 hover:underline">
+  <a href="{{ url_for('panel_cliente_pagos.panel_cliente_pagos', nombre_nora=nombre_nora) }}" class="flex items-center text-indigo-700 hover:underline">
     💳 <span class="ml-1">Recibos</span>
   </a>
 </nav>
@@ -80,7 +81,7 @@
             {% endif %}
           </td>
           <td class="px-4 py-2">
-            <a href="{{ url_for('panel_cliente_pagos_recibo_bp.ver_recibo', nombre_nora=nombre_nora, pago_id=pago.id) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Ver recibo</a>
+            <a href="{{ url_for('panel_cliente_pagos_recibo.ver_recibo', nombre_nora=nombre_nora, pago_id=pago.id) }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Ver recibo</a>
           </td>
         </tr>
         {% endfor %}
