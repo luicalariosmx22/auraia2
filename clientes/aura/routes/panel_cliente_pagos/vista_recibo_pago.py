@@ -1,5 +1,5 @@
 # ✅ Archivo: clientes/aura/routes/panel_cliente_pagos/vista_recibo_pago.py
-from flask import Blueprint, render_template, session, redirect, url_for, make_response
+from flask import Blueprint, render_template, session, redirect, url_for, make_response, request, flash
 from supabase import create_client
 import os
 from clientes.aura.utils.login_required import login_required
@@ -62,3 +62,43 @@ def exportar_pdf(nombre_nora, pago_id):
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = f'inline; filename=recibo_{pago_id}.pdf'
     return response
+
+# ---------- Enviar por correo ----------
+@panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>/correo")
+@login_required
+def enviar_correo(nombre_nora, pago_id):
+    # Stub: envía un link al correo registrado del cliente
+    pago = supabase.table("pagos").select("cliente_id, concepto").eq("id", pago_id).single().execute().data
+    cliente = supabase.table("clientes").select("correo, nombre_cliente").eq("id", pago["cliente_id"]).single().execute().data
+    if not cliente or not cliente.get("correo"):
+        flash("⚠️ El cliente no tiene correo registrado", "warning")
+        return redirect(url_for(".ver_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
+
+    # Aquí conectarías con tu servicio de e-mail (SendGrid, Mailgun, etc.)
+    # send_email(to=cliente["correo"], subject="Tu recibo", body="Adjunto…")
+
+    flash("✅ Recibo enviado por correo", "success")
+    return redirect(url_for(".ver_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
+
+# ---------- Enviar por WhatsApp ----------
+@panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>/whatsapp")
+@login_required
+def enviar_whatsapp(nombre_nora, pago_id):
+    # Stub: envía un mensaje con link al PDF usando tu integración de WhatsApp
+    pago = supabase.table("pagos").select("cliente_id").eq("id", pago_id).single().execute().data
+    cliente = supabase.table("contactos").select("telefono").eq("id", pago["cliente_id"]).single().execute().data
+    if not cliente:
+        flash("⚠️ El cliente no tiene teléfono registrado", "warning")
+        return redirect(url_for(".ver_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
+
+    pdf_link = url_for(".exportar_pdf", nombre_nora=nombre_nora, pago_id=pago_id, _external=True)
+    # send_whatsapp(to=cliente["telefono"], message=f"Tu recibo: {pdf_link}")
+
+    flash("✅ Recibo enviado por WhatsApp", "success")
+    return redirect(url_for(".ver_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
+
+# ---------- Editar recibo (redirección al formulario) ----------
+@panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>/editar")
+@login_required
+def editar_recibo(nombre_nora, pago_id):
+    return redirect(url_for("panel_cliente_pagos_nuevo.nuevo_recibo", nombre_nora=nombre_nora) + f"?editar={pago_id}")
