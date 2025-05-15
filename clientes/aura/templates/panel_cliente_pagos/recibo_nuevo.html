@@ -69,8 +69,13 @@ REWRITE ENTIRE FILE
 
     <!-- Forma de pago -->
     <div>
-      <label class="block text-sm font-medium text-gray-700">Forma de pago</label>
-      <input type="text" name="forma_pago" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+      <label class="block text-sm font-medium text-gray-700">Forma de pago *</label>
+      <select name="forma_pago_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        <option value="">— Selecciona forma de pago —</option>
+        {% for fp in formas_pago %}
+          <option value="{{ fp.id }}">{{ fp.nombre }}</option>
+        {% endfor %}
+      </select>
     </div>
 
     <!-- Notas -->

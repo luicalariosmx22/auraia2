@@ -40,15 +40,28 @@ def nuevo_recibo(nombre_nora):
 
         total = sum(it["cantidad"] * it["costo_unit"] for it in items)
 
-        # ---------- Insertar recibo (sin campo items) ----------
+        # ---------- Resuelve cliente_id según la empresa seleccionada ----------
+        empresa_id  = request.form["empresa_id"]
+        empresa_row = (
+            supa.table("cliente_empresas")
+                .select("cliente_id")
+                .eq("id", empresa_id)
+                .single()
+                .execute()
+                .data
+        )
+        cliente_id = empresa_row["cliente_id"]
+
+        # ---------- Insertar recibo ----------
         recibo_data = {
-            "empresa_id":      request.form["empresa_id"],
-            "concepto":        request.form["concepto"],
+            "empresa_id":   empresa_id,
+            "cliente_id":   cliente_id,
+            "concepto":     request.form["concepto"],
             "monto":           total,
             "fecha_vencimiento": request.form["fecha_vencimiento"],
             "fecha_pago":      request.form.get("fecha_pago") or None,
             "estatus":         request.form["estatus"],
-            "forma_pago":      request.form["forma_pago"],
+            "forma_pago_id":   request.form["forma_pago_id"],
             "notas":           request.form.get("notas") or "",
             "nombre_nora":     nombre_nora,
         }
@@ -94,6 +107,15 @@ def nuevo_recibo(nombre_nora):
                 .execute()
                 .data
         )
+    # Formas de pago (catálogo)
+    formas_pago = (
+        supa.table("catalogo_formas_pago")
+            .select("id,nombre")
+            .order("nombre")
+            .execute()
+            .data
+    )
+
     # La tabla real trae `titulo` (no `nombre`). Normalizamos a la clave `nombre`
     servicios_raw = (
         supa.table("servicios")
@@ -118,6 +140,7 @@ def nuevo_recibo(nombre_nora):
         "panel_cliente_pagos/recibo_nuevo.html",
         empresas=empresas,
         servicios=servicios,
+        formas_pago=formas_pago,
         categorias=categorias,
         nombre_nora=nombre_nora,
     )
