@@ -5,7 +5,7 @@ from supabase import create_client
 import os, shutil, subprocess, tempfile
 from pathlib import Path
 from clientes.aura.utils.login_required import login_required
-from fpdf import FPDF          # ← usaremos solo fpdf2, sin WeasyPrint
+from fpdf2 import FPDF
 from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileWriter
 
