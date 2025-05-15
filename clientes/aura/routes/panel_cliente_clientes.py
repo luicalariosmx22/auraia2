@@ -300,3 +300,33 @@ def vista_empresas():
                            empresas=empresas,
                            modulo_activo="clientes",
                            user=session.get("user"))
+
+@panel_cliente_clientes_bp.route("/cliente/<cliente_id>/editar", methods=["GET", "POST"])
+def editar_cliente(cliente_id):
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("user"):
+        return redirect(url_for('login_bp.login'))
+
+    if not modulo_activo_para_nora(nombre_nora, 'clientes'):
+        return "Módulo no activo", 403
+
+    # Buscar cliente
+    response = supabase.table("clientes").select("*").eq("id", cliente_id).single().execute()
+    cliente = response.data
+
+    if not cliente:
+        flash("❌ Cliente no encontrado", "error")
+        return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
+
+    if request.method == "POST":
+        campos = {
+            "nombre_cliente": request.form.get("nombre_cliente"),
+            "email": request.form.get("email"),
+            "telefono": request.form.get("telefono"),
+            "tipo": request.form.get("tipo")
+        }
+        supabase.table("clientes").update(campos).eq("id", cliente_id).execute()
+        flash("✅ Cliente actualizado correctamente", "success")
+        return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
+
+    return render_template("panel_cliente_editar_cliente.html", cliente=cliente, nombre_nora=nombre_nora, user=session.get("user"))

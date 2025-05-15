@@ -1,0 +1,40 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="max-w-xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
+  <h2 class="text-xl font-bold mb-4">✏️ Editar cliente</h2>
+
+  <form method="POST">
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Nombre del cliente *</label>
+      <input type="text" name="nombre_cliente" value="{{ cliente.nombre_cliente }}" required class="input">
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Correo electrónico *</label>
+      <input type="email" name="email" value="{{ cliente.email }}" required class="input">
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+      <input type="text" name="telefono" value="{{ cliente.telefono or '' }}" class="input">
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Tipo</label>
+      <select name="tipo" class="input">
+        <option value="">-- Sin tipo --</option>
+        <option value="iguala" {% if cliente.tipo == 'iguala' %}selected{% endif %}>Iguala</option>
+        <option value="proyecto" {% if cliente.tipo == 'proyecto' %}selected{% endif %}>Proyecto</option>
+        <option value="curso" {% if cliente.tipo == 'curso' %}selected{% endif %}>Curso</option>
+      </select>
+    </div>
+
+    <div class="mt-6 flex gap-4">
+      <button type="submit" class="btn-primary">💾 Guardar cambios</button>
+      <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}"
+         class="text-sm text-gray-600 hover:underline">← Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
