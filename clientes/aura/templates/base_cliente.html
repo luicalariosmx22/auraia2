@@ -1,50 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Meta tags -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Cliente</title>
+  <title>Panel {{ modulo_activo|capitalize }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_cliente.css') }}">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-  <!-- Botón de regreso -->
-  <div class="p-4">
-    <a href="/admin/nora/editar?nombre={{ nombre_nora }}" class="text-sm text-blue-600 hover:underline">← Regresar al panel</a>
-  </div>
+  <!-- ✅ Menú superior dinámico -->
+  <header class="bg-white border-b border-gray-200 shadow-sm py-4 px-6 flex justify-between items-center">
+    <!-- Logo y navegación -->
+    <div class="flex items-center gap-6">
+      <img src="/static/images/logo.png" alt="Nora Logo" class="h-8">
+      <nav class="flex gap-4 text-sm font-medium text-gray-700">
+        {% if modulo_activo == 'clientes' %}
+          <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">👥 Clientes</a>
+          <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">➕ Agregar cliente</a>
+          <a href="{{ url_for('panel_cliente_clientes_bp.nueva_empresa', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">🏢 Agregar empresa</a>
+          <a href="/panel_cliente/{{ nombre_nora }}/empresas" class="hover:text-blue-600">📁 Empresas</a>
+        {% elif modulo_activo == 'pagos' %}
+          <a href="/panel_cliente/{{ nombre_nora }}/pagos" class="hover:text-blue-600">💳 Pagos</a>
+          <a href="/panel_cliente/{{ nombre_nora }}/pagos/nueva" class="hover:text-blue-600">➕ Crear orden</a>
+        {% elif modulo_activo == 'chat' %}
+          <a href="/panel_cliente/{{ nombre_nora }}/panel_chat" class="hover:text-blue-600">💬 Chat</a>
+        {% endif %}
+      </nav>
+    </div>
 
-  <div class="min-h-screen flex">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
-      <div>
-        <!-- Logo -->
-        <div class="mb-6">
-          <img src="/static/images/logo.png" alt="Logo" class="w-32 mx-auto">
-        </div>
+    <!-- Regresar n -->
+    <div class="flex items-center gap-4 text-sm">
+      <a href="/panel_cliente/{{ nombre_nora }}" class="text-gray-600 hover:text-blue-600">← Regresar al panel</a>
+      <a href="/logout" class="text-red-500 hover:underline">Cerrar sesión</a>
+    </div>
+  </header>
 
-        <nav class="space-y-2">
-          <a href="/panel_cliente/{{ nombre_nora }}/dashboard" class="block px-3 py-2 rounded-lg hover:bg-gray-200">🏠 Dashboard</a>
-          <a href="/panel_cliente/{{ nombre_nora }}/clientes" class="block px-3 py-2 rounded-lg hover:bg-gray-200">👥 Clientes</a>
-          {% if 'clientes_premium' in modulos %}
-          <a href="/panel_cliente/{{ nombre_nora }}/clientes_premium" class="block px-3 py-2 rounded-lg hover:bg-gray-200">🌟 Clientes Premium</a>
-          {% endif %}
-        </nav>
-      </div>
-
-      <!-- Footer -->
-      <div class="mt-6">
-        <p class="text-sm text-gray-600 text-center">© 2023 AuraAI</p>
-      </div>
-    </aside>
-
-    <!-- Contenido principal -->
-    <main class="max-w-6xl mx-auto p-6">
-      {% block contenido %}
-      {% endblock %}
-    </main>
-  </div>
+  <!-- ✅ Contenido del módulo -->
+  <main class="container py-10">
+    {% block contenido %}{% endblock %}
+  </main>
 
 </body>
 </html>

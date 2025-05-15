@@ -8,23 +8,17 @@ panel_cliente_clientes_bp = Blueprint('panel_cliente_clientes_bp', __name__)
 def vista_clientes():
     nombre_nora = request.path.split("/")[2]
     if not session.get("user"):
-        return redirect(url_for('login.login_screen'))
+        return redirect(url_for("login.login_screen"))
 
-    if not modulo_activo_para_nora(nombre_nora, 'clientes'):
+    if not modulo_activo_para_nora(nombre_nora, "clientes"):
         return "Módulo no activo", 403
 
     # Obtener todos los clientes de esta Nora
     clientes_data = supabase.table("clientes").select("*").eq("nombre_nora", nombre_nora).execute()
     clientes = clientes_data.data if clientes_data.data else []
 
-    # ✅ Debug para verificar si se están recuperando
-    print(f"🟡 [clientes] nombre_nora = {nombre_nora}")
-    print(f"📦 Total encontrados: {len(clientes)}")
-    if clientes:
-        print("🔍 Primer cliente:", clientes[0])
-
     for cliente in clientes:
-        # Empresas asociadas a este cliente
+        # Empresas asociadas
         empresas_data = supabase.table("cliente_empresas") \
             .select("*") \
             .eq("nombre_nora", nombre_nora) \
@@ -33,17 +27,16 @@ def vista_clientes():
         cliente["empresas"] = empresas_data.data if empresas_data.data else []
 
         for empresa in cliente["empresas"]:
-            empresa["url_editar"] = url_for('panel_cliente_clientes_bp.editar_empresa', empresa_id=empresa["id"])
-        cliente["url_nueva_ads"] = url_for('panel_cliente_clientes_bp.nueva_cuenta_ads', cliente_id=cliente["id"])
+            empresa["url_editar"] = url_for("panel_cliente_clientes_bp.editar_empresa", empresa_id=empresa["id"])
+        cliente["url_nueva_ads"] = url_for("panel_cliente_clientes_bp.nueva_cuenta_ads", cliente_id=cliente["id"])
 
-        # Cuentas publicitarias asociadas
-        ads_data = supabase.table("meta_ads_cuentas") \
-            .select("*") \
-            .eq("cliente_id", cliente["id"]) \
-            .execute()
-        cliente["ads_cuentas"] = ads_data.data if ads_data.data else []
-
-    return render_template('panel_cliente_clientes.html', nombre_nora=nombre_nora, clientes=clientes, user=session.get("user"))
+    return render_template(
+        "panel_cliente_clientes.html",
+        nombre_nora=nombre_nora,
+        clientes=clientes,
+        user=session.get("user"),
+        modulo_activo="clientes"  # ✅ esto activa el menú correcto
+    )
 
 @panel_cliente_clientes_bp.route("/nuevo", methods=["GET", "POST"])
 def nuevo_cliente():
@@ -89,7 +82,10 @@ def nuevo_cliente():
         flash("✅ Cliente guardado correctamente", "success")
         return redirect(url_for("panel_cliente_clientes_bp.vista_clientes", nombre_nora=nombre_nora))
 
-    return render_template("panel_cliente_clientes_nuevo.html", nombre_nora=nombre_nora, user=session.get("user"))
+    return render_template("panel_cliente_clientes_nuevo.html",
+                          nombre_nora=nombre_nora,
+                          user=session.get("user"),
+                          modulo_activo="clientes")
 
 # ----------- EMPRESAS: Formulario edit / share -----------------
 
@@ -121,7 +117,11 @@ def editar_empresa(empresa_id):
         flash("Empresa actualizada", "success")
         return redirect(url_for('panel_cliente_clientes_bp.vista_clientes'))
 
-    return render_template('panel_cliente_empresa_form.html', nombre_nora=nombre_nora, empresa=empresa, user=session.get("user"))
+    return render_template("panel_cliente_empresa_form.html",
+                          nombre_nora=nombre_nora,
+                          empresa=empresa,
+                          user=session.get("user"),
+                          modulo_activo="clientes")
 
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/ligar_cliente", methods=["GET", "POST"])
 def ligar_cliente(empresa_id):
@@ -149,7 +149,11 @@ def ligar_cliente(empresa_id):
     clientes = supabase.table("clientes").select("id, nombre_cliente") \
         .eq("nombre_nora", nombre_nora).execute().data or []
 
-    return render_template("ligar_cliente_empresa.html", empresa=empresa, clientes=clientes, nombre_nora=nombre_nora)
+    return render_template("ligar_cliente_empresa.html",
+                          empresa=empresa,
+                          clientes=clientes,
+                          nombre_nora=nombre_nora,
+                          modulo_activo="clientes")
 
 # ----------- VINCULAR CUENTA ADS -----------------
 
@@ -219,4 +223,8 @@ def ligar_empresa(cliente_id):
             cliente_resp = supabase.table("clientes").select("id, nombre_cliente").eq("id", empresa["cliente_id"]).single().execute()
             empresa["cliente"] = cliente_resp.data
 
-    return render_template("ligar_empresa_cliente.html", cliente=cliente, empresas=empresas_disp, nombre_nora=nombre_nora)
+    return render_template("ligar_empresa_cliente.html",
+                          cliente=cliente,
+                          empresas=empresas_disp,
+                          nombre_nora=nombre_nora,
+                          modulo_activo="clientes")
