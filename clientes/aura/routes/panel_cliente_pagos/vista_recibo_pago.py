@@ -5,6 +5,7 @@ from supabase import create_client
 import os, shutil, subprocess, tempfile
 from pathlib import Path
 from clientes.aura.utils.login_required import login_required
+from weasyprint import HTML
 
 panel_cliente_pagos_recibo_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
 
@@ -39,8 +40,7 @@ def ver_recibo(nombre_nora, pago_id):
 @login_required
 def exportar_pdf(nombre_nora, pago_id):
     """
-    Genera un PDF del recibo usando wkhtmltopdf (pdfkit).
-    • Renderiza una plantilla HTML (recibo_pdf.html) y la convierte en PDF.
+    Genera un PDF del recibo usando WeasyPrint (solo-Python, sin wkhtmltopdf).
     """
     pago = (
         supabase.table("pagos")
@@ -70,33 +70,14 @@ def exportar_pdf(nombre_nora, pago_id):
         nombre_nora=nombre_nora,
     )
 
-    # Opciones básicas de pdfkit
-    options = {
-        "page-size": "Letter",
-        "encoding": "UTF-8",
-        "quiet": "",
-    }
-
-    # ---------- Generar PDF ----------
-    try:
-        pdf_bytes = pdfkit.from_string(html, False, options=options)
-    except OSError:
-        # wkhtmltopdf faltan libs → fallback a binario
-        wkhtml = shutil.which("wkhtmltopdf")
-        if not wkhtml:
-            flash("⚠️ wkhtmltopdf o sus librerías no están instaladas", "error")
-            return redirect(url_for(".ver_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
-
-        tmp_dir = Path(tempfile.mkdtemp())
-        tmp_html_path = tmp_dir / "recibo.html"
-        tmp_pdf_path  = tmp_dir / "recibo.pdf"
-        tmp_html_path.write_text(html, encoding="utf-8")
-        try:
-            subprocess.check_call([wkhtml, str(tmp_html_path), str(tmp_pdf_path)])
-            with open(tmp_pdf_path, "rb") as f:
-                pdf_bytes = f.read()
-        finally:
-            shutil.rmtree(tmp_dir, ignore_errors=True)
+    # ---------- Generar PDF con WeasyPrint (solo-Python, sin wkhtmltopdf) ----------
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_pdf:
+        HTML(string=html, base_url=request.host_url).write_pdf(tmp_pdf.name)
+        pdf_bytes = tmp_pdf.read()
+        tmp_path = tmp_pdf.name
+    # limpiamos
+    shutil.safe_remove = getattr(shutil, "safe_remove", lambda p: os.remove(p) if os.path.exists(p) else None)
+    shutil.safe_remove(tmp_path)
 
     response = make_response(pdf_bytes)
     response.headers["Content-Type"] = "application/pdf"
