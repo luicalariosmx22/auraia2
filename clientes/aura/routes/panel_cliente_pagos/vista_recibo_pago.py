@@ -5,8 +5,7 @@ from supabase import create_client
 import os, shutil, subprocess, tempfile
 from pathlib import Path
 from clientes.aura.utils.login_required import login_required
-from weasyprint import HTML
-from fpdf import FPDF
+from fpdf import FPDF          # ← usaremos solo fpdf2, sin WeasyPrint
 
 panel_cliente_pagos_recibo_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
 
