@@ -1,16 +1,14 @@
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
-<div class="container">
+<div class="container mx-auto max-w-6xl px-4 py-6">
   <h2 class="text-2xl font-bold text-gray-800 mb-6">🏢 Empresas registradas</h2>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      <ul class="mb-6">
+      <ul class="mb-4 space-y-1">
         {% for category, message in messages %}
-          <li class="alert {% if category == 'success' %}alert-success{% elif category == 'error' %}alert-error{% endif %}">
-            {{ message }}
-          </li>
+          <li class="text-sm px-4 py-2 rounded bg-green-100 text-green-800">{{ message }}</li>
         {% endfor %}
       </ul>
     {% endif %}
@@ -18,40 +16,35 @@
 
   {% if empresas %}
     {% for empresa in empresas %}
-      <div class="card">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-lg font-semibold text-gray-800">{{ empresa.nombre_empresa }}</h3>
+      <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-4 grid sm:grid-cols-4 gap-4 items-start">
+        <!-- Info -->
+        <div class="col-span-2">
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ empresa.nombre_empresa }}</h3>
+          {% if empresa.giro %}<p class="text-sm text-gray-600 mb-1">🧭 Giro: {{ empresa.giro }}</p>{% endif %}
+          {% if empresa.email_empresa %}<p class="text-sm text-gray-600 mb-1">✉️ {{ empresa.email_empresa }}</p>{% endif %}
+          {% if empresa.telefono_empresa %}<p class="text-sm text-gray-600">📞 {{ empresa.telefono_empresa }}</p>{% endif %}
+        </div>
+
+        <!-- Cliente asociado -->
+        <div class="col-span-1">
           {% if empresa.cliente %}
-            <span class="text-sm text-green-600">👤 {{ empresa.cliente.nombre_cliente }}</span>
+            <p class="text-sm text-gray-700">👤 <span class="font-semibold">{{ empresa.cliente.nombre_cliente }}</span></p>
           {% else %}
-            <span class="text-sm text-red-600">⚠️ Sin cliente vinculado</span>
+            <p class="text-sm text-orange-600 flex items-center">
+              ⚠️ <span class="ml-1">Sin cliente vinculado</span>
+            </p>
           {% endif %}
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700 mb-2">
-          {% if empresa.giro %}<p><strong>🧭 Giro:</strong> {{ empresa.giro }}</p>{% endif %}
-          {% if empresa.telefono_empresa %}<p><strong>📞 Teléfono:</strong> {{ empresa.telefono_empresa }}</p>{% endif %}
-          {% if empresa.email_empresa %}<p><strong>✉️ Email:</strong> {{ empresa.email_empresa }}</p>{% endif %}
-          {% if empresa.ciudad %}<p><strong>🏙️ Ciudad:</strong> {{ empresa.ciudad }}</p>{% endif %}
-        </div>
-
-        <div class="flex gap-4 mt-3 text-sm">
-          <a href="{{ empresa.url_editar }}" class="text-blue-600 hover:underline">✏️ Editar</a>
-          {% if not empresa.cliente %}
-            <a href="{{ empresa.url_ligar }}" class="text-blue-600 hover:underline">➕ Ligar cliente</a>
-          {% endif %}
+        <!-- Acciones -->
+        <div class="col-span-1 flex flex-col gap-2 items-start">
+          <a href="{{ empresa.url_editar }}" class="text-sm text-blue-600 hover:underline">✏️ Editar</a>
+          <a href="{{ empresa.url_ligar }}" class="text-sm text-blue-600 hover:underline">➕ Ligar cliente</a>
         </div>
       </div>
     {% endfor %}
   {% else %}
-    <div class="bg-white text-center shadow-md border border-gray-200 rounded-xl p-10 mt-12">
-      <h3 class="text-xl font-semibold text-gray-800 mb-4">🫥 Aún no tienes empresas registradas</h3>
-      <p class="text-gray-600 text-sm mb-6">Agrega tu primera empresa para comenzar a vincular clientes y gestionar pagos.</p>
-      <a href="{{ url_for('panel_cliente_clientes_bp.nueva_empresa', nombre_nora=nombre_nora) }}"
-         class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
-        ➕ Crear nueva empresa
-      </a>
-    </div>
+    <p class="text-gray-600 text-sm">No hay empresas registradas aún.</p>
   {% endif %}
 </div>
 {% endblock %}
