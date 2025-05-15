@@ -40,7 +40,7 @@ def nuevo_recibo(nombre_nora):
 
         total = sum(it["cantidad"] * it["costo_unit"] for it in items)
 
-        # ---------- Insertar recibo ----------
+        # ---------- Insertar recibo (sin campo items) ----------
         recibo_data = {
             "empresa_id":      request.form["empresa_id"],
             "concepto":        request.form["concepto"],
@@ -50,11 +50,20 @@ def nuevo_recibo(nombre_nora):
             "estatus":         request.form["estatus"],
             "forma_pago":      request.form["forma_pago"],
             "notas":           request.form.get("notas") or "",
-            "items":           items,
             "nombre_nora":     nombre_nora,
         }
         result = supa.table("pagos").insert(recibo_data).execute()
         pago_id = result.data[0]["id"]
+
+        # ---------- Insertar cada ítem en pagos_items ----------
+        for it in items:
+            supa.table("pagos_items").insert({
+                "pago_id":     pago_id,
+                "servicio_id": it["servicio_id"],
+                "nombre":      it["nombre"],
+                "cantidad":    it["cantidad"],
+                "costo_unit":  it["costo_unit"],
+            }).execute()
 
         return redirect(
             url_for(

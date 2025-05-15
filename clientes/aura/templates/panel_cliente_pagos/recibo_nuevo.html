@@ -1,3 +1,7 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_pagos/recibo_nuevo.html -->
+<!-- --- GitHub Copilot EDIT ---
+REWRITE ENTIRE FILE
+-->
 {% extends "base_cliente.html" %}
 {% block contenido %}
 <div class="py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
@@ -21,13 +25,33 @@
       <input type="text" name="concepto" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     </div>
 
-    <!-- Fecha de vencimiento -->
+    <!-- Tipo de pago -->
+    <div x-data="{tipo:'unico'}" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Tipo de pago *</label>
+        <select name="tipo" x-model="tipo" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+          <option value="unico">Único</option>
+          <option value="recurrente">Recurrente</option>
+        </select>
+      </div>
+
+      <div x-show="tipo==='recurrente'">
+        <label class="block text-sm font-medium text-gray-700">Periodicidad *</label>
+        <select name="periodicidad" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+          <option value="mensual">Mensual</option>
+          <option value="trimestral">Trimestral</option>
+          <option value="semestral">Semestral</option>
+          <option value="anual">Anual</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Fechas -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Fecha de vencimiento *</label>
       <input type="date" name="fecha_vencimiento" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
     </div>
 
-    <!-- Fecha de pago -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Fecha de pago</label>
       <input type="date" name="fecha_pago" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
@@ -55,7 +79,7 @@
       <textarea name="notas" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
     </div>
 
-    <!-- Añadir servicios dinámicamente -->
+    <!-- Selector de servicios -->
     <div x-data="serviciosPicker()" class="mt-6">
       <label class="block text-sm font-medium text-gray-700">Añadir servicios</label>
 
@@ -67,7 +91,7 @@
         {% endfor %}
       </select>
 
-      <!-- Búsqueda por nombre -->
+      <!-- Búsqueda -->
       <input type="text" x-model="buscar" placeholder="Buscar servicio..." class="mt-2 block w-full border-gray-300 rounded-md sm:text-sm">
 
       <!-- Resultados -->
@@ -81,14 +105,11 @@
         <p x-show="filtrados().length === 0" class="text-xs text-gray-500 p-2">Sin resultados…</p>
       </div>
 
-      <!-- Tabla servicios seleccionados -->
+      <!-- Tabla de ítems -->
       <table class="w-full text-sm mt-4">
         <thead>
           <tr class="text-left text-gray-500">
-            <th class="py-1">Servicio</th>
-            <th class="py-1 w-20">Cant.</th>
-            <th class="py-1 w-28">Costo</th>
-            <th></th>
+            <th class="py-1">Servicio</th><th class="py-1 w-20">Cant.</th><th class="py-1 w-28">Costo</th><th></th>
           </tr>
         </thead>
         <tbody>
@@ -96,13 +117,13 @@
             <tr>
               <td class="py-1">
                 <input type="hidden" :name="'servicio_id[]'" :value="it.id || ''">
-                <input type="text" :name="'nombre_servicio[]'" x-model="it.nombre" class="w-full border-gray-300 rounded-md" :readonly="!!it.id">
+                <input type="text"  :name="'nombre_servicio[]'" x-model="it.nombre" class="w-full border-gray-300 rounded-md" :readonly="!!it.id">
               </td>
               <td class="py-1">
                 <input type="number" step="0.01" min="0.01" :name="'cantidad[]'" x-model="it.cantidad" class="w-full border-gray-300 rounded-md text-right">
               </td>
               <td class="py-1">
-                <input type="number" step="0.01" min="0.00" :name="'costo[]'" x-model="it.costo" class="w-full border-gray-300 rounded-md text-right">
+                <input type="number" step="0.01" min="0" :name="'costo[]'" x-model="it.costo" class="w-full border-gray-300 rounded-md text-right">
               </td>
               <td class="py-1">
                 <button type="button" @click="items.splice(idx,1)" class="text-red-500 text-xs">✕</button>
@@ -113,19 +134,15 @@
       </table>
 
       <!-- Añadir línea manual -->
-      <button type="button"
-              @click.prevent="agregarManual()"
-              class="mt-2 text-indigo-600 hover:underline text-sm">+ Añadir línea manual</button>
+      <button type="button" @click.prevent="agregarManual()" class="mt-2 text-indigo-600 hover:underline text-sm">+ Añadir línea manual</button>
 
       <!-- Total -->
       <template x-if="items.length">
-        <p class="text-right mt-4 font-semibold">
-          Total: $<span x-text="total().toFixed(2)"></span>
-        </p>
+        <p class="text-right mt-4 font-semibold">Total: $<span x-text="total().toFixed(2)"></span></p>
       </template>
     </div>
 
-    <!-- Script Alpine.js -->
+    <!-- Alpine helper -->
     <script>
       function serviciosPicker() {
         return {
@@ -146,13 +163,13 @@
             this.items.push({ id: null, nombre: '', cantidad: 1, costo: 0 })
           },
           total() {
-            return this.items.reduce((t,i)=>t + (parseFloat(i.cantidad) || 0) * (parseFloat(i.costo) || 0), 0)
+            return this.items.reduce((t, i) => t + (parseFloat(i.cantidad) || 0) * (parseFloat(i.costo) || 0), 0)
           }
         }
       }
     </script>
 
-    <!-- Submit -->
+    <!-- Guardar -->
     <div class="flex justify-end">
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Guardar recibo</button>
     </div>
