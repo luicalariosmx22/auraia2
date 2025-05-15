@@ -4,7 +4,6 @@
 from flask import Blueprint, render_template, request, redirect, session
 from supabase import create_client
 import os
-import json
 from clientes.aura.utils.login_required import login_required
 
 panel_cliente_pagos_bp = Blueprint("panel_cliente_pagos", __name__)
@@ -16,19 +15,21 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 @panel_cliente_pagos_bp.route("/", methods=["GET"])
 @login_required
 def panel_cliente_pagos(nombre_nora):
+    # Validar módulo activo
     config = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).limit(1).execute()
     modulos = config.data[0]["modulos"] if config.data else []
     if "pagos" not in modulos:
         return "Módulo de pagos no disponible para esta Nora", 403
 
+    # Obtener datos base
     pagos = supabase.table("pagos").select("*").eq("nombre_nora", nombre_nora).order("fecha_vencimiento", desc=False).execute().data
     clientes = {
-        c["id"]: c["nombre"]
-        for c in supabase.table("clientes").select("id, nombre").eq("nombre_nora", nombre_nora).execute().data
+        c["id"]: c["nombre_cliente"]
+        for c in supabase.table("clientes").select("id, nombre_cliente").eq("nombre_nora", nombre_nora).execute().data
     }
     empresas = {
-        e["id"]: e["nombre"]
-        for e in supabase.table("empresas").select("id, nombre").eq("nombre_nora", nombre_nora).execute().data
+        e["id"]: e["nombre_empresa"]
+        for e in supabase.table("cliente_empresas").select("id, nombre_empresa").eq("nombre_nora", nombre_nora).execute().data
     }
 
     for p in pagos:
