@@ -102,6 +102,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "pagos" in modulos:
                 safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
                 safe_register_blueprint(app, vista_recibo_pago_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
+                # Registro del blueprint para servicios dentro del módulo de pagos
+                from clientes.aura.routes.panel_cliente_pagos.vista_servicios import panel_cliente_pagos_servicios_bp
+                safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos/servicios")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")

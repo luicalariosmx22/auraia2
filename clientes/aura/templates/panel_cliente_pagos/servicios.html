@@ -1,0 +1,40 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="py-12 px-4 sm:px-6 lg:px-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">🛠 Servicios roductos</h1>
+    <a href="#" class="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700 transition">+ Agregar nuevo</a>
+  </div>
+
+  {% if servicios %}
+  <div class="overflow-x-auto bg-white shadow rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50 text-sm text-gray-700 uppercase text-left">
+        <tr>
+          <th class="px-4 py-3">Título</th>
+          <th class="px-4 py-3">Categoría</th>
+          <th class="px-4 py-3">Tipo</th>
+          <th class="px-4 py-3">Costo</th>
+          <th class="px-4 py-3">Descripción</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-100 text-sm">
+        {% for s in servicios %}
+        <tr>
+          <td class="px-4 py-2 font-medium">{{ s.titulo }}</td>
+          <td class="px-4 py-2">{{ s.categoria or '—' }}</td>
+          <td class="px-4 py-2 capitalize">{{ s.tipo }}</td>
+          <td class="px-4 py-2">${{ "%.2f"|format(s.costo) }}</td>
+          <td class="px-4 py-2 text-gray-600">{{ s.descripcion }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="bg-white p-6 rounded-lg shadow text-center text-gray-600">
+    No hay servicios registrados aún.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">🧾 Nuevo Recibo</h1>
+
+  <form method="POST" class="space-y-6 bg-white p-6 rounded-lg shadow">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Empresa *</label>
+      <select name="empresa_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        <option value="">— Selecciona una empresa —</option>
+        {% for e in empresas %}
+        <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Concepto *</label>
+      <input type="text" name="concepto" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Monto *</label>
+      <input type="number" name="monto" step="0.01" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Fecha de vencimiento *</label>
+      <input type="date" name="fecha_vencimiento" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Fecha de pago</label>
+      <input type="date" name="fecha_pago" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Estatus *</label>
+      <select name="estatus" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        <option value="pendiente">Pendiente</option>
+        <option value="pagado">Pagado</option>
+        <option value="vencido">Vencido</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Forma de pago</label>
+      <input type="text" name="forma_pago" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Notas</label>
+      <textarea name="notas" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+    </div>
+
+    <!-- 🔁 Servicios opcionales relacionados -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Servicios asociados</label>
+      <select name="servicios" multiple class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+        {% for s in servicios %}
+        <option value="{{ s.id }}">{{ s.titulo }} (${{ "%.2f"|format(s.costo) }})</option>
+        {% endfor %}
+      </select>
+      <p class="text-xs text-gray-500 mt-1">Puedes seleccionar uno o varios</p>
+    </div>
+
+    <div class="flex justify-end">
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Guardar recibo</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
