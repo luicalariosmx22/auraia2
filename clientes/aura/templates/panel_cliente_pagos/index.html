@@ -1,6 +1,27 @@
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
+<nav class="flex items-center gap-6 text-sm px-6 py-4 bg-white border-b border-gray-200 shadow-sm">
+  <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}" class="flex items-center text-purple-800 hover:underline">
+    👥 <span class="ml-1">Clientes</span>
+  </a>
+  <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}" class="flex items-center text-purple-600 hover:underline">
+    ➕ <span class="ml-1">Agregar cliente</span>
+  </a>
+  <a href="{{ url_for('panel_cliente_clientes_bp.nueva_empresa', nombre_nora=nombre_nora) }}" class="flex items-center text-blue-600 hover:underline">
+    🏢 <span class="ml-1">Agregar empresa</span>
+  </a>
+  <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}" class="flex items-center text-yellow-700 hover:underline">
+    📁 <span class="ml-1">Empresas</span>
+  </a>
+  <a href="{{ url_for('panel_cliente_pagos_servicios_bp.vista_servicios', nombre_nora=nombre_nora) }}" class="flex items-center text-green-700 hover:underline">
+    🧾 <span class="ml-1">Servicios</span>
+  </a>
+  <a href="{{ url_for('panel_cliente_pagos_bp.panel_cliente_pagos', nombre_nora=nombre_nora) }}" class="flex items-center text-indigo-700 hover:underline">
+    💳 <span class="ml-1">Recibos</span>
+  </a>
+</nav>
+
 <div class="py-12 px-4 sm:px-6 lg:px-8">
   <h1 class="text-2xl font-bold text-gray-800 mb-6">💳 Pagos registrados</h1>
 
