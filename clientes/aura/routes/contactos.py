@@ -16,7 +16,7 @@ panel_cliente_contactos_bp = Blueprint("panel_cliente_contactos", __name__)
 
 @panel_cliente_contactos_bp.route("/<nombre_nora>", methods=["GET", "POST"])
 def panel_contactos(nombre_nora):
-    if "user" not in session:
+    if not session.get("email"):
         return redirect(url_for("login.login"))
 
     try:
@@ -65,7 +65,7 @@ def panel_contactos(nombre_nora):
 
 @panel_cliente_contactos_bp.route("/<nombre_nora>/contactos/asignar_etiqueta", methods=["POST"])
 def asignar_etiqueta(nombre_nora):
-    if "user" not in session:
+    if not session.get("email"):
         return redirect(url_for("login.login"))
 
     contacto_id = request.form.get("contacto_id")
@@ -86,7 +86,7 @@ def asignar_etiqueta(nombre_nora):
 
 @panel_cliente_contactos_bp.route("/<nombre_nora>/contactos/quitar_etiqueta", methods=["POST"])
 def quitar_etiqueta(nombre_nora):
-    if "user" not in session:
+    if not session.get("email"):
         return redirect(url_for("login.login"))
 
     contacto_id = request.form.get("contacto_id")

@@ -18,7 +18,7 @@ def login_requerido(f):
     @wraps(f)
     def decorado(*args, **kwargs):
         # Verificar si el usuario está autenticado
-        if "user" not in session:
+        if not session.get("email"):
             return redirect(url_for("login.login"))
         return f(*args, **kwargs)
     return decorado

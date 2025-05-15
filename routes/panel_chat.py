@@ -76,7 +76,7 @@ Resumen:
 # Ruta para el panel principal
 @panel_chat_bp.route("/panel/chat/<nombre_nora>")
 def panel_chat(nombre_nora):
-    if "user" not in session:
+    if not session.get("email"):
         print("⚠️ Usuario no autenticado. Redirigiendo al login.")
         return redirect(url_for("google_login.login"))
 
@@ -126,7 +126,7 @@ def api_chat(telefono):
 # Ruta para el panel limitado (clientes)
 @panel_chat_bp.route("/panel_cliente")
 def panel_cliente():
-    if "user" not in session:
+    if not session.get("email"):
         print("⚠️ Usuario no autenticado. Redirigiendo al login.")
         return redirect(url_for("google_login.login"))
 

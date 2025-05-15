@@ -14,7 +14,7 @@ panel_cliente_conocimiento_bp = Blueprint("panel_cliente_conocimiento", __name__
 
 @panel_cliente_conocimiento_bp.route("/", methods=["GET", "POST"])
 def conocimiento_nora():
-    if "user" not in session:
+    if not session.get("email"):
         return redirect(url_for("login.login"))
     nombre_nora = request.path.split("/")[3]
     bloques_data = supabase.table("conocimiento").select("*").eq("nombre_nora", nombre_nora).order("fecha", desc=True).execute()

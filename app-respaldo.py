@@ -219,7 +219,7 @@ app.logger.info(f"📋 Total de rutas registradas: {len(list(app.url_map.iter_ru
 
 @app.route("/")
 def home():
-    if "user" not in session:
+    if not session.get("email"):
         return redirect(url_for("login.login"))
 
     if session.get("is_admin"):

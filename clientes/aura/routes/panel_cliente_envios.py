@@ -15,7 +15,7 @@ panel_cliente_envios_bp = Blueprint("panel_cliente_envios", __name__)
 
 @panel_cliente_envios_bp.route("/panel/cliente/<nombre_nora>/envios", methods=["GET", "POST"])
 def panel_envios(nombre_nora):
-    if "user" not in session:
+    if not session.get("email"):
         return redirect(url_for("login.login"))
 
     try:
@@ -60,7 +60,7 @@ def panel_envios(nombre_nora):
 
 @panel_cliente_envios_bp.route("/", methods=["GET", "POST"])
 def panel_envios():
-    if "user" not in session:
+    if not session.get("email"):
         return redirect(url_for("login.login"))
     nombre_nora = request.path.split("/")[3]
     resultados = supabase.table("envios_programados").select("*").eq("nombre_nora", nombre_nora).order("fecha_envio", desc=True).execute()

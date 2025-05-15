@@ -15,7 +15,7 @@ panel_cliente_respuestas_bp = Blueprint("panel_cliente_respuestas", __name__)
 
 @panel_cliente_respuestas_bp.route("/panel_cliente/respuestas/<nombre_nora>", methods=["GET", "POST"])
 def panel_respuestas(nombre_nora):
-    if "user" not in session:
+    if not session.get("email"):
         return redirect(url_for("login.login"))
 
     if request.method == "POST":
@@ -91,7 +91,7 @@ def panel_respuestas(nombre_nora):
 
 @panel_cliente_respuestas_bp.route("/", methods=["GET", "POST"])
 def panel_respuestas():
-    if "user" not in session:
+    if not session.get("email"):
         return redirect(url_for("login.login"))
     nombre_nora = request.path.split("/")[3]
     respuestas_data = supabase.table("respuestas_rapidas").select("*").eq("nombre_nora", nombre_nora).order("fecha", desc=True).execute()

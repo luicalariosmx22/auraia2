@@ -7,7 +7,7 @@ from clientes.aura.routes.panel_chat.blueprint import panel_chat_bp  # Updated i
 @panel_chat_bp.route("/panel/chat/<nombre_nora>", methods=["GET"])  # Confirm route
 def panel_chat(nombre_nora):
     print(f"📥 Recibida solicitud para panel de chat con nombre_nora: {nombre_nora}")
-    if "user" not in session:
+    if not session.get("email"):
         print("⚠️ Usuario no autenticado, redirigiendo a login.")
         return redirect(url_for("login.login"))
 
