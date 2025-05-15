@@ -73,4 +73,4 @@ def verificar_existente():
         flash("Sin errores detectados por IA 🎉", "success")
     else:
         flash(f"Errores: {', '.join(resultado['errores'])}", "error")
-    return redirect(url_for("admin_modulos.index")
+    return redirect(url_for("admin_modulos.index"))

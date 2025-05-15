@@ -6,6 +6,7 @@ from clientes.aura.routes.admin_nora import admin_nora_bp
 from clientes.aura.routes.admin_nora_dashboard import admin_nora_dashboard_bp
 from clientes.aura.routes.admin_debug_master import admin_debug_master_bp
 from clientes.aura.routes.admin_actualizar_contactos import admin_actualizar_contactos_bp
+from clientes.aura.routes.admin_modulos.creador_modulos import admin_modulos_bp
 # from clientes.aura.routes.admin_envios_programados import envios_programados_bp  # ❌ Comentado
 # from clientes.aura.routes.admin_modulos.creador_modulos import admin_modulos_bp
 

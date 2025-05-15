@@ -20,6 +20,7 @@ def dashboard_admin():
 
     total_noras = 0
     total_errores = 0
+    total_modulos = 0
     lista_noras = []
 
     # Contar Noras desde Supabase
@@ -50,12 +51,22 @@ def dashboard_admin():
     except Exception as e:
         print(f"❌ Error al obtener errores: {str(e)}")
 
+    # Contar módulos disponibles
+    try:
+        mod_response = supabase.table("modulos_disponibles").select("id").execute()
+        if mod_response and mod_response.data:
+            total_modulos = len(mod_response.data)
+            print(f"✅ Total de módulos: {total_modulos}")
+    except Exception as e:
+        print(f"❌ Error al contar módulos: {str(e)}")
+
     print("✅ Mostrando admin_dashboard.html con datos")
 
     return render_template("admin_dashboard.html",
         total_noras=total_noras,
         total_errores=total_errores,
         ultimo_deployment="hace 5 minutos",
+        total_modulos=total_modulos,
         noras=lista_noras
     )
 

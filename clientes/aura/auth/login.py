@@ -1,63 +1,51 @@
 from flask import Blueprint, redirect, request, session, url_for, render_template
+from supabase import create_client
 from requests_oauthlib import OAuth2Session
 import os
-from clientes.aura.utils.supabase_client import supabase
 
-print("DEBUG: Este es el archivo login.py que se está ejecutando")
-
-# Blueprint sin prefijo para que funcione /login y /login/google/callback
 login_bp = Blueprint("login", __name__)
 
-# Cargar variables de entorno
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")  # Usa la variable de entorno aquí
+REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 
-SCOPE = [
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/userinfo.profile",
-    "openid"
-]
+def get_google_auth(token=None, state=None):
+    if token:
+        return OAuth2Session(GOOGLE_CLIENT_ID, token=token)
+    if state:
+        return OAuth2Session(GOOGLE_CLIENT_ID, state=state, redirect_uri=REDIRECT_URI)
 
-AUTHORIZATION_BASE_URL = "https://accounts.google.com/o/oauth2/auth"
-TOKEN_URL = "https://accounts.google.com/o/oauth2/token"
-USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
+    scope = [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "openid",
+    ]
+    return OAuth2Session(GOOGLE_CLIENT_ID, scope=scope, redirect_uri=REDIRECT_URI)
 
-# ========= Mostrar pantalla login =========
 @login_bp.route("/login")
-def login_screen():
-    return render_template("login_google.html")
+def login():
+    return render_template("login.html")
 
-# ========= Iniciar login =========
 @login_bp.route("/login/start")
-def login_google():
-    print("DEBUG: Entrando a login_google")
-    
-    oauth = OAuth2Session(
-        GOOGLE_CLIENT_ID,
-        redirect_uri=GOOGLE_REDIRECT_URI,  # Usa la variable de entorno aquí
-        scope=SCOPE
-    )
+def login_start():
+    google = get_google_auth()
+    auth_url, state = google.authorization_url(
+        "https://accounts.google.com/o/oauth2/auth",
+        access_type="offline", prompt="select_account")
+    session["state"] = state
+    return redirect(auth_url)
 
-    authorization_url, state = oauth.authorization_url(
-        AUTHORIZATION_BASE_URL,
-        access_type="offline",
-        prompt="select_account"
-    )
-
-    print(f"DEBUG: URL de autenticación generada: {authorization_url}")
-    session["oauth_state"] = state
-    return redirect(authorization_url)
-
-# ========= Callback corregido =========
 @login_bp.route("/login/google/callback")
 def login_callback():
     try:
-        from clientes.aura.utils.google_auth import get_google_auth
         google = get_google_auth(state=session.get("state"))
         token = google.fetch_token(
             "https://accounts.google.com/o/oauth2/token",
-            client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+            client_secret=GOOGLE_CLIENT_SECRET,
             authorization_response=request.url,
         )
         session["token"] = token
@@ -73,7 +61,7 @@ def login_callback():
 
         datos = result.data[0]
 
-        session.permanent = True  # ✅ ACTIVA SESIÓN PERMANENTE
+        session.permanent = True  # 🔐 mantiene la sesión entre vistas
 
         session["user"] = {
             "name": user_info.get("name"),
