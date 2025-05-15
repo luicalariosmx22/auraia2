@@ -36,4 +36,10 @@ def panel_cliente_pagos(nombre_nora):
         p["cliente_nombre"] = clientes.get(p["cliente_id"], "—")
         p["empresa_nombre"] = empresas.get(p["empresa_id"], "—")
 
-    return render_template("panel_cliente_pagos/index.html", pagos=pagos, nombre_nora=nombre_nora)
+    # Pasamos modulo_activo para que el encabezado de base_cliente genere el menú contextual
+    return render_template(
+        "panel_cliente_pagos/index.html",
+        pagos=pagos,
+        nombre_nora=nombre_nora,
+        modulo_activo="pagos",
+    )

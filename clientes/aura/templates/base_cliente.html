@@ -1,3 +1,4 @@
+# ✅ Archivo: clientes/aura/templates/base_cliente.html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,38 +10,41 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-  <!-- ✅ Menú superior dinámico -->
+  <!-- 🔹 Encabezado con logo + menú contextual -->
   <header class="bg-white border-b border-gray-200 shadow-sm py-4 px-6 flex justify-between items-center">
-    <!-- Logo y navegación -->
     <div class="flex items-center gap-6">
       <img src="/static/images/logo.png" alt="Nora Logo" class="h-8">
+
       {% if modulo_activo == 'clientes' %}
         <nav class="flex gap-4 text-sm font-medium text-gray-700">
-          <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">👥 Clientes</a>
-          <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">➕ Agregar cliente</a>
-          <a href="{{ url_for('panel_cliente_clientes_bp.nueva_empresa', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">🏢 Agregar empresa</a>
-          <a href="/panel_cliente/{{ nombre_nora }}/clientes/empresas">📁 Empresas</a>  {# ✅ RUTA CORRECTA #}
+          <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}"  class="hover:text-blue-600">👥 Clientes</a>
+          <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente',  nombre_nora=nombre_nora) }}"  class="hover:text-blue-600">➕ Agregar cliente</a>
+          <a href="{{ url_for('panel_cliente_clientes_bp.nueva_empresa',  nombre_nora=nombre_nora) }}"  class="hover:text-blue-600">🏢 Agregar empresa</a>
+          <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">📁 Empresas</a>
         </nav>
+
       {% elif modulo_activo == 'pagos' %}
         <nav class="flex gap-4 text-sm font-medium text-gray-700">
-          <a href="/panel_cliente/{{ nombre_nora }}/pagos" class="hover:text-blue-600">💳 Pagos</a>
-          <a href="/panel_cliente/{{ nombre_nora }}/pagos/nueva" class="hover:text-blue-600">➕ Crear orden</a>
+          <a href="{{ url_for('panel_cliente_pagos.panel_cliente_pagos', nombre_nora=nombre_nora) }}"                     class="hover:text-blue-600">💳 Recibos</a>
+          <a href="{{ url_for('panel_cliente_pagos_servicios.servicios_lista', nombre_nora=nombre_nora) }}"              class="hover:text-green-600">🧾 Servicios</a>
+          <a href="{{ url_for('panel_cliente_pagos_servicios.nuevo_servicio', nombre_nora=nombre_nora) }}"               class="hover:text-blue-600">➕ Agregar servicio</a>
+          <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}"                   class="hover:text-purple-600">👤 Clientes</a>
+          <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}"                   class="hover:text-yellow-600">🏢 Empresas</a>
         </nav>
+
       {% elif modulo_activo == 'chat' %}
         <nav class="flex gap-4 text-sm font-medium text-gray-700">
-          <a href="/panel_cliente/{{ nombre_nora }}/panel_chat" class="hover:text-blue-600">💬 Chat</a>
+          <a href="{{ url_for('panel_cliente_panel_chat.panel_chat', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">💬 Chat</a>
         </nav>
       {% endif %}
     </div>
 
-    <!-- Regresar n -->
     <div class="flex items-center gap-4 text-sm">
       <a href="/panel_cliente/{{ nombre_nora }}" class="text-gray-600 hover:text-blue-600">← Regresar al panel</a>
       <a href="/logout" class="text-red-500 hover:underline">Cerrar sesión</a>
     </div>
   </header>
 
-  <!-- ✅ Contenido del módulo -->
   <main class="container py-10">
     {% block contenido %}{% endblock %}
   </main>
