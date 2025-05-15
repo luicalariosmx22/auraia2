@@ -1,69 +1,65 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for
 from clientes.aura.utils.login_required import login_required
-import textwrap
+from clientes.aura.utils.ai_modulos import sugerir_modulo, validar_modulo
+from clientes.aura.utils.supabase_client import supabase
 from pathlib import Path
-from supabase import create_client
-import os
+import textwrap
 
-admin_modulos_bp = Blueprint("admin_modulos", __name__)
-MODULOS_PATH = Path("/path/to/modulos")
+admin_modulos_bp = Blueprint(
+    "admin_modulos",
+    __name__,
+    template_folder="../../../templates/admin_modulos",
+)
 
-# ✅ Usar variables reales de entorno definidas en Railway
-supabase_url = os.getenv("SUPABASE_URL")
-supabase_key = os.getenv("SUPABASE_KEY")
+# Directorio donde se crean los nuevos módulos
+MODULOS_PATH = Path("clientes/aura/routes")
 
-if not supabase_url or not supabase_key:
-    raise Exception("❌ Variables SUPABASE_URL o SUPABASE_KEY no definidas.")
+# ──────────────────────────────────────────────────────────────────────────────
+# Rutas
+# ──────────────────────────────────────────────────────────────────────────────
 
-supabase = create_client(supabase_url, supabase_key)
-
-def sugerir_modulo(nombre_modulo, descripcion):
-    # Implementación de la función para sugerir módulo
-    pass
-
-def validar_modulo(codigo):
-    # Implementación de la función para validar módulo
-    pass
-
-@admin_modulos_bp.route("/admin/modulos", methods=["GET"])
+@admin_modulos_bp.route("/", methods=["GET"], strict_slashes=False)
+@admin_modulos_bp.route("", methods=["GET"], strict_slashes=False)
 @login_required
-def ver_modulos():
-    # ejemplo para mostrar módulos disponibles
+def index():
+    """Dashboard de módulos disponibles."""
     modulos = supabase.table("modulos_disponibles").select("*").execute().data
-    return render_template("admin_modulos/ver_modulos.html", modulos=modulos)
+    return render_template("admin_modulos/index.html", modulos=modulos)
 
 @admin_modulos_bp.route("/generar", methods=["POST"])
 @login_required
 def generar():
     nombre_modulo = request.form.get("nombre_modulo", "").strip().lower()
-    descripcion  = request.form.get("descripcion", "").strip()
-    icono        = request.form.get("icono", "").strip() or "🧩"
+    descripcion = request.form.get("descripcion", "").strip()
+    icono = request.form.get("icono", "").strip() or "🧩"
+
     if not nombre_modulo:
         flash("Nombre de módulo vacío", "error")
         return redirect(url_for("admin_modulos.index"))
 
-    # ✔️ IA sugiere esqueleto
+    # 1️⃣ Solicitar scaffold a la IA
     propuesta = sugerir_modulo(nombre_modulo, descripcion)
     if not propuesta.get("ok"):
         flash("IA no pudo generar módulo", "error")
         return redirect(url_for("admin_modulos.index"))
 
     codigo = propuesta["sugerencias"][0]
-    # ✔️ IA auto-valida el snippet
+
+    # 2️⃣ Validar código sugerido
     validacion = validar_modulo(codigo)
     if not validacion.get("ok"):
         flash(f"Errores IA: {', '.join(validacion['errores'])}", "error")
         return redirect(url_for("admin_modulos.index"))
 
-    # ✔️ Guarda archivo scaffold (solo si no existe)
+    # 3️⃣ Guardar archivo si la carpeta no existe
     carpeta = MODULOS_PATH / f"cliente_{nombre_modulo}"
     archivo_py = carpeta / f"panel_cliente_{nombre_modulo}.py"
     if not carpeta.exists():
-        carpeta.mkdir(parents=True, exist_ok=True)
+        carpeta.mkdir(parents=True)
         archivo_py.write_text(textwrap.dedent(codigo))
 
-    # ✔️ Registra módulo en Supabase (modulos_disponibles)
-    supabase.table("modulos_disponibles").insert({
+    # 4️⃣ Upsert en modulos_disponibles
+    supabase.table("modulos_disponibles").upsert({
         "nombre": nombre_modulo,
         "descripcion": descripcion or f"Módulo {nombre_modulo}",
         "icono": icono,
@@ -77,7 +73,10 @@ def generar():
 @login_required
 def verificar_existente():
     nombre_modulo = request.form.get("nombre_modulo_verificar", "").strip().lower()
-    archivo = MODULOS_PATH / f"panel_cliente_{nombre_modulo}" / f"vista_panel_cliente_{nombre_modulo}.py"
+    archivo = (
+        MODULOS_PATH / f"panel_cliente_{nombre_modulo}" / f"vista_panel_cliente_{nombre_modulo}.py"
+    )
+
     if not archivo.exists():
         flash("Módulo no encontrado", "error")
         return redirect(url_for("admin_modulos.index"))

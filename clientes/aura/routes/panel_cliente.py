@@ -33,7 +33,7 @@ def crear_blueprint_panel_cliente(nombre_nora):
         print(f"🧪 Entrando a configuracion_cliente de {nombre_nora}")
 
         if "user" not in session:
-            return redirect(url_for("login.login_google"))
+            return redirect(url_for("login.login"))
 
         try:
             # 1. Configuración de la Nora
