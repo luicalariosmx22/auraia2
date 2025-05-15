@@ -4,7 +4,7 @@ from supabase import create_client
 import os
 import json
 
-vista_recibo_pago_bp = Blueprint("vista_recibo_pago", __name__)
+vista_recibo_pago_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
 @vista_recibo_pago_bp.route("/panel_cliente/<nombre_nora>/pagos/<pago_id>/recibo", methods=["GET"])
