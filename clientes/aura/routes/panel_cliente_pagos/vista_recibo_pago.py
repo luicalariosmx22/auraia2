@@ -1,6 +1,7 @@
 # ✅ Archivo: clientes/aura/routes/panel_cliente_pagos/vista_recibo_pago.py
 from flask import Blueprint, render_template, abort, session, redirect
 from supabase import create_client
+from clientes.aura.utils.login_required import login_required
 import os
 import json
 
@@ -8,9 +9,8 @@ vista_recibo_pago_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
 @vista_recibo_pago_bp.route("/<pago_id>/recibo", methods=["GET"])
+@login_required
 def ver_recibo_pago(nombre_nora, pago_id):
-    if not session.get("email"): return redirect("/login")
-
     config = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).limit(1).execute()
     modulos = config.data[0]["modulos"] if config.data else []
     if "pagos" not in modulos:
