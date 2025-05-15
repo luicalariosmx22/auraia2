@@ -1,13 +1,20 @@
-from flask import Blueprint, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from clientes.aura.utils.login_required import login_required
 import textwrap
 from pathlib import Path
 from supabase import create_client
+import os
 
 admin_modulos_bp = Blueprint("admin_modulos", __name__)
 MODULOS_PATH = Path("/path/to/modulos")
-supabase_url = "your_supabase_url"
-supabase_key = "your_supabase_key"
+
+# ✅ Usar variables reales de entorno definidas en Railway
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_KEY")
+
+if not supabase_url or not supabase_key:
+    raise Exception("❌ Variables SUPABASE_URL o SUPABASE_KEY no definidas.")
+
 supabase = create_client(supabase_url, supabase_key)
 
 def sugerir_modulo(nombre_modulo, descripcion):
@@ -17,6 +24,13 @@ def sugerir_modulo(nombre_modulo, descripcion):
 def validar_modulo(codigo):
     # Implementación de la función para validar módulo
     pass
+
+@admin_modulos_bp.route("/admin/modulos", methods=["GET"])
+@login_required
+def ver_modulos():
+    # ejemplo para mostrar módulos disponibles
+    modulos = supabase.table("modulos_disponibles").select("*").execute().data
+    return render_template("admin_modulos/ver_modulos.html", modulos=modulos)
 
 @admin_modulos_bp.route("/generar", methods=["POST"])
 @login_required
