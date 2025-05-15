@@ -85,8 +85,24 @@ def nuevo_recibo(nombre_nora):
                 .execute()
                 .data
         )
-    servicios  = supa.table("servicios").select("id,nombre,costo,categoria").eq("nombre_nora", nombre_nora).execute().data
-    categorias = sorted(set(s["categoria"] for s in servicios))
+    # La tabla real trae `titulo` (no `nombre`). Normalizamos a la clave `nombre`
+    servicios_raw = (
+        supa.table("servicios")
+            .select("id,titulo,costo,categoria")
+            .eq("nombre_nora", nombre_nora)
+            .execute()
+            .data
+    )
+    servicios   = [
+        {
+            "id":        s["id"],
+            "nombre":    s["titulo"],
+            "costo":     s["costo"],
+            "categoria": s.get("categoria") or "",
+        }
+        for s in servicios_raw
+    ]
+    categorias = sorted({s["categoria"] for s in servicios if s["categoria"]})
 
     return render_template(
         "recibo_nuevo.html",
