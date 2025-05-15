@@ -19,7 +19,7 @@
           <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">👥 Clientes</a>
           <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">➕ Agregar cliente</a>
           <a href="{{ url_for('panel_cliente_clientes_bp.nueva_empresa', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">🏢 Agregar empresa</a>
-          <a href="/panel_cliente/{{ nombre_nora }}/empresas" class="hover:text-blue-600">📁 Empresas</a>
+          <a href="/panel_cliente/{{ nombre_nora }}/clientes/empresas">📁 Empresas</a>  {# ✅ RUTA CORRECTA #}
         </nav>
       {% elif modulo_activo == 'pagos' %}
         <nav class="flex gap-4 text-sm font-medium text-gray-700">

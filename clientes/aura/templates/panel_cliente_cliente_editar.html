@@ -1,26 +1,26 @@
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
-<div class="max-w-xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
+<div class="max-w-2xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
   <h2 class="text-xl font-bold mb-4">✏️ Editar cliente</h2>
 
-  <form method="POST">
-    <div class="mb-4">
+  <form method="POST" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Nombre y correo -->
+    <div class="col-span-2">
       <label class="block text-sm font-medium text-gray-700">Nombre del cliente *</label>
       <input type="text" name="nombre_cliente" value="{{ cliente.nombre_cliente }}" required class="input">
     </div>
-
-    <div class="mb-4">
+    <div class="col-span-2">
       <label class="block text-sm font-medium text-gray-700">Correo electrónico *</label>
       <input type="email" name="email" value="{{ cliente.email }}" required class="input">
     </div>
 
-    <div class="mb-4">
+    <!-- Teléfono y tipo -->
+    <div>
       <label class="block text-sm font-medium text-gray-700">Teléfono</label>
       <input type="text" name="telefono" value="{{ cliente.telefono or '' }}" class="input">
     </div>
-
-    <div class="mb-4">
+    <div>
       <label class="block text-sm font-medium text-gray-700">Tipo</label>
       <select name="tipo" class="input">
         <option value="">-- Sin tipo --</option>
@@ -30,7 +30,59 @@
       </select>
     </div>
 
-    <div class="mt-6 flex gap-4">
+    <!-- Ciudad, estado, país -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Ciudad</label>
+      <input type="text" name="ciudad" value="{{ cliente.ciudad or '' }}" class="input">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Estado</label>
+      <input type="text" name="estado" value="{{ cliente.estado or '' }}" class="input">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">País</label>
+      <input type="text" name="pais" value="{{ cliente.pais or '' }}" class="input">
+    </div>
+
+    <!-- Puesto y género -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Puesto</label>
+      <input type="text" name="puesto" value="{{ cliente.puesto or '' }}" class="input">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Género</label>
+      <select name="genero" class="input">
+        <option value="">-- Seleccionar --</option>
+        <option value="masculino" {% if cliente.genero == 'masculino' %}selected{% endif %}>Masculino</option>
+        <option value="femenino" {% if cliente.genero == 'femenino' %}selected{% endif %}>Femenino</option>
+        <option value="otro" {% if cliente.genero == 'otro' %}selected{% endif %}>Otro</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Cumpleaños</label>
+      <input type="date" name="cumple" value="{{ cliente.cumple or '' }}" class="input">
+    </div>
+
+    <!-- Medio de contacto -->
+    <div class="col-span-2">
+      <label class="block text-sm font-medium text-gray-700">¿Cómo te contactó?</label>
+      <input type="text" name="medio_contact" value="{{ cliente.medio_contact or '' }}" class="input">
+    </div>
+
+    <!-- Notas -->
+    <div class="col-span-2">
+      <label class="block text-sm font-medium text-gray-700">Notas</label>
+      <textarea name="notas" rows="3" class="input">{{ cliente.notas or '' }}</textarea>
+    </div>
+
+    <!-- Acepta promociones -->
+    <div class="col-span-2 flex items-center mt-2">
+      <input type="checkbox" name="acepta_promo" class="mr-2" {% if cliente.acepta_promo %}checked{% endif %}>
+      <label class="text-sm text-gray-700">Acepta promociones</label>
+    </div>
+
+    <!-- Botones -->
+    <div class="col-span-2 mt-6 flex gap-4">
       <button type="submit" class="btn-primary">💾 Guardar cambios</button>
       <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}"
          class="text-sm text-gray-600 hover:underline">← Cancelar</a>
