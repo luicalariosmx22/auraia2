@@ -6,6 +6,7 @@ import os, shutil, subprocess, tempfile
 from pathlib import Path
 from clientes.aura.utils.login_required import login_required
 from weasyprint import HTML
+from fpdf import FPDF
 
 panel_cliente_pagos_recibo_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
 
@@ -40,7 +41,7 @@ def ver_recibo(nombre_nora, pago_id):
 @login_required
 def exportar_pdf(nombre_nora, pago_id):
     """
-    Genera un PDF del recibo usando WeasyPrint (solo-Python, sin wkhtmltopdf).
+    Genera un PDF del recibo usando fpdf2 (sin dependencias nativas).
     """
     pago = (
         supabase.table("pagos")
@@ -62,22 +63,40 @@ def exportar_pdf(nombre_nora, pago_id):
             .data
     )
 
-    # Renderizamos HTML en string
-    html = render_template(
-        "panel_cliente_pagos/recibo_pdf.html",
-        pago=pago,
-        items=items,
-        nombre_nora=nombre_nora,
-    )
+    # ---------- Generar PDF con fpdf2 (no libs nativas) ----------
+    pdf = FPDF(format="Letter", unit="mm")
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
 
-    # ---------- Generar PDF con WeasyPrint (solo-Python, sin wkhtmltopdf) ----------
-    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_pdf:
-        HTML(string=html, base_url=request.host_url).write_pdf(tmp_pdf.name)
-        pdf_bytes = tmp_pdf.read()
-        tmp_path = tmp_pdf.name
-    # limpiamos
-    shutil.safe_remove = getattr(shutil, "safe_remove", lambda p: os.remove(p) if os.path.exists(p) else None)
-    shutil.safe_remove(tmp_path)
+    # Cabecera
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 10, f"Recibo #{pago_id[:8]}", ln=True)
+    pdf.set_font("Helvetica", size=11)
+    pdf.cell(0, 8, f"Empresa: {pago['empresa_id']}", ln=True)
+    pdf.cell(0, 8, f"Cliente: {pago['cliente_id']}", ln=True)
+    pdf.cell(0, 8, f"Concepto: {pago['concepto']}", ln=True)
+    pdf.cell(0, 8, f"Fecha venc.: {pago['fecha_vencimiento']}", ln=True)
+    pdf.ln(4)
+
+    # Tabla de ítems
+    if items:
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.cell(100, 8, "Servicio", border=1)
+        pdf.cell(25, 8, "Cant.", border=1, align="R")
+        pdf.cell(35, 8, "Costo", border=1, align="R")
+        pdf.ln()
+        pdf.set_font("Helvetica", size=11)
+        for it in items:
+            pdf.cell(100, 8, it["nombre"], border=1)
+            pdf.cell(25, 8, f"{it['cantidad']:.2f}", border=1, align="R")
+            pdf.cell(35, 8, f"${it['costo_unit']:.2f}", border=1, align="R")
+            pdf.ln()
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.cell(125, 8, "Total", border=1)
+        pdf.cell(35, 8, f"${pago['monto']:.2f}", border=1, align="R")
+        pdf.ln()
+
+    pdf_bytes = pdf.output(dest="S").encode("latin1")
 
     response = make_response(pdf_bytes)
     response.headers["Content-Type"] = "application/pdf"
