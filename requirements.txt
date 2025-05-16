@@ -14,7 +14,6 @@ apscheduler==3.10.4
 dnspython==2.1.0
 gevent==24.11.1
 Cython==0.29.23
-weasyprint==60.2
 cffi>=1.15.1
 pdfkit==1.0.0
 PyPDF2>=3.0.0
