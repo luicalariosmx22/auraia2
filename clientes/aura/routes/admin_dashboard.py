@@ -5,6 +5,7 @@ from supabase import create_client
 from dotenv import load_dotenv
 import os
 from clientes.aura.utils.verificador_rutas_runtime import verificar_rutas_vs_html
+import traceback
 
 # Configurar Supabase
 load_dotenv()
@@ -41,6 +42,7 @@ def dashboard_admin():
             print(f"✅ Total de Noras encontradas: {total_noras}")
     except Exception as e:
         print(f"❌ Error al obtener Noras: {str(e)}")
+        traceback.print_exc()
 
     # Contar errores desde Supabase
     try:
