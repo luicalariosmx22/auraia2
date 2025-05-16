@@ -23,4 +23,4 @@ reportlab==3.6.13
 httpx==0.23.3
 postgrest==0.10.6
 pydantic==1.10.13
-httpcore==0.17.3
+httpcore==0.16.3
