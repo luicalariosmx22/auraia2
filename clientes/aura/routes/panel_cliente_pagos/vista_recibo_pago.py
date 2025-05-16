@@ -1,12 +1,11 @@
 # ✅ Archivo: clientes/aura/routes/panel_cliente_pagos/vista_recibo_pago.py
-import pdfkit
-from flask import Blueprint, render_template, session, redirect, url_for, make_response, request, flash
+# 👉 Protegido contra errores de importación si fpdf2 no está instalado
+
+from flask import Blueprint, Response, render_template, session, redirect, url_for, make_response, request, flash
 from supabase import create_client
 import os, shutil, subprocess, tempfile
 from pathlib import Path
 from clientes.aura.utils.login_required import login_required
-from fpdf import FPDF
-from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileWriter
 
 panel_cliente_pagos_recibo_bp = Blueprint("panel_cliente_pagos_recibo", __name__)
@@ -14,6 +13,12 @@ panel_cliente_pagos_recibo_bp = Blueprint("panel_cliente_pagos_recibo", __name__
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+try:
+    from fpdf2 import FPDF
+except ImportError as e:
+    print("⚠️ No se pudo importar 'fpdf2':", e)
+    FPDF = None
 
 @panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>")
 @login_required
@@ -145,3 +150,19 @@ def enviar_whatsapp(nombre_nora, pago_id):
 @login_required
 def editar_recibo(nombre_nora, pago_id):
     return redirect(url_for("panel_cliente_pagos_nuevo.nuevo_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
+
+@panel_cliente_pagos_recibo_bp.route("/recibo-pago/<cliente_id>")
+def generar_recibo(cliente_id):
+    if FPDF is None:
+        return Response("⚠️ El módulo fpdf2 no está disponible en el entorno. Verifica tu requirements.txt.", status=500)
+
+    # 🧾 Crear PDF ficticio como ejemplo
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt=f"Recibo de Pago - Cliente ID: {cliente_id}", ln=True, align="C")
+
+    response = Response(pdf.output(dest="S").encode("latin1"))
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f"inline; filename=recibo_{cliente_id}.pdf"
+    return response
