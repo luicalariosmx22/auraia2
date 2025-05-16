@@ -108,8 +108,11 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 from clientes.aura.routes.panel_cliente_pagos.vista_recibo_nuevo import panel_cliente_pagos_nuevo_bp
                 safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
                 # Registro del blueprint de recibos (detalle y PDF)
-                from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
-                safe_register_blueprint(app, panel_cliente_pagos_recibo_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
+                try:
+                    from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
+                    app.register_blueprint(panel_cliente_pagos_recibo_bp)
+                except Exception as e:
+                    print(f"❌ Error al registrar blueprint vista_recibo_pago: {e}")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")
