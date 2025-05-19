@@ -26,7 +26,7 @@ def get_google_auth(token=None, state=None):
     ]
     return OAuth2Session(GOOGLE_CLIENT_ID, scope=scope, redirect_uri=REDIRECT_URI)
 
-@login_bp.route("/login")
+@login_bp.route("/")
 def login():
     return render_template("login.html")
 
