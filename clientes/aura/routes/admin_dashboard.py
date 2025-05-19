@@ -46,7 +46,10 @@ def dashboard_admin():
             ]
             print(f"✅ Total de Noras encontradas: {total_noras}")
     except Exception as e:
-        print(f"❌ Error al obtener Noras: {str(e)}")
+        import socket
+        import ssl
+        print("❌ Error general al conectar con Supabase:", str(e))
+        print("🔧 Tipo de excepción:", type(e))
         traceback.print_exc()
 
     # Contar errores desde Supabase
