@@ -200,13 +200,11 @@ def create_app(config_class=Config):
     # --- Rutas de Nivel de Aplicación ---
     print("Definiendo rutas de nivel de aplicación...")
     @app.route("/")
-    def home():
-        if "user" not in flask_session:
-            return redirect(url_for("login.login"))
-        if flask_session.get("is_admin"):
-            return redirect(url_for("admin_nora_dashboard_bp.dashboard_admin"))
-        else:
-            return redirect(url_for("panel_cliente_bp.configuracion_cliente", nombre_nora=flask_session.get("nombre_nora", "aura")))
+    def index():
+        from flask import session, redirect, url_for
+        if "user" in session:
+            return redirect("/admin")
+        return redirect("/login")
 
     @app.route("/logout")
     def logout():
