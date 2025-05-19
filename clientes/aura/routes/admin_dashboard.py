@@ -1,17 +1,9 @@
 # clientes/aura/routes/admin_dashboard.py
 
-from flask import Blueprint, render_template, session, redirect, url_for, current_app
-from supabase import create_client
-from dotenv import load_dotenv
-import os
+from flask import Blueprint, render_template, current_app
+from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.verificador_rutas_runtime import verificar_rutas_vs_html
 import traceback
-
-# Configurar Supabase
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 admin_dashboard_bp = Blueprint("admin_dashboard", __name__)
 
@@ -24,35 +16,28 @@ def dashboard_admin():
     total_modulos = 0
     lista_noras = []
 
-    # Contar Noras desde Supabase
+    # Obtener Noras desde Supabase
     try:
-        response = supabase.table("configuracion_bot").select("nombre_nora, ia_activada, modulos, updated_at").execute()
-        print(f"📡 Respuesta Supabase (configuracion_bot): {response}")
-        
+        response = supabase.table("configuracion_bot").select("nombre_nora, ia_activa, modulos, updated_at").execute()
         if not response or not response.data:
             print("❌ No se encontraron Noras.")
         else:
-            data = response.data
-            print(f"📦 Datos obtenidos: {data}")
-            total_noras = len(data)
+            total_noras = len(response.data)
             lista_noras = [
                 {
                     "nombre": item.get("nombre_nora", "Sin nombre"),
-                    "ia_activada": item.get("ia_activada", False),
+                    "ia_activada": item.get("ia_activa", False),  # <- campo corregido
                     "modulos": item.get("modulos", []) or [],
                     "ultima_actualizacion": item.get("updated_at", "Sin fecha")
                 }
-                for item in data
+                for item in response.data
             ]
             print(f"✅ Total de Noras encontradas: {total_noras}")
     except Exception as e:
-        import socket
-        import ssl
-        print("❌ Error general al conectar con Supabase:", str(e))
-        print("🔧 Tipo de excepción:", type(e))
+        print(f"❌ Error al obtener Noras: {str(e)}")
         traceback.print_exc()
 
-    # Contar errores desde Supabase
+    # Obtener errores
     try:
         errores = supabase.table("logs_errores").select("*").execute()
         if errores and errores.data:
@@ -61,7 +46,7 @@ def dashboard_admin():
     except Exception as e:
         print(f"❌ Error al obtener errores: {str(e)}")
 
-    # Contar módulos disponibles
+    # Obtener módulos disponibles
     try:
         mod_response = supabase.table("modulos_disponibles").select("id").execute()
         if mod_response and mod_response.data:
@@ -71,7 +56,6 @@ def dashboard_admin():
         print(f"❌ Error al contar módulos: {str(e)}")
 
     print("✅ Mostrando admin_dashboard.html con datos")
-
     return render_template("admin_dashboard.html",
         total_noras=total_noras,
         total_errores=total_errores,
