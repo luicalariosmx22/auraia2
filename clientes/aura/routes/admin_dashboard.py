@@ -26,19 +26,24 @@ def dashboard_admin():
 
     # Contar Noras desde Supabase
     try:
-        response = supabase.table("configuracion_bot").select("*").execute()
+        response = supabase.table("configuracion_bot").select("nombre_nora, ia_activada, modulos, updated_at").execute()
+        print(f"📡 Respuesta Supabase (configuracion_bot): {response}")
+        
         if not response or not response.data:
             print("❌ No se encontraron Noras.")
         else:
-            total_noras = len(response.data)
-            lista_noras = []
-            for item in response.data:
-                lista_noras.append({
+            data = response.data
+            print(f"📦 Datos obtenidos: {data}")
+            total_noras = len(data)
+            lista_noras = [
+                {
                     "nombre": item.get("nombre_nora", "Sin nombre"),
                     "ia_activada": item.get("ia_activada", False),
-                    "modulos": item.get("modulos", []) or [],  # Ensure modulos defaults to an empty list
+                    "modulos": item.get("modulos", []) or [],
                     "ultima_actualizacion": item.get("updated_at", "Sin fecha")
-                })
+                }
+                for item in data
+            ]
             print(f"✅ Total de Noras encontradas: {total_noras}")
     except Exception as e:
         print(f"❌ Error al obtener Noras: {str(e)}")
