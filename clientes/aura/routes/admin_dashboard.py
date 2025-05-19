@@ -1,4 +1,5 @@
 # clientes/aura/routes/admin_dashboard.py
+# 👉 Consulta corregida con campo válido 'ia_activa' y 'updated_at' confirmado en Supabase
 
 from flask import Blueprint, render_template, current_app
 from clientes.aura.utils.supabase_client import supabase
@@ -26,7 +27,7 @@ def dashboard_admin():
             lista_noras = [
                 {
                     "nombre": item.get("nombre_nora", "Sin nombre"),
-                    "ia_activada": item.get("ia_activa", False),  # <- campo corregido
+                    "ia_activada": item.get("ia_activa", False),
                     "modulos": item.get("modulos", []) or [],
                     "ultima_actualizacion": item.get("updated_at", "Sin fecha")
                 }
@@ -37,7 +38,7 @@ def dashboard_admin():
         print(f"❌ Error al obtener Noras: {str(e)}")
         traceback.print_exc()
 
-    # Obtener errores
+    # Obtener errores desde Supabase
     try:
         errores = supabase.table("logs_errores").select("*").execute()
         if errores and errores.data:
