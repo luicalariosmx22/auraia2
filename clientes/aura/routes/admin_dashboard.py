@@ -19,7 +19,7 @@ def dashboard_admin():
 
     # Obtener Noras desde Supabase
     try:
-        response = supabase.table("configuracion_bot").select("nombre_nora, ia_activa, modulos, updated_at").execute()
+        response = supabase.table("configuracion_bot").select("nombre_nora, ia_activa, modulos").execute()
         if not response or not response.data:
             print("❌ No se encontraron Noras.")
         else:
@@ -29,7 +29,7 @@ def dashboard_admin():
                     "nombre": item.get("nombre_nora", "Sin nombre"),
                     "ia_activada": item.get("ia_activa", False),
                     "modulos": item.get("modulos", []) or [],
-                    "ultima_actualizacion": item.get("updated_at", "Sin fecha")
+                    "ultima_actualizacion": "No disponible vía API"
                 }
                 for item in response.data
             ]
