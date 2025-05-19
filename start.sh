@@ -30,6 +30,6 @@ exec gunicorn \
   --error-logfile - \
   --capture-output \
   --log-level debug \
-  "clientes.aura:create_app()"
+  gunicorn_patch:app  # 👉 ESTE CAMBIO ES LA CLAVE
 
-echo "--- FIN DEL SCRIPT start.sh (Gunicorn debería estar corriendo si no hay errores arriba) ---"
+echo "--- FIN DEL SCRIPT ---"
