@@ -7,6 +7,9 @@ echo "PORT (asignado por Railway): ${PORT}"
 echo "WEB_CONCURRENCY (si está definida): ${WEB_CONCURRENCY}"
 echo "---------------------------------------------------"
 
+# ⚠️ Parchear gevent ANTES DE CUALQUIER OTRA LIBRERÍA
+python3 -c "from gevent import monkey; monkey.patch_all(); print('✅ gevent monkey patched')"
+
 # Ejecuta Gunicorn con configuración optimizada:
 # - --preload: carga la app antes de forkear, para crash rápido si hay errores de import
 # - -w: usa WEB_CONCURRENCY o 4 workers por defecto
