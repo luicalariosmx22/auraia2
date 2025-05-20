@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os, json
 from clientes.aura.utils.debug_integracion import revisar_todo
 from clientes.aura.utils.twilio_sender import enviar_mensaje
-from clientes.aura.utils.normalize import normalizar_numero
+from clientes.aura.utils.normalizador import normalizar_numero
 
 # Configurar Supabase
 load_dotenv()
