@@ -1,11 +1,14 @@
-{% extends "base_cliente.html" %}
-{% block title %}📋 Tareas{% endblock %}
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{% endblock %}</title>
 
-{% block head_extra %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/panel_cliente_tareas.css') }}">
-{% endblock %}
+  <!-- CSS base -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 
-{% block contenido %}
+  <!-- 👇 ESTE BLOQUE ES CRUCIAL -->
+  {% block head_extra %}{% endblock %}
+</head>
+
 <div class="panel-tareas">
   <h1 style="display: flex; align-items: center; gap: 0.5em;">
     📋 Tareas
