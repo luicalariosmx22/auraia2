@@ -1,42 +1,62 @@
-/* ✅ Archivo: /clientes/aura/static/css/panel_cliente_tareas.css */
-/* 👉 Estilos reales aplicados a las clases del HTML actual */
-
-.panel-tareas h1 {
-  font-size: 1.7rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #2c3e50;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
+/* Estilo general del contenedor */
+.panel-tareas {
+  padding-bottom: 2rem;
 }
 
+/* Encabezado */
+.panel-tareas h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #343a40;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Barra de filtros */
 .panel-tareas .barra-superior {
+  margin-bottom: 1.5rem;
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
+/* Formulario de filtros */
 .panel-tareas form {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 2rem;
   align-items: flex-end;
+  margin-bottom: 2rem;
+}
+
+.panel-tareas form select,
+.panel-tareas form input[type="date"] {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+/* Lista de tareas */
+.lista-tareas {
+  margin-top: 1rem;
+  padding-left: 0;
+  list-style: none;
 }
 
 .item-tarea {
   display: flex;
   align-items: center;
-  gap: 1em;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 0.7em 0;
+  justify-content: space-between;
+  gap: 1rem;
   background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
-  padding: 0.8rem 1rem;
+  padding: 0.7rem 1rem;
   margin-bottom: 0.5rem;
-  transition: background 0.3s ease;
+  transition: background 0.2s ease-in-out;
 }
 
 .item-tarea:hover {
@@ -52,7 +72,7 @@
 }
 
 .estado-tarea {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   margin-left: 0.5rem;
 }
 
@@ -68,23 +88,61 @@
   color: #fd7e14;
 }
 
-.alert.alert-info {
-  background-color: #f1f3f5;
-  border-left: 4px solid #17a2b8;
-  padding: 1rem;
-  border-radius: 6px;
-  font-size: 0.95rem;
+/* Etiquetas como 🧠 Plantilla / 🔁 Recurrente */
+.etiqueta {
+  font-size: 0.75rem;
+  background-color: #e2e6ea;
+  color: #495057;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  margin-left: 0.5rem;
 }
 
-.stat-card {
-  background-color: #fff;
-  border: 1px solid #dee2e6;
+/* Modal general */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-contenido {
+  background: #fff;
+  padding: 2rem;
   border-radius: 8px;
-  padding: 1rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+.modal-contenido h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Botones modal */
+.botones-modal {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+/* Cards de estadísticas */
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   margin-bottom: 1rem;
 }
 
@@ -93,34 +151,57 @@
 }
 
 .stat-info h3 {
-  font-size: 1.3rem;
   margin: 0;
+  font-size: 1.3rem;
+  color: #212529;
 }
 
 .stat-info p {
-  font-size: 0.9rem;
-  color: #555;
   margin: 0;
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 
+/* Ranking tabla */
+.ranking-tareas table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+}
+
+.ranking-tareas th,
+.ranking-tareas td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+  font-size: 0.95rem;
+}
+
+.ranking-tareas th {
+  background-color: #f1f3f5;
+  color: #343a40;
+}
+
+/* Automatizaciones */
 .automate-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  background: #fff;
   border: 1px solid #dee2e6;
   border-radius: 8px;
-  background: #fff;
   padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1rem;
 }
 
 .automate-icon {
   font-size: 1.5rem;
+  margin-right: 0.8rem;
 }
 
 .automate-info h3 {
-  margin: 0;
   font-size: 1rem;
+  margin: 0;
   font-weight: 600;
 }
 
@@ -133,4 +214,33 @@
 .automate-switch input[type="checkbox"] {
   transform: scale(1.4);
   accent-color: #0d6efd;
+}
+
+/* Botón guardar */
+.guardar-config {
+  text-align: right;
+  margin-top: 1rem;
+}
+
+.guardar-config button {
+  background-color: #0d6efd;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.guardar-config button:hover {
+  background-color: #084298;
+}
+
+/* Mensaje de alerta */
+.alert.alert-info {
+  background-color: #f1f3f5;
+  border-left: 4px solid #17a2b8;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #495057;
 }
