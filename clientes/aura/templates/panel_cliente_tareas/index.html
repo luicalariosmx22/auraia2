@@ -7,11 +7,6 @@
 
 {% block contenido %}
 <div class="panel-tareas">
-  <h1>
-    📋 Tareas
-    <button class="btn btn-refrescar">+ Nueva tarea</button>
-  </h1>
-
   <div class="barra-superior">
     {% if usuarios and permisos and permisos.ver_todas %}
       <a href="#" class="btn btn-secondary float-end">👥 Ver equipo</a>
@@ -21,7 +16,7 @@
     </a>
   </div>
 
-  <form method="get" style="display: flex; gap: 1em; margin-bottom: 1.5em; align-items: flex-end;">
+  <form method="get" class="panel-tareas form">
     <div>
       <label for="filtro_estado">Estado:</label>
       <select id="filtro_estado" name="estado">
@@ -59,12 +54,12 @@
   </form>
 
   {% if tareas %}
-    <ul style="list-style: none; padding: 0;">
+    <ul class="lista-tareas">
       {% for tarea in tareas %}
         <li class="item-tarea">
           <span class="codigo-tarea">{{ tarea.codigo_tarea }}</span>
-          <span style="flex:1;">{{ tarea.titulo }}</span>
-          <span style="color: #888; font-size: 13px;">{{ tarea.fecha_limite or tarea.fecha_plazo }}</span>
+          <span class="tarea-titulo">{{ tarea.titulo }}</span>
+          <span class="fecha-tarea">{{ tarea.fecha_limite or tarea.fecha_plazo }}</span>
           {% if tarea.prioridad == 'alta' %}
             <span title="Alta prioridad" class="estado-tarea rojo">❗</span>
           {% elif tarea.prioridad == 'media' %}
@@ -75,13 +70,13 @@
           {% if tarea.estatus == 'completada' %}
             <span title="Completada" class="estado-tarea verde">✅</span>
           {% else %}
-            <button class="btn btn-refrescar" style="font-size:13px;">Marcar completada</button>
+            <button class="btn btn-secondary btn-refrescar">Marcar completada</button>
           {% endif %}
         </li>
       {% endfor %}
     </ul>
   {% else %}
-    <div class="alert alert-info" style="text-align:center; color:#888; margin-top:3em;">
+    <div class="alert alert-info text-center espaciado-grande">
       No hay tareas asignadas aún 🎉
     </div>
   {% endif %}
@@ -157,10 +152,8 @@
 </div>
 
 <!-- 👉 Sección de estadísticas y rankings del módulo TAREAS -->
-<section id="estadisticas" class="seccion-dashboard">
+<section id="estadisticas" class="panel-tareas">
   <h2>Estadísticas de Tareas</h2>
-
-  <!-- Bloques de métricas -->
   <div class="contenedor-estadisticas">
     <div class="stat-card">
       <div class="stat-icon">📅</div>
@@ -202,8 +195,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Tabla de rankings -->
   <div class="ranking-tareas">
     <h3>🏆 Rankings</h3>
     <table>

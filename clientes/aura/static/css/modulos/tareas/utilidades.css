@@ -1,0 +1,23 @@
+/* Utilidades para tareas panel */
+
+.fecha-tarea {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #495057;
+}
+
+.tarea-titulo {
+  flex: 1;
+}
+
+.espaciado-grande {
+  margin-top: 3em;
+}
