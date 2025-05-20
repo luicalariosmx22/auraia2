@@ -65,8 +65,13 @@ def login_callback():
 
         session["email"] = user_info.get("email")
         session["name"] = user_info.get("name")
-        session["is_admin"] = datos.get("tipo_usuario") == "admin"
+        session["is_admin"] = str(datos.get("tipo_usuario", "")).lower() == "admin"
         session["nombre_nora"] = datos["nombre_nora"]
+
+        print("🎯 Sesión establecida:")
+        print("email:", session.get("email"))
+        print("nombre_nora:", session.get("nombre_nora"))
+        print("is_admin:", session.get("is_admin"))
 
         return redirect(
             url_for("admin_dashboard.dashboard_admin")
