@@ -61,19 +61,19 @@
   {% if tareas %}
     <ul style="list-style: none; padding: 0;">
       {% for tarea in tareas %}
-        <li style="display: flex; align-items: center; gap: 1em; border-bottom: 1px solid #eee; padding: 0.7em 0;">
-          <span style="font-weight: bold; color: #0369a1;">{{ tarea.codigo_tarea }}</span>
+        <li class="item-tarea">
+          <span class="codigo-tarea">{{ tarea.codigo_tarea }}</span>
           <span style="flex:1;">{{ tarea.titulo }}</span>
           <span style="color: #888; font-size: 13px;">{{ tarea.fecha_limite or tarea.fecha_plazo }}</span>
           {% if tarea.prioridad == 'alta' %}
-            <span title="Alta prioridad" style="color: #e11d48;">❗</span>
+            <span title="Alta prioridad" class="estado-tarea rojo">❗</span>
           {% elif tarea.prioridad == 'media' %}
-            <span title="Prioridad media" style="color: #f59e42;">⏳</span>
+            <span title="Prioridad media" class="estado-tarea naranja">⏳</span>
           {% else %}
-            <span title="Prioridad baja" style="color: #22c55e;">●</span>
+            <span title="Prioridad baja" class="estado-tarea verde">●</span>
           {% endif %}
           {% if tarea.estatus == 'completada' %}
-            <span title="Completada" style="color: #22c55e; font-size: 18px;">✅</span>
+            <span title="Completada" class="estado-tarea verde">✅</span>
           {% else %}
             <button class="btn btn-refrescar" style="font-size:13px;">Marcar completada</button>
           {% endif %}
