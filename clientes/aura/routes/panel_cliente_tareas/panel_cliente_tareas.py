@@ -283,12 +283,14 @@ def enviar_mensaje_whatsapp(numero, mensaje):
         return {"status": "error", "mensaje": str(e)}
 
 # Función vacía para resumen de 6PM
-def enviar_resumen_6pm_por_whatsapp():
-    pass
+def enviar_reporte_semanal():
+    print("📄 Reporte semanal generado (placeholder)")
 
-# Función vacía para envío de tareas 8AM
+def enviar_resumen_6pm_por_whatsapp():
+    print("📩 Resumen de 6pm enviado (placeholder)")
+
 def enviar_tareas_del_dia_por_whatsapp():
-    pass
+    print("📌 Tareas del día enviadas (placeholder)")
 
 def enviar_reporte_6pm_por_whatsapp():
     hoy = datetime.now().strftime("%Y-%m-%d")
