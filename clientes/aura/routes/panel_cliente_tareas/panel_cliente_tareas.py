@@ -498,7 +498,7 @@ def index_tareas(nombre_nora):
             config={},
             alertas={},
             supervisores_activos=0,
-            usuarios_clientes=[],
+            usuarios=[],
             verificaciones={},
             reportes_whatsapp=[],
             empresa_id=None,
