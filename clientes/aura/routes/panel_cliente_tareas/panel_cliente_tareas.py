@@ -473,11 +473,7 @@ def calcular_porcentaje_cumplimiento(cliente_id):
         return 0
     return round((completadas / total) * 100, 2)
 
-@panel_cliente_tareas_bp.route("/<nombre_nora>/tareas")
-def index_tareas(nombre_nora):
-    return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
-
 # ✅ Ruta correcta para el panel principal (respetando url_prefix ya definido)
 @panel_cliente_tareas_bp.route("/", endpoint="index_tareas")
-def index_tareas():
-    return render_template("panel_cliente_tareas/index.html")
+def index_tareas(nombre_nora):
+    return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
