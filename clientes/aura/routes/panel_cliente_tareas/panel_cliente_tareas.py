@@ -484,7 +484,7 @@ def index_tareas(nombre_nora):
     empresa_id = config_data.get("empresa_id")
 
     # Obtener usuarios
-    usuarios = supabase.table("usuarios_empresa").select("*").eq("cliente_id", cliente_id).eq("activo", True).execute().data or []
+    usuarios = supabase.table("usuarios_empresa").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data or []
 
     # Obtener tareas activas (simples por ahora)
     tareas = supabase.table("tareas").select("*").eq("cliente_id", cliente_id).eq("activo", True).execute().data or []
