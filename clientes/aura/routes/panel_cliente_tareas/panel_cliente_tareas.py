@@ -7,6 +7,7 @@ from pytz import timezone
 from supabase import create_client
 import os
 import uuid
+import ast
 
 panel_cliente_tareas_bp = Blueprint("panel_cliente_tareas", __name__, template_folder="../../templates/panel_cliente_tareas")
 
@@ -474,6 +475,17 @@ def calcular_porcentaje_cumplimiento(cliente_id):
     if total == 0:
         return 0
     return round((completadas / total) * 100, 2)
+
+def check_duplicate_keywords(file_path):
+    with open(file_path, "r") as f:
+        tree = ast.parse(f.read(), filename=file_path)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            seen = set()
+            for kw in node.keywords:
+                if kw.arg in seen:
+                    print(f"❌ Duplicated keyword argument '{kw.arg}' at line {kw.lineno}")
+                seen.add(kw.arg)
 
 # ✅ Ruta correcta para el panel principal (respetando url_prefix ya definido)
 @panel_cliente_tareas_bp.route("/", endpoint="index_tareas")

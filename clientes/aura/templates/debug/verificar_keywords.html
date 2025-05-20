@@ -1,0 +1,28 @@
+<!-- ✅ Archivo: templates/debug/verificar_keywords.html -->
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<h1 class="text-xl font-bold mb-4">🧪 Verificación de argumentos duplicados</h1>
+
+{% if errores %}
+  <table class="table-auto w-full border border-gray-300">
+    <thead>
+      <tr>
+        <th class="border px-4 py-2">Archivo</th>
+        <th class="border px-4 py-2">Línea</th>
+        <th class="border px-4 py-2">Error</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in errores %}
+      <tr>
+        <td class="border px-4 py-2 font-mono text-sm">{{ e.archivo }}</td>
+        <td class="border px-4 py-2 text-center">{{ e.linea }}</td>
+        <td class="border px-4 py-2 text-red-600">{{ e.error }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p class="text-green-600">✅ Sin errores encontrados.</p>
+{% endif %}
+{% endblock %}

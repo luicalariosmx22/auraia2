@@ -20,6 +20,7 @@ from clientes.aura.routes.panel_cliente_tareas.panel_cliente_tareas import (
     enviar_resumen_6pm_por_whatsapp,
     enviar_reporte_semanal  # ya existente
 )
+from clientes.aura.routes.debug.verificar_keywords import verificar_keywords_bp
 
 # Inicializar scheduler
 scheduler = BackgroundScheduler(timezone=timezone("America/Hermosillo"))
@@ -224,6 +225,9 @@ def create_app(config_class=Config):
     registrar_blueprints_debug(app, safe_register_blueprint)
     registrar_blueprints_invitado(app, safe_register_blueprint)
     print("Registro de Blueprints completado.")
+
+    # Registrar blueprint de verificación de keywords
+    app.register_blueprint(verificar_keywords_bp)
 
     # Blueprints dinámicos
     try:
