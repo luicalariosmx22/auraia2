@@ -30,7 +30,7 @@ def get_google_auth(token=None, state=None):
 def login():
     return render_template("login.html")
 
-@login_bp.route("/login/start")
+@login_bp.route("/start")
 def login_start():
     google = get_google_auth()
     auth_url, state = google.authorization_url(
@@ -39,7 +39,7 @@ def login_start():
     session["state"] = state
     return redirect(auth_url)
 
-@login_bp.route("/login/google/callback")
+@login_bp.route("/google/callback")
 def login_callback():
     try:
         google = get_google_auth(state=session.get("state"))
