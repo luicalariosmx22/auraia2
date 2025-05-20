@@ -73,8 +73,11 @@ def login_callback():
         print("nombre_nora:", session.get("nombre_nora"))
         print("is_admin:", session.get("is_admin"))
 
-        # ✅ Redirección con fallback explícito
-        if session.get("is_admin") is True:
+        # ✅ Evalúa is_admin como string por seguridad
+        valor_admin = session.get("is_admin")
+        print("🧪 Valor crudo de is_admin:", valor_admin)
+
+        if str(valor_admin).lower() == "true":
             return redirect(url_for("admin_dashboard.dashboard_admin"))
         elif session.get("nombre_nora"):
             return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session.get("nombre_nora")))
