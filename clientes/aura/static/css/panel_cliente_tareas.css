@@ -1,3 +1,10 @@
+/* === CONTENEDOR CENTRAL GENERAL === */
+.panel-tareas {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
 /* Estilo general del contenedor */
 .panel-tareas {
   padding-bottom: 2rem;
@@ -5,13 +12,27 @@
 
 /* Encabezado */
 .panel-tareas h1 {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #343a40;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
+.panel-tareas h1 .btn {
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  transition: background 0.2s ease-in-out;
+}
+
+.panel-tareas h1 .btn:hover {
+  background-color: #084298;
 }
 
 /* Barra de filtros */
@@ -22,7 +43,7 @@
   gap: 1rem;
 }
 
-/* Formulario de filtros */
+/* === FORMULARIO DE FILTROS === */
 .panel-tareas form {
   display: flex;
   flex-wrap: wrap;
@@ -31,15 +52,41 @@
   margin-bottom: 2rem;
 }
 
+.panel-tareas form label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #495057;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
 .panel-tareas form select,
 .panel-tareas form input[type="date"] {
   padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
+  border: 1px solid #ced4da;
   border-radius: 6px;
   font-size: 0.9rem;
+  background-color: #fff;
+  color: #212529;
+  width: 100%;
+  min-width: 160px;
 }
 
-/* Lista de tareas */
+.panel-tareas form button[type="submit"] {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.panel-tareas form button[type="submit"]:hover {
+  background-color: #084298;
+}
+
+/* === LISTADO DE TAREAS === */
 .lista-tareas {
   margin-top: 1rem;
   padding-left: 0;
@@ -49,13 +96,14 @@
 .item-tarea {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 1rem;
   background-color: #f8f9fa;
   border: 1px solid #dee2e6;
   border-radius: 8px;
-  padding: 0.7rem 1rem;
-  margin-bottom: 0.5rem;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.6rem;
   transition: background 0.2s ease-in-out;
 }
 
@@ -67,13 +115,12 @@
   font-size: 0.85rem;
   color: #5c5c5c;
   font-weight: bold;
-  min-width: 100px;
-  display: inline-block;
+  min-width: 90px;
 }
 
 .estado-tarea {
   font-size: 1.2rem;
-  margin-left: 0.5rem;
+  margin-left: 0.3rem;
 }
 
 .estado-tarea.verde {
@@ -88,14 +135,45 @@
   color: #fd7e14;
 }
 
+/* === LISTADO FINAL DE TAREAS ACTIVAS === */
+.lista-tareas {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.tarea-item {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  font-size: 0.92rem;
+  transition: background 0.2s ease-in-out;
+}
+
+.tarea-item:hover {
+  background-color: #e9ecef;
+}
+
+.tarea-item strong {
+  font-weight: 600;
+  color: #1d3557;
+}
+
 /* Etiquetas como 🧠 Plantilla / 🔁 Recurrente */
 .etiqueta {
   font-size: 0.75rem;
-  background-color: #e2e6ea;
-  color: #495057;
+  background-color: #e0e7ff;
+  color: #3730a3;
   padding: 0.2rem 0.5rem;
-  border-radius: 5px;
-  margin-left: 0.5rem;
+  border-radius: 9999px;
+  margin-left: 0.4rem;
+  display: inline-block;
 }
 
 /* Modal general */
@@ -133,17 +211,28 @@
   gap: 1rem;
 }
 
-/* Cards de estadísticas */
+/* === TARJETAS DE ESTADÍSTICAS === */
+.contenedor-estadisticas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
 .stat-card {
-  background: #ffffff;
+  background-color: #ffffff;
   border: 1px solid #dee2e6;
   border-radius: 10px;
-  padding: 1rem 1.2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
 }
 
 .stat-icon {
@@ -152,57 +241,97 @@
 
 .stat-info h3 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   color: #212529;
 }
 
 .stat-info p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #6c757d;
 }
 
 /* Ranking tabla */
+.ranking-tareas {
+  margin-top: 2rem;
+}
+
+.ranking-tareas h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: #2c3e50;
+}
+
 .ranking-tareas table {
   width: 100%;
-  margin-top: 1rem;
   border-collapse: collapse;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ranking-tareas thead {
+  background-color: #f8f9fa;
 }
 
 .ranking-tareas th,
 .ranking-tareas td {
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #dee2e6;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .ranking-tareas th {
-  background-color: #f1f3f5;
-  color: #343a40;
+  font-weight: 600;
+  color: #495057;
 }
 
-/* Automatizaciones */
+.ranking-tareas tbody tr:nth-child(even) {
+  background-color: #f1f3f5;
+}
+
+.ranking-tareas tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+/* === BLOQUES DE AUTOMATIZACIÓN === */
+.seccion-configuracion {
+  margin-top: 2rem;
+}
+
 .automate-item {
-  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border: 1px solid #dee2e6;
+  background: #ffffff;
   border-radius: 8px;
   padding: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 1rem;
+  transition: background 0.2s ease-in-out;
+}
+
+.automate-item:hover {
+  background-color: #f8f9fa;
 }
 
 .automate-icon {
   font-size: 1.5rem;
-  margin-right: 0.8rem;
+  margin-right: 1rem;
+  color: #0d6efd;
+}
+
+.automate-info {
+  flex: 1;
 }
 
 .automate-info h3 {
   font-size: 1rem;
-  margin: 0;
   font-weight: 600;
+  margin: 0 0 0.3rem;
+  color: #343a40;
 }
 
 .automate-info p {
@@ -216,19 +345,22 @@
   accent-color: #0d6efd;
 }
 
-/* Botón guardar */
+/* === BLOQUE DE GUARDAR CONFIGURACIÓN O PERMISOS === */
 .guardar-config {
+  margin-top: 1.5rem;
   text-align: right;
-  margin-top: 1rem;
 }
 
 .guardar-config button {
   background-color: #0d6efd;
-  color: #fff;
-  padding: 0.5rem 1rem;
+  color: white;
+  padding: 0.5rem 1.2rem;
   border: none;
   border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.2s ease-in-out;
 }
 
 .guardar-config button:hover {
@@ -243,4 +375,184 @@
   border-radius: 6px;
   font-size: 0.95rem;
   color: #495057;
+}
+
+/* === TARJETAS DE ALERTAS === */
+.contenedor-alertas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.alert-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.alert-icon {
+  font-size: 1.5rem;
+  color: #ffc107;
+}
+
+.alert-info {
+  font-size: 0.88rem;
+  color: #495057;
+}
+
+.alert-info strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+/* === SEGUIMIENTO POR WHATSAPP === */
+.seccion-seguimiento {
+  margin-top: 2rem;
+}
+
+.seccion-seguimiento table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.seccion-seguimiento th,
+.seccion-seguimiento td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.seccion-seguimiento thead {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.seccion-seguimiento tbody tr:nth-child(even) {
+  background-color: #f1f3f5;
+}
+
+.seccion-seguimiento tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+/* === TABLA DE VERIFICACIÓN DEL MÓDULO === */
+.seccion-verificacion {
+  margin-top: 2rem;
+}
+
+.seccion-verificacion table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.9rem;
+}
+
+.seccion-verificacion thead {
+  background-color: #f8f9fa;
+}
+
+.seccion-verificacion th,
+.seccion-verificacion td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+  vertical-align: top;
+}
+
+.seccion-verificacion th {
+  font-weight: 600;
+  color: #495057;
+}
+
+.seccion-verificacion tbody tr:nth-child(even) {
+  background-color: #f6f6f6;
+}
+
+.seccion-verificacion tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+/* === ESPACIADO ENTRE SECCIONES PRINCIPALES === */
+section {
+  margin-top: 3rem;
+}
+
+section h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+/* === ESPACIADO ENTRE SUBTÍTULOS Y ELEMENTOS === */
+h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #343a40;
+}
+
+/* === BOTONES REUTILIZABLES === */
+.btn {
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #084298;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #495057;
+}
+
+/* === ALERTAS GENERALES === */
+.alert {
+  border-radius: 6px;
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+.alert-info {
+  background-color: #f1f3f5;
+  border-left: 4px solid #0d6efd;
+  color: #495057;
+}
+
+/* === UTILIDADES EXTRA === */
+.float-end {
+  margin-left: auto;
+}
+
+.text-center {
+  text-align: center;
 }
