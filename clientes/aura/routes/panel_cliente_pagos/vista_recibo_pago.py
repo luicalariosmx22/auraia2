@@ -20,7 +20,7 @@ except ImportError as e:
     print("⚠️ No se pudo importar 'fpdf2':", e)
     FPDF = None
 
-@panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>")
+@panel_cliente_pagos_recibo_bp.route("/recibo/<nombre_nora>/<pago_id>")
 @login_required
 def ver_recibo(nombre_nora, pago_id):
     # Validar módulo activo
