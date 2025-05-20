@@ -116,6 +116,7 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                     print(f"❌ Error al registrar blueprint vista_recibo_pago: {e}")
 
             if "tareas" in modulos:
+                from clientes.aura.routes.panel_cliente_tareas.panel_cliente_tareas import panel_cliente_tareas_bp
                 safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
 
     except Exception as e:

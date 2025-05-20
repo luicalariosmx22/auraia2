@@ -11,8 +11,49 @@ from .app_config import Config
 from .extensiones import socketio, session_ext, scheduler # ¡Corregido a 'extensiones.py'!
 
 # Para APScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from .tasks.meta_ads_reporter import enviar_reporte_semanal
+from pytz import timezone
+
+from clientes.aura.routes.panel_cliente_tareas.panel_cliente_tareas import (
+    enviar_tareas_del_dia_por_whatsapp,
+    enviar_resumen_6pm_por_whatsapp,
+    enviar_reporte_semanal  # ya existente
+)
+
+# Inicializar scheduler
+scheduler = BackgroundScheduler(timezone=timezone("America/Hermosillo"))
+
+# ✅ Job: Enviar tareas del día por WhatsApp (8:00 AM)
+scheduler.add_job(
+    func=enviar_tareas_del_dia_por_whatsapp,
+    trigger=CronTrigger(hour=8, minute=0),
+    id="tareas_whatsapp_8am",
+    name="Enviar tareas del día por WhatsApp (8AM)",
+    replace_existing=True
+)
+
+# ✅ Job: Enviar resumen 6PM por WhatsApp
+scheduler.add_job(
+    func=enviar_resumen_6pm_por_whatsapp,
+    trigger=CronTrigger(hour=18, minute=0),
+    id="tareas_whatsapp_6pm",
+    name="Enviar resumen diario por WhatsApp (6PM)",
+    replace_existing=True
+)
+
+# ✅ (Ejemplo existente)
+scheduler.add_job(
+    func=enviar_reporte_semanal,
+    trigger=CronTrigger(day_of_week="sun", hour=9, minute=0),
+    id="reporte_semanal",
+    name="Enviar reporte semanal PDF",
+    replace_existing=True
+)
+
+# Iniciar scheduler si no está ya en marcha
+if not scheduler.running:
+    scheduler.start()
 
 # Para Blueprints y registro
 # Importa tus funciones de registro de blueprints

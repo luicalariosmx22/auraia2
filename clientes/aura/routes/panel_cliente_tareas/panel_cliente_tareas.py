@@ -1,13 +1,13 @@
 # ✅ Archivo: clientes/aura/routes/panel_cliente_tareas/panel_cliente_tareas.py
-# 👉 Funciones para gestión de plantillas de tareas
+# 👉 Blueprint exportado correctamente como panel_cliente_tareas_bp
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, render_template, request
 from supabase import create_client
 from datetime import datetime, timedelta
 import os
 import uuid
 
-panel_cliente_tareas = Blueprint("panel_cliente_tareas", __name__, template_folder="../../templates/panel_cliente_tareas")
+panel_cliente_tareas_bp = Blueprint("panel_cliente_tareas", __name__, template_folder="../../templates/panel_cliente_tareas")
 
 # ✅ Inicializar Supabase
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -403,6 +403,6 @@ def calcular_porcentaje_cumplimiento(cliente_id):
         return 0
     return round((completadas / total) * 100, 2)
 
-@panel_cliente_tareas.route("/<nombre_nora>/tareas")
+@panel_cliente_tareas_bp.route("/<nombre_nora>/tareas")
 def index_tareas(nombre_nora):
     return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
