@@ -16,7 +16,7 @@ from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import p
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_pagos.vista_panel_cliente_pagos import panel_cliente_pagos_bp
 from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
-from utils.validar_modulo_activo import modulo_activo_para_nora
+
 
 # Configurar Supabase
 load_dotenv()
@@ -101,18 +101,18 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "login" in modulos:
                 safe_register_blueprint(app, login_bp, url_prefix=f"/login")
 
-                       if "pagos" in modulos:
-                safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
+            if "pagos" in modulos:
+                safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
                 # Registro del blueprint para servicios dentro del módulo de pagos
                 from clientes.aura.routes.panel_cliente_pagos.vista_servicios import panel_cliente_pagos_servicios_bp
-                safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos/servicios")
+                safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos/servicios")
                 # 👉 Registro del blueprint para **crear nuevo recibo**
                 from clientes.aura.routes.panel_cliente_pagos.vista_recibo_nuevo import panel_cliente_pagos_nuevo_bp
-                safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
+                safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
                 # Registro del blueprint de recibos (detalle y PDF)
                 try:
                     from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
-                    app.register_blueprint(panel_cliente_pagos_recibo_bp)
+                    safe_register_blueprint(app, panel_cliente_pagos_recibo_bp)
                 except Exception as e:
                     print(f"❌ Error al registrar blueprint vista_recibo_pago: {e}")
 
