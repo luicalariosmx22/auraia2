@@ -1,7 +1,7 @@
 # clientes/aura/routes/admin_dashboard.py
-# 👉 Consulta corregida con campo válido 'ia_activa' y 'updated_at' confirmado en Supabase
+# 👉 Protege el dashboard con verificación de sesión
 
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, render_template, current_app, session, redirect, url_for
 from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.verificador_rutas_runtime import verificar_rutas_vs_html
 import traceback
@@ -10,6 +10,10 @@ admin_dashboard_bp = Blueprint("admin_dashboard", __name__)
 
 @admin_dashboard_bp.route("/")
 def dashboard_admin():
+    # ✅ Verificación de login
+    if "email" not in session or not session.get("is_admin"):
+        return redirect(url_for("login.login"))
+
     print("✅ Entrando al dashboard_admin")
 
     total_noras = 0
@@ -20,9 +24,7 @@ def dashboard_admin():
     # Obtener Noras desde Supabase
     try:
         response = supabase.table("configuracion_bot").select("nombre_nora, ia_activa, modulos").execute()
-        if not response or not response.data:
-            print("❌ No se encontraron Noras.")
-        else:
+        if response and response.data:
             total_noras = len(response.data)
             lista_noras = [
                 {
@@ -34,6 +36,8 @@ def dashboard_admin():
                 for item in response.data
             ]
             print(f"✅ Total de Noras encontradas: {total_noras}")
+        else:
+            print("❌ No se encontraron Noras.")
     except Exception as e:
         print(f"❌ Error al obtener Noras: {str(e)}")
         traceback.print_exc()
