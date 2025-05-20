@@ -101,12 +101,7 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "login" in modulos:
                 safe_register_blueprint(app, login_bp, url_prefix=f"/login")
 
-            # Registro dinámico del módulo de tareas
-            activar_modulo_tareas_si_no_existe(nombre_nora)
-            if modulo_activo(nombre_nora, "tareas"):
-                safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
-
-            if "pagos" in modulos:
+                       if "pagos" in modulos:
                 safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
                 # Registro del blueprint para servicios dentro del módulo de pagos
                 from clientes.aura.routes.panel_cliente_pagos.vista_servicios import panel_cliente_pagos_servicios_bp
