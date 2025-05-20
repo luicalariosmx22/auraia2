@@ -282,15 +282,16 @@ def enviar_mensaje_whatsapp(numero, mensaje):
         print(f"❌ Error al enviar WhatsApp a {numero}: {e}")
         return {"status": "error", "mensaje": str(e)}
 
-# Función vacía para resumen de 6PM
-def enviar_reporte_semanal():
-    print("📄 Reporte semanal generado (placeholder)")
+# 👉 Funciones programadas para APScheduler
 
-def enviar_resumen_6pm_por_whatsapp():
-    print("📩 Resumen de 6pm enviado (placeholder)")
+def enviar_reporte_semanal():
+    print("📄 Función enviar_reporte_semanal ejecutada correctamente (placeholder)")
 
 def enviar_tareas_del_dia_por_whatsapp():
-    print("📌 Tareas del día enviadas (placeholder)")
+    print("📌 Función enviar_tareas_del_dia_por_whatsapp ejecutada correctamente (placeholder)")
+
+def enviar_resumen_6pm_por_whatsapp():
+    print("📩 Función enviar_resumen_6pm_por_whatsapp ejecutada correctamente (placeholder)")
 
 def enviar_reporte_6pm_por_whatsapp():
     hoy = datetime.now().strftime("%Y-%m-%d")
