@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}📋 Tareas{% endblock %}
+
+{% block content %}
+<h1>📋 Tareas para {{ nombre_nora }}</h1>
+
+<form method="POST" action="{{ url_for('panel_cliente_tareas.crear_tarea_nueva', nombre_nora=nombre_nora) }}">
+  <input name="titulo" placeholder="Título de la tarea" required><br>
+  <textarea name="descripcion" placeholder="Descripción detallada"></textarea><br>
+  <input type="date" name="fecha_inicio" required>
+  <input type="date" name="fecha_plazo" required><br>
+  <input name="empresa" placeholder="Empresa relacionada" required><br>
+  <input name="asignado_a" placeholder="Responsable (email o nombre)" required><br>
+  <button type="submit">➕ Crear tarea</button>
+</form>
+
+<h2>📌 Templates disponibles</h2>
+<ul>
+  {% for tpl in templates %}
+    <li><strong>{{ tpl.nombre }}</strong>: {{ tpl.descripcion }}</li>
+  {% endfor %}
+</ul>
+
+<h2>📌 Tareas asignadas</h2>
+<ul>
+  {% for tarea in tareas %}
+    <li>✅ {{ tarea.titulo }} ({{ tarea.fecha_plazo }}) — {{ tarea.asignado_a }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

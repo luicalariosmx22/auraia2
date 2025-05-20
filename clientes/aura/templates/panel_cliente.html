@@ -32,6 +32,13 @@
               <div class="descripcion">{{ modulo.descripcion }}</div>
             </a>
           {% endfor %}
+          <!-- ...otras tarjetas... -->
+          {% if modulos_activos.tareas %}
+            <div class="card">
+              <h3>📋 Tareas</h3>
+              <a href="{{ url_for('panel_cliente_tareas.panel_tareas', nombre_nora=nombre_nora) }}">Ir al módulo</a>
+            </div>
+          {% endif %}
         </div>
       {% else %}
         <p style="color: #999; padding: 1rem 0;">⚠️ No hay módulos activos configurados en Supabase para esta Nora.</p>

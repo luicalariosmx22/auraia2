@@ -31,6 +31,8 @@ def safe_register_blueprint(app, blueprint, **kwargs):
     else:
         print(f"⚠️ Blueprint '{blueprint.name}' ya estaba registrado.")
 
+from clientes.aura.routes.panel_cliente_tareas.vista_panel_cliente_tareas import panel_cliente_tareas_bp
+
 def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
     from clientes.aura.modules.ads import ads_bp  # ✅ Import del módulo Ads dinámico
 
@@ -98,6 +100,10 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             # Registrar el blueprint de login si el módulo está activo
             if "login" in modulos:
                 safe_register_blueprint(app, login_bp, url_prefix=f"/login")
+
+            # Registro dinámico del módulo de tareas
+            if modulo_activo(nombre_nora, "tareas"):
+                safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
 
             if "pagos" in modulos:
                 safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
