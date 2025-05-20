@@ -96,4 +96,11 @@ def crear_blueprint_panel_cliente(nombre_nora):
             modulos_activos=modulos_activos_flags
         )
 
+    # 👉 Asegura que se pasen los módulos activos al template del panel
+    @bp.route("/panel_cliente/<nombre_nora>")
+    def panel_cliente_dashboard(nombre_nora):
+        config = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).single().execute().data
+        modulos = config.get("modulos", [])
+        return render_template("panel_cliente/index.html", nombre_nora=nombre_nora, modulos=modulos)
+
     return bp

@@ -2,8 +2,9 @@
 # 👉 Blueprint exportado correctamente como panel_cliente_tareas
 
 from flask import Blueprint, render_template, request
-from supabase import create_client
 from datetime import datetime, timedelta
+from pytz import timezone
+from supabase import create_client
 import os
 import uuid
 
@@ -13,6 +14,7 @@ panel_cliente_tareas_bp = Blueprint("panel_cliente_tareas", __name__, template_f
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+zona = timezone("America/Hermosillo")
 
 # ✅ Mejorada: generar_codigo_tarea()
 def generar_codigo_tarea(iniciales_usuario):
@@ -285,43 +287,114 @@ def enviar_mensaje_whatsapp(numero, mensaje):
 # 👉 Funciones programadas para APScheduler
 
 def enviar_reporte_semanal():
-    print("📄 Función enviar_reporte_semanal ejecutada correctamente (placeholder)")
+    print("📤 Enviando reporte semanal...")
+    nora_configs = supabase.table("configuracion_bot").select("nombre_nora, cliente_id").execute().data
 
+    for config in nora_configs:
+        nombre_nora = config["nombre_nora"]
+        cliente_id = config["cliente_id"]
+
+        completadas = supabase.table("tareas").select("*") \
+            .eq("cliente_id", cliente_id).eq("estatus", "completada").eq("activo", True).execute().data
+
+        if not completadas:
+            print(f"📭 No hay tareas completadas esta semana para {nombre_nora}")
+            continue
+
+        # Determinar número de envío (puede venir de archivo o config)
+        numero_admin = os.getenv("WHATSAPP_ADMIN_DEFAULT", "+521234567890")  # usar config dinámica si aplica
+
+        texto = f"📈 Reporte semanal de tareas completadas para {nombre_nora}:\n\n"
+        for tarea in completadas:
+            texto += f"✅ {tarea['codigo_tarea']}: {tarea['titulo']}\n"
+
+        try:
+            twilio_client.messages.create(
+                body=texto,
+                from_=f"whatsapp:{os.getenv('TWILIO_WHATSAPP_NUMBER')}",
+                to=f"whatsapp:{numero_admin}"
+            )
+            print(f"✅ Reporte enviado a {numero_admin} ({nombre_nora})")
+        except Exception as e:
+            print(f"❌ Error al enviar reporte a {nombre_nora}: {e}")
+
+# ✅ Función: enviar_tareas_del_dia_por_whatsapp()
 def enviar_tareas_del_dia_por_whatsapp():
-    print("📌 Función enviar_tareas_del_dia_por_whatsapp ejecutada correctamente (placeholder)")
+    print("📤 Enviando tareas del día...")
+    hoy = datetime.now(zona).strftime("%Y-%m-%d")
 
-def enviar_resumen_6pm_por_whatsapp():
-    print("📩 Función enviar_resumen_6pm_por_whatsapp ejecutada correctamente (placeholder)")
-
-def enviar_reporte_6pm_por_whatsapp():
-    hoy = datetime.now().strftime("%Y-%m-%d")
-    usuarios = supabase.table("usuarios_empresa").select("*").eq("whatsapp_autorizado", True).eq("activo", True).execute().data
-    enviados = []
-
+    usuarios = supabase.table("usuarios_empresa").select("*").eq("activo", True).execute().data
     for usuario in usuarios:
-        tareas = obtener_tareas_para_usuario(usuario["id"], hoy)
-        incompletas = [t for t in tareas if t["estatus"] not in ["completada"]]
+        if not usuario.get("telefono") or not usuario["telefono"].startswith("+"):
+            print(f"⚠️ Usuario sin número válido: {usuario['nombre']}")
+            continue
+
+        tareas = supabase.table("tareas").select("*") \
+            .eq("usuario_empresa_id", usuario["id"]) \
+            .eq("fecha_limite", hoy).eq("activo", True).execute().data
 
         if not tareas:
             continue
 
-        empresa = supabase.table("cliente_empresas").select("nombre").eq("id", usuario["empresa_id"]).single().execute().data
-        mensaje = f"📍 Nora aquí, {usuario['nombre']}.\nHoy tuviste {len(tareas)} tareas asignadas en {empresa['nombre']}.\n\n"
+        mensaje = f"👋 Hola {usuario['nombre']}, estas son tus tareas para hoy:\n\n"
+        for t in tareas:
+            estado = "⏳"
+            if t["estatus"] == "completada":
+                estado = "✅"
+            elif t["estatus"] in ["vencida", "atrasada"]:
+                estado = "❗"
+            mensaje += f"{estado} {t['codigo_tarea']}: {t['titulo']}\n"
 
-        mensaje += f"✅ Completaste: {len(tareas) - len(incompletas)}\n"
-        mensaje += f"❗ Pendientes: {len(incompletas)}\n"
+        try:
+            twilio_client.messages.create(
+                body=mensaje,
+                from_=f"whatsapp:{os.getenv('TWILIO_WHATSAPP_NUMBER')}",
+                to=f"whatsapp:{usuario['telefono']}"
+            )
+            print(f"✅ Mensaje enviado a {usuario['nombre']} ({usuario['telefono']})")
+        except Exception as e:
+            print(f"❌ Error al enviar a {usuario['nombre']}: {e}")
 
-        if incompletas:
-            mensaje += "\nEstas tareas siguen pendientes:\n"
-            for t in incompletas:
+# ✅ Función: enviar_resumen_6pm_por_whatsapp()
+def enviar_resumen_6pm_por_whatsapp():
+    print("📤 Enviando resumen 6PM...")
+    hoy = datetime.now(zona).strftime("%Y-%m-%d")
+
+    usuarios = supabase.table("usuarios_empresa").select("*").eq("activo", True).execute().data
+    for usuario in usuarios:
+        if not usuario.get("telefono") or not usuario["telefono"].startswith("+"):
+            print(f"⚠️ Usuario sin número válido: {usuario['nombre']}")
+            continue
+
+        tareas = supabase.table("tareas").select("*") \
+            .eq("usuario_empresa_id", usuario["id"]) \
+            .eq("fecha_limite", hoy).eq("activo", True).execute().data
+
+        if not tareas:
+            continue
+
+        completadas = [t for t in tareas if t["estatus"] == "completada"]
+        pendientes = [t for t in tareas if t["estatus"] != "completada"]
+
+        mensaje = f"📍 Resumen de hoy, {usuario['nombre']}:\n"
+        mensaje += f"📋 Total tareas: {len(tareas)}\n"
+        mensaje += f"✅ Completadas: {len(completadas)}\n"
+        mensaje += f"⏳ Pendientes: {len(pendientes)}\n"
+
+        if pendientes:
+            mensaje += "\n🔸 Tareas sin completar:\n"
+            for t in pendientes:
                 mensaje += f"⏳ {t['codigo_tarea']}: {t['titulo']}\n"
 
-        mensaje += "\nPuedes actualizarlas desde tu panel de Nora."
-
-        r = enviar_mensaje_whatsapp(usuario["telefono"], mensaje)
-        enviados.append({"usuario": usuario["nombre"], "status": r["status"]})
-
-    return enviados
+        try:
+            twilio_client.messages.create(
+                body=mensaje,
+                from_=f"whatsapp:{os.getenv('TWILIO_WHATSAPP_NUMBER')}",
+                to=f"whatsapp:{usuario['telefono']}"
+            )
+            print(f"✅ Resumen 6PM enviado a {usuario['nombre']}")
+        except Exception as e:
+            print(f"❌ Error al enviar resumen a {usuario['nombre']}: {e}")
 
 # ✅ Funciones para estadísticas clave y rankings en el módulo de TAREAS
 
@@ -402,4 +475,9 @@ def calcular_porcentaje_cumplimiento(cliente_id):
 
 @panel_cliente_tareas_bp.route("/<nombre_nora>/tareas")
 def index_tareas(nombre_nora):
+    return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
+
+# ✅ Ruta principal del panel de tareas (para url_for('panel_cliente_tareas.panel_tareas', nombre_nora=...))
+@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas")
+def panel_tareas(nombre_nora):
     return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)

@@ -33,10 +33,13 @@
             </a>
           {% endfor %}
           <!-- ...otras tarjetas... -->
-          {% if modulos_activos.tareas %}
-            <div class="card">
+          {% if "tareas" in modulos %}
+            <div class="modulo-card">
               <h3>📋 Tareas</h3>
-              <a href="{{ url_for('panel_cliente_tareas.panel_tareas', nombre_nora=nombre_nora) }}">Ir al módulo</a>
+              <p>Gestiona tareas, equipos y automatizaciones</p>
+              <a href="{{ url_for('panel_cliente_tareas.index_tareas', nombre_nora=nombre_nora) }}" class="btn btn-primary">
+                Ir al módulo
+              </a>
             </div>
           {% endif %}
         </div>
