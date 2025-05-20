@@ -397,7 +397,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for usuario in usuarios_empresa %}
+        {% for usuario in usuarios %}
         <tr>
           <td>{{ usuario.nombre }}</td>
           <td>{{ usuario.correo or usuario.telefono }}</td>
@@ -495,11 +495,6 @@
     </thead>
     <tbody>
       <tr>
-        <td>Usuarios empresa registrados</td>
-        <td>{{ verificaciones.usuarios_empresa.estado }}</td>
-        <td>{{ verificaciones.usuarios_empresa.comentario }}</td>
-      </tr>
-      <tr>
         <td>Tareas creadas</td>
         <td>{{ verificaciones.tareas_creadas.estado }}</td>
         <td>{{ verificaciones.tareas_creadas.comentario }}</td>
@@ -533,6 +528,11 @@
         <td>Supervisores activos (máx. 3)</td>
         <td>{{ verificaciones.supervisores.estado }}</td>
         <td>{{ verificaciones.supervisores.comentario }}</td>
+      </tr>
+      <tr>
+        <td>Usuarios clientes registrados</td>
+        <td>{{ verificaciones.usuarios_clientes.estado }}</td>
+        <td>{{ verificaciones.usuarios_clientes.comentario }}</td>
       </tr>
     </tbody>
   </table>

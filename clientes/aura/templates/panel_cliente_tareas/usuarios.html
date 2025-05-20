@@ -43,7 +43,7 @@
       <td><input type="checkbox" disabled {% if usuario.crear_tareas_otros %}checked{% endif %}></td>
       <td><input type="checkbox" disabled {% if usuario.reasignar_tareas %}checked{% endif %}></td>
       <td>
-        <form method="POST" action="{{ url_for('usuarios_empresa.eliminar_usuario_empresa', nombre_nora=nombre_nora, usuario_id=usuario.id) }}">
+        <form method="POST" action="{{ url_for('usuarios_clientes.eliminar_usuario_cliente', nombre_nora=nombre_nora, usuario_id=usuario.id) }}">
           <button type="submit">Eliminar</button>
         </form>
       </td>
@@ -54,7 +54,7 @@
 
 <!-- ➕ Formulario para agregar usuario -->
 <h2>➕ Nuevo Usuario</h2>
-<form method="POST" action="{{ url_for('usuarios_empresa.crear_usuario_empresa', nombre_nora=nombre_nora) }}">
+<form method="POST" action="{{ url_for('usuarios_clientes.crear_usuario_cliente', nombre_nora=nombre_nora) }}">
   <div class="form-group">
     <label>Nombre</label>
     <input type="text" name="nombre" required>

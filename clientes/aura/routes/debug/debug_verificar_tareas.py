@@ -28,7 +28,7 @@ def verificar_tareas():
     })
 
     # 2. Usuarios empresa registrados
-    usuarios = supabase.table("usuarios_empresa").select("*").eq("empresa_id", config.get("cliente_id")).execute().data
+    usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).execute().data
     resultado.append({
         "nombre": "Usuarios empresa registrados",
         "estado": "🟢 OK" if usuarios else "🔴 Faltante",

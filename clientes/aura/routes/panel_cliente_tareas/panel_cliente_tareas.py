@@ -323,7 +323,8 @@ def enviar_tareas_del_dia_por_whatsapp():
     print("📤 Enviando tareas del día...")
     hoy = datetime.now(zona).strftime("%Y-%m-%d")
 
-    usuarios = supabase.table("usuarios_empresa").select("*").eq("activo", True).execute().data
+    # Usuarios para envíos automáticos diarios por WhatsApp en el módulo de TAREAS
+    usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
     for usuario in usuarios:
         if not usuario.get("telefono") or not usuario["telefono"].startswith("+"):
             print(f"⚠️ Usuario sin número válido: {usuario['nombre']}")
@@ -360,7 +361,8 @@ def enviar_resumen_6pm_por_whatsapp():
     print("📤 Enviando resumen 6PM...")
     hoy = datetime.now(zona).strftime("%Y-%m-%d")
 
-    usuarios = supabase.table("usuarios_empresa").select("*").eq("activo", True).execute().data
+    # Usuarios para envíos automáticos diarios por WhatsApp en el módulo de TAREAS
+    usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
     for usuario in usuarios:
         if not usuario.get("telefono") or not usuario["telefono"].startswith("+"):
             print(f"⚠️ Usuario sin número válido: {usuario['nombre']}")
@@ -496,7 +498,7 @@ def index_tareas(nombre_nora):
             config={},
             alertas={},
             supervisores_activos=0,
-            usuarios_empresa=[],
+            usuarios_clientes=[],
             verificaciones={},
             reportes_whatsapp=[],
             empresa_id=None,
@@ -530,7 +532,7 @@ def index_tareas(nombre_nora):
     }
 
     verificaciones = {
-        "usuarios_empresa": {"estado": "⏳", "comentario": "Sin evaluar"},
+        "usuarios_clientes": {"estado": "⏳", "comentario": "Sin evaluar"},
         "tareas_creadas": {"estado": "⏳", "comentario": "Sin evaluar"},
         "tareas_asignadas": {"estado": "⏳", "comentario": "Sin evaluar"},
         "recurrentes": {"estado": "⏳", "comentario": "Sin evaluar"},
@@ -574,7 +576,7 @@ def index_tareas(nombre_nora):
             "ranking_semanal": alertas.get("ranking_semanal", [])
         },
         supervisores_activos=0,
-        usuarios_empresa=usuarios or [],
+        usuarios=usuarios or [],
         verificaciones=verificaciones,
         reportes_whatsapp=[],
         empresa_id=empresa_id,
