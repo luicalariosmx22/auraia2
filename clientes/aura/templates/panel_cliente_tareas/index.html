@@ -9,9 +9,9 @@
   </h1>
 
   <div class="barra-superior">
-    {# <a href="{{ url_for('usuarios_empresa.listar_usuarios_empresa', nombre_nora=nombre_nora) }}" class="btn btn-secondary float-end" style="margin-left: 10px;">
-      👥 Mi equipo
-    </a> #}
+    {% if usuarios and permisos and permisos.ver_todas %}
+      <a href="#" class="btn btn-secondary float-end">👥 Ver equipo</a>
+    {% endif %}
     <a href="#" class="btn btn-primary float-end">
       + Nueva tarea
     </a>
@@ -27,7 +27,7 @@
         <option value="vencida">Vencidas</option>
       </select>
     </div>
-    {% if permisos.ver_todas %}
+    {% if usuarios and permisos and permisos.ver_todas %}
     <div>
       <label for="filtro_usuario">Usuario:</label>
       <select id="filtro_usuario" name="usuario">
@@ -47,7 +47,6 @@
         <option value="intervalo">Intervalo</option>
       </select>
     </div>
-    <!-- Si selecciona intervalo, mostrar inputs de fecha (solo estructura, sin JS) -->
     <div>
       <input type="date" name="desde" placeholder="Desde">
       <input type="date" name="hasta" placeholder="Hasta">
@@ -55,7 +54,7 @@
     <button type="submit" class="btn">Filtrar</button>
   </form>
 
-  {% if tareas and tareas|length > 0 %}
+  {% if tareas %}
     <ul style="list-style: none; padding: 0;">
       {% for tarea in tareas %}
         <li style="display: flex; align-items: center; gap: 1em; border-bottom: 1px solid #eee; padding: 0.7em 0;">
@@ -78,8 +77,8 @@
       {% endfor %}
     </ul>
   {% else %}
-    <div style="text-align:center; color:#888; margin-top:3em;">
-      No tienes tareas por ahora 🎉
+    <div class="alert alert-info" style="text-align:center; color:#888; margin-top:3em;">
+      No hay tareas asignadas aún 🎉
     </div>
   {% endif %}
 </div>
@@ -232,19 +231,19 @@
   <div class="estadisticas-grid">
     <div class="stat-box">
       <p class="stat-label">Tareas activas</p>
-      <p class="stat-valor">{{ resumen.tareas_activas }}</p>
+      <p class="stat-valor">{{ resumen.tareas_activas or 0 }}</p>
     </div>
     <div class="stat-box">
       <p class="stat-label">Completadas</p>
-      <p class="stat-valor">{{ resumen.tareas_completadas }}</p>
+      <p class="stat-valor">{{ resumen.tareas_completadas or 0 }}</p>
     </div>
     <div class="stat-box">
       <p class="stat-label">Vencidas</p>
-      <p class="stat-valor">{{ resumen.tareas_vencidas }}</p>
+      <p class="stat-valor">{{ resumen.tareas_vencidas or 0 }}</p>
     </div>
     <div class="stat-box">
       <p class="stat-label">Cumplimiento</p>
-      <p class="stat-valor">{{ resumen.porcentaje_cumplimiento }}%</p>
+      <p class="stat-valor">{{ resumen.porcentaje_cumplimiento or 0 }}%</p>
     </div>
   </div>
 </section>
@@ -317,9 +316,8 @@
 <!-- 👉 Sección de alertas importantes y rankings en tiempo real -->
 <section id="alertas-y-ranking" class="seccion-alertas">
   <h2>🔔 Alertas y desempeño</h2>
-
-  <!-- Alertas destacadas -->
   <div class="contenedor-alertas">
+    {% if alertas.empresa_mas_activas %}
     <div class="alert-card">
       <div class="alert-icon">🏢</div>
       <div class="alert-info">
@@ -327,7 +325,8 @@
         {{ alertas.empresa_mas_activas.nombre }} ({{ alertas.empresa_mas_activas.total }} tareas)
       </div>
     </div>
-
+    {% endif %}
+    {% if alertas.usuario_mas_atrasado %}
     <div class="alert-card">
       <div class="alert-icon">🧍</div>
       <div class="alert-info">
@@ -335,16 +334,18 @@
         {{ alertas.usuario_mas_atrasado.nombre }} ({{ alertas.usuario_mas_atrasado.total }} vencidas)
       </div>
     </div>
-
+    {% endif %}
     <div class="alert-card">
       <div class="alert-icon">⚠️</div>
       <div class="alert-info">
         <strong>Usuarios sin actividad en 3+ días:</strong><br>
-        {% for usuario in alertas.usuarios_inactivos %}
-          • {{ usuario.nombre }}<br>
+        {% if alertas.usuarios_inactivos %}
+          {% for usuario in alertas.usuarios_inactivos %}
+            • {{ usuario.nombre }}<br>
+          {% endfor %}
         {% else %}
           <em>Sin alertas por inactividad</em>
-        {% endfor %}
+        {% endif %}
       </div>
     </div>
   </div>
@@ -379,7 +380,7 @@
 <section id="permisos-equipo" class="seccion-permisos">
   <h2>👥 Permisos del equipo</h2>
 
-  <p><strong>Supervisores actuales:</strong> {{ supervisores_activos }}/3</p>
+  <p><strong>Supervisores actuales:</strong> {{ supervisores_activos or 0 }}/3</p>
 
   <form method="POST" action="{{ url_for('panel_cliente_tareas.index_tareas', nombre_nora=nombre_nora) }}">
     <input type="hidden" name="accion" value="guardar_permisos_equipo">
