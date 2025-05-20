@@ -1,0 +1,40 @@
+/* === TABLA DE VERIFICACIÓN DEL MÓDULO DE TAREAS === */
+
+.seccion-verificacion {
+  margin-top: 2rem;
+}
+
+.seccion-verificacion table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.9rem;
+}
+
+.seccion-verificacion thead {
+  background-color: #f8f9fa;
+}
+
+.seccion-verificacion th,
+.seccion-verificacion td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+  vertical-align: top;
+}
+
+.seccion-verificacion th {
+  font-weight: 600;
+  color: #495057;
+}
+
+.seccion-verificacion tbody tr:nth-child(even) {
+  background-color: #f6f6f6;
+}
+
+.seccion-verificacion tbody tr:hover {
+  background-color: #e9ecef;
+}

@@ -1,0 +1,28 @@
+/* === ETIQUETAS PARA TIPO DE TAREA (BADGES) === */
+
+.etiqueta {
+  font-size: 0.75rem;
+  background-color: #e0e7ff;
+  color: #3730a3;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  margin-left: 0.4rem;
+  display: inline-block;
+}
+
+/* === ESTADOS VISUALES TIPO SEMÁFORO === */
+
+.estado-ok {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.estado-alerta {
+  color: #ffc107;
+  font-weight: bold;
+}
+
+.estado-error {
+  color: #dc3545;
+  font-weight: bold;
+}

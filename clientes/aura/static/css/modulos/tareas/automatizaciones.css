@@ -1,0 +1,49 @@
+/* === BLOQUES DE AUTOMATIZACIONES INTELIGENTES === */
+
+.seccion-configuracion {
+  margin-top: 2rem;
+}
+
+.automate-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #dee2e6;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: background 0.2s ease-in-out;
+}
+
+.automate-item:hover {
+  background-color: #f8f9fa;
+}
+
+.automate-icon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  color: #0d6efd;
+}
+
+.automate-info {
+  flex: 1;
+}
+
+.automate-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+  color: #343a40;
+}
+
+.automate-info p {
+  font-size: 0.85rem;
+  margin: 0;
+  color: #6c757d;
+}
+
+.automate-switch input[type="checkbox"] {
+  transform: scale(1.4);
+  accent-color: #0d6efd;
+}

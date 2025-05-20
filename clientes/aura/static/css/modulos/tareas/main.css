@@ -1,0 +1,14 @@
+/* MODULARES DEL PANEL DE TAREAS === */
+
+@import url('./estructura.css');
+@import url('./encabezado.css');
+@import url('./filtros.css');
+@import url('./lista-tareas.css');
+@import url('./estadisticas.css');
+@import url('./ranking.css');
+@import url('./automatizaciones.css');
+@import url('./permisos.css');
+@import url('./alertas.css');
+@import url('./seguimiento.css');
+@import url('./verificacion.css');
+@import url('./etiquetas.css');

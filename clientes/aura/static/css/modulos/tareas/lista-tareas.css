@@ -1,0 +1,50 @@
+/* === LISTA PRINCIPAL DE TAREAS === */
+
+.lista-tareas {
+  margin-top: 1rem;
+  padding-left: 0;
+  list-style: none;
+}
+
+/* Ítems de tarea con código, título, fecha, estado */
+.item-tarea {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.6rem;
+  transition: background 0.2s ease-in-out;
+}
+
+.item-tarea:hover {
+  background-color: #e9ecef;
+}
+
+.codigo-tarea {
+  font-size: 0.85rem;
+  color: #5c5c5c;
+  font-weight: bold;
+  min-width: 90px;
+}
+
+.estado-tarea {
+  font-size: 1.2rem;
+  margin-left: 0.3rem;
+}
+
+.estado-tarea.verde {
+  color: #28a745;
+}
+
+.estado-tarea.rojo {
+  color: #dc3545;
+}
+
+.estado-tarea.naranja {
+  color: #fd7e14;
+}

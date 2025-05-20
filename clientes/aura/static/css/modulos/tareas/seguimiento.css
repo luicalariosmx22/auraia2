@@ -1,0 +1,37 @@
+/* === TABLA DE SEGUIMIENTO POR WHATSAPP === */
+
+.seccion-seguimiento {
+  margin-top: 2rem;
+}
+
+.seccion-seguimiento table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.seccion-seguimiento thead {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.seccion-seguimiento th,
+.seccion-seguimiento td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.seccion-seguimiento tbody tr:nth-child(even) {
+  background-color: #f1f3f5;
+}
+
+.seccion-seguimiento tbody tr:hover {
+  background-color: #e9ecef;
+}

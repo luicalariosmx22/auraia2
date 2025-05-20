@@ -1,0 +1,45 @@
+/* === TABLA DE RANKINGS DE USUARIOS === */
+
+.ranking-tareas {
+  margin-top: 2rem;
+}
+
+.ranking-tareas h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: #2c3e50;
+}
+
+.ranking-tareas table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ranking-tareas thead {
+  background-color: #f8f9fa;
+}
+
+.ranking-tareas th,
+.ranking-tareas td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.ranking-tareas th {
+  font-weight: 600;
+  color: #495057;
+}
+
+.ranking-tareas tbody tr:nth-child(even) {
+  background-color: #f1f3f5;
+}
+
+.ranking-tareas tbody tr:hover {
+  background-color: #e9ecef;
+}
