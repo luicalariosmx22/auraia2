@@ -514,10 +514,17 @@ def index_tareas(nombre_nora):
     resumen = obtener_resumen_general(cliente_id)
     ranking = obtener_ranking_usuarios_por_completadas(cliente_id)
 
+    resumen = resumen or {
+        "tareas_activas": 0,
+        "tareas_completadas": 0,
+        "tareas_vencidas": 0,
+        "porcentaje_cumplimiento": 0
+    }
+
     # Alertas
     alertas = {
-        "empresa_mas_activas": {"nombre": "Sin datos", "total": 0},
-        "usuario_mas_atrasado": {"nombre": "Sin datos", "total": 0},
+        "empresa_mas_activas": {"nombre": "N/A", "total": 0},
+        "usuario_mas_atrasado": {"nombre": "N/A", "total": 0},
         "usuarios_inactivos": [],
         "ranking_semanal": []
     }
@@ -525,28 +532,38 @@ def index_tareas(nombre_nora):
     # Renderizar plantilla
     return render_template("panel_cliente_tareas/index.html",
         nombre_nora=nombre_nora,
-        tareas=tareas,
+        tareas=tareas or [],
         tarea=None,
-        usuarios=usuarios,
+        usuarios=usuarios or [],
         permisos={"ver_todas": True},
         datos={
             "tareas_semana": 0,
-            "tareas_completadas": resumen["tareas_completadas"],
-            "tareas_activas": resumen["tareas_activas"],
-            "tareas_vencidas": resumen["tareas_vencidas"],
-            "porcentaje_cumplimiento": resumen["porcentaje_cumplimiento"],
-            "ranking_usuarios": ranking
+            "tareas_completadas": resumen.get("tareas_completadas", 0),
+            "tareas_activas": resumen.get("tareas_activas", 0),
+            "tareas_vencidas": resumen.get("tareas_vencidas", 0),
+            "porcentaje_cumplimiento": resumen.get("porcentaje_cumplimiento", 0),
+            "ranking_usuarios": ranking or []
         },
-        resumen=resumen,
+        resumen={
+            "tareas_activas": resumen.get("tareas_activas", 0),
+            "tareas_completadas": resumen.get("tareas_completadas", 0),
+            "tareas_vencidas": resumen.get("tareas_vencidas", 0),
+            "porcentaje_cumplimiento": resumen.get("porcentaje_cumplimiento", 0)
+        },
         config={
             "tareas_recurrentes": config_data.get("tareas_recurrentes", False),
             "alertas_whatsapp": config_data.get("alertas_whatsapp", False),
             "reporte_semanal": config_data.get("reporte_semanal", False),
             "tareas_sugeridas_modulos": config_data.get("tareas_sugeridas_modulos", False)
         },
-        alertas=alertas,
+        alertas={
+            "empresa_mas_activas": alertas.get("empresa_mas_activas", {"nombre": "N/A", "total": 0}),
+            "usuario_mas_atrasado": alertas.get("usuario_mas_atrasado", {"nombre": "N/A", "total": 0}),
+            "usuarios_inactivos": alertas.get("usuarios_inactivos", []),
+            "ranking_semanal": alertas.get("ranking_semanal", [])
+        },
         supervisores_activos=0,
-        usuarios_empresa=usuarios,
+        usuarios_empresa=usuarios or [],
         verificaciones={},
         reportes_whatsapp=[],
         empresa_id=empresa_id,
