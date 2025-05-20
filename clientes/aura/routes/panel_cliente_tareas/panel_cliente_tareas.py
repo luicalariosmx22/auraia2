@@ -1,5 +1,5 @@
 # ✅ Archivo: clientes/aura/routes/panel_cliente_tareas/panel_cliente_tareas.py
-# 👉 Blueprint exportado correctamente como panel_cliente_tareas_bp
+# 👉 Blueprint exportado correctamente como panel_cliente_tareas
 
 from flask import Blueprint, render_template, request
 from supabase import create_client
@@ -282,19 +282,13 @@ def enviar_mensaje_whatsapp(numero, mensaje):
         print(f"❌ Error al enviar WhatsApp a {numero}: {e}")
         return {"status": "error", "mensaje": str(e)}
 
+# Función vacía para resumen de 6PM
+def enviar_resumen_6pm_por_whatsapp():
+    pass
+
+# Función vacía para envío de tareas 8AM
 def enviar_tareas_del_dia_por_whatsapp():
-    hoy = datetime.now().strftime("%Y-%m-%d")
-    usuarios = supabase.table("usuarios_empresa").select("*").eq("whatsapp_autorizado", True).eq("activo", True).execute().data
-    enviados = []
-
-    for usuario in usuarios:
-        tareas = obtener_tareas_para_usuario(usuario["id"], hoy)
-        empresa = supabase.table("cliente_empresas").select("nombre").eq("id", usuario["empresa_id"]).single().execute().data
-        mensaje = generar_mensaje_tareas(tareas, usuario, empresa["nombre"])
-        r = enviar_mensaje_whatsapp(usuario["telefono"], mensaje)
-        enviados.append({"usuario": usuario["nombre"], "status": r["status"]})
-
-    return enviados
+    pass
 
 def enviar_reporte_6pm_por_whatsapp():
     hoy = datetime.now().strftime("%Y-%m-%d")
