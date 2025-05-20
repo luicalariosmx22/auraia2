@@ -202,10 +202,13 @@ def create_app(config_class=Config):
     @app.route("/")
     def index():
         from flask import session, redirect, url_for
-        if "email" in session:
-            return redirect("/admin") if session.get("is_admin") else redirect(
-                url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session.get("nombre_nora"))
-            )
+        if session.get("email") and session.get("nombre_nora"):
+            if session.get("is_admin"):
+                return redirect("/admin")
+            return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session.get("nombre_nora")))
+        
+        # ⚠️ Si no está logueado realmente, forzar limpieza por seguridad
+        session.clear()
         return redirect("/login")
 
     @app.route("/logout")
