@@ -477,7 +477,7 @@ def calcular_porcentaje_cumplimiento(cliente_id):
 def index_tareas(nombre_nora):
     return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
 
-# ✅ Ruta principal del panel de tareas (para url_for('panel_cliente_tareas.panel_tareas', nombre_nora=...))
+# ✅ Ruta principal del panel de tareas (para /panel_cliente/<nombre_nora>/tareas)
 @panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas")
 def panel_tareas(nombre_nora):
     return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
