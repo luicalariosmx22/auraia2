@@ -1,6 +1,10 @@
 {% extends "base_cliente.html" %}
 {% block title %}📋 Tareas{% endblock %}
 
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/panel_cliente_tareas.css') }}">
+{% endblock %}
+
 {% block contenido %}
 <div class="panel-tareas">
   <h1 style="display: flex; align-items: center; gap: 0.5em;">
