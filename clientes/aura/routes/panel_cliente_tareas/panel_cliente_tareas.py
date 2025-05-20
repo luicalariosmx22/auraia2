@@ -478,6 +478,6 @@ def index_tareas(nombre_nora):
     return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
 
 # ✅ Ruta principal del panel de tareas (para /panel_cliente/<nombre_nora>/tareas)
-@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas")
-def panel_tareas(nombre_nora):
+@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas", endpoint="index_tareas")
+def ver_panel_tareas(nombre_nora):
     return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
