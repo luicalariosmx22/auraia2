@@ -529,6 +529,17 @@ def index_tareas(nombre_nora):
         "ranking_semanal": []
     }
 
+    verificaciones = {
+        "usuarios_empresa": {"estado": "⏳", "comentario": "Sin evaluar"},
+        "tareas_creadas": {"estado": "⏳", "comentario": "Sin evaluar"},
+        "tareas_asignadas": {"estado": "⏳", "comentario": "Sin evaluar"},
+        "recurrentes": {"estado": "⏳", "comentario": "Sin evaluar"},
+        "recordatorios": {"estado": "⏳", "comentario": "Sin evaluar"},
+        "envios_whatsapp": {"estado": "⏳", "comentario": "Sin evaluar"},
+        "plantillas": {"estado": "⏳", "comentario": "Sin evaluar"},
+        "supervisores": {"estado": "⏳", "comentario": "Sin evaluar"}
+    }
+
     # Renderizar plantilla
     return render_template("panel_cliente_tareas/index.html",
         nombre_nora=nombre_nora,
@@ -564,7 +575,7 @@ def index_tareas(nombre_nora):
         },
         supervisores_activos=0,
         usuarios_empresa=usuarios or [],
-        verificaciones={},
+        verificaciones=verificaciones,
         reportes_whatsapp=[],
         empresa_id=empresa_id,
         cliente_id=cliente_id

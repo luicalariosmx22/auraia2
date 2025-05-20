@@ -14,9 +14,7 @@ supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 # ✅ Función: listar_usuarios_empresa(nombre_nora)
 @usuarios_empresa_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios", methods=["GET"])
 def listar_usuarios_empresa(nombre_nora):
-    config = supabase.table("configuracion_bot").select("cliente_id").eq("nombre_nora", nombre_nora).single().execute().data
-    empresa_id = config.get("cliente_id")
-    usuarios = supabase.table("usuarios_empresa").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data
+    usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data
     return jsonify(usuarios)
 
 # ✅ Función: crear_usuario_empresa(nombre_nora, data)
@@ -53,7 +51,7 @@ def crear_usuario_empresa(nombre_nora):
         "nombre": nombre,
         "correo": correo,
         "telefono": telefono,
-        "empresa_id": empresa_id,
+        "nombre_nora": nombre_nora,
         "rol": "usuario",
         "activo": True,
         "ver_todas_tareas": data.get("ver_todas_tareas", False),
@@ -63,7 +61,7 @@ def crear_usuario_empresa(nombre_nora):
         "created_at": datetime.now().isoformat()
     }
 
-    supabase.table("usuarios_empresa").insert(nuevo).execute()
+    supabase.table("usuarios_clientes").insert(nuevo).execute()
     return jsonify({"status": "creado"})
 
 # ✅ Función: editar_usuario_empresa(usuario_id, data)
