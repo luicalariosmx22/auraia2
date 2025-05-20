@@ -476,52 +476,58 @@ def calcular_porcentaje_cumplimiento(cliente_id):
 # ✅ Ruta correcta para el panel principal (respetando url_prefix ya definido)
 @panel_cliente_tareas_bp.route("/", endpoint="index_tareas")
 def index_tareas(nombre_nora):
-    # Datos vacíos temporales para evitar errores
+    # Obtener configuración del bot para esta Nora
+    config_result = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).single().execute()
+    config_data = config_result.data or {}
+
+    cliente_id = config_data.get("cliente_id")
+    empresa_id = config_data.get("empresa_id")
+
+    # Obtener usuarios
+    usuarios = supabase.table("usuarios_empresa").select("*").eq("cliente_id", cliente_id).eq("activo", True).execute().data or []
+
+    # Obtener tareas activas (simples por ahora)
+    tareas = supabase.table("tareas").select("*").eq("cliente_id", cliente_id).eq("activo", True).execute().data or []
+
+    # Resumen y métricas
+    resumen = obtener_resumen_general(cliente_id)
+    ranking = obtener_ranking_usuarios_por_completadas(cliente_id)
+
+    # Alertas
+    alertas = {
+        "empresa_mas_activas": {"nombre": "Sin datos", "total": 0},
+        "usuario_mas_atrasado": {"nombre": "Sin datos", "total": 0},
+        "usuarios_inactivos": [],
+        "ranking_semanal": []
+    }
+
+    # Renderizar plantilla
     return render_template("panel_cliente_tareas/index.html",
         nombre_nora=nombre_nora,
-        tareas=[],
+        tareas=tareas,
         tarea=None,
-        usuarios=[],
+        usuarios=usuarios,
         permisos={"ver_todas": True},
         datos={
             "tareas_semana": 0,
-            "tareas_completadas": 0,
-            "tareas_activas": 0,
-            "tareas_vencidas": 0,
-            "porcentaje_cumplimiento": 0,
-            "ranking_usuarios": []
+            "tareas_completadas": resumen["tareas_completadas"],
+            "tareas_activas": resumen["tareas_activas"],
+            "tareas_vencidas": resumen["tareas_vencidas"],
+            "porcentaje_cumplimiento": resumen["porcentaje_cumplimiento"],
+            "ranking_usuarios": ranking
         },
-        resumen={
-            "tareas_activas": 0,
-            "tareas_completadas": 0,
-            "tareas_vencidas": 0,
-            "porcentaje_cumplimiento": 0
-        },
+        resumen=resumen,
         config={
-            "tareas_recurrentes": False,
-            "alertas_whatsapp": False,
-            "reporte_semanal": False,
-            "tareas_sugeridas_modulos": False
+            "tareas_recurrentes": config_data.get("tareas_recurrentes", False),
+            "alertas_whatsapp": config_data.get("alertas_whatsapp", False),
+            "reporte_semanal": config_data.get("reporte_semanal", False),
+            "tareas_sugeridas_modulos": config_data.get("tareas_sugeridas_modulos", False)
         },
-        alertas={
-            "empresa_mas_activas": {"nombre": "Sin datos", "total": 0},
-            "usuario_mas_atrasado": {"nombre": "Sin datos", "total": 0},
-            "usuarios_inactivos": [],
-            "ranking_semanal": []
-        },
+        alertas=alertas,
         supervisores_activos=0,
-        usuarios_empresa=[],
-        verificaciones={
-            "usuarios_empresa": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "tareas_creadas": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "tareas_asignadas": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "recurrentes": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "recordatorios": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "envios_whatsapp": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "plantillas": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "supervisores": {"estado": "⏳", "comentario": "Sin evaluar"}
-        },
+        usuarios_empresa=usuarios,
+        verificaciones={},
         reportes_whatsapp=[],
-        empresa_id=None,
-        cliente_id=None
+        empresa_id=empresa_id,
+        cliente_id=cliente_id
     )
