@@ -16,6 +16,7 @@ from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import p
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_pagos.vista_panel_cliente_pagos import panel_cliente_pagos_bp
 from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
+from clientes.aura.routes.panel_cliente_tareas.panel_cliente_tareas import panel_cliente_tareas_bp
 
 
 # Configurar Supabase
@@ -30,8 +31,6 @@ def safe_register_blueprint(app, blueprint, **kwargs):
         print(f"✅ Blueprint '{blueprint.name}' registrado con prefijo '{kwargs.get('url_prefix', '')}'")
     else:
         print(f"⚠️ Blueprint '{blueprint.name}' ya estaba registrado.")
-
-from clientes.aura.routes.panel_cliente_tareas.vista_panel_cliente_tareas import panel_cliente_tareas_bp
 
 def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
     from clientes.aura.modules.ads import ads_bp  # ✅ Import del módulo Ads dinámico
@@ -115,6 +114,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                     safe_register_blueprint(app, panel_cliente_pagos_recibo_bp)
                 except Exception as e:
                     print(f"❌ Error al registrar blueprint vista_recibo_pago: {e}")
+
+            if "tareas" in modulos:
+                safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")

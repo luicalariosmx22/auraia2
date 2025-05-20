@@ -1,0 +1,39 @@
+<!-- ✅ Archivo: clientes/aura/templates/debug/verificar_tareas.html -->
+<!-- 👉 Vista de verificación del módulo de TAREAS para Nora (Multi-Nora) -->
+
+<h1>✅ Verificación del módulo de TAREAS para {{ nombre_nora }}</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Verificación</th>
+      <th>Estado</th>
+      <th>Comentario</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in resultado %}
+    <tr>
+      <td>{{ item.nombre }}</td>
+      <td>{{ item.estado }}</td>
+      <td>{{ item.comentario }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- 🛠 Botón para reparación automática -->
+<form method="POST" action="{{ url_for('debug_verificar_tareas.reparar') }}">
+  <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
+  <button type="submit">🛠 Reparar errores comunes</button>
+</form>
+
+<!-- Log de reparaciones (si existen) -->
+{% if log %}
+  <h3>🛠 Reparaciones realizadas:</h3>
+  <ul>
+    {% for linea in log %}
+      <li>{{ linea }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

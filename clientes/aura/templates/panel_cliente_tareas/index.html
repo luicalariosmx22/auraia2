@@ -2,29 +2,571 @@
 {% block title %}📋 Tareas{% endblock %}
 
 {% block content %}
-<h1>📋 Tareas para {{ nombre_nora }}</h1>
+<div class="panel-tareas">
+  <h1 style="display: flex; align-items: center; gap: 0.5em;">
+    📋 Tareas
+    <button style="margin-left:auto; font-size:15px;" class="btn btn-refrescar">+ Nueva tarea</button>
+  </h1>
 
-<form method="POST" action="{{ url_for('panel_cliente_tareas.crear_tarea_nueva', nombre_nora=nombre_nora) }}">
-  <input name="titulo" placeholder="Título de la tarea" required><br>
-  <textarea name="descripcion" placeholder="Descripción detallada"></textarea><br>
-  <input type="date" name="fecha_inicio" required>
-  <input type="date" name="fecha_plazo" required><br>
-  <input name="empresa" placeholder="Empresa relacionada" required><br>
-  <input name="asignado_a" placeholder="Responsable (email o nombre)" required><br>
-  <button type="submit">➕ Crear tarea</button>
-</form>
+  <div class="barra-superior">
+    <a href="{{ url_for('usuarios_empresa.listar_usuarios_empresa', nombre_nora=nombre_nora) }}" class="btn btn-secondary float-end" style="margin-left: 10px;">
+      👥 Mi equipo
+    </a>
+    <a href="#" class="btn btn-primary float-end">
+      + Nueva tarea
+    </a>
+  </div>
 
-<h2>📌 Templates disponibles</h2>
-<ul>
-  {% for tpl in templates %}
-    <li><strong>{{ tpl.nombre }}</strong>: {{ tpl.descripcion }}</li>
-  {% endfor %}
-</ul>
+  <form method="get" style="display: flex; gap: 1em; margin-bottom: 1.5em; align-items: flex-end;">
+    <div>
+      <label for="filtro_estado">Estado:</label>
+      <select id="filtro_estado" name="estado">
+        <option value="">Todas</option>
+        <option value="pendiente">Pendientes</option>
+        <option value="completada">Completadas</option>
+        <option value="vencida">Vencidas</option>
+      </select>
+    </div>
+    {% if permisos.ver_todas %}
+    <div>
+      <label for="filtro_usuario">Usuario:</label>
+      <select id="filtro_usuario" name="usuario">
+        <option value="">Todos</option>
+        {% for usuario in usuarios %}
+          <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+    <div>
+      <label for="filtro_fecha">Fecha:</label>
+      <select id="filtro_fecha" name="fecha">
+        <option value="">Cualquier fecha</option>
+        <option value="hoy">Hoy</option>
+        <option value="semana">Esta semana</option>
+        <option value="intervalo">Intervalo</option>
+      </select>
+    </div>
+    <!-- Si selecciona intervalo, mostrar inputs de fecha (solo estructura, sin JS) -->
+    <div>
+      <input type="date" name="desde" placeholder="Desde">
+      <input type="date" name="hasta" placeholder="Hasta">
+    </div>
+    <button type="submit" class="btn">Filtrar</button>
+  </form>
 
-<h2>📌 Tareas asignadas</h2>
-<ul>
-  {% for tarea in tareas %}
-    <li>✅ {{ tarea.titulo }} ({{ tarea.fecha_plazo }}) — {{ tarea.asignado_a }}</li>
-  {% endfor %}
-</ul>
+  {% if tareas and tareas|length > 0 %}
+    <ul style="list-style: none; padding: 0;">
+      {% for tarea in tareas %}
+        <li style="display: flex; align-items: center; gap: 1em; border-bottom: 1px solid #eee; padding: 0.7em 0;">
+          <span style="font-weight: bold; color: #0369a1;">{{ tarea.codigo_tarea }}</span>
+          <span style="flex:1;">{{ tarea.titulo }}</span>
+          <span style="color: #888; font-size: 13px;">{{ tarea.fecha_limite or tarea.fecha_plazo }}</span>
+          {% if tarea.prioridad == 'alta' %}
+            <span title="Alta prioridad" style="color: #e11d48;">❗</span>
+          {% elif tarea.prioridad == 'media' %}
+            <span title="Prioridad media" style="color: #f59e42;">⏳</span>
+          {% else %}
+            <span title="Prioridad baja" style="color: #22c55e;">●</span>
+          {% endif %}
+          {% if tarea.estatus == 'completada' %}
+            <span title="Completada" style="color: #22c55e; font-size: 18px;">✅</span>
+          {% else %}
+            <button class="btn btn-refrescar" style="font-size:13px;">Marcar completada</button>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div style="text-align:center; color:#888; margin-top:3em;">
+      No tienes tareas por ahora 🎉
+    </div>
+  {% endif %}
+</div>
+
+<!-- 👉 Modal para crear o editar una tarea -->
+<div class="modal" id="modal-tarea" style="display: none;">
+  <div class="modal-contenido">
+    <h2>{{ 'Editar Tarea' if tarea else 'Nueva Tarea' }}</h2>
+    <form method="POST" action="{{ url_for('panel_cliente_tareas.index_tareas', nombre_nora=nombre_nora) }}">
+      <input type="hidden" name="tarea_id" value="{{ tarea.id if tarea }}">
+      <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
+      <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
+
+      <!-- Título -->
+      <label for="titulo">Título</label>
+      <input type="text" name="titulo" id="titulo" value="{{ tarea.titulo if tarea }}" required>
+
+      <!-- Descripción -->
+      <label for="descripcion">Descripción</label>
+      <textarea name="descripcion" id="descripcion">{{ tarea.descripcion if tarea }}</textarea>
+
+      <!-- Fecha límite -->
+      <label for="fecha_limite">Fecha límite</label>
+      <input type="date" name="fecha_limite" id="fecha_limite" value="{{ tarea.fecha_limite if tarea }}">
+
+      <!-- Prioridad -->
+      <label for="prioridad">Prioridad</label>
+      <select name="prioridad" id="prioridad">
+        <option value="baja" {% if tarea and tarea.prioridad == 'baja' %}selected{% endif %}>Baja</option>
+        <option value="media" {% if tarea and tarea.prioridad == 'media' %}selected{% endif %}>Media</option>
+        <option value="alta" {% if tarea and tarea.prioridad == 'alta' %}selected{% endif %}>Alta</option>
+      </select>
+
+      <!-- Usuario asignado -->
+      <label for="usuario_empresa_id">Asignado a</label>
+      <select name="usuario_empresa_id" id="usuario_empresa_id" required>
+        <option value="">Selecciona un usuario</option>
+        {% for usuario in usuarios %}
+          <option value="{{ usuario.id }}" {% if tarea and tarea.usuario_empresa_id == usuario.id %}selected{% endif %}>
+            {{ usuario.nombre }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <!-- Botones -->
+      <div class="botones-modal">
+        <button type="submit">Guardar</button>
+        <button type="button" onclick="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 👉 Modal de confirmación para marcar tarea como completada -->
+<div class="modal" id="modal-confirmar-completada" style="display: none;">
+  <div class="modal-contenido">
+    <h2>¿Marcar esta tarea como completada?</h2>
+
+    <p><strong>Código:</strong> {{ tarea.codigo_tarea }}</p>
+    <p><strong>Título:</strong> {{ tarea.titulo }}</p>
+
+    <form method="POST" action="{{ url_for('panel_cliente_tareas.index_tareas', nombre_nora=nombre_nora) }}">
+      <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
+      <input type="hidden" name="accion" value="completar">
+
+      <div class="botones-modal">
+        <button type="submit">Sí, completar tarea</button>
+        <button type="button" onclick="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 👉 Sección de estadísticas y rankings del módulo TAREAS -->
+<section id="estadisticas" class="seccion-dashboard">
+  <h2>Estadísticas de Tareas</h2>
+
+  <!-- Bloques de métricas -->
+  <div class="contenedor-estadisticas">
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-info">
+        <h3>{{ datos.tareas_semana }}</h3>
+        <p>Tareas creadas esta semana</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-info">
+        <h3>{{ datos.tareas_completadas }}</h3>
+        <p>Tareas completadas</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🕒</div>
+      <div class="stat-info">
+        <h3>{{ datos.tareas_activas }}</h3>
+        <p>Tareas activas</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-info">
+        <h3>{{ datos.tareas_vencidas }}</h3>
+        <p>Tareas vencidas</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📈</div>
+      <div class="stat-info">
+        <h3>{{ datos.porcentaje_cumplimiento }}%</h3>
+        <p>Cumplimiento general</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de rankings -->
+  <div class="ranking-tareas">
+    <h3>🏆 Rankings</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Completadas</th>
+          <th>Vencidas</th>
+          <th>Activas</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for usuario in datos.ranking_usuarios %}
+        <tr>
+          <td>{{ usuario.nombre }}</td>
+          <td>{{ usuario.completadas }}</td>
+          <td>{{ usuario.vencidas }}</td>
+          <td>{{ usuario.activas }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 👉 Sección de estadísticas rápidas -->
+<section id="estadisticas-rapidas" class="seccion-estadisticas">
+  <h2>⚙️ Estadísticas rápidas</h2>
+  <div class="estadisticas-grid">
+    <div class="stat-box">
+      <p class="stat-label">Tareas activas</p>
+      <p class="stat-valor">{{ resumen.tareas_activas }}</p>
+    </div>
+    <div class="stat-box">
+      <p class="stat-label">Completadas</p>
+      <p class="stat-valor">{{ resumen.tareas_completadas }}</p>
+    </div>
+    <div class="stat-box">
+      <p class="stat-label">Vencidas</p>
+      <p class="stat-valor">{{ resumen.tareas_vencidas }}</p>
+    </div>
+    <div class="stat-box">
+      <p class="stat-label">Cumplimiento</p>
+      <p class="stat-valor">{{ resumen.porcentaje_cumplimiento }}%</p>
+    </div>
+  </div>
+</section>
+
+<!-- 👉 Sección de configuración de automatizaciones inteligentes -->
+<section id="automatizaciones" class="seccion-configuracion">
+  <h2>⚙️ Automatizaciones</h2>
+  <form method="POST" action="{{ url_for('panel_cliente_tareas.index_tareas', nombre_nora=nombre_nora) }}">
+    <input type="hidden" name="accion" value="guardar_automatizaciones">
+
+    <!-- 🔁 Tareas recurrentes -->
+    <div class="automate-item">
+      <div class="automate-icon">🔁</div>
+      <div class="automate-info">
+        <h3>Activar tareas recurrentes</h3>
+        <p>Genera tareas automáticamente en intervalos definidos (diarias, semanales, etc.).</p>
+      </div>
+      <div class="automate-switch">
+        <input type="checkbox" name="tareas_recurrentes" id="tareas_recurrentes"
+               {% if config.tareas_recurrentes %}checked{% endif %}>
+      </div>
+    </div>
+
+    <!-- 🔔 Recordatorios por WhatsApp -->
+    <div class="automate-item">
+      <div class="automate-icon">🔔</div>
+      <div class="automate-info">
+        <h3>Activar recordatorios por WhatsApp</h3>
+        <p>Envía notificaciones automáticas a los usuarios sobre sus tareas pendientes.</p>
+      </div>
+      <div class="automate-switch">
+        <input type="checkbox" name="alertas_whatsapp" id="alertas_whatsapp"
+               {% if config.alertas_whatsapp %}checked{% endif %}>
+      </div>
+    </div>
+
+    <!-- 📬 Reporte PDF semanal -->
+    <div class="automate-item">
+      <div class="automate-icon">📬</div>
+      <div class="automate-info">
+        <h3>Activar reporte PDF semanal</h3>
+        <p>Envía cada semana un resumen PDF de tareas a los supervisores.</p>
+      </div>
+      <div class="automate-switch">
+        <input type="checkbox" name="reporte_semanal" id="reporte_semanal"
+               {% if config.reporte_semanal %}checked{% endif %}>
+      </div>
+    </div>
+
+    <!-- 🧩 Tareas sugeridas al activar otro módulo -->
+    <div class="automate-item">
+      <div class="automate-icon">🧩</div>
+      <div class="automate-info">
+        <h3>Activar tareas sugeridas por módulos</h3>
+        <p>Crea tareas automáticamente al activar funciones como campañas, clientes o cursos.</p>
+      </div>
+      <div class="automate-switch">
+        <input type="checkbox" name="tareas_sugeridas_modulos" id="tareas_sugeridas_modulos"
+               {% if config.tareas_sugeridas_modulos %}checked{% endif %}>
+      </div>
+    </div>
+
+    <!-- Botón de guardar -->
+    <div class="guardar-config">
+      <button type="submit">Guardar configuración</button>
+    </div>
+  </form>
+</section>
+
+<!-- 👉 Sección de alertas importantes y rankings en tiempo real -->
+<section id="alertas-y-ranking" class="seccion-alertas">
+  <h2>🔔 Alertas y desempeño</h2>
+
+  <!-- Alertas destacadas -->
+  <div class="contenedor-alertas">
+    <div class="alert-card">
+      <div class="alert-icon">🏢</div>
+      <div class="alert-info">
+        <strong>Empresa con más tareas activas:</strong><br>
+        {{ alertas.empresa_mas_activas.nombre }} ({{ alertas.empresa_mas_activas.total }} tareas)
+      </div>
+    </div>
+
+    <div class="alert-card">
+      <div class="alert-icon">🧍</div>
+      <div class="alert-info">
+        <strong>Usuario con más tareas vencidas:</strong><br>
+        {{ alertas.usuario_mas_atrasado.nombre }} ({{ alertas.usuario_mas_atrasado.total }} vencidas)
+      </div>
+    </div>
+
+    <div class="alert-card">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-info">
+        <strong>Usuarios sin actividad en 3+ días:</strong><br>
+        {% for usuario in alertas.usuarios_inactivos %}
+          • {{ usuario.nombre }}<br>
+        {% else %}
+          <em>Sin alertas por inactividad</em>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Rankings semanales -->
+  <div class="ranking-tareas">
+    <h3>🏆 Rankings semanales</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>✅ Completadas</th>
+          <th>❌ Vencidas</th>
+          <th>📈 Eficiencia (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for usuario in alertas.ranking_semanal %}
+        <tr>
+          <td>{{ usuario.nombre }}</td>
+          <td>{{ usuario.completadas }}</td>
+          <td>{{ usuario.vencidas }}</td>
+          <td>{{ usuario.eficiencia }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 👉 Sección para ver, editar y asignar permisos especiales a usuarios empresa -->
+<section id="permisos-equipo" class="seccion-permisos">
+  <h2>👥 Permisos del equipo</h2>
+
+  <p><strong>Supervisores actuales:</strong> {{ supervisores_activos }}/3</p>
+
+  <form method="POST" action="{{ url_for('panel_cliente_tareas.index_tareas', nombre_nora=nombre_nora) }}">
+    <input type="hidden" name="accion" value="guardar_permisos_equipo">
+
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Contacto</th>
+          <th>Rol</th>
+          <th>🔎 Ver todas</th>
+          <th>✏️ Crear para otros</th>
+          <th>🔁 Reasignar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for usuario in usuarios_empresa %}
+        <tr>
+          <td>{{ usuario.nombre }}</td>
+          <td>{{ usuario.correo or usuario.telefono }}</td>
+          <td>
+            {% if usuario.es_supervisor_tareas %}
+              Supervisor
+            {% else %}
+              Estándar
+            {% endif %}
+          </td>
+          <td>
+            <input type="checkbox" name="permisos[{{ usuario.id }}][ver_todas_tareas]"
+                   {% if usuario.ver_todas_tareas %}checked{% endif %}
+                   {% if not usuario.es_supervisor_tareas %}disabled{% endif %}>
+          </td>
+          <td>
+            <input type="checkbox" name="permisos[{{ usuario.id }}][crear_tareas_otros]"
+                   {% if usuario.crear_tareas_otros %}checked{% endif %}
+                   {% if not usuario.es_supervisor_tareas %}disabled{% endif %}>
+          </td>
+          <td>
+            <input type="checkbox" name="permisos[{{ usuario.id }}][reasignar_tareas]"
+                   {% if usuario.reasignar_tareas %}checked{% endif %}
+                   {% if not usuario.es_supervisor_tareas %}disabled{% endif %}>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="guardar-config">
+      <button type="submit">Guardar permisos</button>
+    </div>
+  </form>
+</section>
+
+<!-- 👉 Sección para controlar el estado de los envíos automáticos diarios por WhatsApp -->
+<section id="seguimiento-whatsapp" class="seccion-seguimiento">
+  <h2>📲 Seguimiento automático por WhatsApp</h2>
+  <p>Nora envía las tareas del día a las 8 AM y revisa el estado a las 6 PM.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>WhatsApp</th>
+        <th>📤 Envío 8 AM</th>
+        <th>🔁 Seguimiento 6 PM</th>
+        <th>📋 Tareas enviadas</th>
+        <th>✅ Completadas</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reporte in reportes_whatsapp %}
+      <tr>
+        <td>{{ reporte.nombre }}</td>
+        <td>{{ reporte.telefono or 'No disponible' }}</td>
+        <td>
+          {% if reporte.estado_8am == 'enviado' %}
+            ✅ Enviado
+          {% elif reporte.estado_8am == 'error' %}
+            ⚠️ Error
+          {% else %}
+            ⏳ Pendiente
+          {% endif %}
+        </td>
+        <td>
+          {% if reporte.estado_6pm == 'completado' %}
+            ✅ Seguimiento
+          {% elif reporte.estado_6pm == 'error' %}
+            ⚠️ Error
+          {% else %}
+            ⏳ Pendiente
+          {% endif %}
+        </td>
+        <td>{{ reporte.tareas_enviadas }}</td>
+        <td>{{ reporte.tareas_completadas }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<!-- 👉 Sección de verificación del módulo de TAREAS -->
+<section id="verificacion-modulo" class="seccion-verificacion">
+  <h2>✅ Verificación del módulo</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Verificación</th>
+        <th>Estado</th>
+        <th>Comentario</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Usuarios empresa registrados</td>
+        <td>{{ verificaciones.usuarios_empresa.estado }}</td>
+        <td>{{ verificaciones.usuarios_empresa.comentario }}</td>
+      </tr>
+      <tr>
+        <td>Tareas creadas</td>
+        <td>{{ verificaciones.tareas_creadas.estado }}</td>
+        <td>{{ verificaciones.tareas_creadas.comentario }}</td>
+      </tr>
+      <tr>
+        <td>Tareas asignadas correctamente</td>
+        <td>{{ verificaciones.tareas_asignadas.estado }}</td>
+        <td>{{ verificaciones.tareas_asignadas.comentario }}</td>
+      </tr>
+      <tr>
+        <td>Automatización de tareas recurrentes</td>
+        <td>{{ verificaciones.recurrentes.estado }}</td>
+        <td>{{ verificaciones.recurrentes.comentario }}</td>
+      </tr>
+      <tr>
+        <td>Recordatorios por WhatsApp</td>
+        <td>{{ verificaciones.recordatorios.estado }}</td>
+        <td>{{ verificaciones.recordatorios.comentario }}</td>
+      </tr>
+      <tr>
+        <td>Envíos 8 AM y 6 PM funcionando</td>
+        <td>{{ verificaciones.envios_whatsapp.estado }}</td>
+        <td>{{ verificaciones.envios_whatsapp.comentario }}</td>
+      </tr>
+      <tr>
+        <td>Plantillas de tareas disponibles</td>
+        <td>{{ verificaciones.plantillas.estado }}</td>
+        <td>{{ verificaciones.plantillas.comentario }}</td>
+      </tr>
+      <tr>
+        <td>Supervisores activos (máx. 3)</td>
+        <td>{{ verificaciones.supervisores.estado }}</td>
+        <td>{{ verificaciones.supervisores.comentario }}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="lista-tareas" class="seccion-tareas">
+  <h2>📋 Tareas activas</h2>
+
+  {% if tareas_activas %}
+    <ul class="lista-tareas">
+      {% for tarea in tareas_activas %}
+      <li class="tarea-item">
+        <!-- Icono de estado -->
+        {% if tarea.estatus == "completada" %}
+          ✅
+        {% elif tarea.estatus in ["vencida", "atrasada"] %}
+          ❗
+        {% else %}
+          ⏳
+        {% endif %}
+
+        <!-- Código + Título -->
+        <strong>{{ tarea.codigo_tarea }}</strong>: {{ tarea.titulo }}
+
+        <!-- Etiquetas de origen -->
+        {% if tarea.origen == "plantilla" %}
+          <span class="etiqueta">🧠 Plantilla</span>
+        {% elif tarea.origen == "recurrente" %}
+          <span class="etiqueta">🔁 Recurrente</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>✨ No hay tareas activas por el momento.</p>
+  {% endif %}
+</section>
 {% endblock %}
