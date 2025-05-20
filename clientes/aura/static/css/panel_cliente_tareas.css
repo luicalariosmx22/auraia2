@@ -1,12 +1,13 @@
+/* ==========================================
+   SECCIÓN VISUAL COMPLETA - MÓDULO DE TAREAS
+   ==========================================
+*/
+
 /* === CONTENEDOR CENTRAL GENERAL === */
 .panel-tareas {
   max-width: 1100px;
   margin: 0 auto;
   padding: 2rem 1rem;
-}
-
-/* Estilo general del contenedor */
-.panel-tareas {
   padding-bottom: 2rem;
 }
 
