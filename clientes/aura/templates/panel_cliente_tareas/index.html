@@ -7,6 +7,7 @@
 
 {% block contenido %}
 <div class="panel-tareas">
+  <!-- Elimina el botón "+ Nueva tarea" aislado si ya está en barra-superior -->
   <div class="barra-superior">
     {% if usuarios and permisos and permisos.ver_todas %}
       <a href="#" class="btn btn-secondary float-end">👥 Ver equipo</a>
@@ -153,7 +154,7 @@
 
 <!-- 👉 Sección de estadísticas y rankings del módulo TAREAS -->
 <section id="estadisticas" class="panel-tareas">
-  <h2>Estadísticas de Tareas</h2>
+  <h2 class="seccion-titulo">Estadísticas de Tareas</h2>
   <div class="contenedor-estadisticas">
     <div class="stat-card">
       <div class="stat-icon">📅</div>
@@ -222,23 +223,16 @@
 
 <!-- 👉 Sección de estadísticas rápidas -->
 <section id="estadisticas-rapidas" class="seccion-estadisticas">
-  <h2>⚙️ Estadísticas rápidas</h2>
-  <div class="estadisticas-grid">
-    <div class="stat-box">
-      <p class="stat-label">Tareas activas</p>
-      <p class="stat-valor">{{ resumen.tareas_activas or 0 }}</p>
-    </div>
-    <div class="stat-box">
-      <p class="stat-label">Completadas</p>
-      <p class="stat-valor">{{ resumen.tareas_completadas or 0 }}</p>
-    </div>
-    <div class="stat-box">
-      <p class="stat-label">Vencidas</p>
-      <p class="stat-valor">{{ resumen.tareas_vencidas or 0 }}</p>
-    </div>
-    <div class="stat-box">
-      <p class="stat-label">Cumplimiento</p>
-      <p class="stat-valor">{{ resumen.porcentaje_cumplimiento or 0 }}%</p>
+  <div class="stat-card">
+    <div class="stat-icon">📊</div>
+    <div class="stat-info">
+      <p>Estadísticas rápidas</p>
+      <ul>
+        <li>Activas: {{ resumen.tareas_activas or 0 }}</li>
+        <li>Completadas: {{ resumen.tareas_completadas or 0 }}</li>
+        <li>Vencidas: {{ resumen.tareas_vencidas or 0 }}</li>
+        <li>Cumplimiento: {{ resumen.porcentaje_cumplimiento or 0 }}%</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -373,10 +367,12 @@
 
 <!-- 👉 Sección para ver, editar y asignar permisos especiales a usuarios empresa -->
 <section id="permisos-equipo" class="seccion-permisos">
-  <h2>👥 Permisos del equipo</h2>
-
-  <p><strong>Supervisores actuales:</strong> {{ supervisores_activos or 0 }}/3</p>
-
+  <h2 class="seccion-titulo">Permisos del equipo</h2>
+  <div class="alert-card">
+    <div class="alert-info">
+      <strong>Supervisores actuales: {{ supervisores_activos or 0 }}/3</strong>
+    </div>
+  </div>
   <form method="POST" action="{{ url_for('panel_cliente_tareas.index_tareas', nombre_nora=nombre_nora) }}">
     <input type="hidden" name="accion" value="guardar_permisos_equipo">
 

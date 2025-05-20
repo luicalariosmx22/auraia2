@@ -21,3 +21,11 @@
 .espaciado-grande {
   margin-top: 3em;
 }
+
+.seccion-titulo {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+  color: #2c3e50;
+}
