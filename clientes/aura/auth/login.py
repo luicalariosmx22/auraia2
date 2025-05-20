@@ -73,11 +73,13 @@ def login_callback():
         print("nombre_nora:", session.get("nombre_nora"))
         print("is_admin:", session.get("is_admin"))
 
-        return redirect(
-            url_for("admin_dashboard.dashboard_admin")
-            if session.get("is_admin")
-            else url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session.get("nombre_nora"))
-        )
+        # ✅ Redirección con fallback explícito
+        if session.get("is_admin") is True:
+            return redirect(url_for("admin_dashboard.dashboard_admin"))
+        elif session.get("nombre_nora"):
+            return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session.get("nombre_nora")))
+        else:
+            return redirect("/login")  # fallback en caso de error
 
     except Exception as e:
         return f"Error en login: {str(e)}"
