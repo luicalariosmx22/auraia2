@@ -483,6 +483,26 @@ def index_tareas(nombre_nora):
     cliente_id = config_data.get("cliente_id")
     empresa_id = config_data.get("empresa_id")
 
+    # 🛡 Validar que estén definidos para evitar error UUID None
+    if not cliente_id or not empresa_id:
+        return render_template("panel_cliente_tareas/index.html",
+            nombre_nora=nombre_nora,
+            tareas=[],
+            tarea=None,
+            usuarios=[],
+            permisos={"ver_todas": False},
+            datos={"tareas_semana": 0, "tareas_completadas": 0, "tareas_activas": 0, "tareas_vencidas": 0, "porcentaje_cumplimiento": 0, "ranking_usuarios": []},
+            resumen={"tareas_activas": 0, "tareas_completadas": 0, "tareas_vencidas": 0, "porcentaje_cumplimiento": 0},
+            config={},
+            alertas={},
+            supervisores_activos=0,
+            usuarios_empresa=[],
+            verificaciones={},
+            reportes_whatsapp=[],
+            empresa_id=None,
+            cliente_id=None
+        )
+
     # Obtener usuarios
     usuarios = supabase.table("usuarios_empresa").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data or []
 
