@@ -596,7 +596,6 @@ def index_tareas(nombre_nora):
             "ranking_semanal": alertas.get("ranking_semanal", [])
         },
         supervisores_activos=0,
-        usuarios=usuarios or [],
         verificaciones=verificaciones,
         reportes_whatsapp=[],
         empresa_id=empresa_id,
