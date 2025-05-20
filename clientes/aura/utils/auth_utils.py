@@ -18,5 +18,6 @@ def is_module_active(nombre_nora: str, modulo: str) -> bool:
     from supabase import create_client
     import os
     supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
-    res = supabase.from_("modulos_disponibles").select("activo").eq("nombre_nora", nombre_nora).eq("modulo", modulo).single().execute()
-    return res.data and res.data.get("activo") is True
+    res = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).single().execute()
+    modulos = res.data.get("modulos", []) if res.data else []
+    return modulo in modulos
