@@ -18,8 +18,17 @@ def vista_tareas_index():
     tareas_activas = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
 
     filtro_empresa_id = request.args.get("empresa_id")
+    filtro_estatus = request.args.get("estatus")
+    filtro_prioridad = request.args.get("prioridad")
+
     if filtro_empresa_id:
         tareas_activas = [t for t in tareas_activas if t.get("empresa_id") == filtro_empresa_id]
+
+    if filtro_estatus:
+        tareas_activas = [t for t in tareas_activas if t.get("estatus") == filtro_estatus]
+
+    if filtro_prioridad:
+        tareas_activas = [t for t in tareas_activas if t.get("prioridad") == filtro_prioridad]
 
     usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
 

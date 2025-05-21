@@ -47,6 +47,31 @@
     </select>
   </div>
 
+  <!-- Filtro por estatus -->
+  <div>
+    <label for="filtro_estatus" class="block text-sm font-medium text-gray-700">Estatus</label>
+    <select name="estatus" id="filtro_estatus"
+            class="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:outline-none text-sm">
+      <option value="">Todos</option>
+      <option value="pendiente" {% if request.args.get('estatus') == 'pendiente' %}selected{% endif %}>Pendiente</option>
+      <option value="completada" {% if request.args.get('estatus') == 'completada' %}selected{% endif %}>Completada</option>
+      <option value="vencida" {% if request.args.get('estatus') == 'vencida' %}selected{% endif %}>Vencida</option>
+      <option value="atrasada" {% if request.args.get('estatus') == 'atrasada' %}selected{% endif %}>Atrasada</option>
+    </select>
+  </div>
+
+  <!-- Filtro por prioridad -->
+  <div>
+    <label for="filtro_prioridad" class="block text-sm font-medium text-gray-700">Prioridad</label>
+    <select name="prioridad" id="filtro_prioridad"
+            class="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:outline-none text-sm">
+      <option value="">Todas</option>
+      <option value="alta" {% if request.args.get('prioridad') == 'alta' %}selected{% endif %}>Alta</option>
+      <option value="media" {% if request.args.get('prioridad') == 'media' %}selected{% endif %}>Media</option>
+      <option value="baja" {% if request.args.get('prioridad') == 'baja' %}selected{% endif %}>Baja</option>
+    </select>
+  </div>
+
   <div>
     <button type="submit"
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow text-sm">
