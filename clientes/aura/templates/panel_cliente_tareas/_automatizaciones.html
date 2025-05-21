@@ -7,20 +7,58 @@
       <span class="text-sm text-gray-700">🔔 Recordatorios por WhatsApp</span>
       <input type="checkbox" id="alertasWhatsapp" class="h-4 w-4 text-blue-600" {% if config.alertas_whatsapp %}checked{% endif %}>
     </label>
-
     <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
       <span class="text-sm text-gray-700">🔁 Tareas recurrentes</span>
       <input type="checkbox" id="tareasRecurrentes" class="h-4 w-4 text-blue-600" {% if config.tareas_recurrentes %}checked{% endif %}>
     </label>
-
     <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
       <span class="text-sm text-gray-700">📬 Reporte PDF semanal</span>
       <input type="checkbox" id="reportePDF" class="h-4 w-4 text-blue-600" {% if config.reporte_semanal %}checked{% endif %}>
     </label>
-
     <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
       <span class="text-sm text-gray-700">🧩 Tareas sugeridas por módulos</span>
       <input type="checkbox" id="tareasModulos" class="h-4 w-4 text-blue-600" {% if config.tareas_sugeridas_modulos %}checked{% endif %}>
     </label>
   </div>
+
+  <div class="mt-6 text-right">
+    <button type="button" id="guardarAutomatizaciones" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-sm transition-all">
+      Guardar preferencias
+    </button>
+  </div>
 </section>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const btn = document.getElementById("guardarAutomatizaciones");
+  if (btn) {
+    btn.addEventListener("click", async function() {
+      btn.disabled = true;
+      btn.textContent = "Guardando...";
+      const data = {
+        alertas_whatsapp: document.getElementById("alertasWhatsapp").checked,
+        tareas_recurrentes: document.getElementById("tareasRecurrentes").checked,
+        reporte_semanal: document.getElementById("reportePDF").checked,
+        tareas_sugeridas_modulos: document.getElementById("tareasModulos").checked,
+        nombre_nora: "{{ nombre_nora }}"
+      };
+      try {
+        const resp = await fetch(`/panel_cliente/{{ nombre_nora }}/tareas/automatizaciones/guardar`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        if (resp.ok) {
+          btn.textContent = "Guardado";
+          setTimeout(() => { btn.textContent = "Guardar preferencias"; btn.disabled = false; }, 1200);
+        } else {
+          btn.textContent = "Error";
+          setTimeout(() => { btn.textContent = "Guardar preferencias"; btn.disabled = false; }, 1200);
+        }
+      } catch (e) {
+        btn.textContent = "Error";
+        setTimeout(() => { btn.textContent = "Guardar preferencias"; btn.disabled = false; }, 1200);
+      }
+    });
+  }
+});
+</script>

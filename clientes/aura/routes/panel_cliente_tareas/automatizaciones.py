@@ -94,3 +94,21 @@ def eliminar_tarea_recurrente(recurrente_id):
     supabase.table("tareas_recurrentes").update({"activo": False, "updated_at": datetime.now(zona).isoformat()}) \
         .eq("id", recurrente_id).execute()
     return jsonify({"success": True})
+
+@panel_cliente_tareas_bp.route("/automatizaciones/guardar", methods=["POST"])
+def guardar_preferencias_automatizaciones():
+    data = request.get_json()
+    nombre_nora = data.get("nombre_nora")
+    if not nombre_nora:
+        return jsonify({"success": False, "error": "nombre_nora requerido"}), 400
+
+    # Actualiza la tabla configuracion_bot para la Nora correspondiente
+    update_data = {
+        "alertas_whatsapp": data.get("alertas_whatsapp", False),
+        "tareas_recurrentes": data.get("tareas_recurrentes", False),
+        "reporte_semanal": data.get("reporte_semanal", False),
+        "tareas_sugeridas_modulos": data.get("tareas_sugeridas_modulos", False),
+        "updated_at": datetime.now(zona).isoformat()
+    }
+    supabase.table("configuracion_bot").update(update_data).eq("nombre_nora", nombre_nora).execute()
+    return jsonify({"success": True})
