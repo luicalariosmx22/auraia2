@@ -8,7 +8,7 @@ panel_cliente_tareas_bp = Blueprint(
 )
 
 @panel_cliente_tareas_bp.route("/", endpoint="index_tareas")
-def vista_tareas_index(nombre_nora):
+def vista_tareas_index():
     nombre_nora = request.path.split("/")[2]
 
     user = session.get("user", {})
