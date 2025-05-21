@@ -8,7 +8,7 @@ import os
 zona = timezone("America/Hermosillo")
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
-from utils.twilio_client import twilio_client
+from clientes.aura.utils.twilio_sender import enviar_mensaje, registrar_envio
 
 def obtener_tareas_para_usuario(usuario_id, fecha):
     return supabase.table("tareas").select("*") \
@@ -38,10 +38,10 @@ def enviar_mensaje_whatsapp(numero, mensaje):
             print(f"❌ Número inválido u omitido: {numero}")
             return {"status": "omitido", "mensaje": "número inválido"}
         full_number = f"whatsapp:{numero}"
-        r = twilio_client.messages.create(
-            body=mensaje,
-            from_=os.getenv("TWILIO_WHATSAPP_NUMBER"),
-            to=full_number
+        r = enviar_mensaje(
+            mensaje,
+            os.getenv("TWILIO_WHATSAPP_NUMBER"),
+            full_number
         )
         return {"status": "enviado", "sid": r.sid}
     except Exception as e:
