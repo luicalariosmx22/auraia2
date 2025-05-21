@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session
+from flask import Blueprint, render_template, session, request
 from clientes.aura.utils.supabase_client import supabase
 
 panel_cliente_tareas_bp = Blueprint(
@@ -9,7 +9,8 @@ panel_cliente_tareas_bp = Blueprint(
 
 @panel_cliente_tareas_bp.route("/")
 def vista_tareas_index():
-    nombre_nora = session.get("nombre_nora", "aura")
+    nombre_nora = request.path.split("/")[2]
+
     user = session.get("user", {})
     cliente_id = user.get("cliente_id", "")
     empresa_id = user.get("empresa_id", "")
