@@ -529,7 +529,16 @@ def index_tareas(nombre_nora):
         config={},
         alertas={},
         supervisores_activos=0,
-        verificaciones={},
+        verificaciones={
+            "tareas_creadas": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "tareas_asignadas": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "recurrentes": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "recordatorios": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "envios_whatsapp": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "plantillas": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "supervisores": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "usuarios_clientes": {"estado": "⏳", "comentario": "Sin evaluar"}
+        },
         reportes_whatsapp=[],
         empresa_id=empresa_id,
         cliente_id=cliente_id
