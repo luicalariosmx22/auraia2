@@ -112,3 +112,12 @@ def guardar_preferencias_automatizaciones():
     }
     supabase.table("configuracion_bot").update(update_data).eq("nombre_nora", nombre_nora).execute()
     return jsonify({"success": True})
+
+@panel_cliente_tareas_bp.route("/automatizaciones/<nombre_nora>/guardar", methods=["PUT"])
+def guardar_automatizaciones(nombre_nora):
+    data = request.json
+    response = supabase.table("configuracion_bot")\
+        .update({ "modulos_config": data })\
+        .eq("nombre_nora", nombre_nora)\
+        .execute()
+    return jsonify({"ok": True})
