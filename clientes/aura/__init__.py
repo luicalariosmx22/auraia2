@@ -15,41 +15,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from pytz import timezone
 
-
-# Inicializar scheduler
-scheduler = BackgroundScheduler(timezone=timezone("America/Hermosillo"))
-
-# ✅ Job: Enviar tareas del día por WhatsApp (8:00 AM)
-scheduler.add_job(
-    func=enviar_tareas_del_dia_por_whatsapp,
-    trigger=CronTrigger(hour=8, minute=0),
-    id="tareas_whatsapp_8am",
-    name="Enviar tareas del día por WhatsApp (8AM)",
-    replace_existing=True
-)
-
-# ✅ Job: Enviar resumen 6PM por WhatsApp
-scheduler.add_job(
-    func=enviar_resumen_6pm_por_whatsapp,
-    trigger=CronTrigger(hour=18, minute=0),
-    id="tareas_whatsapp_6pm",
-    name="Enviar resumen diario por WhatsApp (6PM)",
-    replace_existing=True
-)
-
-# ✅ (Ejemplo existente)
-scheduler.add_job(
-    func=enviar_reporte_semanal,
-    trigger=CronTrigger(day_of_week="sun", hour=9, minute=0),
-    id="reporte_semanal",
-    name="Enviar reporte semanal PDF",
-    replace_existing=True
-)
-
-# Iniciar scheduler si no está ya en marcha
-if not scheduler.running:
-    scheduler.start()
-
 # Para Blueprints y registro
 # Importa tus funciones de registro de blueprints
 from .registro.registro_login import registrar_blueprints_login # Asumiendo que existe y tiene esta función
@@ -80,6 +45,8 @@ from .routes.cobranza import cobranza_bp
 from .utils.supabase_client import supabase
 import uuid # Para validar_o_generar_uuid
 from datetime import datetime # Para registrar_rutas_en_supabase
+
+from clientes.aura.scheduler_jobs import inicializar_cron_jobs  # <--- Mover import aquí
 
 # --- Clases y Funciones de Utilidad (Definidas aquí o importadas si las mueves a utils) ---
 class WerkzeugFilter(logging.Filter):
@@ -197,7 +164,6 @@ def create_app(config_class=Config):
     # Registrar Tareas APScheduler
     if not scheduler.running:
         try:
-            from clientes.aura.scheduler_jobs import inicializar_cron_jobs
             inicializar_cron_jobs(scheduler)
             scheduler.start()
             print("APScheduler iniciado y cron jobs registrados correctamente.")
