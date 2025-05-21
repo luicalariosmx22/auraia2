@@ -53,14 +53,17 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
 
         # Verificar si se encontraron los datos
         if modulos_activados.data:
-            modulos_data = modulos_activados.data['modulos']
-            
-            # Si los datos están en formato string JSON, conviértelos a lista
-            if isinstance(modulos_data, str):
-                modulos = json.loads(modulos_data)
-            else:
-                # Si ya es una lista, asignamos directamente
-                modulos = modulos_data
+            modulos_data = modulos_activados.data.get('modulos')
+            try:
+                if isinstance(modulos_data, str):
+                    modulos = json.loads(modulos_data)
+                elif isinstance(modulos_data, list):
+                    modulos = modulos_data
+                else:
+                    modulos = []
+            except Exception as e:
+                print(f"❌ Error al interpretar los módulos para {nombre_nora}: {e}")
+                modulos = []
 
             # Registrar blueprints según los módulos activos
             if "contactos" in modulos:
