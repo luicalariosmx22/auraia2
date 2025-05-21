@@ -29,3 +29,8 @@
 {% include "panel_cliente_tareas/_verificacion_modulo.html" %}
 
 {% endblock %}
+<script>
+  console.log("👀 Tareas activas:", {{ tareas_activas | tojson }});
+  console.log("👤 Usuarios:", {{ usuarios | tojson }});
+  console.log("📊 Resumen:", {{ resumen | tojson }});
+</script>
