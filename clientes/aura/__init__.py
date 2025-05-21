@@ -46,7 +46,7 @@ from .utils.supabase_client import supabase
 import uuid # Para validar_o_generar_uuid
 from datetime import datetime # Para registrar_rutas_en_supabase
 
-from clientes.aura.scheduler_jobs import inicializar_cron_jobs  # <--- Mover import aquí
+from clientes.aura.scheduler_jobs import inicializar_cron_jobs
 
 # --- Clases y Funciones de Utilidad (Definidas aquí o importadas si las mueves a utils) ---
 class WerkzeugFilter(logging.Filter):
