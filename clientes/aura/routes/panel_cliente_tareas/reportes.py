@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 from clientes.aura.utils.supabase_client import supabase
-from clientes.aura.utils.twilio_client import twilio_client
+from clientes.aura.utils.twilio_sender import twilio_client
 
 def enviar_reporte_semanal():
     print("📤 Enviando reporte semanal...")
