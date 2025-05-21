@@ -8,14 +8,19 @@
 
 {% block contenido %}
 <div class="panel-tareas">
-  <!-- Elimina el botón "+ Nueva tarea" aislado si ya está en barra-superior -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">📋 Mis tareas</h2>
+    <button class="btn btn-primary float-end"
+            data-bs-toggle="modal"
+            data-bs-target="#modalNuevaTarea">
+      + Nueva tarea
+    </button>
+  </div>
   <div class="barra-superior">
     {% if usuarios and permisos and permisos.ver_todas %}
       <a href="#" class="btn btn-secondary float-end">👥 Ver equipo</a>
     {% endif %}
-    <a href="#" class="btn btn-primary float-end">
-      + Nueva tarea
-    </a>
+    <!-- El botón "+ Nueva tarea" ya está arriba, así que puedes eliminarlo aquí si no quieres duplicado -->
   </div>
 
   <form method="get" class="panel-tareas form">
