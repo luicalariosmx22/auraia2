@@ -488,21 +488,9 @@ def check_duplicate_keywords(file_path):
                 seen.add(kw.arg)
 
 # ✅ Ruta correcta para el panel principal (respetando url_prefix ya definido)
-@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas", endpoint="index_tareas")
+@panel_cliente_tareas_bp.route("/", endpoint="index_tareas")
 def index_tareas(nombre_nora):
-    # Obtener empresa asociada
-    config = supabase.table("configuracion_bot").select("cliente_id").eq("nombre_nora", nombre_nora).single().execute().data
-    empresa_id = config.get("cliente_id")
-
-    # Obtener usuarios activos de esa empresa
-    usuarios = supabase.table("usuarios_empresa").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data
-
-    return render_template(
-        "panel_cliente_tareas/index.html",
-        nombre_nora=nombre_nora,
-        empresa_id=empresa_id,
-        usuarios=usuarios
-    )
+    return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
 
 @panel_cliente_tareas_bp.route("/crear_tarea", methods=["POST"])
 def crear_tarea_endpoint():
