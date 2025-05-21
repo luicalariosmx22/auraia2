@@ -4,29 +4,41 @@
 <!-- ✅ Barra superior + filtros -->
 {% include "panel_cliente_tareas/_filtros.html" %}
 
-<!-- ✅ Modal para crear o editar tarea -->
-{% include "panel_cliente_tareas/_modal_nueva_tarea.html" %}
+{% if usuarios is defined %}
+  <!-- ✅ Modal para crear o editar tarea -->
+  {% include "panel_cliente_tareas/_modal_nueva_tarea.html" %}
 
-<!-- ✅ Estadísticas rápidas -->
-{% include "panel_cliente_tareas/_estadisticas.html" %}
+  <!-- ✅ Permisos del equipo -->
+  {% include "panel_cliente_tareas/_permisos_equipo.html" %}
 
-<!-- ✅ Lista de tareas activas -->
-{% include "panel_cliente_tareas/_lista_tareas.html" %}
+  <!-- ✅ Seguimiento automático por WhatsApp -->
+  {% include "panel_cliente_tareas/_seguimiento_whatsapp.html" %}
+{% endif %}
 
-<!-- ✅ Automatizaciones -->
-{% include "panel_cliente_tareas/_automatizaciones.html" %}
+{% if resumen is defined %}
+  <!-- ✅ Estadísticas rápidas -->
+  {% include "panel_cliente_tareas/_estadisticas.html" %}
+{% endif %}
 
-<!-- ✅ Alertas y ranking semanal -->
-{% include "panel_cliente_tareas/_alertas_y_ranking.html" %}
+{% if tareas_activas is defined %}
+  <!-- ✅ Lista de tareas activas -->
+  {% include "panel_cliente_tareas/_lista_tareas.html" %}
+{% endif %}
 
-<!-- ✅ Permisos del equipo -->
-{% include "panel_cliente_tareas/_permisos_equipo.html" %}
+{% if config is defined %}
+  <!-- ✅ Automatizaciones -->
+  {% include "panel_cliente_tareas/_automatizaciones.html" %}
+{% endif %}
 
-<!-- ✅ Seguimiento automático por WhatsApp -->
-{% include "panel_cliente_tareas/_seguimiento_whatsapp.html" %}
+{% if alertas is defined %}
+  <!-- ✅ Alertas y ranking semanal -->
+  {% include "panel_cliente_tareas/_alertas_y_ranking.html" %}
+{% endif %}
 
-<!-- ✅ Verificación del módulo -->
-{% include "panel_cliente_tareas/_verificacion_modulo.html" %}
+{% if verificaciones is defined %}
+  <!-- ✅ Verificación del módulo -->
+  {% include "panel_cliente_tareas/_verificacion_modulo.html" %}
+{% endif %}
 
 <script>
   console.log("👀 Tareas activas:", {{ tareas_activas | tojson }});
@@ -39,6 +51,5 @@
   Usuarios: {{ usuarios|length }} |
   Nora: {{ nombre_nora }}
 </div>
-
 
 {% endblock %}
