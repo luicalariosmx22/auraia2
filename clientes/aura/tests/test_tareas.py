@@ -1,12 +1,14 @@
 # ✅ Archivo: clientes/aura/tests/test_tareas.py
 # 👉 Verificación básica del módulo de TAREAS (manual o automatizada)
 
-from clientes.aura.routes.panel_cliente_tareas.panel_cliente_tareas import (
+from clientes.aura.routes.panel_cliente_tareas.tareas_crud import (
     crear_tarea, actualizar_tarea, eliminar_tarea,
     crear_plantilla, aplicar_plantilla,
-    enviar_tareas_del_dia_por_whatsapp, enviar_reporte_6pm_por_whatsapp,
-    obtener_resumen_general, obtener_ranking_usuarios_por_completadas,
     ejecutar_recurrencia_diaria
+)
+from clientes.aura.routes.panel_cliente_tareas.reportes import (
+    enviar_tareas_del_dia_por_whatsapp, enviar_reporte_6pm_por_whatsapp,
+    obtener_resumen_general, obtener_ranking_usuarios_por_completadas
 )
 from clientes.aura.utils.permisos_tareas import (
     puede_reasignar_tareas, validar_limite_supervisores
