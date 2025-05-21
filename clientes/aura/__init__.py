@@ -15,7 +15,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from pytz import timezone
 
-from clientes.aura.routes.panel_cliente_tareas.panel_cliente_tareas import (
+from clientes.aura.routes.panel_cliente_tareas.whatsapp import (
     enviar_tareas_del_dia_por_whatsapp,
     enviar_resumen_6pm_por_whatsapp,
     enviar_reporte_semanal  # ya existente
