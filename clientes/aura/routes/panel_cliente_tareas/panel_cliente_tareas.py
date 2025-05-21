@@ -1,7 +1,7 @@
 # ✅ Archivo: clientes/aura/routes/panel_cliente_tareas/panel_cliente_tareas.py
 # 👉 Blueprint exportado correctamente como panel_cliente_tareas
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify
 from datetime import datetime, timedelta
 from pytz import timezone
 from supabase import create_client
@@ -601,3 +601,26 @@ def index_tareas(nombre_nora):
         empresa_id=empresa_id,
         cliente_id=cliente_id
     )
+
+@panel_cliente_tareas_bp.route("/crear_tarea", methods=["POST"])
+def crear_tarea_endpoint():
+    data = request.get_json()
+    
+    # Validaciones mínimas
+    titulo = data.get("titulo", "").strip()
+    fecha = data.get("fecha_limite", "").strip()
+    asignado = data.get("usuario_empresa_id")
+
+    if not titulo or not fecha or not asignado:
+        return jsonify({"success": False, "error": "Faltan campos obligatorios"}), 400
+
+    empresa_id = data.get("empresa_id")
+    if not empresa_id:
+        return jsonify({"success": False, "error": "Falta empresa_id"}), 400
+
+    # Llamar a la función crear_tarea() existente
+    resultado, estado = crear_tarea(data)
+    if estado != 200:
+        return jsonify({"success": False, "error": resultado}), estado
+
+    return jsonify({"success": True, "data": resultado}), 201

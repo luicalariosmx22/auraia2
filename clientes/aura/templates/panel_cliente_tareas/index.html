@@ -10,9 +10,9 @@
 <div class="panel-tareas">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">📋 Mis tareas</h2>
-    <button class="btn btn-primary float-end"
-            id="btn-nueva-tarea"
-            type="button">
+    <button class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#modalNuevaTarea">
       + Nueva tarea
     </button>
   </div>
@@ -24,6 +24,7 @@
   </div>
 
   <form method="get" class="panel-tareas form">
+    <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
     <div>
       <label for="filtro_estado">Estado:</label>
       <select id="filtro_estado" name="estado">
@@ -88,6 +89,101 @@
     </div>
   {% endif %}
 </div>
+
+<!-- Modal para nueva tarea -->
+<div class="modal fade" id="modalNuevaTarea" tabindex="-1" aria-labelledby="modalNuevaTareaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formNuevaTarea">
+        <div class="modal-header">
+          <h5 class="modal-title">Crear nueva tarea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label>Título</label>
+            <input type="text" class="form-control" name="titulo" required>
+          </div>
+          <div class="mb-3">
+            <label>Descripción</label>
+            <textarea class="form-control" name="descripcion"></textarea>
+          </div>
+          <div class="mb-3">
+            <label>Fecha límite</label>
+            <input type="date" class="form-control" name="fecha_limite" required>
+          </div>
+          <div class="mb-3">
+            <label>Prioridad</label>
+            <select class="form-select" name="prioridad">
+              <option value="baja">Baja</option>
+              <option value="media" selected>Media</option>
+              <option value="alta">Alta</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label>Asignado a</label>
+            <select class="form-select" name="usuario_empresa_id" required>
+              {% for u in usuarios %}
+              <option value="{{ u.id }}">{{ u.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="alert alert-danger d-none" id="errorTarea"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById("formNuevaTarea").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = {
+    titulo: form.titulo.value.trim(),
+    descripcion: form.descripcion.value.trim(),
+    fecha_limite: form.fecha_limite.value,
+    prioridad: form.prioridad.value,
+    usuario_empresa_id: form.usuario_empresa_id.value,
+    empresa_id: "{{ empresa_id }}",
+    cliente_id: "{{ cliente_id }}",
+    creado_por: "{{ user.id }}",
+    iniciales: "{{ user.nombre[0:2] | upper }}"
+  };
+
+  const errorDiv = document.getElementById("errorTarea");
+  errorDiv.classList.add("d-none");
+
+  try {
+    const res = await fetch("/crear_tarea", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    const json = await res.json();
+
+    if (json.success) {
+      const modal = bootstrap.Modal.getInstance(document.getElementById("modalNuevaTarea"));
+      modal.hide();
+      alert("✅ Tarea creada: " + json.codigo);
+      if (typeof actualizarListaDeTareas === "function") {
+        actualizarListaDeTareas();
+      } else {
+        location.reload();
+      }
+    } else {
+      throw new Error(json.error || "Error desconocido");
+    }
+  } catch (err) {
+    errorDiv.textContent = err.message;
+    errorDiv.classList.remove("d-none");
+  }
+});
+</script>
 
 <!-- Modal para crear o editar una tarea -->
 <div class="modal" id="modal-tarea" style="display: none;">
