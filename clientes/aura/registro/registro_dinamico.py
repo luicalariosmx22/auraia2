@@ -16,7 +16,7 @@ from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import p
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_pagos.vista_panel_cliente_pagos import panel_cliente_pagos_bp
 from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
-from clientes.aura.routes.panel_cliente_tareas.panel_cliente_tareas import panel_cliente_tareas_bp
+from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
 
 
 # Configurar Supabase
