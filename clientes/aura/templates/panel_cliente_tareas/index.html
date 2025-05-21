@@ -95,6 +95,8 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <form id="formNuevaTarea">
+        <!-- Campo oculto para empresa -->
+        <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
         <div class="modal-header">
           <h5 class="modal-title">Crear nueva tarea</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -123,8 +125,9 @@
           <div class="mb-3">
             <label>Asignado a</label>
             <select class="form-select" name="usuario_empresa_id" required>
+              <option value="">Selecciona un usuario</option>
               {% for u in usuarios %}
-              <option value="{{ u.id }}">{{ u.nombre }}</option>
+                <option value="{{ u.id }}">{{ u.nombre }}</option>
               {% endfor %}
             </select>
           </div>

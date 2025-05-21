@@ -488,118 +488,20 @@ def check_duplicate_keywords(file_path):
                 seen.add(kw.arg)
 
 # ✅ Ruta correcta para el panel principal (respetando url_prefix ya definido)
-@panel_cliente_tareas_bp.route("/", endpoint="index_tareas")
+@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas", endpoint="index_tareas")
 def index_tareas(nombre_nora):
-    # Obtener configuración del bot para esta Nora
-    config_result = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).single().execute()
-    config_data = config_result.data or {}
+    # Obtener empresa asociada
+    config = supabase.table("configuracion_bot").select("cliente_id").eq("nombre_nora", nombre_nora).single().execute().data
+    empresa_id = config.get("cliente_id")
 
-    cliente_id = config_data.get("cliente_id")
-    empresa_id = config_data.get("empresa_id")
+    # Obtener usuarios activos de esa empresa
+    usuarios = supabase.table("usuarios_empresa").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data
 
-    # 🛡 Validar que estén definidos para evitar error UUID None
-    if not cliente_id or not empresa_id:
-        return render_template("panel_cliente_tareas/index.html",
-            nombre_nora=nombre_nora,
-            tareas=[],
-            tarea=None,
-            usuarios=[],
-            permisos={"ver_todas": False},
-            datos={"tareas_semana": 0, "tareas_completadas": 0, "tareas_activas": 0, "tareas_vencidas": 0, "porcentaje_cumplimiento": 0, "ranking_usuarios": []},
-            resumen={"tareas_activas": 0, "tareas_completadas": 0, "tareas_vencidas": 0, "porcentaje_cumplimiento": 0},
-            config={},
-            alertas={},
-            supervisores_activos=0,
-            verificaciones={
-                "usuarios_clientes": {"estado": "⏳", "comentario": "Sin evaluar"},
-                "tareas_creadas": {"estado": "⏳", "comentario": "Sin evaluar"},
-                "tareas_asignadas": {"estado": "⏳", "comentario": "Sin evaluar"},
-                "recurrentes": {"estado": "⏳", "comentario": "Sin evaluar"},
-                "recordatorios": {"estado": "⏳", "comentario": "Sin evaluar"},
-                "envios_whatsapp": {"estado": "⏳", "comentario": "Sin evaluar"},
-                "plantillas": {"estado": "⏳", "comentario": "Sin evaluar"},
-                "supervisores": {"estado": "⏳", "comentario": "Sin evaluar"}
-            },
-            reportes_whatsapp=[],
-            empresa_id=None,
-            cliente_id=None
-        )
-
-    # Obtener usuarios
-    usuarios = supabase.table("usuarios_clientes").select("*") \
-        .eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
-
-    # Obtener tareas activas (simples por ahora)
-    tareas = supabase.table("tareas").select("*").eq("cliente_id", cliente_id).eq("activo", True).execute().data or []
-
-    # Resumen y métricas
-    resumen = obtener_resumen_general(cliente_id)
-    ranking = obtener_ranking_usuarios_por_completadas(cliente_id)
-
-    resumen = resumen or {
-        "tareas_activas": 0,
-        "tareas_completadas": 0,
-        "tareas_vencidas": 0,
-        "porcentaje_cumplimiento": 0
-    }
-
-    # Alertas
-    alertas = {
-        "empresa_mas_activas": {"nombre": "N/A", "total": 0},
-        "usuario_mas_atrasado": {"nombre": "N/A", "total": 0},
-        "usuarios_inactivos": [],
-        "ranking_semanal": []
-    }
-
-    verificaciones = {
-        "usuarios_clientes": {"estado": "⏳", "comentario": "Sin evaluar"},
-        "tareas_creadas": {"estado": "⏳", "comentario": "Sin evaluar"},
-        "tareas_asignadas": {"estado": "⏳", "comentario": "Sin evaluar"},
-        "recurrentes": {"estado": "⏳", "comentario": "Sin evaluar"},
-        "recordatorios": {"estado": "⏳", "comentario": "Sin evaluar"},
-        "envios_whatsapp": {"estado": "⏳", "comentario": "Sin evaluar"},
-        "plantillas": {"estado": "⏳", "comentario": "Sin evaluar"},
-        "supervisores": {"estado": "⏳", "comentario": "Sin evaluar"}
-    }
-
-    # Renderizar plantilla
-    return render_template("panel_cliente_tareas/index.html",
+    return render_template(
+        "panel_cliente_tareas/index.html",
         nombre_nora=nombre_nora,
-        tareas=tareas or [],
-        tarea=None,
-        usuarios=usuarios or [],
-        permisos={"ver_todas": True},
-        datos={
-            "tareas_semana": 0,
-            "tareas_completadas": resumen.get("tareas_completadas", 0),
-            "tareas_activas": resumen.get("tareas_activas", 0),
-            "tareas_vencidas": resumen.get("tareas_vencidas", 0),
-            "porcentaje_cumplimiento": resumen.get("porcentaje_cumplimiento", 0),
-            "ranking_usuarios": ranking or []
-        },
-        resumen={
-            "tareas_activas": resumen.get("tareas_activas", 0),
-            "tareas_completadas": resumen.get("tareas_completadas", 0),
-            "tareas_vencidas": resumen.get("tareas_vencidas", 0),
-            "porcentaje_cumplimiento": resumen.get("porcentaje_cumplimiento", 0)
-        },
-        config={
-            "tareas_recurrentes": config_data.get("tareas_recurrentes", False),
-            "alertas_whatsapp": config_data.get("alertas_whatsapp", False),
-            "reporte_semanal": config_data.get("reporte_semanal", False),
-            "tareas_sugeridas_modulos": config_data.get("tareas_sugeridas_modulos", False)
-        },
-        alertas={
-            "empresa_mas_activas": alertas.get("empresa_mas_activas", {"nombre": "N/A", "total": 0}),
-            "usuario_mas_atrasado": alertas.get("usuario_mas_atrasado", {"nombre": "N/A", "total": 0}),
-            "usuarios_inactivos": alertas.get("usuarios_inactivos", []),
-            "ranking_semanal": alertas.get("ranking_semanal", [])
-        },
-        supervisores_activos=0,
-        verificaciones=verificaciones,
-        reportes_whatsapp=[],
         empresa_id=empresa_id,
-        cliente_id=cliente_id
+        usuarios=usuarios
     )
 
 @panel_cliente_tareas_bp.route("/crear_tarea", methods=["POST"])
