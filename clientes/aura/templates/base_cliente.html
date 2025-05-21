@@ -7,9 +7,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel_cliente.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Alpine.js para componentes dinámicos -->
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    {% block head_extra %}{% endblock %}
+  {% block head_extra %}{% endblock %}
 </head>
 <body class="bg-gray-100 text-gray-800">
 
@@ -38,6 +37,13 @@
       {% elif modulo_activo == 'chat' %}
         <nav class="flex gap-4 text-sm font-medium text-gray-700">
           <a href="{{ url_for('panel_cliente_panel_chat.panel_chat', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">💬 Chat</a>
+        </nav>
+      {% elif modulo_activo == 'tareas' %}
+        <nav class="flex gap-4 text-sm font-medium text-gray-700">
+          <a href="/panel_cliente/{{ nombre_nora }}/tareas" class="hover:text-blue-600">📋 Mis tareas</a>
+          <a href="/panel_cliente/{{ nombre_nora }}/tareas#automatizaciones" class="hover:text-purple-600">⚙️ Automatizaciones</a>
+          <a href="/panel_cliente/{{ nombre_nora }}/tareas#permisos" class="hover:text-teal-600">🛡️ Permisos</a>
+          <a href="/panel_cliente/{{ nombre_nora }}/tareas#seguimiento" class="hover:text-green-600">📲 WhatsApp</a>
         </nav>
       {% endif %}
     </div>
