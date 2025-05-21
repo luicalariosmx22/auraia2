@@ -50,7 +50,7 @@
       <select name="empresa_id" id="empresa_id"
               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
         {% for empresa in empresas %}
-          <option value="{{ empresa.id }}">{{ empresa.nombre }}</option>
+          <option value="{{ empresa.id }}">{{ empresa.nombre_empresa }}</option>
         {% endfor %}
       </select>
     </div>
