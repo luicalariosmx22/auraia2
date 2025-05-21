@@ -5,11 +5,29 @@
 {% include "panel_cliente_tareas/_filtros.html" %}
 
 {% if usuarios is defined %}
-  <!-- ✅ Modal para crear o editar tarea -->
-  {% include "panel_cliente_tareas/_modal_nueva_tarea.html" %}
+  <!-- Bloque: Crear nueva tarea (colapsable) -->
+  <section x-data="{ crear: false }" class="mb-6">
+    <div class="text-right mb-3">
+      <button @click="crear = !crear"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm">
+        ➕ Nueva tarea
+      </button>
+    </div>
+    <div x-show="crear" x-transition>
+      {% include "panel_cliente_tareas/_modal_nueva_tarea.html" %}
+    </div>
+  </section>
 
-  <!-- ✅ Permisos del equipo -->
-  {% include "panel_cliente_tareas/_permisos_equipo.html" %}
+  <!-- Bloque: Permisos del equipo (colapsable) -->
+  <section x-data="{ open: false }" class="mb-6">
+    <div @click="open = !open" class="cursor-pointer flex justify-between items-center bg-gray-100 px-4 py-2 rounded shadow-sm hover:bg-gray-200">
+      <h4 class="text-sm font-semibold text-blue-700">👥 Permisos del equipo</h4>
+      <span x-text="open ? '▲' : '▼'" class="text-xs text-gray-500"></span>
+    </div>
+    <div x-show="open" x-transition class="mt-3">
+      {% include "panel_cliente_tareas/_permisos_equipo.html" %}
+    </div>
+  </section>
 
   <!-- ✅ Seguimiento automático por WhatsApp -->
   {% include "panel_cliente_tareas/_seguimiento_whatsapp.html" %}
@@ -26,8 +44,16 @@
 {% endif %}
 
 {% if config is defined %}
-  <!-- ✅ Automatizaciones -->
-  {% include "panel_cliente_tareas/_automatizaciones.html" %}
+  <!-- Bloque: Automatizaciones (colapsable) -->
+  <section x-data="{ open: false }" class="mb-6">
+    <div @click="open = !open" class="cursor-pointer flex justify-between items-center bg-gray-100 px-4 py-2 rounded shadow-sm hover:bg-gray-200">
+      <h4 class="text-sm font-semibold text-blue-700">⚙️ Automatizaciones</h4>
+      <span x-text="open ? '▲' : '▼'" class="text-xs text-gray-500"></span>
+    </div>
+    <div x-show="open" x-transition class="mt-3">
+      {% include "panel_cliente_tareas/_automatizaciones.html" %}
+    </div>
+  </section>
 {% endif %}
 
 {% if alertas is defined %}
