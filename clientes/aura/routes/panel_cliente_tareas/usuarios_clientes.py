@@ -2,6 +2,7 @@
 # 👉 Subruta para gestión de usuarios empresa dentro del módulo de TAREAS
 
 from flask import Blueprint, request, jsonify
+from .panel_cliente_tareas import panel_cliente_tareas_bp
 from supabase import create_client
 from datetime import datetime
 import os
@@ -91,4 +92,75 @@ def validar_limite_supervisores(nombre_nora, excluyendo=None):
     if excluyendo:
         query = query.neq("id", excluyendo)
     supervisores = query.execute().data
+    return len(supervisores) < 3
+
+# ✅ Listar todos los usuarios del cliente
+@panel_cliente_tareas_bp.route("/usuarios/<nombre_nora>", methods=["GET"])
+def listar_usuarios(nombre_nora):
+    usuarios = supabase.table("usuarios_clientes").select("*") \
+        .eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
+    return jsonify(usuarios)
+
+# ✅ Crear un nuevo usuario del equipo
+@panel_cliente_tareas_bp.route("/usuarios/<nombre_nora>/crear", methods=["POST"])
+def crear_usuario(nombre_nora):
+    data = request.get_json()
+
+    # Verificar duplicados por correo o teléfono
+    existentes = supabase.table("usuarios_clientes").select("id").or_(
+        f"correo.eq.{data['correo']},telefono.eq.{data['telefono']}"
+    ).eq("nombre_nora", nombre_nora).eq("activo", True).execute().data
+
+    if existentes:
+        return jsonify({"success": False, "error": "Usuario ya existe"}), 400
+
+    nuevo = {
+        "id": str(uuid.uuid4()),
+        "nombre": data["nombre"],
+        "correo": data["correo"],
+        "telefono": data["telefono"],
+        "nombre_nora": nombre_nora,
+        "ver_todas_tareas": data.get("ver_todas_tareas", False),
+        "crear_tareas_otros": data.get("crear_tareas_otros", False),
+        "reasignar_tareas": data.get("reasignar_tareas", False),
+        "es_supervisor_tareas": data.get("es_supervisor_tareas", False),
+        "activo": True,
+        "created_at": datetime.now().isoformat()
+    }
+
+    supabase.table("usuarios_clientes").insert(nuevo).execute()
+    return jsonify({"success": True})
+
+# ✅ Editar un usuario existente
+@panel_cliente_tareas_bp.route("/usuarios/<nombre_nora>/editar/<usuario_id>", methods=["PUT"])
+def editar_usuario(nombre_nora, usuario_id):
+    data = request.get_json()
+
+    campos = {
+        "nombre": data.get("nombre"),
+        "correo": data.get("correo"),
+        "telefono": data.get("telefono"),
+        "ver_todas_tareas": data.get("ver_todas_tareas", False),
+        "crear_tareas_otros": data.get("crear_tareas_otros", False),
+        "reasignar_tareas": data.get("reasignar_tareas", False),
+        "es_supervisor_tareas": data.get("es_supervisor_tareas", False),
+        "updated_at": datetime.now().isoformat()
+    }
+
+    supabase.table("usuarios_clientes").update(campos).eq("id", usuario_id).execute()
+    return jsonify({"success": True})
+
+# ✅ Eliminar usuario (soft delete)
+@panel_cliente_tareas_bp.route("/usuarios/<nombre_nora>/eliminar/<usuario_id>", methods=["DELETE"])
+def eliminar_usuario(nombre_nora, usuario_id):
+    supabase.table("usuarios_clientes").update({
+        "activo": False,
+        "updated_at": datetime.now().isoformat()
+    }).eq("id", usuario_id).execute()
+    return jsonify({"success": True})
+
+# ✅ Validar límite de supervisores (máx. 3)
+def validar_maximo_supervisores(nombre_nora):
+    supervisores = supabase.table("usuarios_clientes").select("id") \
+        .eq("nombre_nora", nombre_nora).eq("activo", True).eq("es_supervisor_tareas", True).execute().data or []
     return len(supervisores) < 3

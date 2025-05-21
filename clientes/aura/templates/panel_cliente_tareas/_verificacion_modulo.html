@@ -1,0 +1,27 @@
+<!-- Sección: Verificación del módulo -->
+<section class="mb-4">
+  <h4>✅ Verificación del módulo</h4>
+
+  <table class="table table-bordered align-middle table-sm">
+    <thead class="table-light">
+      <tr>
+        <th>Verificación</th>
+        <th>Estado</th>
+        <th>Comentario</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for clave, v in verificaciones.items() %}
+      <tr>
+        <td>{{ clave.replace("_", " ").capitalize() }}</td>
+        <td>{{ v.estado }}</td>
+        <td>{{ v.comentario }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <form method="POST" action="{{ url_for('panel_cliente_tareas.reparar_modulo', nombre_nora=nombre_nora) }}">
+    <button type="submit" class="btn btn-warning">🛠 Reparar errores comunes</button>
+  </form>
+</section>

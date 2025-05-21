@@ -1,0 +1,32 @@
+<!-- Sección: Lista de tareas activas -->
+<section>
+  {% if tareas_activas %}
+    <ul class="list-group">
+      {% for tarea in tareas_activas %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ tarea.codigo_tarea }}</strong> — {{ tarea.titulo }}
+            {% if tarea.origen == 'plantilla' %}
+              <span class="badge bg-info text-dark">🧠 Plantilla</span>
+            {% elif tarea.origen == 'recurrente' %}
+              <span class="badge bg-secondary">🔁 Recurrente</span>
+            {% endif %}
+          </div>
+          <div>
+            {% if tarea.estatus == 'completada' %}
+              ✅
+            {% elif tarea.estatus in ['vencida', 'atrasada'] %}
+              ❗
+            {% else %}
+              ⏳
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-light text-center">
+      No hay tareas activas actualmente.
+    </div>
+  {% endif %}
+</section>

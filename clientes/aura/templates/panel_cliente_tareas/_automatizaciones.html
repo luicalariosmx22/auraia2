@@ -1,0 +1,40 @@
+<!-- Sección: Automatizaciones -->
+<section class="mb-4">
+  <h4>⚙️ Automatizaciones</h4>
+
+  <div class="automate-item mb-2">
+    <label class="form-check-label" for="alertasWhatsapp">
+      🔔 Activar recordatorios por WhatsApp
+    </label>
+    <input class="form-check-input float-end" type="checkbox" id="alertasWhatsapp"
+           {% if config.alertas_whatsapp %}checked{% endif %}>
+    <small class="text-muted d-block">Envía notificaciones automáticas a los usuarios.</small>
+  </div>
+
+  <div class="automate-item mb-2">
+    <label class="form-check-label" for="tareasRecurrentes">
+      🔁 Activar tareas recurrentes
+    </label>
+    <input class="form-check-input float-end" type="checkbox" id="tareasRecurrentes"
+           {% if config.tareas_recurrentes %}checked{% endif %}>
+    <small class="text-muted d-block">Se generan automáticamente según programación.</small>
+  </div>
+
+  <div class="automate-item mb-2">
+    <label class="form-check-label" for="reportePDF">
+      📬 Activar reporte PDF semanal
+    </label>
+    <input class="form-check-input float-end" type="checkbox" id="reportePDF"
+           {% if config.reporte_semanal %}checked{% endif %}>
+    <small class="text-muted d-block">Envía resumen cada semana a los supervisores.</small>
+  </div>
+
+  <div class="automate-item mb-2">
+    <label class="form-check-label" for="tareasModulos">
+      🧩 Activar tareas sugeridas por módulos
+    </label>
+    <input class="form-check-input float-end" type="checkbox" id="tareasModulos"
+           {% if config.tareas_sugeridas_modulos %}checked{% endif %}>
+    <small class="text-muted d-block">Al activar otros módulos, Nora puede sugerir tareas automáticas.</small>
+  </div>
+</section>

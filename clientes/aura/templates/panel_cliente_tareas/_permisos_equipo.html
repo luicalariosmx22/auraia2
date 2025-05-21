@@ -1,0 +1,37 @@
+<!-- Sección: Permisos del equipo -->
+<section class="mb-4">
+  <h4>👥 Permisos del equipo</h4>
+
+  <p>Supervisores activos: {{ supervisores_activos }} / 3</p>
+
+  <table class="table table-bordered table-sm align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Nombre</th>
+        <th>Correo o teléfono</th>
+        <th>Rol</th>
+        <th>🔎 Ver todas</th>
+        <th>✏️ Crear otros</th>
+        <th>🔁 Reasignar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td>{{ u.nombre }}</td>
+        <td>{{ u.correo or u.telefono }}</td>
+        <td>
+          {% if u.es_supervisor_tareas %}
+            <span class="badge bg-success">Supervisor</span>
+          {% else %}
+            Estándar
+          {% endif %}
+        </td>
+        <td><input type="checkbox" {% if u.ver_todas_tareas %}checked{% endif %} {% if not u.es_supervisor_tareas %}disabled{% endif %}></td>
+        <td><input type="checkbox" {% if u.crear_tareas_otros %}checked{% endif %} {% if not u.es_supervisor_tareas %}disabled{% endif %}></td>
+        <td><input type="checkbox" {% if u.reasignar_tareas %}checked{% endif %} {% if not u.es_supervisor_tareas %}disabled{% endif %}></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>

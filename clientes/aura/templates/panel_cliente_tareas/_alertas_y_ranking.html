@@ -1,0 +1,46 @@
+<!-- Sección: Alertas y desempeño -->
+<section class="mb-4">
+  <h4>🔔 Alertas y desempeño</h4>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="alert-card p-3 border rounded bg-light">
+        <h6>🏢 Empresa con más tareas activas</h6>
+        <p>{{ alertas.empresa_mas_activas or 'Sin datos' }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="alert-card p-3 border rounded bg-light">
+        <h6>🧍 Usuario con más tareas vencidas</h6>
+        <p>{{ alertas.usuario_mas_atrasado or 'Sin datos' }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="alert-card p-3 border rounded bg-light">
+        <h6>⚠️ Usuarios sin actividad en 3+ días</h6>
+        {% if alertas.usuarios_inactivos %}
+          <ul>
+            {% for u in alertas.usuarios_inactivos %}
+              <li>{{ u.nombre }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted">Sin alertas</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <h5>📈 Ranking semanal</h5>
+    {% if alertas.ranking_semanal %}
+      <ol>
+        {% for r in alertas.ranking_semanal %}
+          <li>{{ r.nombre }} — {{ r.tareas_completadas }} tareas completadas</li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="text-muted">No hay datos suficientes</p>
+    {% endif %}
+  </div>
+</section>

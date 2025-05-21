@@ -1,0 +1,52 @@
+<!-- Modal: Crear o editar tarea -->
+<div class="modal fade" id="modalNuevaTarea" tabindex="-1" aria-labelledby="modalNuevaTareaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formNuevaTarea">
+        <div class="modal-header">
+          <h5 class="modal-title">Crear nueva tarea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label>Título</label>
+            <input type="text" class="form-control" name="titulo" required>
+          </div>
+          <div class="mb-3">
+            <label>Descripción</label>
+            <textarea class="form-control" name="descripcion"></textarea>
+          </div>
+          <div class="mb-3">
+            <label>Fecha límite</label>
+            <input type="date" class="form-control" name="fecha_limite" required>
+          </div>
+          <div class="mb-3">
+            <label>Prioridad</label>
+            <select class="form-select" name="prioridad">
+              <option value="baja">Baja</option>
+              <option value="media" selected>Media</option>
+              <option value="alta">Alta</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label>Asignado a</label>
+            <select class="form-select" name="usuario_empresa_id" required>
+              {% for u in usuarios %}
+                <option value="{{ u.id }}">{{ u.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
+          <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
+          <input type="hidden" name="creado_por" value="{{ user.id if user else '' }}">
+          <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
+          <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2] if user else 'NN' }}">
+          <div class="alert alert-danger d-none" id="errorTarea"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

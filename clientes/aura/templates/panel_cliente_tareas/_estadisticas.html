@@ -1,0 +1,37 @@
+<!-- Sección: Estadísticas rápidas -->
+<section id="estadisticas" class="mb-4">
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card stat-card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Tareas activas</h5>
+          <p class="card-text">{{ resumen.tareas_activas }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Completadas</h5>
+          <p class="card-text">{{ resumen.tareas_completadas }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Vencidas</h5>
+          <p class="card-text">{{ resumen.tareas_vencidas }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Cumplimiento</h5>
+          <p class="card-text">{{ resumen.porcentaje_cumplimiento }}%</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
