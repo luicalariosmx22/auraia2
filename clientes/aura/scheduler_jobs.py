@@ -10,6 +10,7 @@ from clientes.aura.routes.panel_cliente_tareas.whatsapp import (
     enviar_resumen_6pm_por_whatsapp
 )
 from clientes.aura.routes.panel_cliente_tareas.reportes import enviar_reporte_semanal
+from clientes.aura.utils.twilio_sender import enviar_mensaje
 
 zona = timezone("America/Hermosillo")
 
