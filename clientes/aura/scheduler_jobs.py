@@ -9,9 +9,7 @@ from clientes.aura.routes.panel_cliente_tareas.whatsapp import (
     enviar_tareas_del_dia_por_whatsapp,
     enviar_resumen_6pm_por_whatsapp
 )
-from clientes.aura.routes.panel_cliente_tareas.panel_cliente_tareas import (
-    enviar_reporte_semanal
-)
+from clientes.aura.routes.panel_cliente_tareas.reportes import enviar_reporte_semanal
 
 zona = timezone("America/Hermosillo")
 
