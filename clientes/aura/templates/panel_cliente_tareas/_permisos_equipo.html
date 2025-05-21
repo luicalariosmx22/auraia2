@@ -1,37 +1,41 @@
 <!-- Sección: Permisos del equipo -->
-<section class="mb-4">
-  <h4>👥 Permisos del equipo</h4>
+<section class="mb-6">
+  <h4 class="text-base font-semibold text-blue-700 mb-3">👥 Permisos del equipo</h4>
 
-  <p>Supervisores activos: {{ supervisores_activos }} / 3</p>
+  <p class="text-sm text-gray-600 mb-3">
+    Supervisores activos: <strong>{{ supervisores_activos }}</strong> / 3
+  </p>
 
-  <table class="table table-bordered table-sm align-middle">
-    <thead class="table-light">
-      <tr>
-        <th>Nombre</th>
-        <th>Correo o teléfono</th>
-        <th>Rol</th>
-        <th>🔎 Ver todas</th>
-        <th>✏️ Crear otros</th>
-        <th>🔁 Reasignar</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for u in usuarios %}
-      <tr>
-        <td>{{ u.nombre }}</td>
-        <td>{{ u.correo or u.telefono }}</td>
-        <td>
-          {% if u.es_supervisor_tareas %}
-            <span class="badge bg-success">Supervisor</span>
-          {% else %}
-            Estándar
-          {% endif %}
-        </td>
-        <td><input type="checkbox" {% if u.ver_todas_tareas %}checked{% endif %} {% if not u.es_supervisor_tareas %}disabled{% endif %}></td>
-        <td><input type="checkbox" {% if u.crear_tareas_otros %}checked{% endif %} {% if not u.es_supervisor_tareas %}disabled{% endif %}></td>
-        <td><input type="checkbox" {% if u.reasignar_tareas %}checked{% endif %} {% if not u.es_supervisor_tareas %}disabled{% endif %}></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm bg-white rounded-lg overflow-hidden shadow-sm">
+      <thead class="bg-gray-100 text-gray-700 text-left">
+        <tr>
+          <th class="px-4 py-2">Nombre</th>
+          <th class="px-4 py-2">Correo o teléfono</th>
+          <th class="px-4 py-2">Rol</th>
+          <th class="px-4 py-2 text-center">🔎 Ver todas</th>
+          <th class="px-4 py-2 text-center">✏️ Crear otros</th>
+          <th class="px-4 py-2 text-center">🔁 Reasignar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr class="border-t border-gray-200">
+          <td class="px-4 py-2">{{ u.nombre }}</td>
+          <td class="px-4 py-2">{{ u.correo or u.telefono }}</td>
+          <td class="px-4 py-2">
+            {% if u.es_supervisor_tareas %}
+              <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">Supervisor</span>
+            {% else %}
+              <span class="text-xs text-gray-600">Estándar</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-2 text-center"><input type="checkbox" {% if u.ver_todas_tareas %}checked{% endif %} disabled></td>
+          <td class="px-4 py-2 text-center"><input type="checkbox" {% if u.crear_tareas_otros %}checked{% endif %} disabled></td>
+          <td class="px-4 py-2 text-center"><input type="checkbox" {% if u.reasignar_tareas %}checked{% endif %} disabled></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </section>

@@ -1,28 +1,29 @@
 <!-- Sección: Seguimiento automático por WhatsApp -->
-<section class="mb-4">
-  <h4>📲 Seguimiento automático por WhatsApp</h4>
-  <p class="text-muted">
-    Nora envía las tareas del día a las 8 AM y revisa el estado a las 6 PM.
+<section class="mb-6">
+  <h4 class="text-base font-semibold text-green-700 mb-3">📲 Seguimiento automático por WhatsApp</h4>
+  <p class="text-sm text-gray-600 mb-4">
+    Nora envía las tareas del día a las 8 AM y revisa su estado a las 6 PM.
   </p>
 
   {% if reportes_whatsapp %}
-    <table class="table table-sm table-bordered align-middle">
-      <thead class="table-light">
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm bg-white rounded-lg overflow-hidden shadow-sm">
+      <thead class="bg-gray-100 text-gray-700 text-left">
         <tr>
-          <th>Usuario</th>
-          <th>Número</th>
-          <th>8 AM</th>
-          <th>6 PM</th>
-          <th>Enviadas</th>
-          <th>Completadas</th>
+          <th class="px-4 py-2">Usuario</th>
+          <th class="px-4 py-2">Número</th>
+          <th class="px-4 py-2 text-center">8 AM</th>
+          <th class="px-4 py-2 text-center">6 PM</th>
+          <th class="px-4 py-2 text-center">Enviadas</th>
+          <th class="px-4 py-2 text-center">Completadas</th>
         </tr>
       </thead>
       <tbody>
         {% for r in reportes_whatsapp %}
-        <tr>
-          <td>{{ r.nombre }}</td>
-          <td>{{ r.telefono }}</td>
-          <td>
+        <tr class="border-t border-gray-200">
+          <td class="px-4 py-2">{{ r.nombre }}</td>
+          <td class="px-4 py-2">{{ r.telefono }}</td>
+          <td class="px-4 py-2 text-center">
             {% if r.envio_8am == "enviado" %}
               ✅
             {% elif r.envio_8am == "error" %}
@@ -31,7 +32,7 @@
               ⏳
             {% endif %}
           </td>
-          <td>
+          <td class="px-4 py-2 text-center">
             {% if r.envio_6pm == "enviado" %}
               ✅
             {% elif r.envio_6pm == "error" %}
@@ -40,13 +41,14 @@
               ⏳
             {% endif %}
           </td>
-          <td>{{ r.tareas_dia or 0 }}</td>
-          <td>{{ r.completadas or 0 }}</td>
+          <td class="px-4 py-2 text-center">{{ r.tareas_dia or 0 }}</td>
+          <td class="px-4 py-2 text-center">{{ r.completadas or 0 }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
+  </div>
   {% else %}
-    <p class="text-muted">Sin registros aún</p>
+    <p class="text-sm text-gray-500 italic">Sin registros aún.</p>
   {% endif %}
 </section>

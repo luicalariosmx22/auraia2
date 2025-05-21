@@ -5,26 +5,22 @@
   <div class="space-y-3">
     <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
       <span class="text-sm text-gray-700">🔔 Recordatorios por WhatsApp</span>
-      <input type="checkbox" id="alertasWhatsapp" class="h-4 w-4 text-blue-600"
-             {% if config.alertas_whatsapp %}checked{% endif %}>
+      <input type="checkbox" id="alertasWhatsapp" class="h-4 w-4 text-blue-600" {% if config.alertas_whatsapp %}checked{% endif %}>
     </label>
 
     <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
       <span class="text-sm text-gray-700">🔁 Tareas recurrentes</span>
-      <input type="checkbox" id="tareasRecurrentes" class="h-4 w-4 text-blue-600"
-             {% if config.tareas_recurrentes %}checked{% endif %}>
+      <input type="checkbox" id="tareasRecurrentes" class="h-4 w-4 text-blue-600" {% if config.tareas_recurrentes %}checked{% endif %}>
     </label>
 
     <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
       <span class="text-sm text-gray-700">📬 Reporte PDF semanal</span>
-      <input type="checkbox" id="reportePDF" class="h-4 w-4 text-blue-600"
-             {% if config.reporte_semanal %}checked{% endif %}>
+      <input type="checkbox" id="reportePDF" class="h-4 w-4 text-blue-600" {% if config.reporte_semanal %}checked{% endif %}>
     </label>
 
     <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
       <span class="text-sm text-gray-700">🧩 Tareas sugeridas por módulos</span>
-      <input type="checkbox" id="tareasModulos" class="h-4 w-4 text-blue-600"
-             {% if config.tareas_sugeridas_modulos %}checked{% endif %}>
+      <input type="checkbox" id="tareasModulos" class="h-4 w-4 text-blue-600" {% if config.tareas_sugeridas_modulos %}checked{% endif %}>
     </label>
   </div>
 </section>
