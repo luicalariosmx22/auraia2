@@ -9,7 +9,7 @@ panel_cliente_tareas_bp = Blueprint("panel_cliente_tareas", __name__, template_f
 from . import tareas_crud
 from . import plantillas
 from . import whatsapp
-from . import usuarios_empresa
+from . import usuarios_clientes
 from . import estadisticas
 from . import automatizaciones
 from . import verificar
