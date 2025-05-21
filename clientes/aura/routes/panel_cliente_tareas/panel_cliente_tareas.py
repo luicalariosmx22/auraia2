@@ -490,30 +490,49 @@ def check_duplicate_keywords(file_path):
 # ✅ Ruta correcta para el panel principal (respetando url_prefix ya definido)
 @panel_cliente_tareas_bp.route("/", endpoint="index_tareas")
 def index_tareas(nombre_nora):
+    # 🔍 Obtener cliente_id desde configuración
+    config = supabase.table("configuracion_bot").select("cliente_id").eq("nombre_nora", nombre_nora).single().execute().data
+    cliente_id = config.get("cliente_id")
+
+    # 🔍 Obtener empresa_id (usamos la primera activa que encuentre)
+    empresas = supabase.table("cliente_empresas").select("id").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data
+    empresa_id = empresas[0]["id"] if empresas else None
+
+    # 🔍 Obtener tareas activas de esa empresa
+    tareas = supabase.table("tareas").select("*") \
+        .eq("nombre_nora", nombre_nora).eq("activo", True).execute().data
+
+    # 🔍 Obtener usuarios de este cliente
+    usuarios = supabase.table("usuarios_clientes").select("*") \
+        .eq("nombre_nora", nombre_nora).eq("activo", True).execute().data
+
     return render_template("panel_cliente_tareas/index.html",
         nombre_nora=nombre_nora,
         tarea=None,
-        tareas=[],
-        usuarios=[],
-        permisos={"ver_todas": False},
-        datos={"tareas_semana": 0, "tareas_completadas": 0, "tareas_activas": 0, "tareas_vencidas": 0, "porcentaje_cumplimiento": 0, "ranking_usuarios": []},
-        resumen={"tareas_activas": 0, "tareas_completadas": 0, "tareas_vencidas": 0, "porcentaje_cumplimiento": 0},
+        tareas=tareas,
+        usuarios=usuarios,
+        permisos={"ver_todas": True},
+        datos={
+            "tareas_semana": len(tareas),
+            "tareas_completadas": len([t for t in tareas if t["estatus"] == "completada"]),
+            "tareas_activas": len([t for t in tareas if t["estatus"] == "pendiente"]),
+            "tareas_vencidas": len([t for t in tareas if t["estatus"] in ["vencida", "atrasada"]]),
+            "porcentaje_cumplimiento": 0,
+            "ranking_usuarios": []
+        },
+        resumen={
+            "tareas_activas": len([t for t in tareas if t["estatus"] == "pendiente"]),
+            "tareas_completadas": len([t for t in tareas if t["estatus"] == "completada"]),
+            "tareas_vencidas": len([t for t in tareas if t["estatus"] in ["vencida", "atrasada"]]),
+            "porcentaje_cumplimiento": 0
+        },
         config={},
         alertas={},
         supervisores_activos=0,
-        verificaciones={
-            "usuarios_clientes": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "tareas_creadas": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "tareas_asignadas": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "recurrentes": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "recordatorios": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "envios_whatsapp": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "plantillas": {"estado": "⏳", "comentario": "Sin evaluar"},
-            "supervisores": {"estado": "⏳", "comentario": "Sin evaluar"}
-        },
+        verificaciones={},
         reportes_whatsapp=[],
-        empresa_id=None,
-        cliente_id=None
+        empresa_id=empresa_id,
+        cliente_id=cliente_id
     )
 
 @panel_cliente_tareas_bp.route("/crear_tarea", methods=["POST"])
