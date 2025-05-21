@@ -1,5 +1,5 @@
 <!-- Sección: Permisos del equipo -->
-<section class="mb-6">
+<section class="mb-6" x-data="usuariosEquipo('{{ nombre_nora }}')">
   <h4 class="text-base font-semibold text-blue-700 mb-3">👥 Permisos del equipo</h4>
 
   <p class="text-sm text-gray-600 mb-3">
@@ -16,6 +16,7 @@
           <th class="px-4 py-2 text-center">🔎 Ver todas</th>
           <th class="px-4 py-2 text-center">✏️ Crear otros</th>
           <th class="px-4 py-2 text-center">🔁 Reasignar</th>
+          <th class="px-4 py-2 text-right">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -24,18 +25,101 @@
           <td class="px-4 py-2">{{ u.nombre }}</td>
           <td class="px-4 py-2">{{ u.correo or u.telefono }}</td>
           <td class="px-4 py-2">
-            {% if u.es_supervisor_tareas %}
-              <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">Supervisor</span>
-            {% else %}
-              <span class="text-xs text-gray-600">Estándar</span>
-            {% endif %}
+            <input type="checkbox" {% if u.es_supervisor_tareas %}checked{% endif %}
+                   @change="actualizarPermisos('{{ u.id }}', 'es_supervisor_tareas', $event.target.checked)">
+            <span class="ml-2">
+              {% if u.es_supervisor_tareas %}
+                <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">Supervisor</span>
+              {% else %}
+                <span class="text-xs text-gray-600">Estándar</span>
+              {% endif %}
+            </span>
           </td>
-          <td class="px-4 py-2 text-center"><input type="checkbox" {% if u.ver_todas_tareas %}checked{% endif %} disabled></td>
-          <td class="px-4 py-2 text-center"><input type="checkbox" {% if u.crear_tareas_otros %}checked{% endif %} disabled></td>
-          <td class="px-4 py-2 text-center"><input type="checkbox" {% if u.reasignar_tareas %}checked{% endif %} disabled></td>
+          <td class="px-4 py-2 text-center">
+            <input type="checkbox" {% if u.ver_todas_tareas %}checked{% endif %}
+                   @change="actualizarPermisos('{{ u.id }}', 'ver_todas_tareas', $event.target.checked)">
+          </td>
+          <td class="px-4 py-2 text-center">
+            <input type="checkbox" {% if u.crear_tareas_otros %}checked{% endif %}
+                   @change="actualizarPermisos('{{ u.id }}', 'crear_tareas_otros', $event.target.checked)">
+          </td>
+          <td class="px-4 py-2 text-center">
+            <input type="checkbox" {% if u.reasignar_tareas %}checked{% endif %}
+                   @change="actualizarPermisos('{{ u.id }}', 'reasignar_tareas', $event.target.checked)">
+          </td>
+          <td class="px-4 py-2 text-right">
+            <button @click="eliminarUsuario('{{ u.id }}')" class="text-red-600 hover:underline text-xs">Eliminar</button>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+
+  <div class="mt-6">
+    <h5 class="text-sm font-semibold mb-2">➕ Agregar nuevo usuario</h5>
+    <form @submit.prevent="crearUsuario">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+        <div>
+          <input x-model="nuevo.nombre" type="text" placeholder="Nombre" class="form-input px-3 py-2 rounded border w-full">
+          <template x-if="nuevo.nombre === ''">
+            <p class="text-xs text-red-500 mt-1">Se requiere nombre</p>
+          </template>
+        </div>
+        <div>
+          <input x-model="nuevo.correo" type="email" placeholder="Correo" class="form-input px-3 py-2 rounded border w-full">
+        </div>
+        <div>
+          <input x-model="nuevo.telefono" type="tel" placeholder="Teléfono" class="form-input px-3 py-2 rounded border w-full">
+          <template x-if="!nuevo.correo && !nuevo.telefono">
+            <p class="text-xs text-red-500 mt-1">Agrega al menos un contacto</p>
+          </template>
+        </div>
+      </div>
+      <div class="flex gap-4 mb-3">
+        <label><input type="checkbox" x-model="nuevo.ver_todas_tareas"> Ver todas</label>
+        <label><input type="checkbox" x-model="nuevo.crear_tareas_otros"> Crear tareas</label>
+        <label><input type="checkbox" x-model="nuevo.reasignar_tareas"> Reasignar</label>
+        <label><input type="checkbox" x-model="nuevo.es_supervisor_tareas"> Supervisor</label>
+      </div>
+      <button type="submit"
+              :disabled="!nuevo.nombre || (!nuevo.correo && !nuevo.telefono)"
+              class="px-4 py-2 rounded text-sm transition-all font-semibold"
+              :class="(!nuevo.nombre || (!nuevo.correo && !nuevo.telefono)) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'">
+        Guardar
+      </button>
+    </form>
+  </div>
 </section>
+<script>
+  function usuariosEquipo(nombreNora) {
+    return {
+      nuevo: { nombre: '', correo: '', telefono: '', ver_todas_tareas: false, crear_tareas_otros: false, reasignar_tareas: false, es_supervisor_tareas: false },
+
+      async crearUsuario() {
+        const res = await fetch(`/usuarios/${nombreNora}/crear`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(this.nuevo)
+        });
+        location.reload();
+      },
+
+      async actualizarPermisos(id, campo, valor) {
+        const payload = { [campo]: valor };
+        const res = await fetch(`/usuarios/${nombreNora}/editar/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      },
+
+      async eliminarUsuario(id) {
+        if (confirm("¿Eliminar este usuario?")) {
+          await fetch(`/usuarios/${nombreNora}/eliminar/${id}`, { method: "DELETE" });
+          location.reload();
+        }
+      }
+    }
+  }
+</script>
