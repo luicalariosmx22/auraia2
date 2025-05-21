@@ -29,3 +29,28 @@
     </select>
   </div>
 </div>
+
+<form method="GET" action="" class="flex flex-wrap gap-4 items-end mb-6">
+  <!-- Otros filtros aquí... -->
+
+  <div>
+    <label for="filtro_empresa" class="block text-sm font-medium text-gray-700">Filtrar por empresa</label>
+    <select name="empresa_id" id="filtro_empresa"
+            class="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:outline-none text-sm">
+      <option value="">Todas</option>
+      {% for empresa in empresas %}
+        <option value="{{ empresa.id }}"
+          {% if request.args.get('empresa_id') == empresa.id %}selected{% endif %}>
+          {{ empresa.nombre_empresa }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <button type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow text-sm">
+      Aplicar filtro
+    </button>
+  </div>
+</form>

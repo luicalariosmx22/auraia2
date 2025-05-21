@@ -16,7 +16,20 @@ def vista_tareas_index():
     empresa_id = user.get("empresa_id", "")
 
     tareas_activas = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
+
+    filtro_empresa_id = request.args.get("empresa_id")
+    if filtro_empresa_id:
+        tareas_activas = [t for t in tareas_activas if t.get("empresa_id") == filtro_empresa_id]
+
     usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
+
+    empresas = supabase.table("cliente_empresas")\
+        .select("id, nombre_empresa")\
+        .eq("nombre_nora", nombre_nora)\
+        .eq("activo", True)\
+        .execute().data or []
+
+    empresas_dict = {e["id"]: e["nombre_empresa"] for e in empresas}
 
     resumen = {
         "tareas_activas": len([t for t in tareas_activas if t["estatus"] == "pendiente"]),
@@ -32,6 +45,8 @@ def vista_tareas_index():
     return render_template("panel_cliente_tareas/index.html",
         tareas_activas=tareas_activas,
         usuarios=usuarios,
+        empresas=empresas,
+        empresas_dict=empresas_dict,
         resumen=resumen,
         alertas={},
         reportes_whatsapp=[],
