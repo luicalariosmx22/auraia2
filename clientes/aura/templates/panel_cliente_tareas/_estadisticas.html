@@ -1,37 +1,21 @@
 <!-- Sección: Estadísticas rápidas -->
-<section id="estadisticas" class="mb-4">
-  <div class="row">
-    <div class="col-md-3">
-      <div class="card stat-card text-center">
-        <div class="card-body">
-          <h5 class="card-title">Tareas activas</h5>
-          <p class="card-text">{{ resumen.tareas_activas }}</p>
-        </div>
-      </div>
+<section id="estadisticas" class="mb-6">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+      <p class="text-sm text-gray-500">Tareas activas</p>
+      <p class="text-2xl font-bold text-blue-600">{{ resumen.tareas_activas }}</p>
     </div>
-    <div class="col-md-3">
-      <div class="card stat-card text-center">
-        <div class="card-body">
-          <h5 class="card-title">Completadas</h5>
-          <p class="card-text">{{ resumen.tareas_completadas }}</p>
-        </div>
-      </div>
+    <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+      <p class="text-sm text-gray-500">Completadas</p>
+      <p class="text-2xl font-bold text-green-600">{{ resumen.tareas_completadas }}</p>
     </div>
-    <div class="col-md-3">
-      <div class="card stat-card text-center">
-        <div class="card-body">
-          <h5 class="card-title">Vencidas</h5>
-          <p class="card-text">{{ resumen.tareas_vencidas }}</p>
-        </div>
-      </div>
+    <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+      <p class="text-sm text-gray-500">Vencidas</p>
+      <p class="text-2xl font-bold text-red-600">{{ resumen.tareas_vencidas }}</p>
     </div>
-    <div class="col-md-3">
-      <div class="card stat-card text-center">
-        <div class="card-body">
-          <h5 class="card-title">Cumplimiento</h5>
-          <p class="card-text">{{ resumen.porcentaje_cumplimiento }}%</p>
-        </div>
-      </div>
+    <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+      <p class="text-sm text-gray-500">Cumplimiento</p>
+      <p class="text-2xl font-bold text-gray-800">{{ resumen.porcentaje_cumplimiento }}%</p>
     </div>
   </div>
 </section>

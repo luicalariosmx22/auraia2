@@ -1,40 +1,30 @@
 <!-- Sección: Automatizaciones -->
-<section class="mb-4">
-  <h4>⚙️ Automatizaciones</h4>
+<section class="mb-6">
+  <h4 class="text-base font-semibold text-blue-700 mb-3">⚙️ Automatizaciones</h4>
 
-  <div class="automate-item mb-2">
-    <label class="form-check-label" for="alertasWhatsapp">
-      🔔 Activar recordatorios por WhatsApp
+  <div class="space-y-3">
+    <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
+      <span class="text-sm text-gray-700">🔔 Recordatorios por WhatsApp</span>
+      <input type="checkbox" id="alertasWhatsapp" class="h-4 w-4 text-blue-600"
+             {% if config.alertas_whatsapp %}checked{% endif %}>
     </label>
-    <input class="form-check-input float-end" type="checkbox" id="alertasWhatsapp"
-           {% if config.alertas_whatsapp %}checked{% endif %}>
-    <small class="text-muted d-block">Envía notificaciones automáticas a los usuarios.</small>
-  </div>
 
-  <div class="automate-item mb-2">
-    <label class="form-check-label" for="tareasRecurrentes">
-      🔁 Activar tareas recurrentes
+    <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
+      <span class="text-sm text-gray-700">🔁 Tareas recurrentes</span>
+      <input type="checkbox" id="tareasRecurrentes" class="h-4 w-4 text-blue-600"
+             {% if config.tareas_recurrentes %}checked{% endif %}>
     </label>
-    <input class="form-check-input float-end" type="checkbox" id="tareasRecurrentes"
-           {% if config.tareas_recurrentes %}checked{% endif %}>
-    <small class="text-muted d-block">Se generan automáticamente según programación.</small>
-  </div>
 
-  <div class="automate-item mb-2">
-    <label class="form-check-label" for="reportePDF">
-      📬 Activar reporte PDF semanal
+    <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
+      <span class="text-sm text-gray-700">📬 Reporte PDF semanal</span>
+      <input type="checkbox" id="reportePDF" class="h-4 w-4 text-blue-600"
+             {% if config.reporte_semanal %}checked{% endif %}>
     </label>
-    <input class="form-check-input float-end" type="checkbox" id="reportePDF"
-           {% if config.reporte_semanal %}checked{% endif %}>
-    <small class="text-muted d-block">Envía resumen cada semana a los supervisores.</small>
-  </div>
 
-  <div class="automate-item mb-2">
-    <label class="form-check-label" for="tareasModulos">
-      🧩 Activar tareas sugeridas por módulos
+    <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
+      <span class="text-sm text-gray-700">🧩 Tareas sugeridas por módulos</span>
+      <input type="checkbox" id="tareasModulos" class="h-4 w-4 text-blue-600"
+             {% if config.tareas_sugeridas_modulos %}checked{% endif %}>
     </label>
-    <input class="form-check-input float-end" type="checkbox" id="tareasModulos"
-           {% if config.tareas_sugeridas_modulos %}checked{% endif %}>
-    <small class="text-muted d-block">Al activar otros módulos, Nora puede sugerir tareas automáticas.</small>
   </div>
 </section>
