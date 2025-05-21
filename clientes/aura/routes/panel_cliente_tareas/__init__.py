@@ -7,7 +7,7 @@ panel_cliente_tareas_bp = Blueprint(
     template_folder="../../../templates/panel_cliente_tareas"
 )
 
-@panel_cliente_tareas_bp.route("/<nombre_nora>")
+@panel_cliente_tareas_bp.route("/")
 def vista_tareas_index(nombre_nora):
     user = session.get("user", {})
     cliente_id = user.get("cliente_id", "")
@@ -50,3 +50,4 @@ from . import (
     automatizaciones,
     verificar
 )
+ 
