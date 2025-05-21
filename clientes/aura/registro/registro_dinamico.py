@@ -125,7 +125,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 safe_register_blueprint(
                     app,
                     panel_cliente_tareas_bp,
-                    url_prefix=f"/panel_cliente/{nombre_nora}/tareas"
+                    url_prefix=f"/panel_cliente/{nombre_nora}/tareas",
+                    name=f"panel_cliente_tareas_{nombre_nora}"
                 )
                 print(f"✅ Módulo TAREAS registrado para {nombre_nora}")
 
