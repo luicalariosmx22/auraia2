@@ -17,9 +17,9 @@ from pytz import timezone
 
 from clientes.aura.routes.panel_cliente_tareas.whatsapp import (
     enviar_tareas_del_dia_por_whatsapp,
-    enviar_resumen_6pm_por_whatsapp,
-    enviar_reporte_semanal  # ya existente
+    enviar_resumen_6pm_por_whatsapp
 )
+from clientes.aura.routes.panel_cliente_tareas.panel_cliente_tareas import enviar_reporte_semanal
 
 # Inicializar scheduler
 scheduler = BackgroundScheduler(timezone=timezone("America/Hermosillo"))
@@ -201,18 +201,13 @@ def create_app(config_class=Config):
 
     # Registrar Tareas APScheduler
     if not scheduler.running:
-        scheduler.add_job(
-            func=enviar_reporte_semanal,
-            trigger=CronTrigger(day_of_week='mon', hour=10, minute=0, timezone='America/Hermosillo'),
-            id='job_enviar_reporte_semanal',
-            name='Reporte Semanal Meta Ads Aura',
-            replace_existing=True
-        )
         try:
+            from clientes.aura.scheduler_jobs import inicializar_cron_jobs
+            inicializar_cron_jobs(scheduler)
             scheduler.start()
-            print("APScheduler iniciado y trabajo 'enviar_reporte_semanal' añadido.")
+            print("APScheduler iniciado y cron jobs registrados correctamente.")
         except Exception as e:
-            print(f"Error al iniciar APScheduler o añadir job: {e}")
+            print(f"Error al iniciar APScheduler: {e}")
     else:
         print("APScheduler ya estaba corriendo.")
 
