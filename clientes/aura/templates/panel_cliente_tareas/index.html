@@ -35,21 +35,4 @@
   {% include "panel_cliente_tareas/_alertas_y_ranking.html" %}
 {% endif %}
 
-{% if verificaciones is defined %}
-  <!-- ✅ Verificación del módulo -->
-  {% include "panel_cliente_tareas/_verificacion_modulo.html" %}
-{% endif %}
-
-<script>
-  console.log("👀 Tareas activas:", {{ tareas_activas | tojson }});
-  console.log("👤 Usuarios:", {{ usuarios | tojson }});
-  console.log("📊 Resumen:", {{ resumen | tojson }});
-</script>
-
-<div style="padding: 20px; background: #ffe;">
-  Tareas: {{ tareas_activas|length }} |
-  Usuarios: {{ usuarios|length }} |
-  Nora: {{ nombre_nora }}
-</div>
-
 {% endblock %}
