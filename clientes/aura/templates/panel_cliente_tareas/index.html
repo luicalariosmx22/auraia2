@@ -11,8 +11,8 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">📋 Mis tareas</h2>
     <button class="btn btn-primary float-end"
-            data-bs-toggle="modal"
-            data-bs-target="#modalNuevaTarea">
+            id="btn-nueva-tarea"
+            type="button">
       + Nueva tarea
     </button>
   </div>
@@ -89,7 +89,7 @@
   {% endif %}
 </div>
 
-<!-- 👉 Modal para crear o editar una tarea -->
+<!-- Modal para crear o editar una tarea -->
 <div class="modal" id="modal-tarea" style="display: none;">
   <div class="modal-contenido">
     <h2>{{ 'Editar Tarea' if tarea else 'Nueva Tarea' }}</h2>
@@ -137,6 +137,29 @@
     </form>
   </div>
 </div>
+
+<script>
+  // Mostrar el modal al hacer click en "+ Nueva tarea"
+  document.addEventListener("DOMContentLoaded", function() {
+    var btnNuevaTarea = document.getElementById("btn-nueva-tarea");
+    var modalTarea = document.getElementById("modal-tarea");
+    if (btnNuevaTarea && modalTarea) {
+      btnNuevaTarea.addEventListener("click", function() {
+        modalTarea.style.display = "flex";
+      });
+    }
+    // Cerrar modal al hacer click fuera del contenido
+    window.onclick = function(event) {
+      if (event.target === modalTarea) {
+        modalTarea.style.display = "none";
+      }
+    }
+    // Función global para cerrar desde botón cancelar
+    window.cerrarModal = function() {
+      modalTarea.style.display = "none";
+    }
+  });
+</script>
 
 <!-- 👉 Modal de confirmación para marcar tarea como completada -->
 <div class="modal" id="modal-confirmar-completada" style="display: none;">
