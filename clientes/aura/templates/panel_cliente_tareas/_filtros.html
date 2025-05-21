@@ -30,51 +30,51 @@
   </div>
 </div>
 
-<form method="GET" action="" class="flex flex-wrap gap-4 items-end mb-6">
-  <!-- Otros filtros aquí... -->
+<form method="GET" action="" class="flex flex-wrap gap-4 items-end mb-8">
+  <div class="flex flex-col">
+    <label for="busqueda" class="text-sm text-gray-700 mb-1">Buscar tarea</label>
+    <input type="text" name="busqueda" id="busqueda"
+           class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+  </div>
 
-  <div>
-    <label for="filtro_empresa" class="block text-sm font-medium text-gray-700">Filtrar por empresa</label>
-    <select name="empresa_id" id="filtro_empresa"
-            class="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:outline-none text-sm">
+  <div class="flex flex-col">
+    <label for="estatus" class="text-sm text-gray-700 mb-1">Estatus</label>
+    <select name="estatus" id="estatus"
+            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+      <option value="">Todos</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="completada">Completada</option>
+      <option value="vencida">Vencida</option>
+    </select>
+  </div>
+
+  <div class="flex flex-col">
+    <label for="prioridad" class="text-sm text-gray-700 mb-1">Prioridad</label>
+    <select name="prioridad" id="prioridad"
+            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+      <option value="">Todas</option>
+      <option value="alta">Alta</option>
+      <option value="media">Media</option>
+      <option value="baja">Baja</option>
+    </select>
+  </div>
+
+  <div class="flex flex-col">
+    <label for="empresa_id" class="text-sm text-gray-700 mb-1">Empresa</label>
+    <select name="empresa_id" id="empresa_id"
+            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       <option value="">Todas</option>
       {% for empresa in empresas %}
-        <option value="{{ empresa.id }}"
-          {% if request.args.get('empresa_id') == empresa.id %}selected{% endif %}>
+        <option value="{{ empresa.id }}" {% if request.args.get('empresa_id') == empresa.id %}selected{% endif %}>
           {{ empresa.nombre_empresa }}
         </option>
       {% endfor %}
     </select>
   </div>
 
-  <!-- Filtro por estatus -->
-  <div>
-    <label for="filtro_estatus" class="block text-sm font-medium text-gray-700">Estatus</label>
-    <select name="estatus" id="filtro_estatus"
-            class="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:outline-none text-sm">
-      <option value="">Todos</option>
-      <option value="pendiente" {% if request.args.get('estatus') == 'pendiente' %}selected{% endif %}>Pendiente</option>
-      <option value="completada" {% if request.args.get('estatus') == 'completada' %}selected{% endif %}>Completada</option>
-      <option value="vencida" {% if request.args.get('estatus') == 'vencida' %}selected{% endif %}>Vencida</option>
-      <option value="atrasada" {% if request.args.get('estatus') == 'atrasada' %}selected{% endif %}>Atrasada</option>
-    </select>
-  </div>
-
-  <!-- Filtro por prioridad -->
-  <div>
-    <label for="filtro_prioridad" class="block text-sm font-medium text-gray-700">Prioridad</label>
-    <select name="prioridad" id="filtro_prioridad"
-            class="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:outline-none text-sm">
-      <option value="">Todas</option>
-      <option value="alta" {% if request.args.get('prioridad') == 'alta' %}selected{% endif %}>Alta</option>
-      <option value="media" {% if request.args.get('prioridad') == 'media' %}selected{% endif %}>Media</option>
-      <option value="baja" {% if request.args.get('prioridad') == 'baja' %}selected{% endif %}>Baja</option>
-    </select>
-  </div>
-
   <div>
     <button type="submit"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow text-sm">
+            class="mt-6 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-all">
       Aplicar filtro
     </button>
   </div>

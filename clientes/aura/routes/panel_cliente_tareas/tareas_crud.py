@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, redirect, session
 from .panel_cliente_tareas import panel_cliente_tareas_bp
 from datetime import datetime
 from supabase import create_client
@@ -83,3 +83,30 @@ def endpoint_crear_tarea():
     data = request.json
     tarea, status = crear_tarea(data)
     return jsonify(tarea), status
+
+@panel_cliente_tareas_bp.route("/guardar-tarea", methods=["POST"])
+def guardar_tarea_html():
+    form = request.form
+    user = session.get("user", {})
+    nombre_nora = user.get("nombre_nora", "aura")
+    cliente_id = user.get("cliente_id", "")
+    creado_por = user.get("nombre", "Desconocido")
+    iniciales_usuario = "".join([w[0] for w in user.get("nombre", "NN").split()]) if user.get("nombre") else "NN"
+
+    tarea_data = {
+        "titulo": form.get("titulo"),
+        "descripcion": form.get("descripcion"),
+        "prioridad": form.get("prioridad"),
+        "fecha_limite": form.get("fecha_limite"),
+        "asignado_a": form.get("asignado_a"),
+        "empresa_id": form.get("empresa_id"),
+        "usuario_empresa_id": form.get("asignado_a"),  # temporalmente igual a asignado
+        "cliente_id": cliente_id,
+        "nombre_nora": nombre_nora,
+        "creado_por": creado_por,
+        "iniciales_usuario": iniciales_usuario,
+        "origen": "manual"
+    }
+
+    crear_tarea(tarea_data)  # Usa la función que ya tienes
+    return redirect(request.referrer or f"/panel_cliente/{nombre_nora}/tareas")

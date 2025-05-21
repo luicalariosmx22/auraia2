@@ -7,9 +7,18 @@
           <h3 class="text-blue-600 font-semibold text-sm">
             📌 {{ tarea.codigo_tarea }}
           </h3>
-          <span class="text-xs px-2 py-1 rounded bg-gray-100 border border-gray-300 text-gray-600">
-            {{ tarea.estatus | capitalize }}
-          </span>
+          {% set iconos_estatus = {
+            "pendiente": {"emoji": "🔄", "label": "Pendiente"},
+            "completada": {"emoji": "✅", "label": "Completada"},
+            "vencida": {"emoji": "⚠️", "label": "Vencida"},
+            "atrasada": {"emoji": "🕓", "label": "Atrasada"}
+          } %}
+          {% if tarea.estatus in iconos_estatus %}
+            {% set icono = iconos_estatus[tarea.estatus] %}
+            <span class="text-lg cursor-help" title="Estatus: {{ icono.label }}">
+              {{ icono.emoji }}
+            </span>
+          {% endif %}
         </div>
 
         <p class="text-gray-700 text-sm mt-2">{{ tarea.titulo }}</p>
@@ -18,6 +27,18 @@
         {% if tarea.empresa_id in empresas_dict %}
           <span class="inline-block mt-3 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
             🏢 {{ empresas_dict[tarea.empresa_id] }}
+          </span>
+        {% endif %}
+
+        {% if tarea.prioridad %}
+          {% set iconos_prioridad = {
+            "alta": {"emoji": "🔴", "label": "Alta"},
+            "media": {"emoji": "🟡", "label": "Media"},
+            "baja": {"emoji": "🟢", "label": "Baja"}
+          } %}
+          {% set icono = iconos_prioridad[tarea.prioridad] %}
+          <span class="inline-block text-lg cursor-help mt-2" title="Prioridad: {{ icono.label }}">
+            {{ icono.emoji }}
           </span>
         {% endif %}
 
