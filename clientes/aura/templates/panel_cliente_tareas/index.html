@@ -265,8 +265,10 @@ document.getElementById("formNuevaTarea").addEventListener("submit", async funct
   <div class="modal-contenido">
     <h2>¿Marcar esta tarea como completada?</h2>
 
-    <p><strong>Código:</strong> {{ tarea.codigo_tarea }}</p>
-    <p><strong>Título:</strong> {{ tarea.titulo }}</p>
+    {% if tarea %}
+      <p><strong>Código:</strong> {{ tarea.codigo_tarea }}</p>
+      <p><strong>Título:</strong> {{ tarea.titulo }}</p>
+    {% endif %}
 
     <form method="POST" action="{{ url_for('panel_cliente_tareas.index_tareas', nombre_nora=nombre_nora) }}">
       <input type="hidden" name="tarea_id" value="{{ tarea.id }}">

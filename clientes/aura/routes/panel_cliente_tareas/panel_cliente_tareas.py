@@ -490,7 +490,31 @@ def check_duplicate_keywords(file_path):
 # ✅ Ruta correcta para el panel principal (respetando url_prefix ya definido)
 @panel_cliente_tareas_bp.route("/", endpoint="index_tareas")
 def index_tareas(nombre_nora):
-    return render_template("panel_cliente_tareas/index.html", nombre_nora=nombre_nora)
+    return render_template("panel_cliente_tareas/index.html",
+        nombre_nora=nombre_nora,
+        tarea=None,
+        tareas=[],
+        usuarios=[],
+        permisos={"ver_todas": False},
+        datos={"tareas_semana": 0, "tareas_completadas": 0, "tareas_activas": 0, "tareas_vencidas": 0, "porcentaje_cumplimiento": 0, "ranking_usuarios": []},
+        resumen={"tareas_activas": 0, "tareas_completadas": 0, "tareas_vencidas": 0, "porcentaje_cumplimiento": 0},
+        config={},
+        alertas={},
+        supervisores_activos=0,
+        verificaciones={
+            "usuarios_clientes": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "tareas_creadas": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "tareas_asignadas": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "recurrentes": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "recordatorios": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "envios_whatsapp": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "plantillas": {"estado": "⏳", "comentario": "Sin evaluar"},
+            "supervisores": {"estado": "⏳", "comentario": "Sin evaluar"}
+        },
+        reportes_whatsapp=[],
+        empresa_id=None,
+        cliente_id=None
+    )
 
 @panel_cliente_tareas_bp.route("/crear_tarea", methods=["POST"])
 def crear_tarea_endpoint():
