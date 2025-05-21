@@ -34,4 +34,11 @@
   console.log("📊 Resumen:", {{ resumen | tojson }});
 </script>
 
+<div style="padding: 20px; background: #ffe;">
+  Tareas: {{ tareas_activas|length }} |
+  Usuarios: {{ usuarios|length }} |
+  Nora: {{ nombre_nora }}
+</div>
+
+
 {% endblock %}

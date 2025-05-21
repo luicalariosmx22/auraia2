@@ -39,7 +39,8 @@ def vista_tareas_index():
         cliente_id=cliente_id,
         nombre_nora=nombre_nora,
         user=user,
-        config={}
+        config={},
+        modulo_activo="tareas"  # ✅ ESTA ES LA CLAVE
     )
 
 # Importa los submódulos que registran rutas en este blueprint
