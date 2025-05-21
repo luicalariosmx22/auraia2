@@ -8,7 +8,8 @@ panel_cliente_tareas_bp = Blueprint(
 )
 
 @panel_cliente_tareas_bp.route("/")
-def vista_tareas_index(nombre_nora):
+def vista_tareas_index():
+    nombre_nora = session.get("nombre_nora", "aura")
     user = session.get("user", {})
     cliente_id = user.get("cliente_id", "")
     empresa_id = user.get("empresa_id", "")
@@ -50,4 +51,3 @@ from . import (
     automatizaciones,
     verificar
 )
- 
