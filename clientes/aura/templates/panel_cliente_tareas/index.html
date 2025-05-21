@@ -3,6 +3,7 @@
 
 {% block head_extra %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modulos/tareas/main.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modulos/tareas/refuerzo.css') }}">
 {% endblock %}
 
 {% block contenido %}
@@ -197,7 +198,7 @@
     </div>
   </div>
   <div class="ranking-tareas">
-    <h3>🏆 Rankings</h3>
+    <h3 class="seccion-titulo">🏆 Rankings</h3>
     <table>
       <thead>
         <tr>
@@ -226,8 +227,8 @@
   <div class="stat-card">
     <div class="stat-icon">📊</div>
     <div class="stat-info">
-      <p>Estadísticas rápidas</p>
-      <ul>
+      <h2 class="seccion-titulo">Estadísticas rápidas</h2>
+      <ul class="lista-simbolica">
         <li>Activas: {{ resumen.tareas_activas or 0 }}</li>
         <li>Completadas: {{ resumen.tareas_completadas or 0 }}</li>
         <li>Vencidas: {{ resumen.tareas_vencidas or 0 }}</li>
@@ -304,7 +305,7 @@
 
 <!-- 👉 Sección de alertas importantes y rankings en tiempo real -->
 <section id="alertas-y-ranking" class="seccion-alertas">
-  <h2>🔔 Alertas y desempeño</h2>
+  <h2 class="seccion-titulo">🔔 Alertas y desempeño</h2>
   <div class="contenedor-alertas">
     {% if alertas.empresa_mas_activas %}
     <div class="alert-card">
@@ -333,15 +334,13 @@
             • {{ usuario.nombre }}<br>
           {% endfor %}
         {% else %}
-          <em>Sin alertas por inactividad</em>
+          <p class="subtexto-descriptivo"><em>Sin alertas por inactividad</em></p>
         {% endif %}
       </div>
     </div>
   </div>
-
-  <!-- Rankings semanales -->
   <div class="ranking-tareas">
-    <h3>🏆 Rankings semanales</h3>
+    <h3 class="seccion-titulo">🏆 Rankings semanales</h3>
     <table>
       <thead>
         <tr>
@@ -368,10 +367,8 @@
 <!-- 👉 Sección para ver, editar y asignar permisos especiales a usuarios empresa -->
 <section id="permisos-equipo" class="seccion-permisos">
   <h2 class="seccion-titulo">Permisos del equipo</h2>
-  <div class="alert-card">
-    <div class="alert-info">
-      <strong>Supervisores actuales: {{ supervisores_activos or 0 }}/3</strong>
-    </div>
+  <div class="bloque-info">
+    <strong>Supervisores actuales:</strong> {{ supervisores_activos or 0 }}/3
   </div>
   <form method="POST" action="{{ url_for('panel_cliente_tareas.index_tareas', nombre_nora=nombre_nora) }}">
     <input type="hidden" name="accion" value="guardar_permisos_equipo">
@@ -530,7 +527,7 @@
 </section>
 
 <section id="lista-tareas" class="seccion-tareas">
-  <h2>📋 Tareas activas</h2>
+  <h2 class="seccion-titulo">📋 Tareas activas</h2>
 
   {% if tareas_activas %}
     <ul class="lista-tareas">
@@ -558,7 +555,7 @@
       {% endfor %}
     </ul>
   {% else %}
-    <p>✨ No hay tareas activas por el momento.</p>
+    <p class="subtexto-descriptivo">✨ No hay tareas activas por el momento.</p>
   {% endif %}
 </section>
 {% endblock contenido %}

@@ -1,0 +1,43 @@
+/* === REFORZADOR VISUAL PARA ÁREAS SIN CLASES DEDICADAS === */
+
+/* Títulos secundarios */
+.seccion-titulo {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+  color: #2c3e50;
+}
+
+/* Subsecciones de texto plano */
+.subtexto-descriptivo {
+  color: #6c757d;
+  font-size: 0.97rem;
+  margin: 0.5em 0;
+}
+
+/* Tarjeta simple para bloques de info como "permisos" o listas */
+.bloque-info {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.7em 1em;
+  margin-bottom: 1em;
+  font-size: 1rem;
+}
+
+/* Lista con separación ligera */
+.lista-simbolica {
+  list-style: disc inside;
+  margin: 0.5em 0 0.5em 1em;
+  padding: 0;
+  font-size: 0.97rem;
+}
+
+/* Botón aislado arriba a la derecha */
+.btn-floating-top {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
