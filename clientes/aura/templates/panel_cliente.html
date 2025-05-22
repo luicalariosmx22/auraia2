@@ -26,7 +26,7 @@
       {% if modulos %}
         <div class="modulos-activos-grid">
           {% for modulo in modulos %}
-            <a href="{{ modulo.ruta or '#' }}" class="modulo-card">
+            <a href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) if modulo.ruta else '#' }}" class="modulo-card">
               <div class="icono">{{ modulo.icono or '🔧' }}</div>
               <div class="titulo">{{ modulo.nombre }}</div>
               <div class="descripcion">{{ modulo.descripcion }}</div>
@@ -54,7 +54,7 @@
       <div class="modulo-tags">
         {% for modulo in modulos %}
         <a 
-          href="{{ modulo.ruta or '#' }}" 
+          href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) if modulo.ruta else '#' }}" 
           class="modulo-tag" 
           aria-label="Etiqueta del módulo {{ modulo.nombre.replace('_', ' ').capitalize() }}">
           {{ modulo.nombre.replace('_', ' ').capitalize() }}
