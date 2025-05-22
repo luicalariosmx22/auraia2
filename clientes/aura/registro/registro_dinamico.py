@@ -54,7 +54,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if modulos_raw and isinstance(modulos_raw[0], dict):
                 modulos = [m["nombre"].strip().lower().replace(" ", "_") for m in modulos_raw]
             else:
-                modulos = [m.strip().lower().replace(" ", "_") for m in modulos_raw]
+                modulos_raw = [{"nombre": m} for m in modulos_raw]
+                modulos = [m["nombre"].strip().lower().replace(" ", "_") for m in modulos_raw]
             print(f"🧪 Módulos activos normalizados para {nombre_nora}: {modulos}")
 
             # Ejemplo de comparaciones que ahora sí funcionarán:
