@@ -107,4 +107,14 @@
   </form>
 </section>
 
+<!-- Sección colapsable de etiquetas -->
+<section x-data="{ showTags: false }" class="mb-6">
+  <div @click="showTags = !showTags" class="cursor-pointer bg-gray-100 px-4 py-2 rounded shadow-sm hover:bg-gray-200">
+    <h4 class="text-sm font-semibold text-blue-700">🏷️ Etiquetas</h4>
+  </div>
+  <div x-show="showTags" x-transition class="mt-3">
+    {% include "panel_cliente_contactos/_etiquetas.html" %}
+  </div>
+</section>
+
 {% endblock %}
