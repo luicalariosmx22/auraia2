@@ -50,11 +50,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         modulos_activados = supabase.table('configuracion_bot').select('modulos').eq('nombre_nora', nombre_nora).single().execute()
 
         if modulos_activados.data:
-            modulos_data = modulos_activados.data.get('modulos', [])
-            
-            # 🔧 Normalizar los nombres (ej. "Pagos" → "pagos", "Panel chat" → "panel_chat")
-            modulos = [m["nombre"].strip().lower().replace(" ", "_") for m in modulos_data]
-            
+            modulos_raw = modulos_activados.data.get('modulos', [])
+            modulos = [m["nombre"].strip().lower().replace(" ", "_") for m in modulos_raw]
             print(f"🧪 Módulos activos normalizados para {nombre_nora}: {modulos}")
 
             # Ejemplo de comparaciones que ahora sí funcionarán:
