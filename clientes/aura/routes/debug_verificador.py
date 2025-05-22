@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template_string
 from clientes.aura.utils.debug_rutas import generar_html_rutas
-from clientes.aura.routes.verificador_rutas_runtime import verificar_rutas_vs_html
+from clientes.aura.utils.verificador_rutas_runtime import verificar_rutas_vs_html
 
 debug_verificador_bp = Blueprint("debug_verificador", __name__)
 
