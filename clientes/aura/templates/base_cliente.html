@@ -26,23 +26,10 @@
 
       {% elif modulo_activo == 'pagos' %}
         <nav class="flex gap-4 text-sm font-medium text-gray-700">
-          <a href="{{ url_for('panel_cliente_pagos.panel_cliente_pagos', nombre_nora=nombre_nora) }}"                     class="hover:text-blue-600">💳 Recibos</a>
-          <a href="{{ url_for('panel_cliente_pagos_servicios.servicios_lista', nombre_nora=nombre_nora) }}"              class="hover:text-green-600">🧾 Servicios</a>
-          <a href="{{ url_for('panel_cliente_pagos_servicios.nuevo_servicio', nombre_nora=nombre_nora) }}"               class="hover:text-blue-600">➕ Agregar servicio</a>
-          <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}"                   class="hover:text-purple-600">👤 Clientes</a>
-          <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}"                   class="hover:text-yellow-600">🏢 Empresas</a>
-        </nav>
-
-      {% elif modulo_activo == 'chat' %}
-        <nav class="flex gap-4 text-sm font-medium text-gray-700">
-          <a href="{{ url_for('panel_cliente_panel_chat.panel_chat', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">💬 Chat</a>
-        </nav>
-      {% elif modulo_activo == 'tareas' %}
-        <nav class="flex gap-4 text-sm font-medium text-gray-700">
-          <a href="/panel_cliente/{{ nombre_nora }}/tareas" class="hover:text-blue-600">📋 Mis tareas</a>
-          <a href="/panel_cliente/{{ nombre_nora }}/tareas#automatizaciones" class="hover:text-purple-600">⚙️ Automatizaciones</a>
-          <a href="/panel_cliente/{{ nombre_nora }}/tareas#permisos" class="hover:text-teal-600">🛡️ Permisos</a>
-          <a href="/panel_cliente/{{ nombre_nora }}/tareas#seguimiento" class="hover:text-green-600">📲 WhatsApp</a>
+          <a href="{{ url_for('panel_cliente_pagos.panel_cliente_pagos', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">💳 Recibos</a>
+          <a href="{{ url_for('panel_cliente_pagos_servicios.servicios_lista', nombre_nora=nombre_nora) }}" class="hover:text-green-600">🧾 Servicios</a>
+          <a href="{{ url_for('panel_cliente_pagos_servicios.nuevo_servicio', nombre_nora=nombre_nora) }}" class="hover:text-blue-600">➕ Agregar servicio</a>
+          <a href="{{ url_for('panel_cliente_clientes.vista_clientes', nombre_nora=nombre_nora) }}" class="hover:text-purple-600">👤 Clientes</a>
         </nav>
       {% endif %}
     </div>
