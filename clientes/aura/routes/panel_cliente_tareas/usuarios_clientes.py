@@ -9,17 +9,16 @@ import os
 import uuid
 import re
 
-usuarios_clientes_bp = Blueprint("usuarios_clientes", __name__)
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
 # ✅ Función: listar_usuarios_clientes(nombre_nora)
-@usuarios_clientes_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios", methods=["GET"])
+@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios", methods=["GET"])
 def listar_usuarios_clientes(nombre_nora):
     usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data
     return jsonify(usuarios)
 
 # ✅ Función: crear_usuario_empresa(nombre_nora, data)
-@usuarios_clientes_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios", methods=["POST"])
+@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios", methods=["POST"])
 def crear_usuario_empresa(nombre_nora):
     data = request.json
     nombre = data.get("nombre")
@@ -66,7 +65,7 @@ def crear_usuario_empresa(nombre_nora):
     return jsonify({"status": "creado"})
 
 # ✅ Función: editar_usuario_empresa(usuario_id, data)
-@usuarios_clientes_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios/<usuario_id>", methods=["PUT"])
+@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios/<usuario_id>", methods=["PUT"])
 def editar_usuario_empresa(nombre_nora, usuario_id):
     data = request.json
     empresa_id = supabase.table("configuracion_bot").select("cliente_id").eq("nombre_nora", nombre_nora).single().execute().data["cliente_id"]
@@ -80,7 +79,7 @@ def editar_usuario_empresa(nombre_nora, usuario_id):
     return jsonify({"status": "actualizado"})
 
 # ✅ Función: eliminar_usuario_empresa(usuario_id)
-@usuarios_clientes_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios/<usuario_id>", methods=["DELETE"])
+@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios/<usuario_id>", methods=["DELETE"])
 def eliminar_usuario_empresa(nombre_nora, usuario_id):
     supabase.table("usuarios_clientes").update({"activo": False}).eq("id", usuario_id).execute()
     return jsonify({"status": "desactivado"})
@@ -165,7 +164,7 @@ def validar_maximo_supervisores(nombre_nora):
         .eq("nombre_nora", nombre_nora).eq("activo", True).eq("es_supervisor_tareas", True).execute().data or []
     return len(supervisores) < 3
 
-@usuarios_clientes_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios", methods=["GET"])
+@panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios", methods=["GET"])
 def vista_usuarios(nombre_nora):
     user = session.get("user", {})
     

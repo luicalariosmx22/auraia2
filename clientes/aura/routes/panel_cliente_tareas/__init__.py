@@ -75,6 +75,5 @@ from . import (
     usuarios_clientes,
     estadisticas,
     automatizaciones,
-    verificar,
-    usuarios_clientes
+    verificar
 )
