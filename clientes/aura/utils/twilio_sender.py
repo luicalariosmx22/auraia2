@@ -43,17 +43,15 @@ def registrar_envio(numero, mensaje, sid, estado):
         print(f"❌ Error al registrar el envío en Supabase: {str(e)}")
         registrar_error("Supabase", f"Error al registrar envío en Supabase: {e}")
 
-def enviar_mensaje(destino, mensaje):  # 🔥 Cambiado de enviar_mensaje_whatsapp ➔ enviar_mensaje
+def enviar_mensaje(destino, mensaje):
     """
-    Envía un mensaje de WhatsApp utilizando Twilio.
+    Envía un mensaje de WhatsApp utilizando Twilio, normalizando los números.
     """
     try:
-        message = client.messages.create(
-            body=mensaje,
-            from_=f'whatsapp:{TWILIO_WHATSAPP_NUMBER}',
-            to=f'whatsapp:{destino}'
-        )
-        print(f"✅ Mensaje enviado correctamente a {destino}. SID: {message.sid}")
-    except Exception as e:
-        print(f"❌ Error enviando mensaje a {destino}: {e}")
-        registrar_error("Twilio", f"Error al enviar mensaje a {destino}: {e}")
+        def normalizar_numero(numero):
+            numero = str(numero).strip().replace("whatsapp:", "").replace("+", "")
+            digitos = ''.join(filter(str.isdigit, numero))
+            if digitos.startswith("521") and len(digitos) == 13:
+                return f"whatsapp:{digitos}"
+            if digitos.startswith("52") and len(digitos) == 12:
+                return f"whatsapp:521{digitos[2:]}"
