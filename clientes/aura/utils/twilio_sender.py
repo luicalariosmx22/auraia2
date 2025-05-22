@@ -1,57 +1,69 @@
-# 📁 Archivo: clientes/aura/utils/twilio_sender.py
-
-import os
-import json
 from twilio.rest import Client
 from dotenv import load_dotenv
-from datetime import datetime
-from supabase import create_client
-from .error_logger import registrar_error  # 👈 Import relativo corregido
+from clientes.aura.utils.supabase_client import supabase
+from clientes.aura.utils.error_logger import registrar_error
+import os
+import re
 
-# Configurar entorno y Supabase
 load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 🚀 Configuración Twilio
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER")
+# 🔐 Configurar credenciales
+TWILIO_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+client = Client(TWILIO_SID, TWILIO_TOKEN)
 
-def registrar_envio(numero, mensaje, sid, estado):
+def normalizar_numero(numero):
     """
-    Registra el mensaje enviado en la tabla `twilio_logs` en Supabase.
+    Convierte cualquier formato a 'whatsapp:521XXXXXXXXXX' o similar.
     """
+    numero = str(numero).strip().replace("whatsapp:", "").replace("+", "")
+    digitos = re.sub(r"\D", "", numero)
+    if digitos.startswith("521") and len(digitos) == 13:
+        return f"whatsapp:{digitos}"
+    if digitos.startswith("52") and len(digitos) == 12:
+        return f"whatsapp:521{digitos[2:]}"
+    if len(digitos) == 10:
+        return f"whatsapp:521{digitos}"
+    if digitos.startswith("1") and len(digitos) == 11:
+        return f"whatsapp:{digitos}"
+    return ""
+
+def registrar_envio(numero, mensaje, sid, tipo="enviado"):
     try:
-        log_entry = {
-            "numero": numero,
+        supabase.table("historial_conversaciones").insert({
+            "telefono": numero,
             "mensaje": mensaje,
-            "sid": sid,
-            "estado": estado,
-            "fecha_envio": datetime.now().isoformat(),
-            "from_number": TWILIO_WHATSAPP_NUMBER
-        }
-        response = supabase.table("twilio_logs").insert(log_entry).execute()
-        if not response.data:
-            print(f"❌ Error al registrar el envío en Supabase: {not response.data}")
-        else:
-            print(f"✅ Envío registrado en Supabase: {log_entry}")
+            "tipo": tipo,
+            "sid": sid
+        }).execute()
     except Exception as e:
-        print(f"❌ Error al registrar el envío en Supabase: {str(e)}")
-        registrar_error("Supabase", f"Error al registrar envío en Supabase: {e}")
+        print("❌ Error registrando historial:", e)
+        registrar_error("Historial", f"Error al registrar mensaje: {e}")
 
 def enviar_mensaje(destino, mensaje):
     """
-    Envía un mensaje de WhatsApp utilizando Twilio, normalizando los números.
+    Envía un mensaje normalizando emisor y receptor.
     """
     try:
-        def normalizar_numero(numero):
-            numero = str(numero).strip().replace("whatsapp:", "").replace("+", "")
-            digitos = ''.join(filter(str.isdigit, numero))
-            if digitos.startswith("521") and len(digitos) == 13:
-                return f"whatsapp:{digitos}"
-            if digitos.startswith("52") and len(digitos) == 12:
-                return f"whatsapp:521{digitos[2:]}"
+        from_normalizado = normalizar_numero(TWILIO_WHATSAPP_NUMBER)
+        to_normalizado = normalizar_numero(destino)
+
+        print(f"📤 Enviando mensaje:")
+        print(f"   ➤ From: {from_normalizado}")
+        print(f"   ➤ To:   {to_normalizado}")
+        print(f"   ➤ Texto: {mensaje}")
+
+        message = client.messages.create(
+            body=mensaje,
+            from_=from_normalizado,
+            to=to_normalizado
+        )
+
+        print(f"✅ Mensaje enviado correctamente. SID: {message.sid}")
+        registrar_envio(to_normalizado, mensaje, message.sid, "enviado")
+
+    except Exception as e:
+        print(f"❌ Error enviando mensaje a {destino}: {e}")
+        registrar_error("Twilio", f"Error al enviar mensaje a {destino}: {e}")
