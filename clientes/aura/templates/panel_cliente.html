@@ -26,11 +26,15 @@
       {% if modulos %}
         <div class="modulos-activos-grid">
           {% for modulo in modulos %}
-            <a href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) if modulo.ruta else '#' }}" class="modulo-card">
-              <div class="icono">{{ modulo.icono or '🔧' }}</div>
-              <div class="titulo">{{ modulo.nombre }}</div>
-              <div class="descripcion">{{ modulo.descripcion }}</div>
-            </a>
+            {% if modulo.ruta and '.' in modulo.ruta %}
+              <a href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) }}" class="modulo-card">
+            {% else %}
+              <a href="#" class="modulo-card disabled" title="Ruta no definida">
+            {% endif %}
+                <div class="icono">{{ modulo.icono or '🔧' }}</div>
+                <div class="titulo">{{ modulo.nombre }}</div>
+                <div class="descripcion">{{ modulo.descripcion }}</div>
+              </a>
           {% endfor %}
           <!-- ...otras tarjetas... -->
           {% if "tareas" in modulos %}
@@ -53,12 +57,13 @@
       <h2>🔧 Módulos activados</h2>
       <div class="modulo-tags">
         {% for modulo in modulos %}
-        <a 
-          href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) if modulo.ruta else '#' }}" 
-          class="modulo-tag" 
-          aria-label="Etiqueta del módulo {{ modulo.nombre.replace('_', ' ').capitalize() }}">
-          {{ modulo.nombre.replace('_', ' ').capitalize() }}
-        </a>
+          {% if modulo.ruta and '.' in modulo.ruta %}
+            <a href="{{ url_for(modulo.ruta, nombre_nora=nombre_nora) }}" class="modulo-tag">
+          {% else %}
+            <a href="#" class="modulo-tag disabled" title="Ruta no definida">
+          {% endif %}
+            {{ modulo.nombre.replace('_', ' ').capitalize() }}
+          </a>
         {% endfor %}
       </div>
     </section>
