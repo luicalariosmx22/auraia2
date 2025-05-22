@@ -24,6 +24,7 @@
       <th>🔎 Ver todas</th>
       <th>✏️ Crear otros</th>
       <th>🔁 Reasignar</th>
+      <th>📤 Tareas</th> <!-- NUEVA COLUMNA -->
       <th>❌</th>
     </tr>
   </thead>
@@ -42,6 +43,9 @@
       <td><input type="checkbox" disabled {% if usuario.ver_todas_tareas %}checked{% endif %}></td>
       <td><input type="checkbox" disabled {% if usuario.crear_tareas_otros %}checked{% endif %}></td>
       <td><input type="checkbox" disabled {% if usuario.reasignar_tareas %}checked{% endif %}></td>
+      <td>
+        <button onclick="enviarTareas('{{ usuario.telefono }}')" class="btn btn-outline-success btn-sm">📤 Enviar</button>
+      </td>
       <td>
         <form method="POST" action="{{ url_for('usuarios_clientes.eliminar_usuario_cliente', nombre_nora=nombre_nora, usuario_id=usuario.id) }}">
           <button type="submit">Eliminar</button>
@@ -81,3 +85,17 @@
     <button type="submit">Guardar usuario</button>
   </div>
 </form>
+<script>
+function enviarTareas(numero) {
+  const nora = "{{ nombre_nora }}";
+  fetch(`/panel_cliente/${nora}/tareas/enviar_manual`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ numero, nora })
+  })
+  .then(r => r.json())
+  .then(data => {
+    alert(data.mensaje || data.error);
+  });
+}
+</script>

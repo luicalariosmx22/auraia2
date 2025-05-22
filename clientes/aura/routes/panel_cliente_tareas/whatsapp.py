@@ -9,6 +9,7 @@ zona = timezone("America/Hermosillo")
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
 from clientes.aura.utils.twilio_sender import enviar_mensaje, registrar_envio
+from clientes.aura.utils.normalizador import normalizar_numero  # ✅ IMPORT NUEVO
 
 def obtener_tareas_para_usuario(usuario_id, fecha):
     return supabase.table("tareas").select("*") \
@@ -62,8 +63,10 @@ def enviar_tareas_del_dia_por_whatsapp():
         empresa_nombre = empresas[0]["nombre"] if empresas else "tu empresa"
 
         for usuario in usuarios:
-            if not usuario.get("telefono") or not usuario["telefono"].startswith("+"):
-                print(f"⚠️ Usuario sin número válido: {usuario['nombre']}")
+            telefono_original = usuario.get("telefono")
+            telefono_normalizado = normalizar_numero(telefono_original)
+            if not telefono_normalizado:
+                print(f"⚠️ Usuario sin número válido: {usuario['nombre']} ({telefono_original})")
                 continue
 
             tareas = obtener_tareas_para_usuario(usuario["id"], hoy)
@@ -71,7 +74,7 @@ def enviar_tareas_del_dia_por_whatsapp():
                 continue
 
             mensaje = generar_mensaje_tareas(tareas, usuario, empresa_nombre)
-            enviar_mensaje_whatsapp(usuario["telefono"], mensaje)
+            enviar_mensaje_whatsapp(f"+{telefono_normalizado}", mensaje)
 
 # ✅ Programada: Enviar resumen de tareas a las 6PM
 def enviar_resumen_6pm_por_whatsapp():
@@ -85,8 +88,10 @@ def enviar_resumen_6pm_por_whatsapp():
         usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
 
         for usuario in usuarios:
-            if not usuario.get("telefono") or not usuario["telefono"].startswith("+"):
-                print(f"⚠️ Usuario sin número válido: {usuario['nombre']}")
+            telefono_original = usuario.get("telefono")
+            telefono_normalizado = normalizar_numero(telefono_original)
+            if not telefono_normalizado:
+                print(f"⚠️ Usuario sin número válido: {usuario['nombre']} ({telefono_original})")
                 continue
 
             tareas = obtener_tareas_para_usuario(usuario["id"], hoy)
@@ -106,7 +111,7 @@ def enviar_resumen_6pm_por_whatsapp():
                 for t in pendientes:
                     mensaje += f"⏳ {t['codigo_tarea']}: {t['titulo']}\n"
 
-            enviar_mensaje_whatsapp(usuario["telefono"], mensaje)
+            enviar_mensaje_whatsapp(f"+{telefono_normalizado}", mensaje)
 
 @panel_cliente_tareas_bp.route("/whatsapp/8am", methods=["POST"])
 def enviar_tareas_8am():

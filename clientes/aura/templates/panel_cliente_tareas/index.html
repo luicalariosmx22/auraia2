@@ -3,6 +3,11 @@
 
 <!-- ✅ Barra superior + filtros -->
 {% include "panel_cliente_tareas/_filtros.html" %}
+<div class="mt-4">
+  <a href="/panel_cliente/{{ nombre_nora }}/tareas/usuarios" class="btn btn-outline-primary">
+    👥 Ver usuarios del equipo
+  </a>
+</div>
 
 {% if usuarios is defined %}
   <!-- Bloque: Crear nueva tarea (colapsable) -->
