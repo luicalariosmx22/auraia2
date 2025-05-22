@@ -112,9 +112,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                     panel_cliente_pagos_recibo_bp
                 )
 
-                safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
-                safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos/servicios")
-                safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
+                safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
+                safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos/servicios")
+                safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix="/panel_cliente/<nombre_nora>/pagos")
                 safe_register_blueprint(app, panel_cliente_pagos_recibo_bp)
                 
             if "tareas" in modulos:
