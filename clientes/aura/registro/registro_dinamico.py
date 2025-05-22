@@ -17,7 +17,6 @@ from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_pagos.vista_panel_cliente_pagos import panel_cliente_pagos_bp
 from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
-from clientes.aura.routes.panel_cliente_tareas.usuarios_clientes import usuarios_clientes_bp
 
 
 # Configurar Supabase
@@ -129,13 +128,6 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                     url_prefix=f"/panel_cliente/{nombre_nora}/tareas",
                 )
                 print(f"✅ Módulo TAREAS registrado para {nombre_nora}")
-
-                safe_register_blueprint(
-                    app,
-                    usuarios_clientes_bp,
-                    url_prefix=f"/panel_cliente/{nombre_nora}/tareas"
-    )
-    print(f"✅ Submódulo 'usuarios_clientes' registrado para {nombre_nora}")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")
