@@ -101,18 +101,37 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "login" in modulos:
                 safe_register_blueprint(app, login_bp, url_prefix=f"/login")
 
-            # 🔍 Diagnóstico de módulos no registrados
-            modulos_registrados = [
-                "pagos", "tareas", "etiquetas", "panel_conocimiento", "panel_chat", 
-                "meta_ads", "ads", "login"
-            ]
+            # ✅ Diagnóstico detallado de módulos y rutas registradas
 
-            no_registrados = [m for m in modulos if m not in modulos_registrados]
+            modulos_url_esperada = {
+                "pagos": f"/panel_cliente/{nombre_nora}/pagos",
+                "tareas": f"/panel_cliente/{nombre_nora}/tareas",
+                "etiquetas": f"/panel_cliente/{nombre_nora}/etiquetas",
+                "panel_conocimiento": f"/panel_cliente/{nombre_nora}/panel_conocimiento",
+                "panel_chat": f"/panel_cliente/{nombre_nora}/panel_chat",
+                "meta_ads": f"/panel_cliente/{nombre_nora}/meta_ads",
+                "ads": f"/panel_cliente/{nombre_nora}/ads",
+                "qr_whatsapp_web": f"/panel_cliente/{nombre_nora}/whatsapp",
+                "clientes": f"/panel_cliente/{nombre_nora}/clientes"
+            }
 
-            if no_registrados:
-                print(f"⚠️ Algunos módulos están activos en Supabase pero no tienen blueprint registrado: {no_registrados}")
-            else:
-                print("✅ Todos los módulos activos tienen blueprint registrado.")
+            # Obtener rutas reales registradas
+            rutas_registradas = [str(rule.rule) for rule in app.url_map.iter_rules()]
+
+            print("\n🧪 Resultado del registro de módulos para:", nombre_nora)
+            for modulo in modulos:
+                ruta_esperada = modulos_url_esperada.get(modulo)
+                if not ruta_esperada:
+                    print(f"⚠️ {modulo.ljust(22)} → No definida en verificador")
+                    continue
+
+                if ruta_esperada in rutas_registradas:
+                    print(f"✔ {modulo.ljust(22)} → Registrado ✅   ({ruta_esperada})")
+                else:
+                    print(f"❌ {modulo.ljust(22)} → NO registrado ⛔ ({ruta_esperada})")
+
+        else:
+            print(f"⚠️ No se encontraron módulos activados para {nombre_nora} en la tabla configuracion_bot.")
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")
