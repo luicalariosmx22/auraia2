@@ -92,6 +92,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "ads" in modulos:
                 safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
 
+            if "clientes" in modulos:
+                safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")
+
             # Registrar módulo Meta Ads si está activo
             if "meta_ads" in modulos:
                 # from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
