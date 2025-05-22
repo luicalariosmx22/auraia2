@@ -92,8 +92,23 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "ads" in modulos:
                 safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
 
+            if "contactos" in modulos:
+                safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
+
+            if "envios" in modulos:
+                safe_register_blueprint(app, panel_cliente_envios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/envios")
+
+            if "ia" in modulos:
+                safe_register_blueprint(app, panel_cliente_ia_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ia")
+
+            if "respuestas" in modulos:
+                safe_register_blueprint(app, panel_cliente_respuestas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/respuestas")
+
             if "clientes" in modulos:
                 safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")
+
+            if "qr_whatsapp_web" in modulos:
+                safe_register_blueprint(app, panel_cliente_whatsapp_bp, url_prefix=f"/panel_cliente/{nombre_nora}/whatsapp")
 
             # Registrar módulo Meta Ads si está activo
             if "meta_ads" in modulos:
