@@ -8,7 +8,6 @@ from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos
 from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
 from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
-from clientes.aura.routes.etiquetas import etiquetas_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
@@ -74,9 +73,6 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "tareas" in modulos:
                 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
                 safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
-
-            if "etiquetas" in modulos:
-                safe_register_blueprint(app, etiquetas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas")
 
             if "panel_conocimiento" in modulos:
                 safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/panel_conocimiento")
