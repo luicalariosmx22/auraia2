@@ -1,12 +1,5 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Etiquetas – {{ nombre_nora }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
-</head>
-<body>
+    {% extends "base_cliente.html" %}
+    {% block contenido %}
     <header class="header">
         <h1>🏷️ Etiquetas para {{ nombre_nora }}</h1>
     </header>
@@ -14,48 +7,44 @@
         <p class="description">Aquí puedes gestionar las etiquetas para tus contactos.</p>
 
         <!-- Formulario para agregar nueva etiqueta -->
-        <section class="module">
-            <h2>Agregar nueva etiqueta:</h2>
-            <form action="{{ url_for('panel_cliente_etiquetas.panel_etiquetas', nombre_nora=nombre_nora) }}" method="POST" class="form">
-                <div class="form-group">
-                    <label for="nueva_etiqueta">Nombre de la etiqueta:</label>
-                    <input 
-                        type="text" 
-                        id="nueva_etiqueta" 
-                        name="nueva_etiqueta" 
-                        placeholder="Escribe el nombre de la etiqueta" 
-                        required>
-                </div>
-                <div class="form-group">
-                    <label for="color_etiqueta">Color:</label>
-                    <input type="color" id="color_etiqueta" name="color_etiqueta" value="#2196F3">
-                </div>
-                <button type="submit" class="btn-primary">Agregar</button>
+        <section x-data="{ crear: false }" class="mb-6">
+          <div class="text-right mb-3">
+            <button @click="crear = !crear"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm">
+              ➕ Nueva etiqueta
+            </button>
+          </div>
+          <div x-show="crear" x-transition>
+            <form action="{{ url_for('panel_cliente_etiquetas.panel_etiquetas', nombre_nora=nombre_nora) }}" method="POST" class="grid gap-3 bg-white p-4 rounded border">
+              <input type="text" name="nueva_etiqueta" placeholder="Nombre de la etiqueta" class="input" required>
+              <input type="color" name="color_etiqueta" value="#2196F3" class="input">
+              <button type="submit" class="btn-primary">Agregar</button>
             </form>
+          </div>
         </section>
 
         <!-- Lista de etiquetas existentes -->
-        <section class="module">
-            <h2>Etiquetas existentes:</h2>
-            {% if etiquetas %}
-            <ul class="tag-list">
-                {% for etiqueta in etiquetas %}
-                <li class="tag-item">
-                    <form method="POST" action="{{ url_for('panel_cliente_etiquetas.editar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}" class="form-inline">
-                        <input type="text" name="nuevo_nombre" value="{{ etiqueta.nombre }}" required class="input-text">
-                        <input type="color" name="nuevo_color" value="{{ etiqueta.color }}" class="input-color">
-                        <button type="submit" class="btn-save">💾</button>
-                    </form>
-                    <form method="POST" action="{{ url_for('panel_cliente_etiquetas.eliminar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}" class="form-inline">
-                        <button type="submit" class="btn-delete">🗑</button>
-                    </form>
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p class="no-data">No hay etiquetas disponibles.</p>
-            {% endif %}
+        <section class="mb-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">🏷️ Etiquetas existentes</h2>
+
+          {% if etiquetas %}
+            <div class="space-y-4">
+              {% for etiqueta in etiquetas %}
+                <div class="bg-white p-4 rounded border flex items-center justify-between">
+                  <form method="POST" action="{{ url_for('panel_cliente_etiquetas.editar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}" class="flex gap-2 items-center">
+                    <input type="text" name="nuevo_nombre" value="{{ etiqueta.nombre }}" class="input">
+                    <input type="color" name="nuevo_color" value="{{ etiqueta.color }}" class="input-color">
+                    <button type="submit" class="btn-save">💾</button>
+                  </form>
+                  <form method="POST" action="{{ url_for('panel_cliente_etiquetas.eliminar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}">
+                    <button type="submit" class="btn-delete">🗑</button>
+                  </form>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-sm text-red-600">❌ No hay etiquetas registradas aún.</p>
+          {% endif %}
         </section>
     </main>
-</body>
-</html>
+    {% endblock %}
