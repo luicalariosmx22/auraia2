@@ -14,7 +14,10 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @panel_cliente_pagos_bp.route("/", methods=["GET"])
 @login_required
-def panel_cliente_pagos(nombre_nora):
+def panel_cliente_pagos():
+    # ✅ Extraer nombre_nora desde la URL
+    nombre_nora = request.path.split("/")[2]
+
     # Validar módulo activo
     config = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).limit(1).execute()
     modulos = config.data[0]["modulos"] if config.data else []
@@ -36,7 +39,6 @@ def panel_cliente_pagos(nombre_nora):
         p["cliente_nombre"] = clientes.get(p["cliente_id"], "—")
         p["empresa_nombre"] = empresas.get(p["empresa_id"], "—")
 
-    # Pasamos modulo_activo para que el encabezado de base_cliente genere el menú contextual
     return render_template(
         "panel_cliente_pagos/index.html",
         pagos=pagos,
