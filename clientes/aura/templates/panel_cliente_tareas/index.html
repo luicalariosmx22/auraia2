@@ -3,11 +3,6 @@
 
 <!-- ✅ Barra superior + filtros -->
 {% include "panel_cliente_tareas/_filtros.html" %}
-<div class="mt-4">
-  <a href="/panel_cliente/{{ nombre_nora }}/tareas/usuarios" class="btn btn-outline-primary">
-    👥 Ver usuarios del equipo
-  </a>
-</div>
 
 {% if usuarios is defined %}
   <!-- Bloque: Crear nueva tarea (colapsable) -->
@@ -65,5 +60,21 @@
   <!-- ✅ Alertas y ranking semanal -->
   {% include "panel_cliente_tareas/_alertas_y_ranking.html" %}
 {% endif %}
+
+<!-- 👥 Acceso rápido a Usuarios -->
+
+<div class="card shadow-sm p-4 mb-4 border border-light rounded-3 bg-white">
+  <div class="d-flex align-items-center justify-content-between">
+    <div>
+      <h5 class="mb-2">👥 Usuarios del equipo</h5>
+      <p class="mb-2 text-muted">Gestiona los usuarios que tienen acceso a tareas. Edita roles, permisos y más.</p>
+    </div>
+    <div>
+      <a href="/panel_cliente/{{ nombre_nora }}/tareas/usuarios" class="btn btn-outline-primary">
+        Ver usuarios
+      </a>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
