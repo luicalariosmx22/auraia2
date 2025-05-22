@@ -49,21 +49,6 @@ def enviar_mensaje_chat():
     if not numero or not mensaje:
         return jsonify({"error": "Faltan parámetros"}), 400
 
-    enviar_mensaje(numero, mensaje, nombre)
-    guardar_historial({
-        "telefono": numero,
-        "mensaje": mensaje,
-        "tipo": "manual",
-        "nombre_nora": data.get("nombre_nora", "nora")
-    })
-
-    # Emitir en tiempo real usando current_app para evitar ciclos circulares
-    socketio = current_app.extensions.get('socketio')
-    if socketio:
-        socketio.emit("nuevo_mensaje", {
-            "telefono": numero,
-            "mensaje": mensaje,
-            "emisor": "manual"
-        }, broadcast=True)
+    enviar_mensaje(numero, mensaje)
 
     return jsonify({"success": True, "message": "Mensaje enviado y guardado correctamente."})

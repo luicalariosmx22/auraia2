@@ -63,7 +63,7 @@ def enviar_prueba():
         return "❌ Agrega el número con ?to=521XXXXXXXXXX (sin whatsapp:)"
 
     mensaje = "🧪 Esta es una prueba enviada por Nora desde Twilio (modo producción)"
-    sid = enviar_mensaje(numero, mensaje, nombre_contacto="Prueba Debug")
+    sid = enviar_mensaje(numero, mensaje)
 
     if sid:
         return f"✅ Mensaje enviado correctamente a {numero}\nSID: {sid}"

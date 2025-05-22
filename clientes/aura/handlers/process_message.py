@@ -129,7 +129,7 @@ def procesar_mensaje(data):
         mensaje_bienvenida = config.get("mensaje_bienvenida", "").strip() if 'config' in locals() else ""
         if mensaje_bienvenida:
             print("📩 Enviando mensaje de bienvenida visible...")
-            enviar_mensaje(numero_usuario, mensaje_bienvenida, nombre_usuario)
+            enviar_mensaje(numero_usuario, mensaje_bienvenida)
             guardar_en_historial(
                 telefono=numero_usuario,
                 mensaje=mensaje_bienvenida,
@@ -170,5 +170,5 @@ def procesar_mensaje(data):
     )
 
     # Enviar respuesta al usuario
-    enviar_mensaje(numero_usuario, respuesta, nombre_usuario)
+    enviar_mensaje(numero_usuario, respuesta)
     return respuesta
