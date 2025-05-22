@@ -84,34 +84,34 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "chat" in modulos:
                 safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/chat")
 
-            if "conocimiento" in modulos:
+            if "conocimiento" in modulos or "panel_conocimiento" in modulos:
                 safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
 
             if "clientes" in modulos:
                 safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")
 
             # Registrar el blueprint de WhatsApp Web si el módulo está activo
-            if "whatsapp" in modulos:
+            if "qr_whatsapp_web" in modulos:
                 safe_register_blueprint(app, panel_cliente_whatsapp_bp, url_prefix=f"/panel_cliente/{nombre_nora}/whatsapp")
 
-            # ✅ Registrar la ruta dinámica del módulo Ads si está activo
+            # Registrar el módulo Ads si está activo
             if "ads" in modulos:
                 safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
-                print(f"✅ Blueprint 'panel_cliente_ads' registrado para {nombre_nora}")
 
-            # Registrar el blueprint de login si el módulo está activo
+            # Registrar módulo Meta Ads si está activo
+            if "meta_ads" in modulos:
+                from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
+                safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+
             if "login" in modulos:
                 safe_register_blueprint(app, login_bp, url_prefix=f"/login")
 
             if "pagos" in modulos:
                 safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
-                # Registro del blueprint para servicios dentro del módulo de pagos
                 from clientes.aura.routes.panel_cliente_pagos.vista_servicios import panel_cliente_pagos_servicios_bp
                 safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos/servicios")
-                # 👉 Registro del blueprint para **crear nuevo recibo**
                 from clientes.aura.routes.panel_cliente_pagos.vista_recibo_nuevo import panel_cliente_pagos_nuevo_bp
                 safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
-                # Registro del blueprint de recibos (detalle y PDF)
                 try:
                     from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
                     safe_register_blueprint(app, panel_cliente_pagos_recibo_bp)
@@ -119,14 +119,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                     print(f"❌ Error al registrar blueprint vista_recibo_pago: {e}")
 
             if "tareas" in modulos:
-                # ✅ Registrar módulo de TAREAS (panel_cliente_tareas)
                 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
-
-                safe_register_blueprint(
-                    app,
-                    panel_cliente_tareas_bp,
-                    url_prefix=f"/panel_cliente/{nombre_nora}/tareas",
-                )
+                safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
                 print(f"✅ Módulo TAREAS registrado para {nombre_nora}")
 
     except Exception as e:
