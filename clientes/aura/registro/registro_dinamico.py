@@ -84,16 +84,18 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/panel_chat")
 
             if "meta_ads" in modulos:
-                from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
-                safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+                # from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
+                # safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+                pass  # Registro deshabilitado por error de import
 
             if "ads" in modulos:
                 safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
 
             # Registrar módulo Meta Ads si está activo
             if "meta_ads" in modulos:
-                from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
-                safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+                # from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
+                # safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+                pass  # Registro deshabilitado por error de import
 
             if "login" in modulos:
                 safe_register_blueprint(app, login_bp, url_prefix=f"/login")
