@@ -1,7 +1,7 @@
 # ✅ Archivo: clientes/aura/routes/panel_cliente_tareas/usuarios_clientes.py
 # 👉 Subruta para gestión de usuarios empresa dentro del módulo de TAREAS
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template, session
 from .panel_cliente_tareas import panel_cliente_tareas_bp
 from supabase import create_client
 from datetime import datetime
@@ -164,3 +164,26 @@ def validar_maximo_supervisores(nombre_nora):
     supervisores = supabase.table("usuarios_clientes").select("id") \
         .eq("nombre_nora", nombre_nora).eq("activo", True).eq("es_supervisor_tareas", True).execute().data or []
     return len(supervisores) < 3
+
+@usuarios_clientes_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios", methods=["GET"])
+def vista_usuarios(nombre_nora):
+    user = session.get("user", {})
+    
+    usuarios = supabase.table("usuarios_clientes").select("*") \
+        .eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
+
+    config = {
+        "max_supervisores_tareas": 3
+    }
+
+    supervisores_activos = len([u for u in usuarios if u.get("es_supervisor_tareas")])
+
+    return render_template(
+        "panel_cliente_tareas/usuarios.html",
+        usuarios=usuarios,
+        nombre_nora=nombre_nora,
+        user=user,
+        config=config,
+        supervisores_activos=supervisores_activos
+    )
+
