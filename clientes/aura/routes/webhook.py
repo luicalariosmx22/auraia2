@@ -17,6 +17,7 @@ def webhook():
     try:
         data = request.form.to_dict()
         print("📩 Mensaje recibido:", data)
+        print("📝 [LOG] webhook.py recibió datos:", data)  # <--- Log extra para depuración
 
         # Usamos la función centralizada para procesar todo el mensaje
         respuesta = procesar_mensaje(data)
