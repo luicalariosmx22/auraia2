@@ -4,54 +4,61 @@
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
-<div class="container">
-  <h2 class="text-2xl font-bold text-gray-800 mb-6">👥 Clientes registrados</h2>
+
+<!-- ✅ Sección para agregar nuevo cliente -->
+<section x-data="{ crear: false }" class="mb-6">
+  <div class="text-right mb-3">
+    <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}"
+       class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm">
+      ➕ Agregar nuevo cliente
+    </a>
+  </div>
+</section>
+
+<!-- ✅ Sección de lista de clientes -->
+<section class="mb-6">
+  <h2 class="text-xl font-semibold text-gray-800 mb-4">👥 Clientes registrados</h2>
 
   {% if clientes %}
     <p class="text-green-600 text-sm mb-4">✅ Se encontraron {{ clientes | length }} clientes registrados.</p>
+    {% for cliente in clientes %}
+      <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-4 grid sm:grid-cols-4 gap-4 items-start">
+        <!-- Info principal -->
+        <div class="col-span-2">
+          <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ cliente.nombre_cliente }}</h3>
+          <p class="text-sm text-gray-600 mb-1">✉️ {{ cliente.email }}</p>
+          {% if cliente.telefono %}<p class="text-sm text-gray-600">📞 {{ cliente.telefono }}</p>{% endif %}
+          {% if cliente.tipo %}<span class="inline-block mt-2 px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded">{{ cliente.tipo|capitalize }}</span>{% endif %}
+        </div>
+
+        <!-- Empresas asociadas -->
+        <div class="col-span-1">
+          {% if cliente.empresas %}
+            <p class="font-semibold text-sm text-gray-800 mb-1">🏢 Empresas</p>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              {% for empresa in cliente.empresas %}
+                <li>
+                  {{ empresa.nombre_empresa }}
+                  <a href="{{ empresa.url_editar }}" class="text-blue-600 text-xs hover:underline ml-1">✏️</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <a href="{{ cliente.url_nueva_ads }}" class="text-xs text-blue-600 hover:underline mt-2 block">➕ Vincular cuenta Ads</a>
+          <a href="{{ url_for('panel_cliente_clientes_bp.ligar_empresa', cliente_id=cliente.id, nombre_nora=nombre_nora) }}"
+             class="text-xs text-blue-600 hover:underline mt-1 block">➕ Ligar empresa</a>
+        </div>
+
+        <!-- Acciones -->
+        <div class="col-span-1 flex flex-col gap-2 items-start">
+          <a href="{{ url_for('panel_cliente_clientes_bp.editar_cliente', cliente_id=cliente.id, nombre_nora=nombre_nora) }}"
+             class="text-sm text-blue-600 hover:underline">✏️ Editar cliente</a>
+        </div>
+      </div>
+    {% endfor %}
   {% else %}
     <p class="text-red-600 text-sm mb-4">❌ No hay clientes registrados.</p>
   {% endif %}
+</section>
 
-  <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}"
-     class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mb-6 inline-block">
-    ➕ Agregar nuevo cliente
-  </a>
-
-  {% for cliente in clientes %}
-    <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-4 grid sm:grid-cols-4 gap-4 items-start">
-      <!-- Info principal -->
-      <div class="col-span-2">
-        <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ cliente.nombre_cliente }}</h3>
-        <p class="text-sm text-gray-600 mb-1">✉️ {{ cliente.email }}</p>
-        {% if cliente.telefono %}<p class="text-sm text-gray-600">📞 {{ cliente.telefono }}</p>{% endif %}
-        {% if cliente.tipo %}<span class="inline-block mt-2 px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded">{{ cliente.tipo|capitalize }}</span>{% endif %}
-      </div>
-
-      <!-- Empresas asociadas -->
-      <div class="col-span-1">
-        {% if cliente.empresas %}
-          <p class="font-semibold text-sm text-gray-800 mb-1">🏢 Empresas</p>
-          <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
-            {% for empresa in cliente.empresas %}
-              <li>
-                {{ empresa.nombre_empresa }}
-                <a href="{{ empresa.url_editar }}" class="text-blue-600 text-xs hover:underline ml-1">✏️</a>
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        <a href="{{ cliente.url_nueva_ads }}" class="text-xs text-blue-600 hover:underline mt-2 block">➕ Vincular cuenta Ads</a>
-        <a href="{{ url_for('panel_cliente_clientes_bp.ligar_empresa', cliente_id=cliente.id, nombre_nora=nombre_nora) }}"
-           class="text-xs text-blue-600 hover:underline mt-1 block">➕ Ligar empresa</a>
-      </div>
-
-      <!-- Acciones -->
-      <div class="col-span-1 flex flex-col gap-2 items-start">
-        <a href="{{ url_for('panel_cliente_clientes_bp.editar_cliente', cliente_id=cliente.id, nombre_nora=nombre_nora) }}"
-           class="text-sm text-blue-600 hover:underline">✏️ Editar cliente</a>
-      </div>
-    </div>
-  {% endfor %}
-</div>
 {% endblock %}
