@@ -71,7 +71,7 @@ def webhook():
     return str(twilio_resp), 200
 
 @whatsapp_bp.route('/enviar', methods=['POST'])
-def enviar_mensaje():
+def enviar_mensaje_api():
     data = request.get_json()
     numero = normalizar_numero(data.get('numero'))
     mensaje = data.get('mensaje')
