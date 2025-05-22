@@ -14,8 +14,6 @@ from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conoci
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
 from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import panel_cliente_whatsapp_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
-from clientes.aura.routes.panel_cliente_pagos.vista_panel_cliente_pagos import panel_cliente_pagos_bp
-from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
 
 
@@ -107,17 +105,18 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 safe_register_blueprint(app, login_bp, url_prefix=f"/login")
 
             if "pagos" in modulos:
-                safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
-                from clientes.aura.routes.panel_cliente_pagos.vista_servicios import panel_cliente_pagos_servicios_bp
-                safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos/servicios")
-                from clientes.aura.routes.panel_cliente_pagos.vista_recibo_nuevo import panel_cliente_pagos_nuevo_bp
-                safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
-                try:
-                    from clientes.aura.routes.panel_cliente_pagos.vista_recibo_pago import panel_cliente_pagos_recibo_bp
-                    safe_register_blueprint(app, panel_cliente_pagos_recibo_bp)
-                except Exception as e:
-                    print(f"❌ Error al registrar blueprint vista_recibo_pago: {e}")
+                from clientes.aura.routes.panel_cliente_pagos import (
+                    panel_cliente_pagos_bp,
+                    panel_cliente_pagos_servicios_bp,
+                    panel_cliente_pagos_nuevo_bp,
+                    panel_cliente_pagos_recibo_bp
+                )
 
+                safe_register_blueprint(app, panel_cliente_pagos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
+                safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos/servicios")
+                safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
+                safe_register_blueprint(app, panel_cliente_pagos_recibo_bp)
+                
             if "tareas" in modulos:
                 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
                 safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
