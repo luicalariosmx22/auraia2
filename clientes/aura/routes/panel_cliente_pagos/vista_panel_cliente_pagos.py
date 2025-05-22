@@ -12,7 +12,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@panel_cliente_pagos_bp.route("/", methods=["GET"])
+@panel_cliente_pagos_bp.route("/")
 @login_required
 def panel_cliente_pagos(nombre_nora):
     # Validar módulo activo
