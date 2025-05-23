@@ -172,3 +172,76 @@ def procesar_mensaje(data):
     # Enviar respuesta al usuario
     enviar_mensaje(numero_usuario, respuesta)
     return respuesta
+
+# 🧠 Detectar si el último bloque fue un MENÚ y responder sin IA
+try:
+    historial_menus = supabase.table("historial_conversaciones") \
+        .select("mensaje, origen, tipo") \
+        .eq("telefono", numero_usuario) \
+        .eq("nombre_nora", nombre_nora) \
+        .order("fecha", desc=True) \
+        .limit(5) \
+        .execute().data
+
+    ultimo_menu = next((h for h in historial_menus if h["origen"] == numero_nora and h["tipo"] == "respuesta" and "¿" in h["mensaje"]), None)
+
+    if ultimo_menu:
+        print("🧭 Último mensaje fue un MENÚ. Intentando interpretar respuesta del usuario...")
+
+        # Buscar menú correspondiente
+        bloques_menu = supabase.table("conocimiento_nora") \
+            .select("*") \
+            .eq("nombre_nora", nombre_nora) \
+            .eq("origen", "menu") \
+            .eq("activo", True) \
+            .execute().data
+
+        # Match exacto del último contenido
+        menu_bloque = next((b for b in bloques_menu if b["contenido"] in ultimo_menu["mensaje"]), None)
+
+        if menu_bloque:
+            opciones = menu_bloque.get("opciones", [])
+            etiquetas = menu_bloque.get("etiquetas", [])
+            seleccion = mensaje_usuario.strip().lower()
+
+            # Match por número ("1", "2", ...)
+            if seleccion.isdigit():
+                idx = int(seleccion) - 1
+                if 0 <= idx < len(opciones):
+                    opcion_elegida = opciones[idx]
+                else:
+                    opcion_elegida = None
+            else:
+                # Match por texto aproximado
+                opcion_elegida = next((opt for opt in opciones if seleccion in opt.lower()), None)
+
+            if opcion_elegida:
+                print(f"✅ Opción detectada: {opcion_elegida}")
+
+                # Buscar bloque de conocimiento que contenga esa etiqueta u opción
+                resultados = supabase.table("conocimiento_nora") \
+                    .select("*") \
+                    .eq("nombre_nora", nombre_nora) \
+                    .eq("activo", True) \
+                    .execute().data
+
+                coincidencia = next(
+                    (b for b in resultados if opcion_elegida.lower() in b.get("contenido", "").lower()
+                     or opcion_elegida.lower() in " ".join(b.get("etiquetas", [])).lower()),
+                    None
+                )
+
+                if coincidencia:
+                    respuesta = coincidencia["contenido"]
+                    guardar_en_historial(numero_usuario, respuesta, numero_nora, nombre_nora, "respuesta")
+                    enviar_mensaje(numero_usuario, respuesta)
+                    return respuesta
+
+            print("⚠️ No se encontró opción válida o bloque relacionado.")
+            fallback = "No entendí tu respuesta. ¿Puedes elegir una opción del menú anterior?"
+            guardar_en_historial(numero_usuario, fallback, numero_nora, nombre_nora, "respuesta")
+            enviar_mensaje(numero_usuario, fallback)
+            return fallback
+
+except Exception as e:
+    print(f"❌ Error interpretando menú: {e}")

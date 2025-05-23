@@ -42,6 +42,19 @@
               </a>
             </div>
           {% endif %}
+          {% if modulo_conocimiento %}
+            <div class="modulo-card">
+              <a href="{{ url_for('panel_cliente_conocimiento.index_conocimiento', nombre_nora=nombre_nora) }}" class="no-underline">
+                <div class="flex items-center gap-3 p-4 bg-white rounded hover:bg-blue-50 transition">
+                  <span class="text-3xl">🧠</span>
+                  <div>
+                    <div class="font-bold text-lg">Base de Conocimiento</div>
+                    <div class="text-sm text-gray-500">Gestiona bloques y menús inteligentes</div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          {% endif %}
         </div>
       {% else %}
         <p style="color: #999; padding: 1rem 0;">⚠️ No hay módulos activos configurados en Supabase para esta Nora.</p>

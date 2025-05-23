@@ -1,52 +1,187 @@
-    {% extends "base_cliente.html" %}
-    {% block contenido %}
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_conocimiento/index.html -->
+<!-- 👉 Plantilla base del módulo de Conocimiento -->
+{% extends "base.html" %}
 
-    <main>
-        <div class="back-menu">
-            <a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}" class="btn-back">⬅️ Volver al panel del cliente</a>
+{% block content %}
+<div class="p-6">
+  <h1 class="text-3xl font-bold mb-4">📚 Base de Conocimiento</h1>
+
+  <!-- 🔘 Botón nuevo -->
+  <div class="mb-6">
+    <button class="btn btn-primary">+ Nuevo bloque de conocimiento</button>
+  </div>
+
+  <!-- 🏷️ Filtro por etiqueta -->
+  <div class="mb-4">
+    <label class="block mb-2 font-semibold">Filtrar por etiqueta:</label>
+    <select name="etiqueta" class="form-select">
+      <option value="">Todas</option>
+      {% for etiqueta in etiquetas %}
+      <option value="{{ etiqueta }}">{{ etiqueta }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- 📦 Columnas por etiqueta -->
+  <div class="flex flex-wrap gap-4">
+    {% for etiqueta, bloques in bloques_por_etiqueta.items() %}
+    <div class="columna-etiqueta w-full md:w-1/2 lg:w-1/3 bg-gray-50 rounded shadow p-4">
+      <h2 class="text-lg font-semibold mb-3">{{ etiqueta }}</h2>
+
+      {% for bloque in bloques %}
+      <div class="bloque-conocimiento bg-white border rounded p-4 mb-4 shadow-sm">
+        <p class="text-sm mb-2">{{ bloque.contenido }}</p>
+
+        <div class="flex flex-wrap gap-2 mb-2">
+          {% for tag in bloque.etiquetas %}
+          <span class="tag bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{{ tag }}</span>
+          {% endfor %}
         </div>
 
-        <h1 class="text-2xl font-bold mb-6">⚙️ Entrena a Nora: {{ nombre_nora }}</h1>
+        <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+          <span>
+            {% if bloque.origen == 'manual' %}🧠 Manual
+            {% elif bloque.origen == 'pdf' %}📄 PDF
+            {% elif bloque.origen == 'ia' %}🤖 IA
+            {% endif %}
+          </span>
+          {% if bloque.prioridad %}
+          <span class="prioridad text-yellow-500">⭐</span>
+          {% endif %}
+        </div>
 
-        <section class="entrena-modulos space-y-6">
+        <div class="text-xs text-gray-400 mb-2">
+          Creado: {{ bloque.fecha_creacion[:10] }}
+        </div>
 
-            <!-- 1. Estado de la IA -->
-            <div class="bg-white rounded shadow p-4">
-                <h2 class="text-lg font-semibold mb-2">🔌 Activar o desactivar IA</h2>
-                <form action="{{ url_for('cliente_nora.estado_ia', nombre_nora=nombre_nora) }}" method="POST">
-                    <label class="inline-flex items-center gap-2">
-                        <input type="checkbox" name="ia_activa" value="true" {% if config.ia_activa %}checked{% endif %}>
-                        <span>Activar IA (si se desactiva, las respuestas serán manuales)</span>
-                    </label>
-                    <button type="submit" class="btn-primary mt-3">Guardar</button>
-                </form>
-            </div>
+        {% if bloque.servicios_vinculados %}
+        <div class="text-xs text-green-600 mt-2">
+          🔗 {% if bloque.servicios_vinculados|length == 1 %}
+          Vinculado a: <span class="chip-servicio">{{ bloque.servicios_vinculados[0] }}</span>
+          {% else %}
+          Servicios:
+          {% for servicio in bloque.servicios_vinculados %}
+          <span class="chip-servicio">{{ servicio }}</span>{% if not loop.last %},{% endif %}
+          {% endfor %}
+          {% endif %}
+        </div>
+        {% endif %}
 
-            <!-- 2. Mostrar nombre (solo lectura) -->
-            <div class="bg-white rounded shadow p-4">
-                <h2 class="text-lg font-semibold mb-2">🏷 Nombre interno</h2>
-                <input type="text" value="{{ nombre_nora }}" readonly class="input w-full">
-            </div>
+        <!-- 🛠️ Acciones -->
+        <div class="flex justify-between mt-3">
+          <button class="btn btn-sm btn-outline">✏️ Editar</button>
+          <button class="btn btn-sm btn-outline text-red-600">🗑️ Eliminar</button>
+          <button class="btn btn-sm btn-outline text-yellow-500">⭐ Prioridad</button>
+        </div>
+      </div>
+      {% endfor %}
 
-            <!-- 3. Personalidad -->
-            <div class="bg-white rounded shadow p-4">
-                <h2 class="text-lg font-semibold mb-2">🎭 Personalidad</h2>
-                <form action="{{ url_for('cliente_nora.personalidad', nombre_nora=nombre_nora) }}" method="POST">
-                    <textarea name="personalidad" rows="4" class="input w-full" placeholder="Ej: Amable, profesional, tono relajado...">{{ config.personalidad or '' }}</textarea>
-                    <button type="submit" class="btn-primary mt-3">Guardar personalidad</button>
-                </form>
-            </div>
+      <!-- ➕ Agregar bloque a esta categoría -->
+      <div class="text-center mt-4">
+        <button class="btn btn-secondary text-sm">+ Agregar bloque en esta categoría</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
 
-            <!-- 4. Instrucciones clave -->
-            <div class="bg-white rounded shadow p-4">
-                <h2 class="text-lg font-semibold mb-2">📋 Instrucciones clave</h2>
-                <form action="{{ url_for('cliente_nora.instrucciones', nombre_nora=nombre_nora) }}" method="POST">
-                    <textarea name="instrucciones" rows="5" class="input w-full" placeholder="Ej: No compartir enlaces, pedir el nombre, etc...">{{ config.instrucciones or '' }}</textarea>
-                    <button type="submit" class="btn-primary mt-3">Guardar instrucciones</button>
-                </form>
-            </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("modal-bloque");
+  const form = modal.querySelector("form");
+  const alertBox = document.createElement("div");
+  alertBox.className = "alert hidden p-2 mt-3 text-sm rounded";
+  form.appendChild(alertBox);
 
-        </section>
-    </main>
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    limpiarAlertas();
+    
+    const submitBtn = form.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Guardando...";
 
-    {% endblock %}
+    const contenido = form.querySelector("textarea[name='contenido']").value.trim();
+    const prioridad = form.querySelector("input[name='prioridad']").checked;
+    const etiquetasSelect = form.querySelector("select[name='etiquetas']");
+    const etiquetas = Array.from(etiquetasSelect.selectedOptions).map(opt => opt.value);
+    const activoInput = form.querySelector("input[name='activo']");
+    const activo = activoInput ? activoInput.checked : true;
+
+    if (contenido.length === 0 || contenido.length > 500) {
+      mostrarAlerta("El contenido debe tener entre 1 y 500 caracteres.", "error");
+      resetBoton();
+      return;
+    }
+
+    if (etiquetas.length === 0) {
+      mostrarAlerta("Debes seleccionar al menos una etiqueta.", "error");
+      resetBoton();
+      return;
+    }
+
+    const data = {
+      contenido,
+      etiquetas,
+      prioridad,
+      activo
+    };
+
+    const actionUrl = form.getAttribute("action");
+
+    try {
+      const res = await fetch(actionUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        mostrarAlerta(result.error || "Error al guardar bloque.", "error");
+        resetBoton();
+        return;
+      }
+
+      mostrarAlerta("✅ Bloque guardado correctamente.", "success");
+      setTimeout(() => {
+        cerrarModal();
+        if (typeof actualizarVistaConocimiento === "function") {
+          actualizarVistaConocimiento();
+        } else {
+          location.reload();
+        }
+      }, 1000);
+
+    } catch (error) {
+      mostrarAlerta("❌ Error de conexión con el servidor.", "error");
+    } finally {
+      resetBoton();
+    }
+  });
+
+  function mostrarAlerta(mensaje, tipo) {
+    alertBox.textContent = mensaje;
+    alertBox.classList.remove("hidden");
+    alertBox.className = `alert ${tipo === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"} p-2 mt-3 text-sm rounded`;
+  }
+
+  function limpiarAlertas() {
+    alertBox.textContent = "";
+    alertBox.classList.add("hidden");
+  }
+
+  function resetBoton() {
+    const btn = form.querySelector("button[type='submit']");
+    btn.disabled = false;
+    btn.textContent = "Guardar";
+  }
+});
+
+// Función global para cerrar modal
+function cerrarModal() {
+  document.getElementById("modal-bloque").classList.add("hidden");
+}
+</script>

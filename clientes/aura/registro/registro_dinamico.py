@@ -9,11 +9,11 @@ from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
 from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
-from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
 from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import panel_cliente_whatsapp_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
+from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 
 
 # Configurar Supabase
@@ -51,10 +51,26 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         if modulos_activados.data:
             modulos_raw = modulos_activados.data.get('modulos', [])
             if modulos_raw and isinstance(modulos_raw[0], dict):
-                modulos = [m["nombre"].strip().lower().replace(" ", "_") for m in modulos_raw]
+                modulos = [
+                    m["nombre"]
+                    .strip()
+                    .lower()
+                    .replace(" ", "_")
+                    .replace("panel_conocimiento", "conocimiento")
+                    .replace("panel_chat", "chat")
+                    for m in modulos_raw
+                ]
             else:
                 modulos_raw = [{"nombre": m} for m in modulos_raw]
-                modulos = [m["nombre"].strip().lower().replace(" ", "_") for m in modulos_raw]
+                modulos = [
+                    m["nombre"]
+                    .strip()
+                    .lower()
+                    .replace(" ", "_")
+                    .replace("panel_conocimiento", "conocimiento")
+                    .replace("panel_chat", "chat")
+                    for m in modulos_raw
+                ]
             print(f"🧪 Módulos activos normalizados para {nombre_nora}: {modulos}")
 
             # Ejemplo de comparaciones que ahora sí funcionarán:
@@ -73,10 +89,6 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "tareas" in modulos:
                 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
                 safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
-
-            if "panel_conocimiento" in modulos:
-                from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
-                safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/panel_conocimiento")
 
             if "panel_chat" in modulos:
                 safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/panel_chat")
@@ -107,6 +119,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "qr_whatsapp_web" in modulos:
                 safe_register_blueprint(app, panel_cliente_whatsapp_bp, url_prefix=f"/panel_cliente/{nombre_nora}/whatsapp")
 
+            if "conocimiento" in modulos:
+                safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
             # Registrar módulo Meta Ads si está activo
             if "meta_ads" in modulos:
                 # from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
@@ -122,7 +136,7 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 "pagos": f"/panel_cliente/{nombre_nora}/pagos",
                 "tareas": f"/panel_cliente/{nombre_nora}/tareas",
                 "etiquetas": f"/panel_cliente/{nombre_nora}/etiquetas",
-                "panel_conocimiento": f"/panel_cliente/{nombre_nora}/panel_conocimiento",
+                "conocimiento": f"/panel_cliente/{nombre_nora}/conocimiento",
                 "panel_chat": f"/panel_cliente/{nombre_nora}/panel_chat",
                 "meta_ads": f"/panel_cliente/{nombre_nora}/meta_ads",
                 "ads": f"/panel_cliente/{nombre_nora}/ads",

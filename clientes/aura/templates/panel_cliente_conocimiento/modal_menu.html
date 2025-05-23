@@ -1,0 +1,95 @@
+<!-- ✅ Modal para crear o editar MENÚ de conocimiento -->
+
+<div id="modal-menu" class="modal hidden">
+  <div class="modal-content bg-white rounded shadow p-6 max-w-xl mx-auto">
+    <h2 class="text-xl font-semibold mb-4">
+      {% if menu %}✏️ Editar MENÚ{% else %}➕ Nuevo MENÚ{% endif %}
+    </h2>
+
+    <form method="POST" action="{% if menu %}/editar_menu/{{ menu.id }}{% else %}/crear_menu{% endif %}">
+      <!-- 📝 Contenido principal -->
+      <label class="block mb-2 font-medium">Contenido del MENÚ:</label>
+      <textarea name="contenido" maxlength="500" rows="3" required class="form-textarea w-full mb-4">{{ menu.contenido if menu else '' }}</textarea>
+
+      <!-- 🔢 Opciones dinámicas -->
+      <label class="block mb-2 font-medium">Opciones del MENÚ:</label>
+      <div id="opciones-lista">
+        {% set opciones = menu.opciones if menu and menu.opciones else ['', ''] %}
+        {% for idx, opcion in opciones|enumerate %}
+        <div class="flex items-center mb-2 opcion-row">
+          <input type="text" name="opciones" value="{{ opcion }}" required class="form-input flex-1" placeholder="Opción {{ idx+1 }}">
+          <button type="button" class="ml-2 btn btn-sm btn-outline text-red-600" onclick="eliminarOpcion(this)" {% if opciones|length <= 2 %}disabled{% endif %}>🗑️</button>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm mb-4" onclick="agregarOpcion()">+ Agregar opción</button>
+
+      <!-- 🏷️ Etiquetas -->
+      <label class="block mb-2 font-medium">Etiquetas:</label>
+      <select name="etiquetas" multiple class="form-multiselect w-full mb-4">
+        {% for etiqueta in etiquetas_disponibles %}
+        <option value="{{ etiqueta }}" {% if menu and etiqueta in menu.etiquetas %}selected{% endif %}>{{ etiqueta }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- ⭐ Prioridad -->
+      <div class="mb-4">
+        <label class="inline-flex items-center">
+          <input type="checkbox" name="prioridad" class="form-checkbox"
+            {% if menu and menu.prioridad %}checked{% endif %}>
+          <span class="ml-2">⭐ Marcar como prioritario</span>
+        </label>
+      </div>
+
+      <!-- 🔘 Activo toggle -->
+      <div class="mb-4">
+        <label class="inline-flex items-center">
+          <input type="checkbox" name="activo" class="form-checkbox"
+            {% if not menu or menu.activo %}checked{% endif %}>
+          <span class="ml-2">MENÚ activo</span>
+        </label>
+      </div>
+
+      <!-- 🧭 Botones -->
+      <div class="flex justify-end gap-4 mt-6">
+        <button type="button" class="btn btn-outline" onclick="cerrarModalMenu()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar MENÚ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function agregarOpcion() {
+  const lista = document.getElementById('opciones-lista');
+  const count = lista.querySelectorAll('.opcion-row').length;
+  const div = document.createElement('div');
+  div.className = 'flex items-center mb-2 opcion-row';
+  div.innerHTML = `
+    <input type="text" name="opciones" required class="form-input flex-1" placeholder="Opción ${count+1}">
+    <button type="button" class="ml-2 btn btn-sm btn-outline text-red-600" onclick="eliminarOpcion(this)">🗑️</button>
+  `;
+  lista.appendChild(div);
+  actualizarBotonesEliminar();
+}
+
+function eliminarOpcion(btn) {
+  const row = btn.closest('.opcion-row');
+  row.parentNode.removeChild(row);
+  actualizarBotonesEliminar();
+}
+
+function actualizarBotonesEliminar() {
+  const lista = document.getElementById('opciones-lista');
+  const rows = lista.querySelectorAll('.opcion-row');
+  rows.forEach(row => {
+    const btn = row.querySelector('button');
+    btn.disabled = rows.length <= 2;
+  });
+}
+
+// Función global para cerrar modal
+function cerrarModalMenu() {
+  document.getElementById("modal-menu").classList.add("hidden");
+}
+</script>

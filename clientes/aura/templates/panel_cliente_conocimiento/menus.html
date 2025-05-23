@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="p-6">
+  <h1 class="text-3xl font-bold mb-6">🧭 Menús inteligentes</h1>
+
+  <!-- 🔘 Botón para crear nuevo menú -->
+  <div class="mb-6">
+    <button class="btn btn-primary">+ Nuevo MENÚ</button>
+  </div>
+
+  <!-- 📦 Menús agrupados por etiqueta -->
+  <div class="grid gap-6">
+    {% for etiqueta, menus in menus_por_etiqueta.items() %}
+    <div class="columna-etiqueta bg-gray-50 border rounded shadow p-4">
+      <h2 class="text-lg font-semibold mb-3">{{ etiqueta }}</h2>
+
+      {% for menu in menus %}
+      <div class="bloque-conocimiento bg-white border rounded p-4 mb-4 shadow-sm">
+        <!-- 🧾 Contenido principal -->
+        <p class="text-base font-medium mb-2">{{ menu.contenido }}</p>
+
+        <!-- 🧩 Opciones -->
+        <ul class="list-disc pl-5 text-sm text-gray-700 mb-3">
+          {% for opcion in menu.opciones %}
+          <li>{{ opcion }}</li>
+          {% endfor %}
+        </ul>
+
+        <!-- 🏷️ Etiquetas -->
+        <div class="flex flex-wrap gap-2 text-xs mb-2">
+          {% for tag in menu.etiquetas %}
+          <span class="tag bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ tag }}</span>
+          {% endfor %}
+        </div>
+
+        <!-- 🔄 Origen -->
+        <div class="text-xs text-gray-500 mb-2">
+          {% if menu.origen == 'manual' %}🧠 Manual
+          {% elif menu.origen == 'pdf' %}📄 PDF
+          {% elif menu.origen == 'ia' %}🤖 IA
+          {% endif %}
+        </div>
+
+        <!-- 🛠️ Acciones -->
+        <div class="flex justify-between mt-3">
+          <button class="btn btn-sm btn-outline">✏️ Editar opciones</button>
+          <button class="btn btn-sm btn-outline text-red-600">🗑️ Eliminar MENÚ</button>
+          <button class="btn btn-sm btn-outline text-yellow-500">⭐ Marcar como bienvenida</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("modal-menu");
+  const form = modal.querySelector("form");
+  const alertBox = document.createElement("div");
+  alertBox.className = "alert hidden p-2 mt-3 text-sm rounded";
+  form.appendChild(alertBox);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    limpiarAlertas();
+
+    const submitBtn = form.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Guardando...";
+
+    // Recoge contenido y opciones dinámicas
+    const contenido = form.querySelector("textarea[name='contenido']").value.trim();
+    // Opciones: inputs múltiples tipo <input name="opciones">
+    const opcionesInputs = form.querySelectorAll("input[name='opciones']");
+    const opciones = Array.from(opcionesInputs).map(input => input.value.trim()).filter(op => op.length > 0);
+
+    const prioridad = form.querySelector("input[name='prioridad']").checked;
+    const etiquetasSelect = form.querySelector("select[name='etiquetas']");
+    const etiquetas = Array.from(etiquetasSelect.selectedOptions).map(opt => opt.value);
+    const activoInput = form.querySelector("input[name='activo']");
+    const activo = activoInput ? activoInput.checked : true;
+
+    if (!contenido) {
+      mostrarAlerta("El contenido del menú no puede estar vacío.", "error");
+      resetBoton();
+      return;
+    }
+
+    if (opciones.length < 2) {
+      mostrarAlerta("Debes ingresar al menos 2 opciones.", "error");
+      resetBoton();
+      return;
+    }
+
+    const data = {
+      contenido,
+      opciones,
+      etiquetas,
+      prioridad,
+      activo
+    };
+
+    const actionUrl = form.getAttribute("action");
+
+    try {
+      const res = await fetch(actionUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        mostrarAlerta(result.error || "Error al guardar el menú.", "error");
+        resetBoton();
+        return;
+      }
+
+      mostrarAlerta("✅ Menú guardado correctamente.", "success");
+
+      setTimeout(() => {
+        cerrarModalMenu();
+        if (typeof actualizarVistaMenus === "function") {
+          actualizarVistaMenus();
+        } else {
+          location.reload();
+        }
+      }, 1000);
+
+    } catch (err) {
+      mostrarAlerta("❌ Error al conectar con el servidor.", "error");
+    } finally {
+      resetBoton();
+    }
+  });
+
+  function mostrarAlerta(msg, tipo) {
+    alertBox.textContent = msg;
+    alertBox.classList.remove("hidden");
+    alertBox.className = `alert ${tipo === "success" ? "alert-success bg-green-100 text-green-700" : "alert-danger bg-red-100 text-red-700"} p-2 mt-3 text-sm rounded`;
+  }
+
+  function limpiarAlertas() {
+    alertBox.textContent = "";
+    alertBox.classList.add("hidden");
+  }
+
+  function resetBoton() {
+    const btn = form.querySelector("button[type='submit']");
+    btn.disabled = false;
+    btn.textContent = "Guardar";
+  }
+});
+
+// Función global para cerrar modal de MENÚ
+function cerrarModalMenu() {
+  document.getElementById("modal-menu").classList.add("hidden");
+}
+</script>
