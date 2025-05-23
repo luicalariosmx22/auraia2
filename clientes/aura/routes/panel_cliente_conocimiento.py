@@ -9,7 +9,7 @@ panel_cliente_conocimiento_bp = Blueprint("panel_cliente_conocimiento", __name__
 
 @panel_cliente_conocimiento_bp.route("/", methods=["GET", "POST"])
 @login_required
-def conocimiento_nora(nombre_nora):
+def conocimiento_nora(nombre_nora): 
     try:
         config_res = supabase.table("configuracion_bot").select("numero_nora").eq("nombre_nora", nombre_nora).single().execute()
         numero_nora = config_res.data["numero_nora"]
