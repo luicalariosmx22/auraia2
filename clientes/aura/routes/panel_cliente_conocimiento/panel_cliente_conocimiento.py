@@ -3,6 +3,7 @@
 
 from flask import Blueprint, request, jsonify, render_template
 from clientes.aura.utils.login_required import login_required
+from clientes.aura.utils.vinculo_servicios import vincular_bloque_a_servicio
 from .handlers import (
     handle_listar_bloques,
     handle_crear_bloque,
@@ -11,7 +12,6 @@ from .handlers import (
     handle_listar_por_etiqueta,
     handle_listar_tipo_menu,
     handle_conocimiento_por_servicio,
-    vincular_bloque_a_servicio
 )
 from .storage import handle_subir_pdf
 
