@@ -9,11 +9,8 @@ panel_cliente_conocimiento_bp = Blueprint("panel_cliente_conocimiento", __name__
 
 @panel_cliente_conocimiento_bp.route("/", methods=["GET", "POST"])
 @login_required
-def conocimiento_nora():
+def conocimiento_nora(nombre_nora):
     try:
-        # ✅ Extraer nombre_nora desde la URL (viene de /panel_cliente/<nombre_nora>/panel_conocimiento)
-        nombre_nora = request.path.split("/")[2]
-
         config_res = supabase.table("configuracion_bot").select("numero_nora").eq("nombre_nora", nombre_nora).single().execute()
         numero_nora = config_res.data["numero_nora"]
 
@@ -29,26 +26,23 @@ def conocimiento_nora():
                 supabase.table("conocimiento_nora").insert(inserts).execute()
                 flash("✅ Conocimiento agregado", "success")
 
-        # Mostrar bloques existentes
         data_res = supabase.table("conocimiento_nora").select("id, titulo, contenido").eq("numero_nora", numero_nora).execute()
         bloques = data_res.data or []
 
-        return render_template("entrena_conocimiento.html", nombre_nora=nombre_nora, bloques=bloques)
+        return render_template("panel_cliente_conocimiento/index.html", nombre_nora=nombre_nora, bloques=bloques)
 
     except Exception as e:
         print(f"❌ Error al cargar conocimiento: {e}")
         flash("❌ Error al cargar conocimiento", "error")
-        return redirect(url_for("panel_cliente.panel_cliente", nombre_nora=nombre_nora))
+        return redirect(url_for("panel_cliente_aura.configuracion_cliente", nombre_nora=nombre_nora))
 
-@panel_cliente_conocimiento_bp.route("/eliminar/<bloque_id>", methods=["POST"])
-def eliminar_bloque(bloque_id):
+@panel_cliente_conocimiento_bp.route("/<nombre_nora>/eliminar/<bloque_id>", methods=["POST"])
+def eliminar_bloque(nombre_nora, bloque_id):
     try:
-        # 🧠 Recuperar nombre_nora desde la URL previa
-        nombre_nora = request.path.split("/")[2]
         supabase.table("conocimiento_nora").delete().eq("id", bloque_id).execute()
         flash("✅ Bloque eliminado", "success")
     except Exception as e:
         print(f"❌ Error al eliminar bloque: {e}")
         flash("❌ Error al eliminar bloque", "error")
 
-    return redirect(url_for("panel_cliente_conocimiento.conocimiento_nora"))
+    return redirect(url_for("panel_cliente_conocimiento.conocimiento_nora", nombre_nora=nombre_nora))
