@@ -2,7 +2,7 @@
 <!-- 👉 Plantilla base del módulo de Conocimiento -->
 {% extends "base_cliente.html" %}
 
-{% block content %}
+{% block contentidos %}
 <div class="p-6">
   <h1 class="text-3xl font-bold mb-4">📚 Base de Conocimiento</h1>
 
@@ -91,7 +91,7 @@
     {% endif %}
   </div>
 </div>
-{% endblock %}
+
 
 <!-- 🧠 Modal para nuevo bloque -->
 <div id="modal-bloque" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
@@ -126,6 +126,11 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  // Mostrar modal al hacer click en el botón principal
+  document.querySelector(".btn.btn-primary").addEventListener("click", () => {
+    document.getElementById("modal-bloque").classList.remove("hidden");
+  });
+
   const modal = document.getElementById("modal-bloque");
   const form = modal.querySelector("form");
   const alertBox = document.createElement("div");
@@ -223,3 +228,4 @@ function cerrarModal() {
   document.getElementById("modal-bloque").classList.add("hidden");
 }
 </script>
+{% endblock %}
