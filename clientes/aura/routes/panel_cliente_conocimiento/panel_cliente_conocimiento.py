@@ -83,4 +83,4 @@ def conocimiento_por_servicio(servicio_id):
 @login_required
 def index_conocimiento():
     nombre_nora = request.path.split("/")[2]
-    return render_template("panel_cliente_conocimiento/index.html", nombre_nora=nombre_nora)
+    return handle_listar_bloques(nombre_nora)
