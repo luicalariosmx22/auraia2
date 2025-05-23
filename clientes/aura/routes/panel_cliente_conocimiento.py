@@ -9,8 +9,11 @@ panel_cliente_conocimiento_bp = Blueprint("panel_cliente_conocimiento", __name__
 
 @panel_cliente_conocimiento_bp.route("/", methods=["GET", "POST"])
 @login_required
-def conocimiento_nora(nombre_nora): 
+def conocimiento_nora():
     try:
+        # ✅ Extraer nombre_nora desde la URL (viene de /panel_cliente/<nombre_nora>/panel_conocimiento)
+        nombre_nora = request.path.split("/")[2]
+
         config_res = supabase.table("configuracion_bot").select("numero_nora").eq("nombre_nora", nombre_nora).single().execute()
         numero_nora = config_res.data["numero_nora"]
 
@@ -37,13 +40,15 @@ def conocimiento_nora(nombre_nora):
         flash("❌ Error al cargar conocimiento", "error")
         return redirect(url_for("panel_cliente.panel_cliente", nombre_nora=nombre_nora))
 
-@panel_cliente_conocimiento_bp.route("/<nombre_nora>/eliminar/<bloque_id>", methods=["POST"])
-def eliminar_bloque(nombre_nora, bloque_id):
+@panel_cliente_conocimiento_bp.route("/eliminar/<bloque_id>", methods=["POST"])
+def eliminar_bloque(bloque_id):
     try:
+        # 🧠 Recuperar nombre_nora desde la URL previa
+        nombre_nora = request.path.split("/")[2]
         supabase.table("conocimiento_nora").delete().eq("id", bloque_id).execute()
         flash("✅ Bloque eliminado", "success")
     except Exception as e:
         print(f"❌ Error al eliminar bloque: {e}")
         flash("❌ Error al eliminar bloque", "error")
 
-    return redirect(url_for("panel_cliente_conocimiento.conocimiento_nora", nombre_nora=nombre_nora))
+    return redirect(url_for("panel_cliente_conocimiento.conocimiento_nora"))
