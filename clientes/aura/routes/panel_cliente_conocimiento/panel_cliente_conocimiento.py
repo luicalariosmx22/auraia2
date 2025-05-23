@@ -103,7 +103,8 @@ def index_conocimiento():
     nombre_nora = request.path.split("/")[2]
 
     # Obtener todos los bloques planos
-    bloques = handle_listar_bloques(nombre_nora).get_json()
+    response, status = handle_listar_bloques(nombre_nora)
+    bloques = response.get_json()
 
     # Agrupar por etiqueta
     bloques_por_etiqueta = {}
