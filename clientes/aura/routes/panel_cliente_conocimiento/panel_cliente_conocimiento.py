@@ -37,6 +37,24 @@ def crear_bloque():
 
     return respuesta
 
+@panel_cliente_conocimiento_bp.route("/crear", methods=["POST"])
+@login_required
+def crear_bloque_manual():
+    nombre_nora = request.path.split("/")[2]
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Datos vacíos o mal formateados"}), 400
+
+    respuesta = handle_crear_bloque(nombre_nora, data)
+
+    if respuesta[1] == 201:
+        bloque_id = respuesta[0].json[0]["id"]
+        etiquetas = data.get("etiquetas", [])
+        vincular_bloque_a_servicio(nombre_nora, bloque_id, etiquetas)
+
+    return respuesta
+
 @panel_cliente_conocimiento_bp.route("/editar/<bloque_id>", methods=["POST"])
 @login_required
 def editar_bloque(bloque_id):
@@ -83,4 +101,24 @@ def conocimiento_por_servicio(servicio_id):
 @login_required
 def index_conocimiento():
     nombre_nora = request.path.split("/")[2]
-    return handle_listar_bloques(nombre_nora)
+
+    # Obtener todos los bloques planos
+    bloques = handle_listar_bloques(nombre_nora).json
+
+    # Agrupar por etiqueta
+    bloques_por_etiqueta = {}
+    etiquetas_unicas = set()
+
+    for bloque in bloques:
+        for etiqueta in bloque.get("etiquetas", []):
+            etiquetas_unicas.add(etiqueta)
+            if etiqueta not in bloques_por_etiqueta:
+                bloques_por_etiqueta[etiqueta] = []
+            bloques_por_etiqueta[etiqueta].append(bloque)
+
+    return render_template(
+        "panel_cliente_conocimiento/index.html",
+        nombre_nora=nombre_nora,
+        bloques_por_etiqueta=bloques_por_etiqueta,
+        etiquetas=sorted(etiquetas_unicas)
+    )

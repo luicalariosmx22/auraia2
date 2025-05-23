@@ -93,6 +93,37 @@
 </div>
 {% endblock %}
 
+<!-- 🧠 Modal para nuevo bloque -->
+<div id="modal-bloque" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-xl p-6">
+    <h2 class="text-xl font-bold mb-4">Nuevo bloque de conocimiento</h2>
+    <form action="/panel_cliente/{{ nombre_nora }}/conocimiento/crear" method="POST">
+      <label class="block font-semibold mb-1">Contenido:</label>
+      <textarea name="contenido" rows="4" class="w-full border rounded p-2 mb-3"></textarea>
+
+      <label class="block font-semibold mb-1">Etiquetas:</label>
+      <select name="etiquetas" multiple class="w-full border rounded p-2 mb-3">
+        {% for etiqueta in etiquetas %}
+        <option value="{{ etiqueta }}">{{ etiqueta }}</option>
+        {% endfor %}
+      </select>
+
+      <label class="inline-flex items-center mb-3">
+        <input type="checkbox" name="prioridad" class="mr-2"> Prioridad ⭐
+      </label><br>
+
+      <label class="inline-flex items-center mb-3">
+        <input type="checkbox" name="activo" class="mr-2" checked> Activo
+      </label>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="cerrarModal()" class="btn btn-secondary">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("modal-bloque");
