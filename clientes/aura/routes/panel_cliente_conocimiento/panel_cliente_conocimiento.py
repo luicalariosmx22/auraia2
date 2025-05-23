@@ -103,8 +103,7 @@ def index_conocimiento():
     nombre_nora = request.path.split("/")[2]
 
     # Obtener todos los bloques planos
-    resultado = handle_listar_bloques(nombre_nora)
-    bloques = resultado.json if hasattr(resultado, "json") else resultado
+    bloques = handle_listar_bloques(nombre_nora).get_json()
 
     # Agrupar por etiqueta
     bloques_por_etiqueta = {}
