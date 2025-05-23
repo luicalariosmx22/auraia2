@@ -7,7 +7,7 @@ import os
 
 panel_cliente_conocimiento_bp = Blueprint("panel_cliente_conocimiento", __name__)
 
-@panel_cliente_conocimiento_bp.route("/", methods=["GET", "POST"])
+@panel_cliente_conocimiento_bp.route("/<nombre_nora>", methods=["GET", "POST"])
 @login_required
 def conocimiento_nora(nombre_nora):
     try:
@@ -37,7 +37,7 @@ def conocimiento_nora(nombre_nora):
         flash("❌ Error al cargar conocimiento", "error")
         return redirect(url_for("panel_cliente.panel_cliente", nombre_nora=nombre_nora))
 
-@panel_cliente_conocimiento_bp.route("/eliminar/<bloque_id>", methods=["POST"])
+@panel_cliente_conocimiento_bp.route("/<nombre_nora>/eliminar/<bloque_id>", methods=["POST"])
 def eliminar_bloque(nombre_nora, bloque_id):
     try:
         supabase.table("conocimiento_nora").delete().eq("id", bloque_id).execute()
