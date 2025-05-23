@@ -18,6 +18,13 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 whatsapp_bp = Blueprint('whatsapp', __name__, url_prefix='/whatsapp')
 
+# ✅ Nueva forma de obtener la configuración de Nora con módulos
+nora_configs = supabase.table("configuracion_bot")\
+    .select("nombre_nora, modulos")\
+    .execute().data
+
+nora_configs = [c for c in nora_configs if "tareas" in (c.get("modulos") or [])]
+
 def obtener_contacto(numero_usuario):
     numero_usuario = normalizar_numero(numero_usuario)
 
