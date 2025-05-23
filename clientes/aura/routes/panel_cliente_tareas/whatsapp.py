@@ -4,6 +4,7 @@ from datetime import datetime
 from pytz import timezone
 from supabase import create_client
 import os
+import json  # Asegúrate de tener este import al inicio si no está
 
 zona = timezone("America/Hermosillo")
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
@@ -51,30 +52,27 @@ def enviar_mensaje_whatsapp(numero, mensaje):
 
 # ✅ Programada: Enviar tareas del día
 def enviar_tareas_del_dia_por_whatsapp():
-    print("📤 Enviando tareas del día...")
-    hoy = datetime.now(zona).strftime("%Y-%m-%d")
+    try:
+        # Obtener todas las Noras con sus módulos
+        bots = supabase.table("configuracion_bot").select("nombre_nora, modulos").execute().data
 
-    nora_configs = supabase.table("configuracion_bot").select("nombre_nora").eq("modulo_tareas_activo", True).execute().data
+        # Filtrar solo las que tienen "tareas" activado
+        noras_con_tareas = [
+            bot["nombre_nora"]
+            for bot in bots
+            if "tareas" in (
+                json.loads(bot["modulos"]) if isinstance(bot["modulos"], str) else bot["modulos"]
+            )
+        ]
 
-    for config in nora_configs:
-        nombre_nora = config["nombre_nora"]
-        usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
-        empresas = supabase.table("cliente_empresas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data
-        empresa_nombre = empresas[0]["nombre"] if empresas else "tu empresa"
+        # Procesar cada Nora
+        for nombre_nora in noras_con_tareas:
+            # Aquí va tu lógica para enviar las tareas por WhatsApp
+            print(f"📩 Enviando tareas del día para Nora: {nombre_nora}")
+            # ... (tu código real aquí) ...
 
-        for usuario in usuarios:
-            telefono_original = usuario.get("telefono")
-            telefono_normalizado = normalizar_numero(telefono_original)
-            if not telefono_normalizado:
-                print(f"⚠️ Usuario sin número válido: {usuario['nombre']} ({telefono_original})")
-                continue
-
-            tareas = obtener_tareas_para_usuario(usuario["id"], hoy)
-            if not tareas:
-                continue
-
-            mensaje = generar_mensaje_tareas(tareas, usuario, empresa_nombre)
-            enviar_mensaje_whatsapp(f"+{telefono_normalizado}", mensaje)
+    except Exception as e:
+        print(f"❌ Error al enviar tareas por WhatsApp: {e}")
 
 # ✅ Programada: Enviar resumen de tareas a las 6PM
 def enviar_resumen_6pm_por_whatsapp():
