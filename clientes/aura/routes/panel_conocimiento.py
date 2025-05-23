@@ -1,18 +1,14 @@
 # 📁 clientes/aura/routes/panel_cliente_conocimiento.py
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from supabase import create_client
-from dotenv import load_dotenv
+from clientes.aura.utils.login_required import login_required
+from clientes.aura.utils.supabase_client import supabase
 import os
-
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_cliente_conocimiento_bp = Blueprint("panel_cliente_conocimiento", __name__)
 
 @panel_cliente_conocimiento_bp.route("/panel_cliente/<nombre_nora>/conocimiento", methods=["GET", "POST"])
+@login_required
 def conocimiento_nora(nombre_nora):
     try:
         config_res = supabase.table("configuracion_bot").select("numero_nora").eq("nombre_nora", nombre_nora).single().execute()

@@ -75,7 +75,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
 
             if "panel_conocimiento" in modulos:
-                safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/panel_conocimiento")
+                from clientes.aura.routes.panel_conocimiento import panel_cliente_conocimiento_bp
+                safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
 
             if "panel_chat" in modulos:
                 safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/panel_chat")

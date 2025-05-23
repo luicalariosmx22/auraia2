@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
 </head>
 <body>
+    {% extends "base_cliente.html" %}
+    {% block contenido %}
+
     <header>
         <div class="logo">
             <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora" height="40">
@@ -20,47 +23,49 @@
             <a href="{{ url_for('panel_cliente.panel_cliente', nombre_nora=nombre_nora) }}" class="btn-back">⬅️ Volver al panel del cliente</a>
         </div>
 
-        <h1>⚙️ Entrena a Nora: {{ nombre_nora }}</h1>
+        <h1 class="text-2xl font-bold mb-6">⚙️ Entrena a Nora: {{ nombre_nora }}</h1>
 
-        <section class="entrena-modulos">
+        <section class="entrena-modulos space-y-6">
 
             <!-- 1. Estado de la IA -->
-            <div class="modulo">
-                <h2>🔌 Activar o desactivar IA</h2>
+            <div class="bg-white rounded shadow p-4">
+                <h2 class="text-lg font-semibold mb-2">🔌 Activar o desactivar IA</h2>
                 <form action="{{ url_for('cliente_nora.estado_ia', nombre_nora=nombre_nora) }}" method="POST">
-                    <label>
+                    <label class="inline-flex items-center gap-2">
                         <input type="checkbox" name="ia_activa" value="true" {% if config.ia_activa %}checked{% endif %}>
-                        Activar IA (si se desactiva, las respuestas serán manuales)
+                        <span>Activar IA (si se desactiva, las respuestas serán manuales)</span>
                     </label>
-                    <button type="submit">Guardar</button>
+                    <button type="submit" class="btn-primary mt-3">Guardar</button>
                 </form>
             </div>
 
             <!-- 2. Mostrar nombre (solo lectura) -->
-            <div class="modulo">
-                <h2>🏷 Nombre interno</h2>
-                <input type="text" value="{{ nombre_nora }}" readonly style="width: 100%; padding: 10px;">
+            <div class="bg-white rounded shadow p-4">
+                <h2 class="text-lg font-semibold mb-2">🏷 Nombre interno</h2>
+                <input type="text" value="{{ nombre_nora }}" readonly class="input w-full">
             </div>
 
             <!-- 3. Personalidad -->
-            <div class="modulo">
-                <h2>🎭 Personalidad</h2>
+            <div class="bg-white rounded shadow p-4">
+                <h2 class="text-lg font-semibold mb-2">🎭 Personalidad</h2>
                 <form action="{{ url_for('cliente_nora.personalidad', nombre_nora=nombre_nora) }}" method="POST">
-                    <textarea name="personalidad" rows="4" placeholder="Ej: Amable, profesional, tono relajado...">{{ config.personalidad or '' }}</textarea>
-                    <button type="submit">Guardar personalidad</button>
+                    <textarea name="personalidad" rows="4" class="input w-full" placeholder="Ej: Amable, profesional, tono relajado...">{{ config.personalidad or '' }}</textarea>
+                    <button type="submit" class="btn-primary mt-3">Guardar personalidad</button>
                 </form>
             </div>
 
             <!-- 4. Instrucciones clave -->
-            <div class="modulo">
-                <h2>📋 Instrucciones clave</h2>
+            <div class="bg-white rounded shadow p-4">
+                <h2 class="text-lg font-semibold mb-2">📋 Instrucciones clave</h2>
                 <form action="{{ url_for('cliente_nora.instrucciones', nombre_nora=nombre_nora) }}" method="POST">
-                    <textarea name="instrucciones" rows="5" placeholder="Ej: No compartir enlaces, pedir el nombre, etc...">{{ config.instrucciones or '' }}</textarea>
-                    <button type="submit">Guardar instrucciones</button>
+                    <textarea name="instrucciones" rows="5" class="input w-full" placeholder="Ej: No compartir enlaces, pedir el nombre, etc...">{{ config.instrucciones or '' }}</textarea>
+                    <button type="submit" class="btn-primary mt-3">Guardar instrucciones</button>
                 </form>
             </div>
 
         </section>
     </main>
+
+    {% endblock %}
 </body>
 </html>
