@@ -1,22 +1,5 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Entrenamiento de Nora</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
-</head>
-<body>
     {% extends "base_cliente.html" %}
     {% block contenido %}
-
-    <header>
-        <div class="logo">
-            <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora" height="40">
-        </div>
-        <div class="logout">
-            <a href="{{ url_for('logout') }}">Cerrar sesión</a>
-        </div>
-    </header>
 
     <main>
         <div class="back-menu">
@@ -67,5 +50,3 @@
     </main>
 
     {% endblock %}
-</body>
-</html>
