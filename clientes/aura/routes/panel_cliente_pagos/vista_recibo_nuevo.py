@@ -10,8 +10,9 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@panel_cliente_pagos_nuevo_bp.route("/nuevo", methods=["GET", "POST"])
-@panel_cliente_pagos_nuevo_bp.route("/editar/<pago_id>", methods=["GET", "POST"])
+@panel_cliente_pagos_nuevo_bp.route("/panel_cliente/<nombre_nora>/pagos/nuevo", methods=["GET", "POST"])
+@panel_cliente_pagos_nuevo_bp.route("/panel_cliente/<nombre_nora>/pagos/editar/<pago_id>", methods=["GET", "POST"])
+@login_required
 def nuevo_recibo(nombre_nora, pago_id=None):
     """
     Alta de un nuevo recibo.
