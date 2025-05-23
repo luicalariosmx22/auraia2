@@ -1,7 +1,7 @@
 # ✅ Archivo: clientes/aura/routes/panel_cliente_conocimiento/panel_cliente_conocimiento.py
 # 👉 Define el blueprint y conecta rutas con handlers
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from clientes.aura.utils.login_required import login_required
 from .handlers import (
     handle_listar_bloques,
@@ -78,3 +78,9 @@ def subir_archivo_pdf():
 def conocimiento_por_servicio(servicio_id):
     nombre_nora = request.path.split("/")[2]
     return handle_conocimiento_por_servicio(nombre_nora, servicio_id)
+
+@panel_cliente_conocimiento_bp.route("/", methods=["GET"])
+@login_required
+def index_conocimiento():
+    nombre_nora = request.path.split("/")[2]
+    return render_template("panel_cliente_conocimiento/index.html", nombre_nora=nombre_nora)
