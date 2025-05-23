@@ -24,64 +24,71 @@
 
   <!-- 📦 Columnas por etiqueta -->
   <div class="flex flex-wrap gap-4">
-    {% for etiqueta, bloques in bloques_por_etiqueta.items() %}
-    <div class="columna-etiqueta w-full md:w-1/2 lg:w-1/3 bg-gray-50 rounded shadow p-4">
-      <h2 class="text-lg font-semibold mb-3">{{ etiqueta }}</h2>
+    {% if bloques_por_etiqueta %}
+      {% for etiqueta, bloques in bloques_por_etiqueta.items() %}
+        <!-- tus columnas ya existentes -->
+        <div class="columna-etiqueta w-full md:w-1/2 lg:w-1/3 bg-gray-50 rounded shadow p-4">
+          <h2 class="text-lg font-semibold mb-3">{{ etiqueta }}</h2>
+          {% for bloque in bloques %}
+          <!-- ...existing bloque rendering... -->
+          <div class="bloque-conocimiento bg-white border rounded p-4 mb-4 shadow-sm">
+            <p class="text-sm mb-2">{{ bloque.contenido }}</p>
 
-      {% for bloque in bloques %}
-      <div class="bloque-conocimiento bg-white border rounded p-4 mb-4 shadow-sm">
-        <p class="text-sm mb-2">{{ bloque.contenido }}</p>
+            <div class="flex flex-wrap gap-2 mb-2">
+              {% for tag in bloque.etiquetas %}
+              <span class="tag bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{{ tag }}</span>
+              {% endfor %}
+            </div>
 
-        <div class="flex flex-wrap gap-2 mb-2">
-          {% for tag in bloque.etiquetas %}
-          <span class="tag bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{{ tag }}</span>
-          {% endfor %}
-        </div>
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+              <span>
+                {% if bloque.origen == 'manual' %}🧠 Manual
+                {% elif bloque.origen == 'pdf' %}📄 PDF
+                {% elif bloque.origen == 'ia' %}🤖 IA
+                {% endif %}
+              </span>
+              {% if bloque.prioridad %}
+              <span class="prioridad text-yellow-500">⭐</span>
+              {% endif %}
+            </div>
 
-        <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
-          <span>
-            {% if bloque.origen == 'manual' %}🧠 Manual
-            {% elif bloque.origen == 'pdf' %}📄 PDF
-            {% elif bloque.origen == 'ia' %}🤖 IA
+            <div class="text-xs text-gray-400 mb-2">
+              Creado: {{ bloque.fecha_creacion[:10] }}
+            </div>
+
+            {% if bloque.servicios_vinculados %}
+            <div class="text-xs text-green-600 mt-2">
+              🔗 {% if bloque.servicios_vinculados|length == 1 %}
+              Vinculado a: <span class="chip-servicio">{{ bloque.servicios_vinculados[0] }}</span>
+              {% else %}
+              Servicios:
+              {% for servicio in bloque.servicios_vinculados %}
+              <span class="chip-servicio">{{ servicio }}</span>{% if not loop.last %},{% endif %}
+              {% endfor %}
+              {% endif %}
+            </div>
             {% endif %}
-          </span>
-          {% if bloque.prioridad %}
-          <span class="prioridad text-yellow-500">⭐</span>
-          {% endif %}
-        </div>
 
-        <div class="text-xs text-gray-400 mb-2">
-          Creado: {{ bloque.fecha_creacion[:10] }}
-        </div>
-
-        {% if bloque.servicios_vinculados %}
-        <div class="text-xs text-green-600 mt-2">
-          🔗 {% if bloque.servicios_vinculados|length == 1 %}
-          Vinculado a: <span class="chip-servicio">{{ bloque.servicios_vinculados[0] }}</span>
-          {% else %}
-          Servicios:
-          {% for servicio in bloque.servicios_vinculados %}
-          <span class="chip-servicio">{{ servicio }}</span>{% if not loop.last %},{% endif %}
+            <!-- 🛠️ Acciones -->
+            <div class="flex justify-between mt-3">
+              <button class="btn btn-sm btn-outline">✏️ Editar</button>
+              <button class="btn btn-sm btn-outline text-red-600">🗑️ Eliminar</button>
+              <button class="btn btn-sm btn-outline text-yellow-500">⭐ Prioridad</button>
+            </div>
+          </div>
           {% endfor %}
-          {% endif %}
+          <!-- ...existing code for agregar bloque... -->
+          <div class="text-center mt-4">
+            <button class="btn btn-secondary text-sm">+ Agregar bloque en esta categoría</button>
+          </div>
         </div>
-        {% endif %}
-
-        <!-- 🛠️ Acciones -->
-        <div class="flex justify-between mt-3">
-          <button class="btn btn-sm btn-outline">✏️ Editar</button>
-          <button class="btn btn-sm btn-outline text-red-600">🗑️ Eliminar</button>
-          <button class="btn btn-sm btn-outline text-yellow-500">⭐ Prioridad</button>
-        </div>
-      </div>
       {% endfor %}
-
-      <!-- ➕ Agregar bloque a esta categoría -->
-      <div class="text-center mt-4">
-        <button class="btn btn-secondary text-sm">+ Agregar bloque en esta categoría</button>
+    {% else %}
+      <div class="w-full text-center text-gray-600 bg-yellow-50 border border-yellow-200 p-6 rounded-lg">
+        🧠 Aún no hay bloques de conocimiento registrados.<br>
+        Puedes crear el primero haciendo clic en <strong>+ Nuevo bloque de conocimiento</strong>.
       </div>
-    </div>
-    {% endfor %}
+    {% endif %}
   </div>
 </div>
 {% endblock %}
