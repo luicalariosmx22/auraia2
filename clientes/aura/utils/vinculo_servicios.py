@@ -11,10 +11,11 @@ def vincular_bloque_a_servicio(nombre_nora, bloque_id, etiquetas):
             .eq("nombre_nora", nombre_nora) \
             .ilike("nombre_servicio", f"%{etiqueta}%") \
             .eq("activo", True) \
-            .maybe_single().execute()
+            .limit(1) \
+            .execute()
 
         if match.data:
-            servicio_id = match.data["id"]
+            servicio_id = match.data[0]["id"]
             supabase.table("conocimiento_por_servicio").insert({
                 "id": str(uuid.uuid4()),
                 "nombre_nora": nombre_nora,
