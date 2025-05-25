@@ -8,7 +8,7 @@ from clientes.aura.utils.limpieza import limpiar_mensaje
 from clientes.aura.utils.historial import guardar_en_historial
 from clientes.aura.utils.twilio_sender import enviar_mensaje
 from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
-from clientes.aura.utils.chat.buscar_conocimiento import construir_menu_desde_etiquetas
+from clientes.aura.utils.buscar_conocimiento import construir_menu_desde_etiquetas
 from clientes.aura.utils.supabase_client import supabase
 
 def obtener_config_nora(nombre_nora):
