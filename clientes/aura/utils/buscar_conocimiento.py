@@ -95,13 +95,13 @@ Respuesta:"""
 def construir_menu_desde_etiquetas(nombre_nora):
     try:
         etiquetas_res = supabase.table("etiquetas_nora") \
-            .select("nombre") \
+            .select("etiqueta") \
             .eq("nombre_nora", nombre_nora) \
             .eq("activa", True) \
-            .order("nombre", desc=False) \
+            .order("etiqueta", desc=False) \
             .execute()
 
-        etiquetas = [et["nombre"] for et in etiquetas_res.data] if etiquetas_res.data else []
+        etiquetas = [et["etiqueta"] for et in etiquetas_res.data] if etiquetas_res.data else []
 
         if not etiquetas:
             return "❌ No hay categorías de conocimiento disponibles en este momento."
