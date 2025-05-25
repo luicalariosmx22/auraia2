@@ -25,7 +25,7 @@ def obtener_config_nora(nombre_nora):
     except Exception as e:
         print(f"❌ Error al obtener configuración: {e}")
         return {}
-
+construir_menu_desde_etiquetas
 def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil=None, nombre_contacto=None):
     """
     Actualiza último mensaje, fecha y foto del contacto. Si no existe, lo crea automáticamente.
@@ -162,12 +162,12 @@ def procesar_mensaje(data):
     # Detectar si es respuesta a un menú (número o etiqueta)
     try:
         etiquetas_res = supabase.table("etiquetas_nora") \
-            .select("nombre") \
+            .select("etiqueta") \
             .eq("nombre_nora", nombre_nora) \
             .eq("activa", True) \
             .execute()
 
-        etiquetas = [et["nombre"] for et in etiquetas_res.data] if etiquetas_res.data else []
+        etiquetas = [et["etiqueta"] for et in etiquetas_res.data] if etiquetas_res.data else []
         seleccion = mensaje_usuario.strip().lower()
 
         if seleccion.isdigit():
