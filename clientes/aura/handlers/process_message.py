@@ -8,6 +8,7 @@ from clientes.aura.utils.limpieza import limpiar_mensaje
 from clientes.aura.utils.historial import guardar_en_historial
 from clientes.aura.utils.twilio_sender import enviar_mensaje
 from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
+from clientes.aura.utils.chat.buscar_conocimiento import construir_menu_desde_etiquetas
 from clientes.aura.utils.supabase_client import supabase
 
 def obtener_config_nora(nombre_nora):
@@ -149,6 +150,53 @@ def procesar_mensaje(data):
 
     # Actualizar contacto con el último mensaje y foto de perfil
     actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil, nombre_contacto=nombre_usuario)
+
+    # --- MENÚ DE CONOCIMIENTO (etiquetas) ---
+    # Detectar si el mensaje es para mostrar el menú
+    if mensaje_usuario.lower() in ["menu", "opciones", "categorías"]:
+        mensaje_menu = construir_menu_desde_etiquetas(nombre_nora)
+        enviar_mensaje(numero_usuario, mensaje_menu)
+        guardar_en_historial(numero_usuario, mensaje_menu, numero_nora, nombre_nora, "respuesta")
+        return mensaje_menu
+
+    # Detectar si es respuesta a un menú (número o etiqueta)
+    try:
+        etiquetas_res = supabase.table("etiquetas_conocimiento") \
+            .select("nombre") \
+            .eq("nombre_nora", nombre_nora) \
+            .eq("activa", True) \
+            .execute()
+
+        etiquetas = [et["nombre"] for et in etiquetas_res.data] if etiquetas_res.data else []
+        seleccion = mensaje_usuario.strip().lower()
+
+        if seleccion.isdigit():
+            index = int(seleccion) - 1
+            if 0 <= index < len(etiquetas):
+                etiqueta_seleccionada = etiquetas[index]
+            else:
+                etiqueta_seleccionada = None
+        else:
+            etiqueta_seleccionada = next((et for et in etiquetas if seleccion in et.lower()), None)
+
+        if etiqueta_seleccionada:
+            bloques = supabase.table("conocimiento_nora") \
+                .select("contenido") \
+                .eq("nombre_nora", nombre_nora) \
+                .contains("etiquetas", [etiqueta_seleccionada]) \
+                .eq("activo", True) \
+                .order("fecha_creacion", desc=True) \
+                .limit(1) \
+                .execute()
+
+            if bloques.data:
+                respuesta = bloques.data[0]["contenido"]
+                enviar_mensaje(numero_usuario, respuesta)
+                guardar_en_historial(numero_usuario, respuesta, numero_nora, nombre_nora, "respuesta")
+                return respuesta
+
+    except Exception as e:
+        print(f"❌ Error interpretando respuesta al menú de conocimiento: {e}")
 
     # Generar respuesta desde IA
     respuesta, historial = manejar_respuesta_ai(

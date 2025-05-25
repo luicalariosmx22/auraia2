@@ -91,3 +91,31 @@ Respuesta:"""
     except Exception as e:
         print(f"❌ Error al construir el prompt para la IA: {e}")
         return None
+
+def construir_menu_desde_etiquetas(nombre_nora):
+    try:
+        # Leer etiquetas disponibles para esa Nora desde Supabase
+        etiquetas_res = supabase.table("etiquetas_conocimiento") \
+            .select("nombre") \
+            .eq("nombre_nora", nombre_nora) \
+            .eq("activa", True) \
+            .order("nombre", desc=False) \
+            .execute()
+
+        etiquetas = [et["nombre"] for et in etiquetas_res.data] if etiquetas_res.data else []
+
+        if not etiquetas:
+            return "❌ No hay categorías de conocimiento disponibles en este momento."
+
+        opciones_menu = "\n".join([f"{i+1}. {etiqueta}" for i, etiqueta in enumerate(etiquetas)])
+        mensaje_menu = (
+            "🧠 Estas son las categorías disponibles del conocimiento de Nora:\n\n"
+            f"{opciones_menu}\n\n"
+            "Responde con el número o el nombre de la categoría para saber más."
+        )
+
+        return mensaje_menu
+
+    except Exception as e:
+        print(f"❌ Error al construir menú de conocimiento: {e}")
+        return "⚠️ No pude cargar las categorías de conocimiento en este momento."
