@@ -126,133 +126,25 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  // Mostrar modal al hacer click en el botón principal
-  document.querySelector(".btn.btn-primary").addEventListener("click", () => {
-    document.getElementById("modal-bloque").classList.remove("hidden");
-  });
-
   const modal = document.getElementById("modal-bloque");
   const form = modal.querySelector("form");
-  const alertBox = document.createElement("div");
-  alertBox.className = "alert hidden p-2 mt-3 text-sm rounded";
-  form.appendChild(alertBox);
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    limpiarAlertas();
-    
-    const submitBtn = form.querySelector("button[type='submit']");
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Guardando...";
-
-    const contenido = form.querySelector("textarea[name='contenido']").value.trim();
-    const prioridad = form.querySelector("input[name='prioridad']").checked;
-    const etiquetasSelect = form.querySelector("select[name='etiquetas']");
-    const etiquetas = Array.from(etiquetasSelect.selectedOptions).map(opt => opt.value);
-    const activoInput = form.querySelector("input[name='activo']");
-    const activo = activoInput ? activoInput.checked : true;
-
-    if (contenido.length === 0 || contenido.length > 500) {
-      mostrarAlerta("El contenido debe tener entre 1 y 500 caracteres.", "error");
-      resetBoton();
-      return;
-    }
-
-    if (etiquetas.length === 0) {
-      mostrarAlerta("Debes seleccionar al menos una etiqueta.", "error");
-      resetBoton();
-      return;
-    }
-
-    const data = {
-      contenido,
-      etiquetas,
-      prioridad,
-      activo
-    };
-
-    const actionUrl = form.getAttribute("action");
-
-    try {
-      const res = await fetch(actionUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        mostrarAlerta(result.error || "Error al guardar bloque.", "error");
-        resetBoton();
-        return;
-      }
-
-      mostrarAlerta("✅ Bloque guardado correctamente.", "success");
-      setTimeout(() => {
-        cerrarModal();
-        if (typeof actualizarVistaConocimiento === "function") {
-          actualizarVistaConocimiento();
-        } else {
-          location.reload();
-        }
-      }, 1000);
-
-    } catch (error) {
-      mostrarAlerta("❌ Error de conexión con el servidor.", "error");
-    } finally {
-      resetBoton();
-    }
-  });
-
-  function mostrarAlerta(mensaje, tipo) {
-    alertBox.textContent = mensaje;
-    alertBox.classList.remove("hidden");
-    alertBox.className = `alert ${tipo === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"} p-2 mt-3 text-sm rounded`;
-  }
-
-  function limpiarAlertas() {
-    alertBox.textContent = "";
-    alertBox.classList.add("hidden");
-  }
-
-  function resetBoton() {
-    const btn = form.querySelector("button[type='submit']");
-    btn.disabled = false;
-    btn.textContent = "Guardar";
-  }
-});
-
-// Función global para cerrar modal
-function cerrarModal() {
-  document.getElementById("modal-bloque").classList.add("hidden");
-}
-</script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
   const etiquetasInput = document.getElementById("etiquetas");
+
+  // ✅ Instancia global de Choices
   const choices = new Choices(etiquetasInput, {
     removeItemButton: true,
-    duplicateItemsAllowed: false,
     addItems: true,
     paste: true,
     editItems: true,
     addItemFilter: value => !!value.trim(),
-    placeholderValue: "Escribe y presiona Enter...",
-    noResultsText: "No se encontraron coincidencias",
+    placeholderValue: "Escribe una etiqueta y presiona Enter",
     noChoicesText: "Escribe una etiqueta nueva...",
   });
 
-  // Mostrar modal al hacer click en el botón principal
   document.querySelector(".btn.btn-primary").addEventListener("click", () => {
-    document.getElementById("modal-bloque").classList.remove("hidden");
+    modal.classList.remove("hidden");
   });
 
-  const modal = document.getElementById("modal-bloque");
-  const form = modal.querySelector("form");
   const alertBox = document.createElement("div");
   alertBox.className = "alert hidden p-2 mt-3 text-sm rounded";
   form.appendChild(alertBox);
@@ -260,18 +152,17 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     limpiarAlertas();
-    
+
     const submitBtn = form.querySelector("button[type='submit']");
     submitBtn.disabled = true;
     submitBtn.textContent = "Guardando...";
 
     const contenido = form.querySelector("textarea[name='contenido']").value.trim();
     const prioridad = form.querySelector("input[name='prioridad']").checked;
-    // const etiquetasSelect = form.querySelector("select[name='etiquetas']");
-    // const etiquetas = Array.from(etiquetasSelect.selectedOptions).map(opt => opt.value);
-    const etiquetas = choices.getValue(true);  // esto devuelve un array plano de strings
-    const activoInput = form.querySelector("input[name='activo']");
-    const activo = activoInput ? activoInput.checked : true;
+    const activo = form.querySelector("input[name='activo']").checked;
+
+    // ✅ Obtener etiquetas directo desde Choices
+    const etiquetas = choices.getValue(true);
 
     if (contenido.length === 0 || contenido.length > 500) {
       mostrarAlerta("El contenido debe tener entre 1 y 500 caracteres.", "error");
@@ -279,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (etiquetas.length === 0) {
+    if (!etiquetas.length) {
       mostrarAlerta("Debes seleccionar al menos una etiqueta.", "error");
       resetBoton();
       return;
@@ -312,16 +203,11 @@ document.addEventListener("DOMContentLoaded", () => {
       mostrarAlerta("✅ Bloque guardado correctamente.", "success");
       setTimeout(() => {
         cerrarModal();
-        if (typeof actualizarVistaConocimiento === "function") {
-          actualizarVistaConocimiento();
-        } else {
-          location.reload();
-        }
+        location.reload();
       }, 1000);
 
     } catch (error) {
       mostrarAlerta("❌ Error de conexión con el servidor.", "error");
-    } finally {
       resetBoton();
     }
   });
@@ -342,11 +228,12 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.disabled = false;
     btn.textContent = "Guardar";
   }
-});
 
-// Función global para cerrar modal
-function cerrarModal() {
-  document.getElementById("modal-bloque").classList.add("hidden");
-}
+  window.cerrarModal = function () {
+    modal.classList.add("hidden");
+  }
+});
 </script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 {% endblock %}
