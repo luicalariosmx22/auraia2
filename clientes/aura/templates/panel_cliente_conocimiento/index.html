@@ -102,9 +102,9 @@
       <textarea name="contenido" rows="4" class="w-full border rounded p-2 mb-3"></textarea>
 
       <label class="block font-semibold mb-1">Etiquetas:</label>
-      <select name="etiquetas" multiple class="w-full border rounded p-2 mb-3">
+      <select id="etiquetas" name="etiquetas" multiple class="w-full border rounded p-2 mb-3">
         {% for etiqueta in etiquetas %}
-        <option value="{{ etiqueta }}">{{ etiqueta }}</option>
+          <option value="{{ etiqueta }}">{{ etiqueta }}</option>
         {% endfor %}
       </select>
 
@@ -126,6 +126,124 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  // Mostrar modal al hacer click en el botón principal
+  document.querySelector(".btn.btn-primary").addEventListener("click", () => {
+    document.getElementById("modal-bloque").classList.remove("hidden");
+  });
+
+  const modal = document.getElementById("modal-bloque");
+  const form = modal.querySelector("form");
+  const alertBox = document.createElement("div");
+  alertBox.className = "alert hidden p-2 mt-3 text-sm rounded";
+  form.appendChild(alertBox);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    limpiarAlertas();
+    
+    const submitBtn = form.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Guardando...";
+
+    const contenido = form.querySelector("textarea[name='contenido']").value.trim();
+    const prioridad = form.querySelector("input[name='prioridad']").checked;
+    const etiquetasSelect = form.querySelector("select[name='etiquetas']");
+    const etiquetas = Array.from(etiquetasSelect.selectedOptions).map(opt => opt.value);
+    const activoInput = form.querySelector("input[name='activo']");
+    const activo = activoInput ? activoInput.checked : true;
+
+    if (contenido.length === 0 || contenido.length > 500) {
+      mostrarAlerta("El contenido debe tener entre 1 y 500 caracteres.", "error");
+      resetBoton();
+      return;
+    }
+
+    if (etiquetas.length === 0) {
+      mostrarAlerta("Debes seleccionar al menos una etiqueta.", "error");
+      resetBoton();
+      return;
+    }
+
+    const data = {
+      contenido,
+      etiquetas,
+      prioridad,
+      activo
+    };
+
+    const actionUrl = form.getAttribute("action");
+
+    try {
+      const res = await fetch(actionUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        mostrarAlerta(result.error || "Error al guardar bloque.", "error");
+        resetBoton();
+        return;
+      }
+
+      mostrarAlerta("✅ Bloque guardado correctamente.", "success");
+      setTimeout(() => {
+        cerrarModal();
+        if (typeof actualizarVistaConocimiento === "function") {
+          actualizarVistaConocimiento();
+        } else {
+          location.reload();
+        }
+      }, 1000);
+
+    } catch (error) {
+      mostrarAlerta("❌ Error de conexión con el servidor.", "error");
+    } finally {
+      resetBoton();
+    }
+  });
+
+  function mostrarAlerta(mensaje, tipo) {
+    alertBox.textContent = mensaje;
+    alertBox.classList.remove("hidden");
+    alertBox.className = `alert ${tipo === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"} p-2 mt-3 text-sm rounded`;
+  }
+
+  function limpiarAlertas() {
+    alertBox.textContent = "";
+    alertBox.classList.add("hidden");
+  }
+
+  function resetBoton() {
+    const btn = form.querySelector("button[type='submit']");
+    btn.disabled = false;
+    btn.textContent = "Guardar";
+  }
+});
+
+// Función global para cerrar modal
+function cerrarModal() {
+  document.getElementById("modal-bloque").classList.add("hidden");
+}
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const etiquetasInput = document.getElementById("etiquetas");
+  const choices = new Choices(etiquetasInput, {
+    removeItemButton: true,
+    duplicateItemsAllowed: false,
+    addItems: true,
+    addItemFilter: value => !!value.trim(),
+    placeholderValue: "Escribe y presiona Enter...",
+    noResultsText: "No se encontraron coincidencias",
+    noChoicesText: "Escribe una etiqueta y presiona Enter",
+  });
+
   // Mostrar modal al hacer click en el botón principal
   document.querySelector(".btn.btn-primary").addEventListener("click", () => {
     document.getElementById("modal-bloque").classList.remove("hidden");
