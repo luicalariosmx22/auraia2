@@ -161,7 +161,7 @@ def procesar_mensaje(data):
 
     # Detectar si es respuesta a un menú (número o etiqueta)
     try:
-        etiquetas_res = supabase.table("etiquetas_conocimiento") \
+        etiquetas_res = supabase.table("etiquetas_nora") \
             .select("nombre") \
             .eq("nombre_nora", nombre_nora) \
             .eq("activa", True) \

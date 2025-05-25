@@ -94,7 +94,7 @@ Respuesta:"""
 
 def construir_menu_desde_etiquetas(nombre_nora):
     try:
-        etiquetas_res = supabase.table("etiquetas_conocimiento") \
+        etiquetas_res = supabase.table("etiquetas_nora") \
             .select("nombre") \
             .eq("nombre_nora", nombre_nora) \
             .eq("activa", True) \
