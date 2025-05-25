@@ -38,6 +38,7 @@ from .routes.cliente_nora import cliente_nora_bp
 from .routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from .routes.panel_cliente_ads import panel_cliente_ads_bp
 from .routes.cobranza import cobranza_bp
+from .routes.panel_cliente_etiquetas_conocimiento import panel_cliente_etiquetas_conocimiento_bp # Nueva importación
 # from .modules.ads import ads_bp # ¿Aún necesitas este o fue reemplazado por panel_cliente_ads_bp?
 
 # Para la lógica de blueprints dinámicos

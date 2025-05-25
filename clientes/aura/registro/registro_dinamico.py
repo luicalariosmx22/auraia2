@@ -14,6 +14,7 @@ from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import p
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
+from clientes.aura.routes.panel_cliente_etiquetas_conocimiento import panel_cliente_etiquetas_conocimiento_bp
 
 
 # Configurar Supabase
@@ -30,7 +31,19 @@ def safe_register_blueprint(app, blueprint, **kwargs):
         print(f"⚠️ Blueprint '{blueprint.name}' ya estaba registrado.")
 
 def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
-    from clientes.aura.modules.ads import ads_bp  # ✅ Import del módulo Ads dinámico
+    # Obtener configuración de módulos
+    try:
+        config = supabase.table("configuracion_bot") \
+            .select("modulos") \
+            .eq("nombre_nora", nombre_nora) \
+            .single() \
+            .execute()
+
+        modulos_activados = config.data.get("modulos", [])
+
+    except Exception as e:
+        print(f"❌ Error al obtener configuración de módulos para {nombre_nora}: {e}")
+        modulos_activados = []
 
     print(f"🔍 Registrando blueprints dinámicos para {nombre_nora}...")
 
@@ -44,6 +57,11 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         # 👉 Registra el módulo 'entrenamiento' para cada Nora
         from clientes.aura.routes.panel_cliente_entrenamiento.vista_panel_cliente_entrenamiento import panel_cliente_entrenamiento_bp
         safe_register_blueprint(app, panel_cliente_entrenamiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/entrenamiento")
+
+        # Otros módulos...
+        if "contactos" in modulos_activados:
+            # registrar_blueprint de contactos
+            safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
 
         # Obtener los módulos activos de la tabla configuracion_bot
         modulos_activados = supabase.table('configuracion_bot').select('modulos').eq('nombre_nora', nombre_nora).single().execute()
@@ -121,6 +139,12 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
 
             if "conocimiento" in modulos:
                 safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
+                # Registro de etiquetas_conocimiento
+                safe_register_blueprint(
+                    app,
+                    panel_cliente_etiquetas_conocimiento_bp,
+                    url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas_conocimiento"
+                )
             # Registrar módulo Meta Ads si está activo
             if "meta_ads" in modulos:
                 # from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp

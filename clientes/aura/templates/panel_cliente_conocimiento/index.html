@@ -103,9 +103,7 @@
 
       <label class="block font-semibold mb-1">Etiquetas:</label>
       <select id="etiquetas" name="etiquetas" multiple class="w-full border rounded p-2 mb-3">
-        {% for etiqueta in etiquetas %}
-          <option value="{{ etiqueta }}">{{ etiqueta }}</option>
-        {% endfor %}
+        <!-- Opciones serán cargadas dinámicamente -->
       </select>
 
       <label class="inline-flex items-center mb-3">
@@ -126,20 +124,36 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  const etiquetasInput = document.getElementById("etiquetas");
+  let choices;
+
+  // 🧠 Carga etiquetas desde Supabase
+  const nombreNora = window.location.pathname.split("/")[2];
+  const endpoint = `/panel_cliente/${nombreNora}/etiquetas_conocimiento/json`;
+
+  fetch(endpoint)
+    .then((res) => res.json())
+    .then((etiquetas) => {
+      const items = etiquetas.map(e => ({ value: e, label: e }));
+
+      choices = new Choices(etiquetasInput, {
+        removeItemButton: true,
+        duplicateItemsAllowed: false,
+        addItems: true,
+        paste: true,
+        editItems: true,
+        addItemFilter: value => !!value.trim(),
+        placeholderValue: "Escribe una etiqueta y presiona Enter",
+        noChoicesText: "Cargando...",
+        choices: items
+      });
+    })
+    .catch((error) => {
+      console.error("Error cargando etiquetas:", error);
+    });
+
   const modal = document.getElementById("modal-bloque");
   const form = modal.querySelector("form");
-  const etiquetasInput = document.getElementById("etiquetas");
-
-  // ✅ Instancia global de Choices
-  const choices = new Choices(etiquetasInput, {
-    removeItemButton: true,
-    addItems: true,
-    paste: true,
-    editItems: true,
-    addItemFilter: value => !!value.trim(),
-    placeholderValue: "Escribe una etiqueta y presiona Enter",
-    noChoicesText: "Escribe una etiqueta nueva...",
-  });
 
   document.querySelector(".btn.btn-primary").addEventListener("click", () => {
     modal.classList.remove("hidden");
@@ -234,6 +248,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 {% endblock %}

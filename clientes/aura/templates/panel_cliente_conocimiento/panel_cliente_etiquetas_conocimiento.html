@@ -1,0 +1,31 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="p-6">
+  <h1 class="text-2xl font-bold mb-6">🏷️ Etiquetas del módulo Conocimiento</h1>
+
+  <!-- 🆕 Formulario para agregar nueva etiqueta -->
+  <form action="{{ url_for('panel_cliente_etiquetas_conocimiento.crear_etiqueta', nombre_nora=nombre_nora) }}" method="POST" class="mb-6 flex gap-4">
+    <input type="text" name="etiqueta" placeholder="Nueva etiqueta..." class="form-input px-4 py-2 rounded w-full border" required>
+    <button type="submit" class="btn btn-primary">+ Agregar</button>
+  </form>
+
+  <!-- 🎯 Lista de etiquetas -->
+  {% if etiquetas %}
+    <div class="flex flex-wrap gap-3">
+      {% for item in etiquetas %}
+        <div class="flex items-center bg-gray-100 text-gray-800 px-3 py-1 rounded-full shadow-sm">
+          <span class="mr-2 text-sm font-medium">{{ item.etiqueta }}</span>
+          <form action="{{ url_for('panel_cliente_etiquetas_conocimiento.eliminar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=item.id) }}" method="POST">
+            <button type="submit" class="text-red-500 hover:text-red-700 text-xs" title="Eliminar">
+              ✕
+            </button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-gray-500">No hay etiquetas creadas aún.</p>
+  {% endif %}
+</div>
+{% endblock %}
