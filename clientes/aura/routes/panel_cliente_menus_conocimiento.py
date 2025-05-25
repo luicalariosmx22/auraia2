@@ -21,7 +21,7 @@ def index_menus(nombre_nora):
                 menus_por_etiqueta.setdefault(etiqueta, []).append(menu)
 
         # Leer todas las etiquetas disponibles
-        etiquetas_res = supabase.table("etiquetas_conocimiento").select("nombre")\
+        etiquetas_res = supabase.table("etiquetas_nora").select("nombre")\
             .eq("nombre_nora", nombre_nora).eq("activa", True).execute()
         etiquetas = [et["nombre"] for et in etiquetas_res.data] if etiquetas_res.data else []
 
