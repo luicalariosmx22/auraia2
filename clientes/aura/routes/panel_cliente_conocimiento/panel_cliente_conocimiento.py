@@ -25,20 +25,6 @@ def listar_bloques():
 
 @panel_cliente_conocimiento_bp.route("/crear", methods=["POST"])
 @login_required
-def crear_bloque():
-    nombre_nora = request.path.split("/")[2]
-    data = request.json
-    respuesta = handle_crear_bloque(nombre_nora, data)
-
-    if respuesta[1] == 201:
-        bloque_id = respuesta[0].json[0]["id"]
-        etiquetas = data.get("etiquetas", [])
-        vincular_bloque_a_servicio(nombre_nora, bloque_id, etiquetas)
-
-    return respuesta
-
-@panel_cliente_conocimiento_bp.route("/crear", methods=["POST"])
-@login_required
 def crear_bloque_manual():
     nombre_nora = request.path.split("/")[2]
     data = request.get_json()
