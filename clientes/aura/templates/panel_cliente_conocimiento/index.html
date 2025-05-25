@@ -238,7 +238,12 @@ document.addEventListener("DOMContentLoaded", () => {
     removeItemButton: true,
     duplicateItemsAllowed: false,
     addItems: true,
+    paste: true,
+    editItems: true,
+    addItemFilter: value => !!value.trim(),
     placeholderValue: "Escribe y presiona Enter...",
+    noResultsText: "No se encontraron coincidencias",
+    noChoicesText: "Escribe una etiqueta nueva...",
   });
 
   // Mostrar modal al hacer click en el botón principal
