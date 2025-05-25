@@ -238,10 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
     removeItemButton: true,
     duplicateItemsAllowed: false,
     addItems: true,
-    addItemFilter: value => !!value.trim(),
     placeholderValue: "Escribe y presiona Enter...",
-    noResultsText: "No se encontraron coincidencias",
-    noChoicesText: "Escribe una etiqueta y presiona Enter",
   });
 
   // Mostrar modal al hacer click en el botón principal
@@ -265,8 +262,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const contenido = form.querySelector("textarea[name='contenido']").value.trim();
     const prioridad = form.querySelector("input[name='prioridad']").checked;
-    const etiquetasSelect = form.querySelector("select[name='etiquetas']");
-    const etiquetas = Array.from(etiquetasSelect.selectedOptions).map(opt => opt.value);
+    // const etiquetasSelect = form.querySelector("select[name='etiquetas']");
+    // const etiquetas = Array.from(etiquetasSelect.selectedOptions).map(opt => opt.value);
+    const etiquetas = choices.getValue(true);  // esto devuelve un array plano de strings
     const activoInput = form.querySelector("input[name='activo']");
     const activo = activoInput ? activoInput.checked : true;
 
