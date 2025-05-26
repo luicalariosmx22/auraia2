@@ -44,8 +44,8 @@
     <h3 class="text-lg font-semibold mb-4 text-blue-700" id="modalTitulo">Nueva tarea</h3>
     <form id="formTarea" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/guardar">
       <input type="hidden" name="id" id="tarea_id">
-      <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
-      <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
+      <input type="hidden" name="cliente_id" value="{{ cliente_id if cliente_id else user.get('cliente_id', '') }}">
+      <input type="hidden" name="empresa_id" value="{{ empresa_id if empresa_id else user.get('empresa_id', '') }}">
       <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
       <input type="hidden" name="creado_por" value="{{ user.nombre }}">
       <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2] | upper if user.nombre is defined else 'NN' }}">
