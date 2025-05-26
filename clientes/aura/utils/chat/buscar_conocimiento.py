@@ -1,24 +1,23 @@
-import logging
 from clientes.aura.utils.supabase_client import supabase
+import logging
 
 logger = logging.getLogger(__name__)
 
 def obtener_base_conocimiento(numero_nora: str):
     """
     Recupera TODOS los bloques de conocimiento desde la tabla 'conocimiento_nora'
-    filtrando únicamente por numero_nora. El campo 'titulo' es usado solo para organización.
+    filtrando únicamente por numero_nora. El campo 'titulo' es usado solo si existe,
+    pero no es obligatorio.
     """
     try:
-        consulta = supabase.table("conocimiento_nora").select("contenido, titulo").eq("numero_nora", numero_nora)
+        consulta = supabase.table("conocimiento_nora").select("contenido").eq("numero_nora", numero_nora)
         respuesta = consulta.execute()
         datos = respuesta.data
 
         if datos:
             logger.info(f"✅ [ConocimientoNora] Se cargaron {len(datos)} bloques para {numero_nora}.")
-            for bloque in datos:
-                logger.debug(f"   - Título: {bloque.get('titulo', 'Sin título')}")
             bloques = [
-                {"titulo": item.get("titulo", "Sin título"), "contenido": item["contenido"].strip()}
+                {"titulo": "Sin título", "contenido": item["contenido"].strip()}
                 for item in datos if item.get("contenido")
             ]
             return bloques
