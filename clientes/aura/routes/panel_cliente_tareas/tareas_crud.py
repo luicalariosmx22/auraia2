@@ -7,6 +7,8 @@ import uuid
 
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
+print("🧩 cargando tareas_crud.py...")  # 🔍 Diagnóstico en tiempo de arranque del servidor
+
 # ✅ Generar código único para tareas
 def generar_codigo_tarea(iniciales_usuario):
     fecha = datetime.now().strftime("%d%m%y")
@@ -106,7 +108,7 @@ def guardar_tarea_html():
         "fecha_limite": form.get("fecha_limite"),
         "asignado_a": form.get("asignado_a"),
         "empresa_id": form.get("empresa_id"),
-        "usuario_empresa_id": form.get("asignado_a"),  # temporalmente igual a asignado
+        "usuario_empresa_id": form.get("asignado_a"),
         "cliente_id": cliente_id,
         "nombre_nora": nombre_nora,
         "creado_por": creado_por,
