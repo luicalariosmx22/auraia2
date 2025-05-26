@@ -164,7 +164,7 @@ def procesar_mensaje(data):
         etiquetas_res = supabase.table("etiquetas_nora") \
             .select("etiqueta") \
             .eq("nombre_nora", nombre_nora) \
-            .eq("activa", True) \
+            .eq("activo", True) \
             .execute()
 
         etiquetas = [et["etiqueta"] for et in etiquetas_res.data] if etiquetas_res.data else []
