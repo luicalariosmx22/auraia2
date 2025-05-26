@@ -3,26 +3,25 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def obtener_base_conocimiento(numero_nora: str):
+def obtener_base_conocimiento(nombre_nora: str):
     """
     Recupera TODOS los bloques de conocimiento desde la tabla 'conocimiento_nora'
-    filtrando únicamente por numero_nora. El campo 'titulo' es usado solo si existe,
-    pero no es obligatorio.
+    filtrando únicamente por nombre_nora.
     """
     try:
-        consulta = supabase.table("conocimiento_nora").select("contenido").eq("numero_nora", numero_nora)
+        consulta = supabase.table("conocimiento_nora").select("contenido").eq("nombre_nora", nombre_nora)
         respuesta = consulta.execute()
         datos = respuesta.data
 
         if datos:
-            logger.info(f"✅ [ConocimientoNora] Se cargaron {len(datos)} bloques para {numero_nora}.")
+            logger.info(f"✅ [ConocimientoNora] Se cargaron {len(datos)} bloques para {nombre_nora}.")
             bloques = [
                 {"titulo": "Sin título", "contenido": item["contenido"].strip()}
                 for item in datos if item.get("contenido")
             ]
             return bloques
 
-        logger.warning(f"⚠️ [ConocimientoNora] No hay bloques para {numero_nora}.")
+        logger.warning(f"⚠️ [ConocimientoNora] No hay bloques para {nombre_nora}.")
         return [{
             "titulo": "respuesta_default",
             "contenido": "Hola, soy Nora. ¿En qué puedo ayudarte hoy? Puedo darte información sobre cursos, automatización o estrategias digitales."
