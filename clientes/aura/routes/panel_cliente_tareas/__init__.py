@@ -83,4 +83,12 @@ def vista_tareas_index():
     )
 
 # Importa los submódulos que registran rutas en este blueprint
-from . import tareas_crud
+from . import (
+    tareas_crud,
+    plantillas,
+    whatsapp,
+    usuarios_clientes,
+    estadisticas,
+    automatizaciones,
+    verificar
+)
