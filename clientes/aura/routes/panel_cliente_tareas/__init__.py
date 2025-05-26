@@ -99,3 +99,4 @@ from . import (
     automatizaciones,
     verificar
 )
+from .gestionar import panel_tareas_gestionar_bp
