@@ -57,7 +57,10 @@ def callback():
     session["email"] = user_info.get("email")
     session["name"] = user_info.get("name")
     session["user"] = {
-        "picture": user_info.get("picture")
+        "picture": user_info.get("picture"),
+        "name": user_info.get("name"),
+        "email": user_info.get("email"),
+        "id": user_info.get("id")  # ⚠️ Solo si viene de Google
     }
 
     from clientes.aura.utils.auth_utils import is_admin_user
