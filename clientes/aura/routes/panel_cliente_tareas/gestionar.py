@@ -37,7 +37,8 @@ def guardar_tarea_gestor(nombre_nora):
     user = session.get("user", {})
 
     empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
-    creado_por = user.get("id") or form.get("creado_por")
+    creado_por = form.get("creado_por") or user.get("id") or ""
+    print(f"🧪 creado_por desde form={form.get('creado_por')} | desde session={user.get('id')}")
     iniciales_usuario = form.get("iniciales_usuario") or "".join([w[0] for w in (user.get("nombre", "") or "").split()]) or "NN"
     asignado_a = form.get("asignado_a") or ""
     titulo = form.get("titulo") or ""
