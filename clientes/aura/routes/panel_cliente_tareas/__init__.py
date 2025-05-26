@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, session, request
+from flask import Blueprint
+from flask import render_template, session, request
 from clientes.aura.utils.supabase_client import supabase
 
 panel_cliente_tareas_bp = Blueprint(
-    "panel_cliente_tareas",
+    "panel_cliente_tareas",  # este nombre debe ser único
     __name__,
     template_folder="../../../templates/panel_cliente_tareas"
 )
