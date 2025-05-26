@@ -97,7 +97,7 @@ def construir_menu_desde_etiquetas(nombre_nora):
         etiquetas_res = supabase.table("etiquetas_nora") \
             .select("etiqueta") \
             .eq("nombre_nora", nombre_nora) \
-            .eq("activoS", True) \
+            .eq("activo", True) \
             .order("etiqueta", desc=False) \
             .execute()
 
