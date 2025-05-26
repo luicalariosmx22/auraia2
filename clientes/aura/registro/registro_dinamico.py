@@ -15,6 +15,7 @@ from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.panel_cliente_etiquetas_conocimiento import panel_cliente_etiquetas_conocimiento_bp
+from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
 
 
 # Configurar Supabase
@@ -62,6 +63,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         if "contactos" in modulos_activados:
             # registrar_blueprint de contactos
             safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
+
+        # Registrar webhook para mensajes desde Node.js
+        safe_register_blueprint(app, webhook_contactos_bp, url_prefix="/")
 
         # Obtener los módulos activos de la tabla configuracion_bot
         modulos_activados = supabase.table('configuracion_bot').select('modulos').eq('nombre_nora', nombre_nora).single().execute()

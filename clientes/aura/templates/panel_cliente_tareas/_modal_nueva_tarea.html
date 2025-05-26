@@ -45,21 +45,16 @@
       </select>
     </div>
 
-    <div>
-      <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
-      <select name="empresa_id" id="empresa_id"
-              class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-        {% for empresa in empresas %}
-          <option value="{{ empresa.id }}">{{ empresa.nombre_empresa }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
     <div class="text-right pt-4">
       <button type="submit"
               class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-sm transition-all">
         Guardar tarea
       </button>
     </div>
+    <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
+    <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
+    <input type="hidden" name="creado_por" value="{{ user.nombre }}">
+    <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
+    <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[0:2] | upper }}">
   </form>
 </section>
