@@ -68,6 +68,14 @@ def login_callback():
         session["is_admin"] = str(datos.get("tipo_usuario", "")).lower() == "admin"
         session["nombre_nora"] = datos["nombre_nora"]
 
+        session["user"] = {
+            "id": datos["id"],  # ← ✅ Este campo es el uuid de configuracion_bot
+            "nombre": datos["nombre"],
+            "nombre_nora": datos["nombre_nora"],
+            "empresa_id": datos["empresa_id"],
+            "cliente_id": datos["cliente_id"]
+        }
+
         print("🎯 Sesión establecida:")
         print("email:", session.get("email"))
         print("nombre_nora:", session.get("nombre_nora"))
