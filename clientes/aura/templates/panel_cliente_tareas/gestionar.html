@@ -32,7 +32,7 @@
       <td class="px-4 py-2">{{ tarea.fecha_limite }}</td>
       <td class="px-4 py-2 capitalize">{{ tarea.estatus }}</td>
       <td class="px-4 py-2">
-        {{ usuarios | selectattr('id', 'equalto', tarea.asignado_a) | map(attribute='nombre') | first }}
+        {{ usuarios | selectattr('id', 'equalto', tarea.usuario_empresa_id) | map(attribute='nombre') | first }}
       </td>
       <td class="px-4 py-2">
         {{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}
