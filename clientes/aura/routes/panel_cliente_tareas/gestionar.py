@@ -37,9 +37,13 @@ def guardar_tarea_gestor(nombre_nora):
     form = request.form
     print(f"🔵 Formulario recibido: {form}")
     user = session.get("user", {})
-    cliente_id = user.get("cliente_id", "")
+    cliente_id = form.get("cliente_id") or user.get("cliente_id", "")
+    empresa_id = form.get("empresa_id") or user.get("empresa_id", "")
     creado_por = user.get("nombre", "Desconocido")
     iniciales_usuario = "".join([w[0] for w in user.get("nombre", "NN").split()]) if user.get("nombre") else "NN"
+
+    if not cliente_id or not empresa_id:
+        return "❌ Faltan campos requeridos (cliente_id o empresa_id)", 400
 
     tarea_data = {
         "titulo": form.get("titulo"),
@@ -47,7 +51,7 @@ def guardar_tarea_gestor(nombre_nora):
         "prioridad": form.get("prioridad"),
         "fecha_limite": form.get("fecha_limite"),
         "asignado_a": form.get("asignado_a"),
-        "empresa_id": form.get("empresa_id"),
+        "empresa_id": empresa_id,
         "usuario_empresa_id": form.get("asignado_a"),
         "cliente_id": cliente_id,
         "nombre_nora": nombre_nora,
@@ -58,7 +62,6 @@ def guardar_tarea_gestor(nombre_nora):
 
     print(f"🔵 tarea_data a crear: {tarea_data}")
 
-    # Código para generar correlativo
     def generar_codigo_tarea(iniciales_usuario):
         fecha = datetime.now().strftime("%d%m%y")
         iniciales = ''.join(filter(str.isalnum, iniciales_usuario.upper()))[:3]
@@ -74,7 +77,10 @@ def guardar_tarea_gestor(nombre_nora):
     tarea_data["created_at"] = datetime.now().isoformat()
     tarea_data["updated_at"] = datetime.now().isoformat()
 
-    result = supabase.table("tareas").insert(tarea_data).execute()
-    print(f"🔵 Resultado de creación desde gestor: {result.data}")
-
-    return redirect(f"/panel_cliente/{nombre_nora}/tareas/gestionar")
+    try:
+        result = supabase.table("tareas").insert(tarea_data).execute()
+        print(f"🔵 Resultado de creación desde gestor: {result.data}")
+        return redirect(f"/panel_cliente/{nombre_nora}/tareas/gestionar")
+    except Exception as e:
+        print(f"❌ Error al insertar tarea: {e}")
+        return f"❌ Error al crear tarea: {e}", 500
