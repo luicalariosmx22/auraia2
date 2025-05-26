@@ -92,6 +92,9 @@ def vista_tareas_index():
         modulo_activo="tareas"  # ✅ ESTA ES LA CLAVE
     )
 
+# ✅ Forzar import explícito de tareas_crud para asegurar registro de /guardar-tarea
+import clientes.aura.routes.panel_cliente_tareas.tareas_crud  # 🔥 Import forzado arriba
+
 # Importa los submódulos que registran rutas en este blueprint
 from . import (
     tareas_crud,
