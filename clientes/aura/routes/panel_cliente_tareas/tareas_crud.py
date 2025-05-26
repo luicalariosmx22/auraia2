@@ -115,6 +115,10 @@ def guardar_tarea_html():
     }
     print(f"🔵 tarea_data a crear: {tarea_data}")
 
-    crear_tarea(tarea_data)  # Usa la función que ya tienes
-    print("🔵 Tarea creada, redirigiendo...")
+    resultado, status = crear_tarea(tarea_data)
+    print(f"🔵 Resultado de creación: status={status}, resultado={resultado}")
+
+    if status != 200:
+        return f"❌ Error al crear tarea: {resultado}", 500
+
     return redirect(request.referrer or f"/panel_cliente/{nombre_nora}/tareas")
