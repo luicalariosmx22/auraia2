@@ -8,7 +8,6 @@ panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar", __name__)
 @panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar", methods=["GET"])
 def gestionar_tareas(nombre_nora):
     user = session.get("user", {})
-    cliente_id = user.get("cliente_id", "")
     empresa_id = user.get("empresa_id", "")
 
     tareas = supabase.table("tareas")\
@@ -26,7 +25,6 @@ def gestionar_tareas(nombre_nora):
         tareas=tareas,
         usuarios=usuarios,
         empresas=empresas,
-        cliente_id=cliente_id,
         empresa_id=empresa_id,
         user=user
     )
@@ -38,7 +36,6 @@ def guardar_tarea_gestor(nombre_nora):
     print(f"🔵 Formulario recibido: {form}")
     user = session.get("user", {})
 
-    cliente_id = form.get("cliente_id") or user.get("cliente_id") or ""
     empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
     creado_por = form.get("creado_por") or user.get("nombre", "")
     iniciales_usuario = form.get("iniciales_usuario") or "".join([w[0] for w in creado_por.split()]) or "NN"
@@ -47,11 +44,8 @@ def guardar_tarea_gestor(nombre_nora):
     prioridad = form.get("prioridad") or ""
     fecha_limite = form.get("fecha_limite") or ""
 
-    print(f"🧪 cliente_id={cliente_id}, empresa_id={empresa_id}, creado_por={creado_por}, asignado_a={asignado_a}, titulo={titulo}")
+    print(f"🧪 empresa_id={empresa_id}, creado_por={creado_por}, asignado_a={asignado_a}, titulo={titulo}")
 
-    # Validaciones clave
-    if not cliente_id or cliente_id.strip() == "":
-        return "❌ Falta cliente_id", 400
     if not empresa_id or empresa_id.strip() == "":
         return "❌ Falta empresa_id", 400
     if not creado_por or creado_por.strip() == "":
@@ -61,7 +55,6 @@ def guardar_tarea_gestor(nombre_nora):
     if not titulo.strip():
         return "❌ Falta título", 400
 
-    # Construcción de la tarea
     tarea_data = {
         "id": str(uuid.uuid4()),
         "codigo_tarea": "",  # se genera abajo
@@ -73,7 +66,6 @@ def guardar_tarea_gestor(nombre_nora):
         "usuario_empresa_id": asignado_a,
         "asignado_a": asignado_a,
         "empresa_id": empresa_id,
-        "cliente_id": cliente_id,
         "nombre_nora": nombre_nora,
         "creado_por": creado_por,
         "iniciales_usuario": iniciales_usuario,

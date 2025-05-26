@@ -19,6 +19,8 @@
       <th class="px-4 py-2 text-left">Prioridad</th>
       <th class="px-4 py-2 text-left">Fecha límite</th>
       <th class="px-4 py-2 text-left">Estatus</th>
+      <th class="px-4 py-2 text-left">Asignado a</th>
+      <th class="px-4 py-2 text-left">Empresa</th>
       <th class="px-4 py-2 text-left">Acciones</th>
     </tr>
   </thead>
@@ -29,6 +31,12 @@
       <td class="px-4 py-2 capitalize">{{ tarea.prioridad }}</td>
       <td class="px-4 py-2">{{ tarea.fecha_limite }}</td>
       <td class="px-4 py-2 capitalize">{{ tarea.estatus }}</td>
+      <td class="px-4 py-2">
+        {{ usuarios | selectattr('id', 'equalto', tarea.asignado_a) | map(attribute='nombre') | first }}
+      </td>
+      <td class="px-4 py-2">
+        {{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}
+      </td>
       <td class="px-4 py-2">
         <button onclick="editarTarea('{{ tarea.id }}')" class="text-blue-600 hover:underline text-xs mr-2">Editar</button>
         <button onclick="eliminarTarea('{{ tarea.id }}')" class="text-red-600 hover:underline text-xs">Eliminar</button>
@@ -44,7 +52,6 @@
     <h3 class="text-lg font-semibold mb-4 text-blue-700" id="modalTitulo">Nueva tarea</h3>
     <form id="formTarea" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/guardar">
       <input type="hidden" name="id" id="tarea_id">
-      <input type="hidden" name="cliente_id" value="{{ cliente_id if cliente_id else user.get('cliente_id', '') }}">
       <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
       <input type="hidden" name="creado_por" value="{{ user.nombre }}">
       <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2] | upper if user.nombre is defined else 'NN' }}">
