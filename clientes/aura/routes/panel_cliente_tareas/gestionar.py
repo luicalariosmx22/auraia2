@@ -38,13 +38,17 @@ def guardar_tarea_gestor(nombre_nora):
     print(f"🔵 Formulario recibido: {form}")
     user = session.get("user", {})
     cliente_id = form.get("cliente_id") or user.get("cliente_id") or "default"
-    empresa_id = form.get("empresa_id") or user.get("empresa_id") or "default"
+    empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
     creado_por = form.get("creado_por") or user.get("nombre", "Desconocido")
     iniciales_usuario = form.get("iniciales_usuario") or "NN"
 
-    if not cliente_id or not empresa_id or cliente_id == "default" or empresa_id == "default":
-        print("❌ Faltan campos obligatorios (cliente_id o empresa_id)")
-        return "❌ Faltan campos obligatorios (cliente_id o empresa_id)", 400
+    if not empresa_id or empresa_id == "default":
+        print("❌ Faltan campos obligatorios (empresa_id)")
+        return "❌ Faltan campos obligatorios (empresa_id)", 400
+
+    if not cliente_id or cliente_id == "default":
+        print("❌ Faltan campos obligatorios (cliente_id)")
+        return "❌ Faltan campos obligatorios (cliente_id)", 400
 
     tarea_data = {
         "titulo": form.get("titulo"),
