@@ -42,7 +42,7 @@
 <div id="modalTarea" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative">
     <h3 class="text-lg font-semibold mb-4 text-blue-700" id="modalTitulo">Nueva tarea</h3>
-    <form id="formTarea" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/guardar-tarea">
+    <form id="formTarea" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/guardar">
       <input type="hidden" name="id" id="tarea_id">
       <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
       <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
