@@ -37,8 +37,8 @@ def guardar_tarea_gestor(nombre_nora):
     user = session.get("user", {})
 
     empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
-    creado_por = form.get("creado_por") or user.get("nombre", "")
-    iniciales_usuario = form.get("iniciales_usuario") or "".join([w[0] for w in creado_por.split()]) or "NN"
+    creado_por = user.get("id") or form.get("creado_por")
+    iniciales_usuario = form.get("iniciales_usuario") or "".join([w[0] for w in (user.get("nombre", "") or "").split()]) or "NN"
     asignado_a = form.get("asignado_a") or ""
     titulo = form.get("titulo") or ""
     prioridad = form.get("prioridad") or ""
@@ -48,7 +48,7 @@ def guardar_tarea_gestor(nombre_nora):
 
     if not empresa_id or empresa_id.strip() == "":
         return "❌ Falta empresa_id", 400
-    if not creado_por or creado_por.strip() == "":
+    if not creado_por or str(creado_por).strip() == "":
         return "❌ Falta creado_por", 400
     if not asignado_a or asignado_a.strip() == "":
         return "❌ Falta asignado_a", 400

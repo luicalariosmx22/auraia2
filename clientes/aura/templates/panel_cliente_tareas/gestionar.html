@@ -53,7 +53,7 @@
     <form id="formTarea" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/guardar">
       <input type="hidden" name="id" id="tarea_id">
       <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
-      <input type="hidden" name="creado_por" value="{{ user.nombre }}">
+      <input type="hidden" name="creado_por" value="{{ user.id }}">
       <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2] | upper if user.nombre is defined else 'NN' }}">
 
       <div class="mb-4">
@@ -82,8 +82,8 @@
       </div>
 
       <div class="mb-4">
-        <label for="asignado_a" class="block text-sm font-medium text-gray-700">Asignado a</label>
-        <select name="asignado_a" id="asignado_a" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+        <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado a</label>
+        <select name="usuario_empresa_id" id="usuario_empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
           {% for u in usuarios %}
             <option value="{{ u.id }}">{{ u.nombre }}</option>
           {% endfor %}
