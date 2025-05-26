@@ -37,54 +37,64 @@ def guardar_tarea_gestor(nombre_nora):
     form = request.form
     print(f"🔵 Formulario recibido: {form}")
     user = session.get("user", {})
+
     cliente_id = form.get("cliente_id") or user.get("cliente_id") or ""
     empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
-    creado_por = form.get("creado_por") or user.get("nombre", "Desconocido")
-    iniciales_usuario = form.get("iniciales_usuario") or "NN"
+    creado_por = form.get("creado_por") or user.get("nombre", "")
+    iniciales_usuario = form.get("iniciales_usuario") or "".join([w[0] for w in creado_por.split()]) or "NN"
+    asignado_a = form.get("asignado_a") or ""
+    titulo = form.get("titulo") or ""
+    prioridad = form.get("prioridad") or ""
+    fecha_limite = form.get("fecha_limite") or ""
 
-    print(f"🧪 cliente_id = {cliente_id}, empresa_id = {empresa_id}")
+    print(f"🧪 cliente_id={cliente_id}, empresa_id={empresa_id}, creado_por={creado_por}, asignado_a={asignado_a}, titulo={titulo}")
 
-    if not cliente_id or cliente_id == "default" or cliente_id.strip() == "":
-        print("❌ Faltan campos obligatorios (cliente_id)")
-        return "❌ Faltan campos obligatorios (cliente_id)", 400
+    # Validaciones clave
+    if not cliente_id or cliente_id.strip() == "":
+        return "❌ Falta cliente_id", 400
+    if not empresa_id or empresa_id.strip() == "":
+        return "❌ Falta empresa_id", 400
+    if not creado_por or creado_por.strip() == "":
+        return "❌ Falta creado_por", 400
+    if not asignado_a or asignado_a.strip() == "":
+        return "❌ Falta asignado_a", 400
+    if not titulo.strip():
+        return "❌ Falta título", 400
 
-    if not empresa_id or empresa_id == "default" or empresa_id.strip() == "":
-        print("❌ Faltan campos obligatorios (empresa_id)")
-        return "❌ Faltan campos obligatorios (empresa_id)", 400
-
+    # Construcción de la tarea
     tarea_data = {
-        "titulo": form.get("titulo"),
-        "descripcion": form.get("descripcion"),
-        "prioridad": form.get("prioridad"),
-        "fecha_limite": form.get("fecha_limite"),
-        "asignado_a": form.get("asignado_a"),
+        "id": str(uuid.uuid4()),
+        "codigo_tarea": "",  # se genera abajo
+        "titulo": titulo,
+        "descripcion": form.get("descripcion", ""),
+        "fecha_limite": fecha_limite,
+        "prioridad": prioridad,
+        "estatus": "pendiente",
+        "usuario_empresa_id": asignado_a,
+        "asignado_a": asignado_a,
         "empresa_id": empresa_id,
-        "usuario_empresa_id": form.get("asignado_a"),
         "cliente_id": cliente_id,
         "nombre_nora": nombre_nora,
         "creado_por": creado_por,
         "iniciales_usuario": iniciales_usuario,
-        "origen": "manual"
+        "origen": "manual",
+        "activo": True,
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat()
     }
 
     def generar_codigo_tarea(iniciales_usuario):
         fecha = datetime.now().strftime("%d%m%y")
-        iniciales = ''.join(filter(str.isalnum, iniciales_usuario.upper()))[:3]
-        base_codigo = f"{iniciales}-{fecha}"
+        base_codigo = f"{iniciales_usuario.upper()}-{fecha}"
         existentes = supabase.table("tareas").select("id").ilike("codigo_tarea", f"{base_codigo}-%").execute()
         correlativo = len(existentes.data) + 1
         return f"{base_codigo}-{str(correlativo).zfill(3)}"
 
     tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
-    tarea_data["id"] = str(uuid.uuid4())
-    tarea_data["estatus"] = "pendiente"
-    tarea_data["activo"] = True
-    tarea_data["created_at"] = datetime.now().isoformat()
-    tarea_data["updated_at"] = datetime.now().isoformat()
 
     try:
         result = supabase.table("tareas").insert(tarea_data).execute()
-        print(f"🔵 Resultado de creación desde gestor: {result.data}")
+        print(f"✅ Tarea insertada: {result.data}")
         return redirect(f"/panel_cliente/{nombre_nora}/tareas/gestionar")
     except Exception as e:
         print(f"❌ Error al insertar tarea: {e}")
