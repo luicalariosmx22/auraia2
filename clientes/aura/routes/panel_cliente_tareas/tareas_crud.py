@@ -80,14 +80,20 @@ def eliminar_tarea(tarea_id):
 
 @panel_cliente_tareas_bp.route("/crear_tarea", methods=["POST"])
 def endpoint_crear_tarea():
+    print("🔵 endpoint_crear_tarea llamado")
     data = request.json
+    print(f"🔵 Datos recibidos: {data}")
     tarea, status = crear_tarea(data)
+    print(f"🔵 Resultado crear_tarea: {tarea}, status: {status}")
     return jsonify(tarea), status
 
 @panel_cliente_tareas_bp.route("/guardar-tarea", methods=["POST"])
 def guardar_tarea_html():
+    print("🔵 guardar_tarea_html llamado")
     form = request.form
+    print(f"🔵 Formulario recibido: {form}")
     user = session.get("user", {})
+    print(f"🔵 Usuario de sesión: {user}")
     nombre_nora = user.get("nombre_nora", "aura")
     cliente_id = user.get("cliente_id", "")
     creado_por = user.get("nombre", "Desconocido")
@@ -107,6 +113,8 @@ def guardar_tarea_html():
         "iniciales_usuario": iniciales_usuario,
         "origen": "manual"
     }
+    print(f"🔵 tarea_data a crear: {tarea_data}")
 
     crear_tarea(tarea_data)  # Usa la función que ya tienes
+    print("🔵 Tarea creada, redirigiendo...")
     return redirect(request.referrer or f"/panel_cliente/{nombre_nora}/tareas")
