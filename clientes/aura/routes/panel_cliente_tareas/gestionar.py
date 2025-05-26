@@ -36,40 +36,38 @@ def guardar_tarea_gestor(nombre_nora):
     print(f"🔵 Formulario recibido: {form}")
     user = session.get("user", {})
 
+    usuario_empresa_id = form.get("usuario_empresa_id")
     empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
-    creado_por = form.get("creado_por") or user.get("id") or ""
-    print(f"🧪 creado_por desde form={form.get('creado_por')} | desde session={user.get('id')}")
-    iniciales_usuario = form.get("iniciales_usuario") or "".join([w[0] for w in (user.get("nombre", "") or "").split()]) or "NN"
-    asignado_a = form.get("asignado_a") or ""
+    creado_por = user.get("id") or form.get("creado_por") or ""
     titulo = form.get("titulo") or ""
     prioridad = form.get("prioridad") or ""
     fecha_limite = form.get("fecha_limite") or ""
+    iniciales_usuario = form.get("iniciales_usuario") or "NN"
 
-    print(f"🧪 empresa_id={empresa_id}, creado_por={creado_por}, asignado_a={asignado_a}, titulo={titulo}")
+    print(f"🧪 creado_por desde form={form.get('creado_por')} | desde session={user.get('id')}")
+    print(f"🧪 empresa_id={empresa_id}, creado_por={creado_por}, usuario_empresa_id={usuario_empresa_id}, titulo={titulo}")
 
+    if not usuario_empresa_id or usuario_empresa_id.strip() == "":
+        return "❌ Falta usuario_empresa_id", 400
     if not empresa_id or empresa_id.strip() == "":
         return "❌ Falta empresa_id", 400
     if not creado_por or str(creado_por).strip() == "":
         return "❌ Falta creado_por", 400
-    if not asignado_a or asignado_a.strip() == "":
-        return "❌ Falta asignado_a", 400
     if not titulo.strip():
         return "❌ Falta título", 400
 
     tarea_data = {
         "id": str(uuid.uuid4()),
-        "codigo_tarea": "",  # se genera abajo
+        "codigo_tarea": "",  # generado después
         "titulo": titulo,
         "descripcion": form.get("descripcion", ""),
         "fecha_limite": fecha_limite,
         "prioridad": prioridad,
         "estatus": "pendiente",
-        "usuario_empresa_id": asignado_a,
-        "asignado_a": asignado_a,
+        "usuario_empresa_id": usuario_empresa_id,
         "empresa_id": empresa_id,
         "nombre_nora": nombre_nora,
         "creado_por": creado_por,
-        "iniciales_usuario": iniciales_usuario,
         "origen": "manual",
         "activo": True,
         "created_at": datetime.now().isoformat(),
