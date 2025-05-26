@@ -217,7 +217,7 @@ def procesar_mensaje(data):
             .select("mensaje, origen, tipo") \
             .eq("telefono", numero_usuario) \
             .eq("nombre_nora", nombre_nora) \
-            .order("fecha", desc=True) \
+            .order("hora", desc=True) \
             .limit(5) \
             .execute().data
 
