@@ -3,7 +3,7 @@ from flask import render_template, session, request
 from clientes.aura.utils.supabase_client import supabase
 
 panel_cliente_tareas_bp = Blueprint(
-    "panel_cliente_tareas",  # este nombre debe ser único
+    "panel_cliente_tareas",
     __name__,
     template_folder="../../../templates/panel_cliente_tareas"
 )
@@ -18,16 +18,6 @@ def vista_tareas_index():
     cliente_id = user.get("cliente_id", "")
     empresa_id = user.get("empresa_id", "")
     print(f"🔵 user: {user}, cliente_id: {cliente_id}, empresa_id: {empresa_id}")
-
-    if not user or not user.get("nombre"):
-        # Cargarlo desde Supabase (o redirigir al login si es necesario)
-        print("⚠️ Usuario no autenticado. Cargando datos mínimos.")
-        user = {
-            "nombre": "Desconocido",
-            "cliente_id": cliente_id or "default",
-            "empresa_id": empresa_id or "default"
-        }
-        session["user"] = user
 
     tareas_activas = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
     print(f"🔵 tareas_activas iniciales: {len(tareas_activas)}")
@@ -89,11 +79,11 @@ def vista_tareas_index():
         nombre_nora=nombre_nora,
         user=user,
         config={},
-        modulo_activo="tareas"  # ✅ ESTA ES LA CLAVE
+        modulo_activo="tareas"
     )
 
-# ✅ Forzar import explícito de tareas_crud para asegurar registro de /guardar-tarea
-import clientes.aura.routes.panel_cliente_tareas.tareas_crud  # 🔥 Import forzado arriba
+# ✅ Import forzado: asegura que las rutas se registren aunque el bloque multiple no se ejecute
+import clientes.aura.routes.panel_cliente_tareas.tareas_crud
 
 # Importa los submódulos que registran rutas en este blueprint
 from . import (
