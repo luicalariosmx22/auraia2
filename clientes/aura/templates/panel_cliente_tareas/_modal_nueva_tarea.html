@@ -55,6 +55,7 @@
     <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
     <input type="hidden" name="creado_por" value="{{ user.nombre }}">
     <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
-    <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[0:2] | upper }}">
+    {% set iniciales = user.nombre[:2]|upper if user and user.nombre is defined else 'NN' %}
+    <input type="hidden" name="iniciales_usuario" value="{{ iniciales }}">
   </form>
 </section>

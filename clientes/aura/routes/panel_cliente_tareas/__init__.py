@@ -19,6 +19,16 @@ def vista_tareas_index():
     empresa_id = user.get("empresa_id", "")
     print(f"🔵 user: {user}, cliente_id: {cliente_id}, empresa_id: {empresa_id}")
 
+    if not user or not user.get("nombre"):
+        # Cargarlo desde Supabase (o redirigir al login si es necesario)
+        print("⚠️ Usuario no autenticado. Cargando datos mínimos.")
+        user = {
+            "nombre": "Desconocido",
+            "cliente_id": cliente_id or "default",
+            "empresa_id": empresa_id or "default"
+        }
+        session["user"] = user
+
     tareas_activas = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
     print(f"🔵 tareas_activas iniciales: {len(tareas_activas)}")
 
