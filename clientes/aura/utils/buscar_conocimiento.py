@@ -118,3 +118,37 @@ def construir_menu_desde_etiquetas(nombre_nora):
     except Exception as e:
         print(f"❌ Error al construir menú de conocimiento: {e}")
         return "⚠️ No pude cargar las categorías de conocimiento en este momento."
+
+def obtener_conocimiento_por_etiqueta(nombre_nora, etiqueta_seleccionada):
+    """
+    Obtiene el conocimiento asociado a una etiqueta específica para una instancia de Nora.
+
+    Args:
+        nombre_nora (str): Nombre de la instancia de Nora.
+        etiqueta_seleccionada (str): Etiqueta seleccionada por el usuario.
+
+    Returns:
+        str: Contenido del conocimiento asociado a la etiqueta, o None si no se encuentra.
+    """
+    try:
+        print(f"🔍 Buscando conocimiento para Nora '{nombre_nora}' con etiqueta: {etiqueta_seleccionada}...")
+        bloques = supabase.table("conocimiento_nora") \
+            .select("contenido") \
+            .eq("nombre_nora", nombre_nora) \
+            .contains("etiquetas", [etiqueta_seleccionada]) \
+            .eq("activo", True) \
+            .order("fecha_creacion", desc=True) \
+            .limit(1) \
+            .execute()
+
+        if not bloques.data:
+            print(f"⚠️ No se encontró conocimiento para la etiqueta: {etiqueta_seleccionada}")
+            return None
+
+        contenido = bloques.data[0]["contenido"]
+        print(f"✅ Conocimiento encontrado. Longitud: {len(contenido)} caracteres.")
+        return contenido
+
+    except Exception as e:
+        print(f"❌ Error al obtener conocimiento por etiqueta: {e}")
+        return None

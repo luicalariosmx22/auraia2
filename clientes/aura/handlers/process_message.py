@@ -8,7 +8,7 @@ from clientes.aura.utils.limpieza import limpiar_mensaje
 from clientes.aura.utils.historial import guardar_en_historial
 from clientes.aura.utils.twilio_sender import enviar_mensaje
 from clientes.aura.handlers.handle_ai import manejar_respuesta_ai
-from clientes.aura.utils.buscar_conocimiento import construir_menu_desde_etiquetas
+from clientes.aura.utils.buscar_conocimiento import construir_menu_desde_etiquetas, obtener_conocimiento_por_etiqueta
 from clientes.aura.utils.supabase_client import supabase
 
 def obtener_config_nora(nombre_nora):
@@ -180,20 +180,11 @@ def procesar_mensaje(data):
             etiqueta_seleccionada = next((et for et in etiquetas if seleccion in et.lower()), None)
 
         if etiqueta_seleccionada:
-            bloques = supabase.table("conocimiento_nora") \
-                .select("contenido") \
-                .eq("nombre_nora", nombre_nora) \
-                .contains("etiquetas", [etiqueta_seleccionada]) \
-                .eq("activo", True) \
-                .order("fecha_creacion", desc=True) \
-                .limit(1) \
-                .execute()
-
-            if bloques.data:
-                respuesta = bloques.data[0]["contenido"]
-                enviar_mensaje(numero_usuario, respuesta)
-                guardar_en_historial(numero_usuario, respuesta, numero_nora, nombre_nora, "respuesta")
-                return respuesta
+            contenido = obtener_conocimiento_por_etiqueta(nombre_nora, etiqueta_seleccionada)
+            if contenido:
+                enviar_mensaje(numero_usuario, contenido)
+                guardar_en_historial(numero_usuario, contenido, numero_nora, nombre_nora, "respuesta")
+                return contenido
 
     except Exception as e:
         print(f"❌ Error interpretando respuesta al menú de conocimiento: {e}")
