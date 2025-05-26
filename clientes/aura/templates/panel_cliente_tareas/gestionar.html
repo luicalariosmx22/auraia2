@@ -1,0 +1,127 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_tareas/gestionar.html -->
+<!-- 👉 Submódulo CRUD: vista de gestión de tareas con tabla y botones -->
+
+{% extends "base_cliente.html" %}
+{% block contenido %}
+
+<h2 class="text-xl font-semibold mb-4 text-blue-700">📋 Gestor de Tareas</h2>
+
+<div class="text-right mb-4">
+  <button onclick="abrirModalTarea()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+    ➕ Nueva tarea
+  </button>
+</div>
+
+<table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
+  <thead class="bg-gray-100">
+    <tr>
+      <th class="px-4 py-2 text-left">Título</th>
+      <th class="px-4 py-2 text-left">Prioridad</th>
+      <th class="px-4 py-2 text-left">Fecha límite</th>
+      <th class="px-4 py-2 text-left">Estatus</th>
+      <th class="px-4 py-2 text-left">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tarea in tareas %}
+    <tr class="border-t border-gray-200">
+      <td class="px-4 py-2">{{ tarea.titulo }}</td>
+      <td class="px-4 py-2 capitalize">{{ tarea.prioridad }}</td>
+      <td class="px-4 py-2">{{ tarea.fecha_limite }}</td>
+      <td class="px-4 py-2 capitalize">{{ tarea.estatus }}</td>
+      <td class="px-4 py-2">
+        <button onclick="editarTarea('{{ tarea.id }}')" class="text-blue-600 hover:underline text-xs mr-2">Editar</button>
+        <button onclick="eliminarTarea('{{ tarea.id }}')" class="text-red-600 hover:underline text-xs">Eliminar</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Modal de tarea -->
+<div id="modalTarea" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative">
+    <h3 class="text-lg font-semibold mb-4 text-blue-700" id="modalTitulo">Nueva tarea</h3>
+    <form id="formTarea" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/guardar-tarea">
+      <input type="hidden" name="id" id="tarea_id">
+      <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
+      <input type="hidden" name="empresa_id" value="{{ empresa_id }}">
+      <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
+      <input type="hidden" name="creado_por" value="{{ user.nombre }}">
+      <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2] | upper if user.nombre is defined else 'NN' }}">
+
+      <div class="mb-4">
+        <label for="titulo" class="block text-sm font-medium text-gray-700">Título</label>
+        <input type="text" name="titulo" id="titulo" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+      </div>
+
+      <div class="mb-4">
+        <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+        <textarea name="descripcion" id="descripcion" rows="3" class="w-full border border-gray-300 rounded px-3 py-2 mt-1"></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="fecha_limite" class="block text-sm font-medium text-gray-700">Fecha límite</label>
+          <input type="date" name="fecha_limite" id="fecha_limite" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+        </div>
+        <div>
+          <label for="prioridad" class="block text-sm font-medium text-gray-700">Prioridad</label>
+          <select name="prioridad" id="prioridad" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="asignado_a" class="block text-sm font-medium text-gray-700">Asignado a</label>
+        <select name="asignado_a" id="asignado_a" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+          {% for u in usuarios %}
+            <option value="{{ u.id }}">{{ u.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="text-right">
+        <button type="button" onclick="cerrarModalTarea()" class="text-gray-500 text-sm mr-4">Cancelar</button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function abrirModalTarea() {
+    document.getElementById("modalTarea").classList.remove("hidden");
+    document.getElementById("formTarea").reset();
+    document.getElementById("tarea_id").value = "";
+    document.getElementById("modalTitulo").textContent = "Nueva tarea";
+  }
+
+  function cerrarModalTarea() {
+    document.getElementById("modalTarea").classList.add("hidden");
+  }
+
+  function editarTarea(id) {
+    const fila = [...document.querySelectorAll("tr")].find(row => row.innerHTML.includes(id));
+    if (!fila) return;
+    document.getElementById("modalTarea").classList.remove("hidden");
+    document.getElementById("tarea_id").value = id;
+    document.getElementById("modalTitulo").textContent = "Editar tarea";
+    document.getElementById("titulo").value = fila.children[0].innerText.trim();
+    document.getElementById("prioridad").value = fila.children[1].innerText.trim().toLowerCase();
+    document.getElementById("fecha_limite").value = fila.children[2].innerText.trim();
+    document.getElementById("descripcion").value = ""; // No cargamos por seguridad
+  }
+
+  function eliminarTarea(id) {
+    if (confirm("¿Seguro que deseas eliminar esta tarea?")) {
+      fetch(`/panel_cliente/{{ nombre_nora }}/tareas/eliminar/${id}`, { method: "POST" })
+        .then(() => location.reload());
+    }
+  }
+</script>
+
+{% endblock %}

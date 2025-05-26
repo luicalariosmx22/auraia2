@@ -85,9 +85,13 @@ def vista_tareas_index():
 # ✅ Import forzado: asegura que las rutas se registren aunque el bloque multiple no se ejecute
 import clientes.aura.routes.panel_cliente_tareas.tareas_crud
 
-# Importa los submódulos que registran rutas en este blueprint
+# Importación obligatoria para que se registren correctamente las rutas del CRUD
 from . import (
     tareas_crud,
+    gestionar
+)
+# Importa los submódulos que registran rutas en este blueprint
+from . import (
     plantillas,
     whatsapp,
     usuarios_clientes,
