@@ -40,11 +40,25 @@ def vista_gestionar_tareas(nombre_nora):
         permisos = permisos_resp.data or {}
     else:
         # Si no hay usuario_id en sesión, damos permisos mínimos
+        # -- permisos por usuario; si no existe registro, permisos mínimos --
         permisos = {
             "ver_todas_tareas": False,
             "es_supervisor": False,
             "reasignar_tareas": False,
         }
+        if usuario_id:
+            try:
+                resp = (
+                    supabase.table("usuarios_clientes")
+                    .select("ver_todas_tareas, es_supervisor, reasignar_tareas")
+                    .eq("id", usuario_id)
+                    .limit(1)
+                    .execute()
+                )
+                if resp.data:
+                    permisos.update(resp.data[0])
+            except Exception:
+                pass  # si falla, dejamos permisos por defecto
 
     # -----------------------------------------------------------------
     # Filtrado de tareas según permisos
@@ -72,23 +86,31 @@ def vista_gestionar_tareas(nombre_nora):
     # Cargar info de empresa y asignado
     for t in tareas:
         if t.get("empresa_id"):
-            emp = (
-                supabase.table("cliente_empresas")
-                .select("nombre_empresa")
-                .eq("id", t["empresa_id"])
-                .single()
-                .execute()
-            )
-            t["empresa_nombre"] = emp.data["nombre_empresa"] if emp.data else ""
+            try:
+                emp = (
+                    supabase.table("cliente_empresas")
+                    .select("nombre_empresa")
+                    .eq("id", t["empresa_id"])
+                    .limit(1)
+                    .execute()
+                )
+                if emp.data:
+                    t["empresa_nombre"] = emp.data[0]["nombre_empresa"]
+            except Exception:
+                t["empresa_nombre"] = ""
         if t.get("asignado_a"):
-            usr = (
-                supabase.table("usuarios_clientes")
-                .select("nombre")
-                .eq("id", t["asignado_a"])
-                .single()
-                .execute()
-            )
-            t["asignado_nombre"] = usr.data["nombre"] if usr.data else ""
+            try:
+                usr = (
+                    supabase.table("usuarios_clientes")
+                    .select("nombre")
+                    .eq("id", t["asignado_a"])
+                    .limit(1)
+                    .execute()
+                )
+                if usr.data:
+                    t["asignado_nombre"] = usr.data[0]["nombre"]
+            except Exception:
+                t["asignado_nombre"] = ""
 
     # -----------------------------------------------------------------
     # Listas auxiliares para dropdowns
