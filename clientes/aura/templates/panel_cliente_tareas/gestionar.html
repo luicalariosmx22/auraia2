@@ -110,32 +110,32 @@
 <div id="modalTarea" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative">
     <h3 class="text-lg font-semibold mb-4 text-blue-700" id="modalTitulo">Nueva tarea</h3>
-    <form id="formTarea" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/guardar">
+    <!-- Usamos JS para enviar la data -->
+    <form id="formTarea">
       <input type="hidden" name="id" id="tarea_id">
-      <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
-      <input type="hidden" name="creado_por" value="{{ user.id }}">
-      <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2] | upper if user.nombre is defined else 'NN' }}">
+      <input type="hidden" id="nombre_nora" value="{{ nombre_nora }}">
+      <input type="hidden" id="usuario_sesion" value="{{ user.id }}">
 
       <div class="mb-4">
         <label for="titulo" class="block text-sm font-medium text-gray-700">Título</label>
-        <input type="text" name="titulo" id="titulo" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+        <input type="text" id="titulo" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" required>
       </div>
 
       <div class="mb-4">
         <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
-        <textarea name="descripcion" id="descripcion" rows="3" class="w-full border border-gray-300 rounded px-3 py-2 mt-1"></textarea>
+        <textarea id="descripcion" rows="3" class="w-full border border-gray-300 rounded px-3 py-2 mt-1"></textarea>
       </div>
 
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label for="fecha_limite" class="block text-sm font-medium text-gray-700">Fecha límite</label>
-          <input type="date" name="fecha_limite" id="fecha_limite" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+          <input type="date" id="fecha_limite" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
         </div>
         <div>
           <label for="prioridad" class="block text-sm font-medium text-gray-700">Prioridad</label>
-          <select name="prioridad" id="prioridad" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+          <select id="prioridad" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
             <option value="baja">Baja</option>
-            <option value="media">Media</option>
+            <option value="media" selected>Media</option>
             <option value="alta">Alta</option>
           </select>
         </div>
@@ -143,16 +143,16 @@
 
       <div class="mb-4">
         <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado a</label>
-        <select name="usuario_empresa_id" id="usuario_empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+        <select id="usuario_empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
           {% for u in usuarios %}
-            <option value="{{ u.id }}">{{ u.nombre }}</option>
+            <option value="{{ u.id }}" {% if u.id == user.id %}selected{% endif %}>{{ u.nombre }}</option>
           {% endfor %}
         </select>
       </div>
 
       <div class="mb-4">
         <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
-        <select name="empresa_id" id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+        <select id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" required>
           <option value="" disabled selected>Selecciona una empresa</option>
           {% for e in empresas %}
             <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
