@@ -186,7 +186,7 @@
     document.getElementById("modalTarea").classList.remove("hidden");
     document.getElementById("tarea_id").value = id;
     document.getElementById("modalTitulo").textContent = "Editar tarea";
-    /* índices después del checkbox: 1-Título | 2-Prioridad | 3-Fecha */
+    /* índices super después del checkbox: 1-Título | 2-Prioridad | 3-Fecha */
     document.getElementById("titulo").value = fila.children[1].innerText.trim();
     /* prioridades pueden venir con emoji, quitamos el primer char si es emoji */
     const prioridadTxt = fila.children[2].innerText.trim().replace(/^[^\w]+/, "");
