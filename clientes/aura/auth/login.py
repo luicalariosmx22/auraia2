@@ -75,6 +75,8 @@ def login_callback():
             "empresa_id": datos.get("empresa_id", ""),
             "cliente_id": datos.get("cliente_id", "")
         }
+        # 👉 Se guarda también en nivel de sesión plano para módulos que lo requieran
+        session["usuario_empresa_id"] = datos.get("id", "")
 
         print("🎯 Sesión establecida:")
         print("email:", session.get("email"))
