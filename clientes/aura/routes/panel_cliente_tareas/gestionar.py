@@ -187,9 +187,8 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         "prioridad",
         "fecha_limite",
         "estatus",
-        "usuario_empresa_id",
+        "usuario_empresa_id",  # ← Único campo para “Asignado a”
         "empresa_id",
-        "asignado_a",  # 🆕 ahora editable
     ]:
         return jsonify({"error": "Campo no permitido"}), 400
 

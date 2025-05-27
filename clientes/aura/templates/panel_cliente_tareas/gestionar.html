@@ -88,19 +88,19 @@
         {% endif %}
       </td>
 
-      <!-- asignado a -->
+      <!-- asignado a (usa usuario_empresa_id) -->
       <td class="px-4 py-2">
         {% if editable %}
           <select
             class="bg-transparent"
-            onchange="updateCampoSelect('{{ tarea.id }}','asignado_a', this.value)"
+            onchange="updateCampo(this,'usuario_empresa_id')"
           >
             {% for u in usuarios %}
-              <option value="{{ u.id }}" {% if u.id == tarea.asignado_a %}selected{% endif %}>{{ u.nombre }}</option>
+              <option value="{{ u.id }}" {% if u.id == tarea.usuario_empresa_id %}selected{% endif %}>{{ u.nombre }}</option>
             {% endfor %}
           </select>
         {% else %}
-          {{ usuarios | selectattr('id', 'equalto', tarea.asignado_a) | map(attribute='nombre') | first }}
+          {{ usuarios | selectattr('id', 'equalto', tarea.usuario_empresa_id) | map(attribute='nombre') | first }}
         {% endif %}
       </td>
       <!-- empresa -->
