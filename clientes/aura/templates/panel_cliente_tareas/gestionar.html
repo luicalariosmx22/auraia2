@@ -91,7 +91,10 @@
       <!-- asignado a -->
       <td class="px-4 py-2">
         {% if editable %}
-          <select onchange="updateCampo(this,'asignado_a')" class="bg-transparent">
+          <select
+            class="bg-transparent"
+            onchange="updateCampoSelect('{{ tarea.id }}','asignado_a', this.value)"
+          >
             {% for u in usuarios %}
               <option value="{{ u.id }}" {% if u.id == tarea.asignado_a %}selected{% endif %}>{{ u.nombre }}</option>
             {% endfor %}
@@ -103,7 +106,10 @@
       <!-- empresa -->
       <td class="px-4 py-2">
         {% if editable %}
-          <select onchange="updateCampo(this,'empresa_id')" class="bg-transparent">
+          <select
+            class="bg-transparent"
+            onchange="updateCampoSelect('{{ tarea.id }}','empresa_id', this.value)"
+          >
             {% for e in empresas %}
               <option value="{{ e.id }}" {% if e.id == tarea.empresa_id %}selected{% endif %}>{{ e.nombre_empresa }}</option>
             {% endfor %}
@@ -230,6 +236,15 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ campo: "estatus", valor: estatus })
+    });
+  }
+
+  // 👉 Para <select> de Asignado a y Empresa (sin recargar)
+  function updateCampoSelect(id, campo, valor) {
+    fetch(`/panel_cliente/{{ nombre_nora }}/tareas/gestionar/actualizar/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ campo: campo, valor: valor })
     });
   }
 
