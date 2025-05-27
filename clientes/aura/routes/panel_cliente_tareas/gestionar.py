@@ -65,6 +65,13 @@ def vista_gestionar_tareas(nombre_nora):
             pass
 
     # -----------------------------------------------------------------
+    # 🔓 Asegurar visibilidad total para administradores globales
+    # -----------------------------------------------------------------
+    if session.get("is_admin"):
+        permisos["ver_todas_tareas"] = True
+        permisos["es_supervisor"] = True
+
+    # -----------------------------------------------------------------
     # Traemos TODAS las tareas activas de la Nora
     # -----------------------------------------------------------------
     tareas_resp = (
