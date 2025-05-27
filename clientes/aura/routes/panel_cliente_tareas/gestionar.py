@@ -1,4 +1,5 @@
 from datetime import datetime
+import uuid
 
 from flask import (
     Blueprint,
@@ -11,6 +12,7 @@ from flask import (
 
 from utils.validar_modulo_activo import modulo_activo_para_nora
 from clientes.aura.utils.supabase_client import supabase
+from clientes.aura.utils.generar_codigo_tarea import generar_codigo_tarea
 
 panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 
@@ -183,5 +185,67 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
             {campo: valor, "updated_at": datetime.utcnow().isoformat()}
         ).eq("id", tarea_id).execute()
         return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# -------------------------------------------------------------------
+# API: crear tarea nueva
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route(
+    "/panel_cliente/<nombre_nora>/tareas/gestionar/crear", methods=["POST"]
+)
+def crear_tarea(nombre_nora):
+    if not session.get("email"):
+        return redirect("/login")
+
+    usuario_id = session.get("usuario_empresa_id")
+    if not usuario_id:
+        return jsonify({"error": "Usuario no identificado"}), 403
+
+    payload = request.get_json(silent=True) or {}
+    titulo = payload.get("titulo")
+    prioridad = payload.get("prioridad", "media")
+    fecha_limite = payload.get("fecha_limite")
+    estatus = payload.get("estatus", "pendiente")
+    empresa_id = payload.get("empresa_id")
+    usuario_empresa_id = payload.get("usuario_empresa_id", usuario_id)
+
+    # -----------------------------------------------------------------
+    # Validaciones
+    # -----------------------------------------------------------------
+    if not titulo:
+        return jsonify({"error": "El título es obligatorio"}), 400
+    if prioridad not in ["alta", "media", "baja"]:
+        return jsonify({"error": "Prioridad inválida"}), 400
+    if estatus not in ["pendiente", "en progreso", "retrasada", "completada"]:
+        return jsonify({"error": "Estatus inválido"}), 400
+    if not empresa_id:
+        return jsonify({"error": "La empresa es obligatoria"}), 400
+
+    # -----------------------------------------------------------------
+    # Crear tarea
+    # -----------------------------------------------------------------
+    iniciales_usuario = (
+        session.get("nombre")
+        .strip()
+        .split(" ")
+    )[:2]  # Tomar hasta 2 palabras del nombre
+
+    tarea_data = {
+        "id": str(uuid.uuid4()),
+        "nombre_nora": nombre_nora,
+        "titulo": titulo,
+        "prioridad": prioridad,
+        "fecha_limite": fecha_limite,
+        "estatus": estatus,
+        "empresa_id": empresa_id,
+        "usuario_empresa_id": usuario_empresa_id,
+        "asignado_a": usuario_empresa_id,  # ✅ rellenamos también asignado_a para compatibilidad futura
+    }
+    tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
+
+    try:
+        supabase.table("tareas").insert(tarea_data).execute()
+        return jsonify({"ok": True, "tarea": tarea_data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
