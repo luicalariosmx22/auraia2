@@ -159,10 +159,17 @@ def vista_gestionar_tareas(nombre_nora):
     # Para un detalle completo descomenta:
     # logger.debug("Detalles tareas: %s", tareas)
 
+    # -----------------------------------------------------------------
+    # Separar tareas por estatus para mostrar dos tablas
+    # -----------------------------------------------------------------
+    tareas_activas     = [t for t in tareas if t.get("estatus", "").strip() != "completada"]
+    tareas_completadas = [t for t in tareas if t.get("estatus", "").strip() == "completada"]
+
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
-        tareas=tareas,
+        tareas_activas=tareas_activas,
+        tareas_completadas=tareas_completadas,
         permisos=permisos,
         usuarios=usuarios,
         empresas=empresas,
