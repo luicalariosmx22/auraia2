@@ -50,13 +50,27 @@ def vista_gestionar_tareas(nombre_nora):
             try:
                 resp = (
                     supabase.table("usuarios_clientes")
-                    .select("ver_todas_tareas, es_supervisor, reasignar_tareas")
+                    # Incluimos ambos flags porque la tabla tiene
+                    # es_supervisor_tareas **y** es_supervisor
+                    .select(
+                        "ver_todas_tareas, reasignar_tareas, "
+                        "es_supervisor, es_supervisor_tareas"
+                    )
                     .eq("id", usuario_id)
                     .limit(1)
                     .execute()
                 )
                 if resp.data:
-                    permisos.update(resp.data[0])
+                    fila = resp.data[0]
+                    # combinamos supervisor por si usan cualquiera de los dos campos
+                    permisos.update(
+                        {
+                            "ver_todas_tareas": fila.get("ver_todas_tareas", False),
+                            "reasignar_tareas": fila.get("reasignar_tareas", False),
+                            "es_supervisor": fila.get("es_supervisor", False)
+                            or fila.get("es_supervisor_tareas", False),
+                        }
+                    )
             except Exception:
                 pass  # si falla, dejamos permisos por defecto
 
