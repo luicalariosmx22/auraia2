@@ -239,13 +239,16 @@
     });
   }
 
-  // 👉 Para <select> de Asignado a y Empresa (sin recargar)
+  // 👉 Para <select> de Asignado-a y Empresa: recargamos la tabla al completar
   function updateCampoSelect(id, campo, valor) {
     fetch(`/panel_cliente/{{ nombre_nora }}/tareas/gestionar/actualizar/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ campo: campo, valor: valor })
-    });
+    }).then(res => {
+      if (res.ok) location.reload();   // 🔄 refresca la tabla para reflejar el cambio
+      else res.json().then(d => alert(d.error || "Error al actualizar"));
+    }).catch(err => alert(err));
   }
 
   function eliminarTarea(id) {
