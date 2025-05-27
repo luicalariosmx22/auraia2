@@ -75,16 +75,41 @@ def vista_gestionar_tareas(nombre_nora):
             .execute()
         )
     else:
-        # 👉 Mostrar tareas creadas POR el usuario *o* asignadas A él
-        tareas_resp = (
-            supabase.table("tareas")
-            .select("*")
-            .eq("nombre_nora", nombre_nora)
-            .eq("activo", True)
-            .or_(f"usuario_empresa_id.eq.{usuario_id},asignado_a.eq.{usuario_id}")
-            .execute()
-        )
+        # 👉 Mostrar tareas creadas POR el usuario *o* asignadas A él (sin usar .or_)
+        tareas_lista = []
 
+        # Tareas creadas por el usuario
+        try:
+            resp_creadas = (
+                supabase.table("tareas")
+                .select("*")
+                .eq("nombre_nora", nombre_nora)
+                .eq("activo", True)
+                .eq("usuario_empresa_id", usuario_id)
+                .execute()
+            )
+            if resp_creadas.data:
+                tareas_lista.extend(resp_creadas.data)
+        except Exception:
+            pass
+
+        # Tareas asignadas al usuario
+        try:
+            resp_asignadas = (
+                supabase.table("tareas")
+                .select("*")
+                .eq("nombre_nora", nombre_nora)
+                .eq("activo", True)
+                .eq("asignado_a", usuario_id)
+                .execute()
+            )
+            if resp_asignadas.data:
+                tareas_lista.extend(resp_asignadas.data)
+        except Exception:
+            pass
+
+        # Deduplicar por ID
+        tareas_resp = type("Obj", (object,), {"data": list({t["id"]: t for t in tareas_lista}.values())})()
     tareas = tareas_resp.data or []
 
     # Cargar info de empresa y asignado
