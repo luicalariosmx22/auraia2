@@ -20,36 +20,50 @@ def generar_codigo_tarea(iniciales_usuario):
 
 # ✅ Crear tarea
 def crear_tarea(data):
-    if not data.get("usuario_empresa_id"):
-        return {"error": "La tarea debe estar asignada a un usuario"}, 400
+    """Inserta una fila en `tareas` saneando UUIDs vacíos → NULL."""
 
+    # --- Validaciones mínimas ------------------------------------------------
+    usuario_empresa_id = (data.get("usuario_empresa_id") or "").strip()
+    if not usuario_empresa_id:
+        return {"error": "usuario_empresa_id es obligatorio"}, 400
+
+    titulo = (data.get("titulo") or "").strip()
+    if not titulo:
+        return {"error": "titulo es obligatorio"}, 400
+
+    # --- Generar código correlativo -----------------------------------------
     iniciales = data.get("iniciales_usuario", "NN")
     codigo = generar_codigo_tarea(iniciales)
-    fecha_limite = data.get("fecha_limite")
 
-    if fecha_limite and fecha_limite < datetime.now().strftime("%Y-%m-%d"):
-        fecha_limite = datetime.now().strftime("%Y-%m-%d")
+    # --- Normalizar campos ---------------------------------------------------
+    def sanea_uuid(val):
+        return val.strip() or None if isinstance(val, str) else val
 
     nueva = {
         "id": str(uuid.uuid4()),
         "codigo_tarea": codigo,
-        "titulo": data.get("titulo"),
-        "descripcion": data.get("descripcion"),
-        "fecha_limite": data.get("fecha_limite"),
+        "titulo": titulo,
+        "descripcion": data.get("descripcion") or "",
+        "fecha_limite": data.get("fecha_limite") or None,
         "prioridad": data.get("prioridad", "media"),
         "estatus": data.get("estatus", "pendiente"),
-        # responsable ⇢ usa la misma columna; quitamos asignado_a porque ya no existe
-        "usuario_empresa_id": data["usuario_empresa_id"],
-        "empresa_id": data.get("empresa_id"),
+        "usuario_empresa_id": usuario_empresa_id,
+        "empresa_id": sanea_uuid(data.get("empresa_id", "")),
         "origen": data.get("origen", "manual"),
-        "creado_por": data.get("creado_por"),
+        "creado_por": sanea_uuid(data.get("creado_por") or usuario_empresa_id),
         "activo": True,
         "nombre_nora": data.get("nombre_nora"),
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat()
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat(),
     }
-    result = supabase.table("tareas").insert(nueva).execute()
-    return result.data, 200
+    print("🚀 Payload a insertar:", nueva)
+
+    try:
+        result = supabase.table("tareas").insert(nueva).execute()
+        return result.data, 200
+    except Exception as e:
+        print("❌ Error insertando tarea:", e)
+        return {"error": str(e)}, 500
 
 # ✅ Obtener una tarea por ID
 def obtener_tarea_por_id(tarea_id):
