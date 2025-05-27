@@ -72,7 +72,7 @@ def vista_gestionar_tareas(nombre_nora):
         permisos["es_supervisor"] = True
 
     # -----------------------------------------------------------------
-    # Traemos TODAS las tareas activas de la Nora
+    # Traemos todas las tareas activas de la Nora
     # -----------------------------------------------------------------
     tareas_resp = (
         supabase.table("tareas")
@@ -81,20 +81,50 @@ def vista_gestionar_tareas(nombre_nora):
         .eq("activo", True)
         .execute()
     )
-
     todas = tareas_resp.data or []
 
     # -----------------------------------------------------------------
-    # Filtrado en Python según permisos
+    # Filtros recibidos por querystring
+    # -----------------------------------------------------------------
+    q_busqueda  = request.args.get("busqueda", "").strip().lower()
+    q_estatus   = request.args.get("estatus", "").strip()
+    q_prioridad = request.args.get("prioridad", "").strip()
+    q_empresa   = request.args.get("empresa_id", "").strip()
+    q_asignado  = request.args.get("usuario_empresa_id", "").strip()
+    q_ini       = request.args.get("fecha_ini", "").strip()
+    q_fin       = request.args.get("fecha_fin", "").strip()
+
+    # -----------------------------------------------------------------
+    # Filtrado base según permisos (propias / todas)
     # -----------------------------------------------------------------
     if permisos.get("ver_todas_tareas") or permisos.get("es_supervisor") or not usuario_id:
         tareas = todas
     else:
-        # ✅ El usuario ve tareas que creó o que le fueron asignadas
-        tareas = [
-            t for t in todas
-            if t.get("usuario_empresa_id") == usuario_id or t.get("asignado_a") == usuario_id
-        ]
+        tareas = [t for t in todas if t.get("usuario_empresa_id") == usuario_id]
+
+    # -----------------------------------------------------------------
+    # Filtros avanzados
+    # -----------------------------------------------------------------
+    def coincide(t):
+        if t.get("estatus", "").strip() == "completada":
+            return False  # siempre excluimos completadas en filtro principal
+        if q_busqueda and q_busqueda not in (t.get("titulo","").lower() + " " + t.get("descripcion","").lower()):
+            return False
+        if q_estatus and t.get("estatus") != q_estatus:
+            return False
+        if q_prioridad and t.get("prioridad") != q_prioridad:
+            return False
+        if q_empresa and (t.get("empresa_id") or "") != q_empresa:
+            return False
+        if q_asignado and (t.get("usuario_empresa_id") or "") != q_asignado:
+            return False
+        if q_ini and (t.get("fecha_limite") or "") < q_ini:
+            return False
+        if q_fin and (t.get("fecha_limite") or "") > q_fin:
+            return False
+        return True
+
+    tareas = [t for t in tareas if coincide(t)]
 
     # -------------------------------------------------------------
     # Cargar info de empresa y asignado para cada tarea
