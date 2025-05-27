@@ -89,18 +89,9 @@ def vista_gestionar_tareas(nombre_nora):
             if t.get("usuario_empresa_id") == usuario_id or t.get("asignado_a") == usuario_id
         ]
 
-# -----------------------------------------------------------------
-# LOG de depuración: cuántas tareas se obtuvieron y algunos campos
-# -----------------------------------------------------------------
-logger = logging.getLogger(__name__)
-logger.info(
-    f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} "
-    f"(Nora: {nombre_nora})"
-)
-# Si se necesita más detalle, descomentar la línea siguiente:
-# logger.debug("Detalles tareas: %s", tareas)
-
-    # Cargar info de empresa y asignado
+    # -------------------------------------------------------------
+    # Cargar info de empresa y asignado para cada tarea
+    # -------------------------------------------------------------
     for t in tareas:
         if t.get("empresa_id"):
             try:
@@ -115,6 +106,7 @@ logger.info(
                     t["empresa_nombre"] = emp.data[0]["nombre_empresa"]
             except Exception:
                 t["empresa_nombre"] = ""
+
         if t.get("asignado_a"):
             try:
                 usr = (
@@ -129,9 +121,9 @@ logger.info(
             except Exception:
                 t["asignado_nombre"] = ""
 
-    # -----------------------------------------------------------------
+    # -------------------------------------------------------------
     # Listas auxiliares para dropdowns
-    # -----------------------------------------------------------------
+    # -------------------------------------------------------------
     usuarios_resp = (
         supabase.table("usuarios_clientes")
         .select("id, nombre")
@@ -148,6 +140,17 @@ logger.info(
         .execute()
     )
     empresas = empresas_resp.data or []
+
+    # -------------------------------------------------------------
+    # LOG de depuración
+    # -------------------------------------------------------------
+    logger = logging.getLogger(__name__)
+    logger.info(
+        f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} "
+        f"(Nora: {nombre_nora})"
+    )
+    # Para un detalle completo descomenta:
+    # logger.debug("Detalles tareas: %s", tareas)
 
     return render_template(
         "panel_cliente_tareas/gestionar.html",
