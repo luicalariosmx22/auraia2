@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session  # se agrega session para manejo de autenticación
 import uuid  # ✅ Fix: se importa para generar IDs con uuid.uuid4()
 
 from utils.validar_modulo_activo import modulo_activo_para_nora
