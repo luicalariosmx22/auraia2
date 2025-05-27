@@ -229,8 +229,10 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         return jsonify({"error": "Campo no permitido"}), 400
 
     # Validaciones de valor
-    if campo == "prioridad" and valor not in ["alta", "media", "baja"]:
-        return jsonify({"error": "Prioridad inválida"}), 400
+    if campo == "prioridad":
+        valor = (valor or "").strip().lower()
+        if valor not in ("alta", "media", "baja"):
+            return jsonify({"error": "Prioridad inválida"}), 400
     if campo == "estatus" and valor not in [
         "pendiente",
         "en progreso",
@@ -263,7 +265,7 @@ def crear_tarea(nombre_nora):
 
     payload = request.get_json(silent=True) or {}
     titulo = payload.get("titulo")
-    prioridad = payload.get("prioridad", "media")
+    prioridad = (payload.get("prioridad", "media") or "").strip().lower()
     fecha_limite = payload.get("fecha_limite")
     estatus = payload.get("estatus", "pendiente")
     empresa_id = payload.get("empresa_id") or None  # "" → None
@@ -274,7 +276,7 @@ def crear_tarea(nombre_nora):
     # -----------------------------------------------------------------
     if not titulo:
         return jsonify({"error": "El título es obligatorio"}), 400
-    if prioridad not in ["alta", "media", "baja"]:
+    if prioridad not in ("alta", "media", "baja"):
         return jsonify({"error": "Prioridad inválida"}), 400
     if estatus not in ["pendiente", "en progreso", "retrasada", "completada"]:
         return jsonify({"error": "Estatus inválido"}), 400
