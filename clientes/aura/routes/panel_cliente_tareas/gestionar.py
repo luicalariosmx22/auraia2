@@ -290,26 +290,18 @@ def crear_tarea(nombre_nora):
         .split(" ")
     )[:2]  # Tomar hasta 2 palabras del nombre
 
-    creado_por = form.get("creado_por") or user.get("id") or ""
-
-    # normalizamos IDs vacíos => None para respetar tipo UUID
     tarea_data = {
         "id": str(uuid.uuid4()),
-        "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
-        "titulo": titulo,
-        "descripcion": form.get("descripcion", ""),
-        "fecha_limite": fecha_limite,
-        "prioridad": prioridad,
-        "estatus": "pendiente",
-        "usuario_empresa_id": usuario_empresa_id,  # se usa como “Asignado a”
-        "empresa_id": empresa_id or None,
         "nombre_nora": nombre_nora,
-        "creado_por": creado_por or usuario_empresa_id,
-        "origen": "manual",
-        "activo": True,
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat()
+        "titulo": titulo,
+        "prioridad": prioridad,
+        "fecha_limite": fecha_limite,
+        "estatus": estatus,
+        "empresa_id": empresa_id,
+        "usuario_empresa_id": usuario_empresa_id,
+        "asignado_a": usuario_empresa_id,  # ✅ rellenamos también asignado_a para compatibilidad futura
     }
+    tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
 
     try:
         supabase.table("tareas").insert(tarea_data).execute()

@@ -35,14 +35,12 @@
       </div>
     </div>
 
-    <!-- Asignado a (usa la columna usuario_empresa_id) -->
     <div>
-      <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado&nbsp;a</label>
-      <select name="usuario_empresa_id" id="usuario_empresa_id"
+      <label for="asignado_a" class="block text-sm font-medium text-gray-700">Asignado a</label>
+      <select name="asignado_a" id="asignado_a"
               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
         {% for u in usuarios %}
-          <option value="{{ u.id }}"
-            {% if u.id == user.id %}selected{% endif %}>{{ u.nombre }}</option>
+          <option value="{{ u.id }}">{{ u.nombre }}</option>
         {% endfor %}
       </select>
     </div>
@@ -57,6 +55,7 @@
     <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
     <input type="hidden" name="empresa_id" value="{{ empresa_id if empresa_id else user.get('empresa_id', '') }}">
     <input type="hidden" name="creado_por" value="{{ user.id }}">
+    <input type="hidden" name="usuario_empresa_id" value="{{ user.id }}">
     <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
     <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2]|upper if user.nombre is defined else 'NN' }}">
   </form>
