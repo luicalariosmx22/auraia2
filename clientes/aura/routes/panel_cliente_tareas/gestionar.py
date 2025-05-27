@@ -64,53 +64,30 @@ def vista_gestionar_tareas(nombre_nora):
             pass
 
     # -----------------------------------------------------------------
-    # Filtrado de tareas según permisos
+    # Traemos TODAS las tareas activas de la Nora
+    # -----------------------------------------------------------------
+    tareas_resp = (
+        supabase.table("tareas")
+        .select("*")
+        .eq("nombre_nora", nombre_nora)
+        .eq("activo", True)
+        .execute()
+    )
+
+    todas = tareas_resp.data or []
+
+    # -----------------------------------------------------------------
+    # Filtrado en Python según permisos
     # -----------------------------------------------------------------
     if permisos.get("ver_todas_tareas") or permisos.get("es_supervisor") or not usuario_id:
-        tareas_resp = (
-            supabase.table("tareas")
-            .select("*")
-            .eq("nombre_nora", nombre_nora)
-            .eq("activo", True)
-            .execute()
-        )
+        tareas = todas
     else:
-        # 👉 Mostrar tareas creadas POR el usuario *o* asignadas A él (sin usar .or_)
-        tareas_lista = []
-
-        # Tareas creadas por el usuario
-        try:
-            resp_creadas = (
-                supabase.table("tareas")
-                .select("*")
-                .eq("nombre_nora", nombre_nora)
-                .eq("activo", True)
-                .eq("usuario_empresa_id", usuario_id)
-                .execute()
-            )
-            if resp_creadas.data:
-                tareas_lista.extend(resp_creadas.data)
-        except Exception:
-            pass
-
-        # Tareas asignadas al usuario
-        try:
-            resp_asignadas = (
-                supabase.table("tareas")
-                .select("*")
-                .eq("nombre_nora", nombre_nora)
-                .eq("activo", True)
-                .eq("asignado_a", usuario_id)
-                .execute()
-            )
-            if resp_asignadas.data:
-                tareas_lista.extend(resp_asignadas.data)
-        except Exception:
-            pass
-
-        # Deduplicar por ID
-        tareas_resp = type("Obj", (object,), {"data": list({t["id"]: t for t in tareas_lista}.values())})()
-    tareas = tareas_resp.data or []
+        # ✅ El usuario ve tareas que creó o que le fueron asignadas
+        tareas = [
+            t for t in todas
+            if t.get("usuario_empresa_id") == usuario_id or t.get("asignado_a") == usuario_id
+        ]
+    # tareas = tareas_resp.data or []
 
     # Cargar info de empresa y asignado
     for t in tareas:
