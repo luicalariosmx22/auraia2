@@ -285,11 +285,9 @@ def crear_tarea(nombre_nora):
     # -----------------------------------------------------------------
     # Crear tarea
     # -----------------------------------------------------------------
-    iniciales_usuario = (
-        session.get("nombre")
-        .strip()
-        .split(" ")
-    )[:2]  # Tomar hasta 2 palabras del nombre
+    # el nombre de sesión puede ser None → convertimos a cadena segura
+    nombre_sesion = (session.get("nombre") or "").strip()
+    iniciales_usuario = nombre_sesion.split(" ")[:2] if nombre_sesion else ["NN"]
 
     tarea_data = {
         "id": str(uuid.uuid4()),
