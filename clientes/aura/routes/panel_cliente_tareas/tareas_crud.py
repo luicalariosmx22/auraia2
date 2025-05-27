@@ -94,31 +94,57 @@ def guardar_tarea_html():
     form = request.form
     print(f"🔵 Formulario recibido: {form}")
     user = session.get("user", {})
-    print(f"🔵 Usuario de sesión: {user}")
-    nombre_nora = user.get("nombre_nora", "aura")
-    cliente_id = user.get("cliente_id", "")
-    creado_por = user.get("nombre", "Desconocido")
-    iniciales_usuario = "".join([w[0] for w in user.get("nombre", "NN").split()]) if user.get("nombre") else "NN"
+
+    usuario_empresa_id = form.get("usuario_empresa_id")
+    empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
+    creado_por = user.get("id") or form.get("creado_por") or ""
+    titulo = form.get("titulo") or ""
+    prioridad = form.get("prioridad") or ""
+    fecha_limite = form.get("fecha_limite") or ""
+    iniciales_usuario = form.get("iniciales_usuario") or "NN"
+    nombre_nora = form.get("nombre_nora") or user.get("nombre_nora", "aura")
+
+    print(f"🧪 creado_por desde form={form.get('creado_por')} | desde session={user.get('id')}")
+    print(f"🧪 empresa_id={empresa_id}, creado_por={creado_por}, usuario_empresa_id={usuario_empresa_id}, titulo={titulo}")
+
+    if not usuario_empresa_id or usuario_empresa_id.strip() == "":
+        return "❌ Falta usuario_empresa_id", 400
+    if not empresa_id or empresa_id.strip() == "":
+        return "❌ Falta empresa_id", 400
+    if not creado_por or str(creado_por).strip() == "":
+        return "❌ Falta creado_por", 400
+    if not titulo.strip():
+        return "❌ Falta título", 400
+
+    def generar_codigo_tarea(iniciales_usuario):
+        fecha = datetime.now().strftime("%d%m%y")
+        base_codigo = f"{iniciales_usuario.upper()}-{fecha}"
+        existentes = supabase.table("tareas").select("id").ilike("codigo_tarea", f"{base_codigo}-%").execute()
+        correlativo = len(existentes.data) + 1
+        return f"{base_codigo}-{str(correlativo).zfill(3)}"
 
     tarea_data = {
-        "titulo": form.get("titulo"),
-        "descripcion": form.get("descripcion"),
-        "prioridad": form.get("prioridad"),
-        "fecha_limite": form.get("fecha_limite"),
-        "asignado_a": form.get("asignado_a"),
-        "empresa_id": form.get("empresa_id"),
-        "usuario_empresa_id": form.get("asignado_a"),
+        "id": str(uuid.uuid4()),
+        "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
+        "titulo": titulo,
+        "descripcion": form.get("descripcion", ""),
+        "fecha_limite": fecha_limite,
+        "prioridad": prioridad,
+        "estatus": "pendiente",
+        "usuario_empresa_id": usuario_empresa_id,
+        "empresa_id": empresa_id,
         "nombre_nora": nombre_nora,
         "creado_por": creado_por,
-        "iniciales_usuario": iniciales_usuario,
-        "origen": "manual"
+        "origen": "manual",
+        "activo": True,
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat()
     }
-    print(f"🔵 tarea_data a crear: {tarea_data}")
 
-    resultado, status = crear_tarea(tarea_data)
-    print(f"🔵 Resultado de creación: status={status}, resultado={resultado}")
-
-    if status != 200:
-        return f"❌ Error al crear tarea: {resultado}", 500
-
-    return redirect(request.referrer or f"/panel_cliente/{nombre_nora}/tareas")
+    try:
+        result = supabase.table("tareas").insert(tarea_data).execute()
+        print(f"✅ Tarea insertada desde vista principal: {result.data}")
+        return redirect(request.referrer or f"/panel_cliente/{nombre_nora}/tareas")
+    except Exception as e:
+        print(f"❌ Error al insertar tarea: {e}")
+        return f"❌ Error al crear tarea: {e}", 500
