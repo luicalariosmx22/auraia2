@@ -1,5 +1,6 @@
 from datetime import datetime
 import uuid
+import logging
 
 from flask import (
     Blueprint,
@@ -87,7 +88,17 @@ def vista_gestionar_tareas(nombre_nora):
             t for t in todas
             if t.get("usuario_empresa_id") == usuario_id or t.get("asignado_a") == usuario_id
         ]
-    # tareas = tareas_resp.data or []
+
+# -----------------------------------------------------------------
+# LOG de depuración: cuántas tareas se obtuvieron y algunos campos
+# -----------------------------------------------------------------
+logger = logging.getLogger(__name__)
+logger.info(
+    f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} "
+    f"(Nora: {nombre_nora})"
+)
+# Si se necesita más detalle, descomentar la línea siguiente:
+# logger.debug("Detalles tareas: %s", tareas)
 
     # Cargar info de empresa y asignado
     for t in tareas:
