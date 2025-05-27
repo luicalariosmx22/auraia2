@@ -266,7 +266,7 @@ def crear_tarea(nombre_nora):
     prioridad = payload.get("prioridad", "media")
     fecha_limite = payload.get("fecha_limite")
     estatus = payload.get("estatus", "pendiente")
-    empresa_id = payload.get("empresa_id")
+    empresa_id = payload.get("empresa_id") or None  # "" → None
     usuario_empresa_id = payload.get("usuario_empresa_id", usuario_id)
 
     # -----------------------------------------------------------------

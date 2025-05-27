@@ -45,6 +45,17 @@
       </select>
     </div>
 
+    <div>
+      <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa (opcional)</label>
+      <select id="empresa_id" name="empresa_id"
+              class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+        <option value="" selected>— Sin empresa —</option>
+        {% for e in empresas %}
+          <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
     <div class="text-right pt-4">
       <button type="submit"
               class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-sm transition-all"

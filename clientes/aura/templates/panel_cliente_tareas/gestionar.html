@@ -290,8 +290,8 @@
 
       <div class="mb-4">
         <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
-        <select id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" required>
-          <option value="" disabled selected>Selecciona una empresa</option>
+        <select id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+          <option value="" selected>— Sin empresa —</option>
           {% for e in empresas %}
             <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
           {% endfor %}
@@ -366,6 +366,9 @@
       }).then(() => location.reload());
     }
   }
-</script>
+  </script>
+
+{# --- scripts del módulo de tareas --- #}
+<script type="module" src="{{ url_for('static', filename='js/tareas_inline.js') }}"></script>
 
 {% endblock %}
