@@ -90,11 +90,27 @@
 
       <!-- asignado a -->
       <td class="px-4 py-2">
-        {{ usuarios | selectattr('id', 'equalto', tarea.usuario_empresa_id) | map(attribute='nombre') | first }}
+        {% if editable %}
+          <select onchange="updateCampo(this,'asignado_a')" class="bg-transparent">
+            {% for u in usuarios %}
+              <option value="{{ u.id }}" {% if u.id == tarea.asignado_a %}selected{% endif %}>{{ u.nombre }}</option>
+            {% endfor %}
+          </select>
+        {% else %}
+          {{ usuarios | selectattr('id', 'equalto', tarea.asignado_a) | map(attribute='nombre') | first }}
+        {% endif %}
       </td>
       <!-- empresa -->
       <td class="px-4 py-2">
-        {{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}
+        {% if editable %}
+          <select onchange="updateCampo(this,'empresa_id')" class="bg-transparent">
+            {% for e in empresas %}
+              <option value="{{ e.id }}" {% if e.id == tarea.empresa_id %}selected{% endif %}>{{ e.nombre_empresa }}</option>
+            {% endfor %}
+          </select>
+        {% else %}
+          {{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}
+        {% endif %}
       </td>
       <!-- acciones -->
       <td class="px-4 py-2">
