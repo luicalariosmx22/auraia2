@@ -38,8 +38,7 @@ def crear_tarea(data):
         "fecha_limite": data.get("fecha_limite"),
         "prioridad": data.get("prioridad", "media"),
         "estatus": data.get("estatus", "pendiente"),
-        "usuario_empresa_id": data["usuario_empresa_id"],
-        "asignado_a": data.get("asignado_a"),
+        "usuario_empresa_id": data["usuario_empresa_id"],  # responsable ⇢ usa la misma columna
         "empresa_id": data.get("empresa_id"),
         "origen": data.get("origen", "manual"),
         "creado_por": data.get("creado_por"),
@@ -68,6 +67,9 @@ def listar_tareas_por_usuario(usuario_empresa_id):
 # ✅ Actualizar una tarea
 def actualizar_tarea(tarea_id, data):
     data["updated_at"] = datetime.now().isoformat()
+    # evitamos clave vacía que rompe la FK
+    if data.get("empresa_id") == "":
+        data.pop("empresa_id")
     result = supabase.table("tareas").update(data).eq("id", tarea_id).execute()
     return result.data
 
@@ -131,7 +133,7 @@ def guardar_tarea_html():
         "fecha_limite": fecha_limite,
         "prioridad": prioridad,
         "estatus": "pendiente",
-        "usuario_empresa_id": usuario_empresa_id,
+        "usuario_empresa_id": usuario_empresa_id,  # se usa como “Asignado a”
         "empresa_id": empresa_id,
         "nombre_nora": nombre_nora,
         "creado_por": creado_por,
