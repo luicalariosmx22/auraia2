@@ -25,18 +25,38 @@ def vista_gestionar_tareas(nombre_nora):
     if not modulo_activo_para_nora(nombre_nora, "tareas"):
         return "Módulo no activo", 403
 
+    # -----------------------------------------------------------------
     # Permisos del usuario actual
+    # -----------------------------------------------------------------
     usuario_id = session.get("usuario_empresa_id")
-    permisos_resp = supabase.table("usuarios_clientes").select(
-        "ver_todas_tareas, es_supervisor"
-    ).eq("id", usuario_id).single().execute()
-    permisos = permisos_resp.data or {}
+    if usuario_id:
+        permisos_resp = (
+            supabase.table("usuarios_clientes")
+            .select("ver_todas_tareas, es_supervisor, reasignar_tareas")
+            .eq("id", usuario_id)
+            .single()
+            .execute()
+        )
+        permisos = permisos_resp.data or {}
+    else:
+        # Si no hay usuario_id en sesión, damos permisos mínimos
+        permisos = {
+            "ver_todas_tareas": False,
+            "es_supervisor": False,
+            "reasignar_tareas": False,
+        }
 
-    # Filtrado por permisos
-    if permisos.get("ver_todas_tareas") or permisos.get("es_supervisor"):
-        tareas_resp = supabase.table("tareas").select("*").eq(
-            "nombre_nora", nombre_nora
-        ).eq("activo", True).execute()
+    # -----------------------------------------------------------------
+    # Filtrado de tareas según permisos
+    # -----------------------------------------------------------------
+    if permisos.get("ver_todas_tareas") or permisos.get("es_supervisor") or not usuario_id:
+        tareas_resp = (
+            supabase.table("tareas")
+            .select("*")
+            .eq("nombre_nora", nombre_nora)
+            .eq("activo", True)
+            .execute()
+        )
     else:
         tareas_resp = (
             supabase.table("tareas")
@@ -70,12 +90,34 @@ def vista_gestionar_tareas(nombre_nora):
             )
             t["asignado_nombre"] = usr.data["nombre"] if usr.data else ""
 
+    # -----------------------------------------------------------------
+    # Listas auxiliares para dropdowns
+    # -----------------------------------------------------------------
+    usuarios_resp = (
+        supabase.table("usuarios_clientes")
+        .select("id, nombre")
+        .eq("nombre_nora", nombre_nora)
+        .eq("activo", True)
+        .execute()
+    )
+    usuarios = usuarios_resp.data or []
+
+    empresas_resp = (
+        supabase.table("cliente_empresas")
+        .select("id, nombre_empresa")
+        .eq("nombre_nora", nombre_nora)
+        .execute()
+    )
+    empresas = empresas_resp.data or []
+
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
         tareas=tareas,
         permisos=permisos,
-        user={"name": session.get("name", "Usuario")},
+        usuarios=usuarios,
+        empresas=empresas,
+        user={"name": session.get("name", "Usuario"), "id": usuario_id},
         modulo_activo="tareas",
     )
 
