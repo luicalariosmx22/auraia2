@@ -106,8 +106,7 @@ def vista_gestionar_tareas(nombre_nora):
     # Filtros avanzados
     # -----------------------------------------------------------------
     def coincide(t):
-        if t.get("estatus", "").strip() == "completada":
-            return False  # siempre excluimos completadas en filtro principal
+        # ya no excluimos aquí; las tareas completadas se mostrarán en su bloque aparte
         if q_busqueda and q_busqueda not in (t.get("titulo","").lower() + " " + t.get("descripcion","").lower()):
             return False
         if q_estatus and t.get("estatus") != q_estatus:

@@ -110,7 +110,7 @@
         {% if editable %}
           <select
             class="bg-transparent"
-            onchange="updateCampoSelect('{{ tarea.id }}','empresa_id', this.value)"
+            onchange="updateCampo(this,'empresa_id')"
           >
             {% for e in empresas %}
               <option value="{{ e.id }}" {% if e.id == tarea.empresa_id %}selected{% endif %}>{{ e.nombre_empresa }}</option>
@@ -223,7 +223,7 @@
           {% if editable %}
             <select
               class="bg-transparent"
-              onchange="updateCampoSelect('{{ tarea.id }}','empresa_id', this.value)"
+              onchange="updateCampo(this,'empresa_id')"
             >
               {% for e in empresas %}
                 <option value="{{ e.id }}" {% if e.id == tarea.empresa_id %}selected{% endif %}>{{ e.nombre_empresa }}</option>
@@ -357,8 +357,7 @@
     }).then(() => location.reload());   // mueve la fila al bloque correcto
   }
 
-  /* Eliminamos updateCampoSelect: ahora todos los <select> usan updateCampo
-     y sólo recargamos cuando cambia 'estatus'. */
+  /* Todos los <select> usan updateCampo; recargamos sólo si cambia 'estatus'. */
 
   function eliminarTarea(id) {
     if (confirm("¿Seguro que deseas eliminar esta tarea?")) {
