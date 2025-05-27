@@ -42,14 +42,20 @@ def crear_tarea(data):
         "usuario_empresa_id": data["usuario_empresa_id"],
         "empresa_id": data.get("empresa_id"),
         "origen": data.get("origen", "manual"),
-        "creado_por": data.get("creado_por"),
+        # Si viene vacío → usamos usuario_empresa_id (quien crea normalmente es el responsable)
+        "creado_por": data.get("creado_por") or data["usuario_empresa_id"],
         "activo": True,
         "nombre_nora": data.get("nombre_nora"),
         "created_at": datetime.now().isoformat(),
         "updated_at": datetime.now().isoformat()
     }
-    result = supabase.table("tareas").insert(nueva).execute()
-    return result.data, 200
+    # ─── Inserción ────────────────────────────────────────────────────────
+    try:
+        result = supabase.table("tareas").insert(nueva).execute()
+        return result.data, 200
+    except Exception as e:
+        print("❌ ERROR insert tarea:", e)
+        return {"error": str(e)}, 500
 
 # ✅ Obtener una tarea por ID
 def obtener_tarea_por_id(tarea_id):
@@ -68,8 +74,9 @@ def listar_tareas_por_usuario(usuario_empresa_id):
 def actualizar_tarea(tarea_id, data):
     data["updated_at"] = datetime.now().isoformat()
     # evitamos clave vacía que rompe la FK
-    if data.get("empresa_id") == "":
-        data.pop("empresa_id")
+    for k in ("empresa_id", "usuario_empresa_id", "creado_por"):
+        if k in data and data[k] == "":
+            data[k] = None
     result = supabase.table("tareas").update(data).eq("id", tarea_id).execute()
     return result.data
 
