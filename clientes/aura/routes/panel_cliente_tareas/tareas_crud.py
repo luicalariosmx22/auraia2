@@ -45,7 +45,9 @@ def crear_tarea(data):
         "titulo": titulo,
         "descripcion": data.get("descripcion") or "",
         "fecha_limite": data.get("fecha_limite") or None,
-        "prioridad": data.get("prioridad", "media"),
+        #  ➜ guardamos la prioridad ya normalizada
+        # ─────────────────────────── prioridad ────────────────────────────
+        "prioridad": (data.get("prioridad") or "media").strip().lower(),
         "estatus": data.get("estatus", "pendiente"),
         "usuario_empresa_id": usuario_empresa_id,
         "empresa_id": sanea_uuid(data.get("empresa_id", "")),
