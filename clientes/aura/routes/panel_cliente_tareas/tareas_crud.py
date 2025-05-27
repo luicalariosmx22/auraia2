@@ -38,7 +38,8 @@ def crear_tarea(data):
         "fecha_limite": data.get("fecha_limite"),
         "prioridad": data.get("prioridad", "media"),
         "estatus": data.get("estatus", "pendiente"),
-        "usuario_empresa_id": data["usuario_empresa_id"],  # responsable ⇢ usa la misma columna
+        # responsable ⇢ usa la misma columna; quitamos asignado_a porque ya no existe
+        "usuario_empresa_id": data["usuario_empresa_id"],
         "empresa_id": data.get("empresa_id"),
         "origen": data.get("origen", "manual"),
         "creado_por": data.get("creado_por"),
@@ -47,7 +48,6 @@ def crear_tarea(data):
         "created_at": datetime.now().isoformat(),
         "updated_at": datetime.now().isoformat()
     }
-
     result = supabase.table("tareas").insert(nueva).execute()
     return result.data, 200
 
