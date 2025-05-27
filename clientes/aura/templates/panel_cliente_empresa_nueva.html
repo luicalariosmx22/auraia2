@@ -1,79 +1,90 @@
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
-<div class="container mx-auto max-w-6xl px-4 py-6">
-  <!-- Encabezado y botón Nueva Empresa -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-    <h2 class="text-2xl font-bold text-gray-800">🏢 Empresas registradas</h2>
-    <!-- Botón para crear nueva empresa -->
-    <a href="{{ url_for('panel_cliente_clientes_bp.nueva_empresa', nombre_nora=nombre_nora) }}"
-       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-      ➕ Nueva empresa
-    </a>
-  </div>
+<div class="max-w-3xl mx-auto mt-6 bg-white p-6 rounded-xl shadow">
+  <h2 class="text-xl font-bold mb-4">Registrar nueva empresa</h2>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <ul class="mb-4 space-y-1">
-        {% for category, message in messages %}
-          <li class="text-sm px-4 py-2 rounded bg-green-100 text-green-800">{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-
-  <!-- Buscador -->
-  <div class="mb-6">
-    <input type="text" id="buscadorEmpresas" placeholder="🔍 Buscar empresa."
-           class="w-full sm:w-96 border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-  </div>
-
-  {% if empresas %}
-    <div id="listaEmpresas">
-      {% for empresa in empresas %}
-        <div class="empresa-card bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-4 grid sm:grid-cols-4 gap-4 items-start">
-          <!-- Info -->
-          <div class="col-span-2">
-            <h3 class="text-lg font-semibold text-gray-900 mb-1 nombre-empresa">{{ empresa.nombre_empresa }}</h3>
-            {% if empresa.giro %}<p class="text-sm text-gray-600 mb-1">🧭 Giro: {{ empresa.giro }}</p>{% endif %}
-            {% if empresa.email_empresa %}<p class="text-sm text-gray-600 mb-1">✉️ {{ empresa.email_empresa }}</p>{% endif %}
-            {% if empresa.telefono_empresa %}<p class="text-sm text-gray-600">📞 {{ empresa.telefono_empresa }}</p>{% endif %}
-          </div>
-
-          <!-- Cliente asociado -->
-          <div class="col-span-1">
-            {% if empresa.cliente %}
-              <p class="text-sm text-gray-700">👤 <span class="font-semibold">{{ empresa.cliente.nombre_cliente }}</span></p>
-            {% else %}
-              <p class="text-sm text-orange-600 flex items-center">
-                ⚠️ <span class="ml-1">Sin cliente vinculado</span>
-              </p>
-            {% endif %}
-          </div>
-
-          <!-- Acciones -->
-          <div class="col-span-1 flex flex-col gap-2 items-start">
-            <a href="{{ empresa.url_editar }}" class="text-sm text-blue-600 hover:underline">✏️ Editar</a>
-            <a href="{{ empresa.url_ligar }}" class="text-sm text-blue-600 hover:underline">➕ Ligar cliente</a>
-          </div>
-        </div>
-      {% endfor %}
+  <form method="post">
+    <!-- Nombre obligatorio -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Nombre de la empresa *</label>
+      <input type="text" name="nombre_empresa" required class="w-full border px-3 py-2 rounded mt-1">
     </div>
-  {% else %}
-    <p class="text-gray-600 text-sm">No hay empresas registradas aún.</p>
-  {% endif %}
+
+    <!-- Datos generales -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium">Giro</label>
+        <input type="text" name="giro" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Teléfono</label>
+        <input type="text" name="telefono_empresa" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Correo electrónico</label>
+        <input type="email" name="email_empresa" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Sitio web</label>
+        <input type="text" name="sitio_web" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Dirección</label>
+        <input type="text" name="direccion" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Ciudad</label>
+        <input type="text" name="ciudad" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Estado</label>
+        <input type="text" name="estado" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">País</label>
+        <input type="text" name="pais" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Código Postal</label>
+        <input type="text" name="cp" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+    </div>
+
+    <!-- Redes sociales -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+      <div>
+        <label class="block text-sm font-medium">Facebook</label>
+        <input type="text" name="facebook" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Instagram</label>
+        <input type="text" name="instagram" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">WhatsApp</label>
+        <input type="text" name="whatsapp" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+      <div>
+        <label class="block text-sm font-medium">Página Web</label>
+        <input type="text" name="pagina_web" class="w-full border px-3 py-2 rounded mt-1">
+      </div>
+    </div>
+
+    <!-- Notas -->
+    <div class="mt-4">
+      <label class="block text-sm font-medium">Notas</label>
+      <textarea name="notas" class="w-full border px-3 py-2 rounded mt-1" rows="4"></textarea>
+    </div>
+
+    <!-- Botones -->
+    <div class="mt-6 flex gap-4">
+      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+        Guardar empresa
+      </button>
+      <a href="{{ url_for('panel_cliente_clientes_bp.vista_clientes', nombre_nora=nombre_nora) }}"
+         class="text-sm text-gray-600 hover:underline">← Cancelar</a>
+    </div>
+  </form>
 </div>
-
-<script>
-  const buscador = document.getElementById("buscadorEmpresas");
-  const tarjetas = document.querySelectorAll(".empresa-card");
-
-  buscador.addEventListener("input", function () {
-    const filtro = this.value.toLowerCase();
-    tarjetas.forEach(card => {
-      const nombre = card.querySelector(".nombre-empresa").textContent.toLowerCase();
-      card.style.display = nombre.includes(filtro) ? "grid" : "none";
-    });
-  });
-</script>
 {% endblock %}
