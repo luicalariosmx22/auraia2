@@ -192,23 +192,13 @@
     document.getElementById("descripcion").value = ""; // No cargamos por seguridad
   }
 
-  function eliminarTarea(id) {
-    if (confirm("¿Seguro que deseas eliminar esta tarea?")) {
-      fetch(`/panel_cliente/{{ nombre_nora }}/tareas/eliminar/${id}`, { method: "POST" })
-        .then(() => location.reload());
-    }
-  }
-
   function updateCampo(element, campo) {
     const fila = element.closest("tr");
     const id = fila.getAttribute("data-id");
     const valor = element.value;
     fetch(`/panel_cliente/{{ nombre_nora }}/tareas/actualizar/${id}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": "{{ csrf_token() }}"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ campo, valor })
     });
   }
@@ -219,12 +209,17 @@
     const estatus = checkbox.checked ? "completada" : "pendiente";
     fetch(`/panel_cliente/{{ nombre_nora }}/tareas/actualizar/${id}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": "{{ csrf_token() }}"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ campo: "estatus", valor: estatus })
     });
+  }
+
+  function eliminarTarea(id) {
+    if (confirm("¿Seguro que deseas eliminar esta tarea?")) {
+      fetch(`/panel_cliente/{{ nombre_nora }}/tareas/eliminar/${id}`, {
+        method: "POST"
+      }).then(() => location.reload());
+    }
   }
 </script>
 
