@@ -29,50 +29,37 @@ def vista_gestionar_tareas(nombre_nora):
     # Permisos del usuario actual
     # -----------------------------------------------------------------
     usuario_id = session.get("usuario_empresa_id")
+    # Permisos por defecto
+    permisos = {
+        "ver_todas_tareas": False,
+        "reasignar_tareas": False,
+        "es_supervisor": False,
+    }
     if usuario_id:
-        permisos_resp = (
-            supabase.table("usuarios_clientes")
-            .select("ver_todas_tareas, es_supervisor, reasignar_tareas")
-            .eq("id", usuario_id)
-            .single()
-            .execute()
-        )
-        permisos = permisos_resp.data or {}
-    else:
-        # Si no hay usuario_id en sesión, damos permisos mínimos
-        # -- permisos por usuario; si no existe registro, permisos mínimos --
-        permisos = {
-            "ver_todas_tareas": False,
-            "es_supervisor": False,
-            "reasignar_tareas": False,
-        }
-        if usuario_id:
-            try:
-                resp = (
-                    supabase.table("usuarios_clientes")
-                    # Incluimos ambos flags porque la tabla tiene
-                    # es_supervisor_tareas **y** es_supervisor
-                    .select(
-                        "ver_todas_tareas, reasignar_tareas, "
-                        "es_supervisor, es_supervisor_tareas"
-                    )
-                    .eq("id", usuario_id)
-                    .limit(1)
-                    .execute()
+        try:
+            resp = (
+                supabase.table("usuarios_clientes")
+                .select(
+                    "ver_todas_tareas, reasignar_tareas, "
+                    "es_supervisor, es_supervisor_tareas"
                 )
-                if resp.data:
-                    fila = resp.data[0]
-                    # combinamos supervisor por si usan cualquiera de los dos campos
-                    permisos.update(
-                        {
-                            "ver_todas_tareas": fila.get("ver_todas_tareas", False),
-                            "reasignar_tareas": fila.get("reasignar_tareas", False),
-                            "es_supervisor": fila.get("es_supervisor", False)
-                            or fila.get("es_supervisor_tareas", False),
-                        }
-                    )
-            except Exception:
-                pass  # si falla, dejamos permisos por defecto
+                .eq("id", usuario_id)
+                .limit(1)  # evita PGRST116 cuando no hay filas
+                .execute()
+            )
+            if resp.data:
+                fila = resp.data[0]
+                permisos.update(
+                    {
+                        "ver_todas_tareas": fila.get("ver_todas_tareas", False),
+                        "reasignar_tareas": fila.get("reasignar_tareas", False),
+                        "es_supervisor": fila.get("es_supervisor", False)
+                        or fila.get("es_supervisor_tareas", False),
+                    }
+                )
+        except Exception:
+            # Si falla la consulta, conservamos los permisos mínimos
+            pass
 
     # -----------------------------------------------------------------
     # Filtrado de tareas según permisos
