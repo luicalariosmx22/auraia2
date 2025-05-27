@@ -1,10 +1,13 @@
-from flask import Blueprint, render_template, session, redirect, url_for, request, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+import uuid  # ✅ Fix: se importa para generar IDs con uuid.uuid4()
+
 from utils.validar_modulo_activo import modulo_activo_para_nora
 from clientes.aura.utils.supabase_client import supabase
 
 panel_cliente_clientes_bp = Blueprint('panel_cliente_clientes_bp', __name__)
 
 @panel_cliente_clientes_bp.route("/")
+
 def vista_clientes():
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
@@ -85,6 +88,7 @@ def nuevo_cliente():
     return render_template("panel_cliente_clientes_nuevo.html",
                           nombre_nora=nombre_nora,
                           user={"name": session.get("name", "Usuario")},
+
                           modulo_activo="clientes")
 
 # ----------- EMPRESAS: Formulario edit / share -----------------
@@ -138,11 +142,7 @@ def nueva_empresa():
         empresa_data = {
             "id": str(uuid.uuid4()),
             "nombre_nora": nombre_nora,
-            "nombre_empresa": nombre_empresa,
-            "giro": request.form.get("giro", "").strip() or None,
-            "telefono_empresa": request.form.get("telefono_empresa", "").strip() or None,
-            "email_empresa": request.form.get("email_empresa", "").strip() or None,
-            "sitio_web": request.form.get("sitio_web", "").strip() or None,
+           
             "direccion": request.form.get("direccion", "").strip() or None,
             "ciudad": request.form.get("ciudad", "").strip() or None,
             "estado": request.form.get("estado", "").strip() or None,
