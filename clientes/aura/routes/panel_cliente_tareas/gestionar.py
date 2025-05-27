@@ -75,13 +75,13 @@ def vista_gestionar_tareas(nombre_nora):
             .execute()
         )
     else:
-        # 👉 Filtramos por usuario_empresa_id porque así se guarda al crear la tarea
+        # 👉 Mostrar tareas creadas POR el usuario *o* asignadas A él
         tareas_resp = (
             supabase.table("tareas")
             .select("*")
             .eq("nombre_nora", nombre_nora)
-            .eq("usuario_empresa_id", usuario_id)  # ✅ ahora coincide con los datos reales
             .eq("activo", True)
+            .or_(f"usuario_empresa_id.eq.{usuario_id},asignado_a.eq.{usuario_id}")
             .execute()
         )
 
