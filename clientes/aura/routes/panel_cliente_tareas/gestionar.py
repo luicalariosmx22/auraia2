@@ -1,92 +1,121 @@
-from flask import Blueprint, render_template, request, redirect, session
 from datetime import datetime
+
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    session,
+    jsonify,
+)
+
+from utils.validar_modulo_activo import modulo_activo_para_nora
 from clientes.aura.utils.supabase_client import supabase
-import uuid
 
-panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar", __name__)
+panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 
-@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar", methods=["GET"])
-def gestionar_tareas(nombre_nora):
-    user = session.get("user", {})
-    empresa_id = user.get("empresa_id", "")
+# -------------------------------------------------------------------
+# VISTA PRINCIPAL: listado de tareas (gestión)
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar")
+def vista_gestionar_tareas(nombre_nora):
+    if not session.get("email"):
+        return redirect("/login")
 
-    tareas = supabase.table("tareas")\
-        .select("*")\
-        .eq("nombre_nora", nombre_nora)\
-        .eq("activo", True)\
-        .order("created_at", desc=True)\
-        .execute().data or []
+    if not modulo_activo_para_nora(nombre_nora, "tareas"):
+        return "Módulo no activo", 403
 
-    usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).execute().data or []
-    empresas = supabase.table("cliente_empresas").select("id, nombre_empresa").eq("nombre_nora", nombre_nora).execute().data or []
+    # Permisos del usuario actual
+    usuario_id = session.get("usuario_empresa_id")
+    permisos_resp = supabase.table("usuarios_clientes").select(
+        "ver_todas_tareas, es_supervisor"
+    ).eq("id", usuario_id).single().execute()
+    permisos = permisos_resp.data or {}
 
-    return render_template("panel_cliente_tareas/gestionar.html",
+    # Filtrado por permisos
+    if permisos.get("ver_todas_tareas") or permisos.get("es_supervisor"):
+        tareas_resp = supabase.table("tareas").select("*").eq(
+            "nombre_nora", nombre_nora
+        ).eq("activo", True).execute()
+    else:
+        tareas_resp = (
+            supabase.table("tareas")
+            .select("*")
+            .eq("nombre_nora", nombre_nora)
+            .eq("asignado_a", usuario_id)
+            .eq("activo", True)
+            .execute()
+        )
+
+    tareas = tareas_resp.data or []
+
+    # Cargar info de empresa y asignado
+    for t in tareas:
+        if t.get("empresa_id"):
+            emp = (
+                supabase.table("cliente_empresas")
+                .select("nombre_empresa")
+                .eq("id", t["empresa_id"])
+                .single()
+                .execute()
+            )
+            t["empresa_nombre"] = emp.data["nombre_empresa"] if emp.data else ""
+        if t.get("asignado_a"):
+            usr = (
+                supabase.table("usuarios_clientes")
+                .select("nombre")
+                .eq("id", t["asignado_a"])
+                .single()
+                .execute()
+            )
+            t["asignado_nombre"] = usr.data["nombre"] if usr.data else ""
+
+    return render_template(
+        "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
         tareas=tareas,
-        usuarios=usuarios,
-        empresas=empresas,
-        empresa_id=empresa_id,
-        user=user
+        permisos=permisos,
+        user={"name": session.get("name", "Usuario")},
+        modulo_activo="tareas",
     )
 
-@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar/guardar", methods=["POST"])
-def guardar_tarea_gestor(nombre_nora):
-    print("🔵 [gestionar.py] guardar_tarea_gestor llamado")
-    form = request.form
-    print(f"🔵 Formulario recibido: {form}")
-    user = session.get("user", {})
+# -------------------------------------------------------------------
+# API: actualizar campo (inline edit)
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route(
+    "/panel_cliente/<nombre_nora>/tareas/gestionar/actualizar/<tarea_id>",
+    methods=["POST"],
+)
+def actualizar_campo_tarea(nombre_nora, tarea_id):
+    payload = request.get_json(silent=True) or {}
+    campo = payload.get("campo")
+    valor = payload.get("valor")
 
-    usuario_empresa_id = form.get("usuario_empresa_id")
-    empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
-    creado_por = user.get("id") or form.get("creado_por") or ""
-    titulo = form.get("titulo") or ""
-    prioridad = form.get("prioridad") or ""
-    fecha_limite = form.get("fecha_limite") or ""
-    iniciales_usuario = form.get("iniciales_usuario") or "NN"
+    if campo not in [
+        "titulo",
+        "prioridad",
+        "fecha_limite",
+        "estatus",
+        "usuario_empresa_id",
+        "empresa_id",
+    ]:
+        return jsonify({"error": "Campo no permitido"}), 400
 
-    print(f"🧪 creado_por desde form={form.get('creado_por')} | desde session={user.get('id')}")
-    print(f"🧪 empresa_id={empresa_id}, creado_por={creado_por}, usuario_empresa_id={usuario_empresa_id}, titulo={titulo}")
-
-    if not usuario_empresa_id or usuario_empresa_id.strip() == "":
-        return "❌ Falta usuario_empresa_id", 400
-    if not empresa_id or empresa_id.strip() == "":
-        return "❌ Falta empresa_id", 400
-    if not creado_por or str(creado_por).strip() == "":
-        return "❌ Falta creado_por", 400
-    if not titulo.strip():
-        return "❌ Falta título", 400
-
-    tarea_data = {
-        "id": str(uuid.uuid4()),
-        "codigo_tarea": "",  # generado después
-        "titulo": titulo,
-        "descripcion": form.get("descripcion", ""),
-        "fecha_limite": fecha_limite,
-        "prioridad": prioridad,
-        "estatus": "pendiente",
-        "usuario_empresa_id": usuario_empresa_id,
-        "empresa_id": empresa_id,
-        "nombre_nora": nombre_nora,
-        "creado_por": creado_por,
-        "origen": "manual",
-        "activo": True,
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat()
-    }
-
-    def generar_codigo_tarea(iniciales_usuario):
-        fecha = datetime.now().strftime("%d%m%y")
-        base_codigo = f"{iniciales_usuario.upper()}-{fecha}"
-        existentes = supabase.table("tareas").select("id").ilike("codigo_tarea", f"{base_codigo}-%").execute()
-        correlativo = len(existentes.data) + 1
-        return f"{base_codigo}-{str(correlativo).zfill(3)}"
-
-    tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
+    # Validaciones de valor
+    if campo == "prioridad" and valor not in ["alta", "media", "baja"]:
+        return jsonify({"error": "Prioridad inválida"}), 400
+    if campo == "estatus" and valor not in [
+        "pendiente",
+        "en progreso",
+        "retrasada",
+        "completada",
+    ]:
+        return jsonify({"error": "Estatus inválido"}), 400
 
     try:
-        result = supabase.table("tareas").insert(tarea_data).execute()
-        print(f"✅ Tarea insertada: {result.data}")
-        return redirect(f"/panel_cliente/{nombre_nora}/tareas/gestionar")
+        supabase.table("tareas").update(
+            {campo: valor, "updated_at": datetime.utcnow().isoformat()}
+        ).eq("id", tarea_id).execute()
+        return jsonify({"ok": True})
     except Exception as e:
-        print(f"❌ Error al insertar tarea: {e}")
-        return f"❌ Error al crear tarea: {e}", 500
+        return jsonify({"error": str(e)}), 500
