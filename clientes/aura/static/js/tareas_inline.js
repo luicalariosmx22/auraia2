@@ -27,7 +27,8 @@ function initModalSubmit() {
       titulo: document.getElementById("titulo").value.trim(),
       descripcion: document.getElementById("descripcion").value.trim(),
       fecha_limite: document.getElementById("fecha_limite").value || null,
-      prioridad: document.getElementById("prioridad").value,
+      // enviamos en minúsculas
+      prioridad: document.getElementById("prioridad").value.toLowerCase(),
       empresa_id: document.getElementById("empresa_id").value || null,
       usuario_empresa_id: document.getElementById("usuario_empresa_id").value,
       nombre_nora: document.getElementById("nombre_nora").value,

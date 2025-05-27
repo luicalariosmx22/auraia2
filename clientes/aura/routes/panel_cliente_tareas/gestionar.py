@@ -265,7 +265,7 @@ def crear_tarea(nombre_nora):
 
     payload = request.get_json(silent=True) or {}
     titulo = payload.get("titulo")
-    prioridad = (payload.get("prioridad", "media") or "").strip().lower()
+    prioridad = (payload.get("prioridad") or "media").strip().lower()
     fecha_limite = payload.get("fecha_limite")
     estatus = payload.get("estatus", "pendiente")
     empresa_id = payload.get("empresa_id") or None  # "" → None
@@ -278,10 +278,9 @@ def crear_tarea(nombre_nora):
         return jsonify({"error": "El título es obligatorio"}), 400
     if prioridad not in ("alta", "media", "baja"):
         return jsonify({"error": "Prioridad inválida"}), 400
-    if estatus not in ["pendiente", "en progreso", "retrasada", "completada"]:
+    if estatus not in ("pendiente", "en progreso", "retrasada", "completada"):
         return jsonify({"error": "Estatus inválido"}), 400
-    if not empresa_id:
-        return jsonify({"error": "La empresa es obligatoria"}), 400
+    # empresa_id *puede* ser None → la FK admite NULL
 
     # -----------------------------------------------------------------
     # Crear tarea
