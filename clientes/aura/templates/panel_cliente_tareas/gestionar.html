@@ -186,9 +186,12 @@
     document.getElementById("modalTarea").classList.remove("hidden");
     document.getElementById("tarea_id").value = id;
     document.getElementById("modalTitulo").textContent = "Editar tarea";
-    document.getElementById("titulo").value = fila.children[0].innerText.trim();
-    document.getElementById("prioridad").value = fila.children[1].innerText.trim().toLowerCase();
-    document.getElementById("fecha_limite").value = fila.children[2].innerText.trim();
+    /* índices después del checkbox: 1-Título | 2-Prioridad | 3-Fecha */
+    document.getElementById("titulo").value = fila.children[1].innerText.trim();
+    /* prioridades pueden venir con emoji, quitamos el primer char si es emoji */
+    const prioridadTxt = fila.children[2].innerText.trim().replace(/^[^\w]+/, "");
+    document.getElementById("prioridad").value = prioridadTxt.toLowerCase();
+    document.getElementById("fecha_limite").value = fila.children[3].innerText.trim();
     document.getElementById("descripcion").value = ""; // No cargamos por seguridad
   }
 
@@ -196,7 +199,7 @@
     const fila = element.closest("tr");
     const id = fila.getAttribute("data-id");
     const valor = element.value;
-    fetch(`/panel_cliente/{{ nombre_nora }}/tareas/actualizar/${id}`, {
+    fetch(`/panel_cliente/{{ nombre_nora }}/tareas/gestionar/actualizar/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ campo, valor })
@@ -207,7 +210,7 @@
     const fila = checkbox.closest("tr");
     const id = fila.getAttribute("data-id");
     const estatus = checkbox.checked ? "completada" : "pendiente";
-    fetch(`/panel_cliente/{{ nombre_nora }}/tareas/actualizar/${id}`, {
+    fetch(`/panel_cliente/{{ nombre_nora }}/tareas/gestionar/actualizar/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ campo: "estatus", valor: estatus })
