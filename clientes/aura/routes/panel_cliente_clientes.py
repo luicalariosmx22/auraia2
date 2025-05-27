@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session  # se agrega session para manejo de autenticación
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session  # se importa session para controlar la autenticación
 import uuid  # ✅ Fix: se importa para generar IDs con uuid.uuid4()
 
 from utils.validar_modulo_activo import modulo_activo_para_nora
@@ -139,20 +139,27 @@ def nueva_empresa():
             flash("❌ El nombre de la empresa es obligatorio", "error")
             return redirect(request.url)
 
+        # Solo enviamos columnas que existen en public.cliente_empresas
         empresa_data = {
             "id": str(uuid.uuid4()),
             "nombre_nora": nombre_nora,
-           
-            "direccion": request.form.get("direccion", "").strip() or None,
+            "nombre_empresa": nombre_empresa,
+            "giro": request.form.get("giro", "").strip() or None,
+            "razon_social": request.form.get("razon_social", "").strip() or None,
+            "rfc": request.form.get("rfc", "").strip() or None,
+            "email_empresa": request.form.get("email_empresa", "").strip() or None,
+            "telefono_empresa": request.form.get("telefono_empresa", "").strip() or None,
+            "sitio_web": request.form.get("sitio_web", "").strip() or None,
+            "logo_url": request.form.get("logo_url", "").strip() or None,
+            "ubicacion": request.form.get("ubicacion", "").strip() or None,
             "ciudad": request.form.get("ciudad", "").strip() or None,
             "estado": request.form.get("estado", "").strip() or None,
             "pais": request.form.get("pais", "").strip() or None,
-            "cp": request.form.get("cp", "").strip() or None,
-            "facebook": request.form.get("facebook", "").strip() or None,
-            "instagram": request.form.get("instagram", "").strip() or None,
-            "whatsapp": request.form.get("whatsapp", "").strip() or None,
-            "pagina_web": request.form.get("pagina_web", "").strip() or None,
+            "representante_legal": request.form.get("representante_legal", "").strip() or None,
+            "email_representante": request.form.get("email_representante", "").strip() or None,
+            "telefono_representante": request.form.get("telefono_representante", "").strip() or None,
             "notas": request.form.get("notas", "").strip() or None,
+            "tipo": request.form.get("tipo", "").strip() or None,
             "activo": True
         }
 
