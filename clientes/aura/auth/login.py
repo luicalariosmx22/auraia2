@@ -111,13 +111,9 @@ def login_callback():
                 .eq("nombre_nora", session["nombre_nora"]).execute().data
 
             if config_nora:
-                raw_modulos = config_nora[0].get("modulos", "[]")
-
-                try:
-                    modulos_activos = json.loads(raw_modulos)
-                except Exception as e:
-                    print(f"❌ Error al leer modulos JSON: {e}")
-                    modulos_activos = []
+                # 🚀 Usar directamente la lista si ya es lista, o mostrarla
+                modulos_activos = config_nora[0].get("modulos", [])
+                print("✅ Módulos activos directamente:", modulos_activos)
 
                 if "tareas" in modulos_activos:
                     return redirect(url_for("panel_cliente_tareas.index", nombre_nora=session["nombre_nora"]))
