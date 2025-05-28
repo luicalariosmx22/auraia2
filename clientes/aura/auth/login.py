@@ -5,6 +5,7 @@ from flask import Blueprint, redirect, request, session, url_for, render_templat
 from supabase import create_client
 from requests_oauthlib import OAuth2Session
 import os
+import json  # asegúrate que está al inicio del archivo
 
 login_bp = Blueprint("login", __name__)
 
@@ -104,16 +105,23 @@ def login_callback():
             session["nombre_nora"] = datos_empleado["nombre_nora"]
             session["usuario_empresa_id"] = datos_empleado.get("id", "")
 
-            # 👉 Aquí defines claramente a qué módulo rediriges al empleado
-            modulos = supabase.table("modulos_disponibles").select("*")\
-                .eq("nombre_nora", session["nombre_nora"])\
-                .eq("modulo", "tareas")\
-                .eq("activo", True).execute().data
+            # ✅ Leer módulos desde configuracion_bot como lista real
+            config_nora = supabase.table("configuracion_bot").select("modulos")\
+                .eq("nombre_nora", session["nombre_nora"]).execute().data
 
-            if modulos:
-                return redirect(url_for("panel_cliente_tareas.index", nombre_nora=session["nombre_nora"]))
+            if config_nora:
+                raw_modulos = config_nora[0].get("modulos", "[]")
+                try:
+                    modulos_activos = json.loads(raw_modulos)
+                except Exception:
+                    modulos_activos = []
+
+                if "tareas" in modulos_activos:
+                    return redirect(url_for("panel_cliente_tareas.index", nombre_nora=session["nombre_nora"]))
+                else:
+                    return "❌ El módulo tareas no está activo para esta Nora.", 403
             else:
-                return "❌ Tu usuario no tiene módulos activos aún.", 403
+                return "❌ No se encontró configuración para esta Nora.", 403
 
         # 🔴 Si no está en ninguna tabla, mostrar error
         return "❌ Este correo no tiene acceso autorizado.", 403
