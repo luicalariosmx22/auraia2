@@ -107,7 +107,7 @@ def login_callback():
             session["usuario_empresa_id"] = datos_empleado.get("id", "")
 
             # 🔁 Siempre redirige al panel_team, sin importar módulos activos
-            return redirect(url_for("panel_team.index_team", nombre_nora=session["nombre_nora"]))
+            return redirect(f"/panel_team/{session['nombre_nora']}")
 
         # 🔴 Si no está en ninguna tabla, mostrar error
         return "❌ Este correo no tiene acceso autorizado.", 403
