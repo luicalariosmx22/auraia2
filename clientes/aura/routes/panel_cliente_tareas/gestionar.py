@@ -28,59 +28,7 @@ def vista_gestionar_tareas(nombre_nora):
     if not modulo_activo_para_nora(nombre_nora, "tareas"):
         return "Módulo no activo", 403
 
-    # --- Determinar tipo de usuario ---
-    tipo = "usuario_cliente"
-    if session.get("is_admin"):
-        if session.get("nombre_nora") == "admin":
-            tipo = "admin_global"
-        else:
-            tipo = "cliente_admin"
-    print("🟢 Tipo de usuario:", tipo)
-    print("🟢 Correo:", session.get("email"))
-    print("🟢 Nombre:", session.get("name"))
-
-    # -----------------------------------------------------------------
-    # Permisos del usuario actual
-    # -----------------------------------------------------------------
     usuario_id = session.get("usuario_empresa_id")
-    # Permisos por defecto
-    permisos = {
-        "ver_todas_tareas": False,
-        "reasignar_tareas": False,
-        "es_supervisor": False,
-    }
-    if usuario_id:
-        try:
-            resp = (
-                supabase.table("usuarios_clientes")
-                .select(
-                    "ver_todas_tareas, reasignar_tareas, "
-                    "es_supervisor, es_supervisor_tareas"
-                )
-                .eq("id", usuario_id)
-                .limit(1)  # evita PGRST116 cuando no hay filas
-                .execute()
-            )
-            if resp.data:
-                fila = resp.data[0]
-                permisos.update(
-                    {
-                        "ver_todas_tareas": fila.get("ver_todas_tareas", False),
-                        "reasignar_tareas": fila.get("reasignar_tareas", False),
-                        "es_supervisor": fila.get("es_supervisor", False)
-                        or fila.get("es_supervisor_tareas", False),
-                    }
-                )
-        except Exception:
-            # Si falla la consulta, conservamos los permisos mínimos
-            pass
-
-    # -----------------------------------------------------------------
-    # 🔓 Asegurar visibilidad total para administradores globales
-    # -----------------------------------------------------------------
-    if session.get("is_admin"):
-        permisos["ver_todas_tareas"] = True
-        permisos["es_supervisor"] = True
 
     # -----------------------------------------------------------------
     # Traemos todas las tareas activas de la Nora
@@ -106,12 +54,9 @@ def vista_gestionar_tareas(nombre_nora):
     q_fin       = request.args.get("fecha_fin", "").strip()
 
     # -----------------------------------------------------------------
-    # Filtrado base según permisos (propias / todas)
+    # Filtrado base: mostrar todas las tareas
     # -----------------------------------------------------------------
-    if permisos.get("ver_todas_tareas") or permisos.get("es_supervisor") or not usuario_id:
-        tareas = todas
-    else:
-        tareas = [t for t in todas if t.get("usuario_empresa_id") == usuario_id]
+    tareas = todas
 
     # -----------------------------------------------------------------
     # Filtros avanzados
@@ -206,24 +151,17 @@ def vista_gestionar_tareas(nombre_nora):
     tareas_activas     = [t for t in tareas if t.get("estatus", "").strip() != "completada"]
     tareas_completadas = [t for t in tareas if t.get("estatus", "").strip() == "completada"]
 
-    is_admin = session.get("is_admin", False)
-    if is_admin:
-        usuarios_disponibles = supabase.table("usuarios_clientes").select("id,nombre")\
-            .eq("nombre_nora", nombre_nora).execute().data or []
-    else:
-        usuarios_disponibles = []
-
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
-        tareas_activas=tareas_activas,
-        tareas_completadas=tareas_completadas,
-        permisos=permisos,
+        tareas_activas=[t for t in tareas if t.get("estatus", "").strip() != "completada"],
+        tareas_completadas=[t for t in tareas if t.get("estatus", "").strip() == "completada"],
+        # permisos=permisos,  # eliminado
         usuarios=usuarios,
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
         modulo_activo="tareas",
-        is_admin=is_admin,
+        # is_admin=is_admin,  # eliminado
         usuarios_disponibles=usuarios_disponibles
     )
 
@@ -292,6 +230,10 @@ def crear_tarea(nombre_nora):
         return jsonify({"error": "Prioridad inválida"}), 400
     if estatus not in ("pendiente", "en progreso", "retrasada", "completada"):
         return jsonify({"error": "Estatus inválido"}), 400
+    if not usuario_empresa_id or usuario_empresa_id.lower() == "none":
+        usuario_empresa_id = session.get("usuario_empresa_id") or None
+    if not usuario_empresa_id:
+        return jsonify({"error": "No se puede determinar el usuario asignado"}), 400
 
     # Normalizar campos UUID vacíos a None
     if empresa_id == "":

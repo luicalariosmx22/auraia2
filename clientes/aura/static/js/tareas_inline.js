@@ -42,10 +42,6 @@ function initModalSubmit() {
     const emp = get("empresa_id").value;
     if (emp) payload.empresa_id = emp;
 
-    // 🛠️ Agregar campo creado_por solo si existe el input con ese ID
-    const creadoPor = document.querySelector("#creado_por")?.value || null;
-    if (creadoPor) payload.creado_por = creadoPor;
-
     const nombre_nora = get("nombre_nora").value;
     const url = `/panel_cliente/${nombre_nora}/tareas/gestionar/crear`;
 

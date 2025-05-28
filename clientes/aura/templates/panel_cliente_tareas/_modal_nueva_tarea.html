@@ -56,23 +56,7 @@
       </select>
     </div>
 
-    <!-- Campo visible solo si es admin -->
-    {% if is_admin %}
-      <div class="mb-4">
-        <label for="creado_por" class="block text-sm font-medium text-gray-700">Creado por:</label>
-        <select id="creado_por" name="creado_por" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-          <option value="">Selecciona quién crea esta tarea</option>
-          {% for u in usuarios_disponibles %}
-            <option value="{{ u.id }}">{{ u.nombre }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    {% endif %}
-
-    <!-- 🛠️ Campo hidden con fallback por si no es admin -->
-    {% if not is_admin %}
-      <input type="hidden" name="creado_por" value="{{ user.id }}">
-    {% endif %}
+    <!-- 🛠️ Eliminado campo "Creado por" del modal -->
 
     <div class="text-right pt-4">
       <button type="submit"
