@@ -1,7 +1,12 @@
 from flask import Blueprint, render_template, session, redirect
-from supabase import create_client, Client
+from supabase import create_client
+import os
 
-# ...existing code...
+panel_team_bp = Blueprint("panel_team", __name__)  # ✅ Esto debe estar ANTES del @route
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @panel_team_bp.route("/panel_team/<nombre_nora>")
 def index_team(nombre_nora):
