@@ -297,9 +297,13 @@ def crear_tarea(nombre_nora):
         "prioridad": prioridad,
         "fecha_limite": fecha_limite,
         "estatus": estatus,
-        "empresa_id": empresa_id,
         "usuario_empresa_id": usuario_empresa_id,  # ↩️ única columna vigente para responsable
     }
+
+    # Sólo incluimos empresa_id si realmente hay UUID (evita 22P02 con "")
+    if empresa_id:
+        tarea_data["empresa_id"] = empresa_id
+
     tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
 
     try:

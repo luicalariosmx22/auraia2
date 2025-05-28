@@ -24,19 +24,21 @@ function initModalSubmit() {
     e.preventDefault();
 
     const payload = {
-      titulo: document.getElementById("titulo").value.trim(),
-      descripcion: document.getElementById("descripcion").value.trim(),
-      fecha_limite: document.getElementById("fecha_limite").value || null,
-      // enviamos en minúsculas
-      prioridad: document.getElementById("prioridad").value.toLowerCase(),
-      empresa_id: document.getElementById("empresa_id").value || null,
-      usuario_empresa_id: document.getElementById("usuario_empresa_id").value,
-      nombre_nora: document.getElementById("nombre_nora").value,
-      creado_por: document.getElementById("usuario_sesion").value
+      titulo:        $("titulo").value.trim(),
+      descripcion:   $("descripcion").value.trim(),
+      fecha_limite:  $("fecha_limite").value || null,
+      prioridad: $("prioridad").value.toLowerCase(),   // ← minúsculas
+      usuario_empresa_id: $("usuario_empresa_id").value  // siempre UUID
     };
 
-    const nora = payload.nombre_nora;
-    const url = `/panel_cliente/${nora}/tareas/gestionar/crear`;
+    /* id de empresa:
+       – UUID válido  → se envía
+       – Cadena vacía → ni siquiera se incluye en el JSON            */
+    const emp = $("empresa_id").value;
+    if (emp) payload.empresa_id = emp;
+
+    const nombre_nora = $("nombre_nora").value;
+    const url = `/panel_cliente/${nombre_nora}/tareas/gestionar/crear`;
 
     try {
       await postJSON(url, payload);
