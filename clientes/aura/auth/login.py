@@ -106,21 +106,8 @@ def login_callback():
             session["nombre_nora"] = datos_empleado["nombre_nora"]
             session["usuario_empresa_id"] = datos_empleado.get("id", "")
 
-            # ✅ Obtener módulos de configuracion_bot y convertir JSON
-            config_nora = supabase.table("configuracion_bot").select("modulos")\
-                .eq("nombre_nora", session["nombre_nora"]).execute().data
-
-            if config_nora:
-                # 🚀 Usar directamente la lista si ya es lista, o mostrarla
-                modulos_activos = config_nora[0].get("modulos", [])
-                print("✅ Módulos activos directamente:", modulos_activos)
-
-                if "tareas" in modulos_activos:
-                    return redirect(url_for("panel_cliente_tareas.index", nombre_nora=session["nombre_nora"]))
-                else:
-                    return "❌ El módulo tareas no está activo para esta Nora.", 403
-
-            return "❌ No se encontró configuracion_bot para esta Nora.", 403
+            # 🔁 Siempre redirige al panel_team, sin importar módulos activos
+            return redirect(url_for("panel_team.index_team", nombre_nora=session["nombre_nora"]))
 
         # 🔴 Si no está en ninguna tabla, mostrar error
         return "❌ Este correo no tiene acceso autorizado.", 403

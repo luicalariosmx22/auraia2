@@ -16,6 +16,7 @@ from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
 from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from clientes.aura.routes.panel_cliente_etiquetas_conocimiento import panel_cliente_etiquetas_conocimiento_bp
 from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
+from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp
 
 
 # Configurar Supabase
