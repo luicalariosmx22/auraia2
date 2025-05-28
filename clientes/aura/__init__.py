@@ -39,7 +39,7 @@ from .routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
 from .routes.panel_cliente_ads import panel_cliente_ads_bp
 from .routes.cobranza import cobranza_bp
 from .routes.panel_cliente_etiquetas_conocimiento import panel_cliente_etiquetas_conocimiento_bp # Nueva importación
-# from .modules.ads import ads_bp # ¿Aún necesitas este o fue reemplazado por panel_cliente_ads_bp?
+from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp # Nueva importación
 
 # Para la lógica de blueprints dinámicos
 from .utils.supabase_client import supabase
@@ -193,6 +193,9 @@ def create_app(config_class=Config):
     except Exception as e:
         print(f"Error al registrar Noras dinámicas: {e}")
     print("Registro de Blueprints completado.")
+
+    # Nueva línea para registrar el blueprint del panel de team
+    safe_register_blueprint(app, panel_team_bp, url_prefix="/panel_team")
 
     # --- Rutas de Nivel de Aplicación ---
     print("Definiendo rutas de nivel de aplicación...")
