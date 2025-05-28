@@ -8,7 +8,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@panel_team_bp.route("/panel_team/<nombre_nora>")
+@panel_team_bp.route("/panel_team/<nombre_nora>", endpoint="index_team")  # ✅ Nombre de endpoint explícito
 def index_team(nombre_nora):
     if not session.get("email") or not session.get("usuario_empresa_id"):
         return redirect("/login")
