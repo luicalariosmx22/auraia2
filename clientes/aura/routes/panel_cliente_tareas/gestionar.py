@@ -284,7 +284,8 @@ def crear_tarea(nombre_nora):
     if not usuario_id:
         return jsonify({"error": "Usuario no identificado"}), 403
 
-    payload = request.get_json(silent=True) or {}
+    # Cambia request.get_json(silent=True) or {} por request.form.to_dict()
+    payload = request.form.to_dict()
     titulo = payload.get("titulo")
     prioridad = (payload.get("prioridad") or "media").strip().lower()
     fecha_limite = payload.get("fecha_limite")
