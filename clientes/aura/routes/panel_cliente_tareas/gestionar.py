@@ -292,8 +292,7 @@ def crear_tarea(nombre_nora):
         return jsonify({"error": "Prioridad inválida"}), 400
     if estatus not in ("pendiente", "en progreso", "retrasada", "completada"):
         return jsonify({"error": "Estatus inválido"}), 400
-    if not usuario_empresa_id:
-        return jsonify({"error": "Debe seleccionar un usuario asignado"}), 400
+
 
     # Validar existencia del usuario asignado
     usr_check = supabase.table("usuarios_clientes") \
