@@ -282,9 +282,12 @@ def crear_tarea(nombre_nora):
 
     usuario_id = session.get("usuario_empresa_id")
 
-    # ✅ Si es admin, permitir que actúe sin tener usuario_empresa_id propio
-    if not usuario_id and not session.get("is_admin"):
-        return jsonify({"error": "Usuario no identificado"}), 403
+    # ✅ Si no tiene usuario_empresa_id pero es admin global, lo marcamos como creado por Nora
+    if not usuario_id:
+        if session.get("is_admin"):
+            usuario_id = "Nora"
+        else:
+            return jsonify({"error": "Usuario no identificado"}), 403
 
     # Cambia request.get_json(silent=True) or {} por request.form.to_dict()
     payload = request.form.to_dict()
