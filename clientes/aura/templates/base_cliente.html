@@ -19,7 +19,11 @@
       <img src="/static/images/logo.png" alt="Nora Logo" class="h-8">
     </div>
     <div class="flex items-center gap-4 text-sm">
-      <a href="/panel_cliente/{{ nombre_nora }}" class="text-gray-600 hover:text-blue-600">← Regresar al panel</a>
+      {% if user and user.tipo == "usuario_cliente" %}
+        <a href="/panel_team" class="text-gray-600 hover:text-blue-600">← Regresar al panel</a>
+      {% else %}
+        <a href="/panel_cliente/{{ nombre_nora }}" class="text-gray-600 hover:text-blue-600">← Regresar al panel</a>
+      {% endif %}
       <a href="/logout" class="text-red-500 hover:underline">Cerrar sesión</a>
     </div>
   </header>

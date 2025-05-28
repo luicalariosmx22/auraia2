@@ -4,10 +4,16 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 async function postJSON(url, payload = {}) {
+  // Enviar como FormData para que el backend lo reciba como request.form
+  const formData = new FormData();
+  for (const key in payload) {
+    if (payload[key] !== undefined && payload[key] !== null) {
+      formData.append(key, payload[key]);
+    }
+  }
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: formData
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data.error) {
