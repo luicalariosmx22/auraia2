@@ -207,6 +207,12 @@ def vista_gestionar_tareas(nombre_nora):
     tareas_completadas = [t for t in tareas if t.get("estatus", "").strip() == "completada"]
 
     is_admin = session.get("is_admin", False)
+    if is_admin:
+        usuarios_disponibles = supabase.table("usuarios_clientes").select("id,nombre")\
+            .eq("nombre_nora", nombre_nora).execute().data or []
+    else:
+        usuarios_disponibles = []
+
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
@@ -217,7 +223,8 @@ def vista_gestionar_tareas(nombre_nora):
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
         modulo_activo="tareas",
-        is_admin=is_admin
+        is_admin=is_admin,
+        usuarios_disponibles=usuarios_disponibles
     )
 
 # -------------------------------------------------------------------
