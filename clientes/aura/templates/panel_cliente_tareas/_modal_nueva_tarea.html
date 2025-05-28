@@ -56,7 +56,7 @@
       </select>
     </div>
 
-    <!-- Campo para seleccionar 'Creado por' (solo si es admin) -->
+    <!-- Campo visible solo si es admin -->
     {% if is_admin %}
       <div class="mb-4">
         <label for="creado_por" class="block text-sm font-medium text-gray-700">Creado por:</label>
@@ -67,6 +67,11 @@
           {% endfor %}
         </select>
       </div>
+    {% endif %}
+
+    <!-- 🛠️ Campo hidden con fallback por si no es admin -->
+    {% if not is_admin %}
+      <input type="hidden" name="creado_por" value="{{ user.id }}">
     {% endif %}
 
     <div class="text-right pt-4">
