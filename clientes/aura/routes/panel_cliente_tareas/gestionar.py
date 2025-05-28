@@ -281,7 +281,9 @@ def crear_tarea(nombre_nora):
         return redirect("/login")
 
     usuario_id = session.get("usuario_empresa_id")
-    if not usuario_id:
+
+    # ✅ Si es admin, permitir que actúe sin tener usuario_empresa_id propio
+    if not usuario_id and not session.get("is_admin"):
         return jsonify({"error": "Usuario no identificado"}), 403
 
     # Cambia request.get_json(silent=True) or {} por request.form.to_dict()
