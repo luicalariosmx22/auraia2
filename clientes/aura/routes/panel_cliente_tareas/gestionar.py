@@ -277,47 +277,25 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
     "/panel_cliente/<nombre_nora>/tareas/gestionar/crear", methods=["POST"]
 )
 def crear_tarea(nombre_nora):
-    if not session.get("email"):
-        return redirect("/login")
+    form = request.form.to_dict()
+    titulo = (form.get("titulo") or "").strip()
+    prioridad = (form.get("prioridad") or "media").strip().lower()
+    fecha_limite = form.get("fecha_limite")
+    estatus = (form.get("estatus") or "pendiente").strip().lower()
+    usuario_empresa_id = (form.get("usuario_empresa_id") or "").strip()
+    empresa_id = (form.get("empresa_id") or "").strip() or None
 
-    usuario_id = session.get("usuario_empresa_id")
+    # Validaciones mínimas
+    if not titulo:
+        return jsonify({"error": "El título es obligatorio"}), 400
+    if prioridad not in ("baja", "media", "alta"):
+        return jsonify({"error": "Prioridad inválida"}), 400
+    if estatus not in ("pendiente", "en progreso", "retrasada", "completada"):
+        return jsonify({"error": "Estatus inválido"}), 400
+    if not usuario_empresa_id:
+        return jsonify({"error": "Debe seleccionar un usuario asignado"}), 400
 
-    # ✅ Si no tiene usuario_empresa_id pero es admin global, lo marcamos como creado por Nora
-    if not usuario_id:
-        if session.get("is_admin"):
-            usuario_id = "Nora"
-        else:
-            return jsonify({"error": "Usuario no identificado"}), 403
-
-    # Cambia request.get_json(silent=True) or {} por request.form.to_dict()
-    payload = request.form.to_dict()
-    titulo = payload.get("titulo")
-    prioridad = (payload.get("prioridad") or "media").strip().lower()
-    fecha_limite = payload.get("fecha_limite")
-    estatus = payload.get("estatus", "pendiente")
-    # ─── Saneamos cadenas vacías para uuid de empresa ─────────────────
-    raw_empresa = (payload.get("empresa_id") or "").strip()
-    empresa_id = raw_empresa or None   # "" → None para permitir NULL
-    # ─── Determinar si el usuario puede asignar a otros (admin o supervisor) ─
-    resp_priv = supabase.table("usuarios_clientes") \
-        .select("es_supervisor, es_supervisor_tareas") \
-        .eq("id", usuario_id) \
-        .limit(1) \
-        .execute()
-    fila_priv = resp_priv.data[0] if resp_priv.data else {}
-    is_supervisor = session.get("is_admin") \
-        or fila_priv.get("es_supervisor", False) \
-        or fila_priv.get("es_supervisor_tareas", False)
-    raw_usuario = (payload.get("usuario_empresa_id") or "").strip()
-    if is_supervisor:
-        # Admin/supervisor debe elegir un usuario asignado
-        if not raw_usuario:
-            return jsonify({"error": "Debe seleccionar un usuario asignado"}), 400
-        usuario_empresa_id = raw_usuario
-    else:
-        # Usuario normal solo puede auto-asignarse
-        usuario_empresa_id = usuario_id
-    # ─── Validar que el usuario_empresa_id exista en usuarios_clientes ────
+    # Validar existencia del usuario asignado
     usr_check = supabase.table("usuarios_clientes") \
         .select("id") \
         .eq("id", usuario_empresa_id) \
@@ -326,42 +304,9 @@ def crear_tarea(nombre_nora):
     if not usr_check.data:
         return jsonify({"error": "Usuario asignado inválido"}), 400
 
-    # -----------------------------------------------------------------
-    # Prints de depuración de variables recibidas y calculadas
-    # -----------------------------------------------------------------
-    print("=== crear_tarea ===")
-    print(f"payload: {payload}")
-    print(f"titulo: {titulo}")
-    print(f"prioridad: {prioridad}")
-    print(f"fecha_limite: {fecha_limite}")
-    print(f"estatus: {estatus}")
-    print(f"raw_empresa: {raw_empresa}")
-    print(f"empresa_id: {empresa_id}")
-    print(f"raw_usuario: {raw_usuario}")
-    print(f"usuario_empresa_id: {usuario_empresa_id}")
-    print(f"usuario_id (sesión): {usuario_id}")
-    print(f"is_admin: {session.get('is_admin')}")
-    print(f"nombre_nora: {nombre_nora}")
-
-    # -----------------------------------------------------------------
-    # Validaciones
-    # -----------------------------------------------------------------
-    if not titulo:
-        return jsonify({"error": "El título es obligatorio"}), 400
-    if prioridad not in ("alta", "media", "baja"):
-        return jsonify({"error": "Prioridad inválida"}), 400
-    if estatus not in ("pendiente", "en progreso", "retrasada", "completada"):
-        return jsonify({"error": "Estatus inválido"}), 400
-    # empresa_id *puede* ser None → la FK admite NULL
-
-    # -----------------------------------------------------------------
-    # Crear tarea
-    # -----------------------------------------------------------------
-    # el nombre de sesión puede ser None → convertimos a cadena segura
-    creado_por = payload.get("creado_por") if session.get("is_admin") else session.get("usuario_empresa_id")
-
-    nombre_sesion = (session.get("nombre") or "").strip()
-    iniciales_usuario = nombre_sesion.split(" ")[:2] if nombre_sesion else ["NN"]
+    creado_por = session.get("usuario_empresa_id") or "Nora"
+    nombre_usuario = session.get("name", "NN")
+    iniciales_usuario = nombre_usuario.split(" ")[:2]
 
     tarea_data = {
         "id": str(uuid.uuid4()),
@@ -379,6 +324,6 @@ def crear_tarea(nombre_nora):
 
     try:
         supabase.table("tareas").insert(tarea_data).execute()
-        return jsonify({"ok": True, "tarea": tarea_data})
+        return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

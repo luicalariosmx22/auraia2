@@ -288,6 +288,10 @@
         </select>
       </div>
 
+      {% if is_admin %}
+        <input type="hidden" name="creado_por" value="Nora">
+      {% endif %}
+
       <div class="mb-4">
         <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
         <select id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
