@@ -273,7 +273,13 @@ def crear_tarea(nombre_nora):
     raw_empresa = (payload.get("empresa_id") or "").strip()
     empresa_id = raw_empresa or None   # "" → None para permitir NULL
     raw_usuario = (payload.get("usuario_empresa_id") or "").strip()
-    usuario_empresa_id = raw_usuario or usuario_id  # fallback al id de sesión
+    # ─── Admins deben elegir a quién asignar; usuarios normales pueden usar su propio id ─────────
+    if session.get("is_admin"):
+        if not raw_usuario:
+            return jsonify({"error": "Debe seleccionar un usuario asignado"}), 400
+        usuario_empresa_id = raw_usuario
+    else:
+        usuario_empresa_id = raw_usuario or usuario_id  # fallback al id de sesión
 
     # -----------------------------------------------------------------
     # Validaciones
@@ -300,9 +306,7 @@ def crear_tarea(nombre_nora):
         "prioridad": prioridad,
         "fecha_limite": fecha_limite,
         "estatus": estatus,
-        # incluimos empresa_id (null si no seleccionada)
-        "empresa_id": empresa_id,
-        "usuario_empresa_id": usuario_empresa_id,
+        "usuario_empresa_id": usuario_empresa_id,  # ↩️ única columna vigente para responsable
     }
 
     tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
