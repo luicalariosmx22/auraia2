@@ -293,6 +293,23 @@ def crear_tarea(nombre_nora):
             return jsonify({"error": "Usuario asignado inválido"}), 400
 
     # -----------------------------------------------------------------
+    # Prints de depuración de variables recibidas y calculadas
+    # -----------------------------------------------------------------
+    print("=== crear_tarea ===")
+    print(f"payload: {payload}")
+    print(f"titulo: {titulo}")
+    print(f"prioridad: {prioridad}")
+    print(f"fecha_limite: {fecha_limite}")
+    print(f"estatus: {estatus}")
+    print(f"raw_empresa: {raw_empresa}")
+    print(f"empresa_id: {empresa_id}")
+    print(f"raw_usuario: {raw_usuario}")
+    print(f"usuario_empresa_id: {usuario_empresa_id}")
+    print(f"usuario_id (sesión): {usuario_id}")
+    print(f"is_admin: {session.get('is_admin')}")
+    print(f"nombre_nora: {nombre_nora}")
+
+    # -----------------------------------------------------------------
     # Validaciones
     # -----------------------------------------------------------------
     if not titulo:
