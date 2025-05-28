@@ -269,8 +269,11 @@ def crear_tarea(nombre_nora):
     prioridad = (payload.get("prioridad") or "media").strip().lower()
     fecha_limite = payload.get("fecha_limite")
     estatus = payload.get("estatus", "pendiente")
-    empresa_id = payload.get("empresa_id") or None  # "" → None
-    usuario_empresa_id = payload.get("usuario_empresa_id", usuario_id)
+    # ─── Saneamos cadenas vacías para uuid ────────────────────────────
+    raw_empresa = (payload.get("empresa_id") or "").strip()
+    empresa_id = raw_empresa or None   # "" → None para permitir NULL
+    raw_usuario = (payload.get("usuario_empresa_id") or "").strip()
+    usuario_empresa_id = raw_usuario or usuario_id  # fallback al id de sesión
 
     # -----------------------------------------------------------------
     # Validaciones
@@ -297,12 +300,10 @@ def crear_tarea(nombre_nora):
         "prioridad": prioridad,
         "fecha_limite": fecha_limite,
         "estatus": estatus,
-        "usuario_empresa_id": usuario_empresa_id,  # ↩️ única columna vigente para responsable
+        # incluimos empresa_id (null si no seleccionada)
+        "empresa_id": empresa_id,
+        "usuario_empresa_id": usuario_empresa_id,
     }
-
-    # Sólo incluimos empresa_id si realmente hay UUID (evita 22P02 con "")
-    if empresa_id:
-        tarea_data["empresa_id"] = empresa_id
 
     tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
 
