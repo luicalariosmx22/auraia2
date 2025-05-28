@@ -156,13 +156,10 @@ def vista_gestionar_tareas(nombre_nora):
         nombre_nora=nombre_nora,
         tareas_activas=[t for t in tareas if t.get("estatus", "").strip() != "completada"],
         tareas_completadas=[t for t in tareas if t.get("estatus", "").strip() == "completada"],
-        # permisos=permisos,  # eliminado
         usuarios=usuarios,
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
-        modulo_activo="tareas",
-        # is_admin=is_admin,  # eliminado
-        usuarios_disponibles=usuarios_disponibles
+        modulo_activo="tareas"
     )
 
 # -------------------------------------------------------------------
