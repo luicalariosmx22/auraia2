@@ -1,3 +1,6 @@
+# ✅ Archivo: clientes/aura/routes/login.py
+# 👉 Maneja claramente 3 tipos de usuarios (admin, cliente, usuarios_clientes)
+
 from flask import Blueprint, redirect, request, session, url_for, render_template
 from supabase import create_client
 from requests_oauthlib import OAuth2Session
@@ -12,6 +15,9 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
+
+# 🔑 Correos admin generales desde .env
+ADMIN_EMAILS = os.getenv("ADMIN_EMAILS", "").split(",")
 
 def get_google_auth(token=None, state=None):
     if token:
@@ -54,45 +60,63 @@ def login_callback():
         user_info = resp.json()
 
         correo = user_info.get("email")
-        
-        # 🔍 Validación en usuarios_clientes
-        result = supabase.table("usuarios_clientes").select("*").eq("correo", correo).execute()
+        session.permanent = True  # 🔐 mantiene la sesión activa
 
-        if not result.data:
-            return "❌ Este correo no tiene acceso autorizado.", 403
-
-        datos_usuario = result.data[0]
-
-        session.permanent = True  # 🔐 mantiene la sesión entre vistas
-
-        session["email"] = user_info.get("email")
-        session["name"] = datos_usuario.get("nombre")
-        session["is_admin"] = datos_usuario.get("rol", "").lower() == "admin"
-        session["nombre_nora"] = datos_usuario["nombre_nora"]
-
-        session["user"] = {
-            "id": datos_usuario.get("id", ""),
-            "nombre": datos_usuario.get("nombre", "Desconocido"),
-            "nombre_nora": datos_usuario.get("nombre_nora", "")
-        }
-        session["usuario_empresa_id"] = datos_usuario.get("id", "")
-
-        print("🎯 Sesión establecida:")
-        print("email:", session.get("email"))
-        print("nombre_nora:", session.get("nombre_nora"))
-        print("is_admin:", session.get("is_admin"))
-
-        if session["is_admin"]:
+        # 🟢 Primero: Validar admin general desde .env
+        if correo in ADMIN_EMAILS:
+            session["email"] = correo
+            session["name"] = user_info.get("name")
+            session["is_admin"] = True
+            session["nombre_nora"] = "admin"
             return redirect(url_for("admin_dashboard.dashboard_admin"))
-        elif session.get("nombre_nora"):
-            # 🚀 Validar acceso al módulo tareas antes de redireccionar
-            modulos = supabase.table("modulos_disponibles").select("*").eq("nombre_nora", session["nombre_nora"]).eq("modulo", "tareas").eq("activo", True).execute()
-            if modulos.data:
+
+        # 🔵 Segundo: Validar cliente desde configuracion_bot
+        result_cliente = supabase.table("configuracion_bot").select("*").eq("correo_cliente", correo).execute()
+
+        if result_cliente.data:
+            datos = result_cliente.data[0]
+
+            session["email"] = correo
+            session["name"] = datos.get("nombre", user_info.get("name"))
+            session["is_admin"] = str(datos.get("tipo_usuario", "")).lower() == "admin"
+            session["nombre_nora"] = datos["nombre_nora"]
+
+            session["user"] = {
+                "id": datos.get("id", ""),
+                "nombre": datos.get("nombre", "Desconocido"),
+                "nombre_nora": datos.get("nombre_nora", ""),
+                "empresa_id": datos.get("empresa_id", ""),
+                "cliente_id": datos.get("cliente_id", "")
+            }
+            session["usuario_empresa_id"] = datos.get("id", "")
+
+            return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session["nombre_nora"]))
+
+        # 🟡 Tercero: Validar usuarios_clientes (empleados)
+        result_empleado = supabase.table("usuarios_clientes").select("*").eq("correo", correo).execute()
+
+        if result_empleado.data:
+            datos_empleado = result_empleado.data[0]
+
+            session["email"] = correo
+            session["name"] = datos_empleado.get("nombre", user_info.get("name"))
+            session["is_admin"] = str(datos_empleado.get("rol", "")).lower() == "admin"
+            session["nombre_nora"] = datos_empleado["nombre_nora"]
+            session["usuario_empresa_id"] = datos_empleado.get("id", "")
+
+            # 👉 Aquí defines claramente a qué módulo rediriges al empleado
+            modulos = supabase.table("modulos_disponibles").select("*")\
+                .eq("nombre_nora", session["nombre_nora"])\
+                .eq("modulo", "tareas")\
+                .eq("activo", True).execute().data
+
+            if modulos:
                 return redirect(url_for("panel_cliente_tareas.index", nombre_nora=session["nombre_nora"]))
             else:
-                return "❌ El módulo de tareas no está activo para esta cuenta.", 403
-        else:
-            return redirect("/login")  # fallback en caso de error
+                return "❌ Tu usuario no tiene módulos activos aún.", 403
+
+        # 🔴 Si no está en ninguna tabla, mostrar error
+        return "❌ Este correo no tiene acceso autorizado.", 403
 
     except Exception as e:
         return f"Error en login: {str(e)}"
