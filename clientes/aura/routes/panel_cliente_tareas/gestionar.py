@@ -29,10 +29,10 @@ def vista_gestionar_tareas(nombre_nora):
         return "Módulo no activo", 403
 
     usuario_id = session.get("usuario_empresa_id")
+    permisos = {
+        "es_supervisor": session.get("rol") == "supervisor"
+    }
 
-    # -----------------------------------------------------------------
-    # Traemos todas las tareas activas de la Nora
-    # -----------------------------------------------------------------
     tareas_resp = (
         supabase.table("tareas")
         .select("*")
@@ -42,9 +42,6 @@ def vista_gestionar_tareas(nombre_nora):
     )
     todas = tareas_resp.data or []
 
-    # -----------------------------------------------------------------
-    # Filtros recibidos por querystring
-    # -----------------------------------------------------------------
     q_busqueda  = request.args.get("busqueda", "").strip().lower()
     q_estatus   = request.args.get("estatus", "").strip()
     q_prioridad = request.args.get("prioridad", "").strip()
@@ -53,16 +50,9 @@ def vista_gestionar_tareas(nombre_nora):
     q_ini       = request.args.get("fecha_ini", "").strip()
     q_fin       = request.args.get("fecha_fin", "").strip()
 
-    # -----------------------------------------------------------------
-    # Filtrado base: mostrar todas las tareas
-    # -----------------------------------------------------------------
     tareas = todas
 
-    # -----------------------------------------------------------------
-    # Filtros avanzados
-    # -----------------------------------------------------------------
     def coincide(t):
-        # ya no excluimos aquí; las tareas completadas se mostrarán en su bloque aparte
         if q_busqueda and q_busqueda not in (t.get("titulo","").lower() + " " + t.get("descripcion","").lower()):
             return False
         if q_estatus and t.get("estatus") != q_estatus:
@@ -81,9 +71,6 @@ def vista_gestionar_tareas(nombre_nora):
 
     tareas = [t for t in tareas if coincide(t)]
 
-    # -------------------------------------------------------------
-    # Cargar info de empresa y asignado para cada tarea
-    # -------------------------------------------------------------
     for t in tareas:
         if t.get("empresa_id"):
             try:
@@ -98,8 +85,6 @@ def vista_gestionar_tareas(nombre_nora):
                     t["empresa_nombre"] = emp.data[0]["nombre_empresa"]
             except Exception:
                 t["empresa_nombre"] = ""
-
-        # 💡 la tabla ya NO tiene asignado_a; usamos usuario_empresa_id
         if t.get("usuario_empresa_id"):
             try:
                 usr = (
@@ -114,9 +99,6 @@ def vista_gestionar_tareas(nombre_nora):
             except Exception:
                 t["asignado_nombre"] = ""
 
-    # -------------------------------------------------------------
-    # Listas auxiliares para dropdowns
-    # -------------------------------------------------------------
     usuarios_resp = (
         supabase.table("usuarios_clientes")
         .select("id, nombre")
@@ -134,28 +116,20 @@ def vista_gestionar_tareas(nombre_nora):
     )
     empresas = empresas_resp.data or []
 
-    # -------------------------------------------------------------
-    # LOG de depuración
-    # -------------------------------------------------------------
     logger = logging.getLogger(__name__)
     logger.info(
-        f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} "
-        f"(Nora: {nombre_nora})"
+        f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} (Nora: {nombre_nora})"
     )
-    # Para un detalle completo descomenta:
-    # logger.debug("Detalles tareas: %s", tareas)
 
-    # -----------------------------------------------------------------
-    # Separar tareas por estatus para mostrar dos tablas
-    # -----------------------------------------------------------------
     tareas_activas     = [t for t in tareas if t.get("estatus", "").strip() != "completada"]
     tareas_completadas = [t for t in tareas if t.get("estatus", "").strip() == "completada"]
 
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
-        tareas_activas=[t for t in tareas if t.get("estatus", "").strip() != "completada"],
-        tareas_completadas=[t for t in tareas if t.get("estatus", "").strip() == "completada"],
+        tareas_activas=tareas_activas,
+        tareas_completadas=tareas_completadas,
+        permisos=permisos,
         usuarios=usuarios,
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
