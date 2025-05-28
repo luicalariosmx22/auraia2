@@ -94,6 +94,7 @@ def login_callback():
             return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session["nombre_nora"]))
 
         # 🟡 Tercero: Validar usuarios_clientes (empleados)
+
         result_empleado = supabase.table("usuarios_clientes").select("*").eq("correo", correo).execute()
 
         if result_empleado.data:
@@ -105,23 +106,25 @@ def login_callback():
             session["nombre_nora"] = datos_empleado["nombre_nora"]
             session["usuario_empresa_id"] = datos_empleado.get("id", "")
 
-            # ✅ Leer módulos desde configuracion_bot como lista real
+            # ✅ Obtener módulos de configuracion_bot y convertir JSON
             config_nora = supabase.table("configuracion_bot").select("modulos")\
                 .eq("nombre_nora", session["nombre_nora"]).execute().data
 
             if config_nora:
                 raw_modulos = config_nora[0].get("modulos", "[]")
+
                 try:
                     modulos_activos = json.loads(raw_modulos)
-                except Exception:
+                except Exception as e:
+                    print(f"❌ Error al leer modulos JSON: {e}")
                     modulos_activos = []
 
                 if "tareas" in modulos_activos:
                     return redirect(url_for("panel_cliente_tareas.index", nombre_nora=session["nombre_nora"]))
                 else:
                     return "❌ El módulo tareas no está activo para esta Nora.", 403
-            else:
-                return "❌ No se encontró configuración para esta Nora.", 403
+
+            return "❌ No se encontró configuracion_bot para esta Nora.", 403
 
         # 🔴 Si no está en ninguna tabla, mostrar error
         return "❌ Este correo no tiene acceso autorizado.", 403
