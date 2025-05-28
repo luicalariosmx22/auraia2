@@ -115,21 +115,22 @@ def guardar_tarea_html():
 
     usuario_empresa_id = form.get("usuario_empresa_id")
     empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
-    creado_por = user.get("id") or form.get("creado_por") or ""
+    creado_por_form = form.get("creado_por", "").strip()
+    creado_por = creado_por_form if creado_por_form else user.get("id") or ""
     titulo = form.get("titulo") or ""
     prioridad = form.get("prioridad") or ""
     fecha_limite = form.get("fecha_limite") or ""
     iniciales_usuario = form.get("iniciales_usuario") or "NN"
     nombre_nora = form.get("nombre_nora") or user.get("nombre_nora", "aura")
 
-    print(f"🧪 creado_por desde form={form.get('creado_por')} | desde session={user.get('id')}")
+    print(f"🧪 creado_por final={creado_por}")
     print(f"🧪 empresa_id={empresa_id}, creado_por={creado_por}, usuario_empresa_id={usuario_empresa_id}, titulo={titulo}")
 
-    if not usuario_empresa_id or usuario_empresa_id.strip() == "":
+    if not usuario_empresa_id.strip():
         return "❌ Falta usuario_empresa_id", 400
-    if not empresa_id or empresa_id.strip() == "":
+    if not empresa_id.strip():
         return "❌ Falta empresa_id", 400
-    if not creado_por or str(creado_por).strip() == "":
+    if not creado_por.strip():
         return "❌ Falta creado_por", 400
     if not titulo.strip():
         return "❌ Falta título", 400
@@ -141,9 +142,6 @@ def guardar_tarea_html():
         correlativo = len(existentes.data) + 1
         return f"{base_codigo}-{str(correlativo).zfill(3)}"
 
-    payload = request.get_json(silent=True) or {}
-    creado_por = payload.get("creado_por") or session.get("usuario_empresa_id")
-
     tarea_data = {
         "id": str(uuid.uuid4()),
         "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
@@ -152,7 +150,7 @@ def guardar_tarea_html():
         "fecha_limite": fecha_limite,
         "prioridad": prioridad,
         "estatus": "pendiente",
-        "usuario_empresa_id": usuario_empresa_id,  # se usa como “Asignado a”
+        "usuario_empresa_id": usuario_empresa_id,
         "empresa_id": empresa_id,
         "nombre_nora": nombre_nora,
         "creado_por": creado_por,

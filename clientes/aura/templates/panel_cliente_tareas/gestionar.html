@@ -298,6 +298,19 @@
         </select>
       </div>
 
+      <!-- ✅ Campo para seleccionar "Creado por", solo si el usuario es admin -->
+      {% if is_admin %}
+        <div class="mb-3">
+          <label for="creado_por" class="form-label">Creado por:</label>
+          <select class="form-select" name="creado_por" id="creado_por" required>
+            <option value="">Selecciona un usuario</option>
+            {% for usuario in usuarios_disponibles %}
+              <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+
       <div class="text-right">
         <button type="button" onclick="cerrarModalTarea()" class="text-gray-500 text-sm mr-4">Cancelar</button>
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Guardar</button>
