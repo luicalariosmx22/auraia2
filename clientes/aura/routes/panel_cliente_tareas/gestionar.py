@@ -269,28 +269,36 @@ def crear_tarea(nombre_nora):
     prioridad = (payload.get("prioridad") or "media").strip().lower()
     fecha_limite = payload.get("fecha_limite")
     estatus = payload.get("estatus", "pendiente")
-    # ─── Saneamos cadenas vacías para uuid ────────────────────────────
+    # ─── Saneamos cadenas vacías para uuid de empresa ─────────────────
     raw_empresa = (payload.get("empresa_id") or "").strip()
     empresa_id = raw_empresa or None   # "" → None para permitir NULL
+    # ─── Determinar si el usuario puede asignar a otros (admin o supervisor) ─
+    resp_priv = supabase.table("usuarios_clientes") \
+        .select("es_supervisor, es_supervisor_tareas") \
+        .eq("id", usuario_id) \
+        .limit(1) \
+        .execute()
+    fila_priv = resp_priv.data[0] if resp_priv.data else {}
+    is_supervisor = session.get("is_admin") \
+        or fila_priv.get("es_supervisor", False) \
+        or fila_priv.get("es_supervisor_tareas", False)
     raw_usuario = (payload.get("usuario_empresa_id") or "").strip()
-    # ─── Determinar usuario_empresa_id y validación de FK ─────────
-    if session.get("is_admin"):
-        # Admin debe seleccionar un usuario_cliente válido
+    if is_supervisor:
+        # Admin/supervisor debe elegir un usuario asignado
         if not raw_usuario:
             return jsonify({"error": "Debe seleccionar un usuario asignado"}), 400
         usuario_empresa_id = raw_usuario
-        # no validamos FK para el propio admin
     else:
-        # Usuario normal: puede dejar vacío y usar su propio id
-        usuario_empresa_id = raw_usuario or usuario_id
-        # validar existencia en usuarios_clientes
-        usr_check = supabase.table("usuarios_clientes") \
-            .select("id") \
-            .eq("id", usuario_empresa_id) \
-            .limit(1) \
-            .execute()
-        if not usr_check.data:
-            return jsonify({"error": "Usuario asignado inválido"}), 400
+        # Usuario normal solo puede auto-asignarse
+        usuario_empresa_id = usuario_id
+    # ─── Validar que el usuario_empresa_id exista en usuarios_clientes ────
+    usr_check = supabase.table("usuarios_clientes") \
+        .select("id") \
+        .eq("id", usuario_empresa_id) \
+        .limit(1) \
+        .execute()
+    if not usr_check.data:
+        return jsonify({"error": "Usuario asignado inválido"}), 400
 
     # -----------------------------------------------------------------
     # Prints de depuración de variables recibidas y calculadas

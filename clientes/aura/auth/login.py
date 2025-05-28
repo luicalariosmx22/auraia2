@@ -54,43 +54,43 @@ def login_callback():
         user_info = resp.json()
 
         correo = user_info.get("email")
-        result = supabase.table("configuracion_bot").select("*").eq("correo_cliente", correo).execute()
+        
+        # 🔍 Validación en usuarios_clientes
+        result = supabase.table("usuarios_clientes").select("*").eq("correo", correo).execute()
 
         if not result.data:
             return "❌ Este correo no tiene acceso autorizado.", 403
 
-        datos = result.data[0]
+        datos_usuario = result.data[0]
 
         session.permanent = True  # 🔐 mantiene la sesión entre vistas
 
         session["email"] = user_info.get("email")
-        session["name"] = user_info.get("name")
-        session["is_admin"] = str(datos.get("tipo_usuario", "")).lower() == "admin"
-        session["nombre_nora"] = datos["nombre_nora"]
+        session["name"] = datos_usuario.get("nombre")
+        session["is_admin"] = datos_usuario.get("rol", "").lower() == "admin"
+        session["nombre_nora"] = datos_usuario["nombre_nora"]
 
         session["user"] = {
-            "id": datos.get("id", ""),
-            "nombre": datos.get("nombre", "Desconocido"),
-            "nombre_nora": datos.get("nombre_nora", ""),
-            "empresa_id": datos.get("empresa_id", ""),
-            "cliente_id": datos.get("cliente_id", "")
+            "id": datos_usuario.get("id", ""),
+            "nombre": datos_usuario.get("nombre", "Desconocido"),
+            "nombre_nora": datos_usuario.get("nombre_nora", "")
         }
-        # 👉 Se guarda también en nivel de sesión plano para módulos que lo requieran
-        session["usuario_empresa_id"] = datos.get("id", "")
+        session["usuario_empresa_id"] = datos_usuario.get("id", "")
 
         print("🎯 Sesión establecida:")
         print("email:", session.get("email"))
         print("nombre_nora:", session.get("nombre_nora"))
         print("is_admin:", session.get("is_admin"))
 
-        # ✅ Evalúa is_admin como string por seguridad
-        valor_admin = session.get("is_admin")
-        print("🧪 Valor crudo de is_admin:", valor_admin)
-
-        if str(valor_admin).lower() == "true":
+        if session["is_admin"]:
             return redirect(url_for("admin_dashboard.dashboard_admin"))
         elif session.get("nombre_nora"):
-            return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session.get("nombre_nora")))
+            # 🚀 Validar acceso al módulo tareas antes de redireccionar
+            modulos = supabase.table("modulos_disponibles").select("*").eq("nombre_nora", session["nombre_nora"]).eq("modulo", "tareas").eq("activo", True).execute()
+            if modulos.data:
+                return redirect(url_for("panel_cliente_tareas.index", nombre_nora=session["nombre_nora"]))
+            else:
+                return "❌ El módulo de tareas no está activo para esta cuenta.", 403
         else:
             return redirect("/login")  # fallback en caso de error
 
