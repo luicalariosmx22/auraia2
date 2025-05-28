@@ -20,52 +20,192 @@ panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 # -------------------------------------------------------------------
 # VISTA PRINCIPAL: listado de tareas (gestión)
 # -------------------------------------------------------------------
-@panel_tareas_gestionar_bp.route("/<nombre_nora>/tareas/gestionar")
-def gestionar_tareas(nombre_nora):
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar")
+def vista_gestionar_tareas(nombre_nora):
     if not session.get("email"):
         return redirect("/login")
 
-    user = session.get("user", {})
-    if not user:
-        return "❌ Sesión inválida", 403
+    if not modulo_activo_para_nora(nombre_nora, "tareas"):
+        return "Módulo no activo", 403
 
-    if session.get("nombre_nora") != nombre_nora:
-        return "❌ No autorizado para esta Nora", 403
-
-    tipo = "usuario_cliente"
-    if session.get("is_admin"):
-        if session.get("nombre_nora") == "admin":
-            tipo = "admin_global"
-        else:
-            tipo = "cliente_admin"
-
-    print("🧪 USUARIO LOGUEADO")
-    print(f"🧪 Correo: {session.get('email')}")
-    print(f"🧪 Nombre: {user.get('nombre')}")
-    print(f"🧪 Tipo: {tipo}")
-
-    usuarios = supabase.table("usuarios_clientes").select("id,nombre").eq("nombre_nora", nombre_nora).execute().data or []
-    empresas = supabase.table("cliente_empresas").select("id,nombre_empresa").eq("nombre_nora", nombre_nora).execute().data or []
-
-    tareas = supabase.table("tareas").select("*").eq("activo", True).eq("nombre_nora", nombre_nora).order("fecha_limite").execute().data or []
-    tareas_activas = [t for t in tareas if t["estatus"] != "completada"]
-    tareas_completadas = [t for t in tareas if t["estatus"] == "completada"]
-
+    # -----------------------------------------------------------------
+    # Permisos del usuario actual
+    # -----------------------------------------------------------------
+    usuario_id = session.get("usuario_empresa_id")
+    # Permisos por defecto
     permisos = {
-        "es_supervisor": session.get("is_admin", False)
+        "ver_todas_tareas": False,
+        "reasignar_tareas": False,
+        "es_supervisor": False,
     }
+    if usuario_id:
+        try:
+            resp = (
+                supabase.table("usuarios_clientes")
+                .select(
+                    "ver_todas_tareas, reasignar_tareas, "
+                    "es_supervisor, es_supervisor_tareas"
+                )
+                .eq("id", usuario_id)
+                .limit(1)  # evita PGRST116 cuando no hay filas
+                .execute()
+            )
+            if resp.data:
+                fila = resp.data[0]
+                permisos.update(
+                    {
+                        "ver_todas_tareas": fila.get("ver_todas_tareas", False),
+                        "reasignar_tareas": fila.get("reasignar_tareas", False),
+                        "es_supervisor": fila.get("es_supervisor", False)
+                        or fila.get("es_supervisor_tareas", False),
+                    }
+                )
+        except Exception:
+            # Si falla la consulta, conservamos los permisos mínimos
+            pass
 
-    is_admin = session.get("is_admin", False)
+    # -----------------------------------------------------------------
+    # 🔓 Asegurar visibilidad total para administradores globales
+    # -----------------------------------------------------------------
+    if session.get("is_admin"):
+        permisos["ver_todas_tareas"] = True
+        permisos["es_supervisor"] = True
 
-    return render_template("panel_cliente_tareas/gestionar.html",
-                           nombre_nora=nombre_nora,
-                           tareas_activas=tareas_activas,
-                           tareas_completadas=tareas_completadas,
-                           usuarios=usuarios,
-                           empresas=empresas,
-                           permisos=permisos,
-                           user=user,
-                           is_admin=is_admin)
+    # -----------------------------------------------------------------
+    # Traemos todas las tareas activas de la Nora
+    # -----------------------------------------------------------------
+    tareas_resp = (
+        supabase.table("tareas")
+        .select("*")
+        .eq("nombre_nora", nombre_nora)
+        .eq("activo", True)
+        .execute()
+    )
+    todas = tareas_resp.data or []
+
+    # -----------------------------------------------------------------
+    # Filtros recibidos por querystring
+    # -----------------------------------------------------------------
+    q_busqueda  = request.args.get("busqueda", "").strip().lower()
+    q_estatus   = request.args.get("estatus", "").strip()
+    q_prioridad = request.args.get("prioridad", "").strip()
+    q_empresa   = request.args.get("empresa_id", "").strip()
+    q_asignado  = request.args.get("usuario_empresa_id", "").strip()
+    q_ini       = request.args.get("fecha_ini", "").strip()
+    q_fin       = request.args.get("fecha_fin", "").strip()
+
+    # -----------------------------------------------------------------
+    # Filtrado base según permisos (propias / todas)
+    # -----------------------------------------------------------------
+    if permisos.get("ver_todas_tareas") or permisos.get("es_supervisor") or not usuario_id:
+        tareas = todas
+    else:
+        tareas = [t for t in todas if t.get("usuario_empresa_id") == usuario_id]
+
+    # -----------------------------------------------------------------
+    # Filtros avanzados
+    # -----------------------------------------------------------------
+    def coincide(t):
+        # ya no excluimos aquí; las tareas completadas se mostrarán en su bloque aparte
+        if q_busqueda and q_busqueda not in (t.get("titulo","").lower() + " " + t.get("descripcion","").lower()):
+            return False
+        if q_estatus and t.get("estatus") != q_estatus:
+            return False
+        if q_prioridad and t.get("prioridad") != q_prioridad:
+            return False
+        if q_empresa and (t.get("empresa_id") or "") != q_empresa:
+            return False
+        if q_asignado and (t.get("usuario_empresa_id") or "") != q_asignado:
+            return False
+        if q_ini and (t.get("fecha_limite") or "") < q_ini:
+            return False
+        if q_fin and (t.get("fecha_limite") or "") > q_fin:
+            return False
+        return True
+
+    tareas = [t for t in tareas if coincide(t)]
+
+    # -------------------------------------------------------------
+    # Cargar info de empresa y asignado para cada tarea
+    # -------------------------------------------------------------
+    for t in tareas:
+        if t.get("empresa_id"):
+            try:
+                emp = (
+                    supabase.table("cliente_empresas")
+                    .select("nombre_empresa")
+                    .eq("id", t["empresa_id"])
+                    .limit(1)
+                    .execute()
+                )
+                if emp.data:
+                    t["empresa_nombre"] = emp.data[0]["nombre_empresa"]
+            except Exception:
+                t["empresa_nombre"] = ""
+
+        # 💡 la tabla ya NO tiene asignado_a; usamos usuario_empresa_id
+        if t.get("usuario_empresa_id"):
+            try:
+                usr = (
+                    supabase.table("usuarios_clientes")
+                    .select("nombre")
+                    .eq("id", t["usuario_empresa_id"])
+                    .limit(1)
+                    .execute()
+                )
+                if usr.data:
+                    t["asignado_nombre"] = usr.data[0]["nombre"]
+            except Exception:
+                t["asignado_nombre"] = ""
+
+    # -------------------------------------------------------------
+    # Listas auxiliares para dropdowns
+    # -------------------------------------------------------------
+    usuarios_resp = (
+        supabase.table("usuarios_clientes")
+        .select("id, nombre")
+        .eq("nombre_nora", nombre_nora)
+        .eq("activo", True)
+        .execute()
+    )
+    usuarios = usuarios_resp.data or []
+
+    empresas_resp = (
+        supabase.table("cliente_empresas")
+        .select("id, nombre_empresa")
+        .eq("nombre_nora", nombre_nora)
+        .execute()
+    )
+    empresas = empresas_resp.data or []
+
+    # -------------------------------------------------------------
+    # LOG de depuración
+    # -------------------------------------------------------------
+    logger = logging.getLogger(__name__)
+    logger.info(
+        f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} "
+        f"(Nora: {nombre_nora})"
+    )
+    # Para un detalle completo descomenta:
+    # logger.debug("Detalles tareas: %s", tareas)
+
+    # -----------------------------------------------------------------
+    # Separar tareas por estatus para mostrar dos tablas
+    # -----------------------------------------------------------------
+    tareas_activas     = [t for t in tareas if t.get("estatus", "").strip() != "completada"]
+    tareas_completadas = [t for t in tareas if t.get("estatus", "").strip() == "completada"]
+
+    return render_template(
+        "panel_cliente_tareas/gestionar.html",
+        nombre_nora=nombre_nora,
+        tareas_activas=tareas_activas,
+        tareas_completadas=tareas_completadas,
+        permisos=permisos,
+        usuarios=usuarios,
+        empresas=empresas,
+        user={"name": session.get("name", "Usuario"), "id": usuario_id},
+        modulo_activo="tareas",
+    )
 
 # -------------------------------------------------------------------
 # API: actualizar campo (inline edit)
