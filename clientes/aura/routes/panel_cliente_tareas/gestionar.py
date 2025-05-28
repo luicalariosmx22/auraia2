@@ -143,12 +143,13 @@ def vista_gestionar_tareas(nombre_nora):
             except Exception:
                 t["empresa_nombre"] = ""
 
-        if t.get("asignado_a"):
+        # 💡 la tabla ya NO tiene asignado_a; usamos usuario_empresa_id
+        if t.get("usuario_empresa_id"):
             try:
                 usr = (
                     supabase.table("usuarios_clientes")
                     .select("nombre")
-                    .eq("id", t["asignado_a"])
+                    .eq("id", t["usuario_empresa_id"])
                     .limit(1)
                     .execute()
                 )
@@ -297,8 +298,7 @@ def crear_tarea(nombre_nora):
         "fecha_limite": fecha_limite,
         "estatus": estatus,
         "empresa_id": empresa_id,
-        "usuario_empresa_id": usuario_empresa_id,
-        "asignado_a": usuario_empresa_id,  # ✅ rellenamos también asignado_a para compatibilidad futura
+        "usuario_empresa_id": usuario_empresa_id,  # ↩️ única columna vigente para responsable
     }
     tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
 
