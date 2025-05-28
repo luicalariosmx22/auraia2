@@ -2,6 +2,9 @@
 // ───────────────────────────────────────────────────────────────────────────
 // util POST JSON + envío del formulario del modal "Nueva tarea"
 // ───────────────────────────────────────────────────────────────────────────
+// helper DOM rápido
+const $ = (id) => document.getElementById(id);
+
 async function postJSON(url, payload = {}) {
   const res = await fetch(url, {
     method: "POST",
@@ -27,7 +30,7 @@ function initModalSubmit() {
       titulo:        $("titulo").value.trim(),
       descripcion:   $("descripcion").value.trim(),
       fecha_limite:  $("fecha_limite").value || null,
-      prioridad: $("prioridad").value.toLowerCase(),   // ← minúsculas
+      prioridad:     $("prioridad").value.toLowerCase(),   // ← minúsculas
       usuario_empresa_id: $("usuario_empresa_id").value  // siempre UUID
     };
 
