@@ -26,11 +26,11 @@ function initModalSubmit() {
     // ─── seleccionar elementos por ID usando get() ─────────────────────
     const get = id => document.getElementById(id);
     const payload = {
-      titulo:             get("titulo").value.trim(),
-      descripcion:        get("descripcion").value.trim(),
-      fecha_limite:       get("fecha_limite").value || null,
-      prioridad:          get("prioridad").value.toLowerCase(),
-      usuario_empresa_id: get("usuario_empresa_id").value
+      titulo:               get("titulo").value.trim(),
+      descripcion:          get("descripcion").value.trim(),
+      fecha_limite:         get("fecha_limite").value || null,
+      prioridad:            get("prioridad").value.toLowerCase(),
+      usuario_empresa_id:   get("usuario_empresa_id").value
     };
 
     const emp = get("empresa_id").value;

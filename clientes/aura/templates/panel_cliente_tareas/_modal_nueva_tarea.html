@@ -36,8 +36,8 @@
     </div>
 
     <div>
-      <label for="asignado_a" class="block text-sm font-medium text-gray-700">Asignado a</label>
-      <select name="asignado_a" id="asignado_a"
+      <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado a</label>
+      <select name="usuario_empresa_id" id="usuario_empresa_id"
               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
         {% for u in usuarios %}
           <option value="{{ u.id }}">{{ u.nombre }}</option>
