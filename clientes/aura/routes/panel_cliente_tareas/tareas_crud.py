@@ -1,4 +1,4 @@
-from flask import request, jsonify, redirect, session
+from flask import request, jsonify, redirect, session, render_template
 from .panel_cliente_tareas import panel_cliente_tareas_bp
 from datetime import datetime
 from supabase import create_client
@@ -141,6 +141,9 @@ def guardar_tarea_html():
         correlativo = len(existentes.data) + 1
         return f"{base_codigo}-{str(correlativo).zfill(3)}"
 
+    payload = request.get_json(silent=True) or {}
+    creado_por = payload.get("creado_por") or session.get("usuario_empresa_id")
+
     tarea_data = {
         "id": str(uuid.uuid4()),
         "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
@@ -166,3 +169,23 @@ def guardar_tarea_html():
     except Exception as e:
         print(f"❌ Error al insertar tarea: {e}")
         return f"❌ Error al crear tarea: {e}", 500
+
+@panel_cliente_tareas_bp.route("/<nombre_nora>/tareas")
+def panel_tareas(nombre_nora):
+    if not session.get("email"):
+        return redirect("/login")
+
+    if session.get("nombre_nora") != nombre_nora:
+        return "Acceso denegado", 403
+
+    is_admin = session.get("is_admin", False)
+    usuarios_disponibles = []
+
+    if is_admin:
+        usuarios_disponibles = supabase.table("usuarios_clientes").select("id,nombre")\
+            .eq("nombre_nora", nombre_nora).execute().data or []
+
+    return render_template("panel_cliente_tareas/panel.html",
+                           nombre_nora=nombre_nora,
+                           is_admin=is_admin,
+                           usuarios_disponibles=usuarios_disponibles)
