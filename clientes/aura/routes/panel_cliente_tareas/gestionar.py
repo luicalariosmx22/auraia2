@@ -28,6 +28,17 @@ def vista_gestionar_tareas(nombre_nora):
     if not modulo_activo_para_nora(nombre_nora, "tareas"):
         return "Módulo no activo", 403
 
+    # --- Determinar tipo de usuario ---
+    tipo = "usuario_cliente"
+    if session.get("is_admin"):
+        if session.get("nombre_nora") == "admin":
+            tipo = "admin_global"
+        else:
+            tipo = "cliente_admin"
+    print("🟢 Tipo de usuario:", tipo)
+    print("🟢 Correo:", session.get("email"))
+    print("🟢 Nombre:", session.get("name"))
+
     # -----------------------------------------------------------------
     # Permisos del usuario actual
     # -----------------------------------------------------------------
