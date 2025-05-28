@@ -293,6 +293,11 @@ def crear_tarea(nombre_nora):
     if estatus not in ("pendiente", "en progreso", "retrasada", "completada"):
         return jsonify({"error": "Estatus inválido"}), 400
 
+    # Normalizar campos UUID vacíos a None
+    if empresa_id == "":
+        empresa_id = None
+    if usuario_empresa_id == "":
+        usuario_empresa_id = None
 
     # Validar existencia del usuario asignado
     usr_check = supabase.table("usuarios_clientes") \
