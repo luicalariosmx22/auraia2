@@ -352,6 +352,8 @@ def crear_tarea(nombre_nora):
     # Crear tarea
     # -----------------------------------------------------------------
     # el nombre de sesión puede ser None → convertimos a cadena segura
+    creado_por = payload.get("creado_por") if session.get("is_admin") else session.get("usuario_empresa_id")
+
     nombre_sesion = (session.get("nombre") or "").strip()
     iniciales_usuario = nombre_sesion.split(" ")[:2] if nombre_sesion else ["NN"]
 
@@ -362,14 +364,12 @@ def crear_tarea(nombre_nora):
         "prioridad": prioridad,
         "fecha_limite": fecha_limite,
         "estatus": estatus,
-        "usuario_empresa_id": usuario_empresa_id,  # ↩️ única columna vigente para responsable
-        # registrar quién creó la tarea
-        "creado_por": session.get("usuario_empresa_id") or None,
+        "usuario_empresa_id": usuario_empresa_id,
+        "creado_por": creado_por,
+        "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
     }
     if empresa_id:
         tarea_data["empresa_id"] = empresa_id
-
-    tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
 
     try:
         supabase.table("tareas").insert(tarea_data).execute()
