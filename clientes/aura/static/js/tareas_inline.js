@@ -46,3 +46,12 @@ function initModalSubmit() {
 }
 
 initModalSubmit();
+
+/* -------------------------------------------------------------
+   Función auxiliar usada en gestores inline (títulos, estatus…)
+------------------------------------------------------------- */
+export async function updateField(id, campo, valor, nombreNora) {
+  const url = `/panel_cliente/${nombreNora}/tareas/gestionar/actualizar/${id}`;
+  const rsp = await postJSON(url, { campo, valor });
+  if (rsp && rsp.error) alert("❌ " + rsp.error);
+}
