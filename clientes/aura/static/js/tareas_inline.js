@@ -2,8 +2,6 @@
 // ───────────────────────────────────────────────────────────────────────────
 // util POST JSON + envío del formulario del modal "Nueva tarea"
 // ───────────────────────────────────────────────────────────────────────────
-// helper DOM rápido
-const $ = (id) => document.getElementById(id);
 
 async function postJSON(url, payload = {}) {
   const res = await fetch(url, {
@@ -25,22 +23,20 @@ function initModalSubmit() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    // ─── seleccionar elementos por ID usando get() ─────────────────────
+    const get = id => document.getElementById(id);
     const payload = {
-      titulo:        $("titulo").value.trim(),
-      descripcion:   $("descripcion").value.trim(),
-      fecha_limite:  $("fecha_limite").value || null,
-      prioridad:     $("prioridad").value.toLowerCase(),   // ← minúsculas
-      usuario_empresa_id: $("usuario_empresa_id").value  // siempre UUID
+      titulo:             get("titulo").value.trim(),
+      descripcion:        get("descripcion").value.trim(),
+      fecha_limite:       get("fecha_limite").value || null,
+      prioridad:          get("prioridad").value.toLowerCase(),
+      usuario_empresa_id: get("usuario_empresa_id").value
     };
 
-    /* id de empresa:
-       – UUID válido  → se envía
-       – Cadena vacía → ni siquiera se incluye en el JSON            */
-    const emp = $("empresa_id").value;
+    const emp = get("empresa_id").value;
     if (emp) payload.empresa_id = emp;
 
-    const nombre_nora = $("nombre_nora").value;
+    const nombre_nora = get("nombre_nora").value;
     const url = `/panel_cliente/${nombre_nora}/tareas/gestionar/crear`;
 
     try {

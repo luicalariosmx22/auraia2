@@ -273,13 +273,24 @@ def crear_tarea(nombre_nora):
     raw_empresa = (payload.get("empresa_id") or "").strip()
     empresa_id = raw_empresa or None   # "" → None para permitir NULL
     raw_usuario = (payload.get("usuario_empresa_id") or "").strip()
-    # ─── Admins deben elegir a quién asignar; usuarios normales pueden usar su propio id ─────────
+    # ─── Determinar usuario_empresa_id y validación de FK ─────────
     if session.get("is_admin"):
+        # Admin debe seleccionar un usuario_cliente válido
         if not raw_usuario:
             return jsonify({"error": "Debe seleccionar un usuario asignado"}), 400
         usuario_empresa_id = raw_usuario
+        # no validamos FK para el propio admin
     else:
-        usuario_empresa_id = raw_usuario or usuario_id  # fallback al id de sesión
+        # Usuario normal: puede dejar vacío y usar su propio id
+        usuario_empresa_id = raw_usuario or usuario_id
+        # validar existencia en usuarios_clientes
+        usr_check = supabase.table("usuarios_clientes") \
+            .select("id") \
+            .eq("id", usuario_empresa_id) \
+            .limit(1) \
+            .execute()
+        if not usr_check.data:
+            return jsonify({"error": "Usuario asignado inválido"}), 400
 
     # -----------------------------------------------------------------
     # Validaciones
@@ -307,7 +318,11 @@ def crear_tarea(nombre_nora):
         "fecha_limite": fecha_limite,
         "estatus": estatus,
         "usuario_empresa_id": usuario_empresa_id,  # ↩️ única columna vigente para responsable
+        # registrar quién creó la tarea
+        "creado_por": session.get("usuario_empresa_id") or None,
     }
+    if empresa_id:
+        tarea_data["empresa_id"] = empresa_id
 
     tarea_data["codigo_tarea"] = generar_codigo_tarea(iniciales_usuario)
 
