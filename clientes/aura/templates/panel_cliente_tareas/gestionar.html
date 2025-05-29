@@ -289,6 +289,10 @@
 </div>
 
 <script>
+  // 🔥 Eliminamos completamente esta función duplicada que interfiere con tareas_inline.js
+  // function editarTarea(id) { ... }
+
+  // ✅ Solo dejamos funciones necesarias que no están duplicadas o que no interfieren
   function abrirModalTarea() {
     document.getElementById("modalTarea").classList.remove("hidden");
     document.getElementById("formTarea").reset();
@@ -298,26 +302,6 @@
 
   function cerrarModalTarea() {
     document.getElementById("modalTarea").classList.add("hidden");
-  }
-
-  function editarTarea(id) {
-    fetch(`/panel_cliente/{{ nombre_nora }}/tareas/obtener/${id}`)
-      .then(res => res.json())
-      .then data => {
-        if (data.error) return alert("No se pudo cargar la tarea.");
-        // Abrir modal
-        document.getElementById("modalTarea").classList.remove("hidden");
-        document.getElementById("modalTitulo").textContent = "Ver / Editar tarea";
-        // Rellenar campos
-        document.getElementById("tarea_id").value = data.id;
-        document.getElementById("titulo").value = data.titulo || "";
-        document.getElementById("descripcion").value = data.descripcion || "";
-        document.getElementById("fecha_limite").value = data.fecha_limite || "";
-        document.getElementById("prioridad").value = data.prioridad || "media";
-        document.getElementById("usuario_empresa_id").value = data.usuario_empresa_id || "";
-        document.getElementById("empresa_id").value = data.empresa_id || "";
-      })
-      .catch(() => alert("Error al cargar la tarea"));
   }
 
   function updateCampo(element, campo) {

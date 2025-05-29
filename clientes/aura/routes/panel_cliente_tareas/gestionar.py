@@ -170,6 +170,11 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         "completada",
     ]:
         return jsonify({"error": "Estatus inválido"}), 400
+    if campo == "fecha_limite":
+        try:
+            datetime.strptime(valor, "%Y-%m-%d")  # Validar formato de fecha
+        except ValueError:
+            return jsonify({"error": "Fecha límite inválida"}), 400
 
     try:
         supabase.table("tareas").update(

@@ -180,3 +180,6 @@ document.getElementById("formVerTarea").addEventListener("submit", async (e) => 
     alertContainer.classList.add("alert", "alert-danger");
   }
 });
+
+// Reemplazo de bloque para fecha_limite en el modal de ver/editar tarea
+// (esto es solo un recordatorio para el HTML, no requiere cambio JS aquí)
