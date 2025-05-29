@@ -95,3 +95,36 @@ function editarTarea(id) {
     })
     .catch(err => console.error("Error al cargar la descripción:", err));
 }
+
+// ─── Abrir modal VER TAREA ─────────────────────────────────────
+document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const tareaId = btn.getAttribute("data-id");
+    const nombreNora = btn.getAttribute("data-nora");
+    const modal = document.getElementById("modalVerTarea");
+
+    try {
+      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
+      const tarea = await res.json();
+
+      if (tarea.error) {
+        alert("Error al cargar la tarea");
+        return;
+      }
+
+      modal.querySelector("#verTitulo").value = tarea.titulo || "";
+      modal.querySelector("#verDescripcion").value = tarea.descripcion || "";
+      modal.querySelector("#verPrioridad").value = tarea.prioridad || "media";
+      modal.querySelector("#verEstatus").value = tarea.estatus || "pendiente";
+      modal.querySelector("#verFechaLimite").value = tarea.fecha_limite || "";
+      modal.querySelector("#verEmpresa").value = tarea.empresa_id || "";
+      modal.querySelector("#verAsignado").value = tarea.usuario_empresa_id || "";
+      modal.querySelector("#verIdTarea").value = tarea.id || "";
+
+      new bootstrap.Modal(modal).show();
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo cargar la información");
+    }
+  });
+});

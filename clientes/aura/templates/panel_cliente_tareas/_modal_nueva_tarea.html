@@ -73,3 +73,77 @@
     <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2]|upper if user.nombre is defined else 'NN' }}">
   </form>
 </section>
+
+<!-- Modal VER TAREA (edición tipo TickTick) -->
+<div class="modal fade" id="modalVerTarea" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <form class="modal-content" id="formVerTarea">
+      <div class="modal-header">
+        <h5 class="modal-title">Tarea</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body row g-3">
+        <input type="hidden" id="verIdTarea" name="id">
+
+        <div class="col-md-8">
+          <label>Título</label>
+          <input type="text" class="form-control" id="verTitulo" name="titulo">
+        </div>
+
+        <div class="col-md-4">
+          <label>Fecha límite</label>
+          <input type="date" class="form-control" id="verFechaLimite" name="fecha_limite">
+        </div>
+
+        <div class="col-md-12">
+          <label>Descripción</label>
+          <textarea class="form-control" id="verDescripcion" name="descripcion" rows="3"></textarea>
+        </div>
+
+        <div class="col-md-4">
+          <label>Prioridad</label>
+          <select class="form-select" id="verPrioridad" name="prioridad">
+            <option value="alta">Alta</option>
+            <option value="media">Media</option>
+            <option value="baja">Baja</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label>Estatus</label>
+          <select class="form-select" id="verEstatus" name="estatus">
+            <option value="pendiente">Pendiente</option>
+            <option value="en progreso">En progreso</option>
+            <option value="retrasada">Retrasada</option>
+            <option value="completada">Completada</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label>Asignado a</label>
+          <select class="form-select" id="verAsignado" name="usuario_empresa_id">
+            {% for u in usuarios %}
+              <option value="{{ u.id }}">{{ u.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-12">
+          <label>Empresa</label>
+          <select class="form-select" id="verEmpresa" name="empresa_id">
+            <option value="">---</option>
+            {% for e in empresas %}
+              <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
