@@ -138,7 +138,7 @@
       <th class="w-8"></th>
       <th class="px-4 py-2 text-left">Título</th>
       <th class="px-4 py-2 text-left">Prioridad</th>
-      <th class="px-4 py-2 text-left">Fecha límite</th>
+      <th class="px-4 py-2 text-left">Días Restantes</th>
       <th class="px-4 py-2 text-left">Estatus</th>
       <th class="px-4 py-2 text-left">Asignado a</th>
       <th class="px-4 py-2 text-left">Empresa</th>
@@ -186,7 +186,7 @@
           {% else %}
             {% if tarea.dias_restantes is not none %}
               {% if tarea.dias_restantes > 0 %}
-                <span class="text-green-700 font-medium">{{ tarea.dias_restantes }} días restantes</span>
+                <span class="text-green-700 font-medium">{{ tarea.dias_restantes }} días</span>
               {% elif tarea.dias_restantes == 0 %}
                 <span class="text-yellow-600 font-medium">Hoy</span>
               {% else %}
