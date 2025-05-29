@@ -62,3 +62,36 @@ export async function updateField(id, campo, valor, nombreNora) {
   const rsp = await postJSON(url, { campo, valor });
   if (rsp && rsp.error) alert("❌ " + rsp.error);
 }
+
+function editarTarea(id) {
+  const fila = [...document.querySelectorAll("tr")].find(row => row.innerHTML.includes(id));
+  if (!fila) return;
+
+  document.getElementById("modalTarea").classList.remove("hidden");
+  document.getElementById("tarea_id").value = id;
+  document.getElementById("modalTitulo").textContent = "Ver tarea";
+
+  document.getElementById("titulo").value = fila.children[1].innerText.trim();
+
+  const prioridadTxt = fila.children[2].innerText.trim().replace(/^[^\w]+/, "");
+  document.getElementById("prioridad").value = prioridadTxt.toLowerCase();
+
+  document.getElementById("fecha_limite").value = fila.children[3].innerText.trim();
+
+  const empresaSelect = document.getElementById("empresa_id");
+  const empresaTexto = fila.children[6].innerText.trim();
+  [...empresaSelect.options].forEach(option => {
+    option.selected = option.text.trim() === empresaTexto;
+  });
+
+  // 🚀 Cargar descripción desde Supabase
+  const nombreNora = document.body.dataset.nombreNora;
+  fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.descripcion) {
+        document.getElementById("descripcion").value = data.descripcion;
+      }
+    })
+    .catch(err => console.error("Error al cargar la descripción:", err));
+}

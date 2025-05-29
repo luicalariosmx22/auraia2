@@ -244,3 +244,17 @@ def crear_tarea(nombre_nora):
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# -------------------------------------------------------------------
+# API: obtener tarea por ID
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/obtener/<tarea_id>", methods=["GET"])
+def obtener_tarea(nombre_nora, tarea_id):
+    try:
+        tarea = supabase.table("tareas").select("*") \
+            .eq("id", tarea_id).eq("nombre_nora", nombre_nora).limit(1).execute()
+        if not tarea.data:
+            return jsonify({"error": "Tarea no encontrada"}), 404
+        return jsonify(tarea.data[0])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
