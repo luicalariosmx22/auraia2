@@ -24,11 +24,12 @@ async function postJSON(url, payload = {}) {
 }
 
 // ────────────────────────────────────────────────────────────
-// Toggle visibilidad de campos de recurrencia en el modal
+// Toggle visibilidad de campos de recurrencia en el modal NUEVA TAREA
 // ────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  const recCheck = document.getElementById("recurrente");
-  const recFields = document.getElementById("recurrente_fields");
+  // Para el formulario NUEVA TAREA
+  const recCheck = document.getElementById("recurrente_checkbox");
+  const recFields = document.getElementById("campos_recurrencia");
   if (recCheck && recFields) {
     recCheck.addEventListener("change", e => {
       recFields.classList.toggle("hidden", !e.target.checked);
