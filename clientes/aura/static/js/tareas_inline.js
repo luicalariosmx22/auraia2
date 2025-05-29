@@ -43,7 +43,7 @@ function initModalSubmit() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const get = id => document.getElementById(id);
-    const tareaId = get("tarea_id").value;
+    const tareaId = get("tarea_id")?.value || "";
     const nombre_nora = get("nombre_nora").value;
 
     const payload = {
@@ -55,7 +55,23 @@ function initModalSubmit() {
       empresa_id:           get("empresa_id").value
     };
 
-    // URL dinámica según si es edición o nueva
+    // 🟡 Validar campos recurrentes si se activa el checkbox
+    const esRecurrente = get("recurrente_checkbox")?.checked;
+    if (esRecurrente) {
+      payload.recurrente = "true";
+      payload.dtstart = get("dtstart").value || null;
+      payload.rrule   = get("rrule").value.trim();
+      const untilVal  = get("until").value;
+      if (untilVal) payload.until = untilVal;
+      const countVal  = get("count").value;
+      if (countVal) payload.count = parseInt(countVal, 10);
+
+      if (!payload.dtstart || !payload.rrule) {
+        alert("🔁 Debes especificar la fecha de inicio y la regla RRULE para tareas recurrentes.");
+        return;
+      }
+    }
+
     const url = tareaId
       ? `/panel_cliente/${nombre_nora}/tareas/gestionar/actualizar/${tareaId}`
       : `/panel_cliente/${nombre_nora}/tareas/gestionar/crear`;
@@ -63,7 +79,9 @@ function initModalSubmit() {
     try {
       await postJSON(url, payload);
       location.reload();
-    } catch (_) { /* error ya alertado */ }
+    } catch (_) {
+      // error ya alertado en postJSON
+    }
   });
 }
 
