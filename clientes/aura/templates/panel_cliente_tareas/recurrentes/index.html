@@ -1,0 +1,45 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<section class="py-8 max-w-4xl mx-auto">
+  <h1 class="text-2xl font-semibold text-blue-800 mb-6">🔁 Tareas Recurrentes</h1>
+
+  <table class="w-full text-sm table-auto border-collapse border border-gray-300 rounded overflow-hidden">
+    <thead class="bg-gray-100 text-left text-xs font-bold uppercase">
+      <tr>
+        <th class="px-4 py-2 border">Título base</th>
+        <th class="px-4 py-2 border">Inicio</th>
+        <th class="px-4 py-2 border">RRULE</th>
+        <th class="px-4 py-2 border">Hasta</th>
+        <th class="px-4 py-2 border">Repeticiones</th>
+        <th class="px-4 py-2 border">Estado</th>
+        <th class="px-4 py-2 border">Acciones</th> <!-- nueva columna -->
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in recurrentes %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-2 border">{{ r.titulo_base }}</td>
+        <td class="px-4 py-2 border">{{ r.dtstart[:10] }}</td>
+        <td class="px-4 py-2 border text-xs">{{ r.rrule }}</td>
+        <td class="px-4 py-2 border">{{ r.until[:10] if r.until else '—' }}</td>
+        <td class="px-4 py-2 border">{{ r.count if r.count else '—' }}</td>
+        <td class="px-4 py-2 border">{{ "🟢 Activa" if r.active else "⛔️ Inactiva" }}</td>
+        <td class="px-4 py-2 border text-sm">
+          <form class="inline" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/recurrentes/actualizar/{{ r.id }}">
+            <input type="hidden" name="active" value="{{ 'false' if r.active else 'true' }}">
+            <button class="text-blue-600 hover:underline" type="submit">{{ 'Pausar' if r.active else 'Reanudar' }}</button>
+          </form>
+          <form class="inline ml-3" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/recurrentes/eliminar/{{ r.id }}" onsubmit="return confirm('¿Eliminar tarea recurrente?');">
+            <button class="text-red-600 hover:underline" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if not recurrentes %}
+  <p class="text-gray-500 text-center mt-6">No hay tareas recurrentes registradas.</p>
+  {% endif %}
+</section>
+{% endblock %}

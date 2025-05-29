@@ -7,11 +7,23 @@
 <h2 class="text-xl font-semibold mb-4 text-blue-700">📋 Gestor de Tareas</h2>
 {% include "panel_cliente_tareas/_filtros.html" %}
 
+{% if permisos.es_supervisor %}
+<div class="flex justify-between items-center mb-4">
+  <a href="/panel_cliente/{{ nombre_nora }}/tareas/recurrentes"
+     class="text-sm text-blue-600 hover:underline font-medium">
+    🔁 Ver tareas recurrentes
+  </a>
+  <button onclick="abrirModalTarea()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+    ➕ Nueva tarea
+  </button>
+</div>
+{% else %}
 <div class="text-right mb-4">
   <button onclick="abrirModalTarea()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
     ➕ Nueva tarea
   </button>
 </div>
+{% endif %}
 
 <!-- =======================  LISTA ACTIVAS  ======================= -->
 <h3 class="text-sm font-semibold text-gray-700 mb-2">⏳ Activas / En progreso</h3>
