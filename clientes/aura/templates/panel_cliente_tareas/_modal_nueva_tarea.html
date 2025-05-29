@@ -54,51 +54,50 @@
     <!-- 🏢 Empresa -->
     <div class="mb-4">
       <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
-      <select name="empresa_id" id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-        <option value="">— Sin empresa —</option>
+      <select id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+        <option value="" selected>— Sin empresa —</option>
         {% for e in empresas %}
           <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
         {% endfor %}
       </select>
     </div>
 
-    <!-- 🔁 Tarea Recurrente -->
-    <div class="border-t border-gray-200 pt-4 mt-4">
-      <label class="flex items-center mb-2">
-        <input type="checkbox" name="recurrente" value="true" id="recurrente_checkbox" class="mr-2" onchange="document.getElementById('campos_recurrencia').classList.toggle('hidden', !this.checked)">
-        Tarea recurrente
-      </label>
+    <!-- ===================== RECURSIVIDAD ===================== -->
+    <div class="mb-4 flex items-center">
+      <input type="checkbox" id="is_recurrente" class="mr-2" onchange="toggleRecurrente(this)">
+      <label for="is_recurrente" class="text-sm font-medium text-gray-700">¿Es una tarea recurrente?</label>
+    </div>
 
-      <div id="campos_recurrencia" class="hidden space-y-3">
+    <div id="recurrente_fields" class="hidden space-y-4">
+      <div class="grid grid-cols-2 gap-4">
         <div>
-          <label for="dtstart" class="block text-sm font-medium text-gray-700">Inicio de recurrencia</label>
-          <input type="date" name="dtstart" id="dtstart" class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+          <label for="fecha_inicio" class="block text-sm font-medium text-gray-700">Fecha de inicio</label>
+          <input type="date" id="fecha_inicio" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
         </div>
-
         <div>
-          <label for="rrule" class="block text-sm font-medium text-gray-700">Regla RRULE</label>
-          <input type="text" name="rrule" id="rrule" placeholder="FREQ=DAILY;INTERVAL=1" class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
-          <p class="text-xs text-gray-500 mt-1">Ejemplo: <code>FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,WE,FR</code></p>
+          <label for="rrule_type" class="block text-sm font-medium text-gray-700">Recurrencia</label>
+          <select id="rrule_type" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+            <option value="">No se repite</option>
+            <option value="WEEKLY">Semanal</option>
+            <option value="MONTHLY">Mensual</option>
+          </select>
         </div>
-
+      </div>
+      <div class="grid grid-cols-2 gap-4">
         <div>
-          <label for="until" class="block text-sm font-medium text-gray-700">Fecha fin (opcional)</label>
-          <input type="date" name="until" id="until" class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+          <label for="fecha_fin" class="block text-sm font-medium text-gray-700">Fecha fin (opcional)</label>
+          <input type="date" id="fecha_fin" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
         </div>
-
         <div>
-          <label for="count" class="block text-sm font-medium text-gray-700">Número de repeticiones (opcional)</label>
-          <input type="number" name="count" id="count" min="1" class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+          <label for="count" class="block text-sm font-medium text-gray-700">Repeticiones (opcional)</label>
+          <input type="number" id="count" min="1" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
         </div>
       </div>
     </div>
 
-    <div class="text-right pt-4">
-      <button type="submit"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-sm transition-all"
-              onclick="console.log('🟢 clic en submit');">
-        Guardar tarea
-      </button>
+    <div class="text-right">
+      <button type="button" onclick="cerrarModalTarea()" class="text-gray-500 text-sm mr-4">Cancelar</button>
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Guardar</button>
     </div>
     <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
     <!-- <input type="hidden" name="empresa_id" value="{{ empresa_id if empresa_id else user.get('empresa_id', '') }}"> -->
@@ -264,6 +263,10 @@ function initModalSubmit() {
     // ...existing code...
   });
 }
+
+function toggleRecurrente(cb) {
+    document.getElementById("recurrente_fields").classList.toggle("hidden", !cb.checked);
+  }
 </script>
 
 </body>

@@ -48,29 +48,22 @@ function initModalSubmit() {
     const nombre_nora = get("nombre_nora").value;
 
     const payload = {
-      titulo:               get("titulo").value.trim(),
-      descripcion:          get("descripcion").value.trim(),
-      fecha_limite:         get("fecha_limite").value || null,
-      prioridad:            get("prioridad").value.toLowerCase(),
-      usuario_empresa_id:   get("usuario_empresa_id").value,
-      empresa_id:           get("empresa_id").value
+      titulo:        get("titulo").value.trim(),
+      descripcion:   get("descripcion").value.trim(),
+      fecha_limite:  get("fecha_limite").value || null,
+      prioridad:     get("prioridad").value.toLowerCase(),
+      usuario_empresa_id: get("usuario_empresa_id").value
     };
-
-    // 🟡 Validar campos recurrentes si se activa el checkbox
-    const esRecurrente = get("recurrente_checkbox")?.checked;
-    if (esRecurrente) {
-      payload.recurrente = "true";
-      payload.dtstart = get("dtstart").value || null;
-      payload.rrule   = get("rrule").value.trim();
-      const untilVal  = get("until").value;
-      if (untilVal) payload.until = untilVal;
-      const countVal  = get("count").value;
-      if (countVal) payload.count = parseInt(countVal, 10);
-
-      if (!payload.dtstart || !payload.rrule) {
-        alert("🔁 Debes especificar la fecha de inicio y la regla RRULE para tareas recurrentes.");
-        return;
-      }
+    // incluir recurrencia si está activa
+    if (get("is_recurrente").checked) {
+      const rruleType = get("rrule_type").value;
+      if (rruleType) payload.rrule_type = rruleType;
+      const start = get("fecha_inicio").value;
+      if (start) payload.dtstart = start;
+      const end = get("fecha_fin").value;
+      if (end) payload.until = end;
+      const count = get("count").value;
+      if (count) payload.count = parseInt(count, 10);
     }
 
     const url = tareaId
