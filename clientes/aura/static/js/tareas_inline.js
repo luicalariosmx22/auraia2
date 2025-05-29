@@ -66,9 +66,16 @@ function initModalSubmit() {
       if (count) payload.count = parseInt(count, 10);
     }
 
-    const url = tareaId
-      ? `/panel_cliente/${nombre_nora}/tareas/gestionar/actualizar/${tareaId}`
-      : `/panel_cliente/${nombre_nora}/tareas/gestionar/crear`;
+    let url;
+    // si es recurrente y nueva tarea, llamamos al endpoint de recurrentes
+    if (!tareaId && get("is_recurrente").checked) {
+      url = `/panel_cliente/${nombre_nora}/tareas/recurrentes/crear`;
+      // adjuntar tarea_id recién creada no aplica aquí, debe llamar gestionar primero
+    } else {
+      url = tareaId
+        ? `/panel_cliente/${nombre_nora}/tareas/gestionar/actualizar/${tareaId}`
+        : `/panel_cliente/${nombre_nora}/tareas/gestionar/crear`;
+    }
 
     try {
       await postJSON(url, payload);
