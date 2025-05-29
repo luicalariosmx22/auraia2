@@ -204,13 +204,18 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
     "/panel_cliente/<nombre_nora>/tareas/gestionar/crear", methods=["POST"]
 )
 def crear_tarea(nombre_nora):
-    form = request.form.to_dict()
-    titulo = (form.get("titulo") or "").strip()
-    prioridad = (form.get("prioridad") or "media").strip().lower()
-    fecha_limite = form.get("fecha_limite")
-    estatus = (form.get("estatus") or "pendiente").strip().lower()
-    usuario_empresa_id = (form.get("usuario_empresa_id") or "").strip()
-    raw_empresa = (form.get("empresa_id") or "").strip()
+    # soportar JSON o FormData
+    payload = request.get_json(silent=True)
+    if payload is None:
+        # si viene por FormData
+        payload = { k: v for k, v in request.form.items() }
+
+    titulo = (payload.get("titulo") or "").strip()
+    prioridad = (payload.get("prioridad") or "media").strip().lower()
+    fecha_limite = payload.get("fecha_limite")
+    estatus = (payload.get("estatus") or "pendiente").strip().lower()
+    usuario_empresa_id = (payload.get("usuario_empresa_id") or "").strip()
+    raw_empresa = (payload.get("empresa_id") or "").strip()
     empresa_id = raw_empresa if raw_empresa else None
 
     # Validaciones mínimas
@@ -259,41 +264,19 @@ def crear_tarea(nombre_nora):
         tarea_data["empresa_id"] = empresa_id
 
     try:
+        # insertar tarea principal
         supabase.table("tareas").insert(tarea_data).execute()
-
-        # Guardar configuración de recurrencia si aplica
-        if form.get("recurrente") == "true":
-            rrule = (form.get("rrule") or "").strip()
-            dtstart = form.get("dtstart") or fecha_limite  # fallback si no lo envían
-            until = form.get("until") or None
-            count = form.get("count") or None
-
-            if not rrule or not dtstart:
-                return jsonify({"error": "RRULE y fecha inicio requeridas"}), 400
-
-            try:
-                count = int(count)
-            except (ValueError, TypeError):
-                count = None
-
-            tarea_recurrente = {
-                "id": str(uuid.uuid4()),
-                "tarea_id": tarea_data["id"],
-                "dtstart": dtstart,
-                "rrule": rrule,
-                "until": until,
-                "count": count,
-                "active": True,
-                "created_at": datetime.utcnow().isoformat(),
-                "updated_at": datetime.utcnow().isoformat()
+        # si es recurrente, registrar en tareas_recurrentes
+        if payload.get("rrule_type"):
+            recurrente = {
+                "tarea_id":      tarea_data["id"],
+                "dtstart":       payload.get("fecha_inicio"),
+                "rrule":         payload.get("rrule_type"),
+                "until":         payload.get("fecha_fin") or None,
+                "count":         int(payload["count"]) if payload.get("count") else None,
             }
-
-            try:
-                supabase.table("tareas_recurrentes").insert(tarea_recurrente).execute()
-            except Exception as e:
-                return jsonify({"ok": True, "warning": f"Tarea creada pero falló guardar la recurrencia: {e}"}), 200
-
-        return jsonify({"ok": True})
+            supabase.table("tareas_recurrentes").insert(recurrente).execute()
+        return jsonify({"ok": True, "tarea": tarea_data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

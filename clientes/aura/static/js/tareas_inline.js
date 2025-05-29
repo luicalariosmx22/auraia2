@@ -34,6 +34,29 @@ document.addEventListener("DOMContentLoaded", () => {
     recCheck.addEventListener("change", e => {
       recFields.classList.toggle("hidden", !e.target.checked);
     });
+    // actualizar preview de RRULE al cambiar tipo o fecha
+    const rruleType = document.getElementById("rrule_type");
+    const dtstartInput = document.getElementById("fecha_inicio");
+    const preview    = document.getElementById("rrule_preview");
+    function updateRRule() {
+      const freq = (rruleType.value || "").toUpperCase();
+      if (!freq) {
+        preview.value = "";
+        return;
+      }
+      let rule = `FREQ=${freq}`;
+      if (freq === "WEEKLY" && dtstartInput.value) {
+        const days = ["SU","MO","TU","WE","TH","FR","SA"];
+        const d = new Date(dtstartInput.value);
+        rule += `;BYDAY=${days[d.getUTCDay()]}`;
+      } else if (freq === "MONTHLY" && dtstartInput.value) {
+        const day = new Date(dtstartInput.value).getUTCDate();
+        rule += `;BYMONTHDAY=${day}`;
+      }
+      preview.value = rule;
+    }
+    rruleType?.addEventListener("change", updateRRule);
+    dtstartInput?.addEventListener("change", updateRRule);
   }
 });
 
