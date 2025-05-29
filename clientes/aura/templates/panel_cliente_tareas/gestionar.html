@@ -107,7 +107,11 @@
       </td>
       <!-- acciones -->
       <td class="px-4 py-2">
-        <button onclick="editarTarea('{{ tarea.id }}')" data-id="{{ tarea.id }}" data-nora="{{ nombre_nora }}" class="text-blue-600 hover:underline text-xs mr-2">Ver</button>
+        <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2"
+                data-id="{{ tarea.id }}"
+                data-nora="{{ nombre_nora }}">
+          Ver
+        </button>
         <button onclick="eliminarTarea('{{ tarea.id }}')" class="text-red-600 hover:underline text-xs">Eliminar</button>
       </td>
     </tr>
@@ -215,7 +219,11 @@
         </td>
         <!-- acciones -->
         <td class="px-4 py-2">
-          <button onclick="editarTarea('{{ tarea.id }}')" data-id="{{ tarea.id }}" data-nora="{{ nombre_nora }}" class="text-blue-600 hover:underline text-xs mr-2">Ver</button>
+          <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2"
+                  data-id="{{ tarea.id }}"
+                  data-nora="{{ nombre_nora }}">
+            Ver
+          </button>
           <button onclick="eliminarTarea('{{ tarea.id }}')" class="text-red-600 hover:underline text-xs">Eliminar</button>
         </td>
       </tr>

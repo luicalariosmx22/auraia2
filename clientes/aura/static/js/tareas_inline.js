@@ -109,30 +109,39 @@ document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
   btn.addEventListener("click", async () => {
     const tareaId = btn.getAttribute("data-id");
     const nombreNora = btn.getAttribute("data-nora");
-    const modal = document.getElementById("modalVerTarea");
 
     try {
       const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
       const tarea = await res.json();
 
       if (tarea.error) {
-        alert("Error al cargar la tarea");
+        alert("❌ Error al cargar la tarea");
         return;
       }
 
-      modal.querySelector("#verTitulo").value = tarea.titulo || "";
-      modal.querySelector("#verDescripcion").value = tarea.descripcion || "";
-      modal.querySelector("#verPrioridad").value = tarea.prioridad || "media";
-      modal.querySelector("#verEstatus").value = tarea.estatus || "pendiente";
-      modal.querySelector("#verFechaLimite").value = tarea.fecha_limite || "";
-      modal.querySelector("#verEmpresa").value = tarea.empresa_id || "";
-      modal.querySelector("#verAsignado").value = tarea.usuario_empresa_id || "";
-      modal.querySelector("#verIdTarea").value = tarea.id || "";
+      document.getElementById("modalTarea").classList.remove("hidden");
+      document.getElementById("modalTitulo").textContent = "Ver / Editar tarea";
 
-      new bootstrap.Modal(modal).show();
+      // Asignar valores al modal
+      document.getElementById("tarea_id").value = tarea.id || "";
+      document.getElementById("titulo").value = tarea.titulo || "";
+      document.getElementById("descripcion").value = tarea.descripcion || "";
+      document.getElementById("prioridad").value = tarea.prioridad || "media";
+      document.getElementById("fecha_limite").value = tarea.fecha_limite || "";
+
+      const empresaSelect = document.getElementById("empresa_id");
+      [...empresaSelect.options].forEach(opt => {
+        opt.selected = opt.value === (tarea.empresa_id || "");
+      });
+
+      const asignadoSelect = document.getElementById("usuario_empresa_id");
+      [...asignadoSelect.options].forEach(opt => {
+        opt.selected = opt.value === (tarea.usuario_empresa_id || "");
+      });
+
     } catch (error) {
       console.error(error);
-      alert("No se pudo cargar la información");
+      alert("❌ No se pudo cargar la información");
     }
   });
 });

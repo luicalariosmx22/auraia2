@@ -261,6 +261,10 @@ def obtener_tarea(nombre_nora, tarea_id):
             .eq("id", tarea_id).eq("nombre_nora", nombre_nora).limit(1).execute()
         if not tarea.data:
             return jsonify({"error": "Tarea no encontrada"}), 404
-        return jsonify(tarea.data[0])
+        # Aseguramos que descripcion esté presente (aunque sea vacío)
+        t = tarea.data[0]
+        if "descripcion" not in t:
+            t["descripcion"] = ""
+        return jsonify(t)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
