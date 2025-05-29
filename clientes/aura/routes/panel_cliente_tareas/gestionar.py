@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import date
 import uuid
 import logging
 
@@ -98,6 +99,14 @@ def vista_gestionar_tareas(nombre_nora):
                     t["asignado_nombre"] = usr.data[0]["nombre"]
             except Exception:
                 t["asignado_nombre"] = ""
+        # 🚨 Agregar esta línea para calcular días restantes
+        if t.get("fecha_limite"):
+            try:
+                t["dias_restantes"] = (date.fromisoformat(t["fecha_limite"]) - date.today()).days
+            except Exception:
+                t["dias_restantes"] = None
+        else:
+            t["dias_restantes"] = None
 
     usuarios_resp = (
         supabase.table("usuarios_clientes")
