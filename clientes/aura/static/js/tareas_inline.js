@@ -84,7 +84,7 @@ function editarTarea(id) {
     option.selected = option.text.trim() === empresaTexto;
   });
 
-  // 🚀 Cargar descripción desde Supabase
+  // 🚀 Cargar descripción y empresa_id desde Supabase
   const nombreNora = document.body.dataset.nombreNora;
   fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${id}`)
     .then(res => res.json())
@@ -92,6 +92,7 @@ function editarTarea(id) {
       if (data.descripcion) {
         document.getElementById("descripcion").value = data.descripcion;
       }
+      document.getElementById("empresa_id").value = data.empresa_id || "";
     })
     .catch(err => console.error("Error al cargar la descripción:", err));
 }
