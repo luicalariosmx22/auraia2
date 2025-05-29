@@ -58,8 +58,14 @@
                  class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1"
                  value="{{ tarea.titulo }}"
                  onblur="updateCampo(this,'titulo')">
+          {% if tarea.recurrente %}
+            <span title="Tarea recurrente">🔁</span>
+          {% endif %}
         {% else %}
           {{ tarea.titulo }}
+          {% if tarea.recurrente %}
+            <span title="Tarea recurrente">🔁</span>
+          {% endif %}
         {% endif %}
       </td>
 
@@ -174,8 +180,14 @@
                    class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1"
                    value="{{ tarea.titulo }}"
                    onblur="updateCampo(this,'titulo')">
+            {% if tarea.recurrente %}
+              <span title="Tarea recurrente">🔁</span>
+            {% endif %}
           {% else %}
             {{ tarea.titulo }}
+            {% if tarea.recurrente %}
+              <span title="Tarea recurrente">🔁</span>
+            {% endif %}
           {% endif %}
         </td>
         <!-- prioridad con icono -->

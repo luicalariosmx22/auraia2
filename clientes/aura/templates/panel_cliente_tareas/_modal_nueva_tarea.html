@@ -214,6 +214,37 @@
   <!-- ...existing code... -->
 </form>
 
+<!-- ✅ NUEVA SECCIÓN: Campos para tareas recurrentes -->
+<div class="mb-4">
+  <label class="inline-flex items-center">
+    <input type="checkbox" id="recurrente_checkbox" class="mr-2">
+    <span class="text-sm text-gray-700">Esta es una tarea recurrente</span>
+  </label>
+</div>
+
+<div id="recurrente_fields" class="hidden">
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div>
+      <label for="dtstart" class="block text-sm font-medium text-gray-700">Inicio (DTSTART)</label>
+      <input type="datetime-local" id="dtstart" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+    </div>
+    <div>
+      <label for="rrule" class="block text-sm font-medium text-gray-700">Regla RRULE</label>
+      <input type="text" id="rrule" placeholder="Ej: FREQ=WEEKLY;BYDAY=MO" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div>
+      <label for="until" class="block text-sm font-medium text-gray-700">Fin (UNTIL)</label>
+      <input type="date" id="until" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+    </div>
+    <div>
+      <label for="count" class="block text-sm font-medium text-gray-700">Cantidad (COUNT)</label>
+      <input type="number" id="count" min="1" placeholder="Ej: 10" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+    </div>
+  </div>
+</div>
+
 <script>
 document.getElementById("form_nueva_tarea")?.addEventListener("submit", function(e) {
   const usuInput = document.getElementById("usuario_empresa_id");
