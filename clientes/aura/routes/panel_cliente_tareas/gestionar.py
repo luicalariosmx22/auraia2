@@ -72,6 +72,10 @@ def vista_gestionar_tareas(nombre_nora):
 
     tareas = [t for t in tareas if coincide(t)]
 
+    filtro_tipo = request.args.get("tipo", "").strip().lower()
+    if filtro_tipo == "recurrente":
+        tareas = [t for t in tareas if t.get("recurrente") is True]
+
     for t in tareas:
         if t.get("empresa_id"):
             try:
