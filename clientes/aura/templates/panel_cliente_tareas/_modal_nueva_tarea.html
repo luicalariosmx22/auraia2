@@ -54,15 +54,13 @@
     <!-- 🏢 Empresa -->
     <div class="mb-4">
       <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
-      <input list="datalist_empresas" name="empresa_id" id="empresa_id"
-        class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white">
+      <select name="empresa_id" id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+        <option value="">— Sin empresa —</option>
+        {% for e in empresas %}
+          <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+        {% endfor %}
+      </select>
     </div>
-
-    <datalist id="datalist_empresas">
-      {% for empresa in empresas %}
-        <option data-id="{{ empresa.id }}" value="{{ empresa.nombre_empresa }}"></option>
-      {% endfor %}
-    </datalist>
 
     <!-- 🛠️ Eliminado campo "Creado por" del modal -->
 

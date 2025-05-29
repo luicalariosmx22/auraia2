@@ -53,16 +53,11 @@
 
       <!-- prioridad con icono -->
       <td class="px-4 py-2 capitalize">
-        {% if editable %}
-          <select onchange="updateCampo(this,'prioridad')" class="bg-transparent">
-            <option value="alta" {% if tarea.prioridad=='alta' %}selected{% endif %}>🔴 Alta</option>
-            <option value="media" {% if tarea.prioridad=='media' %}selected{% endif %}>🟠 Media</option>
-            <option value="baja" {% if tarea.prioridad=='baja' %}selected{% endif %}>🟢 Baja</option>
-          </select>
-        {% else %}
-          {% if tarea.prioridad=='alta' %}🔴{% elif tarea.prioridad=='media' %}🟠{% else %}🟢{% endif %}
-          {{ tarea.prioridad }}
-        {% endif %}
+        <select onchange="updateCampo(this,'prioridad')" class="bg-transparent">
+          <option value="alta" {% if tarea.prioridad=='alta' %}selected{% endif %}>🔴 Alta</option>
+          <option value="media" {% if tarea.prioridad=='media' %}selected{% endif %}>🟠 Media</option>
+          <option value="baja" {% if tarea.prioridad=='baja' %}selected{% endif %}>🟢 Baja</option>
+        </select>
       </td>
 
       <!-- fecha límite -->
@@ -76,17 +71,12 @@
 
       <!-- estatus badge / dropdown -->
       <td class="px-4 py-2 capitalize">
-        {% if editable %}
-          <select onchange="updateCampo(this,'estatus')" class="bg-transparent">
-            <option value="pendiente"   {% if tarea.estatus=='pendiente' %}selected{% endif %}>⏳ Pendiente</option>
-            <option value="en progreso" {% if tarea.estatus=='en progreso' %}selected{% endif %}>🚧 En&nbsp;progreso</option>
-            <option value="retrasada"   {% if tarea.estatus=='retrasada' %}selected{% endif %}>❗ Retrasada</option>
-            <option value="completada"  {% if tarea.estatus=='completada' %}selected{% endif %}>✅ Completada</option>
-          </select>
-        {% else %}
-          {% if tarea.estatus=='pendiente' %}⏳{% elif tarea.estatus=='en progreso' %}🚧{% elif tarea.estatus=='retrasada' %}❗{% elif tarea.estatus=='completada' %}✅{% endif %}
-          {{ tarea.estatus }}
-        {% endif %}
+        <select onchange="updateCampo(this,'estatus')" class="bg-transparent">
+          <option value="pendiente"   {% if tarea.estatus=='pendiente' %}selected{% endif %}>⏳ Pendiente</option>
+          <option value="en progreso" {% if tarea.estatus=='en progreso' %}selected{% endif %}>🚧 En progreso</option>
+          <option value="retrasada"   {% if tarea.estatus=='retrasada' %}selected{% endif %}>❗ Retrasada</option>
+          <option value="completada"  {% if tarea.estatus=='completada' %}selected{% endif %}>✅ Completada</option>
+        </select>
       </td>
 
       <!-- asignado a (usa usuario_empresa_id) -->
@@ -188,7 +178,7 @@
           {% if editable %}
             <select onchange="updateCampo(this,'estatus')" class="bg-transparent">
               <option value="pendiente"   {% if tarea.estatus=='pendiente' %}selected{% endif %}>⏳ Pendiente</option>
-              <option value="en progreso" {% if tarea.estatus=='en progreso' %}selected{% endif %}>🚧 En&nbsp;progreso</option>
+              <option value="en progreso" {% if tarea.estatus=='en progreso' %}selected{% endif %}>🚧 En progreso</option>
               <option value="retrasada"   {% if tarea.estatus=='retrasada' %}selected{% endif %}>❗ Retrasada</option>
               <option value="completada"  {% if tarea.estatus=='completada' %}selected{% endif %}>✅ Completada</option>
             </select>
@@ -313,7 +303,7 @@
   function editarTarea(id) {
     fetch(`/panel_cliente/{{ nombre_nora }}/tareas/obtener/${id}`)
       .then(res => res.json())
-      .then(data => {
+      .then data => {
         if (data.error) return alert("No se pudo cargar la tarea.");
         // Abrir modal
         document.getElementById("modalTarea").classList.remove("hidden");

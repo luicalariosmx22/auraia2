@@ -69,7 +69,6 @@ function editarTarea(id) {
 
   document.getElementById("modalTarea").classList.remove("hidden");
   document.getElementById("tarea_id").value = id;
-  document.getElementById("modalTitulo").textContent = "Ver tarea";
 
   document.getElementById("titulo").value = fila.children[1].innerText.trim();
 
@@ -92,7 +91,11 @@ function editarTarea(id) {
       if (data.descripcion) {
         document.getElementById("descripcion").value = data.descripcion;
       }
-      document.getElementById("empresa_id").value = data.empresa_id || "";
+      // Obtener empresa_id del select si existe en la fila
+      const empresaID = fila.querySelector("td:nth-child(7) select")?.value || "";
+      document.getElementById("empresa_id").value = empresaID;
+      // Cambiar el título del modal según si es nueva o edición
+      document.getElementById("modalTitulo").textContent = id ? "Ver / Editar tarea" : "Nueva tarea";
     })
     .catch(err => console.error("Error al cargar la descripción:", err));
 }
