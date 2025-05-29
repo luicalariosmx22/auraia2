@@ -100,3 +100,9 @@ from . import (
     verificar
 )
 from .gestionar import panel_tareas_gestionar_bp
+from .contactos import panel_cliente_contactos_bp
+from .recurrentes import panel_tareas_recurrentes_bp
+
+def create_app():
+     app.register_blueprint(panel_tareas_gestionar_bp)
+     app.register_blueprint(panel_tareas_recurrentes_bp)

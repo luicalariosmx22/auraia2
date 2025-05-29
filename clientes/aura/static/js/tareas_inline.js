@@ -23,6 +23,19 @@ async function postJSON(url, payload = {}) {
   return data;
 }
 
+// ────────────────────────────────────────────────────────────
+// Toggle visibilidad de campos de recurrencia en el modal
+// ────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const recCheck = document.getElementById("recurrente");
+  const recFields = document.getElementById("recurrente_fields");
+  if (recCheck && recFields) {
+    recCheck.addEventListener("change", e => {
+      recFields.classList.toggle("hidden", !e.target.checked);
+    });
+  }
+});
+
 function initModalSubmit() {
   const form = document.getElementById("formTarea");
   if (!form) return;

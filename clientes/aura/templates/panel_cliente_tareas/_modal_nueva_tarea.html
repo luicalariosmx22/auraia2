@@ -155,6 +155,36 @@
   </div>
 </div>
 
+<form id="formTarea">
+  <!-- Campos para tareas recurrentes         -->
+  <!-- ──────────────────────────────────────── -->
+  <div class="mb-4">
+    <label class="flex items-center">
+      <input type="checkbox" id="recurrente" class="mr-2" />
+      Tarea recurrente
+    </label>
+  </div>
+  <div id="recurrente_fields" class="hidden">
+    <div class="mb-4">
+      <label for="dtstart" class="block text-sm font-medium text-gray-700">Fecha inicio rec.</label>
+      <input type="date" id="dtstart" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
+    </div>
+    <div class="mb-4">
+      <label for="rrule" class="block text-sm font-medium text-gray-700">Regla RRule</label>
+      <input type="text" id="rrule" placeholder="FREQ=DAILY;INTERVAL=1" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
+    </div>
+    <div class="mb-4">
+      <label for="until" class="block text-sm font-medium text-gray-700">Fecha fin (opcional)</label>
+      <input type="date" id="until" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
+    </div>
+    <div class="mb-4">
+      <label for="count" class="block text-sm font-medium text-gray-700">Número de repeticiones (opcional)</label>
+      <input type="number" id="count" min="1" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
+    </div>
+  </div>
+  <!-- ...existing code... -->
+</form>
+
 <script>
 document.getElementById("form_nueva_tarea")?.addEventListener("submit", function(e) {
   const usuInput = document.getElementById("usuario_empresa_id");
@@ -168,6 +198,43 @@ document.getElementById("form_nueva_tarea")?.addEventListener("submit", function
   if (usuOption) usuInput.value = usuOption.dataset.id;
   if (empOption) empInput.value = empOption.dataset.id;
 });
+
+function initModalSubmit() {
+  const form = document.getElementById("formTarea");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const get = id => document.getElementById(id);
+    const tareaId = get("tarea_id").value;
+    const nombre_nora = get("nombre_nora").value;
+
+    const payload = {
+      titulo:        get("titulo").value.trim(),
+      descripcion:   get("descripcion").value.trim(),
+      fecha_limite:  get("fecha_limite").value || null,
+      prioridad:     get("prioridad").value.toLowerCase(),
+      usuario_empresa_id: get("usuario_empresa_id").value
+    };
+
+    const emp = get("empresa_id").value;
+    if (emp) payload.empresa_id = emp;
+
+    // ───────────────────────────────────────────────────────
+    // Incluir datos de recurrencia si corresponde
+    // ───────────────────────────────────────────────────────
+    if (get("recurrente")?.checked) {
+      payload.dtstart = get("dtstart").value || null;
+      payload.rrule   = get("rrule").value.trim();
+      const untilVal  = get("until").value;
+      if (untilVal) payload.until = untilVal;
+      const countVal  = get("count").value;
+      if (countVal) payload.count = parseInt(countVal, 10);
+    }
+
+    // ...existing code...
+  });
+}
 </script>
 
 </body>
