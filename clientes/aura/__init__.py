@@ -161,6 +161,8 @@ def create_app(config_class=Config):
     logging.getLogger("twilio.http_client").setLevel(logging.WARNING)
     print("Nivel de logging para twilio.http_client establecido a WARNING.")
 
+    logging.getLogger("httpx").setLevel(logging.WARNING)  # Oculta los logs debug de Supabase
+
     # Registrar Tareas APScheduler
     if not scheduler.running:
         try:
