@@ -52,7 +52,11 @@ function initModalSubmit() {
   });
 }
 
-initModalSubmit();
+try {
+  initModalSubmit();
+} catch (err) {
+  console.error("Error en initModalSubmit:", err);
+}
 
 /* -------------------------------------------------------------
    Función auxiliar usada en gestores inline (títulos, estatus…)
