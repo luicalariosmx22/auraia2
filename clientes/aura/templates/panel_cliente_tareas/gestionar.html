@@ -65,15 +65,16 @@
         {% if editable %}
           <input type="date" value="{{ tarea.fecha_limite }}" onchange="updateCampo(this,'fecha_limite')">
         {% else %}
-          {% set hoy = namespace(value=cycler["now"].date()) %}
-          {% set limite = tarea.fecha_limite | todatetime('%Y-%m-%d') %}
-          {% set dias_restantes = (limite.date() - hoy.value).days %}
-          {% if dias_restantes > 0 %}
-            <span class="text-green-700 font-medium">{{ dias_restantes }} días restantes</span>
-          {% elif dias_restantes == 0 %}
-            <span class="text-yellow-600 font-medium">Hoy</span>
+          {% if tarea.dias_restantes is not none %}
+            {% if tarea.dias_restantes > 0 %}
+              <span class="text-green-700 font-medium">{{ tarea.dias_restantes }} días restantes</span>
+            {% elif tarea.dias_restantes == 0 %}
+              <span class="text-yellow-600 font-medium">Hoy</span>
+            {% else %}
+              <span class="text-red-600 font-medium">Hace {{ tarea.dias_restantes | abs }} días</span>
+            {% endif %}
           {% else %}
-            <span class="text-red-600 font-medium">Hace {{ dias_restantes | abs }} días</span>
+            <span class="text-gray-500">Sin fecha</span>
           {% endif %}
         {% endif %}
       </td>
@@ -183,15 +184,16 @@
           {% if editable %}
             <input type="date" value="{{ tarea.fecha_limite }}" onchange="updateCampo(this,'fecha_limite')">
           {% else %}
-            {% set hoy = namespace(value=cycler["now"].date()) %}
-            {% set limite = tarea.fecha_limite | todatetime('%Y-%m-%d') %}
-            {% set dias_restantes = (limite.date() - hoy.value).days %}
-            {% if dias_restantes > 0 %}
-              <span class="text-green-700 font-medium">{{ dias_restantes }} días restantes</span>
-            {% elif dias_restantes == 0 %}
-              <span class="text-yellow-600 font-medium">Hoy</span>
+            {% if tarea.dias_restantes is not none %}
+              {% if tarea.dias_restantes > 0 %}
+                <span class="text-green-700 font-medium">{{ tarea.dias_restantes }} días restantes</span>
+              {% elif tarea.dias_restantes == 0 %}
+                <span class="text-yellow-600 font-medium">Hoy</span>
+              {% else %}
+                <span class="text-red-600 font-medium">Hace {{ tarea.dias_restantes | abs }} días</span>
+              {% endif %}
             {% else %}
-              <span class="text-red-600 font-medium">Hace {{ dias_restantes | abs }} días</span>
+              <span class="text-gray-500">Sin fecha</span>
             {% endif %}
           {% endif %}
         </td>
@@ -354,7 +356,7 @@
     }).then(() => location.reload());   // mueve la fila al bloque correcto
   }
 
-  /* Todos los <select> usan updateCampo; recargamos sólo si cambia 'estatus'. */
+  /* Todos los <select> usan updateCampo; recargamos solo si cambia 'estatus'. */
 
   function eliminarTarea(id) {
     if (confirm("¿Seguro que deseas eliminar esta tarea?")) {
