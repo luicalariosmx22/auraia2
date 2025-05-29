@@ -1,8 +1,10 @@
-from flask import Blueprint
-from flask import render_template, session, request
-from clientes.aura.utils.supabase_client import supabase
-from .recurrentes import panel_tareas_recurrentes_bp
+# ✅ Archivo: clientes/aura/routes/panel_cliente_tareas/__init__.py
+# 👉 Corrige los imports y registra solo los blueprints existentes
 
+from flask import Blueprint, render_template, session, request
+from clientes.aura.utils.supabase_client import supabase
+from .gestionar import panel_tareas_gestionar_bp
+from .recurrentes import panel_tareas_recurrentes_bp
 
 panel_cliente_tareas_bp = Blueprint(
     "panel_cliente_tareas",
@@ -87,13 +89,10 @@ def vista_tareas_index():
 # ✅ Import forzado: asegura que las rutas se registren aunque el bloque multiple no se ejecute
 import clientes.aura.routes.panel_cliente_tareas.tareas_crud
 
-# Importación obligatoria para que se registren correctamente las rutas del CRUD
+# Importación obligatoria para que se registren correctamente las rutas del CRUD y submódulos
 from . import (
     tareas_crud,
-    gestionar
-)
-# Importa los submódulos que registran rutas en este blueprint
-from . import (
+    gestionar,
     plantillas,
     whatsapp,
     usuarios_clientes,
@@ -101,10 +100,8 @@ from . import (
     automatizaciones,
     verificar
 )
-from .gestionar import panel_tareas_gestionar_bp
-from .contactos import panel_cliente_contactos_bp
-from .recurrentes import panel_tareas_recurrentes_bp
 
-def create_app():
-     app.register_blueprint(panel_tareas_gestionar_bp)
-     app.register_blueprint(panel_tareas_recurrentes_bp)
+# Registrar blueprints locales
+def create_app(app):
+    app.register_blueprint(panel_tareas_gestionar_bp)
+    app.register_blueprint(panel_tareas_recurrentes_bp)
