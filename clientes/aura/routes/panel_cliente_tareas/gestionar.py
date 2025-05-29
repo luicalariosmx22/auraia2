@@ -192,7 +192,8 @@ def crear_tarea(nombre_nora):
     fecha_limite = form.get("fecha_limite")
     estatus = (form.get("estatus") or "pendiente").strip().lower()
     usuario_empresa_id = (form.get("usuario_empresa_id") or "").strip()
-    empresa_id = (form.get("empresa_id") or "").strip() or None
+    raw_empresa = (form.get("empresa_id") or "").strip()
+    empresa_id = raw_empresa if raw_empresa else None
 
     # Validaciones mínimas
     if not titulo:
@@ -236,7 +237,7 @@ def crear_tarea(nombre_nora):
         "creado_por": creado_por,
         "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
     }
-    if empresa_id:
+    if empresa_id is not None:
         tarea_data["empresa_id"] = empresa_id
 
     try:
