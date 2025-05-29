@@ -277,3 +277,17 @@ def obtener_tarea(nombre_nora, tarea_id):
         return jsonify(t)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# -------------------------------------------------------------------
+# API: eliminar tarea (marcar como inactiva)
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/eliminar/<tarea_id>", methods=["POST"])
+def eliminar_tarea(nombre_nora, tarea_id):
+    try:
+        supabase.table("tareas").update({
+            "activo": False,
+            "updated_at": datetime.utcnow().isoformat()
+        }).eq("id", tarea_id).eq("nombre_nora", nombre_nora).execute()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

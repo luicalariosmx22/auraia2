@@ -29,21 +29,23 @@ function initModalSubmit() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    // ─── seleccionar elementos por ID usando get() ─────────────────────
     const get = id => document.getElementById(id);
+    const tareaId = get("tarea_id").value;
+    const nombre_nora = get("nombre_nora").value;
+
     const payload = {
       titulo:               get("titulo").value.trim(),
       descripcion:          get("descripcion").value.trim(),
       fecha_limite:         get("fecha_limite").value || null,
       prioridad:            get("prioridad").value.toLowerCase(),
-      usuario_empresa_id:   get("usuario_empresa_id").value
+      usuario_empresa_id:   get("usuario_empresa_id").value,
+      empresa_id:           get("empresa_id").value
     };
 
-    const emp = get("empresa_id").value;
-    if (emp) payload.empresa_id = emp;
-
-    const nombre_nora = get("nombre_nora").value;
-    const url = `/panel_cliente/${nombre_nora}/tareas/gestionar/crear`;
+    // URL dinámica según si es edición o nueva
+    const url = tareaId
+      ? `/panel_cliente/${nombre_nora}/tareas/gestionar/actualizar/${tareaId}`
+      : `/panel_cliente/${nombre_nora}/tareas/gestionar/crear`;
 
     try {
       await postJSON(url, payload);
@@ -193,6 +195,58 @@ document.getElementById("formVerTarea").addEventListener("submit", async (e) => 
     alertContainer.classList.add("alert", "alert-danger");
   }
 });
+
+// ✅ Cambiar estatus con checkbox
+function toggleEstatus(checkbox) {
+  const fila = checkbox.closest("tr");
+  const id = fila.getAttribute("data-id");
+  const estatus = checkbox.checked ? "completada" : "pendiente";
+  const nombreNora = document.body.dataset.nombreNora;
+
+  fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/actualizar/${id}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ campo: "estatus", valor: estatus })
+  }).then(() => location.reload());
+}
+
+// ✅ Eliminar tarea
+function eliminarTarea(id) {
+  const nombreNora = document.body.dataset.nombreNora;
+  if (confirm("¿Eliminar esta tarea?")) {
+    fetch(`/panel_cliente/${nombreNora}/tareas/eliminar/${id}`, {
+      method: "POST"
+    }).then(() => location.reload());
+  }
+}
+
+// ✅ Autocompletar campos desde datalist
+function handleAutoCompleteInput(input, campo) {
+  const val = input.value.trim();
+  if (!val) return;
+
+  const datalistId = input.getAttribute("list");
+  const options = document.querySelectorAll(`#${datalistId} option`);
+  let id = null;
+  options.forEach(opt => {
+    if (opt.value === val) id = opt.getAttribute("data-id");
+  });
+
+  if (!id) {
+    alert("Selecciona una opción válida.");
+    return;
+  }
+
+  const fila = input.closest("tr");
+  const tareaId = fila.getAttribute("data-id");
+  const nombreNora = document.body.dataset.nombreNora;
+
+  fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/actualizar/${tareaId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ campo, valor: id })
+  }).then(() => location.reload());
+}
 
 // Reemplazo de bloque para fecha_limite en el modal de ver/editar tarea
 // (esto es solo un recordatorio para el HTML, no requiere cambio JS aquí)
