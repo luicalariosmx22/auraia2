@@ -7,7 +7,7 @@
     ➕ Crear nueva tarea
   </h2>
 
-  <form method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/guardar-tarea" class="space-y-4">
+  <form method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/guardar-tarea" class="space-y-4" id="form_nueva_tarea">
     <div>
       <label for="titulo" class="block text-sm font-medium text-gray-700">Título</label>
       <input type="text" name="titulo" id="titulo" required
@@ -38,26 +38,31 @@
       </div>
     </div>
 
-    <div>
+    <!-- 👤 Asignado a -->
+    <div class="mb-4">
       <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado a</label>
-      <select name="usuario_empresa_id" id="usuario_empresa_id"
-              class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-        {% for u in usuarios %}
-          <option value="{{ u.id }}">{{ u.nombre }}</option>
-        {% endfor %}
-      </select>
+      <input list="datalist_usuarios" name="usuario_empresa_id" id="usuario_empresa_id"
+        class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white">
     </div>
 
-    <div>
-      <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa (opcional)</label>
-      <select id="empresa_id" name="empresa_id"
-              class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-        <option value="" selected>— Sin empresa —</option>
-        {% for e in empresas %}
-          <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
-        {% endfor %}
-      </select>
+    <datalist id="datalist_usuarios">
+      {% for usuario in usuarios %}
+        <option data-id="{{ usuario.id }}" value="{{ usuario.nombre }}"></option>
+      {% endfor %}
+    </datalist>
+
+    <!-- 🏢 Empresa -->
+    <div class="mb-4">
+      <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
+      <input list="datalist_empresas" name="empresa_id" id="empresa_id"
+        class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white">
     </div>
+
+    <datalist id="datalist_empresas">
+      {% for empresa in empresas %}
+        <option data-id="{{ empresa.id }}" value="{{ empresa.nombre_empresa }}"></option>
+      {% endfor %}
+    </datalist>
 
     <!-- 🛠️ Eliminado campo "Creado por" del modal -->
 
@@ -151,5 +156,20 @@
     </form>
   </div>
 </div>
+
+<script>
+document.getElementById("form_nueva_tarea")?.addEventListener("submit", function(e) {
+  const usuInput = document.getElementById("usuario_empresa_id");
+  const empInput = document.getElementById("empresa_id");
+  const usuValue = usuInput.value.trim();
+  const empValue = empInput.value.trim();
+
+  const usuOption = [...document.querySelectorAll("#datalist_usuarios option")].find(opt => opt.value === usuValue);
+  const empOption = [...document.querySelectorAll("#datalist_empresas option")].find(opt => opt.value === empValue);
+
+  if (usuOption) usuInput.value = usuOption.dataset.id;
+  if (empOption) empInput.value = empOption.dataset.id;
+});
+</script>
 
 </body>
