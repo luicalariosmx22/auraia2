@@ -17,6 +17,7 @@ from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conoci
 from clientes.aura.routes.panel_cliente_etiquetas_conocimiento import panel_cliente_etiquetas_conocimiento_bp
 from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp
+from clientes.aura.routes.panel_cliente_tareas.recurrentes import panel_tareas_recurrentes_bp
 
 
 # Configurar Supabase
@@ -117,6 +118,7 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
 
                 safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
                 safe_register_blueprint(app, panel_tareas_gestionar_bp)  # Se registra con la ruta ya definida en el archivo
+                safe_register_blueprint(app, panel_tareas_recurrentes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas/recurrentes")
 
             if "panel_chat" in modulos:
                 safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/panel_chat")

@@ -1,6 +1,8 @@
 from flask import Blueprint
 from flask import render_template, session, request
 from clientes.aura.utils.supabase_client import supabase
+from .recurrentes import panel_tareas_recurrentes_bp
+
 
 panel_cliente_tareas_bp = Blueprint(
     "panel_cliente_tareas",

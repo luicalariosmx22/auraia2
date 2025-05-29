@@ -256,6 +256,39 @@ def crear_tarea(nombre_nora):
 
     try:
         supabase.table("tareas").insert(tarea_data).execute()
+
+        # Guardar configuración de recurrencia si aplica
+        if form.get("recurrente") == "true":
+            rrule = (form.get("rrule") or "").strip()
+            dtstart = form.get("dtstart") or fecha_limite  # fallback si no lo envían
+            until = form.get("until") or None
+            count = form.get("count") or None
+
+            if not rrule or not dtstart:
+                return jsonify({"error": "RRULE y fecha inicio requeridas"}), 400
+
+            try:
+                count = int(count)
+            except (ValueError, TypeError):
+                count = None
+
+            tarea_recurrente = {
+                "id": str(uuid.uuid4()),
+                "tarea_id": tarea_data["id"],
+                "dtstart": dtstart,
+                "rrule": rrule,
+                "until": until,
+                "count": count,
+                "active": True,
+                "created_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.utcnow().isoformat()
+            }
+
+            try:
+                supabase.table("tareas_recurrentes").insert(tarea_recurrente).execute()
+            except Exception as e:
+                return jsonify({"ok": True, "warning": f"Tarea creada pero falló guardar la recurrencia: {e}"}), 200
+
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

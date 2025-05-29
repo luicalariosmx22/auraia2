@@ -241,4 +241,13 @@ def create_app(config_class=Config):
 
     print(f"📋 Total de rutas registradas: {len(list(app.url_map.iter_rules()))}")
     print("Función create_app completada.")
+
+    # Iniciar cron de tareas recurrentes
+    try:
+        from clientes.aura.cron.tareas_recurrentes import iniciar_cron_recurrentes
+        iniciar_cron_recurrentes()
+        print("🕒 Cron de tareas recurrentes iniciado.")
+    except Exception as e:
+        print(f"❌ Error al iniciar el cron de tareas recurrentes: {e}")
+
     return app
