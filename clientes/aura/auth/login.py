@@ -17,6 +17,8 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 
+print("🔁 REDIRECT_URI en uso:", REDIRECT_URI)
+
 # 🔑 Correos admin generales desde .env
 ADMIN_EMAILS = os.getenv("ADMIN_EMAILS", "").split(",")
 
@@ -39,6 +41,14 @@ def login():
 
 @login_bp.route("/start")
 def login_start():
+    if os.getenv("MODO_DEV") == "True":
+        session["email"] = "dev@localhost"
+        session["name"] = "Usuario Dev"
+        session["is_admin"] = True
+        session["nombre_nora"] = "aura"
+        return redirect(f"/admin")
+
+    # Si no estás en modo dev, continúa con el flujo real de Google OAuth
     google = get_google_auth()
     auth_url, state = google.authorization_url(
         "https://accounts.google.com/o/oauth2/auth",

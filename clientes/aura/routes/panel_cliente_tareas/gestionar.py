@@ -204,18 +204,18 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
     "/panel_cliente/<nombre_nora>/tareas/gestionar/crear", methods=["POST"]
 )
 def crear_tarea(nombre_nora):
-    # soportar JSON o FormData
-    payload = request.get_json(silent=True)
-    if payload is None:
-        # si viene por FormData
-        payload = { k: v for k, v in request.form.items() }
-
-    titulo = (payload.get("titulo") or "").strip()
-    prioridad = (payload.get("prioridad") or "media").strip().lower()
-    fecha_limite = payload.get("fecha_limite")
-    estatus = (payload.get("estatus") or "pendiente").strip().lower()
-    usuario_empresa_id = (payload.get("usuario_empresa_id") or "").strip()
-    raw_empresa = (payload.get("empresa_id") or "").strip()
+    # Si usas FormData, recoge de request.form:
+    data = request.form.to_dict(flat=True) or request.get_json(silent=True) or {}
+    titulo = data.get("titulo")
+    prioridad = (data.get("prioridad") or "media").strip().lower()
+    fecha_limite = data.get("fecha_limite")
+    rrule      = data.get("rrule")      # <-- nuevo
+    dtstart    = data.get("dtstart")    # <-- nuevo
+    until      = data.get("until")      # <-- nuevo
+    count      = data.get("count")      # <-- nuevo
+    estatus = (data.get("estatus") or "pendiente").strip().lower()
+    usuario_empresa_id = (data.get("usuario_empresa_id") or "").strip()
+    raw_empresa = (data.get("empresa_id") or "").strip()
     empresa_id = raw_empresa if raw_empresa else None
 
     # Validaciones mínimas
@@ -250,15 +250,18 @@ def crear_tarea(nombre_nora):
     iniciales_usuario = nombre_usuario.split(" ")[:2]
 
     tarea_data = {
-        "id": str(uuid.uuid4()),
-        "nombre_nora": nombre_nora,
-        "titulo": titulo,
-        "prioridad": prioridad,
-        "fecha_limite": fecha_limite,
-        "estatus": estatus,
-        "usuario_empresa_id": usuario_empresa_id,
-        "creado_por": creado_por,
-        "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
+      "id": str(uuid.uuid4()),
+      "nombre_nora": nombre_nora,
+      "titulo": titulo,
+      "prioridad": prioridad,
+      "fecha_limite": fecha_limite,
+      "estatus": estatus,
+      "usuario_empresa_id": usuario_empresa_id,
+      # campos recurrentes:
+      "rrule": rrule or None,
+      "dtstart": dtstart or None,
+      "until": until or None,
+      "count": int(count) if count else None,
     }
     if empresa_id is not None:
         tarea_data["empresa_id"] = empresa_id
@@ -266,14 +269,14 @@ def crear_tarea(nombre_nora):
     try:
         # insertar tarea principal
         supabase.table("tareas").insert(tarea_data).execute()
-        # si es recurrente, registrar en tareas_recurrentes
-        if payload.get("rrule_type"):
+        # si viene recurrencia, grabar en tareas_recurrentes
+        if data.get("rrule_type"):
             recurrente = {
-                "tarea_id":      tarea_data["id"],
-                "dtstart":       payload.get("fecha_inicio"),
-                "rrule":         payload.get("rrule_type"),
-                "until":         payload.get("fecha_fin") or None,
-                "count":         int(payload["count"]) if payload.get("count") else None,
+                "tarea_id": tarea_data["id"],
+                "dtstart":  data.get("fecha_inicio"),
+                "rrule":    data.get("rrule_type"),
+                "until":    data.get("fecha_fin") or None,
+                "count":    int(data.get("count")) if data.get("count") else None,
             }
             supabase.table("tareas_recurrentes").insert(recurrente).execute()
         return jsonify({"ok": True, "tarea": tarea_data})

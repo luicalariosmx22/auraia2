@@ -67,7 +67,7 @@ function initModalSubmit() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const get = id => document.getElementById(id);
-    const tareaId = get("tarea_id")?.value || "";
+    const tareaId = get("tarea_id").value || "";
     const nombre_nora = get("nombre_nora").value;
 
     const payload = {
@@ -78,20 +78,20 @@ function initModalSubmit() {
       usuario_empresa_id: get("usuario_empresa_id").value
     };
     // incluir recurrencia si está activa
-    if (get("is_recurrente").checked) {
-      const rruleType = get("rrule_type").value;
-      if (rruleType) payload.rrule_type = rruleType;
-      const start = get("fecha_inicio").value;
-      if (start) payload.dtstart = start;
-      const end = get("fecha_fin").value;
-      if (end) payload.until = end;
+    if (get("recurrente_checkbox").checked) {
+      const rrule = get("rrule_preview")?.value || "";
+      if (rrule) payload.rrule = rrule;
+      const dtstart = get("fecha_inicio").value;
+      if (dtstart) payload.dtstart = dtstart;
+      const until = get("until").value;
+      if (until) payload.until = until;
       const count = get("count").value;
       if (count) payload.count = parseInt(count, 10);
     }
 
     let url;
     // si es recurrente y nueva tarea, llamamos al endpoint de recurrentes
-    if (!tareaId && get("is_recurrente").checked) {
+    if (!tareaId && get("recurrente_checkbox").checked) {
       url = `/panel_cliente/${nombre_nora}/tareas/recurrentes/crear`;
       // adjuntar tarea_id recién creada no aplica aquí, debe llamar gestionar primero
     } else {

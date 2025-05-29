@@ -287,26 +287,76 @@
   <div class="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative">
     <h3 class="text-lg font-semibold mb-4 text-blue-700" id="modalTitulo">Nueva tarea</h3>
     <form id="formTarea" method="POST">
-      <!-- Aquí van los campos: título, descripción, fecha límite, prioridad, asignado a, empresa -->
+      <!-- hidden para JS: nombre de la Nora y posible edición -->
+      <input type="hidden" id="nombre_nora" name="nombre_nora" value="{{ nombre_nora }}">
+      <input type="hidden" id="tarea_id"   name="tarea_id"   value="">
+      <!-- Campos básicos de la tarea -->
+      <div class="mb-4">
+        <label for="titulo" class="block text-sm font-medium text-gray-700">Título</label>
+        <input type="text" id="titulo" name="titulo" required
+               class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+      </div>
+      <div class="mb-4">
+        <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+        <textarea id="descripcion" name="descripcion" rows="3"
+                  class="w-full border border-gray-300 rounded px-3 py-2 mt-1"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="fecha_limite" class="block text-sm font-medium text-gray-700">Fecha límite</label>
+          <input type="date" id="fecha_limite" name="fecha_limite"
+                 class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+        </div>
+        <div>
+          <label for="prioridad" class="block text-sm font-medium text-gray-700">Prioridad</label>
+          <select id="prioridad" name="prioridad"
+                  class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+            <option value="baja">Baja</option>
+            <option value="media" selected>Media</option>
+            <option value="alta">Alta</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado a</label>
+        <select id="usuario_empresa_id" name="usuario_empresa_id"
+                class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+          {% for u in usuarios %}
+            <option value="{{ u.id }}" {% if u.id == user.id %}selected{% endif %}>{{ u.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-4">
+        <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
+        <select id="empresa_id" name="empresa_id"
+                class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+          <option value="" selected>— Sin empresa —</option>
+          {% for e in empresas %}
+            <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
       <!-- 🔁 Bloque visual para tareas recurrentes -->
       <div class="mb-4">
         <label class="inline-flex items-center">
-          <input type="checkbox" id="recurrente_checkbox" class="form-checkbox h-4 w-4 text-blue-600">
+          <input type="checkbox"
+                 id="recurrente_checkbox"
+                 name="is_recurrente"
+                 class="form-checkbox h-4 w-4 text-blue-600">
           <span class="ml-2 text-sm text-gray-700">¿Es una tarea recurrente?</span>
         </label>
       </div>
-      <div id="campos_recurrencia" class="hidden mb-4 space-y-3">
+      <div id="recurrente_fields" class="hidden mb-4 space-y-3">
         <!-- Fecha de inicio -->
         <div>
           <label for="fecha_inicio" class="block text-sm font-medium text-gray-700">Fecha de inicio</label>
-          <input type="date" id="fecha_inicio" name="fecha_inicio" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+          <input type="date" id="fecha_inicio" name="dtstart" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
         </div>
         <!-- Tipo de recurrencia -->
         <div>
-          <label for="rrule_type" class="block text-sm font-medium text-gray-700">Recurrencia</label>
-          <select id="rrule_type" name="rrule_type" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-            <option value="">— Seleccione —</option>
+          <label for="rrule" class="block text-sm font-medium text-gray-700">Recurrencia</label>
+          <select id="rrule" name="rrule" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
             <option value="FREQ=DAILY">Diaria</option>
             <option value="FREQ=WEEKLY">Semanal</option>
             <option value="FREQ=MONTHLY">Mensual</option>
@@ -314,8 +364,8 @@
         </div>
         <!-- Fecha fin -->
         <div>
-          <label for="fecha_fin" class="block text-sm font-medium text-gray-700">Fecha fin (opcional)</label>
-          <input type="date" id="fecha_fin" name="fecha_fin" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+          <label for="until" class="block text-sm font-medium text-gray-700">Fecha fin (opcional)</label>
+          <input type="date" id="until" name="until" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
         </div>
         <!-- Repeticiones -->
         <div>
