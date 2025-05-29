@@ -128,3 +128,51 @@ document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
     }
   });
 });
+
+// ─── Guardar cambios de tarea (desde el modal) ──────────────────
+document.getElementById("formVerTarea").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const tareaId = document.getElementById("verIdTarea").value;
+  const nombreNora = document.body.dataset.nora;
+
+  const payload = {
+    titulo: document.getElementById("verTitulo").value,
+    descripcion: document.getElementById("verDescripcion").value,
+    prioridad: document.getElementById("verPrioridad").value,
+    estatus: document.getElementById("verEstatus").value,
+    fecha_limite: document.getElementById("verFechaLimite").value,
+    usuario_empresa_id: document.getElementById("verAsignado").value,
+    empresa_id: document.getElementById("verEmpresa").value
+  };
+
+  // Limpiar mensajes previos
+  const alertContainer = document.getElementById("alertaGuardado");
+  alertContainer.classList.add("d-none");
+  alertContainer.classList.remove("alert-success", "alert-danger");
+  alertContainer.innerText = "";
+
+  try {
+    const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/actualizar/${tareaId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const resultado = await res.json();
+    if (resultado.ok) {
+      alertContainer.innerText = "✅ Cambios guardados correctamente";
+      alertContainer.classList.remove("d-none");
+      alertContainer.classList.add("alert", "alert-success");
+    } else {
+      alertContainer.innerText = "❌ Error: " + resultado.error;
+      alertContainer.classList.remove("d-none");
+      alertContainer.classList.add("alert", "alert-danger");
+    }
+  } catch (error) {
+    console.error(error);
+    alertContainer.innerText = "❌ Error inesperado al guardar los cambios";
+    alertContainer.classList.remove("d-none");
+    alertContainer.classList.add("alert", "alert-danger");
+  }
+});

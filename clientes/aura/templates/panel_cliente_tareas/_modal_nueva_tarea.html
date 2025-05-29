@@ -1,3 +1,6 @@
+<!-- Asegúrate de tener esto en el layout/base: -->
+<body data-nora="{{ nombre_nora }}">
+
 <!-- Modal: Crear nueva tarea -->
 <section class="bg-white border border-gray-200 rounded-xl shadow-md p-6 my-6">
   <h2 class="text-lg font-semibold text-blue-700 mb-4 flex items-center gap-2">
@@ -83,6 +86,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
+      <div id="alertaGuardado" class="d-none mt-2"></div>
+
       <div class="modal-body row g-3">
         <input type="hidden" id="verIdTarea" name="id">
 
@@ -139,7 +144,6 @@
           </select>
         </div>
       </div>
-
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -147,3 +151,5 @@
     </form>
   </div>
 </div>
+
+</body>
