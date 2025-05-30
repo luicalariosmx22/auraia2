@@ -1,61 +1,34 @@
 {% extends "base_cliente.html" %}
 {% block contenido %}
 
-<!-- ✅ Barra superior + filtros -->
-{% include "panel_cliente_tareas/_filtros.html" %}
+<!-- 📝 Título principal del panel de tareas -->
+<h1 class="text-2xl font-bold text-blue-800 mb-6 flex items-center gap-2">
+  <span>📋</span> Panel de Tareas
+</h1>
 
 <a href="/panel_cliente/{{ nombre_nora }}/tareas/gestionar"
-   class="text-sm text-blue-600 hover:underline float-right mb-4">
-   🔧 Ir a gestor de tareas
+   class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm float-right mb-4">
+  Listado de Tareas
 </a>
-
-{% if usuarios is defined %}
-  <!-- Bloque: Crear nueva tarea (colapsable) -->
-  <section x-data="{ crear: false }" class="mb-6">
-    <div class="text-right mb-3">
-      <button @click="crear = !crear"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm">
-        ➕ Nueva tarea
-      </button>
-    </div>
-    <div x-show="crear" x-transition>
-      {% include "panel_cliente_tareas/_modal_nueva_tarea.html" %}
-    </div>
-  </section>
-
-  <!-- Bloque: Permisos del equipo (colapsable) -->
-  <section x-data="{ open: false }" class="mb-6">
-    <div @click="open = !open" class="cursor-pointer flex justify-between items-center bg-gray-100 px-4 py-2 rounded shadow-sm hover:bg-gray-200">
-      <h4 class="text-sm font-semibold text-blue-700">👥 Permisos del equipo</h4>
-      <span x-text="open ? '▲' : '▼'" class="text-xs text-gray-500"></span>
-    </div>
-    <div x-show="open" x-transition class="mt-3">
-      {% include "panel_cliente_tareas/_permisos_equipo.html" %}
-    </div>
-  </section>
-
-  <!-- ✅ Seguimiento automático por WhatsApp -->
-  {% include "panel_cliente_tareas/_seguimiento_whatsapp.html" %}
-{% endif %}
 
 {% if resumen is defined %}
   <!-- ✅ Estadísticas rápidas -->
   {% include "panel_cliente_tareas/_estadisticas.html" %}
 {% endif %}
 
-{% if tareas_activas is defined %}
-  <!-- ✅ Lista de tareas activas -->
-  {% include "panel_cliente_tareas/_lista_tareas.html" %}
-{% endif %}
+{% if usuarios is defined %}
+  <!-- Bloque: Permisos del equipo (siempre visible) -->
+    <div class="mt-3">
+      {% include "panel_cliente_tareas/_permisos_equipo.html" %}
+    </div>
+  </section>
+
+
 
 {% if config is defined %}
-  <!-- Bloque: Automatizaciones (colapsable) -->
-  <section x-data="{ open: false }" class="mb-6">
-    <div @click="open = !open" class="cursor-pointer flex justify-between items-center bg-gray-100 px-4 py-2 rounded shadow-sm hover:bg-gray-200">
-      <h4 class="text-sm font-semibold text-blue-700">⚙️ Automatizaciones</h4>
-      <span x-text="open ? '▲' : '▼'" class="text-xs text-gray-500"></span>
-    </div>
-    <div x-show="open" x-transition class="mt-3">
+  <!-- Bloque: Automatizaciones (siempre visible) -->
+  <section class="mb-6">
+    <div class="mt-3">
       {% include "panel_cliente_tareas/_automatizaciones.html" %}
     </div>
   </section>
@@ -66,20 +39,8 @@
   {% include "panel_cliente_tareas/_alertas_y_ranking.html" %}
 {% endif %}
 
-<!-- 👥 Acceso rápido a Usuarios -->
-
-<div class="card shadow-sm p-4 mb-4 border border-light rounded-3 bg-white">
-  <div class="d-flex align-items-center justify-content-between">
-    <div>
-      <h5 class="mb-2">👥 Usuarios del equipo</h5>
-      <p class="mb-2 text-muted">Gestiona los usuarios que tienen acceso a tareas. Edita roles, permisos y más.</p>
-    </div>
-    <div>
-      <a href="/panel_cliente/{{ nombre_nora }}/tareas/usuarios" class="btn btn-outline-primary">
-        Ver usuarios
-      </a>
-    </div>
-  </div>
-</div>
+  <!-- ✅ Seguimiento automático por WhatsApp -->
+  {% include "panel_cliente_tareas/_seguimiento_whatsapp.html" %}
+{% endif %}
 
 {% endblock %}

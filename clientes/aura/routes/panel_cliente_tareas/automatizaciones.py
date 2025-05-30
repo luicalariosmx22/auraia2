@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 from .panel_cliente_tareas import panel_cliente_tareas_bp
 from supabase import create_client
 from datetime import datetime
@@ -8,6 +8,11 @@ import os
 
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 zona = timezone("America/Hermosillo")
+
+automatizaciones_bp = Blueprint(
+    "automatizaciones", __name__,
+    template_folder="../../../templates/panel_cliente_tareas"
+)
 
 # ✅ Crear una tarea recurrente
 @panel_cliente_tareas_bp.route("/automatizaciones/crear", methods=["POST"])
@@ -121,3 +126,7 @@ def guardar_automatizaciones(nombre_nora):
         .eq("nombre_nora", nombre_nora)\
         .execute()
     return jsonify({"ok": True})
+
+@automatizaciones_bp.route("/panel_cliente/<nombre_nora>/automatizaciones/prueba", methods=["GET"])
+def prueba_automatizaciones(nombre_nora):
+    return f"Vista de prueba AUTOMATIZACIONES para {nombre_nora}"

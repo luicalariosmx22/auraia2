@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, Blueprint
 from .panel_cliente_tareas import panel_cliente_tareas_bp
 from datetime import datetime
 from pytz import timezone
@@ -120,3 +120,12 @@ def enviar_tareas_8am():
 def enviar_resumen_6pm():
     enviar_resumen_6pm_por_whatsapp()
     return jsonify({"status": "enviado"})
+
+whatsapp_bp = Blueprint(
+    "whatsapp", __name__,
+    template_folder="../../../templates/panel_cliente_tareas"
+)
+
+@whatsapp_bp.route("/panel_cliente/<nombre_nora>/whatsapp/prueba", methods=["GET"])
+def prueba_whatsapp(nombre_nora):
+    return f"Vista de prueba WHATSAPP para {nombre_nora}"

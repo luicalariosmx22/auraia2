@@ -137,6 +137,29 @@ def vista_gestionar_tareas(nombre_nora):
     tareas_activas     = [t for t in tareas if t.get("estatus", "").strip() != "completada"]
     tareas_completadas = [t for t in tareas if t.get("estatus", "").strip() == "completada"]
 
+    resumen = {
+        "tareas_activas": len(tareas_activas),
+        "tareas_completadas": len(tareas_completadas),
+        "tareas_vencidas": len([t for t in tareas_activas if t.get("dias_restantes", 0) < 0]),
+        "porcentaje_cumplimiento": 0
+    }
+    total = resumen["tareas_activas"] + resumen["tareas_completadas"] + resumen["tareas_vencidas"]
+    if total > 0:
+        resumen["porcentaje_cumplimiento"] = round((resumen["tareas_completadas"] / total) * 100, 1)
+
+    cliente_id = session.get("cliente_id")
+
+    if cliente_id:
+        alertas_data = supabase.table("alertas_ranking") \
+            .select("data") \
+            .eq("cliente_id", cliente_id) \
+            .single() \
+            .execute().data
+    else:
+        alertas_data = None
+
+    alertas = alertas_data["data"] if alertas_data and "data" in alertas_data else {}
+
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
@@ -146,7 +169,9 @@ def vista_gestionar_tareas(nombre_nora):
         usuarios=usuarios,
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
-        modulo_activo="tareas"
+        modulo_activo="tareas",
+        resumen=resumen,
+        alertas=alertas
     )
 
 # -------------------------------------------------------------------

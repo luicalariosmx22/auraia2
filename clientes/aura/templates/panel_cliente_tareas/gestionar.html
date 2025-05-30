@@ -5,6 +5,8 @@
 {% block contenido %}
 
 <h2 class="text-xl font-semibold mb-4 text-blue-700">📋 Gestor de Tareas</h2>
+
+{% include "panel_cliente_tareas/_estadisticas.html" %}
 {% include "panel_cliente_tareas/_filtros.html" %}
 
 {% if permisos.es_supervisor %}

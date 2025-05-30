@@ -1,4 +1,4 @@
-<!-- Sección: Alertas y Ranking -->
+<!-- Sección: Alertas y Ranking (con debug temporal incluido) -->
 <section class="mb-6">
   <h4 class="text-base font-semibold text-yellow-700 mb-3">🔔 Alertas y desempeño</h4>
 
@@ -38,5 +38,10 @@
     {% else %}
       <p class="text-gray-400">No hay datos suficientes</p>
     {% endif %}
+  </div>
+
+  <!-- DEBUG VISUAL TEMPORAL -->
+  <div class="mt-4 bg-gray-50 border border-gray-200 text-xs text-gray-600 p-2 rounded">
+    <strong>DEBUG:</strong> {{ alertas | tojson(indent=2) }}
   </div>
 </section>

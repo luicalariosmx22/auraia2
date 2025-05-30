@@ -1,4 +1,4 @@
-from flask import request, jsonify, redirect, session, render_template
+from flask import request, jsonify, redirect, session, render_template, Blueprint
 from .panel_cliente_tareas import panel_cliente_tareas_bp
 from datetime import datetime
 from supabase import create_client
@@ -187,3 +187,13 @@ def panel_tareas(nombre_nora):
                            nombre_nora=nombre_nora,
                            is_admin=is_admin,
                            usuarios_disponibles=usuarios_disponibles)
+
+panel_tareas_crud_bp = Blueprint(
+    "panel_tareas_crud", __name__,
+    template_folder="../../../templates/panel_cliente_tareas"
+)
+
+# Aquí puedes agregar tus rutas
+@panel_tareas_crud_bp.route("/panel_cliente/<nombre_nora>/tareas/prueba", methods=["GET"])
+def prueba_crud(nombre_nora):
+    return f"Vista de prueba CRUD para {nombre_nora}"

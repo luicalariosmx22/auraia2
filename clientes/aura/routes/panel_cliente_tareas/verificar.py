@@ -1,10 +1,19 @@
-from flask import jsonify, request
+from flask import jsonify, request, Blueprint
 from .panel_cliente_tareas import panel_cliente_tareas_bp
 from datetime import datetime
 from supabase import create_client
 import os
 
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+
+verificar_bp = Blueprint(
+    "verificar", __name__,
+    template_folder="../../../templates/panel_cliente_tareas"
+)
+
+@verificar_bp.route("/panel_cliente/<nombre_nora>/verificar/prueba", methods=["GET"])
+def prueba_verificar(nombre_nora):
+    return f"Vista de prueba VERIFICAR para {nombre_nora}"
 
 # ✅ Verificar estado del módulo de tareas
 @panel_cliente_tareas_bp.route("/verificar/<nombre_nora>", methods=["GET"])

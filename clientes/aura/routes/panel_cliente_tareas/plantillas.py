@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 from .panel_cliente_tareas import panel_cliente_tareas_bp
 from datetime import datetime, timedelta
 from supabase import create_client
@@ -6,6 +6,11 @@ import os
 import uuid
 
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+
+plantillas_bp = Blueprint(
+    "plantillas", __name__,
+    template_folder="../../../templates/panel_cliente_tareas"
+)
 
 # ✅ Crear una plantilla
 @panel_cliente_tareas_bp.route("/plantillas/crear", methods=["POST"])
@@ -111,3 +116,7 @@ def eliminar_plantilla(plantilla_id):
         "updated_at": datetime.now().isoformat()
     }).eq("id", plantilla_id).execute()
     return jsonify({"success": True})
+
+@plantillas_bp.route("/panel_cliente/<nombre_nora>/plantillas/prueba", methods=["GET"])
+def prueba_plantillas(nombre_nora):
+    return f"Vista de prueba PLANTILLAS para {nombre_nora}"

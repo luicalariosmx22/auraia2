@@ -11,6 +11,11 @@ import re
 
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
+usuarios_clientes_bp = Blueprint(
+    "usuarios_clientes", __name__,
+    template_folder="../../../templates/panel_cliente_tareas"
+)
+
 # ✅ Función: listar_usuarios_clientes(nombre_nora)
 @panel_cliente_tareas_bp.route("/panel_cliente/<nombre_nora>/tareas/usuarios", methods=["GET"])
 def listar_usuarios_clientes(nombre_nora):
@@ -185,4 +190,8 @@ def vista_usuarios(nombre_nora):
         config=config,
         supervisores_activos=supervisores_activos
     )
+
+@usuarios_clientes_bp.route("/panel_cliente/<nombre_nora>/usuarios/prueba", methods=["GET"])
+def prueba_usuarios(nombre_nora):
+    return f"Vista de prueba USUARIOS para {nombre_nora}"
 
