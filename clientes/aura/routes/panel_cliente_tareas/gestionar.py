@@ -164,6 +164,9 @@ def vista_gestionar_tareas(nombre_nora):
     nombre_usuario = user.get("nombre", "Usuario")
     mensaje_bienvenida = f"Hola {nombre_usuario}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
 
+    usuario_id = session.get("usuario_empresa_id")
+    resumen_url = f"/estadisticas/resumen/{nombre_nora}?solo_usuario={usuario_id}"
+
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         tareas=tareas,
@@ -176,7 +179,8 @@ def vista_gestionar_tareas(nombre_nora):
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
         modulo_activo="tareas",
-        alertas=alertas
+        alertas=alertas,
+        resumen_url=resumen_url
     )
 
 # -------------------------------------------------------------------

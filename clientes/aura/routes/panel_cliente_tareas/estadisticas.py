@@ -17,8 +17,13 @@ estadisticas_bp = Blueprint(
 # ✅ Resumen general para dashboards
 @panel_cliente_tareas_bp.route("/estadisticas/resumen/<nombre_nora>", methods=["GET"])
 def obtener_resumen_general(nombre_nora):
-    tareas = supabase.table("tareas").select("*") \
-        .eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
+    solo_usuario = request.args.get("solo_usuario")  # opcional
+
+    consulta = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True)
+    if solo_usuario:
+        consulta = consulta.eq("usuario_empresa_id", solo_usuario)
+
+    tareas = consulta.execute().data or []
 
     resumen = {
         "tareas_activas": len([t for t in tareas if t["estatus"] == "pendiente"]),
