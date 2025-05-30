@@ -15,11 +15,6 @@ from flask import (
 from utils.validar_modulo_activo import modulo_activo_para_nora
 from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.generar_codigo_tarea import generar_codigo_tarea
-from clientes.aura.utils.estadisticas import obtener_resumen_estadisticas
-from clientes.aura.utils.tareas import obtener_tareas_por_usuario
-from clientes.aura.utils.empresas import obtener_empresas
-from clientes.aura.utils.usuarios_clientes import obtener_usuarios_por_nora
-from clientes.aura.utils.permisos_tareas import obtener_permisos_tareas
 
 panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 
@@ -169,9 +164,6 @@ def vista_gestionar_tareas(nombre_nora):
     nombre_usuario = user.get("nombre", "Usuario")
     mensaje_bienvenida = f"Hola {nombre_usuario}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
 
-    usuario_id = session.get("usuario_empresa_id")
-    resumen_url = f"/estadisticas/resumen/{nombre_nora}?solo_usuario={usuario_id}"
-
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         tareas=tareas,
@@ -184,8 +176,7 @@ def vista_gestionar_tareas(nombre_nora):
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
         modulo_activo="tareas",
-        alertas=alertas,
-        resumen_url=resumen_url
+        alertas=alertas
     )
 
 # -------------------------------------------------------------------
@@ -253,10 +244,7 @@ def crear_tarea(nombre_nora):
     until      = data.get("until")      # <-- nuevo
     count      = data.get("count")      # <-- nuevo
     estatus = (data.get("estatus") or "pendiente").strip().lower()
-    # 🔧 Fallback a usuario de sesión si no viene en el form
-    usuario_empresa_id = (data.get("usuario_empresa_id") or session.get("usuario_empresa_id") or "").strip()
-    if not usuario_empresa_id:
-        return jsonify({"error": "usuario_empresa_id es obligatorio"}), 400
+    usuario_empresa_id = (data.get("usuario_empresa_id") or "").strip()
     raw_empresa = (data.get("empresa_id") or "").strip()
     empresa_id = raw_empresa if raw_empresa else None
 
@@ -356,39 +344,3 @@ def eliminar_tarea(nombre_nora, tarea_id):
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-gestionar_bp = Blueprint("panel_cliente_tareas_gestionar", __name__)
-
-@gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar")
-def gestionar_tareas(nombre_nora):
-    usuario_id = session.get("usuario_empresa_id")
-    user = session.get("user", {})
-    permisos = obtener_permisos_tareas(nombre_nora, usuario_id)
-    editable = True
-
-    # 📊 Obtener estadísticas solo del usuario actual
-    resumen = obtener_resumen_estadisticas(nombre_nora, usuario_id=usuario_id)
-
-    # 📋 Obtener tareas asignadas al usuario
-    tareas_activas, tareas_completadas = obtener_tareas_por_usuario(nombre_nora, usuario_id)
-
-    # 📦 Empresas y usuarios visibles
-    empresas = obtener_empresas(nombre_nora)
-    usuarios = obtener_usuarios_por_nora(nombre_nora)
-
-    # 👋 Generar mensaje de bienvenida
-    mensaje_bienvenida = f"Hola {user.get('nombre', 'Usuario')}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
-
-    return render_template(
-        "panel_cliente_tareas/gestionar.html",
-        nombre_nora=nombre_nora,
-        tareas_activas=tareas_activas,
-        tareas_completadas=tareas_completadas,
-        empresas=empresas,
-        usuarios=usuarios,
-        user=user,
-        permisos=permisos,
-        editable=editable,
-        resumen=resumen,
-        mensaje_bienvenida=mensaje_bienvenida
-    )
