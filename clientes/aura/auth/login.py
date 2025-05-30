@@ -116,7 +116,15 @@ def login_callback():
             session["nombre_nora"] = datos_empleado["nombre_nora"]
             session["usuario_empresa_id"] = datos_empleado.get("id", "")
 
-            # 🔁 Siempre redirige al panel_team, sin importar módulos activos
+            # ✅ Asignar también session["user"]
+            session["user"] = {
+                "id": datos_empleado.get("id", ""),
+                "nombre": datos_empleado.get("nombre", "Desconocido"),
+                "nombre_nora": datos_empleado.get("nombre_nora", ""),
+                "empresa_id": datos_empleado.get("empresa_id", ""),
+                "cliente_id": datos_empleado.get("cliente_id", "")
+            }
+
             return redirect(f"/panel_team/{session['nombre_nora']}")
 
         # 🔴 Si no está en ninguna tabla, mostrar error

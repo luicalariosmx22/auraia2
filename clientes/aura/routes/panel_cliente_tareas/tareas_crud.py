@@ -113,8 +113,13 @@ def guardar_tarea_html():
     print(f"🔵 Formulario recibido: {form}")
     user = session.get("user", {})
 
-    usuario_empresa_id = form.get("usuario_empresa_id")
-    empresa_id = form.get("empresa_id") or user.get("empresa_id") or ""
+    # ⬇️ Agrega esto después de `user = session.get("user", {})`
+    es_supervisor = user.get("es_supervisor", False)
+
+    # ⬇️ Sustituye la forma en que se asignan empresa_id y usuario_empresa_id:
+    empresa_id = form.get("empresa_id") if es_supervisor else user.get("empresa_id")
+    usuario_empresa_id = form.get("usuario_empresa_id") if es_supervisor else user.get("usuario_empresa_id")
+
     creado_por_form = form.get("creado_por", "").strip()
     creado_por = creado_por_form if creado_por_form else user.get("id") or ""
     titulo = form.get("titulo") or ""

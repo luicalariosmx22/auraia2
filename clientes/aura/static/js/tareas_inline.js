@@ -60,51 +60,36 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// 🔁 Sustituye la función initModalSubmit por esta versión con validación
 function initModalSubmit() {
   const form = document.getElementById("formTarea");
   if (!form) return;
 
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
-    const get = id => document.getElementById(id);
-    const tareaId = get("tarea_id").value || "";
-    const nombre_nora = get("nombre_nora").value;
+
+    const get = (id) => document.getElementById(id);
 
     const payload = {
-      titulo:        get("titulo").value.trim(),
-      descripcion:   get("descripcion").value.trim(),
-      fecha_limite:  get("fecha_limite").value || null,
-      prioridad:     get("prioridad").value.toLowerCase(),
+      titulo: get("titulo").value.trim(),
+      descripcion: get("descripcion").value.trim(),
+      fecha_limite: get("fecha_limite").value || null,
+      prioridad: get("prioridad").value.toLowerCase(),
       usuario_empresa_id: get("usuario_empresa_id").value
     };
-    // incluir recurrencia si está activa
-    if (get("recurrente_checkbox").checked) {
-      const rrule = get("rrule_preview")?.value || "";
-      if (rrule) payload.rrule = rrule;
-      const dtstart = get("fecha_inicio").value;
-      if (dtstart) payload.dtstart = dtstart;
-      const until = get("until").value;
-      if (until) payload.until = until;
-      const count = get("count").value;
-      if (count) payload.count = parseInt(count, 10);
-    }
 
-    let url;
-    // si es recurrente y nueva tarea, llamamos al endpoint de recurrentes
-    if (!tareaId && get("recurrente_checkbox").checked) {
-      url = `/panel_cliente/${nombre_nora}/tareas/recurrentes/crear`;
-      // adjuntar tarea_id recién creada no aplica aquí, debe llamar gestionar primero
-    } else {
-      url = tareaId
-        ? `/panel_cliente/${nombre_nora}/tareas/gestionar/actualizar/${tareaId}`
-        : `/panel_cliente/${nombre_nora}/tareas/gestionar/crear`;
+    // ✅ Validar que se haya seleccionado un usuario
+    if (!payload.usuario_empresa_id) {
+      alert("❌ Debes asignar la tarea a un usuario.");
+      return;
     }
 
     try {
-      await postJSON(url, payload);
-      location.reload();
-    } catch (_) {
-      // error ya alertado en postJSON
+      const res = await postJSON("/panel_cliente/tareas/nueva", payload);
+      cerrarModalTarea();
+      window.location.reload();
+    } catch (error) {
+      console.error("Error al enviar tarea:", error);
     }
   });
 }

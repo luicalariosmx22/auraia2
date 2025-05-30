@@ -38,26 +38,31 @@
       </div>
     </div>
 
-    <!-- 👤 Asignado a -->
-    <div class="mb-4">
-      <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado a</label>
-      <select name="usuario_empresa_id" id="usuario_empresa_id" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white">
-        {% for u in usuarios %}
-          <option value="{{ u.id }}">{{ u.nombre }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- 🏢 Empresa -->
-    <div class="mb-4">
-      <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
-      <select id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-        <option value="" selected>— Sin empresa —</option>
-        {% for e in empresas %}
-          <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
-        {% endfor %}
-      </select>
-    </div>
+    {% if permisos.es_supervisor %}
+      <!-- campo empresa -->
+      <div class="mb-4">
+        <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
+        <select name="empresa_id" id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
+          <option value="" selected>— Sin empresa —</option>
+          {% for e in empresas %}
+            <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <!-- campo usuario -->
+      <div class="mb-4">
+        <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado a</label>
+        <select name="usuario_empresa_id" id="usuario_empresa_id" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white">
+          {% for u in usuarios %}
+            <option value="{{ u.id }}">{{ u.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% else %}
+      <!-- campos ocultos con valores por defecto desde JS -->
+      <input type="hidden" name="empresa_id" id="empresa_id" value="{{ empresa_id }}">
+      <input type="hidden" name="usuario_empresa_id" id="usuario_empresa_id" value="{{ usuario_empresa_id }}">
+    {% endif %}
 
     <!-- ===================== RECURSIVIDAD ===================== -->
     <div class="mb-4 flex items-center">
