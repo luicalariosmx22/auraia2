@@ -1,49 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Iniciar sesión - Nora AI</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .login-box {
-      background: white;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-    .login-box h2 {
-      margin-bottom: 20px;
-    }
-    .google-btn {
-      background-color: #4285F4;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .google-btn:hover {
-      background-color: #357ae8;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-  <div class="login-box">
+  <div class="login-container">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo Nora AI" class="logo">
     <h2>Bienvenido a Nora AI</h2>
-    <p>Por favor, inicia sesión con tu cuenta de Google</p>
-    <a href="{{ url_for('login.login_start') }}" class="google-btn">Iniciar sesión con Google</a>
+    <p>Elige un método para iniciar sesión:</p>
+
+    <div class="login-buttons">
+      <a href="{{ url_for('login.login_start') }}" class="btn-login google">🔐 Iniciar sesión con Google</a>
+      <a href="{{ url_for('login.supabase_login_form') }}" class="btn-login normal">📧 Iniciar sesión con correo</a>
+    </div>
   </div>
 </body>
 </html>

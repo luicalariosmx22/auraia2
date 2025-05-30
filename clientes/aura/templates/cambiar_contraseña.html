@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cambiar Contraseña</title>
+  <link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body>
+  <div class="login-container">
+    <img src="/static/images/logo.png" alt="Logo" class="logo">
+    <h2>Cambiar Contraseña</h2>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+    <form action="/cambiar_contrasena" method="POST">
+      <input type="email" name="correo" placeholder="Correo" required>
+      <input type="password" name="password_actual" placeholder="Contraseña actual" required>
+      <input type="password" name="nueva_password" placeholder="Nueva contraseña" required>
+      <input type="password" name="confirmar_password" placeholder="Confirmar nueva contraseña" required>
+      <button type="submit">Cambiar contraseña</button>
+    </form>
+    <a href="/">Volver al inicio</a>
+  </div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 # ✅ Archivo: clientes/aura/routes/login.py
 # 👉 Maneja claramente 3 tipos de usuarios (admin, cliente, usuarios_clientes)
 
-from flask import Blueprint, redirect, request, session, url_for, render_template
+from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 from supabase import create_client
 from requests_oauthlib import OAuth2Session
 import os
@@ -54,7 +54,7 @@ def login_start():
             "empresa_id": "0000-empresa-fake",
             "cliente_id": "0000-cliente-fake"
         }
-        return redirect(f"/panel_cliente/{session['nombre_nora']}/tareas/gestionar")
+        return redirect("/admin")  # ✅ Ir al panel de admin, no al cliente
 
     # Si no estás en modo dev, continúa con el flujo real de Google OAuth
     google = get_google_auth()
@@ -138,3 +138,55 @@ def login_callback():
 
     except Exception as e:
         return f"Error en login: {str(e)}"
+
+# 👉 Login alternativo por Supabase (correo + contraseña)
+
+@login_bp.route("/login/supabase", methods=["GET"])
+def supabase_login_form():
+    return render_template("login_supabase.html")  # lo crearemos enseguida
+
+@login_bp.route("/login/supabase/validar", methods=["POST"])
+def supabase_login_validar():
+    correo = request.form.get("correo")
+    password = request.form.get("password")
+
+    # 🔍 Buscar en super_admins
+    res_admin = supabase.table("super_admins").select("*").eq("correo", correo).eq("activo", True).execute()
+    if res_admin.data:
+        admin = res_admin.data[0]
+        if str(admin.get("password", "")) == password:
+            session["email"] = correo
+            session["name"] = admin.get("nombre", "Admin")
+            session["is_admin"] = True
+            session["nombre_nora"] = "admin"
+            session["usuario_empresa_id"] = "00000000-0000-0000-0000-000000000000"
+            session["user"] = {
+                "id": admin.get("id"),
+                "nombre": admin.get("nombre", "Admin"),
+                "nombre_nora": "admin",
+                "empresa_id": "admin",
+                "cliente_id": "admin"
+            }
+            return redirect("/admin")
+
+    # 🔍 Buscar en usuarios_clientes
+    res_user = supabase.table("usuarios_clientes").select("*").eq("correo", correo).execute()
+    if res_user.data:
+        user = res_user.data[0]
+        if str(user.get("password", "")) == password:
+            session["email"] = correo
+            session["name"] = user.get("nombre", "Cliente")
+            session["is_admin"] = False
+            session["nombre_nora"] = user.get("nombre_nora", "aura")
+            session["usuario_empresa_id"] = user.get("id", "")
+            session["user"] = {
+                "id": user.get("id"),
+                "nombre": user.get("nombre"),
+                "nombre_nora": user.get("nombre_nora", "aura"),
+                "empresa_id": user.get("empresa_id", ""),
+                "cliente_id": user.get("cliente_id", "")
+            }
+            return redirect(f"/panel_cliente/{session['nombre_nora']}/tareas/gestionar")
+
+    flash("❌ Correo o contraseña incorrectos")
+    return redirect(url_for("login.supabase_login_form"))

@@ -2,7 +2,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, session as flask_session, redirect, url_for, request, jsonify
+from flask import Flask, session, redirect, url_for, request, jsonify  # ← CAMBIO AQUÍ
 from flask_session import Session
 from dotenv import load_dotenv
 
@@ -234,9 +234,12 @@ def create_app(config_class=Config):
     # --- before_request handler ---
     print("Definiendo handler before_request...")
     @app.before_request
-    def log_polling_requests():
+    def proteger_rutas_admin():
+        ruta = request.path
+        if ruta.startswith("/admin") and not session.get("is_admin", False):
+            print(f"❌ Bloqueado acceso no autorizado a {ruta}")
+            return redirect("/login")
         if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
-            # Obtener el logger configurado para socketio polling
             socketio_polling_logger = logging.getLogger('socketio_polling_custom')
             socketio_polling_logger.info(f"{request.remote_addr} - {request.method} {request.full_path}")
     print("Handler before_request definido.")
