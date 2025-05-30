@@ -120,7 +120,7 @@ from . import (
 )
 
 # Registrar blueprints locales
-def create_app(app):
+def register_tareas_blueprints(app):
     app.register_blueprint(panel_cliente_tareas_bp, url_prefix="/panel_cliente")
     app.register_blueprint(panel_tareas_gestionar_bp)
     app.register_blueprint(panel_tareas_recurrentes_bp)

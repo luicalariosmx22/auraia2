@@ -2,6 +2,7 @@ from datetime import datetime
 from datetime import date
 import uuid
 import logging
+import os
 
 from flask import (
     Blueprint,
@@ -29,7 +30,22 @@ def vista_gestionar_tareas(nombre_nora):
     if not modulo_activo_para_nora(nombre_nora, "tareas"):
         return "Módulo no activo", 403
 
+    # ✅ Lógica definitiva para detectar usuario_cliente
     usuario_id = session.get("usuario_empresa_id")
+
+    # Intentar obtener desde session["user"] si no está directo
+    if not usuario_id:
+        user = session.get("user", {})
+        usuario_id = user.get("usuario_empresa_id") or user.get("id")
+        if usuario_id:
+            session["usuario_empresa_id"] = usuario_id
+
+    # En desarrollo local sin login, usar UUID de prueba
+    if not usuario_id and os.getenv("FLASK_ENV") == "development":
+        print("🧪 Simulación de sesión en modo local")
+        usuario_id = "00000000-0000-0000-0000-000000000000"
+        session["usuario_empresa_id"] = usuario_id
+
     permisos = {
         "es_supervisor": session.get("rol") == "supervisor"
     }
@@ -234,8 +250,8 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
     "/panel_cliente/<nombre_nora>/tareas/gestionar/crear", methods=["POST"]
 )
 def crear_tarea(nombre_nora):
-    # Si usas FormData, recoge de request.form:
     data = request.form.to_dict(flat=True) or request.get_json(silent=True) or {}
+
     titulo = data.get("titulo")
     prioridad = (data.get("prioridad") or "media").strip().lower()
     fecha_limite = data.get("fecha_limite")
@@ -244,29 +260,23 @@ def crear_tarea(nombre_nora):
     until      = data.get("until")      # <-- nuevo
     count      = data.get("count")      # <-- nuevo
     estatus = (data.get("estatus") or "pendiente").strip().lower()
-    usuario_empresa_id = (data.get("usuario_empresa_id") or "").strip()
-    raw_empresa = (data.get("empresa_id") or "").strip()
-    empresa_id = raw_empresa if raw_empresa else None
 
-    # Validaciones mínimas
+    # ⬇️ Corrección aquí: obtener usuario desde formulario o sesión
+    usuario_empresa_id = (data.get("usuario_empresa_id") or session.get("usuario_empresa_id") or "").strip()
+    if not usuario_empresa_id or usuario_empresa_id.lower() == "none":
+        return jsonify({"error": "No se puede determinar el usuario asignado"}), 400
+
+    empresa_id = (data.get("empresa_id") or "").strip() or None
+
+    # Validaciones
     if not titulo:
         return jsonify({"error": "El título es obligatorio"}), 400
     if prioridad not in ("baja", "media", "alta"):
         return jsonify({"error": "Prioridad inválida"}), 400
     if estatus not in ("pendiente", "en progreso", "retrasada", "completada"):
         return jsonify({"error": "Estatus inválido"}), 400
-    if not usuario_empresa_id or usuario_empresa_id.lower() == "none":
-        usuario_empresa_id = session.get("usuario_empresa_id") or None
-    if not usuario_empresa_id:
-        return jsonify({"error": "No se puede determinar el usuario asignado"}), 400
 
-    # Normalizar campos UUID vacíos a None
-    if empresa_id == "":
-        empresa_id = None
-    if usuario_empresa_id == "":
-        usuario_empresa_id = None
-
-    # Validar existencia del usuario asignado
+    # Verificar que usuario exista
     usr_check = supabase.table("usuarios_clientes") \
         .select("id") \
         .eq("id", usuario_empresa_id) \
@@ -277,38 +287,39 @@ def crear_tarea(nombre_nora):
 
     creado_por = session.get("usuario_empresa_id") or "Nora"
     nombre_usuario = session.get("name", "NN")
-    iniciales_usuario = nombre_usuario.split(" ")[:2]
+    iniciales_usuario = "".join([s[0] for s in nombre_usuario.split()[:2]])
 
     tarea_data = {
-      "id": str(uuid.uuid4()),
-      "nombre_nora": nombre_nora,
-      "titulo": titulo,
-      "prioridad": prioridad,
-      "fecha_limite": fecha_limite,
-      "estatus": estatus,
-      "usuario_empresa_id": usuario_empresa_id,
-      # campos recurrentes:
-      "rrule": rrule or None,
-      "dtstart": dtstart or None,
-      "until": until or None,
-      "count": int(count) if count else None,
+        "id": str(uuid.uuid4()),
+        "nombre_nora": nombre_nora,
+        "titulo": titulo,
+        "prioridad": prioridad,
+        "fecha_limite": fecha_limite,
+        "estatus": estatus,
+        "usuario_empresa_id": usuario_empresa_id,
+        "empresa_id": empresa_id,
+        "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
+        "origen": "manual",
+        "activo": True,
+        "creado_por": creado_por,
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat(),
+        "rrule": rrule or None,
+        "dtstart": dtstart or None,
+        "until": until or None,
+        "count": int(count) if count else None
     }
-    if empresa_id is not None:
-        tarea_data["empresa_id"] = empresa_id
 
     try:
-        # insertar tarea principal
         supabase.table("tareas").insert(tarea_data).execute()
-        # si viene recurrencia, grabar en tareas_recurrentes
         if data.get("rrule_type"):
-            recurrente = {
+            supabase.table("tareas_recurrentes").insert({
                 "tarea_id": tarea_data["id"],
                 "dtstart":  data.get("fecha_inicio"),
                 "rrule":    data.get("rrule_type"),
                 "until":    data.get("fecha_fin") or None,
                 "count":    int(data.get("count")) if data.get("count") else None,
-            }
-            supabase.table("tareas_recurrentes").insert(recurrente).execute()
+            }).execute()
         return jsonify({"ok": True, "tarea": tarea_data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

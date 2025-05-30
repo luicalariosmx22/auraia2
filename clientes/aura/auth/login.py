@@ -42,11 +42,19 @@ def login():
 @login_bp.route("/start")
 def login_start():
     if os.getenv("MODO_DEV") == "True":
-        session["email"] = "dev@localhost"
-        session["name"] = "Usuario Dev"
+        session["email"] = "bluetiemx@gmail.com"
+        session["name"] = "Super Luica"
         session["is_admin"] = True
         session["nombre_nora"] = "aura"
-        return redirect(f"/admin")
+        session["usuario_empresa_id"] = "00000000-0000-0000-0000-000000000000"
+        session["user"] = {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "nombre": "Super Luica",
+            "nombre_nora": "aura",
+            "empresa_id": "0000-empresa-fake",
+            "cliente_id": "0000-cliente-fake"
+        }
+        return redirect(f"/panel_cliente/{session['nombre_nora']}/tareas/gestionar")
 
     # Si no estás en modo dev, continúa con el flujo real de Google OAuth
     google = get_google_auth()
@@ -104,7 +112,6 @@ def login_callback():
             return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session["nombre_nora"]))
 
         # 🟡 Tercero: Validar usuarios_clientes (empleados)
-
         result_empleado = supabase.table("usuarios_clientes").select("*").eq("correo", correo).execute()
 
         if result_empleado.data:
@@ -112,11 +119,10 @@ def login_callback():
 
             session["email"] = correo
             session["name"] = datos_empleado.get("nombre", user_info.get("name"))
-            session["is_admin"] = str(datos_empleado.get("rol", "")).lower() == "admin"
+            session["is_admin"] = False  # ← Fuerza que NO tenga acceso admin
             session["nombre_nora"] = datos_empleado["nombre_nora"]
             session["usuario_empresa_id"] = datos_empleado.get("id", "")
 
-            # ✅ Asignar también session["user"]
             session["user"] = {
                 "id": datos_empleado.get("id", ""),
                 "nombre": datos_empleado.get("nombre", "Desconocido"),
