@@ -60,45 +60,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// 🔁 Sustituye la función initModalSubmit por esta versión con validación
+// Función para enviar el formulario del modal "Nueva tarea"
 function initModalSubmit() {
   const form = document.getElementById("formTarea");
   if (!form) return;
 
-  form.addEventListener("submit", async function (e) {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const payload = {};
+    const formData = new FormData(form);
+    formData.forEach((val, key) => {
+      if (val) payload[key] = val;
+    });
 
-    const get = (id) => document.getElementById(id);
+    console.log("🧪 Payload a enviar:", payload);  // <-- Aquí para depurar
 
-    const payload = {
-      titulo: get("titulo").value.trim(),
-      descripcion: get("descripcion").value.trim(),
-      fecha_limite: get("fecha_limite").value || null,
-      prioridad: get("prioridad").value.toLowerCase(),
-      usuario_empresa_id: get("usuario_empresa_id").value
-    };
+    const nombreNora = document.body.getAttribute("data-nora");
+    const res = await postJSON(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, payload);
 
-    // ✅ Validar que se haya seleccionado un usuario
-    if (!payload.usuario_empresa_id) {
-      alert("❌ Debes asignar la tarea a un usuario.");
-      return;
-    }
-
-    try {
-      const res = await postJSON("/panel_cliente/tareas/nueva", payload);
-      cerrarModalTarea();
-      window.location.reload();
-    } catch (error) {
-      console.error("Error al enviar tarea:", error);
-    }
+    if (res.ok) location.reload();
   });
 }
 
-try {
-  initModalSubmit();
-} catch (err) {
-  console.error("Error en initModalSubmit:", err);
-}
+initModalSubmit();  // ← Ejecutar al cargar
 
 /* -------------------------------------------------------------
    Función auxiliar usada en gestores inline (títulos, estatus…)
@@ -284,7 +268,7 @@ function handleAutoCompleteInput(input, campo) {
   fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/actualizar/${tareaId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ campo, valor: id })
+    body: JSON.stringify({ campo: campo, valor: id })
   }).then(() => location.reload());
 }
 

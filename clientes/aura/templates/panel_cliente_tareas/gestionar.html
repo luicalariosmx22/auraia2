@@ -4,6 +4,8 @@
 {% extends "base_cliente.html" %}
 {% block contenido %}
 
+<body data-nora="{{ nombre_nora }}">
+
 <h2 class="text-xl font-semibold mb-4 text-blue-700">📋 Gestor de Tareas</h2>
 {% if mensaje_bienvenida %}
   <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded mb-4 shadow-sm text-sm">

@@ -11,6 +11,8 @@ from flask import (
     redirect,
     session,
     jsonify,
+    url_for,
+    flash
 )
 
 from utils.validar_modulo_activo import modulo_activo_para_nora
@@ -22,7 +24,16 @@ panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 # -------------------------------------------------------------------
 # VISTA PRINCIPAL: listado de tareas (gestión)
 # -------------------------------------------------------------------
-@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar")
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar", methods=["GET", "POST"])
+def gestionar_tareas(nombre_nora):
+    if request.method == "POST":
+        return crear_tarea(nombre_nora)
+    return vista_gestionar_tareas(nombre_nora)
+
+# -------------------------------------------------------------------
+# VISTA RENDER: solo para GET
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar/vista")
 def vista_gestionar_tareas(nombre_nora):
     if not session.get("email"):
         return redirect("/login")
@@ -30,17 +41,13 @@ def vista_gestionar_tareas(nombre_nora):
     if not modulo_activo_para_nora(nombre_nora, "tareas"):
         return "Módulo no activo", 403
 
-    # ✅ Lógica definitiva para detectar usuario_cliente
     usuario_id = session.get("usuario_empresa_id")
-
-    # Intentar obtener desde session["user"] si no está directo
     if not usuario_id:
         user = session.get("user", {})
         usuario_id = user.get("usuario_empresa_id") or user.get("id")
         if usuario_id:
             session["usuario_empresa_id"] = usuario_id
 
-    # En desarrollo local sin login, usar UUID de prueba
     if not usuario_id and os.getenv("FLASK_ENV") == "development":
         print("🧪 Simulación de sesión en modo local")
         usuario_id = "00000000-0000-0000-0000-000000000000"
@@ -70,7 +77,7 @@ def vista_gestionar_tareas(nombre_nora):
     tareas = todas
 
     def coincide(t):
-        if q_busqueda and q_busqueda not in (t.get("titulo","").lower() + " " + t.get("descripcion","").lower()):
+        if q_busqueda and q_busqueda not in (t.get("titulo","" ).lower() + " " + t.get("descripcion", "").lower()):
             return False
         if q_estatus and t.get("estatus") != q_estatus:
             return False
@@ -119,7 +126,6 @@ def vista_gestionar_tareas(nombre_nora):
                     t["asignado_nombre"] = usr.data[0]["nombre"]
             except Exception:
                 t["asignado_nombre"] = ""
-        # 🚨 Agregar esta línea para calcular días restantes
         if t.get("fecha_limite"):
             try:
                 t["dias_restantes"] = (date.fromisoformat(t["fecha_limite"]) - date.today()).days
@@ -146,9 +152,7 @@ def vista_gestionar_tareas(nombre_nora):
     empresas = empresas_resp.data or []
 
     logger = logging.getLogger(__name__)
-    logger.info(
-        f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} (Nora: {nombre_nora})"
-    )
+    logger.info(f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} (Nora: {nombre_nora})")
 
     tareas_activas     = [t for t in tareas if t.get("estatus", "").strip() != "completada"]
     tareas_completadas = [t for t in tareas if t.get("estatus", "").strip() == "completada"]
@@ -164,7 +168,6 @@ def vista_gestionar_tareas(nombre_nora):
         resumen["porcentaje_cumplimiento"] = round((resumen["tareas_completadas"] / total) * 100, 1)
 
     cliente_id = session.get("cliente_id")
-
     if cliente_id:
         alertas_data = supabase.table("alertas_ranking") \
             .select("data") \
@@ -182,6 +185,7 @@ def vista_gestionar_tareas(nombre_nora):
 
     return render_template(
         "panel_cliente_tareas/gestionar.html",
+        nombre_nora=nombre_nora,  # <-- Agrega esta línea
         tareas=tareas,
         resumen=resumen,
         usuarios=usuarios,
@@ -255,20 +259,14 @@ def crear_tarea(nombre_nora):
     titulo = data.get("titulo")
     prioridad = (data.get("prioridad") or "media").strip().lower()
     fecha_limite = data.get("fecha_limite")
-    rrule      = data.get("rrule")      # <-- nuevo
-    dtstart    = data.get("dtstart")    # <-- nuevo
-    until      = data.get("until")      # <-- nuevo
-    count      = data.get("count")      # <-- nuevo
     estatus = (data.get("estatus") or "pendiente").strip().lower()
 
-    # ⬇️ Corrección aquí: obtener usuario desde formulario o sesión
     usuario_empresa_id = (data.get("usuario_empresa_id") or session.get("usuario_empresa_id") or "").strip()
     if not usuario_empresa_id or usuario_empresa_id.lower() == "none":
         return jsonify({"error": "No se puede determinar el usuario asignado"}), 400
 
     empresa_id = (data.get("empresa_id") or "").strip() or None
 
-    # Validaciones
     if not titulo:
         return jsonify({"error": "El título es obligatorio"}), 400
     if prioridad not in ("baja", "media", "alta"):
@@ -276,7 +274,6 @@ def crear_tarea(nombre_nora):
     if estatus not in ("pendiente", "en progreso", "retrasada", "completada"):
         return jsonify({"error": "Estatus inválido"}), 400
 
-    # Verificar que usuario exista
     usr_check = supabase.table("usuarios_clientes") \
         .select("id") \
         .eq("id", usuario_empresa_id) \
@@ -303,23 +300,12 @@ def crear_tarea(nombre_nora):
         "activo": True,
         "creado_por": creado_por,
         "created_at": datetime.utcnow().isoformat(),
-        "updated_at": datetime.utcnow().isoformat(),
-        "rrule": rrule or None,
-        "dtstart": dtstart or None,
-        "until": until or None,
-        "count": int(count) if count else None
+        "updated_at": datetime.utcnow().isoformat()
     }
 
     try:
         supabase.table("tareas").insert(tarea_data).execute()
-        if data.get("rrule_type"):
-            supabase.table("tareas_recurrentes").insert({
-                "tarea_id": tarea_data["id"],
-                "dtstart":  data.get("fecha_inicio"),
-                "rrule":    data.get("rrule_type"),
-                "until":    data.get("fecha_fin") or None,
-                "count":    int(data.get("count")) if data.get("count") else None,
-            }).execute()
+        # Eliminada la inserción a tabla tareas_recurrentes para evitar error
         return jsonify({"ok": True, "tarea": tarea_data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
