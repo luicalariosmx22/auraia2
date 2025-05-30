@@ -160,17 +160,22 @@ def vista_gestionar_tareas(nombre_nora):
 
     alertas = alertas_data["data"] if alertas_data and "data" in alertas_data else {}
 
+    user = session.get("user", {})
+    nombre_usuario = user.get("nombre", "Usuario")
+    mensaje_bienvenida = f"Hola {nombre_usuario}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
+
     return render_template(
         "panel_cliente_tareas/gestionar.html",
-        nombre_nora=nombre_nora,
+        tareas=tareas,
+        resumen=resumen,
+        usuarios=usuarios,
+        mensaje_bienvenida=mensaje_bienvenida,
         tareas_activas=tareas_activas,
         tareas_completadas=tareas_completadas,
         permisos=permisos,
-        usuarios=usuarios,
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
         modulo_activo="tareas",
-        resumen=resumen,
         alertas=alertas
     )
 
@@ -239,7 +244,10 @@ def crear_tarea(nombre_nora):
     until      = data.get("until")      # <-- nuevo
     count      = data.get("count")      # <-- nuevo
     estatus = (data.get("estatus") or "pendiente").strip().lower()
-    usuario_empresa_id = (data.get("usuario_empresa_id") or "").strip()
+    # 🔧 Fallback a usuario de sesión si no viene en el form
+    usuario_empresa_id = (data.get("usuario_empresa_id") or session.get("usuario_empresa_id") or "").strip()
+    if not usuario_empresa_id:
+        return jsonify({"error": "usuario_empresa_id es obligatorio"}), 400
     raw_empresa = (data.get("empresa_id") or "").strip()
     empresa_id = raw_empresa if raw_empresa else None
 

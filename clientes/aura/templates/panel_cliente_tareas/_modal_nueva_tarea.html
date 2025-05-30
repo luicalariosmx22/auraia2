@@ -41,15 +41,12 @@
     <!-- 👤 Asignado a -->
     <div class="mb-4">
       <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado a</label>
-      <input list="datalist_usuarios" name="usuario_empresa_id" id="usuario_empresa_id"
-        class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white">
+      <select name="usuario_empresa_id" id="usuario_empresa_id" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white">
+        {% for u in usuarios %}
+          <option value="{{ u.id }}">{{ u.nombre }}</option>
+        {% endfor %}
+      </select>
     </div>
-
-    <datalist id="datalist_usuarios">
-      {% for usuario in usuarios %}
-        <option data-id="{{ usuario.id }}" value="{{ usuario.nombre }}"></option>
-      {% endfor %}
-    </datalist>
 
     <!-- 🏢 Empresa -->
     <div class="mb-4">
