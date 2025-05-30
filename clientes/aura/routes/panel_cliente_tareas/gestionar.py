@@ -211,12 +211,20 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
     campo = payload.get("campo")
     valor = payload.get("valor")
 
+    permisos = {
+        "es_supervisor": session.get("rol") == "supervisor"
+    }
+
+    campos_restringidos = ["usuario_empresa_id", "empresa_id", "fecha_limite"]
+    if campo in campos_restringidos and not permisos["es_supervisor"]:
+        return jsonify({"error": "No tienes permiso para modificar este campo"}), 403
+
     if campo not in [
         "titulo",
         "prioridad",
         "fecha_limite",
         "estatus",
-        "usuario_empresa_id",  # ← Único campo para “Asignado a”
+        "usuario_empresa_id",
         "empresa_id",
     ]:
         return jsonify({"error": "Campo no permitido"}), 400
