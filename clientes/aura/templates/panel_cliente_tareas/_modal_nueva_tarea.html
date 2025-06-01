@@ -169,21 +169,31 @@
 
         <div class="col-md-4">
           <label>Asignado a</label>
+          {% if permisos.es_supervisor %}
           <select class="form-select" id="verAsignado" name="usuario_empresa_id">
             {% for u in usuarios %}
               <option value="{{ u.id }}">{{ u.nombre }}</option>
             {% endfor %}
           </select>
+          {% else %}
+          <input type="text" class="form-control" id="verAsignado" name="usuario_empresa_id" disabled
+                 value="{{ usuarios | selectattr('id', 'equalto', tarea.usuario_empresa_id) | map(attribute='nombre') | first }}">
+          {% endif %}
         </div>
 
         <div class="col-md-12">
           <label>Empresa</label>
+          {% if permisos.es_supervisor %}
           <select class="form-select" id="verEmpresa" name="empresa_id">
             <option value="">---</option>
             {% for e in empresas %}
               <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
             {% endfor %}
           </select>
+          {% else %}
+          <input type="text" class="form-control" id="verEmpresa" name="empresa_id" disabled
+                 value="{{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}">
+          {% endif %}
         </div>
       </div>
       <div class="modal-footer">
@@ -274,6 +284,62 @@ function initModalSubmit() {
     // ...existing code...
   });
 }
+
+// Abrir modal VER TAREA
+document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const tareaId = btn.getAttribute("data-id");
+    const nombreNora = btn.getAttribute("data-nora");
+
+    try {
+      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
+      if (!res.ok) {
+        alert("❌ No se pudo cargar la información");
+        return;
+      }
+      const tarea = await res.json();
+
+      if (tarea.error) {
+        alert("❌ Error al cargar la tarea: " + tarea.error);
+        return;
+      }
+
+      document.getElementById("modalTarea").classList.remove("hidden");
+      document.getElementById("modalTitulo").textContent = "Ver / Editar tarea";
+
+      // Asignar valores al modal
+      document.getElementById("tarea_id").value = tarea.id || "";
+      document.getElementById("verTitulo").value = tarea.titulo || "";
+      document.getElementById("verDescripcion").value = tarea.descripcion || "";
+      document.getElementById("verPrioridad").value = tarea.prioridad || "media";
+      document.getElementById("verFechaLimite").value = tarea.fecha_limite || "";
+
+      // Asignar valor para "Asignado a"
+      if (document.getElementById("verAsignado").tagName === "SELECT") {
+        const asignadoSelect = document.getElementById("verAsignado");
+        [...asignadoSelect.options].forEach(opt => {
+          opt.selected = opt.value === (tarea.usuario_empresa_id || "");
+        });
+      } else {
+        document.getElementById("verAsignado").value = tarea.asignado_nombre || "";
+      }
+
+      // Asignar valor para "Empresa"
+      if (document.getElementById("verEmpresa").tagName === "SELECT") {
+        const empresaSelect = document.getElementById("verEmpresa");
+        [...empresaSelect.options].forEach(opt => {
+          opt.selected = opt.value === (tarea.empresa_id || "");
+        });
+      } else {
+        document.getElementById("verEmpresa").value = tarea.empresa_nombre || "";
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("❌ No se pudo cargar la información");
+    }
+  });
+});
 
 function toggleRecurrente(cb) {
     document.getElementById("recurrente_fields").classList.toggle("hidden", !cb.checked);

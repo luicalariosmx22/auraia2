@@ -212,12 +212,22 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
     valor = payload.get("valor")
 
     permisos = {
-        "es_supervisor": session.get("rol") == "supervisor"
+        "es_supervisor": session.get("rol") == "supervisor",
+        "es_superadmin": session.get("rol") == "superadmin",
+        "es_cliente": session.get("rol") == "cliente"
     }
 
     campos_restringidos = ["usuario_empresa_id", "empresa_id", "fecha_limite"]
-    if campo in campos_restringidos and not permisos["es_supervisor"]:
+
+    # Permitir sólo a supervisor o superadmin modificar campos restringidos
+    if campo in campos_restringidos and not (permisos["es_supervisor"] or permisos["es_superadmin"]):
         return jsonify({"error": "No tienes permiso para modificar este campo"}), 403
+
+    # Si es cliente, solo puede modificar ciertos campos
+    if permisos["es_cliente"]:
+        campos_permitidos_cliente = ["estatus", "titulo", "descripcion"]
+        if campo not in campos_permitidos_cliente:
+            return jsonify({"error": "No tienes permiso para modificar este campo"}), 403
 
     if campo not in [
         "titulo",
@@ -324,15 +334,31 @@ def crear_tarea(nombre_nora):
 @panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/obtener/<tarea_id>", methods=["GET"])
 def obtener_tarea(nombre_nora, tarea_id):
     try:
-        tarea = supabase.table("tareas").select("*") \
-            .eq("id", tarea_id).eq("nombre_nora", nombre_nora).limit(1).execute()
-        if not tarea.data:
+        tarea_resp = supabase.table("tareas").select("*").eq("id", tarea_id).eq("nombre_nora", nombre_nora).limit(1).execute()
+        if not tarea_resp.data:
             return jsonify({"error": "Tarea no encontrada"}), 404
-        # Aseguramos que descripcion esté presente (aunque sea vacío)
-        t = tarea.data[0]
-        if "descripcion" not in t:
-            t["descripcion"] = ""
-        return jsonify(t)
+        tarea = tarea_resp.data[0]
+
+        # Agregar nombre de empresa
+        tarea["empresa_nombre"] = ""
+        if tarea.get("empresa_id"):
+            emp_resp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", tarea["empresa_id"]).limit(1).execute()
+            if emp_resp.data:
+                tarea["empresa_nombre"] = emp_resp.data[0]["nombre_empresa"]
+
+        # Agregar nombre de usuario asignado
+        tarea["asignado_nombre"] = ""
+        if tarea.get("usuario_empresa_id"):
+            usr_resp = supabase.table("usuarios_clientes").select("nombre").eq("id", tarea["usuario_empresa_id"]).limit(1).execute()
+            if usr_resp.data:
+                tarea["asignado_nombre"] = usr_resp.data[0]["nombre"]
+
+        # Asegurar descripción
+        if "descripcion" not in tarea:
+            tarea["descripcion"] = ""
+
+        return jsonify(tarea)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

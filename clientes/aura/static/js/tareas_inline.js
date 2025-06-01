@@ -121,9 +121,8 @@ function editarTarea(id) {
       if (data.descripcion) {
         document.getElementById("descripcion").value = data.descripcion;
       }
-      // Obtener empresa_id del select si existe en la fila
-      const empresaID = fila.querySelector("td:nth-child(7) select")?.value || "";
-      document.getElementById("empresa_id").value = empresaID;
+      // Asignar empresa_id directamente desde data
+      document.getElementById("empresa_id").value = data.empresa_id || "";
       // Cambiar el título del modal según si es nueva o edición
       document.getElementById("modalTitulo").textContent = id ? "Ver / Editar tarea" : "Nueva tarea";
     })
@@ -138,10 +137,14 @@ document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
 
     try {
       const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
+      if (!res.ok) {
+        alert("❌ No se pudo cargar la información");
+        return;
+      }
       const tarea = await res.json();
 
       if (tarea.error) {
-        alert("❌ Error al cargar la tarea");
+        alert("❌ Error al cargar la tarea: " + tarea.error);
         return;
       }
 
@@ -150,20 +153,30 @@ document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
 
       // Asignar valores al modal
       document.getElementById("tarea_id").value = tarea.id || "";
-      document.getElementById("titulo").value = tarea.titulo || "";
-      document.getElementById("descripcion").value = tarea.descripcion || "";
-      document.getElementById("prioridad").value = tarea.prioridad || "media";
-      document.getElementById("fecha_limite").value = tarea.fecha_limite || "";
+      document.getElementById("verTitulo").value = tarea.titulo || "";
+      document.getElementById("verDescripcion").value = tarea.descripcion || "";
+      document.getElementById("verPrioridad").value = tarea.prioridad || "media";
+      document.getElementById("verFechaLimite").value = tarea.fecha_limite || "";
 
-      const empresaSelect = document.getElementById("empresa_id");
-      [...empresaSelect.options].forEach(opt => {
-        opt.selected = opt.value === (tarea.empresa_id || "");
-      });
+      // Para el select o input "Asignado a"
+      const verAsignado = document.getElementById("verAsignado");
+      if (verAsignado.tagName === "SELECT") {
+        [...verAsignado.options].forEach(opt => {
+          opt.selected = opt.value === (tarea.usuario_empresa_id || "");
+        });
+      } else {
+        verAsignado.value = tarea.asignado_nombre || "";
+      }
 
-      const asignadoSelect = document.getElementById("usuario_empresa_id");
-      [...asignadoSelect.options].forEach(opt => {
-        opt.selected = opt.value === (tarea.usuario_empresa_id || "");
-      });
+      // Para el select o input "Empresa"
+      const verEmpresa = document.getElementById("verEmpresa");
+      if (verEmpresa.tagName === "SELECT") {
+        [...verEmpresa.options].forEach(opt => {
+          opt.selected = opt.value === (tarea.empresa_id || "");
+        });
+      } else {
+        verEmpresa.value = tarea.empresa_nombre || "";
+      }
 
     } catch (error) {
       console.error(error);
