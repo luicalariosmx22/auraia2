@@ -1,0 +1,11 @@
+<datalist id="usuarios_datalist">
+  {% for u in usuarios %}
+    <option data-id="{{ u.id }}" value="{{ u.nombre }}"></option>
+  {% endfor %}
+</datalist>
+
+<datalist id="empresas_datalist">
+  {% for e in empresas %}
+    <option data-id="{{ e.id }}" value="{{ e.nombre_empresa }}"></option>
+  {% endfor %}
+</datalist>

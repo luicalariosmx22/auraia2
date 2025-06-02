@@ -1,349 +1,231 @@
 <!-- Asegúrate de tener esto en el layout/base: -->
 <body data-nora="{{ nombre_nora }}">
 
-<!-- Modal: Crear nueva tarea -->
-<section class="bg-white border border-gray-200 rounded-xl shadow-md p-6 my-6">
-  <h2 class="text-lg font-semibold text-blue-700 mb-4 flex items-center gap-2">
-    ➕ Crear nueva tarea
-  </h2>
-
-  <form method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/guardar-tarea" class="space-y-4" id="form_nueva_tarea">
-    <div>
-      <label for="titulo" class="block text-sm font-medium text-gray-700">Título</label>
-      <input type="text" name="titulo" id="titulo" required
-             class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-    </div>
-
-    <div>
-      <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
-      <textarea name="descripcion" id="descripcion" rows="3"
-                class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"></textarea>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label for="fecha_limite" class="block text-sm font-medium text-gray-700">Fecha límite</label>
-        <input type="date" name="fecha_limite" id="fecha_limite"
-               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+<!-- Modal VER TAREA (nuevo diseño tipo tailwind, limpio) -->
+<div id="modalVerTarea" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" aria-modal="true" role="dialog">
+  <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-0 relative animate-fade-in">
+    <form id="formVerTarea" class="divide-y divide-gray-200">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl bg-gradient-to-r from-blue-600 to-blue-400">
+        <h2 class="text-xl font-bold text-white">Ver / Editar tarea</h2>
+        <button type="button" onclick="cerrarModalVerTarea()" aria-label="Cerrar" class="text-white hover:text-blue-100 text-2xl leading-none focus:outline-none">&times;</button>
       </div>
 
-      <div>
-        <label for="prioridad" class="block text-sm font-medium text-gray-700">Prioridad</label>
-        <select name="prioridad" id="prioridad"
-                class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-          <option value="baja">Baja</option>
-          <option value="media">Media</option>
-          <option value="alta">Alta</option>
-        </select>
-      </div>
-    </div>
-
-    {% if permisos.es_supervisor %}
-      <!-- campo empresa -->
-      <div class="mb-4">
-        <label for="empresa_id" class="block text-sm font-medium text-gray-700">Empresa</label>
-        <select name="empresa_id" id="empresa_id" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-          <option value="" selected>— Sin empresa —</option>
-          {% for e in empresas %}
-            <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <!-- campo usuario -->
-      <div class="mb-4">
-        <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700">Asignado a</label>
-        <select name="usuario_empresa_id" id="usuario_empresa_id" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-white">
-          {% for u in usuarios %}
-            <option value="{{ u.id }}">{{ u.nombre }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    {% else %}
-      <!-- campos ocultos con valores por defecto desde JS -->
-      <input type="hidden" name="empresa_id" id="empresa_id" value="{{ empresa_id }}">
-      <input type="hidden" name="usuario_empresa_id" id="usuario_empresa_id" value="{{ usuario_empresa_id }}">
-    {% endif %}
-
-    <!-- ===================== RECURSIVIDAD ===================== -->
-    <div class="mb-4 flex items-center">
-      <input type="checkbox" id="is_recurrente" class="mr-2" onchange="toggleRecurrente(this)">
-      <label for="is_recurrente" class="text-sm font-medium text-gray-700">¿Es una tarea recurrente?</label>
-    </div>
-
-    <!-- 🔁 Bloque visual para tareas recurrentes -->
-    <div class="mb-4">
-      <label class="inline-flex items-center">
-        <input type="checkbox" id="recurrente_checkbox" class="form-checkbox h-4 w-4 text-blue-600">
-        <span class="ml-2 text-sm text-gray-700">¿Es una tarea recurrente?</span>
-      </label>
-    </div>
-    <div id="campos_recurrencia" class="hidden mb-4 space-y-3">
-      <!-- Fecha de inicio de la recurrencia -->
-      <div>
-        <label for="fecha_inicio" class="block text-sm font-medium text-gray-700">Fecha de inicio</label>
-        <input type="date" id="fecha_inicio" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-      </div>
-      <!-- Tipo de recurrencia -->
-      <div>
-        <label for="rrule_type" class="block text-sm font-medium text-gray-700">Recurrencia</label>
-        <select id="rrule_type" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-          <option value="">— Seleccione —</option>
-          <option value="FREQ=DAILY">Diario</option>
-          <option value="FREQ=WEEKLY">Semanal</option>
-          <option value="FREQ=MONTHLY">Mensual</option>
-        </select>
-      </div>
-      <!-- Fecha fin de la recurrencia -->
-      <div>
-        <label for="fecha_fin" class="block text-sm font-medium text-gray-700">Fecha fin (opcional)</label>
-        <input type="date" id="fecha_fin" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-      </div>
-      <!-- Número de repeticiones -->
-      <div>
-        <label for="count" class="block text-sm font-medium text-gray-700">Repeticiones (opcional)</label>
-        <input type="number" id="count" min="1" class="w-full border border-gray-300 rounded px-3 py-2 mt-1">
-      </div>
-    </div>
-
-    <div class="text-right">
-      <button type="button" onclick="cerrarModalTarea()" class="text-gray-500 text-sm mr-4">Cancelar</button>
-      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Guardar</button>
-    </div>
-    <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
-    <!-- <input type="hidden" name="empresa_id" value="{{ empresa_id if empresa_id else user.get('empresa_id', '') }}"> -->
-    <input type="hidden" name="creado_por" value="{{ user.id }}">
-    <!-- <input type="hidden" name="usuario_empresa_id" value="{{ user.id }}"> -->
-    <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
-    <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2]|upper if user.nombre is defined else 'NN' }}">
-    <input type="hidden" name="tarea_id" id="tarea_id">
-  </form>
-</section>
-
-<!-- Modal VER TAREA (edición tipo TickTick) -->
-<div class="modal fade" id="modalVerTarea" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <form class="modal-content" id="formVerTarea">
-      <div class="modal-header">
-        <h5 class="modal-title">Tarea</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div id="alertaGuardado" class="d-none mt-2"></div>
-
-      <div class="modal-body row g-3">
+      <!-- Body -->
+      <div class="px-6 py-6 space-y-6">
         <input type="hidden" id="verIdTarea" name="id">
-
-        <div class="col-md-8">
-          <label>Título</label>
-          <input type="text" class="form-control" id="verTitulo" name="titulo">
+        <div>
+          <label for="verTitulo" class="block text-sm font-semibold text-gray-700 mb-1">Título</label>
+          <input type="text" id="verTitulo" name="titulo"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
         </div>
 
-        <div class="col-md-4">
-          <label>Fecha límite</label>
-          <input type="date" class="form-control" id="verFechaLimite" name="fecha_limite">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="verFechaLimite" class="block text-sm font-semibold text-gray-700 mb-1">Fecha límite</label>
+            <input type="date" id="verFechaLimite" name="fecha_limite"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+          </div>
+          <div>
+            <label for="verPrioridad" class="block text-sm font-semibold text-gray-700 mb-1">Prioridad</label>
+            <select id="verPrioridad" name="prioridad"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              <option value="baja">Baja</option>
+              <option value="media">Media</option>
+              <option value="alta">Alta</option>
+            </select>
+          </div>
         </div>
 
-        <div class="col-md-12">
-          <label>Descripción</label>
-          <textarea class="form-control" id="verDescripcion" name="descripcion" rows="3"></textarea>
+        <div>
+          <label for="verDescripcion" class="block text-sm font-semibold text-gray-700 mb-1">Descripción</label>
+          <textarea id="verDescripcion" name="descripcion" rows="3"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base"></textarea>
         </div>
 
-        <div class="col-md-4">
-          <label>Prioridad</label>
-          <select class="form-select" id="verPrioridad" name="prioridad">
-            <option value="alta">Alta</option>
-            <option value="media">Media</option>
-            <option value="baja">Baja</option>
-          </select>
-        </div>
-
-        <div class="col-md-4">
-          <label>Estatus</label>
-          <select class="form-select" id="verEstatus" name="estatus">
-            <option value="pendiente">Pendiente</option>
-            <option value="en progreso">En progreso</option>
-            <option value="retrasada">Retrasada</option>
-            <option value="completada">Completada</option>
-          </select>
-        </div>
-
-        <div class="col-md-4">
-          <label>Asignado a</label>
-          {% if permisos.es_supervisor %}
-          <select class="form-select" id="verAsignado" name="usuario_empresa_id">
-            {% for u in usuarios %}
-              <option value="{{ u.id }}">{{ u.nombre }}</option>
-            {% endfor %}
-          </select>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="verEstatus" class="block text-sm font-semibold text-gray-700 mb-1">Estatus</label>
+            <select id="verEstatus" name="estatus"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              <option value="pendiente">Pendiente</option>
+              <option value="en progreso">En progreso</option>
+              <option value="retrasada">Retrasada</option>
+              <option value="completada">Completada</option>
+            </select>
+          </div>
+          <!-- ✅ Campo EMPRESA (solo visible como texto o input readonly) -->
+          <div class="col-md-12">
+            <label>Empresa</label>
+            <input type="text" class="form-control" id="verEmpresaTexto" name="empresa_nombre" readonly disabled>
+            <input type="hidden" id="verEmpresa" name="empresa_id">
+          </div>
+          <!-- ✅ Campo ASIGNADO A (solo si tiene permisos) -->
+          {% if permisos.es_supervisor or permisos.es_superadmin or is_admin %}
+          <div class="col-md-4">
+            <label>Asignado a</label>
+            <select class="form-select" id="verAsignado" name="usuario_empresa_id">
+              {% for u in usuarios %}
+                <option value="{{ u.id }}">{{ u.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
           {% else %}
-          <input type="text" class="form-control" id="verAsignado" name="usuario_empresa_id" disabled
-                 value="{{ usuarios | selectattr('id', 'equalto', tarea.usuario_empresa_id) | map(attribute='nombre') | first }}">
-          {% endif %}
-        </div>
-
-        <div class="col-md-12">
-          <label>Empresa</label>
-          {% if permisos.es_supervisor %}
-          <select class="form-select" id="verEmpresa" name="empresa_id">
-            <option value="">---</option>
-            {% for e in empresas %}
-              <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
-            {% endfor %}
-          </select>
-          {% else %}
-          <input type="text" class="form-control" id="verEmpresa" name="empresa_id" disabled
-                 value="{{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}">
+          <input type="hidden" id="verAsignado" name="usuario_empresa_id" value="{{ usuario_empresa_id }}">
           {% endif %}
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 rounded-b-2xl">
+        <button type="button" onclick="cerrarModalVerTarea()" class="text-gray-600 hover:text-blue-600 font-medium px-4 py-2 rounded transition">Cancelar</button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Guardar cambios</button>
       </div>
     </form>
   </div>
 </div>
-
-<form id="formTarea">
-  <!-- Campos para tareas recurrentes         -->
-  <!-- ──────────────────────────────────────── -->
-  <div class="mb-4">
-    <label class="flex items-center">
-      <input type="checkbox" id="recurrente" class="mr-2" />
-      Tarea recurrente
-    </label>
-  </div>
-  <div id="recurrente_fields" class="hidden">
-    <div class="mb-4">
-      <label for="dtstart" class="block text-sm font-medium text-gray-700">Fecha inicio rec.</label>
-      <input type="date" id="dtstart" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
-    </div>
-    <div class="mb-4">
-      <label for="rrule" class="block text-sm font-medium text-gray-700">Regla RRule</label>
-      <input type="text" id="rrule" placeholder="FREQ=DAILY;INTERVAL=1" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
-    </div>
-    <div class="mb-4">
-      <label for="until" class="block text-sm font-medium text-gray-700">Fecha fin (opcional)</label>
-      <input type="date" id="until" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
-    </div>
-    <div class="mb-4">
-      <label for="count" class="block text-sm font-medium text-gray-700">Número de repeticiones (opcional)</label>
-      <input type="number" id="count" min="1" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
-    </div>
-  </div>
-  <!-- ...existing code... -->
-</form>
-
 <script>
-document.getElementById("form_nueva_tarea")?.addEventListener("submit", function(e) {
-  const usuInput = document.getElementById("usuario_empresa_id");
-  const empInput = document.getElementById("empresa_id");
-  const usuValue = usuInput.value.trim();
-  const empValue = empInput.value.trim();
-
-  const usuOption = [...document.querySelectorAll("#datalist_usuarios option")].find(opt => opt.value === usuValue);
-  const empOption = [...document.querySelectorAll("#datalist_empresas option")].find(opt => opt.value === empValue);
-
-  if (usuOption) usuInput.value = usuOption.dataset.id;
-  if (empOption) empInput.value = empOption.dataset.id;
-});
-
-function initModalSubmit() {
-  const form = document.getElementById("formTarea");
-  if (!form) return;
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const get = id => document.getElementById(id);
-    const tareaId = get("tarea_id").value;
-    const nombre_nora = get("nombre_nora").value;
-
-    const payload = {
-      titulo:        get("titulo").value.trim(),
-      descripcion:   get("descripcion").value.trim(),
-      fecha_limite:  get("fecha_limite").value || null,
-      prioridad:     get("prioridad").value.toLowerCase(),
-      usuario_empresa_id: get("usuario_empresa_id").value
-    };
-
-    const emp = get("empresa_id").value;
-    if (emp) payload.empresa_id = emp;
-
-    // ───────────────────────────────────────────────────────
-    // Incluir datos de recurrencia si corresponde
-    // ───────────────────────────────────────────────────────
-    if (get("recurrente")?.checked) {
-      payload.dtstart = get("dtstart").value || null;
-      payload.rrule   = get("rrule").value.trim();
-      const untilVal  = get("until").value;
-      if (untilVal) payload.until = untilVal;
-      const countVal  = get("count").value;
-      if (countVal) payload.count = parseInt(countVal, 10);
-    }
-
-    // ...existing code...
-  });
-}
-
-// Abrir modal VER TAREA
-document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    const tareaId = btn.getAttribute("data-id");
-    const nombreNora = btn.getAttribute("data-nora");
-
-    try {
-      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
-      if (!res.ok) {
-        alert("❌ No se pudo cargar la información");
-        return;
-      }
-      const tarea = await res.json();
-
-      if (tarea.error) {
-        alert("❌ Error al cargar la tarea: " + tarea.error);
-        return;
-      }
-
-      document.getElementById("modalTarea").classList.remove("hidden");
-      document.getElementById("modalTitulo").textContent = "Ver / Editar tarea";
-
-      // Asignar valores al modal
-      document.getElementById("tarea_id").value = tarea.id || "";
-      document.getElementById("verTitulo").value = tarea.titulo || "";
-      document.getElementById("verDescripcion").value = tarea.descripcion || "";
-      document.getElementById("verPrioridad").value = tarea.prioridad || "media";
-      document.getElementById("verFechaLimite").value = tarea.fecha_limite || "";
-
-      // Asignar valor para "Asignado a"
-      if (document.getElementById("verAsignado").tagName === "SELECT") {
-        const asignadoSelect = document.getElementById("verAsignado");
-        [...asignadoSelect.options].forEach(opt => {
-          opt.selected = opt.value === (tarea.usuario_empresa_id || "");
-        });
-      } else {
-        document.getElementById("verAsignado").value = tarea.asignado_nombre || "";
-      }
-
-      // Asignar valor para "Empresa"
-      if (document.getElementById("verEmpresa").tagName === "SELECT") {
-        const empresaSelect = document.getElementById("verEmpresa");
-        [...empresaSelect.options].forEach(opt => {
-          opt.selected = opt.value === (tarea.empresa_id || "");
-        });
-      } else {
-        document.getElementById("verEmpresa").value = tarea.empresa_nombre || "";
-      }
-
-    } catch (error) {
-      console.error(error);
-      alert("❌ No se pudo cargar la información");
-    }
-  });
-});
-
-function toggleRecurrente(cb) {
-    document.getElementById("recurrente_fields").classList.toggle("hidden", !cb.checked);
+  function cerrarModalVerTarea() {
+    document.getElementById("modalVerTarea")?.classList.add("hidden");
   }
 </script>
+
+<!-- Modal para crear tarea (nuevo diseño, único y limpio) -->
+<!-- SOLO PARA PRUEBA -->
+<div id="modalNuevaTarea" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-0 relative animate-fade-in">
+    <form id="formTareaCrear" class="divide-y divide-gray-200">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl bg-gradient-to-r from-blue-600 to-blue-400">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <span class="inline-block bg-white bg-opacity-20 rounded-full p-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/></svg></span>
+          Crear nueva tarea
+        </h2>
+        <button type="button" onclick="cerrarModalTarea()" aria-label="Cerrar" class="text-white hover:text-blue-100 text-2xl leading-none focus:outline-none">&times;</button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-6 space-y-6">
+        <input type="hidden" id="tarea_id" name="tarea_id">
+        <div>
+          <label for="titulo" class="block text-sm font-semibold text-gray-700 mb-1">Título <span class="text-red-500">*</span></label>
+          <input type="text" name="titulo" id="titulo" required autofocus
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="fecha_limite" class="block text-sm font-semibold text-gray-700 mb-1">Fecha límite</label>
+            <input type="date" name="fecha_limite" id="fecha_limite"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+          </div>
+          <div>
+            <label for="prioridad" class="block text-sm font-semibold text-gray-700 mb-1">Prioridad</label>
+            <select name="prioridad" id="prioridad"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              <option value="baja">Baja</option>
+              <option value="media" selected>Media</option>
+              <option value="alta">Alta</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="descripcion" class="block text-sm font-semibold text-gray-700 mb-1">Descripción</label>
+          <textarea id="descripcion" name="descripcion"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base"
+                    rows="3"></textarea>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="estatus" class="block text-sm font-semibold text-gray-700 mb-1">Estatus</label>
+            <select name="estatus" id="estatus"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              <option value="pendiente" selected>⏳ Pendiente</option>
+              <option value="en progreso">🚧 En progreso</option>
+              <option value="retrasada">❗ Retrasada</option>
+              <option value="completada">✅ Completada</option>
+            </select>
+          </div>
+          <!-- Empresa y Asignado a: grid siempre de dos columnas -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Empresa: visible para todos -->
+            <div>
+              <label for="empresa_id" class="block text-sm font-semibold text-gray-700 mb-1">Empresa</label>
+              <select name="empresa_id" id="empresa_id"
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+                <option value="" selected>— Sin empresa —</option>
+                {% for e in empresas %}
+                  <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Asignado a: condicional según permisos -->
+            {% if permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin %}
+            <div>
+              <label for="usuario_empresa_id" class="block text-sm font-semibold text-gray-700 mb-1">Asignado a</label>
+              <select name="usuario_empresa_id" id="usuario_empresa_id"
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+                {% for u in usuarios %}
+                  <option value="{{ u.id }}">{{ u.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% else %}
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Asignado a</label>
+              <input type="text" readonly disabled value="{{ user.nombre }}"
+                     class="w-full bg-gray-100 text-gray-500 rounded px-4 py-2">
+              <input type="hidden" name="usuario_empresa_id" id="usuario_empresa_id" value="{{ usuario_empresa_id }}">
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <!-- Recurrencia -->
+        <div class="pt-2">
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="recurrente_checkbox" name="is_recurrente" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+            <span class="ml-2 text-sm text-gray-700">¿Es una tarea recurrente?</span>
+          </label>
+        </div>
+        <div id="recurrente_fields" class="hidden space-y-3 bg-blue-50 rounded-lg p-4 border border-blue-100">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="fecha_inicio" class="block text-sm font-semibold text-gray-700 mb-1">Fecha de inicio</label>
+              <input type="date" id="fecha_inicio" name="dtstart" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+            </div>
+            <div>
+              <label for="rrule" class="block text-sm font-semibold text-gray-700 mb-1">Recurrencia</label>
+              <select id="rrule" name="rrule" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+                <option value="FREQ=DAILY">Diaria</option>
+                <option value="FREQ=WEEKLY">Semanal</option>
+                <option value="FREQ=MONTHLY">Mensual</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="until" class="block text-sm font-semibold text-gray-700 mb-1">Fecha fin (opcional)</label>
+              <input type="date" id="until" name="until" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+            </div>
+            <div>
+              <label for="count" class="block text-sm font-semibold text-gray-700 mb-1">Repeticiones (opcional)</label>
+              <input type="number" id="count" name="count" min="1" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 rounded-b-2xl">
+        <button type="button" onclick="cerrarModalTarea()" class="text-gray-600 hover:text-blue-600 font-medium px-4 py-2 rounded transition">Cancelar</button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Guardar</button>
+      </div>
+      <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
+      <input type="hidden" name="creado_por" value="{{ user.id }}">
+      <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
+      <input type="hidden" name="iniciales_usuario" value="{{ user.nombre[:2]|upper if user.nombre is defined else 'NN' }}">
+    </form>
+  </div>
+</div>
+<script type="module" src="{{ url_for('static', filename='js/tareas_modal_nueva.js') }}"></script>
 
 </body>

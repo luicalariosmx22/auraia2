@@ -1,57 +1,94 @@
-import { postJSON } from "./tareas_utils.js";
+// Elimina legacy y deja solo el flujo para el modal de creación actual
 
-export function initToggleRecurrencia() {
+document.addEventListener("DOMContentLoaded", () => {
+  // Mostrar/ocultar campos de recurrencia en el modal de nueva tarea
   const recCheck = document.getElementById("recurrente_checkbox");
-  const recFields = document.getElementById("campos_recurrencia");
-  if (!recCheck || !recFields) return;
-
-  recCheck.addEventListener("change", e => {
-    recFields.classList.toggle("hidden", !e.target.checked);
-  });
-
-  const rruleType = document.getElementById("rrule_type");
-  const dtstartInput = document.getElementById("fecha_inicio");
-  const preview = document.getElementById("rrule_preview");
-
-  function updateRRule() {
-    const freq = (rruleType.value || "").toUpperCase();
-    if (!freq) {
-      preview.value = "";
-      return;
-    }
-    let rule = `FREQ=${freq}`;
-    if (freq === "WEEKLY" && dtstartInput.value) {
-      const days = ["SU","MO","TU","WE","TH","FR","SA"];
-      const d = new Date(dtstartInput.value);
-      rule += `;BYDAY=${days[d.getUTCDay()]}`;
-    } else if (freq === "MONTHLY" && dtstartInput.value) {
-      const day = new Date(dtstartInput.value).getUTCDate();
-      rule += `;BYMONTHDAY=${day}`;
-    }
-    preview.value = rule;
+  const recFields = document.getElementById("recurrente_fields");
+  if (recCheck && recFields) {
+    recCheck.addEventListener("change", e => {
+      recFields.classList.toggle("hidden", !e.target.checked);
+    });
   }
 
-  rruleType?.addEventListener("change", updateRRule);
-  dtstartInput?.addEventListener("change", updateRRule);
-}
-
-export function initModalNuevaTareaSubmit() {
-  const form = document.getElementById("formTarea");
+  // Enviar formulario de creación de tarea
+  const form = document.getElementById("formTareaCrear");
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const payload = {};
     const formData = new FormData(form);
+    const payload = {};
     formData.forEach((val, key) => {
       if (val) payload[key] = val;
     });
 
-    console.log("🧪 Payload a enviar:", payload);
+    // Validaciones mínimas
+    if (!payload.titulo) {
+      alert("El título es obligatorio");
+      return;
+    }
+    if (!payload.usuario_empresa_id) {
+      alert("Debes asignar un responsable");
+      return;
+    }
 
-    const nombreNora = document.body.getAttribute("data-nora");
-    const res = await postJSON(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, payload);
+    // Detectar Nora para la URL
+    const nombreNora = form.querySelector('[name="nombre_nora"]').value;
 
-    if (res.ok) location.reload();
+    try {
+      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok && (data.ok || data.id)) {
+        location.reload();
+      } else {
+        alert("❌ " + (data.error || "Error al crear la tarea"));
+      }
+    } catch (err) {
+      alert("❌ Error de red al crear la tarea");
+      console.error(err);
+    }
   });
-}
+});
+document.addEventListener("DOMContentLoaded", function() {
+  var btnCancelar = document.getElementById("btnCancelarTarea");
+  if(btnCancelar) {
+    btnCancelar.onclick = function() {
+      document.getElementById("modalTarea").classList.add("hidden");
+    }
+  }
+});
+
+// ✅ Archivo: clientes/aura/static/js/tareas_modal_nueva.js
+
+window.abrirModalTarea = function () {
+  const contenedor = document.getElementById("contenedorModalTarea");
+  const modal = document.getElementById("modalTarea");
+  const form = document.getElementById("formTarea");
+  const boton = document.getElementById("btnNuevaTarea");
+
+  if (!contenedor || !modal || !form) return;
+
+  const abierto = !contenedor.classList.contains("max-h-0");
+
+  if (abierto) {
+    contenedor.classList.add("max-h-0");
+    contenedor.classList.remove("max-h-[1000px]");
+    if (boton) boton.innerHTML = "➕ Nueva tarea";
+  } else {
+    contenedor.classList.remove("max-h-0");
+    contenedor.classList.add("max-h-[1000px]");
+    modal.classList.remove("hidden");
+    form.reset();
+    const tareaId = document.getElementById("tarea_id");
+    if (tareaId) tareaId.value = "";
+    document.getElementById("modalTitulo").textContent = "Nueva tarea";
+    if (boton) boton.innerHTML = "✖️ Cerrar formulario";
+  }
+};
+
+window.cerrarModalTarea = function () {
+  document.getElementById("modalNuevaTarea").classList.add("hidden");
+};

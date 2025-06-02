@@ -1,0 +1,118 @@
+<!-- Tabla tareas completadas -->
+<h3 class="text-sm font-semibold text-gray-600 mb-2">✅ Completadas</h3>
+<table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
+  <thead class="bg-gray-50">
+    <tr>
+      <th class="w-8"></th>
+      <th class="px-4 py-2 text-left">Título</th>
+      <th class="px-4 py-2 text-left">Prioridad</th>
+      <th class="px-4 py-2 text-left">Días Restantes</th>
+      <th class="px-4 py-2 text-left">Estatus</th>
+      <th class="px-4 py-2 text-left">Asignado a</th>
+      <th class="px-4 py-2 text-left">Empresa</th>
+      <th class="px-4 py-2 text-left">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tarea in tareas_completadas %}
+      <tr class="border-t border-gray-200 opacity-70" data-id="{{ tarea.id }}">
+        <td class="text-center">
+          <input type="checkbox"
+                 {% if tarea.estatus == 'completada' %}checked{% endif %}
+                 {% if not editable %}disabled{% endif %}
+                 onchange="toggleEstatus(this)">
+        </td>
+        <td class="px-4 py-2">
+          {% if editable %}
+            <input type="text"
+                   class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1"
+                   value="{{ tarea.titulo }}"
+                   onblur="updateCampo(this,'titulo')">
+            {% if tarea.recurrente %}
+              <span title="Tarea recurrente">🔁</span>
+            {% endif %}
+          {% else %}
+            {{ tarea.titulo }}
+            {% if tarea.recurrente %}
+              <span title="Tarea recurrente">🔁</span>
+            {% endif %}
+          {% endif %}
+        </td>
+        <td class="px-4 py-2 capitalize">
+          {% if editable %}
+            <select onchange="updateCampo(this,'prioridad')" class="bg-transparent">
+              <option value="alta" {% if tarea.prioridad=='alta' %}selected{% endif %}>🔴 Alta</option>
+              <option value="media" {% if tarea.prioridad=='media' %}selected{% endif %}>🟠 Media</option>
+              <option value="baja" {% if tarea.prioridad=='baja' %}selected{% endif %}>🟢 Baja</option>
+            </select>
+          {% else %}
+            {% if tarea.prioridad=='alta' %}🔴{% elif tarea.prioridad=='media' %}🟠{% else %}🟢{% endif %}
+            {{ tarea.prioridad }}
+          {% endif %}
+        </td>
+        <td class="px-4 py-2">
+          {% if editable %}
+            <input type="date" value="{{ tarea.fecha_limite }}" onchange="updateCampo(this,'fecha_limite')">
+          {% else %}
+            {% if tarea.dias_restantes is not none %}
+              {% if tarea.dias_restantes > 0 %}
+                <span class="text-green-700 font-medium">{{ tarea.dias_restantes }} días</span>
+              {% elif tarea.dias_restantes == 0 %}
+                <span class="text-yellow-600 font-medium">Hoy</span>
+              {% else %}
+                <span class="text-red-600 font-medium">Hace {{ tarea.dias_restantes | abs }} días</span>
+              {% endif %}
+            {% else %}
+              <span class="text-gray-500">Sin fecha</span>
+            {% endif %}
+          {% endif %}
+        </td>
+        <td class="px-4 py-2 capitalize">
+          {% if editable %}
+            <select onchange="updateCampo(this,'estatus')" class="bg-transparent">
+              <option value="pendiente"   {% if tarea.estatus=='pendiente' %}selected{% endif %}>⏳ Pendiente</option>
+              <option value="en progreso" {% if tarea.estatus=='en progreso' %}selected{% endif %}>🚧 En progreso</option>
+              <option value="retrasada"   {% if tarea.estatus=='retrasada' %}selected{% endif %}>❗ Retrasada</option>
+              <option value="completada"  {% if tarea.estatus=='completada' %}selected{% endif %}>✅ Completada</option>
+            </select>
+          {% else %}
+            {% if tarea.estatus=='pendiente' %}⏳{% elif tarea.estatus=='en progreso' %}🚧{% elif tarea.estatus=='retrasada' %}❗{% elif tarea.estatus=='completada' %}✅{% endif %}
+            {{ tarea.estatus }}
+          {% endif %}
+        </td>
+        <td class="px-4 py-2">
+          {% if permisos.es_supervisor or tarea.usuario_empresa_id == user.id %}
+            <input
+              list="usuarios_datalist"
+              class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1"
+              value="{{ usuarios | selectattr('id', 'equalto', tarea.usuario_empresa_id) | map(attribute='nombre') | first }}"
+              onblur="handleAutoCompleteInput(this, 'usuario_empresa_id')"
+            >
+          {% else %}
+            {{ usuarios | selectattr('id', 'equalto', tarea.usuario_empresa_id) | map(attribute='nombre') | first }}
+          {% endif %}
+        </td>
+        <td class="px-4 py-2">
+          {% if permisos.es_supervisor or tarea.usuario_empresa_id == user.id %}
+            <input
+              list="empresas_datalist"
+              class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1"
+              value="{{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}"
+              onblur="handleAutoCompleteInput(this, 'empresa_id')"
+            >
+          {% else %}
+            {{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}
+          {% endif %}
+        </td>
+        <td class="px-4 py-2">
+          <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2"
+                  data-id="{{ tarea.id }}"
+                  data-nora="{{ nombre_nora }}">
+            Ver
+          </button>
+          <button onclick="eliminarTarea('{{ tarea.id }}')" class="text-red-600 hover:underline text-xs">Eliminar</button>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

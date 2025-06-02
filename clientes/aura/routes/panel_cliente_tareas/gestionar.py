@@ -18,6 +18,7 @@ from flask import (
 from utils.validar_modulo_activo import modulo_activo_para_nora
 from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.generar_codigo_tarea import generar_codigo_tarea
+from clientes.aura.utils.permisos import obtener_permisos
 
 panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 
@@ -41,151 +42,107 @@ def vista_gestionar_tareas(nombre_nora):
     if not modulo_activo_para_nora(nombre_nora, "tareas"):
         return "Módulo no activo", 403
 
-    usuario_id = session.get("usuario_empresa_id")
-    if not usuario_id:
-        user = session.get("user", {})
-        usuario_id = user.get("usuario_empresa_id") or user.get("id")
-        if usuario_id:
-            session["usuario_empresa_id"] = usuario_id
+    # usuario_id = session.get("usuario_empresa_id")
+    # if not usuario_id:
+    #     user = session.get("user", {})
+    #     usuario_id = user.get("usuario_empresa_id") or user.get("id")
+    #     if usuario_id:
+    #         session["usuario_empresa_id"] = usuario_id
+    usuario_id = session.get("usuario_empresa_id") or session.get("user", {}).get("usuario_empresa_id") or session.get("user", {}).get("id")
+    if usuario_id:
+        session["usuario_empresa_id"] = usuario_id
 
     if not usuario_id and os.getenv("FLASK_ENV") == "development":
         print("🧪 Simulación de sesión en modo local")
         usuario_id = "00000000-0000-0000-0000-000000000000"
         session["usuario_empresa_id"] = usuario_id
 
-    permisos = {
-        "es_supervisor": session.get("rol") == "supervisor"
-    }
+    permisos = obtener_permisos()
 
-    tareas_resp = (
-        supabase.table("tareas")
-        .select("*")
-        .eq("nombre_nora", nombre_nora)
-        .eq("activo", True)
-        .execute()
-    )
+    tareas_resp = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
     todas = tareas_resp.data or []
 
-    q_busqueda  = request.args.get("busqueda", "").strip().lower()
-    q_estatus   = request.args.get("estatus", "").strip()
-    q_prioridad = request.args.get("prioridad", "").strip()
-    q_empresa   = request.args.get("empresa_id", "").strip()
-    q_asignado  = request.args.get("usuario_empresa_id", "").strip()
-    q_ini       = request.args.get("fecha_ini", "").strip()
-    q_fin       = request.args.get("fecha_fin", "").strip()
-
-    tareas = todas
+    q = {
+        "busqueda": request.args.get("busqueda", "").strip().lower(),
+        "estatus": request.args.get("estatus", "").strip(),
+        "prioridad": request.args.get("prioridad", "").strip(),
+        "empresa_id": request.args.get("empresa_id", "").strip(),
+        "usuario_empresa_id": request.args.get("usuario_empresa_id", "").strip(),
+        "fecha_ini": request.args.get("fecha_ini", "").strip(),
+        "fecha_fin": request.args.get("fecha_fin", "").strip()
+    }
 
     def coincide(t):
-        if q_busqueda and q_busqueda not in (t.get("titulo","" ).lower() + " " + t.get("descripcion", "").lower()):
+        if q["busqueda"] and q["busqueda"] not in (t.get("titulo", "").lower() + " " + t.get("descripcion", "").lower()):
             return False
-        if q_estatus and t.get("estatus") != q_estatus:
+        if q["estatus"] and t.get("estatus") != q["estatus"]:
             return False
-        if q_prioridad and t.get("prioridad") != q_prioridad:
+        if q["prioridad"] and t.get("prioridad") != q["prioridad"]:
             return False
-        if q_empresa and (t.get("empresa_id") or "") != q_empresa:
+        if q["empresa_id"] and (t.get("empresa_id") or "") != q["empresa_id"]:
             return False
-        if q_asignado and (t.get("usuario_empresa_id") or "") != q_asignado:
+        if q["usuario_empresa_id"] and (t.get("usuario_empresa_id") or "") != q["usuario_empresa_id"]:
             return False
-        if q_ini and (t.get("fecha_limite") or "") < q_ini:
+        if q["fecha_ini"] and (t.get("fecha_limite") or "") < q["fecha_ini"]:
             return False
-        if q_fin and (t.get("fecha_limite") or "") > q_fin:
+        if q["fecha_fin"] and (t.get("fecha_limite") or "") > q["fecha_fin"]:
             return False
         return True
 
-    tareas = [t for t in tareas if coincide(t)]
+    tareas = [t for t in todas if coincide(t)]
 
-    filtro_tipo = request.args.get("tipo", "").strip().lower()
-    if filtro_tipo == "recurrente":
+    if request.args.get("tipo", "").strip().lower() == "recurrente":
         tareas = [t for t in tareas if t.get("recurrente") is True]
 
     for t in tareas:
         if t.get("empresa_id"):
             try:
-                emp = (
-                    supabase.table("cliente_empresas")
-                    .select("nombre_empresa")
-                    .eq("id", t["empresa_id"])
-                    .limit(1)
-                    .execute()
-                )
-                if emp.data:
-                    t["empresa_nombre"] = emp.data[0]["nombre_empresa"]
+                emp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", t["empresa_id"]).limit(1).execute()
+                t["empresa_nombre"] = emp.data[0]["nombre_empresa"] if emp.data else ""
             except Exception:
                 t["empresa_nombre"] = ""
         if t.get("usuario_empresa_id"):
             try:
-                usr = (
-                    supabase.table("usuarios_clientes")
-                    .select("nombre")
-                    .eq("id", t["usuario_empresa_id"])
-                    .limit(1)
-                    .execute()
-                )
-                if usr.data:
-                    t["asignado_nombre"] = usr.data[0]["nombre"]
+                usr = supabase.table("usuarios_clientes").select("nombre").eq("id", t["usuario_empresa_id"]).limit(1).execute()
+                t["asignado_nombre"] = usr.data[0]["nombre"] if usr.data else ""
             except Exception:
                 t["asignado_nombre"] = ""
-        if t.get("fecha_limite"):
-            try:
-                t["dias_restantes"] = (date.fromisoformat(t["fecha_limite"]) - date.today()).days
-            except Exception:
-                t["dias_restantes"] = None
-        else:
+        try:
+            fecha = t.get("fecha_limite")
+            t["dias_restantes"] = (date.fromisoformat(fecha) - date.today()).days if fecha else None
+        except Exception:
             t["dias_restantes"] = None
 
-    usuarios_resp = (
-        supabase.table("usuarios_clientes")
-        .select("id, nombre")
-        .eq("nombre_nora", nombre_nora)
-        .eq("activo", True)
-        .execute()
-    )
-    usuarios = usuarios_resp.data or []
-
-    empresas_resp = (
-        supabase.table("cliente_empresas")
-        .select("id, nombre_empresa")
-        .eq("nombre_nora", nombre_nora)
-        .execute()
-    )
-    empresas = empresas_resp.data or []
+    usuarios = supabase.table("usuarios_clientes").select("id, nombre").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
+    empresas = supabase.table("cliente_empresas").select("id, nombre_empresa").eq("nombre_nora", nombre_nora).execute().data or []
 
     logger = logging.getLogger(__name__)
     logger.info(f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} (Nora: {nombre_nora})")
 
-    tareas_activas     = [t for t in tareas if t.get("estatus", "").strip() != "completada"]
+    tareas_activas = [t for t in tareas if t.get("estatus", "").strip() != "completada"]
     tareas_completadas = [t for t in tareas if t.get("estatus", "").strip() == "completada"]
+    tareas_vencidas = [t for t in tareas_activas if (t.get("dias_restantes") or 0) < 0]
 
     resumen = {
         "tareas_activas": len(tareas_activas),
         "tareas_completadas": len(tareas_completadas),
-        "tareas_vencidas": len([t for t in tareas_activas if t.get("dias_restantes", 0) < 0]),
+        "tareas_vencidas": len(tareas_vencidas),
         "porcentaje_cumplimiento": 0
     }
-    total = resumen["tareas_activas"] + resumen["tareas_completadas"] + resumen["tareas_vencidas"]
+    total = sum(resumen.values())
     if total > 0:
         resumen["porcentaje_cumplimiento"] = round((resumen["tareas_completadas"] / total) * 100, 1)
 
     cliente_id = session.get("cliente_id")
-    if cliente_id:
-        alertas_data = supabase.table("alertas_ranking") \
-            .select("data") \
-            .eq("cliente_id", cliente_id) \
-            .single() \
-            .execute().data
-    else:
-        alertas_data = None
-
+    alertas_data = supabase.table("alertas_ranking").select("data").eq("cliente_id", cliente_id).single().execute().data if cliente_id else None
     alertas = alertas_data["data"] if alertas_data and "data" in alertas_data else {}
 
-    user = session.get("user", {})
-    nombre_usuario = user.get("nombre", "Usuario")
+    nombre_usuario = session.get("user", {}).get("nombre", "Usuario")
     mensaje_bienvenida = f"Hola {nombre_usuario}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
 
     return render_template(
         "panel_cliente_tareas/gestionar.html",
-        nombre_nora=nombre_nora,  # <-- Agrega esta línea
+        nombre_nora=nombre_nora,
         tareas=tareas,
         resumen=resumen,
         usuarios=usuarios,
@@ -211,30 +168,12 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
     campo = payload.get("campo")
     valor = payload.get("valor")
 
-    permisos = {
-        "es_supervisor": session.get("rol") == "supervisor",
-        "es_superadmin": session.get("rol") == "superadmin",
-        "es_cliente": session.get("rol") == "cliente"
-    }
-
-    campos_restringidos = ["usuario_empresa_id", "empresa_id", "fecha_limite"]
-
-    # Permitir sólo a supervisor o superadmin modificar campos restringidos
-    if campo in campos_restringidos and not (permisos["es_supervisor"] or permisos["es_superadmin"]):
-        return jsonify({"error": "No tienes permiso para modificar este campo"}), 403
-
-    # Si es cliente, solo puede modificar ciertos campos
-    if permisos["es_cliente"]:
-        campos_permitidos_cliente = ["estatus", "titulo", "descripcion"]
-        if campo not in campos_permitidos_cliente:
-            return jsonify({"error": "No tienes permiso para modificar este campo"}), 403
-
     if campo not in [
         "titulo",
         "prioridad",
         "fecha_limite",
         "estatus",
-        "usuario_empresa_id",
+        "usuario_empresa_id",  # ← Único campo para “Asignado a”
         "empresa_id",
     ]:
         return jsonify({"error": "Campo no permitido"}), 400
@@ -334,31 +273,32 @@ def crear_tarea(nombre_nora):
 @panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/obtener/<tarea_id>", methods=["GET"])
 def obtener_tarea(nombre_nora, tarea_id):
     try:
-        tarea_resp = supabase.table("tareas").select("*").eq("id", tarea_id).eq("nombre_nora", nombre_nora).limit(1).execute()
-        if not tarea_resp.data:
+        tarea = supabase.table("tareas").select("*") \
+            .eq("id", tarea_id).eq("nombre_nora", nombre_nora).limit(1).execute()
+        if not tarea.data:
             return jsonify({"error": "Tarea no encontrada"}), 404
-        tarea = tarea_resp.data[0]
+        t = tarea.data[0]
+        t["descripcion"] = t.get("descripcion", "")
 
-        # Agregar nombre de empresa
-        tarea["empresa_nombre"] = ""
-        if tarea.get("empresa_id"):
-            emp_resp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", tarea["empresa_id"]).limit(1).execute()
-            if emp_resp.data:
-                tarea["empresa_nombre"] = emp_resp.data[0]["nombre_empresa"]
+        # Agregar nombre de empresa si aplica
+        if t.get("empresa_id"):
+            empresa = supabase.table("cliente_empresas") \
+                .select("nombre_empresa") \
+                .eq("id", t["empresa_id"]) \
+                .limit(1).execute()
+            if empresa.data:
+                t["empresa_nombre"] = empresa.data[0]["nombre_empresa"]
 
-        # Agregar nombre de usuario asignado
-        tarea["asignado_nombre"] = ""
-        if tarea.get("usuario_empresa_id"):
-            usr_resp = supabase.table("usuarios_clientes").select("nombre").eq("id", tarea["usuario_empresa_id"]).limit(1).execute()
-            if usr_resp.data:
-                tarea["asignado_nombre"] = usr_resp.data[0]["nombre"]
+        # Agregar nombre del usuario asignado si aplica
+        if t.get("usuario_empresa_id"):
+            asignado = supabase.table("usuarios_clientes") \
+                .select("nombre") \
+                .eq("id", t["usuario_empresa_id"]) \
+                .limit(1).execute()
+            if asignado.data:
+                t["asignado_nombre"] = asignado.data[0]["nombre"]
 
-        # Asegurar descripción
-        if "descripcion" not in tarea:
-            tarea["descripcion"] = ""
-
-        return jsonify(tarea)
-
+        return jsonify(t)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

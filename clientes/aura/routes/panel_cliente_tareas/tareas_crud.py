@@ -20,28 +20,19 @@ def generar_codigo_tarea(iniciales_usuario):
 
 # ✅ Crear tarea
 def crear_tarea(data):
-    """Inserta una fila en `tareas` saneando UUIDs vacíos → NULL."""
-
-    # --- Validaciones mínimas ------------------------------------------------
     usuario_empresa_id = (data.get("usuario_empresa_id") or "").strip()
+    titulo = (data.get("titulo") or "").strip()
     if not usuario_empresa_id:
         return {"error": "usuario_empresa_id es obligatorio"}, 400
-
-    titulo = (data.get("titulo") or "").strip()
     if not titulo:
         return {"error": "titulo es obligatorio"}, 400
 
-    # --- Generar código correlativo -----------------------------------------
-    iniciales = data.get("iniciales_usuario", "NN")
-    codigo = generar_codigo_tarea(iniciales)
-
-    # --- Normalizar campos ---------------------------------------------------
     def sanea_uuid(val):
         return val.strip() or None if isinstance(val, str) else val
 
     nueva = {
         "id": str(uuid.uuid4()),
-        "codigo_tarea": codigo,
+        "codigo_tarea": generar_codigo_tarea(data.get("iniciales_usuario", "NN")),
         "titulo": titulo,
         "descripcion": data.get("descripcion") or "",
         "fecha_limite": data.get("fecha_limite") or None,
@@ -113,10 +104,8 @@ def guardar_tarea_html():
     print(f"🔵 Formulario recibido: {form}")
     user = session.get("user", {})
 
-    # ⬇️ Agrega esto después de `user = session.get("user", {})`
     es_supervisor = user.get("es_supervisor", False)
 
-    # ⬇️ Sustituye la forma en que se asignan empresa_id y usuario_empresa_id:
     empresa_id = form.get("empresa_id") if es_supervisor else user.get("empresa_id")
     usuario_empresa_id = form.get("usuario_empresa_id") if es_supervisor else user.get("usuario_empresa_id")
 
@@ -140,13 +129,7 @@ def guardar_tarea_html():
     if not titulo.strip():
         return "❌ Falta título", 400
 
-    def generar_codigo_tarea(iniciales_usuario):
-        fecha = datetime.now().strftime("%d%m%y")
-        base_codigo = f"{iniciales_usuario.upper()}-{fecha}"
-        existentes = supabase.table("tareas").select("id").ilike("codigo_tarea", f"{base_codigo}-%").execute()
-        correlativo = len(existentes.data) + 1
-        return f"{base_codigo}-{str(correlativo).zfill(3)}"
-
+    # Eliminada la función local generar_codigo_tarea, se usa la global
     tarea_data = {
         "id": str(uuid.uuid4()),
         "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
@@ -202,3 +185,16 @@ panel_tareas_crud_bp = Blueprint(
 @panel_tareas_crud_bp.route("/panel_cliente/<nombre_nora>/tareas/prueba", methods=["GET"])
 def prueba_crud(nombre_nora):
     return f"Vista de prueba CRUD para {nombre_nora}"
+
+@panel_tareas_crud_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar/crear", methods=["POST"])
+def crear_tarea_gestionar(nombre_nora):
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form.to_dict()
+    tarea, status = crear_tarea(data)
+    if status == 200:
+        tarea_id = tarea[0].get("id") if isinstance(tarea, list) and tarea and isinstance(tarea[0], dict) else None
+        return jsonify({"ok": True, "id": tarea_id})
+    else:
+        return jsonify({"ok": False, "error": tarea.get("error", "Error desconocido")}), status
