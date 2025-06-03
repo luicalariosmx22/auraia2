@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const form = e.target;
       const datos = new FormData(form);
+      // Si la casilla no está marcada, ensure “is_recurrente” llega como false
+      if (!datos.has("is_recurrente")) datos.append("is_recurrente", "false");
       const jsonData = Object.fromEntries(datos.entries());
       const nombreNora = jsonData.nombre_nora;
 
@@ -83,3 +85,31 @@ window.abrirModalTarea = function () {
 window.cerrarModalTarea = function () {
   document.getElementById("modalNuevaTarea").classList.add("hidden");
 };
+
+// 👉 Toggle y validación de campos de recurrencia en el modal “Nueva tarea”
+document.addEventListener("DOMContentLoaded", () => {
+  const chk = document.getElementById("recurrente_checkbox");
+  const box = document.getElementById("recurrente_fields");
+  const dt  = document.getElementById("dtstart");
+  const rr  = document.getElementById("rrule");
+
+  if (!chk || !box) return;
+
+  const toggle = () => {
+    const on = chk.checked;
+    box.classList.toggle("hidden", !on);
+    if (dt) dt.required = on;
+    if (rr) rr.required = on;
+    if (!on) {
+      if (dt) dt.value = "";
+      if (rr) rr.value = "FREQ=DAILY";
+      const until = document.getElementById("until");
+      const count = document.getElementById("count");
+      if (until) until.value = "";
+      if (count) count.value = "";
+    }
+  };
+
+  chk.addEventListener("change", toggle);
+  toggle(); // estado inicial
+});

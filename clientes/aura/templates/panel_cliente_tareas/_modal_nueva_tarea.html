@@ -184,8 +184,11 @@
 
         <!-- Recurrencia -->
         <div class="pt-2">
+          <input type="hidden" name="is_recurrente" value="false">
           <label class="inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="recurrente_checkbox" name="is_recurrente" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+            <input type="checkbox" id="recurrente_checkbox" name="is_recurrente"
+                   value="true"
+                   class="form-checkbox h-5 w-5 text-blue-600 rounded">
             <span class="ml-2 text-sm text-gray-700">¿Es una tarea recurrente?</span>
           </label>
         </div>

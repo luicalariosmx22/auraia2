@@ -52,7 +52,46 @@ def crear_tarea(data):
     print("🚀 Payload a insertar:", nueva)
 
     try:
+        # 1️⃣ Insertamos la tarea base
         result = supabase.table("tareas").insert(nueva).execute()
+        print(f"🟢 Resultado insert tarea base: {result}")
+        # ────────────────────────────────────────────────────────────────
+        # 📌 AQUÍ se inserta la recurrencia cuando se crea la tarea
+        #    (bloque 2️⃣).  Si el checkbox «is_recurrente» viene activo
+        #    se arma `rec_payload` y se hace:
+        #        supabase.table("tareas_recurrentes").insert(rec_payload)
+        # ────────────────────────────────────────────────────────────────
+        es_recurrente = str(data.get("is_recurrente", "")).lower() in ("1", "true", "on", "yes")
+        print(f"🔎 ¿Es recurrente? {es_recurrente}")
+        if es_recurrente:
+            dtstart_val = data.get("dtstart")           # YYYY-MM-DD
+            rrule_val   = data.get("rrule") or ""       # Ej. "FREQ=DAILY"
+            until_val   = data.get("until") or None     # YYYY-MM-DD (opcional)
+            count_val   = data.get("count") or None     # entero (opcional)
+            print(f"🔎 Datos recurrencia: dtstart={dtstart_val}, rrule={rrule_val}, until={until_val}, count={count_val}")
+            if dtstart_val and rrule_val:
+                rec_payload = {
+                    "id":        str(uuid.uuid4()),
+                    "tarea_id":  nueva["id"],
+                    "dtstart":   f"{dtstart_val}T00:00:00",
+                    "rrule":     rrule_val,
+                    "until":     f"{until_val}T23:59:59" if until_val else None,
+                    "count":     int(count_val) if count_val else None,
+                    "active":    True,
+                    "created_at": datetime.utcnow().isoformat(),
+                    "updated_at": datetime.utcnow().isoformat(),
+                }
+                print("🟠 Intentando insertar en tareas_recurrentes:", rec_payload)
+                try:
+                    rec_result = supabase.table("tareas_recurrentes").insert(rec_payload).execute()
+                    print("🟢 Resultado insert tareas_recurrentes:", rec_result)
+                    if hasattr(rec_result, 'data'):
+                        print(f"🟢 Data insertada en tareas_recurrentes: {rec_result.data}")
+                    if getattr(rec_result, 'error', None):
+                        print("🔴 Error devuelto por Supabase:", rec_result.error)
+                except Exception as e:
+                    print("⚠️ Error insertando tareas_recurrentes:", e)
+
         return result.data, 200
     except Exception as e:
         print("❌ Error insertando tarea:", e)

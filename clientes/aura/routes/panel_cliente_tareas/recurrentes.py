@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session, redirect
+from flask import Blueprint, request, jsonify, session, redirect, render_template
 from datetime import datetime
 import uuid
 from clientes.aura.utils.supabase_client import supabase
@@ -6,10 +6,78 @@ from clientes.aura.utils.supabase_client import supabase
 panel_tareas_recurrentes_bp = Blueprint(
     "panel_tareas_recurrentes_bp",
     __name__,
-    url_prefix="/panel_cliente/<nombre_nora>/tareas/recurrentes"
+    # Prefijo estático; las partes dinámicas van en cada @route
+    url_prefix="/panel_cliente"
 )
 
-@panel_tareas_recurrentes_bp.route("/crear", methods=["POST"])
+# ───────────────────────────────────────────────────────────────
+# GET  /panel_cliente/<nombre_nora>/tareas/recurrentes
+# Lista todas las reglas recurrentes asociadas a la Nora
+# ───────────────────────────────────────────────────────────────
+@panel_tareas_recurrentes_bp.route(
+    "/<nombre_nora>/tareas/recurrentes/",
+    methods=["GET"],
+    endpoint="vista_recurrentes",
+    strict_slashes=False,  # permite acceder con o sin barra final
+)
+def vista_recurrentes(nombre_nora):
+    # Requiere usuario logueado
+    if not session.get("email"):
+        return redirect("/login")
+
+    # Obtener todas las reglas recurrentes (sin join)
+    res_raw = (
+        supabase.table("tareas_recurrentes")
+        .select("*")
+        .order("dtstart")
+        .execute()
+    )
+    res_data = res_raw if isinstance(res_raw, list) else (res_raw.data or [])
+    res_error = None if isinstance(res_raw, list) else getattr(res_raw, "error", None)
+
+    # Obtener todas las tareas activas de la Nora
+    tareas_resp = supabase.table("tareas").select("id, titulo, nombre_nora, empresa_id, usuario_empresa_id").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
+    tareas = tareas_resp.data or []
+    tareas_dict = {t["id"]: t for t in tareas}
+
+    # Obtener empresas y usuarios activos
+    empresas_resp = supabase.table("cliente_empresas").select("id, nombre_empresa").eq("nombre_nora", nombre_nora).execute()
+    empresas = {e["id"]: e["nombre_empresa"] for e in (empresas_resp.data or [])}
+    usuarios_resp = supabase.table("usuarios_clientes").select("id, nombre").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
+    usuarios = {u["id"]: u["nombre"] for u in (usuarios_resp.data or [])}
+
+    recurrentes = []
+    for r in res_data:
+        tarea_id = r.get("tarea_id")
+        tarea = tareas_dict.get(tarea_id)
+        if tarea:
+            r["titulo_base"] = tarea.get("titulo", "—")
+            r["empresa_id"] = tarea.get("empresa_id", "—")
+            r["usuario_empresa_id"] = tarea.get("usuario_empresa_id", "—")
+            r["empresa_nombre"] = empresas.get(tarea.get("empresa_id"), "—") if tarea.get("empresa_id") else "—"
+            r["usuario_nombre"] = usuarios.get(tarea.get("usuario_empresa_id"), "—") if tarea.get("usuario_empresa_id") else "—"
+        else:
+            r["titulo_base"] = "—"
+            r["empresa_id"] = "—"
+            r["usuario_empresa_id"] = "—"
+            r["empresa_nombre"] = "—"
+            r["usuario_nombre"] = "—"
+        recurrentes.append(r)
+
+    print(f"[DEBUG recurrentes] recurrentes mostrados para {nombre_nora}: {recurrentes}")
+
+    return render_template(
+        "panel_cliente_tareas/recurrentes/index.html",
+        nombre_nora=nombre_nora,
+        recurrentes=recurrentes,
+        user=session.get("user", {}),
+    )
+
+# ───────────────────────────────────────────────────────────────
+@panel_tareas_recurrentes_bp.route(
+    "/<nombre_nora>/tareas/recurrentes/crear",
+    methods=["POST"],
+)
 def crear_recurrente(nombre_nora):
     if not session.get("email"):
         return redirect("/login")
@@ -55,42 +123,12 @@ def crear_recurrente(nombre_nora):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@panel_tareas_recurrentes_bp.route("", methods=["GET"])
-def vista_recurrentes(nombre_nora):
-    if not session.get("email"):
-        return redirect("/login")
-
-    user = session.get("user", {})
-    usuario_id = user.get("id", session.get("usuario_empresa_id"))
-
-    # Obtener tareas recurrentes activas
-    resp = supabase.table("tareas_recurrentes") \
-        .select("*") \
-        .eq("active", True) \
-        .execute()
-
-    recurrentes = resp.data or []
-
-    # Obtener títulos de tareas base
-    tareas_ids = list(set([r["tarea_id"] for r in recurrentes if r.get("tarea_id")]))
-    tareas = {}
-    if tareas_ids:
-        tarea_resp = supabase.table("tareas").select("id, titulo").in_("id", tareas_ids).execute()
-        for t in tarea_resp.data or []:
-            tareas[t["id"]] = t["titulo"]
-
-    for r in recurrentes:
-        r["titulo_base"] = tareas.get(r["tarea_id"], "—")
-
-    return render_template("panel_cliente_tareas/recurrentes/index.html",
-        nombre_nora=nombre_nora,
-        recurrentes=recurrentes,
-        user=user
-    )
-
 from flask import request, jsonify
 
-@panel_tareas_recurrentes_bp.route("/actualizar/<rec_id>", methods=["POST"])
+@panel_tareas_recurrentes_bp.route(
+    "/<nombre_nora>/tareas/recurrentes/actualizar/<rec_id>",
+    methods=["POST"],
+)
 def actualizar_estado_recurrente(nombre_nora, rec_id):
     nuevo_estado = request.form.get("active") == "true"
     try:
@@ -99,7 +137,10 @@ def actualizar_estado_recurrente(nombre_nora, rec_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@panel_tareas_recurrentes_bp.route("/eliminar/<rec_id>", methods=["POST"])
+@panel_tareas_recurrentes_bp.route(
+    "/<nombre_nora>/tareas/recurrentes/eliminar/<rec_id>",
+    methods=["POST"],
+)
 def eliminar_recurrente(nombre_nora, rec_id):
     try:
         supabase.table("tareas_recurrentes").delete().eq("id", rec_id).execute()

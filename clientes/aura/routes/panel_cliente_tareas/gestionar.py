@@ -63,6 +63,16 @@ def vista_gestionar_tareas(nombre_nora):
     tareas_resp = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
     todas = tareas_resp.data or []
 
+    # --- Lógica para marcar tareas recurrentes ---
+    tareas_recurrentes_resp = supabase.table("tareas_recurrentes").select("tarea_id").execute()
+    tarea_ids_recurrentes = set(r["tarea_id"] for r in (tareas_recurrentes_resp.data or []))
+    for t in todas:
+        if t.get("id") in tarea_ids_recurrentes:
+            t["is_recurrente"] = True
+        else:
+            t["is_recurrente"] = False
+    # --- Fin lógica recurrente ---
+
     q = {
         "busqueda": request.args.get("busqueda", "").strip().lower(),
         "estatus": request.args.get("estatus", "").strip(),

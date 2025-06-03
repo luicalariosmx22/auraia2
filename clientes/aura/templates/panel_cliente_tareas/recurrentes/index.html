@@ -1,42 +1,63 @@
 {% extends "base_cliente.html" %}
 {% block contenido %}
 <section class="py-8 max-w-4xl mx-auto">
+  <div class="flex justify-end mb-4">
+    <a href="/panel_cliente/{{ nombre_nora }}/tareas/gestionar"
+       class="inline-flex items-center gap-1 bg-gray-100 text-blue-700 border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
+      <span class="text-lg">⬅️</span> Volver a gestionar
+    </a>
+  </div>
   <h1 class="text-2xl font-semibold text-blue-800 mb-6">🔁 Tareas Recurrentes</h1>
 
-  <table class="w-full text-sm table-auto border-collapse border border-gray-300 rounded overflow-hidden">
-    <thead class="bg-gray-100 text-left text-xs font-bold uppercase">
-      <tr>
-        <th class="px-4 py-2 border">Título base</th>
-        <th class="px-4 py-2 border">Inicio</th>
-        <th class="px-4 py-2 border">RRULE</th>
-        <th class="px-4 py-2 border">Hasta</th>
-        <th class="px-4 py-2 border">Repeticiones</th>
-        <th class="px-4 py-2 border">Estado</th>
-        <th class="px-4 py-2 border">Acciones</th> <!-- nueva columna -->
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in recurrentes %}
-      <tr class="hover:bg-gray-50">
-        <td class="px-4 py-2 border">{{ r.titulo_base }}</td>
-        <td class="px-4 py-2 border">{{ r.dtstart[:10] }}</td>
-        <td class="px-4 py-2 border text-xs">{{ r.rrule }}</td>
-        <td class="px-4 py-2 border">{{ r.until[:10] if r.until else '—' }}</td>
-        <td class="px-4 py-2 border">{{ r.count if r.count else '—' }}</td>
-        <td class="px-4 py-2 border">{{ "🟢 Activa" if r.active else "⛔️ Inactiva" }}</td>
-        <td class="px-4 py-2 border text-sm">
-          <form class="inline" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/recurrentes/actualizar/{{ r.id }}">
-            <input type="hidden" name="active" value="{{ 'false' if r.active else 'true' }}">
-            <button class="text-blue-600 hover:underline" type="submit">{{ 'Pausar' if r.active else 'Reanudar' }}</button>
-          </form>
-          <form class="inline ml-3" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/recurrentes/eliminar/{{ r.id }}" onsubmit="return confirm('¿Eliminar tarea recurrente?');">
-            <button class="text-red-600 hover:underline" type="submit">Eliminar</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+      <thead class="bg-gray-50 text-xs font-semibold text-gray-700 uppercase">
+        <tr>
+          <th class="px-4 py-3 border-b">Título</th>
+          <th class="px-4 py-3 border-b">Empresa</th>
+          <th class="px-4 py-3 border-b">Asignado a</th>
+          <th class="px-4 py-3 border-b">Inicio</th>
+          <th class="px-4 py-3 border-b">Recurrencia</th>
+          <th class="px-4 py-3 border-b">Hasta</th>
+          <th class="px-4 py-3 border-b">Estado</th>
+          <th class="px-4 py-3 border-b">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for r in recurrentes %}
+        <tr class="hover:bg-blue-50 transition group">
+          <td class="px-4 py-3 font-medium max-w-xs truncate" title="ID: {{ r.tarea_id }}">{{ r.titulo_base }}</td>
+          <td class="px-4 py-3 max-w-xs truncate" title="{{ r.empresa_nombre }}">{{ r.empresa_nombre if r.empresa_nombre else r.empresa_id }}</td>
+          <td class="px-4 py-3 max-w-xs truncate" title="{{ r.usuario_nombre }}">{{ r.usuario_nombre if r.usuario_nombre else r.usuario_empresa_id }}</td>
+          <td class="px-4 py-3">{{ r.dtstart[:10] }}</td>
+          <td class="px-4 py-3 text-xs text-gray-600 max-w-xs truncate" title="{{ r.rrule }}">{{ r.rrule }}</td>
+          <td class="px-4 py-3">{{ r.until[:10] if r.until else '—' }}</td>
+          <td class="px-4 py-3">
+            {% if r.active %}
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">🟢 Activa</span>
+            {% else %}
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">⛔️ Inactiva</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap">
+            <form class="inline" method="POST"
+                action="{{ url_for('panel_tareas_recurrentes_bp.actualizar_estado_recurrente', nombre_nora=nombre_nora, rec_id=r.id) }}">
+              <input type="hidden" name="active" value="{{ 'false' if r.active else 'true' }}">
+              <button class="text-blue-600 hover:underline text-xs font-medium" type="submit" title="{{ 'Pausar' if r.active else 'Reanudar' }}">
+                {{ 'Pausar' if r.active else 'Reanudar' }}
+              </button>
+            </form>
+            <form class="inline ml-2" method="POST"
+                  action="{{ url_for('panel_tareas_recurrentes_bp.eliminar_recurrente', nombre_nora=nombre_nora, rec_id=r.id) }}"
+                  onsubmit="return confirm('¿Eliminar tarea recurrente?');">
+              <button class="text-red-600 hover:underline text-xs font-medium" type="submit" title="Eliminar">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
   {% if not recurrentes %}
   <p class="text-gray-500 text-center mt-6">No hay tareas recurrentes registradas.</p>

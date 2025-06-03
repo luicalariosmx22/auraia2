@@ -117,8 +117,8 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 from clientes.aura.routes.panel_cliente_tareas.gestionar import panel_tareas_gestionar_bp  # 🆕 Importación del blueprint gestionar
 
                 safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
-                safe_register_blueprint(app, panel_tareas_gestionar_bp)  # Se registra con la ruta ya definida en el archivo
-                safe_register_blueprint(app, panel_tareas_recurrentes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas/recurrentes")
+                safe_register_blueprint(app, panel_tareas_gestionar_bp)  # Se registra con la ruta definida en el archivo
+                safe_register_blueprint(app, panel_tareas_recurrentes_bp)
 
             if "panel_chat" in modulos:
                 safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/panel_chat")

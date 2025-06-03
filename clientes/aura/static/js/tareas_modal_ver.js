@@ -62,6 +62,32 @@ window.initModalVerTareaListeners = function () {
           }
         }
 
+        // --- Recurrencia: mostrar/ocultar campos y normalizar valor ---
+        const chkRecurrente = document.getElementById("verEsRecurrente");
+        const hiddenRecurrente = document.getElementById("verIsRecurrente");
+        const camposRecurrente = document.getElementById("verCamposRecurrente");
+
+        if (chkRecurrente && hiddenRecurrente && camposRecurrente) {
+          // Mostrar/ocultar campos según el checkbox
+          chkRecurrente.addEventListener("change", function () {
+            if (chkRecurrente.checked) {
+              camposRecurrente.classList.remove("hidden");
+              hiddenRecurrente.value = "true";
+            } else {
+              camposRecurrente.classList.add("hidden");
+              hiddenRecurrente.value = "false";
+            }
+          });
+          // Al abrir modal: setear estado según datos existentes
+          if (chkRecurrente.checked) {
+            camposRecurrente.classList.remove("hidden");
+            hiddenRecurrente.value = "true";
+          } else {
+            camposRecurrente.classList.add("hidden");
+            hiddenRecurrente.value = "false";
+          }
+        }
+
       } catch (error) {
         console.error(error);
         alert("❌ No se pudo cargar la información");
@@ -78,6 +104,9 @@ window.initModalVerTareaListeners = function () {
       const tareaId = document.getElementById("verIdTarea")?.value;
       const nombreNora = document.body.dataset.nora;
 
+      // 🟢 Obtén el input hidden directamente para evitar ReferenceError
+      const hiddenRecurrenteEl = document.getElementById("verIsRecurrente");
+
       const payload = {
         titulo: document.getElementById("verTitulo")?.value,
         descripcion: document.getElementById("verDescripcion")?.value,
@@ -85,7 +114,12 @@ window.initModalVerTareaListeners = function () {
         estatus: document.getElementById("verEstatus")?.value,
         fecha_limite: document.getElementById("verFechaLimite")?.value,
         usuario_empresa_id: document.getElementById("verAsignado")?.value,
-        empresa_id: document.getElementById("verEmpresa")?.value
+        empresa_id: document.getElementById("verEmpresa")?.value,
+        is_recurrente: hiddenRecurrenteEl ? hiddenRecurrenteEl.value : "false",
+        dtstart: document.getElementById("verDtstart")?.value,
+        rrule: document.getElementById("verRrule")?.value,
+        until: document.getElementById("verUntil")?.value,
+        count: document.getElementById("verCount")?.value
       };
 
       const alertContainer = document.getElementById("alertaGuardado");

@@ -17,6 +17,7 @@ from supabase import create_client, Client
 import os
 from datetime import datetime
 from flask import request, jsonify
+import uuid
 
 panel_cliente_tareas_bp = Blueprint(
     "panel_cliente_tareas",
@@ -142,6 +143,7 @@ def actualizar_tarea_completa(nombre_nora, tarea_id):
         return jsonify({"error": "Fecha límite inválida"}), 400
 
     try:
+        # 1️⃣ Actualiza la tarea base
         supabase.table("tareas").update({
             "titulo": data["titulo"],
             "descripcion": data["descripcion"],
@@ -152,6 +154,61 @@ def actualizar_tarea_completa(nombre_nora, tarea_id):
             "empresa_id": data["empresa_id"],
             "updated_at": datetime.utcnow().isoformat()
         }).eq("id", tarea_id).eq("nombre_nora", nombre_nora).execute()
+
+        # ────────────────────────────────────────────────────────────────
+        # 📌 AQUÍ se crea/actualiza/desactiva la regla recurrente cuando se
+        #    guarda el modal “Ver / Editar tarea”. 
+        #    • Si no existe regla → insert into tareas_recurrentes
+        #    • Si existe → update or desactiva (`active=False`)
+        # ────────────────────────────────────────────────────────────────
+        is_recurrente = str(data.get("is_recurrente", "")).lower() in ("1", "true", "on", "yes")
+
+        # Busca si ya existe una regla para esta tarea
+        rec_res = (
+            supabase.table("tareas_recurrentes")
+            .select("id")
+            .eq("tarea_id", tarea_id)
+            .execute()
+        )
+
+        # Compatibilidad con ambos SDKs: res.data o lista directa
+        rec_rows = rec_res if isinstance(rec_res, list) else getattr(rec_res, "data", [])
+        rec_id = rec_rows[0]["id"] if rec_rows else None
+
+        if is_recurrente:
+            dtstart = data.get("dtstart")
+            rrule   = data.get("rrule")
+            until   = data.get("until") or None
+            count   = data.get("count") or None
+
+            if dtstart and rrule:
+                payload = {
+                    "dtstart": f"{dtstart}T00:00:00",
+                    "rrule":   rrule.upper(),
+                    "until":   f"{until}T23:59:59" if until else None,
+                    "count":   int(count) if (count or "").isdigit() else None,
+                    "active":  True,
+                    "updated_at": datetime.utcnow().isoformat()
+                }
+
+                if rec_id:
+                    # Actualiza la regla existente
+                    supabase.table("tareas_recurrentes").update(payload).eq("id", rec_id).execute()
+                else:
+                    # Crea nueva regla
+                    payload.update({
+                        "id": str(uuid.uuid4()),
+                        "tarea_id": tarea_id,
+                        "created_at": datetime.utcnow().isoformat()
+                    })
+                    supabase.table("tareas_recurrentes").insert(payload).execute()
+        else:
+            # Si se desmarcó la casilla, desactiva la regla existente
+            if rec_id:
+                supabase.table("tareas_recurrentes")\
+                    .update({"active": False, "updated_at": datetime.utcnow().isoformat()})\
+                    .eq("id", rec_id).execute()
+
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -175,7 +232,7 @@ from . import (
 def register_tareas_blueprints(app):
     app.register_blueprint(panel_cliente_tareas_bp, url_prefix="/panel_cliente")
     app.register_blueprint(panel_tareas_gestionar_bp)
-    app.register_blueprint(panel_tareas_recurrentes_bp)
+    app.register_blueprint(panel_tareas_recurrentes_bp)  # 🔁 Gestor de reglas recurrentes
     app.register_blueprint(panel_tareas_crud_bp)
     app.register_blueprint(plantillas_bp)
     app.register_blueprint(whatsapp_bp)

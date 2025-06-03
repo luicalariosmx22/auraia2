@@ -74,5 +74,7 @@ def verificar_tareas_recurrentes():
 
 def iniciar_cron_recurrentes():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(verificar_tareas_recurrentes, "interval", minutes=10)
+    # Ejecutar dos veces al día: 8:00 AM y 8:00 PM UTC
+    scheduler.add_job(verificar_tareas_recurrentes, "cron", hour=8, minute=0)
+    scheduler.add_job(verificar_tareas_recurrentes, "cron", hour=20, minute=0)
     scheduler.start()
