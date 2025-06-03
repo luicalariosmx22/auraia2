@@ -13,8 +13,11 @@
     <!-- Encabezado -->
     <header class="meta-header">
       <div>
-        <h1>👋 Hola, {{ user.name }}</h1>
+        <h1>👋 Hola, {{ user.name }} <span class="text-sm text-gray-500 font-normal">({{ session.email or user.email or 'usuario activo' }})</span></h1>
         <p style="font-size: 1.2rem;">Gestionando: <strong>{{ nombre_visible }}</strong></p>
+        <p class="text-gray-600 mt-2" style="font-size: 1.05rem;">
+          Bienvenido al panel principal de tu Nora. Aquí puedes acceder a los módulos activos, gestionar clientes, empresas, campañas y más, según los permisos y configuraciones habilitadas para tu cuenta.
+        </p>
       </div>
       <div class="logo">
         <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo de Nora">
@@ -67,23 +70,6 @@
         <p style="color: #999; padding: 1rem 0;">⚠️ No hay módulos activos configurados en Supabase para esta Nora.</p>
       {% endif %}
     </div>
-
-    <!-- Módulos Activos -->
-    <section class="modulos-activos">
-      <h2>🔧 Módulos activados</h2>
-      <div class="modulo-tags">
-        {% for modulo in modulos %}
-          <a 
-            href="{{ modulo.ruta or '#' }}" 
-            class="modulo-tag" 
-            aria-label="Etiqueta del módulo {{ modulo.nombre.replace('_', ' ').capitalize() }}">
-            {{ modulo.nombre.replace('_', ' ').capitalize() }}
-          </a>
-        {% endfor %}
-      </div>
-    </section>
-
-   
   </div>
 </body>
 </html>
