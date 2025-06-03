@@ -1,79 +1,68 @@
 <!-- Modal para crear / editar tarea -->
-<div id="modalTarea" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative">
-    <h3 class="text-lg font-semibold mb-4 text-blue-700" id="modalTitulo">Nueva tarea</h3>
-    <form id="formTarea" method="POST" class="space-y-4">
-      <!-- Título -->
-      <div>
-        <label for="titulo" class="block text-sm font-medium text-gray-700 mb-1">Título</label>
-        <input type="text" id="titulo" name="titulo"
-               class="w-full border border-gray-300 rounded px-3 py-2" autocomplete="off">
-      </div>
-      <!-- Fecha límite y Prioridad -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label for="fecha_limite" class="block text-sm font-medium text-gray-700 mb-1">Fecha límite</label>
-          <input type="date" id="fecha_limite" name="fecha_limite"
-                 class="w-full border border-gray-300 rounded px-3 py-2">
+<div id="modalTarea" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+      <h3 id="modalTitulo" class="text-lg font-semibold mb-4 text-blue-700">Editar tarea</h3>
+      <form id="formVerTarea" method="POST">
+        <input type="hidden" id="verIdTarea" name="id">
+
+        <div class="mb-3">
+          <label for="verTitulo" class="block text-sm font-medium text-gray-700">Título</label>
+          <input type="text" id="verTitulo" name="titulo" class="w-full border rounded px-3 py-2 mt-1" required>
         </div>
-        <div>
-          <label for="prioridad" class="block text-sm font-medium text-gray-700 mb-1">Prioridad</label>
-          <select id="prioridad" name="prioridad"
-                  class="w-full border border-gray-300 rounded px-3 py-2">
-            <option value="baja">Baja</option>
-            <option value="media" selected>Media</option>
+
+        <div class="mb-3">
+          <label for="verDescripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+          <textarea id="verDescripcion" name="descripcion" class="w-full border rounded px-3 py-2 mt-1" rows="3"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="verPrioridad" class="block text-sm font-medium text-gray-700">Prioridad</label>
+          <select id="verPrioridad" name="prioridad" class="w-full border rounded px-3 py-2 mt-1">
             <option value="alta">Alta</option>
+            <option value="media">Media</option>
+            <option value="baja">Baja</option>
           </select>
         </div>
-      </div>
-      <!-- Estatus -->
-      <div>
-        <label for="estatus" class="block text-sm font-medium text-gray-700 mb-1">Estatus</label>
-        <select id="estatus" name="estatus"
-                class="w-full border border-gray-300 rounded px-3 py-2">
-          <option value="pendiente" selected>⏳ Pendiente</option>
-          <option value="en progreso">🚧 En progreso</option>
-          <option value="retrasada">❗ Retrasada</option>
-          <option value="completada">✅ Completada</option>
-        </select>
-      </div>
-      <!-- Asignado y Empresa -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label for="usuario_empresa_id" class="block text-sm font-medium text-gray-700 mb-1">Asignado a</label>
-          <select id="usuario_empresa_id" name="usuario_empresa_id"
-                  class="w-full border border-gray-300 rounded px-3 py-2">
-            {% for u in usuarios %}
-              <option value="{{ u.id }}">{{ u.nombre }}</option>
-            {% endfor %}
+
+        <div class="mb-3">
+          <label for="verEstatus" class="block text-sm font-medium text-gray-700">Estatus</label>
+          <select id="verEstatus" name="estatus" class="w-full border rounded px-3 py-2 mt-1">
+            <option value="pendiente">⏳ Pendiente</option>
+            <option value="en progreso">🚧 En progreso</option>
+            <option value="retrasada">❗ Retrasada</option>
+            <option value="completada">✅ Completada</option>
           </select>
         </div>
-        <div>
-          <label for="empresa_id" class="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
-          <select id="empresa_id" name="empresa_id"
-                  class="w-full border border-gray-300 rounded px-3 py-2">
-            <option value="">— Sin empresa —</option>
-            {% for e in empresas %}
-              <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
-            {% endfor %}
-          </select>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="verAsignado" class="block text-sm font-medium text-gray-700">Esclavo asignado</label>
+            <select id="verAsignado" name="usuario_empresa_id" class="w-full border rounded px-3 py-2 mt-1">
+              {% for u in usuarios %}
+                <option value="{{ u.id }}">{{ u.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="verEmpresa" class="block text-sm font-medium text-gray-700">Empresa</label>
+            <select id="verEmpresa" name="empresa_id" class="w-full border rounded px-3 py-2 mt-1">
+              {% for e in empresas %}
+                <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
-      </div>
-      <!-- Descripción -->
-      <div>
-        <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-        <textarea id="descripcion" name="descripcion" rows="3"
-                  class="w-full border border-gray-300 rounded px-3 py-2"></textarea>
-      </div>
-      <!-- Botones -->
-      <div class="flex flex-col md:flex-row justify-end gap-2 pt-2">
-        <button type="button" onclick="document.getElementById('modalTarea').classList.add('hidden')"
-                class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">Cancelar
-        </button>
-        <button type="submit"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">Guardar tarea
-        </button>
-      </div>
-    </form>
+
+        <div class="mt-4">
+          <div id="alertaGuardado" class="d-none text-sm text-center py-2 rounded"></div>
+        </div>
+
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="document.getElementById('modalTarea').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">Cerrar</button>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

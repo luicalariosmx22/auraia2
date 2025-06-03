@@ -1,6 +1,8 @@
-import { postJSON } from "./tareas_utils.js";
+// ⚠️ Cambiar de export a función global
 
-export function initModalVerTareaListeners() {
+// import { postJSON } from "./tareas_utils.js";  // ❌ Elimina este import si no usas postJSON
+
+window.initModalVerTareaListeners = function () {
   document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const tareaId = btn.getAttribute("data-id");

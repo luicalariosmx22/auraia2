@@ -246,9 +246,9 @@ def crear_tarea(nombre_nora):
     tarea_data = {
         "id": str(uuid.uuid4()),
         "nombre_nora": nombre_nora,
-        "titulo": titulo,
-        "prioridad": prioridad,
-        "fecha_limite": fecha_limite,
+        "titulo": titulo.strip(),
+        "prioridad": prioridad.strip().lower() if prioridad else "media",
+        "fecha_limite": fecha_limite.strip() or None,
         "estatus": estatus,
         "usuario_empresa_id": usuario_empresa_id,
         "empresa_id": empresa_id,

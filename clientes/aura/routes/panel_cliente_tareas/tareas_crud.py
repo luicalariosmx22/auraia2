@@ -198,3 +198,26 @@ def crear_tarea_gestionar(nombre_nora):
         return jsonify({"ok": True, "id": tarea_id})
     else:
         return jsonify({"ok": False, "error": tarea.get("error", "Error desconocido")}), status
+
+@panel_cliente_tareas_bp.route("/<nombre_nora>/tareas/obtener/<tarea_id>")
+def obtener_tarea(nombre_nora, tarea_id):
+    tarea = obtener_tarea_por_id(tarea_id)
+    if tarea:
+        return jsonify(tarea)
+    else:
+        return jsonify({"error": "Tarea no encontrada"}), 404
+
+@panel_cliente_tareas_bp.route("/<nombre_nora>/tareas/gestionar/actualizar/<tarea_id>", methods=["POST"])
+def actualizar_tarea_inline(nombre_nora, tarea_id):
+    datos = request.get_json()
+    campo = datos.get("campo")
+    valor = datos.get("valor")
+
+    if not campo:
+        return jsonify({"ok": False, "error": "Campo no especificado"})
+
+    try:
+        supabase.table("tareas").update({campo: valor}).eq("id", tarea_id).execute()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})

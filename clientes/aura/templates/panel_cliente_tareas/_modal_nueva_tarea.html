@@ -92,13 +92,17 @@
 
 <!-- Modal para crear tarea (nuevo diseño, único y limpio) -->
 <!-- SOLO PARA PRUEBA -->
-<div id="modalNuevaTarea" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div id="modalNuevaTarea" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
   <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-0 relative animate-fade-in">
-    <form id="formTareaCrear" class="divide-y divide-gray-200">
+    <form id="formTareaNueva" method="POST" action="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/crear" class="divide-y divide-gray-200">
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl bg-gradient-to-r from-blue-600 to-blue-400">
         <h2 class="text-xl font-bold text-white flex items-center gap-2">
-          <span class="inline-block bg-white bg-opacity-20 rounded-full p-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/></svg></span>
+          <span class="inline-block bg-white bg-opacity-20 rounded-full p-2">
+            <svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+              <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/>
+            </svg>
+          </span>
           Crear nueva tarea
         </h2>
         <button type="button" onclick="cerrarModalTarea()" aria-label="Cerrar" class="text-white hover:text-blue-100 text-2xl leading-none focus:outline-none">&times;</button>
@@ -106,12 +110,14 @@
 
       <!-- Body -->
       <div class="px-6 py-6 space-y-6">
-        <input type="hidden" id="tarea_id" name="tarea_id">
+        <!-- Título -->
         <div>
           <label for="titulo" class="block text-sm font-semibold text-gray-700 mb-1">Título <span class="text-red-500">*</span></label>
           <input type="text" name="titulo" id="titulo" required autofocus
                  class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
         </div>
+
+        <!-- Fecha y Prioridad -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label for="fecha_limite" class="block text-sm font-semibold text-gray-700 mb-1">Fecha límite</label>
@@ -128,12 +134,15 @@
             </select>
           </div>
         </div>
+
+        <!-- Descripción -->
         <div>
           <label for="descripcion" class="block text-sm font-semibold text-gray-700 mb-1">Descripción</label>
-          <textarea id="descripcion" name="descripcion"
-                    class="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base"
-                    rows="3"></textarea>
+          <textarea id="descripcion" name="descripcion" rows="3"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base"></textarea>
         </div>
+
+        <!-- Estatus, Empresa, Asignado -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label for="estatus" class="block text-sm font-semibold text-gray-700 mb-1">Estatus</label>
@@ -145,41 +154,38 @@
               <option value="completada">✅ Completada</option>
             </select>
           </div>
-          <!-- Empresa y Asignado a: grid siempre de dos columnas -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Empresa: visible para todos -->
-            <div>
-              <label for="empresa_id" class="block text-sm font-semibold text-gray-700 mb-1">Empresa</label>
-              <select name="empresa_id" id="empresa_id"
-                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
-                <option value="" selected>— Sin empresa —</option>
-                {% for e in empresas %}
-                  <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
-                {% endfor %}
-              </select>
-            </div>
 
-            <!-- Asignado a: condicional según permisos -->
-            {% if permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin %}
-            <div>
-              <label for="usuario_empresa_id" class="block text-sm font-semibold text-gray-700 mb-1">Asignado a</label>
-              <select name="usuario_empresa_id" id="usuario_empresa_id"
-                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
-                {% for u in usuarios %}
-                  <option value="{{ u.id }}">{{ u.nombre }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            {% else %}
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Asignado a</label>
-              <input type="text" readonly disabled value="{{ user.nombre }}"
-                     class="w-full bg-gray-100 text-gray-500 rounded px-4 py-2">
-              <input type="hidden" name="usuario_empresa_id" id="usuario_empresa_id" value="{{ usuario_empresa_id }}">
-            </div>
-            {% endif %}
+          <div>
+            <label for="empresa_id" class="block text-sm font-semibold text-gray-700 mb-1">Empresa</label>
+            <select name="empresa_id" id="empresa_id"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              <option value="">— Sin empresa —</option>
+              {% for e in empresas %}
+                <option value="{{ e.id }}">{{ e.nombre_empresa }}</option>
+              {% endfor %}
+            </select>
           </div>
+
+          {% if permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin %}
+          <div>
+            <label for="usuario_empresa_id" class="block text-sm font-semibold text-gray-700 mb-1">Asignado a</label>
+            <select name="usuario_empresa_id" id="usuario_empresa_id"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              {% for u in usuarios %}
+                <option value="{{ u.id }}">{{ u.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% else %}
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Asignado a</label>
+            <input type="text" readonly disabled value="{{ user.nombre }}"
+                   class="w-full bg-gray-100 text-gray-500 rounded px-4 py-2">
+            <input type="hidden" name="usuario_empresa_id" id="usuario_empresa_id" value="{{ usuario_empresa_id }}">
+          </div>
+          {% endif %}
         </div>
+
         <!-- Recurrencia -->
         <div class="pt-2">
           <label class="inline-flex items-center cursor-pointer">
@@ -187,15 +193,16 @@
             <span class="ml-2 text-sm text-gray-700">¿Es una tarea recurrente?</span>
           </label>
         </div>
+
         <div id="recurrente_fields" class="hidden space-y-3 bg-blue-50 rounded-lg p-4 border border-blue-100">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="fecha_inicio" class="block text-sm font-semibold text-gray-700 mb-1">Fecha de inicio</label>
-              <input type="date" id="fecha_inicio" name="dtstart" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              <label for="dtstart" class="block text-sm font-semibold text-gray-700 mb-1">Fecha de inicio</label>
+              <input type="date" id="dtstart" name="dtstart" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
             </div>
             <div>
               <label for="rrule" class="block text-sm font-semibold text-gray-700 mb-1">Recurrencia</label>
-              <select id="rrule" name="rrule" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              <select id="rrule" name="rrule" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
                 <option value="FREQ=DAILY">Diaria</option>
                 <option value="FREQ=WEEKLY">Semanal</option>
                 <option value="FREQ=MONTHLY">Mensual</option>
@@ -205,20 +212,23 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="until" class="block text-sm font-semibold text-gray-700 mb-1">Fecha fin (opcional)</label>
-              <input type="date" id="until" name="until" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              <input type="date" id="until" name="until" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
             </div>
             <div>
               <label for="count" class="block text-sm font-semibold text-gray-700 mb-1">Repeticiones (opcional)</label>
-              <input type="number" id="count" name="count" min="1" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+              <input type="number" id="count" name="count" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
             </div>
           </div>
         </div>
       </div>
+
       <!-- Footer -->
       <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 rounded-b-2xl">
         <button type="button" onclick="cerrarModalTarea()" class="text-gray-600 hover:text-blue-600 font-medium px-4 py-2 rounded transition">Cancelar</button>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Guardar</button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Guardar tarea</button>
       </div>
+
+      <!-- Ocultos requeridos -->
       <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
       <input type="hidden" name="creado_por" value="{{ user.id }}">
       <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">

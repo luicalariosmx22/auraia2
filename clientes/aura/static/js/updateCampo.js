@@ -4,7 +4,7 @@
 // Incluye: estatus (checkbox), empresa, asignado, fecha, prioridad, autocompletado y modal editar
 
 // ✅ Actualizar un campo inline
-export async function updateCampo(elemento, campo, valorManual = null) {
+window.updateCampo = async function (elemento, campo, valorManual = null) {
   if (campo === "empresa_id") return;  // 🚫 No permitir actualizar empresa después de creada
 
   const fila = elemento.closest("tr");
@@ -24,16 +24,16 @@ export async function updateCampo(elemento, campo, valorManual = null) {
   } catch (err) {
     console.error("❌ Error de red en updateCampo:", err);
   }
-}
+};
 
 // ✅ Checkbox estatus (completada / pendiente)
 window.toggleEstatus = function (checkbox) {
-  updateCampo(checkbox, "estatus").then(() => location.reload());
+  window.updateCampo(checkbox, "estatus").then(() => location.reload());
 };
 
 // ✅ Autocompletar campos con datalist (asignado)
 window.handleAutoCompleteInput = function (input, campo) {
-  if (campo === "empresa_id") return;  // 🚫 No permitir actualizar empresa
+  if (campo === "empresa_id") return;
 
   const val = input.value.trim();
   const datalistId = input.getAttribute("list");
@@ -46,35 +46,38 @@ window.handleAutoCompleteInput = function (input, campo) {
     alert("Selecciona una opción válida.");
     return;
   }
-  updateCampo(input, campo, id).then(() => location.reload());
+  window.updateCampo(input, campo, id).then(() => location.reload());
 };
 
 // ✅ Botón "Ver" para abrir modal de edición
 window.cargarTareaEnModal = async function (boton) {
   const tareaId = boton.getAttribute("data-id");
   const nombreNora = boton.getAttribute("data-nora");
+
   try {
     const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
     const tarea = await res.json();
     if (!tarea || tarea.error) return alert("❌ Error al cargar la tarea");
 
-    document.getElementById("modalTarea").classList.remove("hidden");
-    document.getElementById("modalTitulo").textContent = "Ver / Editar tarea";
+    // Mostrar modal
+    document.getElementById("modalTarea")?.classList.remove("hidden");
+    document.getElementById("modalTitulo").textContent = "Editar tarea";
 
-    document.getElementById("tarea_id").value = tarea.id;
-    document.getElementById("titulo").value = tarea.titulo || "";
-    document.getElementById("descripcion").value = tarea.descripcion || "";
-    document.getElementById("prioridad").value = tarea.prioridad || "media";
-    document.getElementById("fecha_limite").value = tarea.fecha_limite || "";
+    // Rellenar campos usando IDs únicos del modal editar
+    document.getElementById("verIdTarea").value = tarea.id || "";
+    document.getElementById("verTitulo").value = tarea.titulo || "";
+    document.getElementById("verDescripcion").value = tarea.descripcion || "";
+    document.getElementById("verPrioridad").value = tarea.prioridad || "media";
+    document.getElementById("verFechaLimite").value = tarea.fecha_limite || "";
+    document.getElementById("verEstatus").value = tarea.estatus || "pendiente";
 
-    const asignadoInput = document.getElementById("verAsignado");
-    if (asignadoInput) asignadoInput.value = tarea.usuario_empresa_id || "";
+    if (document.getElementById("verAsignado")) {
+      document.getElementById("verAsignado").value = tarea.usuario_empresa_id || "";
+    }
+    if (document.getElementById("verEmpresa")) {
+      document.getElementById("verEmpresa").value = tarea.empresa_id || "";
+    }
 
-    const empresaInput = document.getElementById("verEmpresa");
-    if (empresaInput) empresaInput.value = tarea.empresa_id || "";
-
-    const empresaTexto = document.getElementById("verEmpresaTexto");
-    if (empresaTexto) empresaTexto.value = tarea.nombre_empresa || "";  // 👈 Asegúrate que venga este campo en el JSON
   } catch (err) {
     console.error("❌ No se pudo cargar la tarea:", err);
   }
@@ -89,3 +92,48 @@ window.eliminarTarea = function (id) {
     }).then(() => location.reload());
   }
 };
+
+// ✅ Manejar envío del formulario modal de tarea (crear/editar)
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("formTarea");
+  if (!form) return;
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const tareaId = document.getElementById("tarea_id").value;
+    const nombreNora = document.body.dataset.nombreNora;
+
+    const payload = {
+      titulo: document.getElementById("titulo").value,
+      descripcion: document.getElementById("descripcion").value,
+      prioridad: document.getElementById("prioridad").value,
+      fecha_limite: document.getElementById("fecha_limite").value,
+      estatus: document.getElementById("estatus").value,
+      usuario_empresa_id: document.getElementById("usuario_empresa_id").value,
+      empresa_id: document.getElementById("empresa_id").value
+    };
+
+    try {
+      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/actualizar/${tareaId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (data.ok) {
+        alert("✅ Tarea actualizada");
+        document.getElementById("modalTarea").classList.add("hidden");
+        location.reload();
+      } else {
+        alert("❌ Error al guardar");
+        console.warn(data);
+      }
+    } catch (err) {
+      console.error("❌ Error al actualizar la tarea", err);
+      alert("Error de red");
+    }
+  });
+});
+

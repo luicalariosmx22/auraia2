@@ -61,7 +61,6 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 
-// ✅ Archivo: clientes/aura/static/js/tareas_modal_nueva.js
 
 window.abrirModalTarea = function () {
   const contenedor = document.getElementById("contenedorModalTarea");
