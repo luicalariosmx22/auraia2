@@ -16,21 +16,18 @@
 {% include "panel_cliente_tareas/_estadisticas.html" %}
 {% include "panel_cliente_tareas/_filtros.html" %}
 
-<div class="flex justify-between items-center mb-4">
-  {% if permisos.es_supervisor %}
+<div class="flex flex-wrap gap-2 justify-end items-center mb-4">
+  {% if permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin %}
     <a href="/panel_cliente/{{ nombre_nora }}/tareas/recurrentes"
-       class="text-sm text-blue-600 hover:underline font-medium">
-      🔁 Ver tareas recurrentes
+       class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
+      <span class="text-lg">🔁</span> Tareas recurrentes
     </a>
-  {% else %}
-    <div></div>
   {% endif %}
-<button id="btnNuevaTarea"
-        onclick="document.getElementById('modalNuevaTarea').classList.remove('hidden')"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
-  ➕ Nueva tarea
-</button>
-
+  <button id="btnNuevaTarea"
+          onclick="document.getElementById('modalNuevaTarea').classList.remove('hidden')"
+          class="inline-flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+    <span class="text-lg">➕</span> Nueva tarea
+  </button>
 </div>
 {# --- módulo JS para manejar envío vía fetch --- #}
 <script src="{{ url_for('static', filename='js/tareas_inline.js') }}"></script>
