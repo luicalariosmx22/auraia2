@@ -217,7 +217,7 @@ def nueva_cuenta_ads(cliente_id):
 
     # Validar cliente
     cli = supabase.table("clientes").select("id,nombre_cliente").eq("id", cliente_id).single().execute()
-    if cli.error or not cli.data:
+    if not cli.data:
         return "Cliente no encontrado", 404
     cliente = cli.data
 
@@ -362,6 +362,14 @@ def ficha_empresa(empresa_id):
         flash("❌ Empresa no encontrada", "error")
         return redirect(url_for("panel_cliente_clientes_bp.vista_empresas", nombre_nora=nombre_nora))
 
+    # --- Consultar cliente ligado a la empresa (si existe) ---
+    cliente = None
+    cliente_id = empresa.get("cliente_id")
+    if cliente_id:
+        cliente_resp = supabase.table("clientes").select("id, nombre_cliente").eq("id", cliente_id).single().execute()
+        cliente = cliente_resp.data
+        empresa["cliente"] = cliente
+
     # --- Consultar tareas ligadas a la empresa ---
     tareas = supabase.table("tareas").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data or []
 
@@ -373,9 +381,11 @@ def ficha_empresa(empresa_id):
 
     # --- Consultar cuentas publicitarias ligadas a la empresa o cliente ---
     cuentas_ads = []
-    cliente_id = empresa.get("cliente_id")
     if cliente_id:
         cuentas_ads = supabase.table("meta_ads_cuentas").select("*").eq("cliente_id", cliente_id).execute().data or []
+
+    # --- Consultar reuniones ligadas a la empresa ---
+    reuniones = supabase.table("reuniones_clientes").select("*").eq("empresa_id", empresa_id).order("fecha_hora", desc=True).execute().data or []
 
     return render_template(
         "panel_cliente_empresa_ficha.html",
@@ -386,5 +396,38 @@ def ficha_empresa(empresa_id):
         tareas=tareas,
         pagos=pagos,
         usuarios=usuarios,
-        cuentas_ads=cuentas_ads
+        cuentas_ads=cuentas_ads,
+        reuniones=reuniones
     )
+
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/registrar_reunion", methods=["POST"])
+def registrar_reunion(empresa_id):
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+
+    # Obtener empresa y cliente ligado
+    empresa_resp = supabase.table("cliente_empresas").select("*", "cliente_id").eq("id", empresa_id).single().execute()
+    empresa = empresa_resp.data
+    if not empresa:
+        flash("❌ Empresa no encontrada", "error")
+        return redirect(url_for("panel_cliente_clientes_bp.vista_empresas", nombre_nora=nombre_nora))
+    cliente_id = empresa.get("cliente_id")
+
+    # Obtener datos del formulario
+    fecha_hora = request.form.get("fecha_hora")
+    participantes = request.form.get("participantes")
+    minuta = request.form.get("minuta")
+
+    # Insertar reunión
+    reunion_data = {
+        "empresa_id": empresa_id,
+        "cliente_id": cliente_id,
+        "fecha_hora": fecha_hora,
+        "participantes": participantes,
+        "minuta": minuta,
+        "creado_en": None  # que lo ponga la base de datos si hay default
+    }
+    supabase.table("reuniones_clientes").insert(reunion_data).execute()
+    flash("✅ Reunión registrada correctamente", "success")
+    return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))

@@ -5,68 +5,120 @@
 
 {% block contenido %}
 
-<!-- Botón Ver Empresas -->
-<div class="text-right mb-4">
+<!-- Botones de acciones principales alineados -->
+<div class="flex flex-wrap justify-between items-center mb-6 gap-2">
   <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}"
-     class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 text-sm">
+     class="px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 text-sm">
     🏢 Ver Empresas
+  </a>
+  <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}"
+     class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm">
+    ➕ Agregar nuevo cliente
   </a>
 </div>
 
-<!-- ✅ Sección para agregar nuevo cliente -->
-<section x-data="{ crear: false }" class="mb-6">
-  <div class="text-right mb-3">
-    <a href="{{ url_for('panel_cliente_clientes_bp.nuevo_cliente', nombre_nora=nombre_nora) }}"
-       class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm">
-      ➕ Agregar nuevo cliente
-    </a>
+<!-- Filtros de búsqueda -->
+<form method="get" class="mb-6 flex flex-wrap gap-4 items-end bg-gray-50 p-4 rounded-xl border border-gray-100">
+  <div>
+    <label class="block text-xs font-semibold text-gray-600 mb-1">Buscar por nombre</label>
+    <input type="text" name="q" value="{{ request.args.get('q', '') }}" placeholder="Nombre o email" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring focus:ring-blue-100 w-44">
   </div>
-</section>
+  <div>
+    <label class="block text-xs font-semibold text-gray-600 mb-1">Tipo</label>
+    <select name="tipo" class="px-3 py-2 border border-gray-300 rounded-lg text-sm w-32">
+      <option value="">Todos</option>
+      <option value="lead" {% if request.args.get('tipo') == 'lead' %}selected{% endif %}>Lead</option>
+      <option value="cliente" {% if request.args.get('tipo') == 'cliente' %}selected{% endif %}>Cliente</option>
+      <option value="prospecto" {% if request.args.get('tipo') == 'prospecto' %}selected{% endif %}>Prospecto</option>
+      <!-- Agrega más tipos si los tienes -->
+    </select>
+  </div>
+  <div>
+    <label class="block text-xs font-semibold text-gray-600 mb-1">Teléfono</label>
+    <input type="text" name="telefono" value="{{ request.args.get('telefono', '') }}" placeholder="Teléfono" class="px-3 py-2 border border-gray-300 rounded-lg text-sm w-36">
+  </div>
+  <div>
+    <label class="block text-xs font-semibold text-gray-600 mb-1">Empresa vinculada</label>
+    <select name="empresa_vinculada" class="px-3 py-2 border border-gray-300 rounded-lg text-sm w-32">
+      <option value="">Todos</option>
+      <option value="si" {% if request.args.get('empresa_vinculada') == 'si' %}selected{% endif %}>Sí</option>
+      <option value="no" {% if request.args.get('empresa_vinculada') == 'no' %}selected{% endif %}>No</option>
+    </select>
+  </div>
+  <div>
+    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm">Aplicar filtro</button>
+  </div>
+</form>
 
 <!-- ✅ Sección de lista de clientes -->
 <section class="mb-6">
-  <h2 class="text-xl font-semibold text-gray-800 mb-4">👥 Clientes registrados</h2>
-
-  {% if clientes %}
-    <p class="text-green-600 text-sm mb-4">✅ Se encontraron {{ clientes | length }} clientes registrados.</p>
-    {% for cliente in clientes %}
-      <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-4 mb-4 grid sm:grid-cols-4 gap-4 items-start">
-        <!-- Info principal -->
-        <div class="col-span-2">
-          <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ cliente.nombre_cliente }}</h3>
-          <p class="text-sm text-gray-600 mb-1">✉️ {{ cliente.email }}</p>
-          {% if cliente.telefono %}<p class="text-sm text-gray-600">📞 {{ cliente.telefono }}</p>{% endif %}
-          {% if cliente.tipo %}<span class="inline-block mt-2 px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded">{{ cliente.tipo|capitalize }}</span>{% endif %}
-        </div>
-
-        <!-- Empresas asociadas -->
-        <div class="col-span-1">
-          {% if cliente.empresas %}
-            <p class="font-semibold text-sm text-gray-800 mb-1">🏢 Empresas</p>
-            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
-              {% for empresa in cliente.empresas %}
-                <li>
-                  {{ empresa.nombre_empresa }}
-                  <a href="{{ empresa.url_editar }}" class="text-blue-600 text-xs hover:underline ml-1">✏️</a>
-                </li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-          <a href="{{ cliente.url_nueva_ads }}" class="text-xs text-blue-600 hover:underline mt-2 block">➕ Vincular cuenta Ads</a>
-          <a href="{{ url_for('panel_cliente_clientes_bp.ligar_empresa', cliente_id=cliente.id, nombre_nora=nombre_nora) }}"
-             class="text-xs text-blue-600 hover:underline mt-1 block">➕ Ligar empresa</a>
-        </div>
-
-        <!-- Acciones -->
-        <div class="col-span-1 flex flex-col gap-2 items-start">
-          <a href="{{ url_for('panel_cliente_clientes_bp.editar_cliente', cliente_id=cliente.id, nombre_nora=nombre_nora) }}"
-             class="text-sm text-blue-600 hover:underline">✏️ Editar cliente</a>
-        </div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p class="text-red-600 text-sm mb-4">❌ No hay clientes registrados.</p>
-  {% endif %}
+  <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+    <span class="text-blue-600">👥</span> Clientes registrados
+  </h2>
+  <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Nombre</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Email</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Teléfono</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tipo</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Empresas</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% if clientes %}
+          {% for cliente in clientes %}
+            <tr class="hover:bg-gray-50 transition">
+              <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-800">
+                👤 {{ cliente.nombre_cliente }}
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-gray-700">
+                {{ cliente.email }}
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-gray-700">
+                {{ cliente.telefono or '-' }}
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap">
+                {% if cliente.tipo %}
+                  <span class="inline-block px-2 py-0.5 bg-gray-100 text-xs text-gray-700 rounded">{{ cliente.tipo|capitalize }}</span>
+                {% else %}-{% endif %}
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap">
+                {% if cliente.empresas %}
+                  <ul class="text-xs text-gray-700 space-y-1">
+                    {% for empresa in cliente.empresas %}
+                      <li>
+                        <span class="font-medium">{{ empresa.nombre_empresa }}</span>
+                        <a href="{{ empresa.url_editar }}" class="text-blue-600 hover:underline ml-1">✏️</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <span class="text-xs text-gray-400">Sin empresas</span>
+                {% endif %}
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap">
+                <div class="flex flex-wrap gap-2">
+                  <a href="{{ url_for('panel_cliente_clientes_bp.editar_cliente', cliente_id=cliente.id, nombre_nora=nombre_nora) }}"
+                     class="text-blue-600 hover:underline text-xs font-semibold">Editar</a>
+                  <a href="{{ cliente.url_nueva_ads }}"
+                     class="text-green-600 hover:underline text-xs font-semibold">Vincular Ads</a>
+                  <a href="{{ url_for('panel_cliente_clientes_bp.ligar_empresa', cliente_id=cliente.id, nombre_nora=nombre_nora) }}"
+                     class="text-yellow-600 hover:underline text-xs font-semibold">Ligar empresa</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="6" class="text-center text-gray-500 py-6">❌ No hay clientes registrados.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 </section>
 
 {% endblock %}

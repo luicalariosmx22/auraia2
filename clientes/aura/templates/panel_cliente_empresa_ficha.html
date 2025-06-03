@@ -4,7 +4,10 @@
 <div class="container mx-auto max-w-4xl px-4 py-8">  {# Cambiado de max-w-2xl a max-w-4xl para mayor ancho #}
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">🏢 Ficha de empresa</h2>
-    <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}" class="text-blue-600 text-sm hover:underline">← Volver a empresas</a>
+    <div class="flex gap-2">
+        <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}" class="text-blue-600 text-sm hover:underline">← Volver a empresas</a>
+        <a href="{{ url_for('panel_cliente_clientes_bp.editar_empresa', empresa_id=empresa.id) }}" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm shadow-sm hover:bg-blue-700 transition">✏️ Editar empresa</a>
+    </div>
   </div>
 
   <!-- Perfil tipo red social -->
@@ -25,10 +28,18 @@
       {% if empresa.pais %}<span class="inline-flex items-center text-sm text-gray-600"><i class="fa fa-globe mr-1"></i>{{ empresa.pais }}</span>{% endif %}
       {% if empresa.sitio_web %}<a href="{{ empresa.sitio_web }}" target="_blank" class="inline-flex items-center text-sm text-blue-700 hover:underline"><i class="fa fa-link mr-1"></i>{{ empresa.sitio_web }}</a>{% endif %}
     </div>
-    <div class="flex flex-wrap gap-2 justify-center">
+    <div class="flex flex-wrap gap-2 justify-center mb-2">
       <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">{{ empresa.tipo or 'Empresa' }}</span>
       <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">{{ 'Activa' if empresa.activo else 'Inactiva' }}</span>
     </div>
+    {% if empresa.cliente_id and empresa.cliente %}
+      <div class="flex flex-wrap gap-2 justify-center mb-4">
+        <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full">
+          👤 Cliente ligado: {{ empresa.cliente.nombre_cliente }}
+        </span>
+        <button type="button" onclick="document.getElementById('modal-reunion').classList.remove('hidden')" class="px-3 py-1 bg-purple-600 text-white rounded-lg text-xs font-semibold shadow-sm hover:bg-purple-700 transition">📅 Registrar reunión</button>
+      </div>
+    {% endif %}
   </div>
 
   <!-- Detalles -->
@@ -176,5 +187,386 @@
       <p class="text-gray-500">No hay cuentas publicitarias ligadas a esta empresa.</p>
     {% endif %}
   </div>
+
+  <!-- REUNIONES -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between mb-2">
+        <h4 class="text-lg font-semibold text-purple-700">📅 Reuniones con el cliente</h4>
+      </div>
+    {% if reuniones %}
+      <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
+        <table class="w-full text-sm align-middle">
+          <thead class="bg-purple-50">
+            <tr>
+              <th class="px-3 py-2 text-left font-semibold">Fecha y hora</th>
+              <th class="px-3 py-2 text-left font-semibold">Participantes</th>
+              <th class="px-3 py-2 text-left font-semibold">Minuta</th>
+              <th class="px-3 py-2 text-left font-semibold">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in reuniones %}
+            <tr class="border-t border-gray-100 hover:bg-purple-50 transition">
+              <td class="px-3 py-2">{{ r.fecha_hora|default('-', true) }}</td>
+              <td class="px-3 py-2">{{ r.participantes or '-' }}</td>
+              <td class="px-3 py-2 truncate max-w-xs">
+                <span class="text-gray-700 text-xs">{{ r.minuta[:60] }}{% if r.minuta and r.minuta|length > 60 %}...{% endif %}</span>
+              </td>
+              <td class="px-3 py-2">
+                <button type="button" onclick="document.getElementById('minuta-{{ r.id }}').classList.remove('hidden')" class="text-purple-700 hover:underline text-xs font-semibold">Ver minuta</button>
+              </td>
+            </tr>
+            <!-- Modal Minuta -->
+            <div id="minuta-{{ r.id }}" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+              <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-5xl relative">
+                <button type="button" onclick="document.getElementById('minuta-{{ r.id }}').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+                <h3 class="text-lg font-bold mb-4 text-purple-700 flex items-center gap-2">📝 Minuta de reunión</h3>
+                <div class="mb-2 text-xs text-gray-500">Fecha: {{ r.fecha_hora or '-' }} | Participantes: {{ r.participantes or '-' }}</div>
+                <div class="whitespace-pre-line text-gray-800 text-sm border rounded p-3 bg-gray-50 overflow-x-auto" id="minuta-texto-{{ r.id }}">{{ r.minuta }}</div>
+                <div class="flex justify-end mt-4 gap-2">
+                  <button type="button"
+                          class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700"
+                          data-id="{{ r.id }}"
+                          data-fecha="{{ r.fecha_hora or '-' }}"
+                          data-participantes="{{ r.participantes or '-' }}"
+                          onclick="exportarMinutaPDF(this)"
+                  >Exportar</button>
+                  <button type="button" onclick="document.getElementById('minuta-{{ r.id }}').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Cerrar</button>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-gray-500">No hay reuniones registradas para esta empresa.</p>
+    {% endif %}
+  </div>
+
+  <!-- Modal para registrar reunión -->
+  <div id="modal-reunion" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg relative">
+      <button type="button" onclick="document.getElementById('modal-reunion').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+      <h3 class="text-lg font-bold mb-4 text-purple-700 flex items-center gap-2">
+        {% if empresa.cliente %}
+          📅 Registrar reunión con {{ empresa.cliente.nombre_cliente }}
+        {% else %}
+          📅 Registrar reunión (sin cliente ligado)
+        {% endif %}
+      </h3>
+      <form method="post" action="{{ url_for('panel_cliente_clientes_bp.registrar_reunion', empresa_id=empresa.id) }}">
+        <div class="mb-3">
+          <label class="block text-xs font-semibold mb-1">Fecha y hora</label>
+          <input type="datetime-local" name="fecha_hora" required class="w-full px-3 py-2 border rounded-lg text-sm">
+        </div>
+        <div class="mb-3">
+          <label class="block text-xs font-semibold mb-1">Participantes</label>
+          <input type="text" name="participantes" placeholder="Ej: Juan, Ana, Cliente..." class="w-full px-3 py-2 border rounded-lg text-sm">
+        </div>
+        <div class="mb-3">
+          <label class="block text-xs font-semibold mb-1">Minuta / Notas</label>
+          <textarea name="minuta" rows="4" required class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Describe los temas tratados, acuerdos, tareas, etc."></textarea>
+        </div>
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="document.getElementById('modal-reunion').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700">Guardar reunión</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+  function exportarMinutaPDF(btn) {
+    const id = btn.getAttribute('data-id');
+    const fecha = btn.getAttribute('data-fecha') || '-';
+    const participantes = btn.getAttribute('data-participantes') || '-';
+    const doc = new window.jspdf.jsPDF('p', 'pt');
+
+    // Datos de empresa y cliente desde Jinja
+    const nombreEmpresa = '{{ empresa.nombre_empresa|default("Empresa") }}';
+    const nombreCliente = '{% if empresa.cliente %}{{ empresa.cliente.nombre_cliente|default("Cliente") }}{% else %}Cliente{% endif %}';
+    const nombreNora = '{{ nombre_nora|default("Nora")|replace(" ", "_") }}';
+    const logoUrl = '/static/images/nora_logo.png'; // Cambia la ruta si tu logo está en otro lugar
+
+    // Encabezado con logo y título
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 40;
+    // Logo Nora (si existe)
+    const img = new Image();
+    img.src = logoUrl;
+    img.onload = function() {
+      // Mantener proporción original del logo (ancho máx 50, alto máx 50)
+      let imgW = img.width;
+      let imgH = img.height;
+      if (imgW > 50 || imgH > 50) {
+        const scale = Math.min(50 / imgW, 50 / imgH);
+        imgW = imgW * scale;
+        imgH = imgH * scale;
+      }
+      doc.addImage(img, 'PNG', 40, y, imgW, imgH);
+      // Título con color azul
+      doc.setFontSize(22);
+      doc.setTextColor(37, 99, 235); // azul Tailwind #2563eb
+      doc.setFont('helvetica', 'bold');
+      doc.text('Minuta de reunión', pageWidth / 2, y + 30, { align: 'center' });
+      y += 60;
+      // Empresa y cliente
+      doc.setFontSize(13);
+      doc.setTextColor(55, 65, 81); // gris oscuro
+      doc.setFont('helvetica', 'bold');
+      doc.text('Empresa:', 110, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(nombreEmpresa, 180, y);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Cliente ligado:', 110, y + 20);
+      doc.setFont('helvetica', 'normal');
+      doc.text(nombreCliente, 210, y + 20);
+      y += 40;
+      // Línea separadora azul
+      doc.setDrawColor(37, 99, 235);
+      doc.setLineWidth(2);
+      doc.line(40, y, pageWidth - 40, y);
+      y += 20;
+      // Fecha y participantes
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Fecha:', 40, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(fecha, 100, y);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Participantes:', 40, y + 20);
+      doc.setFont('helvetica', 'normal');
+      doc.text(participantes, 130, y + 20);
+      y += 40;
+      // Otra línea separadora azul claro
+      doc.setDrawColor(96, 165, 250); // azul claro Tailwind #60a5fa
+      doc.setLineWidth(1);
+      doc.line(40, y, pageWidth - 40, y);
+      y += 20;
+      // Minuta en recuadro
+      const minuta = document.getElementById('minuta-texto-' + id).innerText;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(37, 99, 235);
+      doc.text('Minuta / Notas:', 40, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(55, 65, 81);
+      doc.setFillColor(219, 234, 254); // fondo azul muy claro #dbeafe
+      doc.setDrawColor(96, 165, 250); // borde azul claro
+      const boxTop = y + 10;
+      const boxLeft = 40;
+      const boxWidth = pageWidth - 80;
+      // Procesar negritas (**texto**)
+      function parseBoldLines(text) {
+        const lines = text.split('\n');
+        return lines.map(line => {
+          const parts = [];
+          let lastIdx = 0;
+          let match;
+          const boldRegex = /\*\*(.+?)\*\*/g;
+          while ((match = boldRegex.exec(line)) !== null) {
+            if (match.index > lastIdx) {
+              parts.push({ text: line.substring(lastIdx, match.index), bold: false });
+            }
+            parts.push({ text: match[1], bold: true });
+            lastIdx = match.index + match[0].length;
+          }
+          if (lastIdx < line.length) {
+            parts.push({ text: line.substring(lastIdx), bold: false });
+          }
+          return parts;
+        });
+      }
+      const parsedLines = parseBoldLines(minuta);
+      // Calcular altura
+      let totalLines = 0;
+      parsedLines.forEach(partsArr => {
+        let lineText = partsArr.map(p => p.text).join('');
+        const split = doc.splitTextToSize(lineText, boxWidth - 20);
+        totalLines += split.length;
+      });
+      let boxHeight = totalLines * 16 + 20;
+      const maxBoxHeight = doc.internal.pageSize.getHeight() - boxTop - 80;
+      if (boxHeight > maxBoxHeight) {
+        boxHeight = maxBoxHeight;
+      }
+      doc.rect(boxLeft, boxTop, boxWidth, boxHeight, 'FD');
+      doc.setFontSize(12);
+      let textY = boxTop + 20;
+      for (let i = 0; i < parsedLines.length; i++) {
+        let x = boxLeft + 10;
+        for (const part of parsedLines[i]) {
+          if (part.text) {
+            doc.setFont('helvetica', part.bold ? 'bold' : 'normal');
+            const split = doc.splitTextToSize(part.text, boxWidth - 20 - (x - boxLeft - 10));
+            for (let j = 0; j < split.length; j++) {
+              if (textY > boxTop + boxHeight - 10) {
+                doc.addPage();
+                textY = 60;
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(13);
+                doc.setTextColor(37, 99, 235);
+                doc.text('Minuta / Notas (continuación):', 40, textY);
+                textY += 20;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                doc.setTextColor(55, 65, 81);
+                x = boxLeft + 10;
+              }
+              doc.text(split[j], x, textY, { maxWidth: boxWidth - 20 });
+              if (j < split.length - 1) {
+                textY += 16;
+                x = boxLeft + 10;
+              } else {
+                x += doc.getTextWidth(split[j]);
+              }
+            }
+          }
+        }
+        textY += 16;
+      }
+      doc.setTextColor(0, 0, 0);
+      // Pie de página
+      doc.setFontSize(9);
+      doc.setTextColor(37, 99, 235);
+      doc.text('Exportado desde AuraAI', pageWidth - 140, doc.internal.pageSize.getHeight() - 30);
+      // Nombre de archivo
+      let fechaArchivo = fecha.split('T')[0] || fecha.split(' ')[0] || fecha;
+      fechaArchivo = fechaArchivo.replace(/[:\\/]/g, '-');
+      const nombreArchivo = `Reunion_${nombreNora}_${nombreCliente.replace(/ /g,'_')}_${fechaArchivo}.pdf`;
+      doc.save(nombreArchivo);
+    };
+    img.onerror = function() {
+      // Si no hay logo, igual genera el PDF sin logo
+      doc.setFontSize(22);
+      doc.setTextColor(37, 99, 235);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Minuta de reunión', pageWidth / 2, 60, { align: 'center' });
+      // Empresa y cliente
+      let y = 80;
+      doc.setFontSize(13);
+      doc.setTextColor(55, 65, 81);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Empresa:', 40, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(nombreEmpresa, 110, y);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Cliente ligado:', 40, y + 20);
+      doc.setFont('helvetica', 'normal');
+      doc.text(nombreCliente, 140, y + 20);
+      y += 40;
+      doc.setDrawColor(37, 99, 235);
+      doc.setLineWidth(2);
+      doc.line(40, y, pageWidth - 40, y);
+      y += 20;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Fecha:', 40, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(fecha, 100, y);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Participantes:', 40, y + 20);
+      doc.setFont('helvetica', 'normal');
+      doc.text(participantes, 130, y + 20);
+      y += 40;
+      doc.setDrawColor(96, 165, 250);
+      doc.setLineWidth(1);
+      doc.line(40, y, pageWidth - 40, y);
+      y += 20;
+      const minuta = document.getElementById('minuta-texto-' + id).innerText;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(37, 99, 235);
+      doc.text('Minuta / Notas:', 40, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(55, 65, 81);
+      doc.setFillColor(219, 234, 254);
+      doc.setDrawColor(96, 165, 250);
+      const boxTop = y + 10;
+      const boxLeft = 40;
+      const boxWidth = pageWidth - 80;
+      // Procesar negritas (**texto**)
+      function parseBoldLines(text) {
+        const lines = text.split('\n');
+        return lines.map(line => {
+          const parts = [];
+          let lastIdx = 0;
+          let match;
+          const boldRegex = /\*\*(.+?)\*\*/g;
+          while ((match = boldRegex.exec(line)) !== null) {
+            if (match.index > lastIdx) {
+              parts.push({ text: line.substring(lastIdx, match.index), bold: false });
+            }
+            parts.push({ text: match[1], bold: true });
+            lastIdx = match.index + match[0].length;
+          }
+          if (lastIdx < line.length) {
+            parts.push({ text: line.substring(lastIdx), bold: false });
+          }
+          return parts;
+        });
+      }
+      const parsedLines = parseBoldLines(minuta);
+      // Calcular altura
+      let totalLines = 0;
+      parsedLines.forEach(partsArr => {
+        let lineText = partsArr.map(p => p.text).join('');
+        const split = doc.splitTextToSize(lineText, boxWidth - 20);
+        totalLines += split.length;
+      });
+      let boxHeight = totalLines * 16 + 20;
+      const maxBoxHeight = doc.internal.pageSize.getHeight() - boxTop - 80;
+      if (boxHeight > maxBoxHeight) {
+        boxHeight = maxBoxHeight;
+      }
+      doc.rect(boxLeft, boxTop, boxWidth, boxHeight, 'FD');
+      doc.setFontSize(12);
+      let textY = boxTop + 20;
+      for (let i = 0; i < parsedLines.length; i++) {
+        let x = boxLeft + 10;
+        for (const part of parsedLines[i]) {
+          if (part.text) {
+            doc.setFont('helvetica', part.bold ? 'bold' : 'normal');
+            const split = doc.splitTextToSize(part.text, boxWidth - 20 - (x - boxLeft - 10));
+            for (let j = 0; j < split.length; j++) {
+              if (textY > boxTop + boxHeight - 10) {
+                doc.addPage();
+                textY = 60;
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(13);
+                doc.setTextColor(37, 99, 235);
+                doc.text('Minuta / Notas (continuación):', 40, textY);
+                textY += 20;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                doc.setTextColor(55, 65, 81);
+                x = boxLeft + 10;
+              }
+              doc.text(split[j], x, textY, { maxWidth: boxWidth - 20 });
+              if (j < split.length - 1) {
+                textY += 16;
+                x = boxLeft + 10;
+              } else {
+                x += doc.getTextWidth(split[j]);
+              }
+            }
+          }
+        }
+        textY += 16;
+      }
+      doc.setTextColor(0, 0, 0);
+      // Pie de página
+      doc.setFontSize(9);
+      doc.setTextColor(37, 99, 235);
+      doc.text('Exportado desde AuraAI', pageWidth - 140, doc.internal.pageSize.getHeight() - 30);
+      let fechaArchivo = fecha.split('T')[0] || fecha.split(' ')[0] || fecha;
+      fechaArchivo = fechaArchivo.replace(/[:\\/]/g, '-');
+      const nombreArchivo = `Reunion_${nombreNora}_${nombreCliente.replace(/ /g,'_')}_${fechaArchivo}.pdf`;
+      doc.save(nombreArchivo);
+    };
+  }
+  </script>
 </div>
 {% endblock %}

@@ -58,7 +58,7 @@ def panel_contactos(nombre_nora):
             user={"name": session.get("name", "Usuario")}
         )
 
-@panel_cliente_contactos_bp.route("/<nombre_nora>/agregar", methods=["POST"])
+@panel_cliente_contactos_bp.route("/agregar", methods=["POST"])
 def agregar_contacto(nombre_nora):
     if not session.get("email"):
         return redirect(url_for("login.login"))
@@ -83,7 +83,7 @@ def agregar_contacto(nombre_nora):
         print(f"❌ Error al agregar contacto: {str(e)}")
     return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
 
-@panel_cliente_contactos_bp.route("/<nombre_nora>/acciones", methods=["POST"])
+@panel_cliente_contactos_bp.route("/acciones", methods=["POST"])
 def acciones_contactos(nombre_nora):
     if not session.get("email"):
         return redirect(url_for("login.login"))
@@ -103,7 +103,7 @@ def acciones_contactos(nombre_nora):
         print(f"❌ Error al realizar acción en contactos: {str(e)}")
     return redirect(url_for("panel_cliente_contactos.panel_contactos", nombre_nora=nombre_nora))
 
-@panel_cliente_contactos_bp.route("/<nombre_nora>/editar/<telefono>", methods=["GET", "POST"])
+@panel_cliente_contactos_bp.route("/editar/<telefono>", methods=["GET", "POST"])
 def editar_contacto(nombre_nora, telefono):
     if not session.get("email"):
         return redirect(url_for("login.login"))

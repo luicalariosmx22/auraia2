@@ -78,12 +78,14 @@ def crear_blueprint_panel_cliente(nombre_nora):
 
             # 🛠 Flags para acceso rápido en el template
             modulos_activos_flags = {m.lower(): True for m in modulos_activos}
+            modulo_clientes = 'clientes' in [m.lower() for m in modulos_activos]
 
         except Exception as e:
             print(f"❌ Error en configuracion_cliente: {str(e)}")
             config = {}
             modulos_disponibles = []
             modulos_activos_flags = {}
+            modulo_clientes = False
 
         config_serializado = serializar_config(config)
 
@@ -93,7 +95,8 @@ def crear_blueprint_panel_cliente(nombre_nora):
             nombre_visible=nombre_nora.capitalize(),
             user=session.get("user", {"name": "Usuario"}),
             modulos=modulos_disponibles,
-            modulos_activos=modulos_activos_flags
+            modulos_activos=modulos_activos_flags,
+            modulo_clientes=modulo_clientes
         )
 
     # 👉 Asegura que se pasen los módulos activos al template del panel
