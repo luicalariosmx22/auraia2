@@ -7,7 +7,7 @@
 
 <!-- Botón Ver Empresas -->
 <div class="text-right mb-4">
-  <a href="https://app.soynoraai.com/panel_cliente/aura/clientes/empresas"
+  <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}"
      class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 text-sm">
     🏢 Ver Empresas
   </a>

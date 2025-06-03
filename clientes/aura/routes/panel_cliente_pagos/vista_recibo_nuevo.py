@@ -54,7 +54,10 @@ def nuevo_recibo(nombre_nora, pago_id=None):
                 .execute()
                 .data
         )
-        cliente_id = empresa_row["cliente_id"]
+        cliente_id = empresa_row["cliente_id"] if empresa_row and empresa_row.get("cliente_id") else None
+        if not cliente_id:
+            flash("No se pudo determinar el cliente para la empresa seleccionada.", "error")
+            return redirect(request.url)
 
         # ---------- Insertar recibo ----------
         recibo_data = {

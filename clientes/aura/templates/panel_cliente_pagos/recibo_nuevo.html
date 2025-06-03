@@ -4,16 +4,16 @@ REWRITE ENTIRE FILE
 -->
 {% extends "base_cliente.html" %}
 {% block contenido %}
-<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto relative">
+  <a href="{{ url_for('panel_cliente_pagos.panel_cliente_pagos', nombre_nora=nombre_nora) }}" class="absolute right-0 top-0 bg-gray-100 text-blue-700 border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition flex items-center gap-1">
+    <span class="text-lg">←</span> Volver a pagos
+  </a>
   <h1 class="text-2xl font-bold text-gray-800 mb-6">
     🧾 {{ pago and 'Editar Recibo #' ~ pago.id[:8] or 'Nuevo Recibo' }}
   </h1>
-
-  {% if pago %}
-    <input type="hidden" name="pago_id" value="{{ pago.id }}">
-  {% endif %}
-
-  <form method="POST" class="space-y-6 bg-white p-6 rounded-lg shadow">
+  <form method="POST" 
+        action="{{ url_for('panel_cliente_pagos_nuevo.nuevo_recibo', nombre_nora=nombre_nora, pago_id=pago.id) if pago else url_for('panel_cliente_pagos_nuevo.nuevo_recibo', nombre_nora=nombre_nora) }}"
+        class="space-y-6 bg-white p-6 rounded-lg shadow">
     <!-- Empresa -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Empresa *</label>
@@ -66,7 +66,7 @@ REWRITE ENTIRE FILE
     <!-- Estatus -->
     <div>
       <label class="block text-sm font-medium text-gray-700">Estatus *</label>
-      <select name="estatus" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></select>
+      <select name="estatus" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
         <option value="pendiente" {% if pago and pago.estatus=='pendiente' %}selected{% endif %}>Pendiente</option>
         <option value="pagado" {% if pago and pago.estatus=='pagado' %}selected{% endif %}>Pagado</option>
         <option value="vencido" {% if pago and pago.estatus=='vencido' %}selected{% endif %}>Vencido</option>

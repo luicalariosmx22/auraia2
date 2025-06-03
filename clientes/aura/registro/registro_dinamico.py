@@ -128,8 +128,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 # safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
                 pass  # Registro deshabilitado por error de import
 
-            if "ads" in modulos:
-                safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
+            if "ads" in modulos or "meta_ads" in modulos:
+                print(f"Registrando blueprint ADS para {nombre_nora}")
+                safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/meta_ads")
 
             if "contactos" in modulos:
                 safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")

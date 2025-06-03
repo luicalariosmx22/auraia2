@@ -2,8 +2,8 @@
 {% block contenido %}
 <div class="py-12 px-4 sm:px-6 lg:px-8">
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">🛠 Servicios roductos</h1>
-    <a href="#" class="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700 transition">+ Agregar nuevo</a>
+    <h1 class="text-2xl font-bold text-gray-800">🛠 Servicios y productos</h1>
+    <a href="{{ url_for('panel_cliente_pagos_servicios.nuevo_servicio', nombre_nora=nombre_nora) }}" class="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700 transition">+ Agregar nuevo</a>
   </div>
 
   {% if servicios %}

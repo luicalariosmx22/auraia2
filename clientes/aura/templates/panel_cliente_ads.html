@@ -1,82 +1,11 @@
 <!-- Archivo: clientes/aura/templates/panel_cliente_ads.html -->
 
-{# Este template es standalone, no usa base.html #}
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Ads para {{ nombre_nora }} – Nora AI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/entrena_nora.css') }}">
-  <style>
-    /* Nueva barra superior */
-    .barra-ads-top {
-      width: 100%;
-      background: white;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      border-bottom: 1px solid #ddd;
-    }
-    .barra-ads-top img {
-      height: 30px;
-    }
-
-    /* Botón estilo Meta Ads */
-    .btn-ver-campañas {
-      display: inline-block;
-      background: #1877f2;
-      color: #fff;
-      padding: 6px 14px;
-      font-size: 14px;
-      border: none;
-      border-radius: 4px;
-      text-decoration: none;
-      transition: background 0.2s ease;
-    }
-    .btn-ver-campañas:hover {
-      background: #145dbf;
-      text-decoration: none;
-      color: #fff;
-    }
-
-    /* Caja de error */
-    .error-box {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 10px;
-      border: 1px solid #f5c6cb;
-      border-radius: 4px;
-      margin: 10px 20px;
-    }
-  </style>
-</head>
-<body>
-<!-- Barra superior con logo -->
-<div class="barra-ads-top">
-  <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora">
-</div>
-
-{% if error %}
-  <div class="error-box">
-    <strong>❌ Error:</strong> {{ error }}
-  </div>
-{% endif %}
-
-<main class="main-container">
-
-  <!-- Encabezado -->
-  <header class="header">
-    <div class="logo">
-      <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Logo Nora" height="40">
-    </div>
-    <div class="logout">
-      <a href="{{ url_for('logout') }}" class="btn-secondary">Cerrar sesión</a>
-    </div>
-  </header>
-
-  <h1>📊 Ads para {{ nombre_nora }}</h1>
+{% extends "base_cliente.html" %}
+{% block contenido %}
+  <h1 class="text-2xl font-bold text-blue-800 mb-6 flex items-center gap-2">
+    <span class="inline-block bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-lg">Meta Ads</span>
+    <span class="text-gray-500 font-normal text-lg">para {{ nombre_nora|capitalize }}</span>
+  </h1>
 
   <!-- Cuentas Publicitarias -->
   <section class="module">
@@ -116,7 +45,8 @@
             {{ cuenta.gasto_7dias if cuenta.gasto_7dias else '—' }} {{ moneda }}
           </td>
           <td>
-            <a href="{{ url_for('panel_cliente_ads.panel_ads', nombre_nora=cuenta.id_cuenta_publicitaria) }}" class="btn-ver-campañas">
+            <a href="{{ url_for('panel_cliente_ads.panel_ads', nombre_nora=nombre_nora) }}?cuenta={{ cuenta.id_cuenta_publicitaria }}"
+               class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow transition text-sm">
               Ver Campañas
             </a>
           </td>
@@ -202,5 +132,4 @@
   </section>
 
 </main>
-</body>
-</html>
+{% endblock %}

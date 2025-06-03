@@ -349,3 +349,42 @@ def editar_cliente(cliente_id):
                            nombre_nora=nombre_nora,
                            user={"name": session.get("name", "Usuario")},
                            modulo_activo="clientes")
+
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/ficha", methods=["GET"])
+def ficha_empresa(empresa_id):
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+
+    empresa_resp = supabase.table("cliente_empresas").select("*").eq("id", empresa_id).single().execute()
+    empresa = empresa_resp.data
+    if not empresa:
+        flash("❌ Empresa no encontrada", "error")
+        return redirect(url_for("panel_cliente_clientes_bp.vista_empresas", nombre_nora=nombre_nora))
+
+    # --- Consultar tareas ligadas a la empresa ---
+    tareas = supabase.table("tareas").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data or []
+
+    # --- Consultar pagos ligados a la empresa ---
+    pagos = supabase.table("pagos").select("*").eq("empresa_id", empresa_id).execute().data or []
+
+    # --- Consultar usuarios ligados a la empresa (por nombre_nora) ---
+    usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
+
+    # --- Consultar cuentas publicitarias ligadas a la empresa o cliente ---
+    cuentas_ads = []
+    cliente_id = empresa.get("cliente_id")
+    if cliente_id:
+        cuentas_ads = supabase.table("meta_ads_cuentas").select("*").eq("cliente_id", cliente_id).execute().data or []
+
+    return render_template(
+        "panel_cliente_empresa_ficha.html",
+        empresa=empresa,
+        nombre_nora=nombre_nora,
+        user={"name": session.get("name", "Usuario")},
+        modulo_activo="clientes",
+        tareas=tareas,
+        pagos=pagos,
+        usuarios=usuarios,
+        cuentas_ads=cuentas_ads
+    )

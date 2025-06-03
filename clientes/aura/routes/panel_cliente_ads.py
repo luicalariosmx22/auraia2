@@ -14,9 +14,12 @@ from flask import Blueprint, render_template, request
 from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.modules.meta_ads import obtener_reporte_campanas
 
-panel_cliente_ads_bp = Blueprint('panel_cliente_ads', __name__)
+panel_cliente_ads_bp = Blueprint(
+    'panel_cliente_ads',
+    __name__
+)
 
-@panel_cliente_ads_bp.route('/<nombre_nora>', methods=['GET'])
+@panel_cliente_ads_bp.route('/', methods=['GET'])
 def panel_ads(nombre_nora):
     cuentas_ads = supabase.table('meta_ads_cuentas').select('*').eq('nombre_visible', nombre_nora).execute().data or []
 

@@ -13,7 +13,7 @@
     </button>
   </div>
   <div x-show="crear" x-transition>
-    <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/agregar" class="grid gap-2 bg-white p-4 rounded border">
+    <form method="POST" action="{{ url_for('panel_cliente_contactos.agregar_contacto', nombre_nora=nombre_nora) }}" class="grid gap-2 bg-white p-4 rounded border">
       <input type="text" name="telefono" placeholder="Teléfono" required class="input">
       <input type="text" name="nombre" placeholder="Nombre" required class="input">
       <input type="email" name="correo" placeholder="Correo" class="input">
@@ -32,7 +32,7 @@
 <section>
   <h2 class="text-lg font-semibold text-gray-800 mb-4">📋 {{ contactos|length }} contacto{{ 's' if contactos|length != 1 else '' }}</h2>
 
-  <form method="POST" action="/panel_cliente/contactos/{{ nombre_nora }}/acciones">
+  <form method="POST" action="{{ url_for('panel_cliente_contactos.acciones_contactos', nombre_nora=nombre_nora) }}">
     <div class="overflow-x-auto">
       <table class="min-w-full bg-white border border-gray-200 text-sm rounded">
         <thead>

@@ -12,9 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Nuevo flujo para el modal de creación de tarea
   const formNueva = document.getElementById("formTareaNueva");
+  let enviando = false;
   if (formNueva) {
     formNueva.addEventListener("submit", async function (e) {
       e.preventDefault();
+      if (enviando) return;
+      enviando = true;
 
       const form = e.target;
       const datos = new FormData(form);
@@ -41,6 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (err) {
         console.error(err);
         alert("❌ Error inesperado al guardar la tarea");
+      } finally {
+        enviando = false;
       }
     });
   }

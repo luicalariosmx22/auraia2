@@ -9,7 +9,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@panel_cliente_pagos_servicios_bp.route("/", methods=["GET"])
+@panel_cliente_pagos_servicios_bp.route("/<nombre_nora>", methods=["GET"])
 @login_required
 def servicios_lista(nombre_nora):
     config = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).limit(1).execute()
@@ -20,7 +20,7 @@ def servicios_lista(nombre_nora):
     servicios = supabase.table("servicios").select("*").eq("nombre_nora", nombre_nora).execute().data
     return render_template("panel_cliente_pagos/servicios.html", servicios=servicios, nombre_nora=nombre_nora)
 
-@panel_cliente_pagos_servicios_bp.route("/nuevo", methods=["GET", "POST"])
+@panel_cliente_pagos_servicios_bp.route("/nuevo/<nombre_nora>", methods=["GET", "POST"])
 @login_required
 def nuevo_servicio(nombre_nora):
     if request.method == "POST":

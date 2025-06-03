@@ -1,0 +1,180 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="container mx-auto max-w-4xl px-4 py-8">  {# Cambiado de max-w-2xl a max-w-4xl para mayor ancho #}
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">🏢 Ficha de empresa</h2>
+    <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}" class="text-blue-600 text-sm hover:underline">← Volver a empresas</a>
+  </div>
+
+  <!-- Perfil tipo red social -->
+  <div class="bg-white rounded-lg shadow p-6 border border-gray-200 mb-8 flex flex-col items-center">
+    <div class="relative mb-4">
+      <div class="w-28 h-28 rounded-full bg-gray-100 border-4 border-white shadow flex items-center justify-center overflow-hidden">
+        {% if empresa.logo_url %}
+          <img src="{{ empresa.logo_url }}" alt="Logo empresa" class="object-cover w-full h-full">
+        {% else %}
+          <span class="text-5xl text-gray-400">🏢</span>
+        {% endif %}
+      </div>
+    </div>
+    <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ empresa.nombre_empresa }}</h3>
+    <p class="text-gray-500 mb-2">{{ empresa.giro or '—' }}</p>
+    <div class="flex flex-wrap gap-4 justify-center mb-4">
+      {% if empresa.ciudad %}<span class="inline-flex items-center text-sm text-gray-600"><i class="fa fa-map-marker-alt mr-1"></i>{{ empresa.ciudad }}</span>{% endif %}
+      {% if empresa.pais %}<span class="inline-flex items-center text-sm text-gray-600"><i class="fa fa-globe mr-1"></i>{{ empresa.pais }}</span>{% endif %}
+      {% if empresa.sitio_web %}<a href="{{ empresa.sitio_web }}" target="_blank" class="inline-flex items-center text-sm text-blue-700 hover:underline"><i class="fa fa-link mr-1"></i>{{ empresa.sitio_web }}</a>{% endif %}
+    </div>
+    <div class="flex flex-wrap gap-2 justify-center">
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">{{ empresa.tipo or 'Empresa' }}</span>
+      <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">{{ 'Activa' if empresa.activo else 'Inactiva' }}</span>
+    </div>
+  </div>
+
+  <!-- Detalles -->
+  <div class="bg-white rounded-lg shadow p-6 border border-gray-200 mb-8">
+    <dl class="divide-y divide-gray-100">
+      <div class="py-2 flex justify-between">
+        <dt class="font-medium text-gray-700">Razón social</dt>
+        <dd class="text-gray-900">{{ empresa.razon_social or '-' }}</dd>
+      </div>
+      <div class="py-2 flex justify-between">
+        <dt class="font-medium text-gray-700">RFC</dt>
+        <dd class="text-gray-900">{{ empresa.rfc or '-' }}</dd>
+      </div>
+      <div class="py-2 flex justify-between">
+        <dt class="font-medium text-gray-700">Email</dt>
+        <dd class="text-gray-900">{{ empresa.email_empresa or '-' }}</dd>
+      </div>
+      <div class="py-2 flex justify-between">
+        <dt class="font-medium text-gray-700">Teléfono</dt>
+        <dd class="text-gray-900">{{ empresa.telefono_empresa or '-' }}</dd>
+      </div>
+      <div class="py-2 flex justify-between">
+        <dt class="font-medium text-gray-700">Ubicación</dt>
+        <dd class="text-gray-900">{{ empresa.ubicacion or '-' }}</dd>
+      </div>
+      <div class="py-2 flex justify-between">
+        <dt class="font-medium text-gray-700">Representante legal</dt>
+        <dd class="text-gray-900">{{ empresa.representante_legal or '-' }}</dd>
+      </div>
+      <div class="py-2 flex justify-between">
+        <dt class="font-medium text-gray-700">Email representante</dt>
+        <dd class="text-gray-900">{{ empresa.email_representante or '-' }}</dd>
+      </div>
+      <div class="py-2 flex justify-between">
+        <dt class="font-medium text-gray-700">Teléfono representante</dt>
+        <dd class="text-gray-900">{{ empresa.telefono_representante or '-' }}</dd>
+      </div>
+      <div class="py-2 flex justify-between">
+        <dt class="font-medium text-gray-700">Notas</dt>
+        <dd class="text-gray-900">{{ empresa.notas or '-' }}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- TAREAS -->
+  <div class="mb-8">
+    <h4 class="text-lg font-semibold text-blue-700 mb-2">📋 Tareas ligadas</h4>
+    {% if tareas %}
+    <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
+      <table class="w-full text-sm align-middle">
+        <thead class="bg-blue-50">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">Prioridad</th>
+            <th class="px-3 py-2 text-left font-semibold">Título</th>
+            <th class="px-3 py-2 text-left font-semibold">Estatus</th>
+            <th class="px-3 py-2 text-left font-semibold">Asignado a</th>
+            <th class="px-3 py-2 text-left font-semibold">Fecha límite</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tareas %}
+          <tr class="border-t border-gray-100 hover:bg-blue-50 transition">
+            <td class="px-3 py-2">
+              {% if t.prioridad == 'alta' %}<span class="text-red-600 font-bold">🔴 Alta</span>{% elif t.prioridad == 'media' %}<span class="text-yellow-600 font-bold">🟠 Media</span>{% else %}<span class="text-green-600 font-bold">🟢 Baja</span>{% endif %}
+            </td>
+            <td class="px-3 py-2">
+              <span class="font-medium">{{ t.titulo }}</span>
+              {% if t.recurrente or t.is_recurrente %}<span title="Tarea recurrente" class="ml-1">🔁</span>{% endif %}
+            </td>
+            <td class="px-3 py-2">
+              {% if t.estatus == 'pendiente' %}<span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">⏳ Pendiente</span>{% elif t.estatus == 'en progreso' %}<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">🚧 En progreso</span>{% elif t.estatus == 'retrasada' %}<span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs">❗ Retrasada</span>{% elif t.estatus == 'completada' %}<span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">✅ Completada</span>{% else %}{{ t.estatus|capitalize }}{% endif %}
+            </td>
+            <td class="px-3 py-2">{{ t.asignado_nombre or t.usuario_empresa_id or '—' }}</td>
+            <td class="px-3 py-2">
+              {% if t.fecha_limite %}
+                <span>{{ t.fecha_limite }}</span>
+              {% else %}
+                <span class="text-gray-400">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="text-gray-500">No hay tareas ligadas a esta empresa.</p>
+    {% endif %}
+  </div>
+
+  <!-- PAGOS -->
+  <div class="mb-8">
+    <h4 class="text-lg font-semibold text-green-700 mb-2">💳 Pagos ligados</h4>
+    {% if pagos %}
+    <table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden mb-2">
+      <thead class="bg-gray-100">
+        <tr>
+          <th>Monto</th>
+          <th>Concepto</th>
+          <th>Fecha vencimiento</th>
+          <th>Estatus</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pagos %}
+        <tr>
+          <td>{{ p.monto or '—' }}</td>
+          <td>{{ p.concepto or '—' }}</td>
+          <td>{{ p.fecha_vencimiento or '—' }}</td>
+          <td>{{ p.estatus or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="text-gray-500">No hay pagos ligados a esta empresa.</p>
+    {% endif %}
+  </div>
+
+  <!-- CUENTAS PUBLICITARIAS -->
+  <div class="mb-8">
+    <h4 class="text-lg font-semibold text-pink-700 mb-2">📢 Cuentas publicitarias</h4>
+    {% if cuentas_ads %}
+    <table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden mb-2">
+      <thead class="bg-gray-100">
+        <tr>
+          <th>Nombre cuenta</th>
+          <th>Plataforma</th>
+          <th>ID cuenta</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in cuentas_ads %}
+        <tr>
+          <td>{{ c.nombre_cuenta or '—' }}</td>
+          <td>{{ c.tipo_plataforma or '—' }}</td>
+          <td>{{ c.ad_account_id or '—' }}</td>
+          <td>{% if c.activo %}Activa{% else %}Inactiva{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="text-gray-500">No hay cuentas publicitarias ligadas a esta empresa.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
