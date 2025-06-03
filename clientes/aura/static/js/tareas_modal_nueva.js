@@ -10,48 +10,40 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Enviar formulario de creación de tarea
-  const form = document.getElementById("formTareaCrear");
-  if (!form) return;
+  // Nuevo flujo para el modal de creación de tarea
+  const formNueva = document.getElementById("formTareaNueva");
+  if (formNueva) {
+    formNueva.addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const payload = {};
-    formData.forEach((val, key) => {
-      if (val) payload[key] = val;
-    });
+      const form = e.target;
+      const datos = new FormData(form);
+      const jsonData = Object.fromEntries(datos.entries());
+      const nombreNora = jsonData.nombre_nora;
 
-    // Validaciones mínimas
-    if (!payload.titulo) {
-      alert("El título es obligatorio");
-      return;
-    }
-    if (!payload.usuario_empresa_id) {
-      alert("Debes asignar un responsable");
-      return;
-    }
+      try {
+        const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(jsonData)
+        });
 
-    // Detectar Nora para la URL
-    const nombreNora = form.querySelector('[name="nombre_nora"]').value;
-
-    try {
-      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
-        method: "POST",
-        body: formData
-      });
-      const data = await res.json();
-      if (res.ok && (data.ok || data.id)) {
-        location.reload();
-      } else {
-        alert("❌ " + (data.error || "Error al crear la tarea"));
+        const resultado = await res.json();
+        if (resultado.ok || resultado.id) {
+          alert("✅ Tarea guardada exitosamente");
+          cerrarModalTarea();
+          location.reload();
+        } else {
+          alert("❌ Error: " + (resultado.error || "No se pudo crear la tarea"));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error inesperado al guardar la tarea");
       }
-    } catch (err) {
-      alert("❌ Error de red al crear la tarea");
-      console.error(err);
-    }
-  });
+    });
+  }
 });
+
 document.addEventListener("DOMContentLoaded", function() {
   var btnCancelar = document.getElementById("btnCancelarTarea");
   if(btnCancelar) {

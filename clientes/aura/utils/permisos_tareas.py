@@ -10,27 +10,35 @@ supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
 # ✅ Función: puede_ver_todas_tareas(usuario_id)
 def puede_ver_todas_tareas(usuario_id, nombre_nora):
-    result = supabase.table("usuarios_clientes").select("ver_todas_tareas") \
-        .eq("id", usuario_id).eq("nombre_nora", nombre_nora).single().execute()
-    return result.data and result.data.get("ver_todas_tareas", False)
+    res = supabase.table("usuarios_clientes").select("*").eq("id", usuario_id).eq("nombre_nora", nombre_nora).limit(1).execute()
+    usuario = res.data[0] if res.data else None
+    if not usuario:
+        return False
+    return usuario.get("ver_todas_tareas", False)
 
 # ✅ Función: puede_reasignar_tareas(usuario_id)
 def puede_reasignar_tareas(usuario_id, nombre_nora):
-    result = supabase.table("usuarios_clientes").select("reasignar_tareas") \
-        .eq("id", usuario_id).eq("nombre_nora", nombre_nora).single().execute()
-    return result.data and result.data.get("reasignar_tareas", False)
+    res = supabase.table("usuarios_clientes").select("*").eq("id", usuario_id).eq("nombre_nora", nombre_nora).limit(1).execute()
+    usuario = res.data[0] if res.data else None
+    if not usuario:
+        return False
+    return usuario.get("reasignar_tareas", False)
 
 # ✅ Función: puede_crear_para_otros(usuario_id)
 def puede_crear_para_otros(usuario_id, nombre_nora):
-    result = supabase.table("usuarios_clientes").select("crear_tareas_otros") \
-        .eq("id", usuario_id).eq("nombre_nora", nombre_nora).single().execute()
-    return result.data and result.data.get("crear_tareas_otros", False)
+    res = supabase.table("usuarios_clientes").select("*").eq("id", usuario_id).eq("nombre_nora", nombre_nora).limit(1).execute()
+    usuario = res.data[0] if res.data else None
+    if not usuario:
+        return False
+    return usuario.get("crear_tareas_otros", False)
 
 # ✅ Función: es_supervisor(usuario_id)
 def es_supervisor(usuario_id, nombre_nora):
-    result = supabase.table("usuarios_clientes").select("es_supervisor_tareas") \
-        .eq("id", usuario_id).eq("nombre_nora", nombre_nora).single().execute()
-    return result.data and result.data.get("es_supervisor_tareas", False)
+    res = supabase.table("usuarios_clientes").select("*").eq("id", usuario_id).eq("nombre_nora", nombre_nora).limit(1).execute()
+    usuario = res.data[0] if res.data else None
+    if not usuario:
+        return False
+    return usuario.get("es_supervisor_tareas", False)
 
 # ✅ Función: supervisores_actuales(nombre_nora)
 def supervisores_actuales(nombre_nora):
@@ -41,8 +49,9 @@ def supervisores_actuales(nombre_nora):
 # ✅ Función: validar_limite_supervisores(cliente_id, nuevo=True)
 def validar_limite_supervisores(cliente_id, nuevo=True):
     config = supabase.table("configuracion_bot").select("max_supervisores_tareas") \
-        .eq("cliente_id", cliente_id).single().execute()
-    limite = config.data.get("max_supervisores_tareas", 3)
+        .eq("cliente_id", cliente_id).limit(1).execute()  # 🔁 CAMBIO AQUÍ
+    config_data = config.data[0] if config.data else {}
+    limite = config_data.get("max_supervisores_tareas", 3)
 
     actuales = supabase.table("usuarios_clientes").select("id") \
         .eq("empresa_id", cliente_id).eq("es_supervisor_tareas", True).execute()

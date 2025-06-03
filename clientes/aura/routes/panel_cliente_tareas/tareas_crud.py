@@ -221,3 +221,12 @@ def actualizar_tarea_inline(nombre_nora, tarea_id):
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
+
+# ✅ Ruta DELETE para eliminar tarea
+@panel_tareas_crud_bp.route("/tareas/gestionar/eliminar/<tarea_id>", methods=["DELETE"])
+def eliminar_tarea(tarea_id):
+    try:
+        supabase.table("tareas").delete().eq("id", tarea_id).execute()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})

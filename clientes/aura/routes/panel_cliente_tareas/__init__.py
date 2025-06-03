@@ -15,6 +15,8 @@ from .verificar import verificar_bp
 from clientes.aura.routes.panel_cliente_tareas.utils.alertas_y_ranking import actualizar_estadisticas_alertas, obtener_datos_alertas_y_ranking
 from supabase import create_client, Client
 import os
+from datetime import datetime
+from flask import request, jsonify
 
 panel_cliente_tareas_bp = Blueprint(
     "panel_cliente_tareas",
@@ -36,6 +38,16 @@ def vista_tareas_index():
     cliente_id = user.get("cliente_id", "")
     empresa_id = user.get("empresa_id", "")
     print(f"🔵 user: {user}, cliente_id: {cliente_id}, empresa_id: {empresa_id}")
+
+    # ⬇️ Agrega esto antes de render_template
+    usuario_empresa_id = user.get("usuario_empresa_id", "")
+    is_admin = session.get("is_admin", False)
+    permisos = {
+        "es_supervisor": user.get("rol") == "supervisor",
+        "es_superadmin": user.get("rol") == "superadmin",
+        "es_admin": is_admin,
+        "crear_para_otros": True  # los admin siempre pueden
+    }
 
     # Obtener tareas
     tareas = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).execute().data or []
@@ -91,7 +103,7 @@ def vista_tareas_index():
     return render_template("panel_cliente_tareas/index.html",
         tareas_activas=tareas,
         usuarios=usuarios,
-        empresas=empresas,  # 👈 ESTA línea faltaba, causaba el NameError
+        empresas=empresas,
         empresas_dict=empresas_dict,
         resumen=resumen,
         alertas=alertas,
@@ -101,8 +113,48 @@ def vista_tareas_index():
         nombre_nora=nombre_nora,
         user=user,
         config=config,
-        modulo_activo="tareas"
+        modulo_activo="tareas",
+        permisos=permisos,
+        usuario_empresa_id=usuario_empresa_id
     )
+
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar/actualizar_completa/<tarea_id>", methods=["POST"])
+def actualizar_tarea_completa(nombre_nora, tarea_id):
+    data = request.get_json(silent=True) or {}
+    
+    campos_requeridos = [
+        "titulo", "descripcion", "prioridad", "estatus",
+        "fecha_limite", "usuario_empresa_id", "empresa_id"
+    ]
+
+    faltantes = [campo for campo in campos_requeridos if campo not in data]
+    if faltantes:
+        return jsonify({"error": f"Faltan campos: {', '.join(faltantes)}"}), 400
+
+    # Validación opcional de campos
+    if data["prioridad"] not in ["baja", "media", "alta"]:
+        return jsonify({"error": "Prioridad inválida"}), 400
+    if data["estatus"] not in ["pendiente", "en progreso", "retrasada", "completada"]:
+        return jsonify({"error": "Estatus inválido"}), 400
+    try:
+        datetime.strptime(data["fecha_limite"], "%Y-%m-%d")
+    except Exception:
+        return jsonify({"error": "Fecha límite inválida"}), 400
+
+    try:
+        supabase.table("tareas").update({
+            "titulo": data["titulo"],
+            "descripcion": data["descripcion"],
+            "prioridad": data["prioridad"],
+            "estatus": data["estatus"],
+            "fecha_limite": data["fecha_limite"],
+            "usuario_empresa_id": data["usuario_empresa_id"],
+            "empresa_id": data["empresa_id"],
+            "updated_at": datetime.utcnow().isoformat()
+        }).eq("id", tarea_id).eq("nombre_nora", nombre_nora).execute()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ✅ Import forzado: asegura que las rutas se registren aunque el bloque multiple no se ejecute
 import clientes.aura.routes.panel_cliente_tareas.tareas_crud

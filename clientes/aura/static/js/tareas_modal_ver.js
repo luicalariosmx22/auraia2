@@ -21,32 +21,45 @@ window.initModalVerTareaListeners = function () {
           return;
         }
 
-        document.getElementById("modalTarea").classList.remove("hidden");
-        document.getElementById("modalTitulo").textContent = "Ver / Editar tarea";
+        const modal = document.getElementById("modalTarea");
+        if (modal) modal.classList.remove("hidden");
 
-        // Asignar valores al modal
-        document.getElementById("tarea_id").value = tarea.id || "";
-        document.getElementById("verTitulo").value = tarea.titulo || "";
-        document.getElementById("verDescripcion").value = tarea.descripcion || "";
-        document.getElementById("verPrioridad").value = tarea.prioridad || "media";
-        document.getElementById("verFechaLimite").value = tarea.fecha_limite || "";
+        const tituloModal = document.getElementById("modalTitulo");
+        if (tituloModal) tituloModal.textContent = "Ver / Editar tarea";
+
+        // Asignar valores a los campos del modal
+        const campos = {
+          "verIdTarea": tarea.id,
+          "verTitulo": tarea.titulo,
+          "verDescripcion": tarea.descripcion,
+          "verPrioridad": tarea.prioridad || "media",
+          "verFechaLimite": tarea.fecha_limite
+        };
+        Object.entries(campos).forEach(([id, valor]) => {
+          const el = document.getElementById(id);
+          if (el) el.value = valor || "";
+        });
 
         const verAsignado = document.getElementById("verAsignado");
-        if (verAsignado.tagName === "SELECT") {
-          [...verAsignado.options].forEach(opt => {
-            opt.selected = opt.value === (tarea.usuario_empresa_id || "");
-          });
-        } else {
-          verAsignado.value = tarea.asignado_nombre || "";
+        if (verAsignado) {
+          if (verAsignado.tagName === "SELECT") {
+            [...verAsignado.options].forEach(opt => {
+              opt.selected = opt.value === (tarea.usuario_empresa_id || "");
+            });
+          } else {
+            verAsignado.value = tarea.asignado_nombre || "";
+          }
         }
 
         const verEmpresa = document.getElementById("verEmpresa");
-        if (verEmpresa.tagName === "SELECT") {
-          [...verEmpresa.options].forEach(opt => {
-            opt.selected = opt.value === (tarea.empresa_id || "");
-          });
-        } else {
-          verEmpresa.value = tarea.empresa_nombre || "";
+        if (verEmpresa) {
+          if (verEmpresa.tagName === "SELECT") {
+            [...verEmpresa.options].forEach(opt => {
+              opt.selected = opt.value === (tarea.empresa_id || "");
+            });
+          } else {
+            verEmpresa.value = tarea.empresa_nombre || "";
+          }
         }
 
       } catch (error) {
@@ -57,49 +70,54 @@ window.initModalVerTareaListeners = function () {
   });
 
   // Guardar cambios de tarea
-  document.getElementById("formVerTarea").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  const form = document.getElementById("formVerTarea");
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const tareaId = document.getElementById("verIdTarea").value;
-    const nombreNora = document.body.dataset.nora;
+      const tareaId = document.getElementById("verIdTarea")?.value;
+      const nombreNora = document.body.dataset.nora;
 
-    const payload = {
-      titulo: document.getElementById("verTitulo").value,
-      descripcion: document.getElementById("verDescripcion").value,
-      prioridad: document.getElementById("verPrioridad").value,
-      estatus: document.getElementById("verEstatus").value,
-      fecha_limite: document.getElementById("verFechaLimite").value,
-      usuario_empresa_id: document.getElementById("verAsignado").value,
-      empresa_id: document.getElementById("verEmpresa").value
-    };
+      const payload = {
+        titulo: document.getElementById("verTitulo")?.value,
+        descripcion: document.getElementById("verDescripcion")?.value,
+        prioridad: document.getElementById("verPrioridad")?.value,
+        estatus: document.getElementById("verEstatus")?.value,
+        fecha_limite: document.getElementById("verFechaLimite")?.value,
+        usuario_empresa_id: document.getElementById("verAsignado")?.value,
+        empresa_id: document.getElementById("verEmpresa")?.value
+      };
 
-    const alertContainer = document.getElementById("alertaGuardado");
-    alertContainer.classList.add("d-none");
-    alertContainer.classList.remove("alert-success", "alert-danger");
-    alertContainer.innerText = "";
+      const alertContainer = document.getElementById("alertaGuardado");
+      if (!alertContainer) return;
 
-    try {
-      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/actualizar/${tareaId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      alertContainer.classList.add("d-none");
+      alertContainer.classList.remove("alert-success", "alert-danger");
+      alertContainer.innerText = "";
 
-      const resultado = await res.json();
-      if (resultado.ok) {
-        alertContainer.innerText = "✅ Cambios guardados correctamente";
-        alertContainer.classList.remove("d-none");
-        alertContainer.classList.add("alert", "alert-success");
-      } else {
-        alertContainer.innerText = "❌ Error: " + resultado.error;
+      try {
+        const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/actualizar_completa/${tareaId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const resultado = await res.json();
+        if (resultado.ok) {
+          alertContainer.innerText = "✅ Cambios guardados correctamente";
+          alertContainer.classList.remove("d-none");
+          alertContainer.classList.add("alert", "alert-success");
+        } else {
+          alertContainer.innerText = "❌ Error: " + resultado.error;
+          alertContainer.classList.remove("d-none");
+          alertContainer.classList.add("alert", "alert-danger");
+        }
+      } catch (error) {
+        console.error(error);
+        alertContainer.innerText = "❌ Error inesperado al guardar los cambios";
         alertContainer.classList.remove("d-none");
         alertContainer.classList.add("alert", "alert-danger");
       }
-    } catch (error) {
-      console.error(error);
-      alertContainer.innerText = "❌ Error inesperado al guardar los cambios";
-      alertContainer.classList.remove("d-none");
-      alertContainer.classList.add("alert", "alert-danger");
-    }
-  });
-}
+    });
+  }
+};

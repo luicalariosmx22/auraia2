@@ -19,6 +19,7 @@ from utils.validar_modulo_activo import modulo_activo_para_nora
 from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.generar_codigo_tarea import generar_codigo_tarea
 from clientes.aura.utils.permisos import obtener_permisos
+from clientes.aura.utils.permisos_tareas import puede_crear_para_otros
 
 panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 
@@ -42,12 +43,6 @@ def vista_gestionar_tareas(nombre_nora):
     if not modulo_activo_para_nora(nombre_nora, "tareas"):
         return "Módulo no activo", 403
 
-    # usuario_id = session.get("usuario_empresa_id")
-    # if not usuario_id:
-    #     user = session.get("user", {})
-    #     usuario_id = user.get("usuario_empresa_id") or user.get("id")
-    #     if usuario_id:
-    #         session["usuario_empresa_id"] = usuario_id
     usuario_id = session.get("usuario_empresa_id") or session.get("user", {}).get("usuario_empresa_id") or session.get("user", {}).get("id")
     if usuario_id:
         session["usuario_empresa_id"] = usuario_id
@@ -57,7 +52,13 @@ def vista_gestionar_tareas(nombre_nora):
         usuario_id = "00000000-0000-0000-0000-000000000000"
         session["usuario_empresa_id"] = usuario_id
 
-    permisos = obtener_permisos()
+    # 👇 Lógica de permisos personalizada
+    permisos = {
+        "es_supervisor": session.get("es_supervisor", False),
+        "crear_para_otros": puede_crear_para_otros(usuario_id, nombre_nora),
+        "es_admin": session.get("is_admin", False),
+        "es_super_admin": session.get("is_super_admin", False)
+    }
 
     tareas_resp = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
     todas = tareas_resp.data or []
@@ -213,13 +214,15 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
 def crear_tarea(nombre_nora):
     data = request.form.to_dict(flat=True) or request.get_json(silent=True) or {}
 
+    print("👤 usuario_empresa_id recibido:", data.get("usuario_empresa_id"))
+
     titulo = data.get("titulo")
     prioridad = (data.get("prioridad") or "media").strip().lower()
     fecha_limite = data.get("fecha_limite")
     estatus = (data.get("estatus") or "pendiente").strip().lower()
 
     usuario_empresa_id = (data.get("usuario_empresa_id") or session.get("usuario_empresa_id") or "").strip()
-    if not usuario_empresa_id or usuario_empresa_id.lower() == "none":
+    if not usuario_empresa_id or usuario_empresa_id.strip() in ["", "none", "None"]:
         return jsonify({"error": "No se puede determinar el usuario asignado"}), 400
 
     empresa_id = (data.get("empresa_id") or "").strip() or None

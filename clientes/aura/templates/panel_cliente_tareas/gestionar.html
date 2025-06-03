@@ -38,6 +38,8 @@
 <script src="{{ url_for('static', filename='js/tareas_botones.js') }}"></script>
 <script src="{{ url_for('static', filename='js/updateCampo.js') }}"></script>
 <script src="{{ url_for('static', filename='js/tareas_modal_ver.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tareas_eliminar.js') }}"></script>
+
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -134,7 +136,9 @@
                 onclick="cargarTareaEnModal(this)">
           Ver
         </button>
-        <button onclick="eliminarTarea('{{ tarea.id }}')" class="text-red-600 hover:underline text-xs">Eliminar</button>
+        <button data-id="{{ tarea.id }}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">
+          Eliminar
+        </button>
       </td>
     </tr>
     {% endfor %}
@@ -245,7 +249,9 @@
                   onclick="cargarTareaEnModal(this)">
             Ver
           </button>
-          <button onclick="eliminarTarea('{{ tarea.id }}')" class="text-red-600 hover:underline text-xs">Eliminar</button>
+          <button data-id="{{ tarea.id }}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">
+            Eliminar
+          </button>
         </td>
       </tr>
     {% endfor %}
@@ -259,12 +265,4 @@
 </div> <!-- Cierra contenedorGestorTareas -->
 
 {% endblock %}
-
-<!-- ✅ Incluir scripts -->
-<script src="{{ url_for('static', filename='js/tareas_inline.js') }}"></script>
-<script src="{{ url_for('static', filename='js/tareas_modal_nueva.js') }}"></script>
-<script src="{{ url_for('static', filename='js/tareas_modal_ver.js') }}"></script>
-<script src="{{ url_for('static', filename='js/tareas_botones.js') }}"></script>
-<script src="{{ url_for('static', filename='js/updateCampo.js') }}"></script>
-
 
