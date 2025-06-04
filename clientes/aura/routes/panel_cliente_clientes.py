@@ -407,6 +407,9 @@ def ficha_empresa(empresa_id):
     # --- Consultar reuniones ligadas a la empresa ---
     reuniones = supabase.table("reuniones_clientes").select("*").eq("empresa_id", empresa_id).order("fecha_hora", desc=True).execute().data or []
 
+    # --- Consultar documentos importantes ligados a la empresa ---
+    documentos = supabase.table("empresa_documentos").select("*").eq("empresa_id", empresa_id).order("creado_en", desc=True).execute().data or []
+
     return render_template(
         "panel_cliente_empresa_ficha.html",
         empresa=empresa,
@@ -418,7 +421,8 @@ def ficha_empresa(empresa_id):
         usuarios=usuarios,
         cuentas_ads=cuentas_ads,
         reuniones=reuniones,
-        accesos=accesos
+        accesos=accesos,
+        documentos=documentos
     )
 
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/registrar_reunion", methods=["POST"])
@@ -518,3 +522,34 @@ def editar_accesos_empresa(empresa_id):
         user={"name": session.get("name", "Usuario")},
         modulo_activo="clientes"
     )
+
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/agregar_documento", methods=["POST"])
+def agregar_documento(empresa_id):
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+    nombre = request.form.get("nombre", "").strip()
+    url_doc = request.form.get("url", "").strip()
+    if not nombre or not url_doc:
+        flash("Nombre y URL son obligatorios", "error")
+        return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+    try:
+        supabase.table("empresa_documentos").insert({
+            "empresa_id": empresa_id,
+            "nombre": nombre,
+            "url": url_doc
+        }).execute()
+        flash("Documento agregado", "success")
+    except Exception as e:
+        flash(f"Error al agregar documento: {str(e)}", "error")
+    return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/eliminar_documento/<doc_id>", methods=["POST"])
+def eliminar_documento(empresa_id, doc_id):
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+    try:
+        supabase.table("empresa_documentos").delete().eq("id", doc_id).execute()
+        flash("Documento eliminado", "success")
+    except Exception as e:
+        flash(f"Error al eliminar documento: {str(e)}", "error")
+    return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))

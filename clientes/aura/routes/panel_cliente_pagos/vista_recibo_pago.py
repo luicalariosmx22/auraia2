@@ -146,7 +146,7 @@ def enviar_whatsapp(nombre_nora, pago_id):
     return redirect(url_for(".ver_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
 
 # ---------- Editar recibo (redirección al formulario) ----------
-@panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>/editar")
+@panel_cliente_pagos_recibo_bp.route("/recibo/<nombre_nora>/<pago_id>/editar")
 @login_required
 def editar_recibo(nombre_nora, pago_id):
     return redirect(url_for("panel_cliente_pagos_nuevo.nuevo_recibo", nombre_nora=nombre_nora, pago_id=pago_id))
@@ -166,3 +166,17 @@ def generar_recibo(cliente_id):
     response.headers["Content-Type"] = "application/pdf"
     response.headers["Content-Disposition"] = f"inline; filename=recibo_{cliente_id}.pdf"
     return response
+
+# ---------- Eliminar recibo ----------
+@panel_cliente_pagos_recibo_bp.route("/recibo/<nombre_nora>/<pago_id>/eliminar", methods=["POST"])
+@login_required
+def eliminar_recibo(nombre_nora, pago_id):
+    try:
+        # Eliminar items asociados primero (si existen)
+        supabase.table("pagos_items").delete().eq("pago_id", pago_id).execute()
+        # Eliminar el recibo principal
+        supabase.table("pagos").delete().eq("id", pago_id).execute()
+        flash("✅ Recibo eliminado correctamente", "success")
+    except Exception as e:
+        flash(f"❌ Error al eliminar recibo: {str(e)}", "error")
+    return redirect(url_for("panel_cliente_pagos.panel_cliente_pagos", nombre_nora=nombre_nora))

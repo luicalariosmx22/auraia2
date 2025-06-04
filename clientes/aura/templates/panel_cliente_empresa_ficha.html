@@ -7,6 +7,7 @@
     <div class="flex gap-2">
         <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}" class="text-blue-600 text-xs hover:underline">← Volver a empresas</a>
         <a href="{{ url_for('panel_cliente_clientes_bp.editar_empresa', empresa_id=empresa.id) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs shadow-sm hover:bg-blue-700 transition">✏️ Editar empresa</a>
+        <button type="button" onclick="exportarFichaEmpresaPDF()" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs shadow-sm hover:bg-indigo-700 transition flex items-center gap-1"><span>📄</span> Exportar PDF</button>
     </div>
   </div>
 
@@ -122,12 +123,15 @@
   </div>
 
   <!-- TAREAS -->
-  <div class="mb-4">
-    <h4 class="text-lg font-semibold text-blue-700 mb-2">📋 Tareas Activas</h4>
+  <div class="mb-4" id="seccion-tareas">
+    <div class="flex items-center justify-between mb-2">
+      <h4 class="text-lg font-semibold text-blue-700">📋 Tareas Activas</h4>
+      <button type="button" onclick="exportarSeccionPDF('seccion-tareas', 'Tareas')" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs shadow-sm hover:bg-indigo-700 transition flex items-center gap-1"><span>📄</span> Exportar PDF</button>
+    </div>
     {% set tareas_activas = tareas | selectattr('estatus', 'ne', 'completada') | list %}
     {% set tareas_completadas = tareas | selectattr('estatus', 'equalto', 'completada') | list %}
     {% if tareas_activas %}
-    <div class="overflow-x-auto rounded-lg shadow border border-gray-200 mb-4">
+    <div class="overflow-x-auto rounded-lg shadow border border-gray-200 mb-4 bg-white">
       <table class="w-full text-sm align-middle">
         <thead class="bg-blue-50">
           <tr>
@@ -168,10 +172,10 @@
       <p class="text-gray-500">No hay tareas activas ligadas a esta empresa.</p>
     {% endif %}
     {% if tareas_completadas %}
-    <div class="overflow-x-auto rounded-lg shadow border border-gray-100 mt-2">
+    <div class="overflow-x-auto rounded-lg shadow border border-gray-200 mt-2 bg-white">
       <h5 class="text-sm font-semibold text-gray-600 mb-2 mt-2">✅ Tareas completadas</h5>
       <table class="w-full text-sm align-middle opacity-70">
-        <thead class="bg-gray-50">
+        <thead class="bg-blue-50">
           <tr>
             <th class="px-3 py-2 text-left font-semibold">Prioridad</th>
             <th class="px-3 py-2 text-left font-semibold">Título</th>
@@ -182,7 +186,7 @@
         </thead>
         <tbody>
           {% for t in tareas_completadas %}
-          <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
+          <tr class="border-t border-gray-100 hover:bg-blue-50 transition">
             <td class="px-3 py-2">
               {% if t.prioridad == 'alta' %}<span class="text-red-600 font-bold">🔴 Alta</span>{% elif t.prioridad == 'media' %}<span class="text-yellow-600 font-bold">🟠 Media</span>{% else %}<span class="text-green-600 font-bold">🟢 Baja</span>{% endif %}
             </td>
@@ -209,113 +213,58 @@
     {% endif %}
   </div>
 
-  <!-- PAGOS -->
-  <div class="mb-4">
-    <h4 class="text-lg font-semibold text-green-700 mb-2">💳 Pagos ligados</h4>
-    {% if pagos %}
-    <table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden mb-2">
-      <thead class="bg-gray-100">
-        <tr>
-          <th>Monto</th>
-          <th>Concepto</th>
-          <th>Fecha vencimiento</th>
-          <th>Estatus</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in pagos %}
-        <tr>
-          <td>{{ p.monto or '—' }}</td>
-          <td>{{ p.concepto or '—' }}</td>
-          <td>{{ p.fecha_vencimiento or '—' }}</td>
-          <td>{{ p.estatus or '—' }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-      <p class="text-gray-500">No hay pagos ligados a esta empresa.</p>
-    {% endif %}
-  </div>
-
-  <!-- CUENTAS PUBLICITARIAS -->
-  <div class="mb-4">
+  <!-- PAGOS / TRANSACCIONES -->
+  <div class="mb-4" id="seccion-pagos">
     <div class="flex items-center justify-between mb-2">
-      <h4 class="text-lg font-semibold text-pink-700 mb-2">📢 Cuentas publicitarias</h4>
-      <button type="button" onclick="document.getElementById('modal-cuenta-ads').classList.remove('hidden')" class="px-3 py-1 bg-green-600 text-white rounded text-sm font-semibold shadow-sm hover:bg-green-700 transition">➕ Agregar cuenta</button>
+      <h4 class="text-lg font-semibold text-green-700">💳 Transacciones</h4>
+      <button type="button" onclick="exportarSeccionPDF('seccion-pagos', 'Pagos')" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs shadow-sm hover:bg-indigo-700 transition flex items-center gap-1"><span>📄</span> Exportar PDF</button>
     </div>
-    {% if cuentas_ads %}
-    <table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden mb-2">
-      <thead class="bg-gray-100">
-        <tr>
-          <th>Nombre cuenta</th>
-          <th>Plataforma</th>
-          <th>ID cuenta</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for c in cuentas_ads %}
-        <tr>
-          <td>{{ c.nombre_cuenta or '—' }}</td>
-          <td>{{ c.tipo_plataforma or '—' }}</td>
-          <td>{{ c.ad_account_id or '—' }}</td>
-          <td>{% if c.activo %}Activa{% else %}Inactiva{% endif %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    {% if pagos %}
+    <div class="overflow-x-auto rounded-lg shadow border border-gray-200 mb-2 bg-white">
+      <table class="w-full text-sm align-middle">
+        <thead class="bg-green-50">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">Concepto</th>
+            <th class="px-3 py-2 text-left font-semibold">Fecha vencimiento</th>
+            <th class="px-3 py-2 text-left font-semibold">Monto</th>
+            <th class="px-3 py-2 text-left font-semibold">Estatus</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pagos %}
+          <tr class="border-t border-gray-100 hover:bg-green-50 transition">
+            <td class="px-3 py-2">{{ p.concepto or '—' }}</td>
+            <td class="px-3 py-2">{{ p.fecha_vencimiento or '—' }}</td>
+            <td class="px-3 py-2 font-mono text-green-700 font-semibold">${{ '%.2f'|format(p.monto|float) if p.monto else '—' }}</td>
+            <td class="px-3 py-2">
+              {% if p.estatus == 'pagado' %}
+                <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Pagado</span>
+              {% elif p.estatus == 'pendiente' %}
+                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">Pendiente</span>
+              {% elif p.estatus == 'vencido' %}
+                <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Vencido</span>
+              {% else %}
+                <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold">{{ p.estatus or '—' }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
     {% else %}
-      <p class="text-gray-500">No hay cuentas publicitarias ligadas a esta empresa.</p>
+      <p class="text-gray-500">No hay transacciones registradas para esta empresa.</p>
     {% endif %}
-  </div>
-
-  <!-- MODAL AGREGAR CUENTA PUBLICITARIA -->
-  <div id="modal-cuenta-ads" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative">
-      <button type="button" onclick="document.getElementById('modal-cuenta-ads').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
-      <h3 class="text-lg font-bold mb-4 text-pink-700 flex items-center gap-2">➕ Agregar cuenta publicitaria</h3>
-      <form method="POST" action="{{ url_for('panel_cliente_ads.agregar_cuenta', nombre_nora=nombre_nora) }}">
-        <div class="mb-3">
-          <label class="block text-xs font-semibold mb-1">Nombre del cliente</label>
-          <input type="text" name="nombre_cliente" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ej: Mi empresa Facebook" required>
-        </div>
-        <div class="mb-3">
-          <label class="block text-xs font-semibold mb-1">Plataforma</label>
-          <select name="tipo_plataforma" class="w-full px-3 py-2 border rounded-lg text-sm" required>
-            <option value="">Selecciona...</option>
-            <option value="facebook">Facebook Ads</option>
-            <option value="google">Google Ads</option>
-            <option value="tiktok">TikTok Ads</option>
-            <option value="linkedin">LinkedIn Ads</option>
-            <option value="otra">Otra</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="block text-xs font-semibold mb-1">ID de cuenta publicitaria</label>
-          <input type="text" name="id_cuenta_publicitaria" class="w-full px-3 py-2 border rounded-lg text-sm" required>
-        </div>
-        <div class="mb-3">
-          <label class="inline-flex items-center text-xs font-semibold">
-            <input type="checkbox" name="activo" class="mr-2" checked>
-            Activa
-          </label>
-        </div>
-        <div class="flex justify-end gap-2 mt-4">
-          <button type="button" onclick="document.getElementById('modal-cuenta-ads').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-pink-600 text-white rounded-lg font-semibold hover:bg-pink-700">Guardar</button>
-        </div>
-      </form>
-    </div>
   </div>
 
   <!-- REUNIONES -->
-  <div class="mb-4">
+  <div class="mb-4" id="seccion-reuniones">
     <div class="flex items-center justify-between mb-2">
         <h4 class="text-lg font-semibold text-purple-700">📅 Reuniones con el cliente</h4>
+        <button type="button" onclick="exportarSeccionPDF('seccion-reuniones', 'Reuniones')" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs shadow-sm hover:bg-indigo-700 transition flex items-center gap-1"><span>📄</span> Exportar PDF</button>
       </div>
     {% if reuniones %}
-      <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
+      <div class="overflow-x-auto rounded-lg shadow border border-gray-200 bg-white">
         <table class="w-full text-sm align-middle">
           <thead class="bg-purple-50">
             <tr>
@@ -397,7 +346,41 @@
     </div>
   </div>
 
+  <!-- DOCUMENTOS IMPORTANTES -->
+  <div class="mb-4" id="seccion-documentos">
+    <div class="flex items-center justify-between mb-2">
+      <h4 class="text-lg font-semibold text-indigo-700 mb-2">📄 Documentos importantes</h4>
+      <div class="flex gap-2">
+        <button type="button" onclick="exportarSeccionPDF('seccion-documentos', 'Documentos')" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs shadow-sm hover:bg-indigo-700 transition flex items-center gap-1"><span>📄</span> Exportar PDF</button>
+        <button type="button" onclick="document.getElementById('form-doc-nuevo').classList.toggle('hidden')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm">Agregar documento</button>
+      </div>
+    </div>
+    <form id="form-doc-nuevo" method="post" action="{{ url_for('panel_cliente_clientes_bp.agregar_documento', empresa_id=empresa.id) }}" class="flex flex-wrap gap-2 mb-3 bg-indigo-50 p-3 rounded-lg hidden">
+      <input type="text" name="nombre" placeholder="Nombre del documento" class="border rounded px-2 py-1 text-sm flex-1 min-w-[180px]" required>
+      <input type="url" name="url" placeholder="URL del documento" class="border rounded px-2 py-1 text-sm flex-1 min-w-[180px]" required>
+      <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm">Guardar</button>
+    </form>
+    {% if documentos %}
+    <ul class="divide-y divide-gray-100 bg-white rounded-lg shadow">
+      {% for doc in documentos %}
+      <li class="flex items-center justify-between px-4 py-2">
+        <div>
+          <a href="{{ doc.url }}" target="_blank" class="text-indigo-700 hover:underline font-medium">{{ doc.nombre }}</a>
+          <span class="text-xs text-gray-400 ml-2">{{ doc.creado_en[:10] }}</span>
+        </div>
+        <form method="post" action="{{ url_for('panel_cliente_clientes_bp.eliminar_documento', empresa_id=empresa.id, doc_id=doc.id) }}" onsubmit="return confirm('¿Eliminar este documento?');">
+          <button type="submit" class="text-red-600 hover:text-red-800 text-xs font-medium">Eliminar</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="text-gray-500">No hay documentos importantes registrados para esta empresa.</p>
+    {% endif %}
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
   function exportarMinutaPDF(btn) {
     const id = btn.getAttribute('data-id');
@@ -687,6 +670,123 @@
       const nombreArchivo = `Reunion_${nombreNora}_${nombreCliente.replace(/ /g,'_')}_${fechaArchivo}.pdf`;
       doc.save(nombreArchivo);
     };
+  }
+
+  function exportarFichaEmpresaPDF() {
+    const ficha = document.querySelector('.container.mx-auto.max-w-5xl');
+    if (!ficha) return;
+    // Obtener mes y año actuales
+    const now = new Date();
+    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
+    const anio = now.getFullYear();
+    // Construir nombre de archivo personalizado
+    const nombreArchivo = `Ficha_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
+    const opt = {
+      margin:       0.2,
+      filename:     nombreArchivo,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(ficha).save();
+  }
+
+  function exportarSeccionPDF(idSeccion, nombreSeccion) {
+    const seccion = document.getElementById(idSeccion);
+    if (!seccion) return;
+    const now = new Date();
+    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
+    const anio = now.getFullYear();
+    const nombreArchivo = `${nombreSeccion}_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
+    const opt = {
+      margin:       0.2,
+      filename:     nombreArchivo,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(seccion).save();
+  }
+
+  function exportarTareasPDF() {
+    const seccion = document.getElementById('seccion-tareas');
+    if (!seccion) return;
+    const now = new Date();
+    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
+    const anio = now.getFullYear();
+    const nombreArchivo = `Tareas_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
+    const opt = {
+      margin: 0.2,
+      filename: nombreArchivo,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(seccion).save();
+  }
+  function exportarPagosPDF() {
+    const seccion = document.getElementById('seccion-pagos');
+    if (!seccion) return;
+    const now = new Date();
+    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
+    const anio = now.getFullYear();
+    const nombreArchivo = `Pagos_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
+    const opt = {
+      margin: 0.2,
+      filename: nombreArchivo,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(seccion).save();
+  }
+  function exportarCuentasAdsPDF() {
+    const seccion = document.getElementById('seccion-cuentas-ads');
+    if (!seccion) return;
+    const now = new Date();
+    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
+    const anio = now.getFullYear();
+    const nombreArchivo = `CuentasAds_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
+    const opt = {
+      margin: 0.2,
+      filename: nombreArchivo,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(seccion).save();
+  }
+  function exportarReunionesPDF() {
+    const seccion = document.getElementById('seccion-reuniones');
+    if (!seccion) return;
+    const now = new Date();
+    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
+    const anio = now.getFullYear();
+    const nombreArchivo = `Reuniones_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
+    const opt = {
+      margin: 0.2,
+      filename: nombreArchivo,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(seccion).save();
+  }
+  function exportarDocumentosPDF() {
+    const seccion = document.getElementById('seccion-documentos');
+    if (!seccion) return;
+    const now = new Date();
+    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
+    const anio = now.getFullYear();
+    const nombreArchivo = `Documentos_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
+    const opt = {
+      margin: 0.2,
+      filename: nombreArchivo,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(seccion).save();
   }
   </script>
   <script>

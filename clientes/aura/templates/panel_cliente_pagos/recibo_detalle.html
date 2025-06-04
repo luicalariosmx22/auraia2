@@ -12,6 +12,11 @@
   </div>
   <!-- 🚀 Acciones rápidas -->
   <div class="flex flex-wrap gap-2 mb-8">
+    <a href="{{ url_for('panel_cliente_pagos.panel_cliente_pagos', nombre_nora=nombre_nora) }}"
+       class="bg-gray-100 hover:bg-gray-200 text-blue-700 border border-gray-300 px-3 py-1 rounded text-sm font-medium flex items-center gap-1">
+      ← Volver a pagos
+    </a>
+
     <a href="{{ url_for('panel_cliente_pagos_recibo.exportar_pdf', nombre_nora=nombre_nora, pago_id=pago.id) }}"
        class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-3 py-1 rounded">📄 Descargar PDF</a>
 
