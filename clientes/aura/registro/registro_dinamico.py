@@ -18,6 +18,7 @@ from clientes.aura.routes.panel_cliente_etiquetas_conocimiento import panel_clie
 from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp
 from clientes.aura.routes.panel_cliente_tareas.recurrentes import panel_tareas_recurrentes_bp
+from clientes.aura.routes.reportes_meta_ads import reportes_meta_ads_bp
 
 
 # Configurar Supabase
@@ -128,9 +129,19 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 # safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
                 pass  # Registro deshabilitado por error de import
 
-            if "ads" in modulos or "meta_ads" in modulos:
-                print(f"Registrando blueprint ADS para {nombre_nora}")
-                safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/meta_ads")
+            # Registrar solo si es meta_ads, no mezclar con ads (Google)
+            if "meta_ads" in modulos:
+                print(f"Registrando blueprint META ADS para {nombre_nora}")
+                safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+                # Registrar reportes avanzados de Meta Ads
+                safe_register_blueprint(app, reportes_meta_ads_bp, url_prefix=f"/panel_cliente/<nombre_nora>/meta_ads")
+                # Registrar campañas avanzadas de Meta Ads
+                from clientes.aura.routes.campanas_meta_ads import campanas_meta_ads_bp
+                safe_register_blueprint(app, campanas_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+
+            # Si tienes un blueprint para Google Ads, registra aquí:
+            # if "ads" in modulos:
+            #     safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ads")
 
             if "contactos" in modulos:
                 safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")

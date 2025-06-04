@@ -110,16 +110,32 @@ def editar_empresa(empresa_id):
         return "Empresa no encontrada", 404
 
     if request.method == "POST":
+        import json
         campos = {
             "nombre_empresa": request.form.get("nombre_empresa"),
-            "giro": request.form.get("giro"),
-            "telefono_empresa": request.form.get("telefono_empresa"),
+            "razon_social": request.form.get("razon_social"),
+            "rfc": request.form.get("rfc"),
             "email_empresa": request.form.get("email_empresa"),
-            "sitio_web": request.form.get("sitio_web")
+            "telefono_empresa": request.form.get("telefono_empresa"),
+            "sitio_web": request.form.get("sitio_web"),
+            "logo_url": request.form.get("logo_url"),
+            "ubicacion": request.form.get("ubicacion"),
+            "ciudad": request.form.get("ciudad"),
+            "estado": request.form.get("estado"),
+            "pais": request.form.get("pais"),
+            "tipo": request.form.get("tipo"),
+            "giro": request.form.get("giro"),
+            "representante_legal": request.form.get("representante_legal"),
+            "email_representante": request.form.get("email_representante"),
+            "telefono_representante": request.form.get("telefono_representante"),
+            "fecha_alta": request.form.get("fecha_alta") or None,
+            "fecha_baja": request.form.get("fecha_baja") or None,
+            "notas": request.form.get("notas"),
+            "activo": True if request.form.get("activo") else False
         }
         supabase.table("cliente_empresas").update(campos).eq("id", empresa_id).execute()
         flash("Empresa actualizada", "success")
-        return redirect(url_for('panel_cliente_clientes_bp.vista_clientes'))
+        return redirect(url_for('panel_cliente_clientes_bp.ficha_empresa', empresa_id=empresa_id))
 
     return render_template("panel_cliente_empresa_form.html",
                           nombre_nora=nombre_nora,
@@ -139,12 +155,10 @@ def nueva_empresa():
             flash("❌ El nombre de la empresa es obligatorio", "error")
             return redirect(request.url)
 
-        # Solo enviamos columnas que existen en public.cliente_empresas
         empresa_data = {
             "id": str(uuid.uuid4()),
             "nombre_nora": nombre_nora,
             "nombre_empresa": nombre_empresa,
-            "giro": request.form.get("giro", "").strip() or None,
             "razon_social": request.form.get("razon_social", "").strip() or None,
             "rfc": request.form.get("rfc", "").strip() or None,
             "email_empresa": request.form.get("email_empresa", "").strip() or None,
@@ -155,12 +169,15 @@ def nueva_empresa():
             "ciudad": request.form.get("ciudad", "").strip() or None,
             "estado": request.form.get("estado", "").strip() or None,
             "pais": request.form.get("pais", "").strip() or None,
+            "tipo": request.form.get("tipo", "").strip() or None,
+            "giro": request.form.get("giro", "").strip() or None,
             "representante_legal": request.form.get("representante_legal", "").strip() or None,
             "email_representante": request.form.get("email_representante", "").strip() or None,
             "telefono_representante": request.form.get("telefono_representante", "").strip() or None,
+            "fecha_alta": request.form.get("fecha_alta") or None,
+            "fecha_baja": request.form.get("fecha_baja") or None,
             "notas": request.form.get("notas", "").strip() or None,
-            "tipo": request.form.get("tipo", "").strip() or None,
-            "activo": True
+            "activo": True if request.form.get("activo") else False
         }
 
         supabase.table("cliente_empresas").insert(empresa_data).execute()
@@ -370,6 +387,9 @@ def ficha_empresa(empresa_id):
         cliente = cliente_resp.data
         empresa["cliente"] = cliente
 
+    # --- Consultar accesos ligados a la empresa ---
+    accesos = supabase.table("empresa_accesos").select("*").eq("empresa_id", empresa_id).execute().data or []
+
     # --- Consultar tareas ligadas a la empresa ---
     tareas = supabase.table("tareas").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data or []
 
@@ -397,7 +417,8 @@ def ficha_empresa(empresa_id):
         pagos=pagos,
         usuarios=usuarios,
         cuentas_ads=cuentas_ads,
-        reuniones=reuniones
+        reuniones=reuniones,
+        accesos=accesos
     )
 
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/registrar_reunion", methods=["POST"])
@@ -431,3 +452,69 @@ def registrar_reunion(empresa_id):
     supabase.table("reuniones_clientes").insert(reunion_data).execute()
     flash("✅ Reunión registrada correctamente", "success")
     return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/accesos", methods=["GET", "POST"])
+def editar_accesos_empresa(empresa_id):
+    import uuid
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+
+    # Obtener empresa
+    empresa_resp = supabase.table("cliente_empresas").select("*").eq("id", empresa_id).single().execute()
+    empresa = empresa_resp.data
+    if not empresa:
+        flash("❌ Empresa no encontrada", "error")
+        return redirect(url_for("panel_cliente_clientes_bp.vista_empresas", nombre_nora=nombre_nora))
+
+    if request.method == "POST":
+        # Recibir listas de campos
+        plataformas = request.form.getlist("acceso_plataforma")
+        usuarios = request.form.getlist("acceso_usuario")
+        contras = request.form.getlist("acceso_password")
+        notas = request.form.getlist("acceso_notas")
+        ids = request.form.getlist("acceso_id")
+
+        # Leer accesos actuales en la base
+        accesos_actuales = supabase.table("empresa_accesos").select("*").eq("empresa_id", empresa_id).execute().data or []
+        ids_actuales = {str(a['id']): a for a in accesos_actuales if a.get('id')}
+        ids_enviados = set([i for i in ids if i])
+
+        # Actualizar o crear
+        for idx, plataforma in enumerate(plataformas):
+            if not plataforma.strip():
+                continue
+            acceso_data = {
+                "empresa_id": empresa_id,
+                "plataforma": plataforma.strip(),
+                "usuario": usuarios[idx].strip() if idx < len(usuarios) else None,
+                "password": contras[idx].strip() if idx < len(contras) else None,
+                "notas": notas[idx].strip() if idx < len(notas) else None
+            }
+            acceso_id = ids[idx] if idx < len(ids) else None
+            if acceso_id and acceso_id in ids_actuales:
+                # Update
+                supabase.table("empresa_accesos").update(acceso_data).eq("id", acceso_id).execute()
+            else:
+                # Insert
+                acceso_data["id"] = str(uuid.uuid4())
+                supabase.table("empresa_accesos").insert(acceso_data).execute()
+
+        # Eliminar los que ya no están
+        ids_a_eliminar = set(ids_actuales.keys()) - ids_enviados
+        for del_id in ids_a_eliminar:
+            supabase.table("empresa_accesos").delete().eq("id", del_id).execute()
+
+        flash("✅ Accesos actualizados correctamente", "success")
+        return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+
+    # GET: mostrar accesos actuales
+    accesos = supabase.table("empresa_accesos").select("*").eq("empresa_id", empresa_id).execute().data or []
+    return render_template(
+        "panel_cliente_empresa_accesos_form.html",
+        empresa=empresa,
+        accesos=accesos,
+        nombre_nora=nombre_nora,
+        user={"name": session.get("name", "Usuario")},
+        modulo_activo="clientes"
+    )

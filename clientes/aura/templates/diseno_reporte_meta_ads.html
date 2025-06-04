@@ -1,0 +1,492 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="max-w-5xl mx-auto py-10">
+  <h1 class="text-3xl font-extrabold text-center text-gray-900 mb-8">Diseño visual del Reporte</h1>
+  <div class="mb-8 text-center">
+    <p class="text-gray-600">Arrastra y suelta los campos para personalizar el orden y formato de tu reporte. Puedes guardar varios diseños y asignar uno a cada empresa/cuenta.</p>
+  </div>
+  <div class="flex flex-col md:flex-row gap-8 mb-8">
+    <!-- Panel de variables disponibles -->
+    <div class="w-full md:w-1/3 bg-white rounded-xl shadow p-6 border border-gray-200">
+      <h2 class="text-lg font-bold text-gray-700 mb-4">Variables disponibles</h2>
+      <ul id="variables-list" class="space-y-2">
+        {% for v in variables_disponibles %}
+          {% if v.endpoints and v.endpoints|length > 0 %}
+            {% for ep in v.endpoints %}
+              <li class="draggable bg-gray-100 rounded px-3 py-2 cursor-move" draggable="true" 
+                  title="{{ v.nombre }}: {{ v.descripcion|default('') }}\nEndpoint: {{ ep.endpoint }}{% if ep.descripcion %} - {{ ep.descripcion }}{% endif %}">
+                <span class="font-semibold">{{ ep.endpoint }}</span>
+                <span class="block text-xs text-gray-500">{{ v.nombre }}</span>
+                {% if ep.descripcion %}<span class="block text-xs text-blue-700 mt-1">{{ ep.descripcion }}</span>{% endif %}
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="bg-gray-100 rounded px-3 py-2 text-gray-400 cursor-not-allowed" title="Sin endpoints disponibles" draggable="false">
+              {{ v.nombre }} <span class="block text-xs">(sin endpoint)</span>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+    <!-- Área de diseño del reporte -->
+    <div class="w-full md:w-2/3 bg-white rounded-xl shadow p-6 border border-blue-200">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-blue-700">Previsualización del reporte</h2>
+        <select id="select-diseno" class="border rounded px-2 py-1 text-sm">
+          <option value="nuevo">+ Nuevo diseño</option>
+          <!-- Aquí se llenarán los diseños guardados por empresa -->
+        </select>
+      </div>
+      <div id="drop-area" class="min-h-[200px] bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4 flex flex-col gap-2">
+        <p class="text-blue-400 text-center" id="drop-placeholder">Arrastra aquí las variables para construir tu reporte</p>
+      </div>
+      <div class="mt-6 flex gap-4">
+        <label class="block">
+          <span class="text-sm text-gray-600">Color de encabezado</span>
+          <input type="color" id="headerColor" value="#2563eb" class="ml-2 w-8 h-8 border-0">
+        </label>
+        <label class="block">
+          <span class="text-sm text-gray-600">Color de fondo</span>
+          <input type="color" id="bgColor" value="#f1f5f9" class="ml-2 w-8 h-8 border-0">
+        </label>
+      </div>
+      <div class="mt-6 flex gap-4 items-end">
+        <button id="guardar-diseno" class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition">Guardar diseño</button>
+      </div>
+    </div>
+  </div>
+  <!-- Área de listado de diseños guardados -->
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-300 mb-8">
+    <h2 class="text-lg font-bold text-gray-700 mb-4">Diseños guardados</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left border">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-2 py-1">Nombre</th>
+            <th class="px-2 py-1">Variables</th>
+            <th class="px-2 py-1">Empresa/Cuenta</th>
+            <th class="px-2 py-1">Colores</th>
+            <th class="px-2 py-1">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="listado-disenos">
+          <!-- Aquí se llenará dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- Modal de asignación de cuentas publicitarias -->
+<div id="modal-cuentas" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg relative">
+    <button id="cerrar-modal-cuentas" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold mb-4 text-blue-700">Asignar cuentas publicitarias</h3>
+    <div id="modal-cuentas-list" class="max-h-64 overflow-y-auto mb-4 border rounded p-2 bg-gray-50"></div>
+    <div class="flex items-center mb-4">
+      <input type="checkbox" id="select-todas-cuentas" class="mr-2">
+      <label for="select-todas-cuentas" class="text-sm">Seleccionar todas</label>
+    </div>
+    <div class="flex justify-end gap-2">
+      <button id="guardar-cuentas-modal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Guardar</button>
+      <button id="cancelar-cuentas-modal" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancelar</button>
+    </div>
+  </div>
+</div>
+<!-- Toast de feedback visual -->
+<div id="toast" class="fixed top-6 right-6 z-50 hidden px-4 py-3 rounded shadow-lg text-white font-semibold transition-all duration-300"></div>
+<script>
+// Drag & drop para variables
+const draggables = document.querySelectorAll('.draggable');
+const dropArea = document.getElementById('drop-area');
+const placeholder = document.getElementById('drop-placeholder');
+let dragged;
+draggables.forEach(el => {
+  el.addEventListener('dragstart', e => {
+    dragged = el;
+    setTimeout(() => el.classList.add('opacity-50'), 0);
+  });
+  el.addEventListener('dragend', e => {
+    dragged = null;
+    el.classList.remove('opacity-50');
+  });
+});
+dropArea.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropArea.classList.add('bg-blue-100');
+});
+dropArea.addEventListener('dragleave', e => {
+  dropArea.classList.remove('bg-blue-100');
+});
+dropArea.addEventListener('drop', e => {
+  e.preventDefault();
+  dropArea.classList.remove('bg-blue-100');
+  if (dragged) {
+    placeholder.style.display = 'none';
+    const clone = dragged.cloneNode(true);
+    clone.classList.remove('opacity-50');
+    clone.setAttribute('draggable', 'false');
+    dropArea.appendChild(clone);
+  }
+});
+// Cargar diseños guardados en el selector y previsualizar
+let disenos = [];
+try {
+  disenos = JSON.parse('{{ disenos|tojson|safe }}') || [];
+  if (!Array.isArray(disenos)) disenos = [];
+} catch (e) {
+  disenos = [];
+}
+const selectDiseno = document.getElementById('select-diseno');
+function renderDisenos() {
+  selectDiseno.innerHTML = '<option value="nuevo">+ Nuevo diseño</option>';
+  disenos.forEach(d => {
+    selectDiseno.innerHTML += `<option value="${d.id}">${d.nombre_diseno}</option>`;
+  });
+}
+renderDisenos();
+selectDiseno.addEventListener('change', function() {
+  if (this.value === 'nuevo') {
+    dropArea.innerHTML = '<p class="text-blue-400 text-center" id="drop-placeholder">Arrastra aquí las variables para construir tu reporte</p>';
+    headerColor.value = '#2563eb';
+    bgColor.value = '#f1f5f9';
+    dropArea.style.borderColor = '#2563eb';
+    dropArea.style.backgroundColor = '#f1f5f9';
+    return;
+  }
+  const d = disenos.find(x => x.id == this.value);
+  if (!d) return;
+  dropArea.innerHTML = '';
+  (d.variables || []).forEach(v => {
+    const li = document.createElement('li');
+    li.textContent = v;
+    li.className = 'bg-gray-100 rounded px-3 py-2';
+    dropArea.appendChild(li);
+  });
+  headerColor.value = d.header_color || '#2563eb';
+  bgColor.value = d.bg_color || '#f1f5f9';
+  dropArea.style.borderColor = headerColor.value;
+  dropArea.style.backgroundColor = bgColor.value;
+});
+// Cambios de color
+const headerColor = document.getElementById('headerColor');
+const bgColor = document.getElementById('bgColor');
+headerColor.addEventListener('input', e => {
+  dropArea.style.borderColor = e.target.value;
+});
+bgColor.addEventListener('input', e => {
+  dropArea.style.backgroundColor = e.target.value;
+});
+// Mostrar toast
+function showToast(msg, color = 'bg-blue-600') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `fixed top-6 right-6 z-50 px-4 py-3 rounded shadow-lg text-white font-semibold transition-all duration-300 ${color}`;
+  toast.style.opacity = '1';
+  toast.style.display = 'block';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => { toast.style.display = 'none'; }, 300);
+  }, 2200);
+}
+// Guardar diseño (conexión backend)
+document.getElementById('guardar-diseno').onclick = async function(e) {
+  const btn = e.target;
+  btn.disabled = true;
+  btn.classList.add('opacity-60');
+  const nombreDiseno = prompt('Nombre para este diseño:');
+  if (!nombreDiseno) {
+    btn.disabled = false; btn.classList.remove('opacity-60');
+    return;
+  }
+  const variables = Array.from(dropArea.querySelectorAll('li')).map(li => li.textContent.trim());
+  if (!variables.length) {
+    showToast('Debes agregar al menos una variable al diseño.', 'bg-red-600');
+    btn.disabled = false; btn.classList.remove('opacity-60');
+    return;
+  }
+  const headerColorVal = headerColor.value;
+  const bgColorVal = bgColor.value;
+  const payload = {
+    nombre_diseno: nombreDiseno,
+    variables: variables,
+    header_color: headerColorVal,
+    bg_color: bgColorVal
+  };
+  try {
+    const resp = await fetch(window.location.pathname + '/guardar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (resp.ok) {
+      showToast('¡Diseño guardado!', 'bg-green-600');
+      setTimeout(() => window.location.reload(), 1200);
+    } else {
+      const data = await resp.json().catch(() => ({}));
+      showToast('Error al guardar diseño: ' + (data.msg || resp.statusText), 'bg-red-600');
+      btn.disabled = false; btn.classList.remove('opacity-60');
+    }
+  } catch (e) {
+    showToast('Error de red al guardar diseño', 'bg-red-600');
+    btn.disabled = false; btn.classList.remove('opacity-60');
+  }
+};
+// Modal para asignar cuentas publicitarias a un diseño
+const modalHtml = `
+<div id="modal-editar-diseno" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg relative">
+    <button id="cerrar-modal-editar" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+    <h3 class="text-lg font-bold mb-4 text-blue-700">Asignar cuentas publicitarias</h3>
+    <form id="form-asignar-cuentas">
+      <div id="listado-cuentas-modal" class="mb-4 max-h-60 overflow-y-auto"></div>
+      <div class="flex gap-2 mt-4">
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">Guardar asignación</button>
+        <button type="button" id="cancelar-modal-editar" class="px-4 py-2 bg-gray-200 rounded-lg font-semibold hover:bg-gray-300">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>`;
+document.body.insertAdjacentHTML('beforeend', modalHtml);
+const modal = document.getElementById('modal-editar-diseno');
+const cerrarModalBtn = document.getElementById('cerrar-modal-editar');
+const cancelarModalBtn = document.getElementById('cancelar-modal-editar');
+cerrarModalBtn.onclick = cancelarModalBtn.onclick = () => modal.classList.add('hidden');
+
+// Función para abrir el modal y cargar cuentas
+async function abrirModalEditarDiseno(disenoId) {
+  modal.classList.remove('hidden');
+  modal.dataset.disenoId = disenoId;
+  // Obtener cuentas publicitarias (AJAX)
+  let cuentas = [];
+  try {
+    const resp = await fetch('/api/cuentas_publicitarias');
+    cuentas = await resp.json();
+  } catch (e) {
+    cuentas = [];
+  }
+  // Obtener asignación actual del diseño
+  let asignadas = [];
+  try {
+    const d = disenos.find(x => x.id == disenoId);
+    asignadas = d && d.cuentas ? d.cuentas : [];
+  } catch (e) {}
+  // Renderizar checkboxes
+  const cont = document.getElementById('listado-cuentas-modal');
+  if (!cuentas.length) {
+    cont.innerHTML = '<div class="text-red-500">No se pudieron cargar las cuentas.</div>';
+    return;
+  }
+  cont.innerHTML = `<label class='block mb-2'><input type='checkbox' id='check-todas-cuentas'> <b>Seleccionar todas</b></label>`;
+  cuentas.forEach(c => {
+    cont.innerHTML += `<label class='block mb-1'><input type='checkbox' class='check-cuenta' value='${c.id}' ${asignadas.includes(c.id) ? 'checked' : ''}> ${c.nombre}</label>`;
+  });
+  // Seleccionar todas
+  document.getElementById('check-todas-cuentas').onchange = function() {
+    document.querySelectorAll('.check-cuenta').forEach(chk => chk.checked = this.checked);
+  };
+}
+
+// Interceptar click en Editar
+window.abrirModalEditarDiseno = abrirModalEditarDiseno;
+// Modificar botón Editar en renderListadoDisenos
+function renderListadoDisenos() {
+  const cont = document.getElementById('listado-disenos');
+  if (!cont) return;
+  if (!disenos.length) {
+    cont.innerHTML = '<tr><td colspan="5" class="text-gray-400 text-center">No hay diseños guardados aún.</td></tr>';
+    return;
+  }
+  cont.innerHTML = '';
+  disenos.forEach(d => {
+    cont.innerHTML += `
+      <tr class="border-b">
+        <td class="px-2 py-1 font-bold text-blue-700">${d.nombre_diseno}</td>
+        <td class="px-2 py-1">${(d.variables||[]).join(', ')}</td>
+        <td class="px-2 py-1">${d.empresa_id ? d.empresa_id : '<span class="text-gray-400">Sin asignar</span>'}</td>
+        <td class="px-2 py-1">
+          <span class="text-xs">Encabezado:</span>
+          <span style="background:${d.header_color};width:18px;height:18px;display:inline-block;border-radius:4px;"></span>
+          <span class="text-xs ml-2">Fondo:</span>
+          <span style="background:${d.bg_color};width:18px;height:18px;display:inline-block;border-radius:4px;"></span>
+        </td>
+        <td class="px-2 py-1">
+          <button class="text-blue-600 hover:underline" onclick="abrirModalEditarDiseno('${d.id}')">Editar</button>
+          <button class="text-red-600 hover:underline ml-2" onclick="eliminarDiseno('${d.id}')">Eliminar</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+// Guardar asignación de cuentas
+const formAsignar = document.getElementById('form-asignar-cuentas');
+if (formAsignar) {
+  formAsignar.onsubmit = async function(e) {
+    e.preventDefault();
+    const disenoId = modal.dataset.disenoId;
+    const cuentas = Array.from(document.querySelectorAll('.check-cuenta:checked')).map(chk => chk.value);
+    try {
+      const resp = await fetch(`/api/disenos/${disenoId}/asignar_cuentas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cuentas })
+      });
+      if (resp.ok) {
+        showToast('Cuentas asignadas correctamente', 'bg-green-600');
+        modal.classList.add('hidden');
+        setTimeout(() => window.location.reload(), 1000);
+      } else {
+        showToast('Error al asignar cuentas', 'bg-red-600');
+      }
+    } catch (e) {
+      showToast('Error de red al asignar cuentas', 'bg-red-600');
+    }
+  };
+}
+// Renderizar listado de diseños guardados en formato tabla
+function renderListadoDisenos() {
+  const cont = document.getElementById('listado-disenos');
+  if (!cont) return;
+  if (!disenos.length) {
+    cont.innerHTML = '<tr><td colspan="5" class="text-gray-400 text-center">No hay diseños guardados aún.</td></tr>';
+    return;
+  }
+  cont.innerHTML = '';
+  disenos.forEach(d => {
+    cont.innerHTML += `
+      <tr class="border-b">
+        <td class="px-2 py-1 font-bold text-blue-700">${d.nombre_diseno}</td>
+        <td class="px-2 py-1">${(d.variables||[]).join(', ')}</td>
+        <td class="px-2 py-1">${d.empresa_id ? d.empresa_id : '<span class="text-gray-400">Sin asignar</span>'}</td>
+        <td class="px-2 py-1">
+          <span class="text-xs">Encabezado:</span>
+          <span style="background:${d.header_color};width:18px;height:18px;display:inline-block;border-radius:4px;"></span>
+          <span class="text-xs ml-2">Fondo:</span>
+          <span style="background:${d.bg_color};width:18px;height:18px;display:inline-block;border-radius:4px;"></span>
+        </td>
+        <td class="px-2 py-1">
+          <button class="text-blue-600 hover:underline" onclick="alert('Función editar próximamente')">Editar</button>
+          <button class="text-red-600 hover:underline ml-2" onclick="eliminarDiseno('${d.id}')">Eliminar</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+async function eliminarDiseno(id) {
+  if (!confirm('¿Seguro que deseas eliminar este diseño?')) return;
+  const btn = document.querySelector(`button[onclick="eliminarDiseno('${id}')"]`);
+  if (btn) { btn.disabled = true; btn.classList.add('opacity-60'); }
+  let url = window.location.pathname;
+  if (!url.endsWith('/eliminar')) url = url.replace(/\/?$/, '/eliminar');
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ diseno_id: id })
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (resp.ok && data.ok) {
+      showToast('Diseño eliminado', 'bg-green-600');
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      showToast('Error al eliminar diseño: ' + (data.msg || resp.statusText), 'bg-red-600');
+      if (btn) { btn.disabled = false; btn.classList.remove('opacity-60'); }
+    }
+  } catch (e) {
+    showToast('Error de red al eliminar diseño', 'bg-red-600');
+    if (btn) { btn.disabled = false; btn.classList.remove('opacity-60'); }
+  }
+}
+// --- Modal de asignación de cuentas ---
+let cuentasPublicitarias = [];
+let disenoActualId = null;
+let cuentasAsignadas = [];
+
+async function abrirModalCuentas(disenoId) {
+  disenoActualId = disenoId;
+  document.getElementById('modal-cuentas').classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+  // Cargar cuentas publicitarias
+  try {
+    const resp = await fetch('/api/cuentas_publicitarias');
+    cuentasPublicitarias = await resp.json();
+    if (!Array.isArray(cuentasPublicitarias)) cuentasPublicitarias = [];
+  } catch (e) {
+    cuentasPublicitarias = [];
+  }
+  // Obtener asignadas
+  const diseno = disenos.find(x => x.id == disenoId);
+  cuentasAsignadas = (diseno && diseno.cuentas_publicitarias) ? diseno.cuentas_publicitarias : [];
+  renderModalCuentas();
+}
+
+function renderModalCuentas() {
+  const cont = document.getElementById('modal-cuentas-list');
+  if (!cont) return;
+  if (!cuentasPublicitarias.length) {
+    cont.innerHTML = '<div class="text-gray-400 text-center">No hay cuentas disponibles.</div>';
+    return;
+  }
+  cont.innerHTML = cuentasPublicitarias.map(c => `
+    <div class="flex items-center mb-2">
+      <input type="checkbox" class="cuenta-checkbox mr-2" id="cuenta-${c.id}" value="${c.id}" ${cuentasAsignadas.includes(c.id) ? 'checked' : ''}>
+      <label for="cuenta-${c.id}" class="text-sm">${c.nombre || c.id}</label>
+    </div>
+  `).join('');
+  // Actualizar el checkbox de seleccionar todas
+  const todasMarcadas = cuentasPublicitarias.every(c => cuentasAsignadas.includes(c.id));
+  document.getElementById('select-todas-cuentas').checked = todasMarcadas;
+}
+
+document.getElementById('cerrar-modal-cuentas').onclick = cerrarModalCuentas;
+document.getElementById('cancelar-cuentas-modal').onclick = cerrarModalCuentas;
+function cerrarModalCuentas() {
+  document.getElementById('modal-cuentas').classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+  disenoActualId = null;
+  cuentasAsignadas = [];
+}
+
+document.getElementById('select-todas-cuentas').onchange = function() {
+  const checkboxes = document.querySelectorAll('.cuenta-checkbox');
+  checkboxes.forEach(cb => { cb.checked = this.checked; });
+};
+
+document.getElementById('modal-cuentas-list').onclick = function(e) {
+  if (e.target.classList.contains('cuenta-checkbox')) {
+    // Si se desmarca alguna, desmarcar el "todas"
+    if (!e.target.checked) {
+      document.getElementById('select-todas-cuentas').checked = false;
+    } else {
+      // Si todas quedan marcadas, marcar el "todas"
+      const checkboxes = document.querySelectorAll('.cuenta-checkbox');
+      const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+      document.getElementById('select-todas-cuentas').checked = allChecked;
+    }
+  }
+};
+
+document.getElementById('guardar-cuentas-modal').onclick = async function() {
+  const seleccionadas = Array.from(document.querySelectorAll('.cuenta-checkbox:checked')).map(cb => cb.value);
+  if (!disenoActualId) return;
+  try {
+    const resp = await fetch(`/api/disenos/${disenoActualId}/asignar_cuentas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cuentas: seleccionadas })
+    });
+    if (resp.ok) {
+      showToast('Cuentas asignadas correctamente', 'bg-green-600');
+      cerrarModalCuentas();
+      setTimeout(() => window.location.reload(), 1200);
+    } else {
+      const data = await resp.json().catch(() => ({}));
+      showToast('Error al asignar cuentas: ' + (data.msg || resp.statusText), 'bg-red-600');
+    }
+  } catch (e) {
+    showToast('Error de red al asignar cuentas', 'bg-red-600');
+  }
+};
+renderListadoDisenos();
+</script>
+{% endblock %}

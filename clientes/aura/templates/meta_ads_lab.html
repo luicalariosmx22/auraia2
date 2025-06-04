@@ -1,0 +1,228 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="max-w-4xl mx-auto py-10">
+  <h1 class="text-2xl font-extrabold text-blue-900 mb-6 text-center">Meta Ads Lab</h1>
+  <div id="token-status" class="mb-4 text-center text-base"></div>
+  {% if es_admin %}
+  <div id="token-debug" class="mb-2 text-center text-xs text-gray-600"></div>
+  <form id="token-update-form" class="flex flex-col md:flex-row gap-2 items-center justify-center mb-4 bg-yellow-50 p-3 rounded border border-yellow-300">
+    <input id="input-new-token" type="text" class="border px-3 py-2 rounded-lg text-xs w-96 font-mono" placeholder="Pega aquí el nuevo Meta Access Token" required>
+    <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 text-xs">Actualizar token</button>
+    <span id="token-update-msg" class="ml-3 text-xs"></span>
+  </form>
+  {% endif %}
+  <div class="mb-6 text-center text-base text-blue-900 font-semibold">
+    <span>Experimenta con la API de Meta Ads. Prueba cualquier endpoint, fields y parámetros.</span>
+  </div>
+  <!-- NUEVO: Pregunta a la IA sobre Meta Variables -->
+  <div class="mb-6 flex flex-col items-center justify-center">
+    <form id="meta-ai-form" class="flex flex-col md:flex-row gap-2 items-center w-full max-w-2xl">
+      <input id="meta-ai-question" type="text" class="border px-3 py-2 rounded-lg text-sm w-full md:w-96" placeholder="Hazle una pregunta a la IA sobre Meta Ads o variables (ej: ¿Para qué sirve daily_budget?)" required>
+      <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-xs">Preguntar IA</button>
+    </form>
+    <div id="meta-ai-answer" class="mt-2 text-sm text-gray-800 bg-purple-50 border border-purple-200 rounded p-3 w-full max-w-2xl min-h-[2em]"></div>
+  </div>
+  <!-- NUEVO: Importar variables de Meta desde un PDF (única opción) -->
+  <div class="mb-6 flex flex-col items-center justify-center">
+    <form id="meta-import-pdf-form" class="flex flex-col md:flex-row gap-2 items-center w-full max-w-2xl" enctype="multipart/form-data">
+      <input id="meta-import-pdf" type="file" accept="application/pdf" class="border px-3 py-2 rounded-lg text-sm w-full md:w-96" required>
+      <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800 text-xs">Importar PDF</button>
+    </form>
+    <div id="meta-import-pdf-msg" class="mt-2 text-sm text-gray-800 bg-green-50 border border-green-200 rounded p-3 w-full max-w-2xl min-h-[2em]"></div>
+  </div>
+  <form id="lab-form" class="flex flex-col md:flex-row gap-2 items-center justify-center mb-4">
+    <input id="input-edge" type="text" class="border px-3 py-2 rounded-lg text-sm w-80" placeholder="Edge (ej: act_16626756/campaigns)" required>
+    <input id="input-params" type="text" class="border px-3 py-2 rounded-lg text-sm w-96" placeholder='Parámetros JSON (ej: {"fields": "id,name"})'>
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Probar</button>
+  </form>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <h2 class="font-bold text-blue-700 mb-2">Respuesta JSON</h2>
+      <pre id="lab-json" class="bg-gray-100 rounded p-3 text-xs overflow-x-auto h-96"></pre>
+    </div>
+    <div>
+      <h2 class="font-bold text-blue-700 mb-2">Tabla visual</h2>
+      <div id="lab-table" class="overflow-x-auto"></div>
+    </div>
+  </div>
+  <div class="mt-8">
+    <h3 class="font-bold text-blue-800 mb-2">Diccionario de variables comunes</h3>
+    <ul class="text-sm text-gray-700 list-disc ml-6">
+      <li><b>id</b>: Identificador del objeto (campaña, adset, ad, etc).</li>
+      <li><b>name</b>: Nombre del objeto.</li>
+      <li><b>status</b>: Estado general (ACTIVE, PAUSED, etc).</li>
+      <li><b>effective_status</b>: Estado real de entrega.</li>
+      <li><b>objective</b>: Objetivo de la campaña.</li>
+      <li><b>daily_budget</b>: Presupuesto diario.</li>
+      <li><b>insights</b>: Métricas de resultados (impressions, clicks, reach, spend, etc).</li>
+      <li><b>adset_id</b>: ID del conjunto de anuncios (adset).</li>
+      <li><b>account_id</b>: ID de la cuenta publicitaria.</li>
+      <li><b>created_time</b>: Fecha de creación.</li>
+      <li><b>updated_time</b>: Última actualización.</li>
+      <!-- Puedes agregar más variables aquí -->
+    </ul>
+  </div>
+</div>
+<script>
+// FECHA DE EXPIRACIÓN REAL DEL TOKEN (EDITA AQUÍ)
+// Ejemplo: 2025-08-01 (AAAA-MM-DD)
+const FECHA_EXPIRA = new Date('2025-08-01');
+
+function diasRestantes(fechaFinal) {
+  const hoy = new Date();
+  const final = new Date(fechaFinal);
+  const diff = final - hoy;
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+const dias = diasRestantes(FECHA_EXPIRA);
+
+var ES_ADMIN = "{{ 'true' if es_admin else 'false' }}" === "true";
+if (ES_ADMIN) {
+  fetch('/meta_token_debug')
+    .then(r => r.json())
+    .then(data => {
+      let tokenHtml = '';
+      if (data.defined && data.token) {
+        tokenHtml = `<b>Token (.env):</b> <span class='font-mono break-all'>${data.token}</span>`;
+        document.getElementById('token-debug').innerHTML = tokenHtml;
+      } else {
+        tokenHtml = `<span class='text-red-600'>❌ No se encontró META_ACCESS_TOKEN en el backend</span>`;
+        document.getElementById('token-debug').innerHTML = tokenHtml;
+      }
+      document.getElementById('token-status').innerHTML = `<span class='text-green-700'>🔑 Token válido</span> | Expira en <b>${dias}</b> días (expira el ${FECHA_EXPIRA.toLocaleDateString()})`;
+    })
+    .catch(() => {
+      document.getElementById('token-debug').innerHTML = '';
+      document.getElementById('token-status').innerHTML = `<span class='text-green-700'>🔑 Token válido</span> | Expira en <b>${dias}</b> días (expira el ${FECHA_EXPIRA.toLocaleDateString()})`;
+    });
+  // Manejar actualización de token
+  document.getElementById('token-update-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const newToken = document.getElementById('input-new-token').value.trim();
+    const msgEl = document.getElementById('token-update-msg');
+    msgEl.textContent = 'Actualizando...';
+    try {
+      const resp = await fetch('/meta_token_update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: newToken })
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        msgEl.textContent = '✅ Token actualizado';
+        document.getElementById('input-new-token').value = '';
+        // Refresca el token mostrado
+        fetch('/meta_token_debug').then(r => r.json()).then(data2 => {
+          if (data2.defined && data2.token) {
+            document.getElementById('token-debug').innerHTML = `<b>Token (.env):</b> <span class='font-mono break-all'>${data2.token}</span>`;
+          }
+        });
+      } else {
+        msgEl.textContent = '❌ ' + (data.msg || 'Error al actualizar');
+      }
+    } catch (err) {
+      msgEl.textContent = '❌ Error de red';
+    }
+  }
+} else {
+  document.getElementById('token-status').innerHTML = `<span class='text-green-700'>🔑 Token válido</span> | Expira en <b>${dias}</b> días (expira el ${FECHA_EXPIRA.toLocaleDateString()})`;
+}
+
+// IA Q&A sobre Meta Variables
+const metaAiForm = document.getElementById('meta-ai-form');
+const metaAiQuestion = document.getElementById('meta-ai-question');
+const metaAiAnswer = document.getElementById('meta-ai-answer');
+if (metaAiForm) {
+  metaAiForm.onsubmit = async function(e) {
+    e.preventDefault();
+    const pregunta = metaAiQuestion.value.trim();
+    if (!pregunta) return;
+    metaAiAnswer.textContent = 'Pensando...';
+    try {
+      const resp = await fetch('/meta_ai_qa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: pregunta })
+      });
+      const data = await resp.json();
+      if (data.ok && data.answer) {
+        metaAiAnswer.textContent = data.answer;
+      } else {
+        metaAiAnswer.textContent = 'No se pudo obtener una respuesta de la IA.';
+      }
+    } catch (err) {
+      metaAiAnswer.textContent = 'Error de red o del servidor.';
+    }
+  }
+}
+
+// Importar variables de Meta desde un PDF (única opción)
+const metaImportPdfForm = document.getElementById('meta-import-pdf-form');
+const metaImportPdf = document.getElementById('meta-import-pdf');
+const metaImportPdfMsg = document.getElementById('meta-import-pdf-msg');
+if (metaImportPdfForm) {
+  metaImportPdfForm.onsubmit = async function(e) {
+    e.preventDefault();
+    if (!metaImportPdf.files.length) return;
+    metaImportPdfMsg.textContent = 'Importando...';
+    const formData = new FormData();
+    formData.append('pdf', metaImportPdf.files[0]);
+    try {
+      const resp = await fetch('/meta_variables_import_pdf', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        metaImportPdfMsg.textContent = data.msg;
+      } else {
+        metaImportPdfMsg.textContent = '❌ ' + (data.msg || 'Error al importar PDF');
+      }
+    } catch (err) {
+      metaImportPdfMsg.textContent = '❌ Error de red o del servidor.';
+    }
+  }
+}
+
+const form = document.getElementById('lab-form');
+const labJson = document.getElementById('lab-json');
+const labTable = document.getElementById('lab-table');
+form.onsubmit = async e => {
+  e.preventDefault();
+  labJson.textContent = 'Cargando...';
+  labTable.innerHTML = '';
+  const edge = document.getElementById('input-edge').value.trim();
+  let params = document.getElementById('input-params').value.trim();
+  try {
+    params = params ? JSON.parse(params) : {};
+  } catch {
+    labJson.textContent = 'Error: Parámetros JSON inválidos.';
+    return;
+  }
+  const resp = await fetch(window.location.pathname.replace(/\/meta_ads_lab$/, '/meta_ads_lab_api'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ edge, params })
+  });
+  const data = await resp.json();
+  labJson.textContent = JSON.stringify(data, null, 2);
+  if (data.ok && data.result && Array.isArray(data.result.data || data.result)) {
+    const arr = data.result.data || data.result;
+    if (arr.length) {
+      let html = '<table class="min-w-full text-xs border rounded"><thead><tr>';
+      Object.keys(arr[0]).forEach(k => html += `<th class='px-2 py-1 bg-blue-50'>${k}</th>`);
+      html += '</tr></thead><tbody>';
+      arr.forEach(row => {
+        html += '<tr>';
+        Object.values(row).forEach(v => html += `<td class='px-2 py-1'>${typeof v === 'object' ? JSON.stringify(v) : v}</td>`);
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      labTable.innerHTML = html;
+    } else {
+      labTable.innerHTML = '<div class="text-gray-400">Sin resultados</div>';
+    }
+  }
+};
+</script>
+{% endblock %}

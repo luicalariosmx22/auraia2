@@ -1,0 +1,67 @@
+<!-- Panel de envío manual de WhatsApp con feedback visual moderno -->
+<div class="max-w-lg mx-auto mt-10 p-6 bg-white rounded-xl shadow border border-gray-200">
+  <h2 class="text-xl font-bold mb-4 text-blue-700">Envío manual de tareas por WhatsApp</h2>
+  <form id="form-whatsapp-manual" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">ID de usuario</label>
+      <input type="text" id="usuario_id" name="usuario_id" required class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Fecha (YYYY-MM-DD, opcional)</label>
+      <input type="date" id="fecha" name="fecha" class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+    </div>
+    <button type="submit" id="btn-enviar" class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition">Enviar WhatsApp</button>
+  </form>
+</div>
+<!-- Toast visual -->
+<div id="toast-ws" class="fixed top-6 right-6 z-50 hidden px-4 py-3 rounded shadow-lg text-white font-semibold transition-all duration-300"></div>
+<script>
+function showToastWS(msg, color = 'bg-blue-600') {
+  const toast = document.getElementById('toast-ws');
+  toast.textContent = msg;
+  toast.className = `fixed top-6 right-6 z-50 px-4 py-3 rounded shadow-lg text-white font-semibold transition-all duration-300 ${color}`;
+  toast.style.opacity = '1';
+  toast.style.display = 'block';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => { toast.style.display = 'none'; }, 300);
+  }, 2200);
+}
+const form = document.getElementById('form-whatsapp-manual');
+const btn = document.getElementById('btn-enviar');
+// Detect base path dinámico para fetch
+const nombreNora = '{{ nombre_nora }}';
+const fetchUrl = `/panel_cliente/${nombreNora}/tareas/whatsapp/manual`;
+console.log('DEBUG nombre_nora:', nombreNora, 'fetchUrl:', fetchUrl);
+form.addEventListener('submit', function(e) {
+  console.log('DEBUG submit: usuario_id', document.getElementById('usuario_id').value, 'fecha', document.getElementById('fecha').value);
+});
+form.onsubmit = async function(e) {
+  e.preventDefault();
+  btn.disabled = true;
+  btn.classList.add('opacity-60');
+  const usuario_id = document.getElementById('usuario_id').value.trim();
+  const fecha = document.getElementById('fecha').value;
+  if (!usuario_id) {
+    showToastWS('Debes ingresar el ID de usuario', 'bg-red-600');
+    btn.disabled = false; btn.classList.remove('opacity-60');
+    return;
+  }
+  try {
+    const resp = await fetch(fetchUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario_id, fecha: fecha || undefined })
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (resp.ok && data.ok) {
+      showToastWS('WhatsApp enviado correctamente', 'bg-green-600');
+    } else {
+      showToastWS(data.msg || 'Error al enviar WhatsApp', 'bg-red-600');
+    }
+  } catch (e) {
+    showToastWS('Error de red al enviar WhatsApp', 'bg-red-600');
+  }
+  btn.disabled = false; btn.classList.remove('opacity-60');
+};
+</script>

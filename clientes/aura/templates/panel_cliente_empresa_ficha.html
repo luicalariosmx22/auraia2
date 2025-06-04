@@ -1,94 +1,133 @@
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
-<div class="container mx-auto max-w-4xl px-4 py-8">  {# Cambiado de max-w-2xl a max-w-4xl para mayor ancho #}
-  <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">🏢 Ficha de empresa</h2>
+<div class="container mx-auto max-w-5xl px-2 py-4">  <!-- changed from max-w-3xl to max-w-5xl -->
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">🏢 Ficha de empresa</h2>
     <div class="flex gap-2">
-        <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}" class="text-blue-600 text-sm hover:underline">← Volver a empresas</a>
-        <a href="{{ url_for('panel_cliente_clientes_bp.editar_empresa', empresa_id=empresa.id) }}" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm shadow-sm hover:bg-blue-700 transition">✏️ Editar empresa</a>
+        <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}" class="text-blue-600 text-xs hover:underline">← Volver a empresas</a>
+        <a href="{{ url_for('panel_cliente_clientes_bp.editar_empresa', empresa_id=empresa.id) }}" class="px-2 py-1 bg-blue-600 text-white rounded text-xs shadow-sm hover:bg-blue-700 transition">✏️ Editar empresa</a>
     </div>
   </div>
 
-  <!-- Perfil tipo red social -->
-  <div class="bg-white rounded-lg shadow p-6 border border-gray-200 mb-8 flex flex-col items-center">
-    <div class="relative mb-4">
-      <div class="w-28 h-28 rounded-full bg-gray-100 border-4 border-white shadow flex items-center justify-center overflow-hidden">
-        {% if empresa.logo_url %}
-          <img src="{{ empresa.logo_url }}" alt="Logo empresa" class="object-cover w-full h-full">
-        {% else %}
-          <span class="text-5xl text-gray-400">🏢</span>
-        {% endif %}
+  <!-- Perfil tipo red social y detalles en 3 columnas -->
+  <div class="bg-white rounded-lg shadow p-6 border border-gray-200 mb-4 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+    <!-- Columna 1: Perfil visual -->
+    <div class="flex flex-col items-center">
+      <div class="relative mb-3">
+        <div class="w-36 h-36 rounded-full bg-gray-100 border-4 border-white shadow flex items-center justify-center overflow-hidden">
+          {% if empresa.logo_url %}
+            <img src="{{ empresa.logo_url }}" alt="Logo empresa" class="object-cover w-full h-full">
+          {% else %}
+            <span class="text-5xl text-gray-400">🏢</span>
+          {% endif %}
+        </div>
       </div>
-    </div>
-    <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ empresa.nombre_empresa }}</h3>
-    <p class="text-gray-500 mb-2">{{ empresa.giro or '—' }}</p>
-    <div class="flex flex-wrap gap-4 justify-center mb-4">
-      {% if empresa.ciudad %}<span class="inline-flex items-center text-sm text-gray-600"><i class="fa fa-map-marker-alt mr-1"></i>{{ empresa.ciudad }}</span>{% endif %}
-      {% if empresa.pais %}<span class="inline-flex items-center text-sm text-gray-600"><i class="fa fa-globe mr-1"></i>{{ empresa.pais }}</span>{% endif %}
-      {% if empresa.sitio_web %}<a href="{{ empresa.sitio_web }}" target="_blank" class="inline-flex items-center text-sm text-blue-700 hover:underline"><i class="fa fa-link mr-1"></i>{{ empresa.sitio_web }}</a>{% endif %}
-    </div>
-    <div class="flex flex-wrap gap-2 justify-center mb-2">
-      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">{{ empresa.tipo or 'Empresa' }}</span>
-      <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">{{ 'Activa' if empresa.activo else 'Inactiva' }}</span>
-    </div>
-    {% if empresa.cliente_id and empresa.cliente %}
-      <div class="flex flex-wrap gap-2 justify-center mb-4">
-        <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full">
-          👤 Cliente ligado: {{ empresa.cliente.nombre_cliente }}
-        </span>
-        <button type="button" onclick="document.getElementById('modal-reunion').classList.remove('hidden')" class="px-3 py-1 bg-purple-600 text-white rounded-lg text-xs font-semibold shadow-sm hover:bg-purple-700 transition">📅 Registrar reunión</button>
+      <h3 class="text-2xl font-bold text-gray-900 mb-1 text-center font-sans">{{ empresa.nombre_empresa }}</h3>
+      <p class="text-gray-500 mb-2 text-center font-sans text-lg">{{ empresa.giro or '—' }}</p>
+      <div class="flex flex-wrap gap-2 justify-center mb-2">
+        {% if empresa.ciudad %}<span class="inline-flex items-center text-sm text-gray-600 font-sans"><i class="fa fa-map-marker-alt mr-1"></i>{{ empresa.ciudad }}</span>{% endif %}
+        {% if empresa.pais %}<span class="inline-flex items-center text-sm text-gray-600 font-sans"><i class="fa fa-globe mr-1"></i>{{ empresa.pais }}</span>{% endif %}
+        {% if empresa.sitio_web %}<a href="{{ empresa.sitio_web }}" target="_blank" class="inline-flex items-center text-sm text-blue-700 hover:underline font-sans"><i class="fa fa-link mr-1"></i>{{ empresa.sitio_web }}</a>{% endif %}
       </div>
+      <div class="flex flex-wrap gap-1 justify-center mb-2">
+        <span class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full font-sans">{{ empresa.tipo or 'Empresa' }}</span>
+        <span class="bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full font-sans">{{ 'Activa' if empresa.activo else 'Inactiva' }}</span>
+      </div>
+      {% if empresa.cliente_id and empresa.cliente %}
+        <div class="flex flex-wrap gap-1 justify-center mb-1">
+          <span class="bg-yellow-100 text-yellow-800 text-sm font-semibold px-3 py-1 rounded-full font-sans">
+            👤 {{ empresa.cliente.nombre_cliente }}
+          </span>
+          <button type="button" onclick="document.getElementById('modal-reunion').classList.remove('hidden')" class="px-3 py-1 bg-purple-600 text-white rounded text-sm font-semibold shadow-sm hover:bg-purple-700 transition font-sans">📅 Reunión</button>
+        </div>
+      {% endif %}
+    </div>
+    <!-- Columna 2 y 3: Detalles -->
+    <div class="md:col-span-2">
+      <table class="w-full text-sm font-sans align-top">
+        <tbody>
+          {% set detalles = [
+            ('Razón social', empresa.razon_social or '-'),
+            ('RFC', empresa.rfc or '-'),
+            ('Email', empresa.email_empresa or '-'),
+            ('Teléfono', empresa.telefono_empresa or '-'),
+            ('Sitio web', empresa.sitio_web or '-'),
+            ('Ubicación', empresa.ubicacion or '-'),
+            ('Ciudad', empresa.ciudad or '-'),
+            ('Estado', empresa.estado or '-'),
+            ('País', empresa.pais or '-'),
+            ('Representante legal', empresa.representante_legal or '-'),
+            ('Email representante', empresa.email_representante or '-'),
+            ('Teléfono representante', empresa.telefono_representante or '-'),
+            ('Fecha alta', empresa.fecha_alta or '-'),
+            ('Fecha baja', empresa.fecha_baja or '-'),
+            ('Notas', empresa.notas or '-'),
+            ('Tipo', empresa.tipo or '-'),
+            ('Giro', empresa.giro or '-'),
+            ('Activo', 'Sí' if empresa.activo else 'No'),
+          ] %}
+          {% for i in range(0, detalles|length, 2) %}
+          <tr class="border-b border-gray-100 last:border-0">
+            <td class="font-semibold text-gray-700 py-2 pr-2 w-40 align-top">{{ detalles[i][0] }}</td>
+            <td class="text-gray-900 py-2 pr-4 align-top">{{ detalles[i][1] }}</td>
+            {% if detalles[i+1] is defined %}
+              <td class="font-semibold text-gray-700 py-2 pr-2 w-40 align-top">{{ detalles[i+1][0] }}</td>
+              <td class="text-gray-900 py-2 align-top">{{ detalles[i+1][1] }}</td>
+            {% else %}
+              <td></td><td></td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SUBMÓDULO: Contraseñas de redes sociales y plataformas digitales -->
+  <div class="bg-white rounded-lg shadow p-4 border border-yellow-300 mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h4 class="text-lg font-semibold text-yellow-700">🔐 Contraseñas de redes y plataformas</h4>
+      <a href="{{ url_for('panel_cliente_clientes_bp.editar_accesos_empresa', empresa_id=empresa.id) }}" class="px-3 py-1 bg-yellow-500 text-white rounded text-xs font-semibold shadow-sm hover:bg-yellow-600 transition">✏️ Editar accesos</a>
+    </div>
+    {% set accesos = accesos if accesos is defined else [] %}
+    {% if accesos and accesos|length > 0 %}
+      <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden mb-2">
+        <thead class="bg-yellow-50">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">Plataforma</th>
+            <th class="px-3 py-2 text-left font-semibold">Usuario / Email</th>
+            <th class="px-3 py-2 text-left font-semibold">Contraseña</th>
+            <th class="px-3 py-2 text-left font-semibold">Notas</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for acceso in accesos %}
+          <tr class="border-t border-gray-100 hover:bg-yellow-50 transition">
+            <td class="px-3 py-2 font-medium">{{ acceso.plataforma or '-' }}</td>
+            <td class="px-3 py-2">{{ acceso.usuario or acceso.email or '-' }}</td>
+            <td class="px-3 py-2 font-mono select-all">
+              <span class="password-mask">••••••••</span>
+              <button type="button" class="ml-2 text-xs text-blue-600 hover:underline show-password-btn" data-password="{{ acceso.password|e }}">ver</button>
+            </td>
+            <td class="px-3 py-2">{{ acceso.notas or '-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="text-xs text-gray-500 mt-2">⚠️ Muestra solo a usuarios autorizados. Protege esta información.</p>
+    {% else %}
+      <p class="text-gray-500">No hay contraseñas registradas para esta empresa.</p>
     {% endif %}
   </div>
 
-  <!-- Detalles -->
-  <div class="bg-white rounded-lg shadow p-6 border border-gray-200 mb-8">
-    <dl class="divide-y divide-gray-100">
-      <div class="py-2 flex justify-between">
-        <dt class="font-medium text-gray-700">Razón social</dt>
-        <dd class="text-gray-900">{{ empresa.razon_social or '-' }}</dd>
-      </div>
-      <div class="py-2 flex justify-between">
-        <dt class="font-medium text-gray-700">RFC</dt>
-        <dd class="text-gray-900">{{ empresa.rfc or '-' }}</dd>
-      </div>
-      <div class="py-2 flex justify-between">
-        <dt class="font-medium text-gray-700">Email</dt>
-        <dd class="text-gray-900">{{ empresa.email_empresa or '-' }}</dd>
-      </div>
-      <div class="py-2 flex justify-between">
-        <dt class="font-medium text-gray-700">Teléfono</dt>
-        <dd class="text-gray-900">{{ empresa.telefono_empresa or '-' }}</dd>
-      </div>
-      <div class="py-2 flex justify-between">
-        <dt class="font-medium text-gray-700">Ubicación</dt>
-        <dd class="text-gray-900">{{ empresa.ubicacion or '-' }}</dd>
-      </div>
-      <div class="py-2 flex justify-between">
-        <dt class="font-medium text-gray-700">Representante legal</dt>
-        <dd class="text-gray-900">{{ empresa.representante_legal or '-' }}</dd>
-      </div>
-      <div class="py-2 flex justify-between">
-        <dt class="font-medium text-gray-700">Email representante</dt>
-        <dd class="text-gray-900">{{ empresa.email_representante or '-' }}</dd>
-      </div>
-      <div class="py-2 flex justify-between">
-        <dt class="font-medium text-gray-700">Teléfono representante</dt>
-        <dd class="text-gray-900">{{ empresa.telefono_representante or '-' }}</dd>
-      </div>
-      <div class="py-2 flex justify-between">
-        <dt class="font-medium text-gray-700">Notas</dt>
-        <dd class="text-gray-900">{{ empresa.notas or '-' }}</dd>
-      </div>
-    </dl>
-  </div>
-
   <!-- TAREAS -->
-  <div class="mb-8">
-    <h4 class="text-lg font-semibold text-blue-700 mb-2">📋 Tareas ligadas</h4>
-    {% if tareas %}
-    <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
+  <div class="mb-4">
+    <h4 class="text-lg font-semibold text-blue-700 mb-2">📋 Tareas Activas</h4>
+    {% set tareas_activas = tareas | selectattr('estatus', 'ne', 'completada') | list %}
+    {% set tareas_completadas = tareas | selectattr('estatus', 'equalto', 'completada') | list %}
+    {% if tareas_activas %}
+    <div class="overflow-x-auto rounded-lg shadow border border-gray-200 mb-4">
       <table class="w-full text-sm align-middle">
         <thead class="bg-blue-50">
           <tr>
@@ -100,7 +139,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for t in tareas %}
+          {% for t in tareas_activas %}
           <tr class="border-t border-gray-100 hover:bg-blue-50 transition">
             <td class="px-3 py-2">
               {% if t.prioridad == 'alta' %}<span class="text-red-600 font-bold">🔴 Alta</span>{% elif t.prioridad == 'media' %}<span class="text-yellow-600 font-bold">🟠 Media</span>{% else %}<span class="text-green-600 font-bold">🟢 Baja</span>{% endif %}
@@ -112,7 +151,7 @@
             <td class="px-3 py-2">
               {% if t.estatus == 'pendiente' %}<span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">⏳ Pendiente</span>{% elif t.estatus == 'en progreso' %}<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">🚧 En progreso</span>{% elif t.estatus == 'retrasada' %}<span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs">❗ Retrasada</span>{% elif t.estatus == 'completada' %}<span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">✅ Completada</span>{% else %}{{ t.estatus|capitalize }}{% endif %}
             </td>
-            <td class="px-3 py-2">{{ t.asignado_nombre or t.usuario_empresa_id or '—' }}</td>
+            <td class="px-3 py-2">{{ usuarios | selectattr('id', 'equalto', t.usuario_empresa_id) | map(attribute='nombre') | first or '—' }}</td>
             <td class="px-3 py-2">
               {% if t.fecha_limite %}
                 <span>{{ t.fecha_limite }}</span>
@@ -126,12 +165,52 @@
       </table>
     </div>
     {% else %}
-      <p class="text-gray-500">No hay tareas ligadas a esta empresa.</p>
+      <p class="text-gray-500">No hay tareas activas ligadas a esta empresa.</p>
+    {% endif %}
+    {% if tareas_completadas %}
+    <div class="overflow-x-auto rounded-lg shadow border border-gray-100 mt-2">
+      <h5 class="text-sm font-semibold text-gray-600 mb-2 mt-2">✅ Tareas completadas</h5>
+      <table class="w-full text-sm align-middle opacity-70">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">Prioridad</th>
+            <th class="px-3 py-2 text-left font-semibold">Título</th>
+            <th class="px-3 py-2 text-left font-semibold">Estatus</th>
+            <th class="px-3 py-2 text-left font-semibold">Asignado a</th>
+            <th class="px-3 py-2 text-left font-semibold">Fecha límite</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tareas_completadas %}
+          <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
+            <td class="px-3 py-2">
+              {% if t.prioridad == 'alta' %}<span class="text-red-600 font-bold">🔴 Alta</span>{% elif t.prioridad == 'media' %}<span class="text-yellow-600 font-bold">🟠 Media</span>{% else %}<span class="text-green-600 font-bold">🟢 Baja</span>{% endif %}
+            </td>
+            <td class="px-3 py-2">
+              <span class="font-medium">{{ t.titulo }}</span>
+              {% if t.recurrente or t.is_recurrente %}<span title="Tarea recurrente" class="ml-1">🔁</span>{% endif %}
+            </td>
+            <td class="px-3 py-2">
+              <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">✅ Completada</span>
+            </td>
+            <td class="px-3 py-2">{{ usuarios | selectattr('id', 'equalto', t.usuario_empresa_id) | map(attribute='nombre') | first or '—' }}</td>
+            <td class="px-3 py-2">
+              {% if t.fecha_limite %}
+                <span>{{ t.fecha_limite }}</span>
+              {% else %}
+                <span class="text-gray-400">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
     {% endif %}
   </div>
 
   <!-- PAGOS -->
-  <div class="mb-8">
+  <div class="mb-4">
     <h4 class="text-lg font-semibold text-green-700 mb-2">💳 Pagos ligados</h4>
     {% if pagos %}
     <table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden mb-2">
@@ -160,8 +239,11 @@
   </div>
 
   <!-- CUENTAS PUBLICITARIAS -->
-  <div class="mb-8">
-    <h4 class="text-lg font-semibold text-pink-700 mb-2">📢 Cuentas publicitarias</h4>
+  <div class="mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h4 class="text-lg font-semibold text-pink-700 mb-2">📢 Cuentas publicitarias</h4>
+      <button type="button" onclick="document.getElementById('modal-cuenta-ads').classList.remove('hidden')" class="px-3 py-1 bg-green-600 text-white rounded text-sm font-semibold shadow-sm hover:bg-green-700 transition">➕ Agregar cuenta</button>
+    </div>
     {% if cuentas_ads %}
     <table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden mb-2">
       <thead class="bg-gray-100">
@@ -188,8 +270,47 @@
     {% endif %}
   </div>
 
+  <!-- MODAL AGREGAR CUENTA PUBLICITARIA -->
+  <div id="modal-cuenta-ads" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative">
+      <button type="button" onclick="document.getElementById('modal-cuenta-ads').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+      <h3 class="text-lg font-bold mb-4 text-pink-700 flex items-center gap-2">➕ Agregar cuenta publicitaria</h3>
+      <form method="POST" action="{{ url_for('panel_cliente_ads.agregar_cuenta', nombre_nora=nombre_nora) }}">
+        <div class="mb-3">
+          <label class="block text-xs font-semibold mb-1">Nombre del cliente</label>
+          <input type="text" name="nombre_cliente" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ej: Mi empresa Facebook" required>
+        </div>
+        <div class="mb-3">
+          <label class="block text-xs font-semibold mb-1">Plataforma</label>
+          <select name="tipo_plataforma" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+            <option value="">Selecciona...</option>
+            <option value="facebook">Facebook Ads</option>
+            <option value="google">Google Ads</option>
+            <option value="tiktok">TikTok Ads</option>
+            <option value="linkedin">LinkedIn Ads</option>
+            <option value="otra">Otra</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="block text-xs font-semibold mb-1">ID de cuenta publicitaria</label>
+          <input type="text" name="id_cuenta_publicitaria" class="w-full px-3 py-2 border rounded-lg text-sm" required>
+        </div>
+        <div class="mb-3">
+          <label class="inline-flex items-center text-xs font-semibold">
+            <input type="checkbox" name="activo" class="mr-2" checked>
+            Activa
+          </label>
+        </div>
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="document.getElementById('modal-cuenta-ads').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-pink-600 text-white rounded-lg font-semibold hover:bg-pink-700">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- REUNIONES -->
-  <div class="mb-8">
+  <div class="mb-4">
     <div class="flex items-center justify-between mb-2">
         <h4 class="text-lg font-semibold text-purple-700">📅 Reuniones con el cliente</h4>
       </div>
@@ -567,6 +688,25 @@
       doc.save(nombreArchivo);
     };
   }
+  </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.show-password-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const span = btn.parentElement.querySelector('.password-mask');
+        if (btn.dataset.revealed === '1') {
+          span.textContent = '••••••••';
+          btn.textContent = 'ver';
+          btn.dataset.revealed = '0';
+        } else {
+          span.textContent = btn.dataset.password || '-';
+          btn.textContent = 'ocultar';
+          btn.dataset.revealed = '1';
+        }
+      });
+    });
+  });
   </script>
 </div>
 {% endblock %}

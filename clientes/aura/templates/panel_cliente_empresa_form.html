@@ -23,29 +23,89 @@
   <form method="post">
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Nombre de la empresa *</label>
-      <input type="text" name="nombre_empresa" required class="w-full border px-3 py-2 rounded mt-1">
+      <input type="text" name="nombre_empresa" required class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.nombre_empresa if empresa else '' }}">
     </div>
 
     <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Giro</label>
-      <input type="text" name="giro" class="w-full border px-3 py-2 rounded mt-1">
+      <label class="block text-sm font-medium text-gray-700">Razón social</label>
+      <input type="text" name="razon_social" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.razon_social if empresa else '' }}">
     </div>
-
     <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Teléfono</label>
-      <input type="text" name="telefono_empresa" class="w-full border px-3 py-2 rounded mt-1">
+      <label class="block text-sm font-medium text-gray-700">RFC</label>
+      <input type="text" name="rfc" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.rfc if empresa else '' }}">
     </div>
-
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Correo electrónico</label>
-      <input type="email" name="email_empresa" class="w-full border px-3 py-2 rounded mt-1">
+      <input type="email" name="email_empresa" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.email_empresa if empresa else '' }}">
     </div>
-
-    <div class="mb-6">
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+      <input type="text" name="telefono_empresa" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.telefono_empresa if empresa else '' }}">
+    </div>
+    <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Sitio web</label>
-      <input type="text" name="sitio_web" class="w-full border px-3 py-2 rounded mt-1">
+      <input type="text" name="sitio_web" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.sitio_web if empresa else '' }}">
     </div>
-
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Logo (URL de imagen)</label>
+      <input type="text" name="logo_url" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.logo_url if empresa else '' }}" placeholder="https://...">
+    </div>
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Ubicación / Dirección</label>
+      <input type="text" name="ubicacion" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.ubicacion if empresa else '' }}">
+    </div>
+    <div class="mb-4 grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Ciudad</label>
+        <input type="text" name="ciudad" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.ciudad if empresa else '' }}">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Estado</label>
+        <input type="text" name="estado" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.estado if empresa else '' }}">
+      </div>
+    </div>
+    <div class="mb-4 grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">País</label>
+        <input type="text" name="pais" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.pais if empresa else '' }}">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Tipo</label>
+        <input type="text" name="tipo" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.tipo if empresa else '' }}">
+      </div>
+    </div>
+    <div class="mb-4 grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Representante legal</label>
+        <input type="text" name="representante_legal" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.representante_legal if empresa else '' }}">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Email representante</label>
+        <input type="email" name="email_representante" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.email_representante if empresa else '' }}">
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Teléfono representante</label>
+      <input type="text" name="telefono_representante" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.telefono_representante if empresa else '' }}">
+    </div>
+    <div class="mb-4 grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Fecha alta</label>
+        <input type="date" name="fecha_alta" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.fecha_alta if empresa and empresa.fecha_alta else '' }}">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Fecha baja</label>
+        <input type="date" name="fecha_baja" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.fecha_baja if empresa and empresa.fecha_baja else '' }}">
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700">Notas internas</label>
+      <textarea name="notas" class="w-full border px-3 py-2 rounded mt-1" rows="2">{{ empresa.notas if empresa else '' }}</textarea>
+    </div>
+    <div class="mb-4 flex items-center">
+      <input type="checkbox" id="activo" name="activo" class="mr-2" value="1" {% if empresa and empresa.activo %}checked{% endif %}>
+      <label for="activo" class="text-sm font-medium text-gray-700">Activo</label>
+    </div>
     <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
       Guardar empresa
     </button>

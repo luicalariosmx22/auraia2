@@ -1,0 +1,72 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="max-w-4xl mx-auto py-10">
+  <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">Cuentas Publicitarias Activas</h1>
+  <div class="flex justify-between items-center mb-4">
+    <div class="text-lg font-semibold text-blue-800">
+      Total de cuentas publicitarias: {{ cuentas_ads|length }}
+    </div>
+    <button id="btn-actualizar-cuentas" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Actualizar cuentas</button>
+  </div>
+  {% if cuentas_ads %}
+    <table class="min-w-full bg-white rounded-xl shadow border">
+      <thead class="bg-blue-100">
+        <tr>
+          <th class="px-4 py-2">Cliente</th>
+          <th class="px-4 py-2">ID Cuenta</th>
+          <th class="px-4 py-2">Estado</th>
+          <th class="px-4 py-2">Ads Activos</th>
+          <th class="px-8 py-2">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cuenta in cuentas_ads if cuenta.account_status == 1 %}
+        <tr class="border-b">
+          <td class="px-4 py-2 font-semibold text-blue-900">{{ cuenta.nombre_cliente }}</td>
+          <td class="px-4 py-2 text-xs text-gray-600">{{ cuenta.id_cuenta_publicitaria }}</td>
+          <td class="px-4 py-2"><span class="inline-block whitespace-nowrap align-middle">🟢 Activa</span></td>
+          <td class="px-4 py-2">{{ cuenta.ads_activos if cuenta.ads_activos is not none else '—' }}</td>
+          <td class="px-8 py-2 flex flex-row gap-2 items-center justify-center">
+            <a href="/panel_cliente/{{ nombre_nora }}/meta_ads/campanas_activas?cuenta_id={{ cuenta.id_cuenta_publicitaria }}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow transition text-sm text-center whitespace-nowrap">Ver campañas</a>
+            <a href="/panel_cliente/{{ nombre_nora }}/meta_ads/reportes?cuenta_id={{ cuenta.id_cuenta_publicitaria }}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow transition text-sm text-center whitespace-nowrap">Reportes</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-gray-400 text-center py-6">No hay cuentas activas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-gray-400 text-center">No hay cuentas publicitarias configuradas aún.</p>
+  {% endif %}
+</div>
+<script>
+document.getElementById('btn-actualizar-cuentas').onclick = async function() {
+  this.disabled = true;
+  this.textContent = 'Actualizando...';
+  try {
+    const resp = await fetch(window.location.pathname + '/actualizar', { method: 'POST' });
+    if (resp.ok) {
+      // Feedback visual de éxito antes de recargar
+      this.textContent = '¡Actualizado!';
+      this.classList.remove('bg-blue-500', 'hover:bg-blue-700');
+      this.classList.add('bg-green-600');
+      setTimeout(() => location.reload(), 700);
+    } else {
+      const data = await resp.json().catch(() => ({}));
+      let msg = 'Error al actualizar las cuentas';
+      if (data && data.errores && data.errores.length > 0) {
+        msg += '\n' + data.errores.map(e => `Cuenta ${e.cuenta_id}: ${e.error}`).join('\n');
+      }
+      alert(msg);
+      this.disabled = false;
+      this.textContent = 'Actualizar cuentas';
+    }
+  } catch (e) {
+    alert('Error de red al actualizar las cuentas');
+    this.disabled = false;
+    this.textContent = 'Actualizar cuentas';
+  }
+};
+</script>
+{% endblock %}
