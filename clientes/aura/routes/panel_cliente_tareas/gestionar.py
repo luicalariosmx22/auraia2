@@ -124,6 +124,26 @@ def vista_gestionar_tareas(nombre_nora):
         except Exception:
             t["dias_restantes"] = None
 
+    # --- Conteo de comentarios por tarea para distintivo 💬 ---
+    tarea_ids = [t["id"] for t in tareas]
+    if tarea_ids:
+        comentarios_agregados = (
+            supabase.table("tarea_comentarios")
+            .select("tarea_id", "id", count="exact")
+            .in_("tarea_id", tarea_ids)
+            .execute()
+        )
+        conteos = {}
+        for c in comentarios_agregados.data:
+            tid = c["tarea_id"]
+            conteos[tid] = conteos.get(tid, 0) + 1
+        for t in tareas:
+            t["comentarios_count"] = conteos.get(t["id"], 0)
+    else:
+        for t in tareas:
+            t["comentarios_count"] = 0
+    # --- Fin conteo comentarios ---
+    
     usuarios = supabase.table("usuarios_clientes").select("id, nombre").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
     empresas = supabase.table("cliente_empresas").select("id, nombre_empresa").eq("nombre_nora", nombre_nora).execute().data or []
 
@@ -328,3 +348,92 @@ def eliminar_tarea(nombre_nora, tarea_id):
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# -------------------------------------------------------------------
+# API: obtener tareas completadas (JSON para lazy-load)
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/completadas_json", methods=["GET"])
+def tareas_completadas_json(nombre_nora):
+    if not session.get("email"):
+        return jsonify({"error": "No autenticado"}), 401
+    if not modulo_activo_para_nora(nombre_nora, "tareas"):
+        return jsonify({"error": "Módulo no activo"}), 403
+
+    # Paginación
+    try:
+        limit = int(request.args.get("limit", 50))
+        offset = int(request.args.get("offset", 0))
+    except Exception:
+        limit = 50
+        offset = 0
+
+    # Obtener tareas completadas, ordenadas por fecha de actualización descendente
+    tareas_resp = supabase.table("tareas").select("*") \
+        .eq("nombre_nora", nombre_nora) \
+        .eq("activo", True) \
+        .eq("estatus", "completada") \
+        .order("updated_at", desc=True) \
+        .range(offset, offset + limit - 1) \
+        .execute()
+    tareas = tareas_resp.data or []
+
+    # Marcar tareas recurrentes
+    tareas_recurrentes_resp = supabase.table("tareas_recurrentes").select("tarea_id").execute()
+    tarea_ids_recurrentes = set(r["tarea_id"] for r in (tareas_recurrentes_resp.data or []))
+    for t in tareas:
+        t["is_recurrente"] = t.get("id") in tarea_ids_recurrentes
+
+    # Agregar nombre de empresa y usuario asignado
+    for t in tareas:
+        t["empresa"] = ""
+        if t.get("empresa_id"):
+            try:
+                emp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", t["empresa_id"]).limit(1).execute()
+                t["empresa"] = emp.data[0]["nombre_empresa"] if emp.data else ""
+            except Exception:
+                t["empresa"] = ""
+        t["asignado_a"] = ""
+        if t.get("usuario_empresa_id"):
+            try:
+                usr = supabase.table("usuarios_clientes").select("nombre").eq("id", t["usuario_empresa_id"]).limit(1).execute()
+                t["asignado_a"] = usr.data[0]["nombre"] if usr.data else ""
+            except Exception:
+                t["asignado_a"] = ""
+        try:
+            fecha = t.get("fecha_limite")
+            t["dias_restantes"] = (date.fromisoformat(fecha) - date.today()).days if fecha else None
+        except Exception:
+            t["dias_restantes"] = None
+
+    # Conteo de comentarios por tarea
+    tarea_ids = [t["id"] for t in tareas]
+    conteos = {}
+    if tarea_ids:
+        comentarios_agregados = (
+            supabase.table("tarea_comentarios")
+            .select("tarea_id", "id", count="exact")
+            .in_("tarea_id", tarea_ids)
+            .execute()
+        )
+        for c in comentarios_agregados.data:
+            tid = c["tarea_id"]
+            conteos[tid] = conteos.get(tid, 0) + 1
+    for t in tareas:
+        t["comentarios_count"] = conteos.get(t["id"], 0)
+
+    tareas_json = [
+        {
+            "id": t["id"],
+            "titulo": t.get("titulo", ""),
+            "prioridad": t.get("prioridad", ""),
+            "dias_restantes": t.get("dias_restantes"),
+            "estatus": t.get("estatus", ""),
+            "asignado_a": t.get("asignado_a", ""),
+            "empresa": t.get("empresa", ""),
+            "comentarios_count": t.get("comentarios_count", 0),
+            "recurrente": t.get("recurrente", False),
+            "is_recurrente": t.get("is_recurrente", False)
+        }
+        for t in tareas
+    ]
+    return jsonify(tareas_json)

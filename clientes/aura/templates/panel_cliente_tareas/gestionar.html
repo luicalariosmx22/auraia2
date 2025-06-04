@@ -85,10 +85,16 @@
           {% if tarea.recurrente or tarea.is_recurrente %}
             <span title="Tarea recurrente">🔁</span>
           {% endif %}
+          {% if tarea.comentarios_count and tarea.comentarios_count > 0 %}
+            <span title="Tiene comentarios/actualizaciones">💬</span>
+          {% endif %}
         {% else %}
           {{ tarea.titulo }}
           {% if tarea.recurrente or tarea.is_recurrente %}
             <span title="Tarea recurrente">🔁</span>
+          {% endif %}
+          {% if tarea.comentarios_count and tarea.comentarios_count > 0 %}
+            <span title="Tiene comentarios/actualizaciones">💬</span>
           {% endif %}
         {% endif %}
       </td>
@@ -147,123 +153,236 @@
 </table>
 
 <!-- =====================  LISTA COMPLETADAS  ===================== -->
-{% if tareas_completadas %}
-<h3 class="text-sm font-semibold text-gray-600 mb-2">✅ Completadas</h3>
-<table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
-  <thead class="bg-gray-50">
-    <tr>
-      <th class="w-8"></th>
-      <th class="px-4 py-2 text-left">Título</th>
-      <th class="px-4 py-2 text-left">Prioridad</th>
-      <th class="px-4 py-2 text-left">Días Restantes</th>
-      <th class="px-4 py-2 text-left">Estatus</th>
-      <th class="px-4 py-2 text-left">Asignado a</th>
-      <th class="px-4 py-2 text-left">Empresa</th>
-      <th class="px-4 py-2 text-left">Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for tarea in tareas_completadas %}
-      <tr class="border-t border-gray-200 opacity-70" data-id="{{ tarea.id }}">
-        <!-- checkbox estatus -->
-        <td class="text-center">
-          <input type="checkbox"
-                 {% if tarea.estatus == 'completada' %}checked{% endif %}
-                 {% if not editable %}disabled{% endif %}
-                 onchange="toggleEstatus(this)">
-        </td>
-        <!-- título editable -->
-        <td class="px-4 py-2">
-          {% if editable %}
-            <input type="text"
-                   class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1"
-                   value="{{ tarea.titulo }}"
-                   onblur="updateCampo(this,'titulo')">
-            {% if tarea.recurrente or tarea.is_recurrente %}
-              <span title="Tarea recurrente">🔁</span>
-            {% endif %}
-          {% else %}
-            {{ tarea.titulo }}
-            {% if tarea.recurrente or tarea.is_recurrente %}
-              <span title="Tarea recurrente">🔁</span>
-            {% endif %}
-          {% endif %}
-        </td>
-        <!-- prioridad con icono -->
-        <td class="px-4 py-2 capitalize">
-          {% if editable %}
-            <select onchange="updateCampo(this,'prioridad')" class="bg-transparent">
-              <option value="alta" {% if tarea.prioridad=='alta' %}selected{% endif %}>🔴 Alta</option>
-              <option value="media" {% if tarea.prioridad=='media' %}selected{% endif %}>🟠 Media</option>
-              <option value="baja" {% if tarea.prioridad=='baja' %}selected{% endif %}>🟢 Baja</option>
-            </select>
-          {% else %}
-            {% if tarea.prioridad=='alta' %}🔴{% elif tarea.prioridad=='media' %}🟠{% else %}🟢{% endif %}
-            {{ tarea.prioridad }}
-          {% endif %}
-        </td>
-        <!-- fecha límite -->
-        <td class="px-4 py-2">
-          {% if editable %}
-            <input type="date" value="{{ tarea.fecha_limite }}" onchange="updateCampo(this,'fecha_limite')">
-          {% else %}
-            {% if tarea.dias_restantes is not none %}
-              {% if tarea.dias_restantes > 0 %}
-                <span class="text-green-700 font-medium">{{ tarea.dias_restantes }} días</span>
-              {% elif tarea.dias_restantes == 0 %}
-                <span class="text-yellow-600 font-medium">Hoy</span>
-              {% else %}
-                <span class="text-red-600 font-medium">Hace {{ tarea.dias_restantes | abs }} días</span>
-              {% endif %}
-            {% else %}
-              <span class="text-gray-500">Sin fecha</span>
-            {% endif %}
-          {% endif %}
-        </td>
-        <!-- estatus badge / dropdown -->
-        <td class="px-4 py-2 capitalize">
-          {% if editable %}
-            <select onchange="updateCampo(this,'estatus')" class="bg-transparent">
-              <option value="pendiente"   {% if tarea.estatus=='pendiente' %}selected{% endif %}>⏳ Pendiente</option>
-              <option value="en progreso" {% if tarea.estatus=='en progreso' %}selected{% endif %}>🚧 En progreso</option>
-              <option value="retrasada"   {% if tarea.estatus=='retrasada' %}selected{% endif %}>❗ Retrasada</option>
-              <option value="completada"  {% if tarea.estatus=='completada' %}selected{% endif %}>✅ Completada</option>
-            </select>
-          {% else %}
-            {% if tarea.estatus=='pendiente' %}⏳{% elif tarea.estatus=='en progreso' %}🚧{% elif tarea.estatus=='retrasada' %}❗{% elif tarea.estatus=='completada' %}✅{% endif %}
-            {{ tarea.estatus }}
-          {% endif %}
-        </td>
-        <!-- asignado a (usa usuario_empresa_id) -->
-        <td class="px-4 py-2">
-          {{ usuarios | selectattr('id', 'equalto', tarea.usuario_empresa_id) | map(attribute='nombre') | first }}
-        </td>
-        <!-- empresa -->
-        <td class="px-4 py-2">
-          {{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}
-        </td>
-        <!-- acciones -->
-        <td class="px-4 py-2">
-          <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2"
-                  data-id="{{ tarea.id }}"
-                  data-nora="{{ nombre_nora }}"
-                  onclick="cargarTareaEnModal(this)">
-            Ver
-          </button>
-          <button data-id="{{ tarea.id }}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">
-            Eliminar
-          </button>
-        </td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endif %}
+<div id="completadasSection" class="mt-8">
+  <button id="btnMostrarCompletadas" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium text-sm mb-2 transition">
+    Mostrar completadas
+  </button>
+  <div id="completadasLoading" class="hidden text-gray-500 text-sm py-4 flex items-center gap-2">
+    <span class="animate-spin">⏳</span> Cargando tareas completadas...
+  </div>
+  <div id="completadasError" class="hidden text-red-600 text-sm py-4">Error al cargar tareas completadas. Intenta de nuevo.</div>
+  <div id="completadasVacias" class="hidden text-gray-500 text-sm py-4">No hay tareas completadas.</div>
+  <div id="contenedorCompletadasTabla"></div>
+  <div id="completadasMasContainer" class="hidden mt-2 text-center">
+    <button id="btnCargarMasCompletadas" class="bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 font-medium text-xs">Cargar más</button>
+  </div>
+</div>
+<script>
+(function() {
+  const btn = document.getElementById('btnMostrarCompletadas');
+  const loading = document.getElementById('completadasLoading');
+  const error = document.getElementById('completadasError');
+  const vacias = document.getElementById('completadasVacias');
+  const contenedor = document.getElementById('contenedorCompletadasTabla');
+  const masContainer = document.getElementById('completadasMasContainer');
+  let cargadas = false;
+  let offset = 0;
+  let tareas = [];
+  const LIMIT = 50;
+
+  function fetchCompletadas(mas = false) {
+    loading.classList.remove('hidden');
+    error.classList.add('hidden');
+    vacias.classList.add('hidden');
+    const url = `/panel_cliente/{{ nombre_nora }}/tareas/completadas_json?limit=${LIMIT}&offset=${offset}`;
+    fetch(url)
+      .then(r => {
+        if (!r.ok) throw new Error('Network');
+        return r.json();
+      })
+      .then(data => {
+        loading.classList.add('hidden');
+        if (!data || !data.length) {
+          if (!mas) vacias.classList.remove('hidden');
+          masContainer.classList.add('hidden');
+          return;
+        }
+        if (mas) {
+          tareas = tareas.concat(data);
+        } else {
+          tareas = data;
+        }
+        contenedor.innerHTML = renderCompletadasTabla(tareas);
+        cargadas = true;
+        offset += data.length;
+        if (data.length === LIMIT) {
+          masContainer.classList.remove('hidden');
+        } else {
+          masContainer.classList.add('hidden');
+        }
+        if (typeof initModalVerTareaListeners === "function") initModalVerTareaListeners();
+        if (typeof initEliminarTareaListeners === "function") initEliminarTareaListeners();
+      })
+      .catch(() => {
+        loading.classList.add('hidden');
+        error.classList.remove('hidden');
+        btn.disabled = false;
+      });
+  }
+
+  btn.addEventListener('click', function() {
+    if (cargadas) return;
+    btn.disabled = true;
+    offset = 0;
+    tareas = [];
+    fetchCompletadas();
+  });
+
+  document.getElementById('btnCargarMasCompletadas').addEventListener('click', function() {
+    fetchCompletadas(true);
+  });
+
+  function renderCompletadasTabla(tareas) {
+    return `
+    <table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="w-8"></th>
+          <th class="px-4 py-2 text-left">Título</th>
+          <th class="px-4 py-2 text-left">Prioridad</th>
+          <th class="px-4 py-2 text-left">Días Restantes</th>
+          <th class="px-4 py-2 text-left">Estatus</th>
+          <th class="px-4 py-2 text-left">Asignado a</th>
+          <th class="px-4 py-2 text-left">Empresa</th>
+          <th class="px-4 py-2 text-left">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tareas.map(tarea => `
+          <tr class="border-t border-gray-200 opacity-70" data-id="${tarea.id}">
+            <td class="text-center">
+              <input type="checkbox" ${tarea.estatus === 'completada' ? 'checked' : ''} disabled>
+            </td>
+            <td class="px-4 py-2">
+              ${tarea.titulo}
+              ${tarea.recurrente || tarea.is_recurrente ? '<span title="Tarea recurrente">🔁</span>' : ''}
+              ${tarea.comentarios_count && tarea.comentarios_count > 0 ? '<span title="Tiene comentarios/actualizaciones">💬</span>' : ''}
+            </td>
+            <td class="px-4 py-2 capitalize">
+              ${tarea.prioridad === 'alta' ? '🔴' : tarea.prioridad === 'media' ? '🟠' : '🟢'} ${tarea.prioridad}
+            </td>
+            <td class="px-4 py-2">
+              ${tarea.dias_restantes !== null ? (
+                tarea.dias_restantes > 0 ? `<span class="text-green-700 font-medium">${tarea.dias_restantes} días</span>` :
+                tarea.dias_restantes === 0 ? `<span class="text-yellow-600 font-medium">Hoy</span>` :
+                `<span class="text-red-600 font-medium">Hace ${Math.abs(tarea.dias_restantes)} días</span>`
+              ) : '<span class="text-gray-500">Sin fecha</span>'}
+            </td>
+            <td class="px-4 py-2 capitalize">
+              ${tarea.estatus === 'pendiente' ? '⏳' : tarea.estatus === 'en progreso' ? '🚧' : tarea.estatus === 'retrasada' ? '❗' : tarea.estatus === 'completada' ? '✅' : ''} ${tarea.estatus}
+            </td>
+            <td class="px-4 py-2">${tarea.asignado_a || ''}</td>
+            <td class="px-4 py-2">${tarea.empresa || ''}</td>
+            <td class="px-4 py-2">
+              <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2"
+                      data-id="${tarea.id}"
+                      data-nora="{{ nombre_nora }}"
+                      onclick="cargarTareaEnModal(this)">
+                Ver
+              </button>
+              <button data-id="${tarea.id}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  }
+})();
+</script>
 
 {% include "panel_cliente_tareas/_modal_tarea.html" %}
 {% include "panel_cliente_tareas/_modal_nueva_tarea.html" %}
 
 </div> <!-- Cierra contenedorGestorTareas -->
+
+<script>
+// --- Lazy-load tareas completadas ---
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('btnMostrarCompletadas');
+  const loading = document.getElementById('completadasLoading');
+  const error = document.getElementById('completadasError');
+  const vacio = document.getElementById('completadasVacias');
+  const tablaContainer = document.getElementById('contenedorCompletadasTabla');
+  let loaded = false;
+  if (btn) {
+    btn.addEventListener('click', function() {
+      if (loaded) return; // Solo cargar una vez
+      btn.disabled = true;
+      loading.classList.remove('hidden');
+      error.classList.add('hidden');
+      vacio.classList.add('hidden');
+      fetch(`/panel_cliente/{{ nombre_nora }}/tareas/completadas_json`)
+        .then(r => {
+          if (!r.ok) throw new Error('Network');
+          return r.json();
+        })
+        .then(data => {
+          loading.classList.add('hidden');
+          if (!data || !data.tareas || data.tareas.length === 0) {
+            vacio.classList.remove('hidden');
+            return;
+          }
+          tablaContainer.innerHTML = renderCompletadasTable(data.tareas);
+          loaded = true;
+        })
+        .catch(e => {
+          loading.classList.add('hidden');
+          error.classList.remove('hidden');
+          console.error('Error cargando tareas completadas', e);
+        });
+    });
+  }
+
+  function renderCompletadasTable(tareas) {
+    // Renderiza la tabla igual que antes, pero usando los datos JSON
+    let html = `<table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="w-8"></th>
+          <th class="px-4 py-2 text-left">Título</th>
+          <th class="px-4 py-2 text-left">Prioridad</th>
+          <th class="px-4 py-2 text-left">Días Restantes</th>
+          <th class="px-4 py-2 text-left">Estatus</th>
+          <th class="px-4 py-2 text-left">Asignado a</th>
+          <th class="px-4 py-2 text-left">Empresa</th>
+          <th class="px-4 py-2 text-left">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>`;
+    for (const tarea of tareas) {
+      html += `<tr class="border-t border-gray-200 opacity-70" data-id="${tarea.id}">
+        <td class="text-center">
+          <input type="checkbox" ${tarea.estatus === 'completada' ? 'checked' : ''} disabled>
+        </td>
+        <td class="px-4 py-2">
+          ${tarea.titulo}
+          ${tarea.recurrente || tarea.is_recurrente ? '<span title="Tarea recurrente">🔁</span>' : ''}
+          ${tarea.comentarios_count && tarea.comentarios_count > 0 ? '<span title="Tiene comentarios/actualizaciones">💬</span>' : ''}
+        </td>
+        <td class="px-4 py-2 capitalize">
+          ${tarea.prioridad === 'alta' ? '🔴' : tarea.prioridad === 'media' ? '🟠' : '🟢'} ${tarea.prioridad}
+        </td>
+        <td class="px-4 py-2">
+          ${tarea.dias_restantes !== null ? (tarea.dias_restantes > 0 ? `<span class='text-green-700 font-medium'>${tarea.dias_restantes} días</span>` : (tarea.dias_restantes === 0 ? `<span class='text-yellow-600 font-medium'>Hoy</span>` : `<span class='text-red-600 font-medium'>Hace ${Math.abs(tarea.dias_restantes)} días</span>`)) : '<span class="text-gray-500">Sin fecha</span>'}
+        </td>
+        <td class="px-4 py-2 capitalize">
+          ${tarea.estatus === 'pendiente' ? '⏳' : tarea.estatus === 'en progreso' ? '🚧' : tarea.estatus === 'retrasada' ? '❗' : tarea.estatus === 'completada' ? '✅' : ''} ${tarea.estatus}
+        </td>
+        <td class="px-4 py-2">${tarea.asignado_a || ''}</td>
+        <td class="px-4 py-2">${tarea.empresa || ''}</td>
+        <td class="px-4 py-2">
+          <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2" data-id="${tarea.id}" data-nora="{{ nombre_nora }}" onclick="cargarTareaEnModal(this)">Ver</button>
+          <button data-id="${tarea.id}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">Eliminar</button>
+        </td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    return html;
+  }
+});
+</script>
 
 {% endblock %}
 

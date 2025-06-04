@@ -12,8 +12,13 @@
         </div>
 
         <div class="mb-3">
+          <label for="verFechaLimite" class="block text-sm font-medium text-gray-700">Fecha límite</label>
+          <input type="date" id="verFechaLimite" name="fecha_limite" class="w-full border rounded px-3 py-2 mt-1">
+        </div>
+
+        <div class="mb-3">
           <label for="verDescripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
-          <textarea id="verDescripcion" name="descripcion" class="w-full border rounded px-3 py-2 mt-1" rows="3"></textarea>
+          <textarea id="verDescripcion" name="descripcion" class="w-full border rounded px-3 py-2 mt-1" rows="3">{{ descripcion or '' }}</textarea>
         </div>
 
         <div class="mb-3">
@@ -77,6 +82,39 @@
 
           <label for="verCount" class="block text-sm font-medium text-gray-700 mt-2">Repeticiones (opcional)</label>
           <input type="number" id="verCount" name="count" min="1" class="w-full border rounded px-3 py-2 mt-1">
+        </div>
+
+        <!-- Sección de comentarios/actualizaciones -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Comentarios / Actualizaciones</label>
+          <div id="comentariosTarea" class="space-y-3 max-h-40 overflow-y-auto bg-gray-50 rounded p-2 border border-gray-200 mb-2">
+            {% if comentarios and comentarios|length > 0 %}
+              {% for c in comentarios %}
+                <div class="border-b border-gray-200 pb-1 mb-1">
+                  <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <span class="font-semibold text-gray-700">{{ c.usuario_nombre }}</span>
+                    <span>{{ c.fecha|default(c.created_at)|replace('T',' ')|truncate(16, True, '') }}</span>
+                  </div>
+                  <div class="text-gray-800 text-sm">{{ c.texto }}</div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="flex flex-col items-center justify-center text-gray-400 text-sm py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2" width="32" height="32" fill="none" viewBox="0 0 48 48">
+                  <rect width="48" height="48" rx="12" fill="#F3F4F6"/>
+                  <path d="M14 20a8 8 0 0 1 8-8h4a8 8 0 0 1 8 8v4a8 8 0 0 1-8 8h-2l-4 4v-4a8 8 0 0 1-8-8v-4z" stroke="#A5B4FC" stroke-width="2" fill="#fff"/>
+                  <circle cx="20" cy="24" r="1.5" fill="#A5B4FC"/>
+                  <circle cx="24" cy="24" r="1.5" fill="#A5B4FC"/>
+                  <circle cx="28" cy="24" r="1.5" fill="#A5B4FC"/>
+                </svg>
+                <span>Sin comentarios aún.<br>¡Sé el primero en comentar!</span>
+              </div>
+            {% endif %}
+          </div>
+          <form id="formNuevoComentario" class="flex gap-2">
+            <textarea id="nuevoComentario" name="nuevo_comentario" rows="1" placeholder="Agregar comentario..." class="flex-1 border rounded px-2 py-1 text-sm"></textarea>
+            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Enviar</button>
+          </form>
         </div>
 
         <div class="mt-4">

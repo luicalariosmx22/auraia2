@@ -2,16 +2,23 @@
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
-
-  <div class="mb-4 flex gap-4">
-    <!-- ➕ Crear nuevo recibo -->
-    <a href="{{ url_for('panel_cliente_pagos_nuevo.nuevo_recibo', nombre_nora=nombre_nora) }}"
-       class="flex items-center text-indigo-700 hover:underline">
-      <span class="text-xl mr-2">➕</span> Nuevo recibo
-    </a>
-    <a href="{{ url_for('panel_cliente_pagos_servicios.servicios_lista', nombre_nora=nombre_nora) }}" class="flex items-center text-green-700 hover:underline">
-      <span class="text-xl mr-2">🛎️</span> Servicios productos
-    </a>
+  <div class="mb-4">
+    <h1 class="text-2xl font-bold text-gray-800 mb-1">Panel de Pagos</h1>
+    <p class="text-gray-600 text-sm mb-4 max-w-2xl">Gestiona y visualiza todos los pagos, recibos y servicios relacionados con tus empresas y clientes. Utiliza los filtros para encontrar transacciones específicas, crea nuevos recibos, consulta servicios/productos y accede a presupuestos desde este panel centralizado.</p>
+    <div class="flex gap-2 flex-wrap">
+      <!-- ➕ Crear nuevo recibo -->
+      <a href="{{ url_for('panel_cliente_pagos_nuevo.nuevo_recibo', nombre_nora=nombre_nora) }}"
+         class="inline-flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3 py-1.5 rounded shadow text-sm transition-colors duration-150">
+        <span class="text-base">➕</span> Nuevo recibo
+      </a>
+      <a href="{{ url_for('panel_cliente_pagos_servicios.servicios_lista', nombre_nora=nombre_nora) }}"
+         class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1.5 rounded shadow text-sm transition-colors duration-150">
+        <span class="text-base">🛎️</span> Servicios productos
+      </a>
+      <a href="#" class="inline-flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-3 py-1.5 rounded shadow text-sm transition-colors duration-150 cursor-not-allowed opacity-70" title="Próximamente">
+        <span class="text-base">📄</span> Presupuestos
+      </a>
+    </div>
   </div>
 
   <form method="get" class="mb-6 flex flex-wrap gap-4 items-end">
@@ -46,6 +53,7 @@
           <th class="px-4 py-3">Empresa</th>
           <th class="px-4 py-3">Cliente</th>
           <th class="px-4 py-3">Concepto</th>
+          <th class="px-4 py-3">Tipo</th>
           <th class="px-4 py-3">Monto</th>
           <th class="px-4 py-3">Vence</th>
           <th class="px-4 py-3">Pago</th>
@@ -59,6 +67,13 @@
           <td class="px-4 py-2">{{ pago.empresa_nombre }}</td>
           <td class="px-4 py-2">{{ pago.cliente_nombre }}</td>
           <td class="px-4 py-2">{{ pago.concepto }}</td>
+          <td class="px-4 py-2">
+            {% if pago.tipo == 'presupuesto' %}
+              <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">Presupuesto</span>
+            {% else %}
+              <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">Recibo</span>
+            {% endif %}
+          </td>
           <td class="px-4 py-2">${{ "%.2f"|format(pago.monto) }}</td>
           <td class="px-4 py-2">{{ pago.fecha_vencimiento }}</td>
           <td class="px-4 py-2">

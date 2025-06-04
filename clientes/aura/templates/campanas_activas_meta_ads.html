@@ -47,7 +47,16 @@
       <tbody></tbody>
     </table>
     <div id="loader" class="text-center text-blue-600 my-8 text-lg">Cargando anuncios...</div>
-    <div id="emptyState" class="text-center text-gray-400 my-8 text-lg hidden">No hay anuncios activos para esta cuenta.</div>
+    <div id="emptyState" class="text-center text-gray-400 my-8 text-lg hidden flex flex-col items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-3" width="48" height="48" fill="none" viewBox="0 0 48 48">
+        <rect width="48" height="48" rx="12" fill="#EFF6FF"/>
+        <path d="M14 20a8 8 0 0 1 8-8h4a8 8 0 0 1 8 8v4a8 8 0 0 1-8 8h-2l-4 4v-4a8 8 0 0 1-8-8v-4z" stroke="#60A5FA" stroke-width="2" fill="#fff"/>
+        <circle cx="20" cy="24" r="1.5" fill="#60A5FA"/>
+        <circle cx="24" cy="24" r="1.5" fill="#60A5FA"/>
+        <circle cx="28" cy="24" r="1.5" fill="#60A5FA"/>
+      </svg>
+      <span class="block">No hay anuncios activos para esta cuenta.<br>¡Cuando actives anuncios, aparecerán aquí!</span>
+    </div>
   </div>
 </div>
 <script>

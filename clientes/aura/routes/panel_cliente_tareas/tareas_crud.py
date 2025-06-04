@@ -269,3 +269,31 @@ def eliminar_tarea(tarea_id):
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
+
+@panel_cliente_tareas_bp.route("/<nombre_nora>/tareas/<tarea_id>/comentarios", methods=["GET"])
+def obtener_comentarios_tarea(nombre_nora, tarea_id):
+    res = supabase.table("tarea_comentarios").select("*", count="exact").eq("tarea_id", tarea_id).order("created_at", desc=False).execute()
+    return jsonify(res.data or [])
+
+@panel_cliente_tareas_bp.route("/<nombre_nora>/tareas/<tarea_id>/comentarios", methods=["POST"])
+def agregar_comentario_tarea(nombre_nora, tarea_id):
+    user = session.get("user")
+    if not user:
+        return jsonify({"ok": False, "error": "No autenticado"}), 401
+    data = request.get_json() or {}
+    texto = (data.get("texto") or "").strip()
+    if not texto:
+        return jsonify({"ok": False, "error": "Comentario vacío"}), 400
+    comentario = {
+        "id": str(uuid.uuid4()),
+        "tarea_id": tarea_id,
+        "usuario_id": user.get("id"),
+        "usuario_nombre": user.get("nombre", "Usuario"),
+        "texto": texto,
+        "created_at": datetime.utcnow().isoformat()
+    }
+    try:
+        supabase.table("tarea_comentarios").insert(comentario).execute()
+        return jsonify({"ok": True, "comentario": comentario})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
