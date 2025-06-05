@@ -62,6 +62,29 @@ def vista_gestionar_tareas(nombre_nora):
         "rol_tareas": rol_tareas
     }
 
+    # --- Lógica para demo de roles (solo superadmin puede simular) ---
+    rol_demo = request.args.get("rol_demo")
+    if permisos.get("es_super_admin") and rol_demo:
+        # Sobrescribe los permisos según el rol_demo seleccionado
+        if rol_demo == "usuario":
+            permisos["es_supervisor"] = False
+            permisos["es_admin"] = False
+            permisos["rol_tareas"] = "usuario"
+        elif rol_demo == "supervisor":
+            permisos["es_supervisor"] = True
+            permisos["es_admin"] = False
+            permisos["rol_tareas"] = "supervisor"
+        elif rol_demo == "admin":
+            permisos["es_supervisor"] = False
+            permisos["es_admin"] = True
+            permisos["rol_tareas"] = "admin"
+        elif rol_demo == "super_admin":
+            permisos["es_supervisor"] = False
+            permisos["es_admin"] = False
+            permisos["es_super_admin"] = True
+            permisos["rol_tareas"] = "super_admin"
+    # --- Fin lógica demo roles ---
+
     tareas_resp = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
     todas = tareas_resp.data or []
 

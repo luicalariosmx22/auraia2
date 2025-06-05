@@ -1,83 +1,94 @@
 // Elimina legacy y deja solo el flujo para el modal de creación actual
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Mostrar/ocultar campos de recurrencia en el modal de nueva tarea
-  const recCheck = document.getElementById("recurrente_checkbox");
-  const recFields = document.getElementById("recurrente_fields");
-  if (recCheck && recFields) {
-    recCheck.addEventListener("change", e => {
-      recFields.classList.toggle("hidden", !e.target.checked);
-    });
-  }
+// Nuevo flujo para el modal de creación de tarea
+const formNueva = document.getElementById("formTareaNueva");
+let enviando = false;
+if (formNueva) {
+  formNueva.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    if (enviando) return;
+    enviando = true;
 
-  // Nuevo flujo para el modal de creación de tarea
-  const formNueva = document.getElementById("formTareaNueva");
-  let enviando = false;
-  if (formNueva) {
-    formNueva.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      if (enviando) return;
-      enviando = true;
-
-      const form = e.target;
-      // Armar payload manualmente para asegurar campos de recurrencia
-      // ⚠️ Tomar usuario_empresa_id del input hidden si el select está deshabilitado
-      let usuario_empresa_id = document.getElementById("usuario_empresa_id")?.value;
-      // Solo usar el hidden si el select está deshabilitado (usuario normal)
-      if (document.getElementById("usuario_empresa_id")?.disabled) {
-        const hiddenUser = document.getElementById("usuario_empresa_id_hidden");
-        if (hiddenUser && hiddenUser.value) usuario_empresa_id = hiddenUser.value;
+    const form = e.target;
+    // Armar payload manualmente para asegurar campos de recurrencia
+    // ⚠️ Tomar usuario_empresa_id del input hidden si el select está deshabilitado
+    let usuario_empresa_id = null;
+    const selectUser = document.getElementById("usuario_empresa_id_modal");
+    const hiddenUser = document.getElementById("usuario_empresa_id_hidden");
+    // Si el select existe y NO está deshabilitado, usa su valor
+    if (selectUser && !selectUser.disabled && selectUser.value && selectUser.value !== "None" && selectUser.value !== "none") {
+      usuario_empresa_id = selectUser.value;
+    } else if (hiddenUser && hiddenUser.value && hiddenUser.value !== "None" && hiddenUser.value !== "none") {
+      usuario_empresa_id = hiddenUser.value;
+    }
+    // Validación extra: si sigue siendo null, mostrar mensaje claro
+    if (!usuario_empresa_id || usuario_empresa_id === "" || usuario_empresa_id === "None" || usuario_empresa_id === "none") {
+      // Si hay un objeto global user, mostrar info extra
+      let userId = window.user && window.user.id ? window.user.id : null;
+      let msg = "Debes seleccionar un usuario asignado válido. Valor actual: " + usuario_empresa_id;
+      if (!userId) {
+        msg += "\n[ADVERTENCIA] El usuario actual no está definido en el contexto JS (window.user.id es null o vacío). Contacta a soporte.";
       }
-      console.log("🟢 usuario_empresa_id a enviar:", usuario_empresa_id);
-      if (!usuario_empresa_id || usuario_empresa_id === "" || usuario_empresa_id === "None" || usuario_empresa_id === "none") {
-        alert("Debes seleccionar un usuario asignado válido. Valor actual: " + usuario_empresa_id);
-        enviando = false;
-        return;
-      }
-      const payload = {
-        titulo: document.getElementById("titulo")?.value,
-        descripcion: document.getElementById("descripcion")?.value,
-        prioridad: document.getElementById("prioridad")?.value,
-        estatus: document.getElementById("estatus")?.value,
-        fecha_limite: document.getElementById("fecha_limite")?.value,
-        usuario_empresa_id: usuario_empresa_id,
-        empresa_id: document.getElementById("empresa_id")?.value,
-        cliente_id: document.querySelector('[name="cliente_id"]')?.value,
-        creado_por: document.querySelector('[name="creado_por"]')?.value,
-        nombre_nora: document.querySelector('[name="nombre_nora"]')?.value,
-        iniciales_usuario: document.querySelector('[name="iniciales_usuario"]')?.value,
-        is_recurrente: document.getElementById("recurrente_checkbox")?.checked ? "true" : "false",
-        dtstart: document.getElementById("dtstart")?.value,
-        rrule: document.getElementById("rrule")?.value,
-        until: document.getElementById("until")?.value,
-        count: document.getElementById("count")?.value
-      };
-      const nombreNora = payload.nombre_nora;
+      alert(msg);
+      enviando = false;
+      return;
+    }
+    const payload = {
+      titulo: document.getElementById("titulo")?.value,
+      descripcion: document.getElementById("descripcion")?.value,
+      prioridad: document.getElementById("prioridad")?.value,
+      estatus: document.getElementById("estatus")?.value,
+      fecha_limite: document.getElementById("fecha_limite")?.value,
+      usuario_empresa_id: usuario_empresa_id,
+      empresa_id: document.getElementById("empresa_id_modal")?.value,
+      cliente_id: document.querySelector('[name="cliente_id"]')?.value,
+      creado_por: document.querySelector('[name="creado_por"]')?.value,
+      nombre_nora: document.querySelector('[name="nombre_nora"]')?.value,
+      iniciales_usuario: document.querySelector('[name="iniciales_usuario"]')?.value,
+      is_recurrente: document.getElementById("recurrente_checkbox")?.checked ? "true" : "false",
+      dtstart: document.getElementById("dtstart")?.value,
+      rrule: document.getElementById("rrule")?.value,
+      until: document.getElementById("until")?.value,
+      count: document.getElementById("count")?.value
+    };
+    const nombreNora = payload.nombre_nora;
 
-      try {
-        const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+    try {
+      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-        const resultado = await res.json();
-        if (resultado.ok || resultado.id) {
-          alert("✅ Tarea guardada exitosamente");
-          cerrarModalTarea();
-          location.reload();
-        } else {
-          alert("❌ Error: " + (resultado.error || "No se pudo crear la tarea"));
+      const resultado = await res.json();
+      if (resultado.ok || resultado.id) {
+        cerrarModalTarea();
+        if (window.insertarTareaEnTabla) {
+          // El backend regresa la tarea en resultado.tarea o resultado
+          const tarea = resultado.tarea || resultado;
+          window.insertarTareaEnTabla(tarea);
         }
-      } catch (err) {
-        console.error(err);
-        alert("❌ Error inesperado al guardar la tarea");
-      } finally {
-        enviando = false;
+        if (window.mostrarNotificacion) {
+          window.mostrarNotificacion("✅ Tarea guardada exitosamente");
+        } else {
+          alert("✅ Tarea guardada exitosamente");
+        }
+        form.reset();
+      } else {
+        // Mostrar mensaje de error del backend si existe
+        let msg = resultado.error || "No se pudo crear la tarea";
+        alert("❌ Error: " + msg);
+        // Opcional: mostrar el error en el modal en vez de alert
+        // document.getElementById("errorNuevaTarea").textContent = msg;
       }
-    });
-  }
-});
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error inesperado al guardar la tarea");
+    } finally {
+      enviando = false;
+    }
+  });
+}
 
 document.addEventListener("DOMContentLoaded", function() {
   var btnCancelar = document.getElementById("btnCancelarTarea");

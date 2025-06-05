@@ -172,9 +172,22 @@ window.initModalVerTareaListeners = function () {
 
       const tareaId = document.getElementById("verIdTarea")?.value;
       const nombreNora = document.body.dataset.nora;
-
-      // 🟢 Obtén el input hidden directamente para evitar ReferenceError
       const hiddenRecurrenteEl = document.getElementById("verIsRecurrente");
+
+      // Validación usuario asignado
+      const usuarioAsignado = document.getElementById("verAsignado")?.value;
+      if (!usuarioAsignado || usuarioAsignado === "None" || usuarioAsignado === "none") {
+        const alertContainer = document.getElementById("alertaGuardado");
+        if (alertContainer) {
+          alertContainer.innerText = "Debes seleccionar un usuario asignado válido.";
+          alertContainer.classList.remove("d-none");
+          alertContainer.classList.remove("alert-success");
+          alertContainer.classList.add("alert", "alert-danger");
+        } else {
+          alert("Debes seleccionar un usuario asignado válido.");
+        }
+        return;
+      }
 
       const payload = {
         titulo: document.getElementById("verTitulo")?.value,
@@ -182,7 +195,7 @@ window.initModalVerTareaListeners = function () {
         prioridad: document.getElementById("verPrioridad")?.value,
         estatus: document.getElementById("verEstatus")?.value,
         fecha_limite: document.getElementById("verFechaLimite")?.value,
-        usuario_empresa_id: document.getElementById("verAsignado")?.value,
+        usuario_empresa_id: usuarioAsignado,
         empresa_id: document.getElementById("verEmpresa")?.value,
         is_recurrente: hiddenRecurrenteEl ? hiddenRecurrenteEl.value : "false",
         dtstart: document.getElementById("verDtstart")?.value,
@@ -205,13 +218,23 @@ window.initModalVerTareaListeners = function () {
           body: JSON.stringify(payload)
         });
 
-        const resultado = await res.json();
+        // Log de depuración: mostrar status y respuesta cruda
+        console.log("[Depuración] Respuesta backend (status):", res.status);
+        let resultadoRaw = await res.text();
+        console.log("[Depuración] Respuesta backend (raw):", resultadoRaw);
+        let resultado;
+        try {
+          resultado = JSON.parse(resultadoRaw);
+        } catch (e) {
+          resultado = { ok: false, error: "Respuesta no es JSON válido", raw: resultadoRaw };
+        }
+
         if (resultado.ok) {
           alertContainer.innerText = "✅ Cambios guardados correctamente";
           alertContainer.classList.remove("d-none");
           alertContainer.classList.add("alert", "alert-success");
         } else {
-          alertContainer.innerText = "❌ Error: " + resultado.error;
+          alertContainer.innerText = "❌ Error: " + (resultado.error || resultado.raw || "Error desconocido");
           alertContainer.classList.remove("d-none");
           alertContainer.classList.add("alert", "alert-danger");
         }

@@ -47,12 +47,6 @@
   </button>
 </div>
 {# --- módulo JS para manejar envío vía fetch --- #}
-<script src="{{ url_for('static', filename='js/tareas_inline.js') }}"></script>
-<script src="{{ url_for('static', filename='js/tareas_modal_nueva.js') }}"></script>
-<script src="{{ url_for('static', filename='js/tareas_botones.js') }}"></script>
-<script src="{{ url_for('static', filename='js/updateCampo.js') }}"></script>
-<script src="{{ url_for('static', filename='js/tareas_modal_ver.js') }}"></script>
-<script src="{{ url_for('static', filename='js/tareas_eliminar.js') }}"></script>
 
 
 <script>
@@ -396,6 +390,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+<script src="{{ url_for('static', filename='js/tareas_inline.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tareas_botones.js') }}"></script>
+<script src="{{ url_for('static', filename='js/updateCampo.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tareas_modal_ver.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tareas_eliminar.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tareas_modal_nueva.js') }}"></script>
 
 {% endblock %}
 

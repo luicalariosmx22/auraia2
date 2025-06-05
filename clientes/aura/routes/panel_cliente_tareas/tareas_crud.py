@@ -120,12 +120,12 @@ def actualizar_tarea(tarea_id, data):
     return result.data
 
 # ✅ Eliminar (desactivar) una tarea
-def eliminar_tarea(tarea_id):
-    result = supabase.table("tareas").update({
-        "activo": False,
-        "updated_at": datetime.now().isoformat()
-    }).eq("id", tarea_id).execute()
-    return result.data
+# def eliminar_tarea(tarea_id):
+#     result = supabase.table("tareas").update({
+#         "activo": False,
+#         "updated_at": datetime.now().isoformat()
+#     }).eq("id", tarea_id).execute()
+#     return result.data
 
 @panel_cliente_tareas_bp.route("/crear_tarea", methods=["POST"])
 def endpoint_crear_tarea():
