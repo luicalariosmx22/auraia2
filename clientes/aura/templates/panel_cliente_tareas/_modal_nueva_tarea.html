@@ -173,7 +173,7 @@
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base"
                     {% if not (permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin) %}disabled{% endif %}>
               {% for u in usuarios %}
-                <option value="{{ u.id }}" {% if u.id == usuario_empresa_id or (not usuario_empresa_id and u.id == user.id) %}selected{% endif %}>{{ u.nombre }}</option>
+                <option value="{{ u.id }}" {% if (usuario_empresa_id and u.id == usuario_empresa_id) or (not usuario_empresa_id and u.id == user.id) %}selected{% endif %}>{{ u.nombre }}</option>
               {% endfor %}
             </select>
             {% if not (permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin) %}

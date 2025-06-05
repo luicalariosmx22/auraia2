@@ -60,3 +60,15 @@ def validar_limite_supervisores(cliente_id, nuevo=True):
     if nuevo and total >= limite:
         raise Exception(f"❌ No puedes tener más de {limite} supervisores activos.")
     return True
+
+# ✅ Función: obtener_rol_tareas(usuario_id)
+def obtener_rol_tareas(usuario_id, nombre_nora):
+    res = supabase.table("usuarios_clientes").select("rol, es_supervisor_tareas").eq("id", usuario_id).eq("nombre_nora", nombre_nora).limit(1).execute()
+    usuario = res.data[0] if res.data else None
+    if not usuario:
+        return None
+    if usuario.get("rol"):
+        return usuario["rol"]
+    if usuario.get("es_supervisor_tareas"):
+        return "supervisor"
+    return "usuario"

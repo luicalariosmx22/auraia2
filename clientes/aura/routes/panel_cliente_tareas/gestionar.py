@@ -19,7 +19,7 @@ from utils.validar_modulo_activo import modulo_activo_para_nora
 from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.generar_codigo_tarea import generar_codigo_tarea
 from clientes.aura.utils.permisos import obtener_permisos
-from clientes.aura.utils.permisos_tareas import puede_crear_para_otros
+from clientes.aura.utils.permisos_tareas import puede_crear_para_otros, es_supervisor, obtener_rol_tareas
 
 panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 
@@ -53,11 +53,13 @@ def vista_gestionar_tareas(nombre_nora):
         session["usuario_empresa_id"] = usuario_id
 
     # 👇 Lógica de permisos personalizada
+    rol_tareas = obtener_rol_tareas(usuario_id, nombre_nora)
     permisos = {
-        "es_supervisor": session.get("es_supervisor", False),
+        "es_supervisor": rol_tareas == "supervisor",
         "crear_para_otros": puede_crear_para_otros(usuario_id, nombre_nora),
         "es_admin": session.get("is_admin", False),
-        "es_super_admin": session.get("is_super_admin", False)
+        "es_super_admin": session.get("is_super_admin", False),
+        "rol_tareas": rol_tareas
     }
 
     tareas_resp = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
