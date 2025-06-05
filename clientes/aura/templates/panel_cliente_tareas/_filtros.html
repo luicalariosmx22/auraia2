@@ -50,7 +50,7 @@
       <option value="">Todos</option>
       {% for u in usuarios %}
         <option value="{{ u.id }}"
-          {% if request.args.get('usuario_empresa_id') == u.id %}selected{% endif %}>
+          {% if request.args.get('usuario_empresa_id') == u.id or (not request.args.get('usuario_empresa_id') and session['usuario_id'] == u.id) %}selected{% endif %}>
           {{ u.nombre }}
         </option>
       {% endfor %}
