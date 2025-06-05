@@ -71,6 +71,7 @@ def nuevo_recibo(nombre_nora, pago_id=None):
             "forma_pago_id":   request.form["forma_pago_id"],
             "notas":           request.form.get("notas") or "",
             "nombre_nora":     nombre_nora,
+            "tipo":            request.form.get("tipo") or "recibo",  # default a 'recibo' si no viene
         }
         if pago_id:
             # Update recibo existente
@@ -79,6 +80,9 @@ def nuevo_recibo(nombre_nora, pago_id=None):
         else:
             # Nuevo recibo
             result = supa.table("pagos").insert(recibo_data).execute()
+            if not result.data or not result.data[0].get("id"):
+                flash("No se pudo guardar el recibo. Intenta de nuevo.", "error")
+                return redirect(request.url)
             pago_id = result.data[0]["id"]
 
         # ---------- Insertar cada ítem en pagos_items ----------
@@ -91,13 +95,8 @@ def nuevo_recibo(nombre_nora, pago_id=None):
                 "costo_unit":  it["costo_unit"],
             }).execute()
 
-        return redirect(
-            url_for(
-                "panel_cliente_pagos_recibo.ver_recibo",
-                nombre_nora=nombre_nora,
-                pago_id=pago_id,
-            )
-        )
+        # Redirigir SIEMPRE al listado de recibos tras guardar
+        return redirect(url_for("panel_cliente_pagos.panel_cliente_pagos", nombre_nora=nombre_nora))
 
     # ---------- Vista GET ----------
     pago = None

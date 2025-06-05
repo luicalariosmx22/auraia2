@@ -15,7 +15,8 @@
          class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1.5 rounded shadow text-sm transition-colors duration-150">
         <span class="text-base">🛎️</span> Servicios productos
       </a>
-      <a href="#" class="inline-flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-3 py-1.5 rounded shadow text-sm transition-colors duration-150 cursor-not-allowed opacity-70" title="Próximamente">
+      <a href="{{ url_for('panel_cliente_pagos_presupuestos.panel_cliente_pagos_presupuestos', nombre_nora=nombre_nora) }}"
+         class="inline-flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-3 py-1.5 rounded shadow text-sm transition-colors duration-150">
         <span class="text-base">📄</span> Presupuestos
       </a>
     </div>

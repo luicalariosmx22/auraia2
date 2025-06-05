@@ -1,0 +1,55 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+  <div class="mb-4">
+    <h1 class="text-2xl font-bold text-gray-800 mb-1">Presupuestos</h1>
+    <p class="text-gray-600 text-sm mb-4 max-w-2xl">Aquí puedes ver todos los presupuestos generados para tus empresas y clientes.</p>
+  </div>
+
+  <div class="mb-4 flex gap-2">
+    <a href="{{ url_for('panel_cliente_pagos.panel_cliente_pagos', nombre_nora=nombre_nora) }}"
+       class="inline-flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-blue-700 font-semibold px-3 py-1.5 rounded shadow text-sm border border-gray-300 transition-colors duration-150">
+      <span class="text-base">←</span> Regresar a pagos
+    </a>
+    <a href="{{ url_for('panel_cliente_pagos_presupuesto_nuevo.nuevo_presupuesto', nombre_nora=nombre_nora) }}"
+       class="inline-flex items-center gap-1 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-3 py-1.5 rounded shadow text-sm transition-colors duration-150">
+      <span class="text-base">➕</span> Nuevo presupuesto
+    </a>
+  </div>
+
+  {% if pagos %}
+  <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50 text-sm text-gray-700 uppercase text-left">
+        <tr>
+          <th class="px-4 py-3">Empresa</th>
+          <th class="px-4 py-3">Cliente</th>
+          <th class="px-4 py-3">Concepto</th>
+          <th class="px-4 py-3">Monto</th>
+          <th class="px-4 py-3">Vence</th>
+          <th class="px-4 py-3">Estatus</th>
+          <th class="px-4 py-3">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-100 text-sm">
+        {% for pago in pagos %}
+        <tr>
+          <td class="px-4 py-2">{{ pago.empresa_nombre }}</td>
+          <td class="px-4 py-2">{{ pago.cliente_nombre }}</td>
+          <td class="px-4 py-2">{{ pago.concepto }}</td>
+          <td class="px-4 py-2">${{ "%.2f"|format(pago.monto) }}</td>
+          <td class="px-4 py-2">{{ pago.fecha_vencimiento }}</td>
+          <td class="px-4 py-2">—</td>
+          <td class="px-4 py-2 flex gap-2">
+            <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Ver/Editar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-gray-600 bg-white p-6 rounded-lg shadow text-center">
+    <p class="text-lg">No hay presupuestos registrados todavía.</p>
+  </div>
+  {% endif %}
+{% endblock %}

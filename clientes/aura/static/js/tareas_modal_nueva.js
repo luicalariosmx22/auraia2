@@ -20,17 +20,32 @@ document.addEventListener("DOMContentLoaded", () => {
       enviando = true;
 
       const form = e.target;
-      const datos = new FormData(form);
-      // Si la casilla no está marcada, ensure “is_recurrente” llega como false
-      if (!datos.has("is_recurrente")) datos.append("is_recurrente", "false");
-      const jsonData = Object.fromEntries(datos.entries());
-      const nombreNora = jsonData.nombre_nora;
+      // Armar payload manualmente para asegurar campos de recurrencia
+      const payload = {
+        titulo: document.getElementById("titulo")?.value,
+        descripcion: document.getElementById("descripcion")?.value,
+        prioridad: document.getElementById("prioridad")?.value,
+        estatus: document.getElementById("estatus")?.value,
+        fecha_limite: document.getElementById("fecha_limite")?.value,
+        usuario_empresa_id: document.getElementById("usuario_empresa_id")?.value,
+        empresa_id: document.getElementById("empresa_id")?.value,
+        cliente_id: document.querySelector('[name="cliente_id"]')?.value,
+        creado_por: document.querySelector('[name="creado_por"]')?.value,
+        nombre_nora: document.querySelector('[name="nombre_nora"]')?.value,
+        iniciales_usuario: document.querySelector('[name="iniciales_usuario"]')?.value,
+        is_recurrente: document.getElementById("recurrente_checkbox")?.checked ? "true" : "false",
+        dtstart: document.getElementById("dtstart")?.value,
+        rrule: document.getElementById("rrule")?.value,
+        until: document.getElementById("until")?.value,
+        count: document.getElementById("count")?.value
+      };
+      const nombreNora = payload.nombre_nora;
 
       try {
         const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(jsonData)
+          body: JSON.stringify(payload)
         });
 
         const resultado = await res.json();
