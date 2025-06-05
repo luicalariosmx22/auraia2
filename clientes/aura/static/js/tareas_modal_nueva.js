@@ -21,13 +21,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const form = e.target;
       // Armar payload manualmente para asegurar campos de recurrencia
+      // ⚠️ Tomar usuario_empresa_id del input hidden si el select está deshabilitado
+      let usuario_empresa_id = document.getElementById("usuario_empresa_id")?.value;
+      // Solo usar el hidden si el select está deshabilitado (usuario normal)
+      if (document.getElementById("usuario_empresa_id")?.disabled) {
+        const hiddenUser = document.getElementById("usuario_empresa_id_hidden");
+        if (hiddenUser && hiddenUser.value) usuario_empresa_id = hiddenUser.value;
+      }
+      console.log("🟢 usuario_empresa_id a enviar:", usuario_empresa_id);
+      if (!usuario_empresa_id || usuario_empresa_id === "" || usuario_empresa_id === "None" || usuario_empresa_id === "none") {
+        alert("Debes seleccionar un usuario asignado válido. Valor actual: " + usuario_empresa_id);
+        enviando = false;
+        return;
+      }
       const payload = {
         titulo: document.getElementById("titulo")?.value,
         descripcion: document.getElementById("descripcion")?.value,
         prioridad: document.getElementById("prioridad")?.value,
         estatus: document.getElementById("estatus")?.value,
         fecha_limite: document.getElementById("fecha_limite")?.value,
-        usuario_empresa_id: document.getElementById("usuario_empresa_id")?.value,
+        usuario_empresa_id: usuario_empresa_id,
         empresa_id: document.getElementById("empresa_id")?.value,
         cliente_id: document.querySelector('[name="cliente_id"]')?.value,
         creado_por: document.querySelector('[name="creado_por"]')?.value,

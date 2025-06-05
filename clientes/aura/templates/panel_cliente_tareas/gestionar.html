@@ -6,6 +6,19 @@
 
 <div id="contenedorGestorTareas" data-nora="{{ nombre_nora }}">
 
+{# Saludo con nombre y rol del usuario #}
+{% set rol = 'Usuario normal' %}
+{% if permisos.es_super_admin %}
+  {% set rol = 'Superadmin' %}
+{% elif permisos.es_admin %}
+  {% set rol = 'Admin' %}
+{% elif permisos.es_supervisor %}
+  {% set rol = 'Supervisor' %}
+{% endif %}
+<div class="bg-green-50 text-green-900 px-4 py-2 rounded mb-4 shadow-sm text-sm flex items-center gap-2">
+  <span>👋 Hola, <strong>{{ user.name }}</strong> &mdash; <span class="font-semibold">{{ rol }}</span></span>
+</div>
+
 <h2 class="text-xl font-semibold mb-4 text-blue-700">📋 Gestor de Tareas</h2>
 {% if mensaje_bienvenida %}
   <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded mb-4 shadow-sm text-sm">

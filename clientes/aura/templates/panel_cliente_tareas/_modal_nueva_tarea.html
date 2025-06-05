@@ -177,7 +177,7 @@
               {% endfor %}
             </select>
             {% if not (permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin) %}
-              <input type="hidden" name="usuario_empresa_id" value="{{ user.id }}">
+            <input type="hidden" id="usuario_empresa_id_hidden" name="usuario_empresa_id_hidden" value="{{ user.id }}">
             {% endif %}
           </div>
         </div>
