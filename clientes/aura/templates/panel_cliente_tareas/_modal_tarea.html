@@ -1,7 +1,7 @@
 <!-- Modal para crear / editar tarea -->
 <div id="modalTarea" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
   <div class="flex items-center justify-center min-h-screen">
-    <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
       <h3 id="modalTitulo" class="text-lg font-semibold mb-4 text-blue-700">Editar tarea</h3>
       <form id="formVerTarea" method="POST">
         <input type="hidden" id="verIdTarea" name="id">
@@ -11,9 +11,28 @@
           <input type="text" id="verTitulo" name="titulo" class="w-full border rounded px-3 py-2 mt-1" required>
         </div>
 
-        <div class="mb-3">
-          <label for="verFechaLimite" class="block text-sm font-medium text-gray-700">Fecha límite</label>
-          <input type="date" id="verFechaLimite" name="fecha_limite" class="w-full border rounded px-3 py-2 mt-1">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+          <div>
+            <label for="verFechaLimite" class="block text-sm font-medium text-gray-700">Fecha límite</label>
+            <input type="date" id="verFechaLimite" name="fecha_limite" class="w-full border rounded px-3 py-2 mt-1">
+          </div>
+          <div>
+            <label for="verPrioridad" class="block text-sm font-medium text-gray-700">Prioridad</label>
+            <select id="verPrioridad" name="prioridad" class="w-full border rounded px-3 py-2 mt-1">
+              <option value="alta">Alta</option>
+              <option value="media">Media</option>
+              <option value="baja">Baja</option>
+            </select>
+          </div>
+          <div>
+            <label for="verEstatus" class="block text-sm font-medium text-gray-700">Estatus</label>
+            <select id="verEstatus" name="estatus" class="w-full border rounded px-3 py-2 mt-1">
+              <option value="pendiente">⏳ Pendiente</option>
+              <option value="en progreso">🚧 En progreso</option>
+              <option value="retrasada">❗ Retrasada</option>
+              <option value="completada">✅ Completada</option>
+            </select>
+          </div>
         </div>
 
         <div class="mb-3">
@@ -21,31 +40,14 @@
           <textarea id="verDescripcion" name="descripcion" class="w-full border rounded px-3 py-2 mt-1" rows="3">{{ descripcion or '' }}</textarea>
         </div>
 
-        <div class="mb-3">
-          <label for="verPrioridad" class="block text-sm font-medium text-gray-700">Prioridad</label>
-          <select id="verPrioridad" name="prioridad" class="w-full border rounded px-3 py-2 mt-1">
-            <option value="alta">Alta</option>
-            <option value="media">Media</option>
-            <option value="baja">Baja</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label for="verEstatus" class="block text-sm font-medium text-gray-700">Estatus</label>
-          <select id="verEstatus" name="estatus" class="w-full border rounded px-3 py-2 mt-1">
-            <option value="pendiente">⏳ Pendiente</option>
-            <option value="en progreso">🚧 En progreso</option>
-            <option value="retrasada">❗ Retrasada</option>
-            <option value="completada">✅ Completada</option>
-          </select>
-        </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label for="verAsignado" class="block text-sm font-medium text-gray-700">Esclavo asignado</label>
             <select id="verAsignado" name="usuario_empresa_id" class="w-full border rounded px-3 py-2 mt-1">
               {% for u in usuarios %}
-                <option value="{{ u.id }}">{{ u.nombre }}</option>
+                {% if u.nombre != 'Luica Larios Admin' %}
+                  <option value="{{ u.id }}">{{ u.nombre }}</option>
+                {% endif %}
               {% endfor %}
             </select>
           </div>
@@ -84,7 +86,24 @@
           <input type="number" id="verCount" name="count" min="1" class="w-full border rounded px-3 py-2 mt-1">
         </div>
 
+        <!-- SUBTAREAS (bloque AJAX) -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Subtareas</label>
+          <div id="bloqueSubtareasModal" class="bg-gray-50 rounded border border-gray-200 p-2 min-h-[40px]">
+            <div id="subtareasModalLoading" class="text-xs text-gray-400 hidden">Cargando subtareas...</div>
+            <div id="subtareasModalLista"></div>
+            <div id="subtareasModalVacio" class="text-xs text-gray-400 hidden">Sin subtareas aún.</div>
+            <div id="subtareasModalError" class="text-xs text-red-500 hidden">Error al cargar subtareas.</div>
+          </div>
+          <!-- Formulario inline para nueva subtarea -->
+          <form id="formNuevaSubtareaModal" class="flex gap-2 mt-2">
+            <input type="text" id="inputNuevaSubtareaModal" name="titulo" placeholder="Nueva subtarea..." class="flex-1 border rounded px-2 py-1 text-sm" required>
+            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Agregar</button>
+          </form>
+        </div>
+
         <!-- Sección de comentarios/actualizaciones -->
+        <!--
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2">Comentarios / Actualizaciones</label>
           <div id="comentariosTarea" class="space-y-3 max-h-40 overflow-y-auto bg-gray-50 rounded p-2 border border-gray-200 mb-2">
@@ -116,6 +135,36 @@
             <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Enviar</button>
           </form>
         </div>
+        -->
+
+        {# Mostrar y permitir cambiar la tarea padre si aplica #}
+        <!--
+        <div class="mb-3">
+          <label for="verTareaPadre" class="block text-xs text-gray-500 mb-1">Tarea principal:</label>
+          <select id="verTareaPadre" name="tarea_padre_id" class="w-full border rounded px-3 py-2 mt-1">
+            <option value="">— Ninguna (tarea principal) —</option>
+            {% for t in tareas_principales if t.id != tarea.id %}
+              <option value="{{ t.id }}" {% if tarea_padre and tarea_padre.id == t.id %}selected{% endif %}>{{ t.titulo }}{% if t.empresa_nombre %} — {{ t.empresa_nombre }}{% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+        -->
+
+        {# Mostrar subtareas como vínculos si existen #}
+        {% if subtareas and subtareas|length > 0 %}
+          <div class="mb-3">
+            <span class="text-xs text-gray-500">Subtareas:</span>
+            <ul class="list-disc ml-5">
+              {% for s in subtareas %}
+                <li>
+                  <a href="#" onclick="abrirModalTarea('{{ s.id }}')" class="text-blue-700 hover:underline font-semibold">
+                    {{ s.titulo }}{% if s.empresa_nombre %} &mdash; {{ s.empresa_nombre }}{% endif %}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
 
         <div class="mt-4">
           <div id="alertaGuardado" class="d-none text-sm text-center py-2 rounded"></div>

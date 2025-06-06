@@ -49,39 +49,37 @@ window.handleAutoCompleteInput = function (input, campo) {
   window.updateCampo(input, campo, id).then(() => location.reload());
 };
 
-// ✅ Botón "Ver" para abrir modal de edición
-window.cargarTareaEnModal = async function (boton) {
-  const tareaId = boton.getAttribute("data-id");
-  const nombreNora = boton.getAttribute("data-nora");
-
-  try {
-    const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
-    const tarea = await res.json();
-    if (!tarea || tarea.error) return alert("❌ Error al cargar la tarea");
-
-    // Mostrar modal
-    document.getElementById("modalTarea")?.classList.remove("hidden");
-    document.getElementById("modalTitulo").textContent = "Editar tarea";
-
-    // Rellenar campos usando IDs únicos del modal editar
-    document.getElementById("verIdTarea").value = tarea.id || "";
-    document.getElementById("verTitulo").value = tarea.titulo || "";
-    document.getElementById("verDescripcion").value = tarea.descripcion || "";
-    document.getElementById("verPrioridad").value = tarea.prioridad || "media";
-    document.getElementById("verFechaLimite").value = tarea.fecha_limite || "";
-    document.getElementById("verEstatus").value = tarea.estatus || "pendiente";
-
-    if (document.getElementById("verAsignado")) {
-      document.getElementById("verAsignado").value = tarea.usuario_empresa_id || "";
-    }
-    if (document.getElementById("verEmpresa")) {
-      document.getElementById("verEmpresa").value = tarea.empresa_id || "";
-    }
-
-  } catch (err) {
-    console.error("❌ No se pudo cargar la tarea:", err);
-  }
-};
+// window.cargarTareaEnModal = async function (boton) {
+//   const tareaId = boton.getAttribute("data-id");
+//   const nombreNora = boton.getAttribute("data-nora");
+//
+//   try {
+//     const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
+//     const tarea = await res.json();
+//     if (!tarea || tarea.error) return alert("❌ Error al cargar la tarea");
+//     // Mostrar modal
+//     document.getElementById("modalTarea")?.classList.remove("hidden");
+//     document.getElementById("modalTitulo").textContent = "Editar tarea";
+//
+//     // Rellenar campos usando IDs únicos del modal editar
+//     document.getElementById("verIdTarea").value = tarea.id || "";
+//     document.getElementById("verTitulo").value = tarea.titulo || "";
+//     document.getElementById("verDescripcion").value = tarea.descripcion || "";
+//     document.getElementById("verPrioridad").value = tarea.prioridad || "media";
+//     document.getElementById("verFechaLimite").value = tarea.fecha_limite || "";
+//     document.getElementById("verEstatus").value = tarea.estatus || "pendiente";
+//
+//     if (document.getElementById("verAsignado")) {
+//       document.getElementById("verAsignado").value = tarea.usuario_empresa_id || "";
+//     }
+//     if (document.getElementById("verEmpresa")) {
+//       document.getElementById("verEmpresa").value = tarea.empresa_id || "";
+//     }
+//
+//   } catch (err) {
+//     console.error("❌ No se pudo cargar la tarea:", err);
+//   }
+// };
 
 // ✅ Eliminar tarea desde botón
 window.eliminarTarea = function (id) {

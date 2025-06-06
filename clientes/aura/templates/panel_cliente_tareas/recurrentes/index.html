@@ -1,38 +1,42 @@
 {% extends "base_cliente.html" %}
 {% block contenido %}
-<section class="py-8 max-w-4xl mx-auto">
-  <div class="flex justify-end mb-4">
+<section class="py-8 max-w-6xl mx-auto">
+  <div class="flex justify-between mb-4">
     <a href="/panel_cliente/{{ nombre_nora }}/tareas/gestionar"
        class="inline-flex items-center gap-1 bg-gray-100 text-blue-700 border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
       <span class="text-lg">⬅️</span> Volver a gestionar
     </a>
+    <button id="btnNuevaRecurrente" class="inline-flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+      <span class="text-lg">➕</span> Nueva tarea recurrente
+    </button>
   </div>
   <h1 class="text-2xl font-semibold text-blue-800 mb-6">🔁 Tareas Recurrentes</h1>
 
-  <div class="overflow-x-auto rounded-lg shadow">
-    <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+  <!-- Quitamos overflow-x-auto para evitar barra de desplazamiento -->
+  <div class="rounded-lg shadow">
+    <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden table-fixed">
       <thead class="bg-gray-50 text-xs font-semibold text-gray-700 uppercase">
         <tr>
-          <th class="px-4 py-3 border-b">Título</th>
-          <th class="px-4 py-3 border-b">Empresa</th>
-          <th class="px-4 py-3 border-b">Asignado a</th>
-          <th class="px-4 py-3 border-b">Inicio</th>
-          <th class="px-4 py-3 border-b">Recurrencia</th>
-          <th class="px-4 py-3 border-b">Hasta</th>
-          <th class="px-4 py-3 border-b">Estado</th>
-          <th class="px-4 py-3 border-b">Acciones</th>
+          <th class="px-4 py-3 border-b w-64 whitespace-normal">Título</th>
+          <th class="px-4 py-3 border-b w-40 whitespace-normal">Empresa</th>
+          <th class="px-4 py-3 border-b w-40 whitespace-normal">Asignado a</th>
+          <th class="px-4 py-3 border-b w-32 whitespace-normal">Inicio</th>
+          <th class="px-4 py-3 border-b w-56 whitespace-normal">Recurrencia</th>
+          <th class="px-4 py-3 border-b w-32 whitespace-normal">Hasta</th>
+          <th class="px-4 py-3 border-b w-32 whitespace-normal">Estado</th>
+          <th class="px-4 py-3 border-b w-56 whitespace-normal">Acciones</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
         {% for r in recurrentes %}
         <tr class="hover:bg-blue-50 transition group">
-          <td class="px-4 py-3 font-medium max-w-xs truncate" title="ID: {{ r.tarea_id }}">{{ r.titulo_base }}</td>
-          <td class="px-4 py-3 max-w-xs truncate" title="{{ r.empresa_nombre }}">{{ r.empresa_nombre if r.empresa_nombre else r.empresa_id }}</td>
-          <td class="px-4 py-3 max-w-xs truncate" title="{{ r.usuario_nombre }}">{{ r.usuario_nombre if r.usuario_nombre else r.usuario_empresa_id }}</td>
-          <td class="px-4 py-3">{{ r.dtstart[:10] }}</td>
-          <td class="px-4 py-3 text-xs text-gray-600 max-w-xs truncate" title="{{ r.rrule }}">{{ r.rrule }}</td>
-          <td class="px-4 py-3">{{ r.until[:10] if r.until else '—' }}</td>
-          <td class="px-4 py-3">
+          <td class="px-4 py-3 font-medium whitespace-normal" title="ID: {{ r.tarea_id }}">{{ r.titulo_base }}</td>
+          <td class="px-4 py-3 whitespace-normal" title="{{ r.empresa_nombre }}">{{ r.empresa_nombre if r.empresa_nombre else r.empresa_id }}</td>
+          <td class="px-4 py-3 whitespace-normal" title="{{ r.usuario_nombre }}">{{ r.usuario_nombre if r.usuario_nombre else r.usuario_empresa_id }}</td>
+          <td class="px-4 py-3 whitespace-normal">{{ r.dtstart[:10] }}</td>
+          <td class="px-4 py-3 text-xs text-gray-600 whitespace-normal" title="{{ r.rrule }}">{{ r.rrule }}</td>
+          <td class="px-4 py-3 whitespace-normal">{{ r.until[:10] if r.until else '—' }}</td>
+          <td class="px-4 py-3 whitespace-normal">
             {% if r.active %}
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">🟢 Activa</span>
             {% else %}
@@ -48,10 +52,18 @@
               </button>
             </form>
             <form class="inline ml-2" method="POST"
-                  action="{{ url_for('panel_tareas_recurrentes_bp.eliminar_recurrente', nombre_nora=nombre_nora, rec_id=r.id) }}"
-                  onsubmit="return confirm('¿Eliminar tarea recurrente?');">
+              action="{{ url_for('panel_tareas_recurrentes_bp.eliminar_recurrente', nombre_nora=nombre_nora, rec_id=r.id) }}"
+              onsubmit="return confirm('¿Eliminar tarea recurrente?');">
               <button class="text-red-600 hover:underline text-xs font-medium" type="submit" title="Eliminar">Eliminar</button>
             </form>
+            <!-- Instanciar tarea recurrente -->
+            <button class="ml-2 text-green-700 hover:underline text-xs font-medium crear-instancia-btn" 
+                    data-tarea-id="{{ r.tarea_id }}" 
+                    data-titulo="{{ r.titulo_base }}"
+                    data-nombre-nora="{{ nombre_nora }}"
+                    title="Crear instancia de esta tarea recurrente">
+              Instanciar
+            </button>
           </td>
         </tr>
         {% endfor %}
@@ -63,4 +75,245 @@
   <p class="text-gray-500 text-center mt-6">No hay tareas recurrentes registradas.</p>
   {% endif %}
 </section>
+
+<!-- Modal para seleccionar fecha de instancia -->
+<div id="modalInstanciar" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+    <h2 class="text-lg font-semibold mb-4 text-blue-700">Crear instancia de tarea recurrente</h2>
+    <form id="formInstanciarTarea">
+      <input type="hidden" id="instanciarTareaId" name="tarea_id">
+      <div class="mb-3">
+        <label for="instanciarFecha" class="block text-sm font-medium text-gray-700">Fecha de la instancia</label>
+        <input type="date" id="instanciarFecha" name="fecha" class="w-full border rounded px-3 py-2 mt-1" required>
+      </div>
+      <div class="flex justify-end gap-2 mt-4">
+        <button type="button" onclick="document.getElementById('modalInstanciar').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">Cancelar</button>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Crear instancia</button>
+      </div>
+      <div id="instanciarMsg" class="text-sm mt-2"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para crear nueva tarea recurrente -->
+<div id="modalNuevaRecurrente" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+    <h2 class="text-lg font-semibold mb-4 text-blue-700">Nueva tarea recurrente</h2>
+    <form id="formNuevaRecurrente">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Selecciona una tarea</label>
+          <input type="text" id="buscarTareaInput" class="w-full border rounded px-3 py-2 mt-1 mb-2" placeholder="Buscar por nombre...">
+          <select name="tarea_id" id="selectTareaId" class="w-full border rounded px-3 py-2" required size="8">
+            <option value="">-- Selecciona una tarea --</option>
+            {% for t in tareas if not t.ya_recurrente %}
+              <option value="{{ t.id }}">{{ t.titulo }} ({{ t.empresa_id }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Inicio</label>
+          <input type="date" name="dtstart" class="w-full border rounded px-3 py-2 mt-1" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Recurrencia</label>
+          <select name="rrule_type" class="w-full border rounded px-3 py-2 mt-1" required>
+            <option value="WEEKLY">Semanal</option>
+            <option value="MONTHLY">Mensual</option>
+            <option value="DAILY">Diaria</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Hasta</label>
+          <input type="date" name="until" class="w-full border rounded px-3 py-2 mt-1">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Repeticiones (COUNT)</label>
+          <input type="number" name="count" min="1" class="w-full border rounded px-3 py-2 mt-1">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="button" onclick="document.getElementById('modalNuevaRecurrente').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">Cancelar</button>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Crear</button>
+      </div>
+      <div id="nuevaRecurrenteMsg" class="text-sm mt-2"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Mostrar modal al hacer click en Instanciar
+[...document.querySelectorAll('.crear-instancia-btn')].forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.getElementById('instanciarTareaId').value = btn.dataset.tareaId;
+    document.getElementById('instanciarFecha').value = '';
+    document.getElementById('instanciarMsg').innerText = '';
+    document.getElementById('modalInstanciar').classList.remove('hidden');
+  });
+});
+
+// Enviar formulario para crear instancia
+const formInst = document.getElementById('formInstanciarTarea');
+if (formInst) {
+  formInst.onsubmit = async function(e) {
+    e.preventDefault();
+    const tarea_id = document.getElementById('instanciarTareaId').value;
+    const fecha = document.getElementById('instanciarFecha').value;
+    const nombre_nora = '{{ nombre_nora }}';
+    const msg = document.getElementById('instanciarMsg');
+    msg.innerText = 'Creando instancia...';
+    try {
+      const resp = await fetch(`/panel_cliente/${nombre_nora}/tareas/recurrentes/instanciar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tarea_id, fecha })
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        msg.innerText = '✅ Instancia creada correctamente';
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        msg.innerText = '❌ ' + (data.error || 'Error al crear instancia');
+      }
+    } catch (e) {
+      msg.innerText = '❌ Error de red';
+    }
+    return false;
+  }
+}
+
+// Mostrar modal de nueva recurrente
+const btnNuevaRecurrente = document.getElementById('btnNuevaRecurrente');
+if (btnNuevaRecurrente) {
+  btnNuevaRecurrente.onclick = () => {
+    document.getElementById('formNuevaRecurrente').reset();
+    document.getElementById('nuevaRecurrenteMsg').innerText = '';
+    document.getElementById('modalNuevaRecurrente').classList.remove('hidden');
+  };
+}
+// Enviar formulario para crear nueva recurrente
+const formNuevaRec = document.getElementById('formNuevaRecurrente');
+if (formNuevaRec) {
+  formNuevaRec.onsubmit = async function(e) {
+    e.preventDefault();
+    const msg = document.getElementById('nuevaRecurrenteMsg');
+    msg.innerText = 'Creando...';
+    const data = Object.fromEntries(new FormData(formNuevaRec));
+    data['nombre_nora'] = '{{ nombre_nora }}';
+    try {
+      const resp = await fetch(`/panel_cliente/${data['nombre_nora']}/tareas/recurrentes/crear`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const res = await resp.json();
+      if (res.ok) {
+        msg.innerText = '✅ Tarea recurrente creada';
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        msg.innerText = '❌ ' + (res.error || 'Error al crear tarea recurrente');
+      }
+    } catch (e) {
+      msg.innerText = '❌ Error de red';
+    }
+    return false;
+  }
+}
+
+// Filtro de búsqueda de tareas por nombre (mejorado: muestra mensaje si no hay coincidencias, selecciona automáticamente si solo hay una)
+const buscarTareaInput = document.getElementById('buscarTareaInput');
+const selectTareaId = document.getElementById('selectTareaId');
+let mensajeNoCoincidencias = document.getElementById('mensajeNoCoincidencias');
+if (!mensajeNoCoincidencias && selectTareaId) {
+  mensajeNoCoincidencias = document.createElement('div');
+  mensajeNoCoincidencias.id = 'mensajeNoCoincidencias';
+  mensajeNoCoincidencias.className = 'text-sm text-gray-500 mt-1';
+  selectTareaId.parentNode.appendChild(mensajeNoCoincidencias);
+}
+if (buscarTareaInput && selectTareaId) {
+  buscarTareaInput.addEventListener('input', function() {
+    const filtro = this.value.trim().toLowerCase();
+    let hayCoincidencia = false;
+    let primeraCoincidencia = null;
+    let numCoincidencias = 0;
+    for (let i = 0; i < selectTareaId.options.length; i++) {
+      const option = selectTareaId.options[i];
+      if (option.value === "") continue;
+      if (!filtro) {
+        option.style.display = '';
+        hayCoincidencia = true;
+        if (!primeraCoincidencia) primeraCoincidencia = option;
+        numCoincidencias++;
+      } else {
+        const visible = option.textContent.toLowerCase().includes(filtro);
+        option.style.display = visible ? '' : 'none';
+        if (visible) {
+          hayCoincidencia = true;
+          if (!primeraCoincidencia) primeraCoincidencia = option;
+          numCoincidencias++;
+        }
+        // Si la opción está oculta, deseleccionarla
+        if (!visible) option.selected = false;
+      }
+    }
+    if (!hayCoincidencia) {
+      selectTareaId.selectedIndex = 0;
+      mensajeNoCoincidencias.innerText = 'No se encontraron tareas.';
+    } else {
+      mensajeNoCoincidencias.innerText = '';
+      // Si solo hay una coincidencia, seleccionarla automáticamente y deseleccionar las demás
+      if (numCoincidencias === 1 && primeraCoincidencia) {
+        for (let i = 0; i < selectTareaId.options.length; i++) {
+          selectTareaId.options[i].selected = false;
+        }
+        primeraCoincidencia.selected = true;
+      } else {
+        // Si hay coincidencias, selecciona la primera visible automáticamente
+        for (let i = 0; i < selectTareaId.options.length; i++) {
+          const option = selectTareaId.options[i];
+          if (option.style.display !== 'none' && option.value !== "") {
+            option.selected = true;
+            break;
+          }
+        }
+      }
+    }
+    // Si el filtro está vacío, restaurar selección al primer elemento disponible y mostrar todas
+    if (!filtro) {
+      for (let i = 0; i < selectTareaId.options.length; i++) {
+        selectTareaId.options[i].style.display = '';
+      }
+      // Selecciona la primera opción válida
+      let found = false;
+      for (let i = 0; i < selectTareaId.options.length; i++) {
+        if (selectTareaId.options[i].value !== "") {
+          selectTareaId.options[i].selected = true;
+          found = true;
+          break;
+        }
+      }
+      if (!found) selectTareaId.selectedIndex = 0;
+    }
+  });
+  // Restaurar visibilidad y selección al abrir el modal
+  document.getElementById('btnNuevaRecurrente').addEventListener('click', function() {
+    buscarTareaInput.value = '';
+    for (let i = 0; i < selectTareaId.options.length; i++) {
+      selectTareaId.options[i].style.display = '';
+      selectTareaId.options[i].selected = false;
+    }
+    // Selecciona la primera opción válida automáticamente
+    let found = false;
+    for (let i = 0; i < selectTareaId.options.length; i++) {
+      if (selectTareaId.options[i].value !== "") {
+        selectTareaId.options[i].selected = true;
+        found = true;
+        break;
+      }
+    }
+    if (!found) selectTareaId.selectedIndex = 0;
+    mensajeNoCoincidencias.innerText = '';
+  });
+}
+</script>
 {% endblock %}

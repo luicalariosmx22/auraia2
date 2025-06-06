@@ -255,6 +255,62 @@ def actualizar_tarea_inline(nombre_nora, tarea_id):
     if not campo:
         return jsonify({"ok": False, "error": "Campo no especificado"})
 
+    # Lógica especial para mover entre tareas y subtareas
+    if campo == "tarea_padre_id":
+        from datetime import datetime
+        print(f"[DEBUG] Actualizando tarea_padre_id para id={tarea_id}, valor={valor}")
+        tarea = supabase.table("tareas").select("*").eq("id", tarea_id).single().execute().data
+        subtarea = supabase.table("subtareas").select("*").eq("id", tarea_id).single().execute().data
+        print(f"[DEBUG] ¿Existe en tareas? {bool(tarea)} | ¿Existe en subtareas? {bool(subtarea)}")
+        if tarea:
+            print(f"[DEBUG] Datos tarea: {tarea}")
+            if valor not in (None, "", "null"):  # Asignar tarea padre
+                subtarea_data = dict(tarea)
+                subtarea_data["id"] = tarea_id
+                subtarea_data["tarea_padre_id"] = valor
+                subtarea_data["created_at"] = datetime.utcnow().isoformat()
+                subtarea_data["updated_at"] = datetime.utcnow().isoformat()
+                subtarea_data.pop("codigo_tarea", None)
+                print(f"[DEBUG] Insertando en subtareas: {subtarea_data}")
+                # Primero elimina de subtareas si existe (por seguridad de duplicados)
+                supabase.table("subtareas").delete().eq("id", tarea_id).execute()
+                # Luego inserta en subtareas
+                supabase.table("subtareas").insert(subtarea_data).execute()
+                # Finalmente elimina de tareas
+                supabase.table("tareas").delete().eq("id", tarea_id).execute()
+                print(f"[DEBUG] Movido a subtareas y eliminado de tareas")
+                return jsonify({"ok": True, "movido": "a_subtareas"})
+        elif subtarea:
+            print(f"[DEBUG] Datos subtarea: {subtarea}")
+            if valor in (None, "", "null"):
+                tarea_data = dict(subtarea)
+                tarea_data["id"] = tarea_id
+                tarea_data["tarea_padre_id"] = None
+                tarea_data["created_at"] = datetime.utcnow().isoformat()
+                tarea_data["updated_at"] = datetime.utcnow().isoformat()
+                tarea_data["codigo_tarea"] = generar_codigo_tarea("NN")
+                print(f"[DEBUG] Insertando en tareas: {tarea_data}")
+                supabase.table("tareas").insert(tarea_data).execute()
+                supabase.table("subtareas").delete().eq("id", tarea_id).execute()
+                print(f"[DEBUG] Movido a tareas y eliminado de subtareas")
+                return jsonify({"ok": True, "movido": "a_tareas"})
+            else:
+                print(f"[DEBUG] Actualizando tarea_padre_id en subtareas a {valor}")
+                supabase.table("subtareas").update({"tarea_padre_id": valor, "updated_at": datetime.utcnow().isoformat()}).eq("id", tarea_id).execute()
+                return jsonify({"ok": True, "actualizado": "subtarea"})
+        print(f"[DEBUG] No se encontró la tarea ni en tareas ni en subtareas para id={tarea_id}")
+        # Si no es un movimiento especial, solo actualizar el campo en tareas
+        if campo == "tarea_padre_id" and (valor is None or valor == ""):
+            valor = None
+        try:
+            supabase.table("tareas").update({campo: valor}).eq("id", tarea_id).execute()
+            print(f"[DEBUG] Solo se actualizó el campo en tareas")
+            return jsonify({"ok": True})
+        except Exception as e:
+            print(f"[DEBUG] Error al actualizar campo en tareas: {e}")
+            return jsonify({"ok": False, "error": str(e)})
+
+    # Lógica normal para otros campos
     try:
         supabase.table("tareas").update({campo: valor}).eq("id", tarea_id).execute()
         return jsonify({"ok": True})

@@ -42,6 +42,7 @@ from .routes.panel_cliente_etiquetas_conocimiento import panel_cliente_etiquetas
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp # Nueva importación
 from clientes.aura.routes.panel_cliente_pagos.vista_presupuestos import panel_cliente_pagos_presupuestos_bp # Nueva importación
 from clientes.aura.routes.panel_cliente_pagos.vista_presupuesto_nuevo import panel_cliente_pagos_presupuesto_nuevo_bp # Nueva importación
+from clientes.aura.routes.panel_cliente_tareas.tareas_completadas import panel_tareas_completadas_bp # Nueva importación
 
 # Para la lógica de blueprints dinámicos
 from .utils.supabase_client import supabase
@@ -204,6 +205,8 @@ def create_app(config_class=Config):
     safe_register_blueprint(app, panel_cliente_pagos_presupuestos_bp, url_prefix="/panel_cliente")
     # Registrar blueprint para crear nuevo presupuesto
     safe_register_blueprint(app, panel_cliente_pagos_presupuesto_nuevo_bp, url_prefix="/panel_cliente")
+    # Registrar blueprint para tareas completadas
+    safe_register_blueprint(app, panel_tareas_completadas_bp, url_prefix="/panel_cliente")
 
     # --- Rutas de Nivel de Aplicación ---
     print("Definiendo rutas de nivel de aplicación...")

@@ -196,6 +196,38 @@ def vista_gestionar_tareas(nombre_nora):
     nombre_usuario = session.get("user", {}).get("nombre", "Usuario")
     mensaje_bienvenida = f"Hola {nombre_usuario}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
 
+    # --- Ordenamiento de tareas activas ---
+    orden = request.args.get("orden", "desc")
+    if orden == "asc":
+        tareas_activas.sort(key=lambda t: t.get("created_at") or "")
+    else:
+        tareas_activas.sort(key=lambda t: t.get("created_at") or "", reverse=True)
+    # --- Fin ordenamiento ---
+
+    # --- Paginación de tareas activas ---
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+    except Exception:
+        page = 1
+        per_page = 10
+    start = (page - 1) * per_page
+    end = start + per_page
+    total_activas = len(tareas_activas)
+    tareas_activas_paged = tareas_activas[start:end]
+    total_pages = (total_activas + per_page - 1) // per_page
+    # --- Fin paginación ---
+
+    # --- SUBTAREAS: lógica para obtener subtareas de una tarea principal ---
+    def obtener_subtareas(tarea_padre_id):
+        res = supabase.table("subtareas").select("*").eq("tarea_padre_id", tarea_padre_id).eq("activo", True).order("created_at", desc=False).execute()
+        return res.data or []
+    # --- Fin lógica subtareas ---
+
+    # Para cada tarea activa, agregar subtareas si existen
+    for t in tareas_activas:
+        t["subtareas"] = obtener_subtareas(t["id"])
+
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
@@ -203,13 +235,18 @@ def vista_gestionar_tareas(nombre_nora):
         resumen=resumen,
         usuarios=usuarios,
         mensaje_bienvenida=mensaje_bienvenida,
-        tareas_activas=tareas_activas,
+        tareas_activas=tareas_activas_paged,
         tareas_completadas=tareas_completadas,
         permisos=permisos,
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
         modulo_activo="tareas",
-        alertas=alertas
+        alertas=alertas,
+        page=page,
+        total_pages=total_pages,
+        per_page=per_page,
+        total_activas=total_activas,
+        orden=orden,
     )
 
 # -------------------------------------------------------------------
@@ -224,6 +261,7 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
     campo = payload.get("campo")
     valor = payload.get("valor")
 
+    # Permitir actualizar tarea_padre_id
     if campo not in [
         "titulo",
         "prioridad",
@@ -231,6 +269,7 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         "estatus",
         "usuario_empresa_id",  # ← Único campo para “Asignado a”
         "empresa_id",
+        "tarea_padre_id",      # ← Permitir cambiar tarea padre
     ]:
         return jsonify({"error": "Campo no permitido"}), 400
 
@@ -252,10 +291,13 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         except ValueError:
             return jsonify({"error": "Fecha límite inválida"}), 400
 
+    # Si se cambia tarea_padre_id, permitir None para volver a tarea principal
+    update_data = {campo: valor, "updated_at": datetime.utcnow().isoformat()}
+    if campo == "tarea_padre_id" and (valor is None or valor == ""):
+        update_data["tarea_padre_id"] = None
+
     try:
-        supabase.table("tareas").update(
-            {campo: valor, "updated_at": datetime.utcnow().isoformat()}
-        ).eq("id", tarea_id).execute()
+        supabase.table("tareas").update(update_data).eq("id", tarea_id).execute()
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -301,29 +343,47 @@ def crear_tarea(nombre_nora):
     nombre_usuario = session.get("name", "NN")
     iniciales_usuario = "".join([s[0] for s in nombre_usuario.split()[:2]])
 
-    tarea_data = {
-        "id": str(uuid.uuid4()),
-        "nombre_nora": nombre_nora,
-        "titulo": titulo.strip(),
-        "prioridad": prioridad.strip().lower() if prioridad else "media",
-        "fecha_limite": fecha_limite.strip() or None,
-        "estatus": estatus,
-        "usuario_empresa_id": usuario_empresa_id,
-        "empresa_id": empresa_id,
-        "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
-        "origen": "manual",
-        "activo": True,
-        "creado_por": creado_por,
-        "created_at": datetime.utcnow().isoformat(),
-        "updated_at": datetime.utcnow().isoformat()
-    }
+    tarea_padre_id = data.get("tarea_padre_id")
 
-    try:
+    if tarea_padre_id:
+        # Crear como subtarea
+        subtarea_data = {
+            "id": str(uuid.uuid4()),
+            "tarea_padre_id": tarea_padre_id,
+            "titulo": titulo.strip(),
+            "descripcion": data.get("descripcion", ""),
+            "prioridad": prioridad.strip().lower() if prioridad else "media",
+            "fecha_limite": fecha_limite.strip() or None,
+            "estatus": estatus,
+            "usuario_empresa_id": usuario_empresa_id,
+            "empresa_id": empresa_id,
+            "creado_por": creado_por,
+            "activo": True,
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat()
+        }
+        supabase.table("subtareas").insert(subtarea_data).execute()
+        return jsonify({"ok": True, "subtarea": subtarea_data})
+    else:
+        # Crear como tarea principal
+        tarea_data = {
+            "id": str(uuid.uuid4()),
+            "nombre_nora": nombre_nora,
+            "titulo": titulo.strip(),
+            "prioridad": prioridad.strip().lower() if prioridad else "media",
+            "fecha_limite": fecha_limite.strip() or None,
+            "estatus": estatus,
+            "usuario_empresa_id": usuario_empresa_id,
+            "empresa_id": empresa_id,
+            "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
+            "origen": "manual",
+            "activo": True,
+            "creado_por": creado_por,
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat()
+        }
         supabase.table("tareas").insert(tarea_data).execute()
-        # Eliminada la inserción a tabla tareas_recurrentes para evitar error
         return jsonify({"ok": True, "tarea": tarea_data})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 # -------------------------------------------------------------------
 # API: obtener tarea por ID
@@ -462,3 +522,192 @@ def tareas_completadas_json(nombre_nora):
         for t in tareas
     ]
     return jsonify(tareas_json)
+
+# -------------------------------------------------------------------
+# API: obtener subtareas de una tarea principal
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/<tarea_id>/subtareas", methods=["GET"])
+def api_subtareas(nombre_nora, tarea_id):
+    res = supabase.table("subtareas").select("*").eq("tarea_padre_id", tarea_id).eq("activo", True).order("created_at", desc=False).execute()
+    subtareas = res.data or []
+    return jsonify(subtareas)
+
+# -------------------------------------------------------------------
+# API: actualizar campo de subtarea (inline edit)
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route(
+    "/panel_cliente/<nombre_nora>/subtareas/actualizar/<subtarea_id>",
+    methods=["POST"],
+)
+def actualizar_campo_subtarea(nombre_nora, subtarea_id):
+    payload = request.get_json(silent=True) or {}
+    campo = payload.get("campo")
+    valor = payload.get("valor")
+
+    if campo not in [
+        "titulo",
+        "prioridad",
+        "fecha_limite",
+        "estatus",
+        "usuario_empresa_id",
+        "empresa_id",
+    ]:
+        return jsonify({"error": "Campo no permitido"}), 400
+
+    # Validaciones de valor
+    if campo == "prioridad":
+        valor = (valor or "").strip().lower()
+        if valor not in ("alta", "media", "baja"):
+            return jsonify({"error": "Prioridad inválida"}), 400
+    if campo == "estatus" and valor not in [
+        "pendiente",
+        "en progreso",
+        "retrasada",
+        "completada",
+    ]:
+        return jsonify({"error": "Estatus inválido"}), 400
+    if campo == "fecha_limite":
+        try:
+            datetime.strptime(valor, "%Y-%m-%d")
+        except ValueError:
+            return jsonify({"error": "Fecha inválida"}), 400
+
+    # Si se marca como completada, mover a tabla de subtareas completadas
+    if campo == "estatus" and valor == "completada":
+        # Obtener la subtarea actual
+        res = supabase.table("subtareas").select("*").eq("id", subtarea_id).limit(1).execute()
+        if not res.data:
+            return jsonify({"error": "Subtarea no encontrada"}), 404
+        subtarea = res.data[0]
+        # Marcar como inactiva
+        supabase.table("subtareas").update({"activo": False, "updated_at": datetime.utcnow().isoformat()}).eq("id", subtarea_id).execute()
+        # Insertar en tabla de subtareas completadas (crear si no existe)
+        try:
+            supabase.table("subtareas_completadas").insert({
+                **subtarea,
+                "id": subtarea_id,
+                "estatus": "completada",
+                "activo": False,
+                "updated_at": datetime.utcnow().isoformat(),
+                "completada_en": datetime.utcnow().isoformat(),
+            }).execute()
+        except Exception:
+            pass
+        return jsonify({"ok": True, "completada": True})
+
+    # Edición normal
+    try:
+        supabase.table("subtareas").update(
+            {campo: valor, "updated_at": datetime.utcnow().isoformat()}
+        ).eq("id", subtarea_id).execute()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# -------------------------------------------------------------------
+# API: obtener subtarea por ID (para modal)
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/subtareas/obtener/<subtarea_id>", methods=["GET"])
+def obtener_subtarea(nombre_nora, subtarea_id):
+    try:
+        res = supabase.table("subtareas").select("*").eq("id", subtarea_id).limit(1).execute()
+        if not res.data:
+            return jsonify({"error": "Subtarea no encontrada"}), 404
+        s = res.data[0]
+        s["descripcion"] = s.get("descripcion", "")
+
+        # Agregar nombre de empresa si aplica
+        if s.get("empresa_id"):
+            empresa = supabase.table("cliente_empresas") \
+                .select("nombre_empresa") \
+                .eq("id", s["empresa_id"]) \
+                .limit(1).execute()
+            if empresa.data:
+                s["empresa_nombre"] = empresa.data[0]["nombre_empresa"]
+
+        # Agregar nombre del usuario asignado si aplica
+        if s.get("usuario_empresa_id"):
+            asignado = supabase.table("usuarios_clientes") \
+                .select("nombre") \
+                .eq("id", s["usuario_empresa_id"]) \
+                .limit(1).execute()
+            if asignado.data:
+                s["asignado_nombre"] = asignado.data[0]["nombre"]
+
+        # Agregar info de tarea padre si aplica
+        if s.get("tarea_padre_id"):
+            tarea_padre = supabase.table("tareas").select("id, titulo, empresa_id").eq("id", s["tarea_padre_id"]).limit(1).execute()
+            if tarea_padre.data:
+                padre = tarea_padre.data[0]
+                empresa_nombre = None
+                if padre.get("empresa_id"):
+                    emp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", padre["empresa_id"]).limit(1).execute()
+                    if emp.data:
+                        empresa_nombre = emp.data[0]["nombre_empresa"]
+                s["tarea_padre"] = {
+                    "id": padre["id"],
+                    "titulo": padre["titulo"],
+                    "empresa_nombre": empresa_nombre
+                }
+        return jsonify(s)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# -------------------------------------------------------------------
+# API: obtener tarea para el modal de edición
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/obtener_modal/<tarea_id>", methods=["GET"])
+def obtener_tarea_modal(nombre_nora, tarea_id):
+    try:
+        # Obtener la tarea actual
+        tarea_resp = supabase.table("tareas").select("*") \
+            .eq("id", tarea_id).eq("nombre_nora", nombre_nora).limit(1).execute()
+        if not tarea_resp.data:
+            return jsonify({"error": "Tarea no encontrada"}), 404
+        tarea = tarea_resp.data[0]
+        tarea["descripcion"] = tarea.get("descripcion", "")
+
+        # Obtener tarea padre si es subtarea
+        tarea_padre = None
+        if tarea.get("tarea_padre_id"):
+            padre_resp = supabase.table("tareas").select("id, titulo, empresa_id").eq("id", tarea["tarea_padre_id"]).limit(1).execute()
+            if padre_resp.data:
+                tarea_padre = padre_resp.data[0]
+                if tarea_padre.get("empresa_id"):
+                    emp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", tarea_padre["empresa_id"]).limit(1).execute()
+                    if emp.data:
+                        tarea_padre["empresa_nombre"] = emp.data[0]["nombre_empresa"]
+
+        # Obtener todas las tareas principales (excluyendo la actual y sus descendientes)
+        tareas_principales_resp = supabase.table("tareas").select("id, titulo, empresa_id").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
+        tareas_principales_raw = [t for t in (tareas_principales_resp.data or []) if t["id"] != tarea_id]
+        # 1. Obtener todos los empresa_id únicos (ignorando None/vacíos)
+        empresa_ids = list({t["empresa_id"] for t in tareas_principales_raw if t.get("empresa_id")})
+        empresas_map = {}
+        if empresa_ids:
+            # 2. Obtener todas las empresas de un solo query
+            empresas_resp = supabase.table("cliente_empresas").select("id, nombre_empresa").in_("id", empresa_ids).execute()
+            empresas_map = {e["id"]: e["nombre_empresa"] for e in (empresas_resp.data or [])}
+        # 3. Asignar nombre de empresa a cada tarea principal usando el mapeo
+        tareas_principales = []
+        for t in tareas_principales_raw:
+            if t.get("empresa_id") and t["empresa_id"] in empresas_map:
+                t["empresa_nombre"] = empresas_map[t["empresa_id"]]
+            tareas_principales.append(t)
+
+        # Subtareas
+        subtareas = supabase.table("subtareas").select("*").eq("tarea_padre_id", tarea_id).eq("activo", True).order("created_at", desc=False).execute().data or []
+        for s in subtareas:
+            if s.get("empresa_id"):
+                emp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", s["empresa_id"]).limit(1).execute()
+                if emp.data:
+                    s["empresa_nombre"] = emp.data[0]["nombre_empresa"]
+
+        return jsonify({
+            "tarea": tarea,
+            "tarea_padre": tarea_padre,
+            "tareas_principales": tareas_principales,
+            "subtareas": subtareas
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

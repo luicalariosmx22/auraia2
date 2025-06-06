@@ -29,22 +29,35 @@
 {% include "panel_cliente_tareas/_estadisticas.html" %}
 {% include "panel_cliente_tareas/_filtros.html" %}
 
-<div class="flex flex-wrap gap-2 justify-end items-center mb-4">
-  <a href="/panel_team/{{ nombre_nora }}"
-     class="inline-flex items-center gap-1 bg-gray-100 text-blue-700 border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
-    <span class="text-lg">🏠</span> Panel Team
-  </a>
-  {% if permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin %}
-    <a href="/panel_cliente/{{ nombre_nora }}/tareas/recurrentes"
-       class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
-      <span class="text-lg">🔁</span> Tareas recurrentes
+<div class="flex flex-wrap gap-2 justify-between items-center mb-4">
+  <div>
+    <form method="get" id="formOrdenTareas" class="inline-block">
+      <label for="ordenTareas" class="text-sm text-gray-700 mr-1">Ordenar por:</label>
+      <select name="orden" id="ordenTareas" class="border rounded px-2 py-1 text-sm" onchange="this.form.submit()">
+        <option value="desc" {% if orden == 'desc' or not orden %}selected{% endif %}>Más recientes primero</option>
+        <option value="asc" {% if orden == 'asc' %}selected{% endif %}>Más antiguas primero</option>
+      </select>
+      <input type="hidden" name="page" value="{{ page }}">
+      <input type="hidden" name="per_page" value="{{ per_page }}">
+    </form>
+  </div>
+  <div class="flex gap-2">
+    <a href="/panel_cliente/{{ nombre_nora }}/tareas/completadas"
+       class="inline-flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+      <span class="text-lg">✅</span> Completadas
     </a>
-  {% endif %}
-  <button id="btnNuevaTarea"
-          onclick="document.getElementById('modalNuevaTarea').classList.remove('hidden')"
-          class="inline-flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-    <span class="text-lg">➕</span> Nueva tarea
-  </button>
+    {% if permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin %}
+      <a href="/panel_cliente/{{ nombre_nora }}/tareas/recurrentes"
+         class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
+        <span class="text-lg">🔁</span> Tareas recurrentes
+      </a>
+    {% endif %}
+    <button id="btnNuevaTarea"
+            onclick="document.getElementById('modalNuevaTarea').classList.remove('hidden')"
+            class="inline-flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+      <span class="text-lg">➕</span> Nueva tarea
+    </button>
+  </div>
 </div>
 {# --- módulo JS para manejar envío vía fetch --- #}
 
@@ -78,59 +91,44 @@
     {% for tarea in tareas_activas %}
     <tr class="border-t border-gray-200" data-id="{{ tarea.id }}">
       <td class="text-center">
+        {% if tarea.subtareas and tarea.subtareas|length > 0 %}
+        <button type="button" onclick="toggleSubtareas('{{ tarea.id }}')" class="focus:outline-none group">
+          <svg id="flecha-{{ tarea.id }}" class="inline w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-transform rotate-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {% endif %}
         <input type="checkbox"
                {% if tarea.estatus == 'completada' %}checked{% endif %}
-               {% if not editable %}disabled{% endif %}
                onchange="toggleEstatus(this)">
       </td>
       <td class="px-4 py-2">
-        {% if editable %}
-          <input type="text"
-                 class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1"
-                 value="{{ tarea.titulo }}"
-                 onblur="updateCampo(this,'titulo')">
-          {% if tarea.recurrente or tarea.is_recurrente %}
-            <span title="Tarea recurrente">🔁</span>
-          {% endif %}
-          {% if tarea.comentarios_count and tarea.comentarios_count > 0 %}
-            <span title="Tiene comentarios/actualizaciones">💬</span>
-          {% endif %}
-        {% else %}
-          {{ tarea.titulo }}
-          {% if tarea.recurrente or tarea.is_recurrente %}
-            <span title="Tarea recurrente">🔁</span>
-          {% endif %}
-          {% if tarea.comentarios_count and tarea.comentarios_count > 0 %}
-            <span title="Tiene comentarios/actualizaciones">💬</span>
-          {% endif %}
-        {% endif %}
+        <input type="text"
+               class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1"
+               value="{{ tarea.titulo }}"
+               onblur="updateCampo(this,'titulo')"
+               data-id="{{ tarea.id }}">
       </td>
-      <td class="px-4 py-2 capitalize">
-        <select onchange="updateCampo(this,'prioridad')" class="bg-transparent">
-          <option value="alta" {% if tarea.prioridad=='alta' %}selected{% endif %}>🔴 Alta</option>
-          <option value="media" {% if tarea.prioridad=='media' %}selected{% endif %}>🟠 Media</option>
-          <option value="baja" {% if tarea.prioridad=='baja' %}selected{% endif %}>🟢 Baja</option>
-        </select>
+      <td class="px-4 py-2 text-center">
+        {% if tarea.prioridad == 'alta' %}
+          <span title="Prioridad alta" class="text-lg align-middle">🔴</span>
+        {% elif tarea.prioridad == 'media' %}
+          <span title="Prioridad media" class="text-lg align-middle">🟠</span>
+        {% else %}
+          <span title="Prioridad baja" class="text-lg align-middle">🟢</span>
+        {% endif %}
+        {% if tarea.recurrente or tarea.is_recurrente %}
+          <span title="Tarea recurrente" class="ml-1 align-middle">🔁</span>
+        {% endif %}
+        {% if tarea.comentarios_count and tarea.comentarios_count > 0 %}
+          <span title="Tiene comentarios/actualizaciones" class="ml-1 align-middle">💬</span>
+        {% endif %}
       </td>
       <td class="px-4 py-2">
-        {% if editable %}
-          <input type="date" value="{{ tarea.fecha_limite }}" onchange="updateCampo(this,'fecha_limite')">
-        {% else %}
-          {% if tarea.dias_restantes is not none %}
-            {% if tarea.dias_restantes > 0 %}
-              <span class="text-green-700 font-medium">{{ tarea.dias_restantes }} días </span>
-            {% elif tarea.dias_restantes == 0 %}
-              <span class="text-yellow-600 font-medium">Hoy</span>
-            {% else %}
-              <span class="text-red-600 font-medium">Hace {{ tarea.dias_restantes | abs }} días</span>
-            {% endif %}
-          {% else %}
-            <span class="text-gray-500">Sin fecha</span>
-          {% endif %}
-        {% endif %}
+        <input type="date" value="{{ tarea.fecha_limite }}" onchange="updateCampo(this,'fecha_limite')" data-id="{{ tarea.id }}">
       </td>
       <td class="px-4 py-2 capitalize">
-        <select onchange="updateCampo(this,'estatus')" class="bg-transparent">
+        <select onchange="updateCampo(this,'estatus')" class="bg-transparent" data-id="{{ tarea.id }}">
           <option value="pendiente"   {% if tarea.estatus=='pendiente' %}selected{% endif %}>⏳ Pendiente</option>
           <option value="en progreso" {% if tarea.estatus=='en progreso' %}selected{% endif %}>🚧 En progreso</option>
           <option value="retrasada"   {% if tarea.estatus=='retrasada' %}selected{% endif %}>❗ Retrasada</option>
@@ -138,16 +136,25 @@
         </select>
       </td>
       <td class="px-4 py-2">
-        {{ usuarios | selectattr('id', 'equalto', tarea.usuario_empresa_id) | map(attribute='nombre') | first }}
+        <select onchange="updateCampo(this,'usuario_empresa_id')" class="bg-transparent w-full" data-id="{{ tarea.id }}">
+          {% for usuario in usuarios %}
+            {% if usuario.nombre != 'Luica Larios Admin' %}
+              <option value="{{ usuario.id }}" {% if usuario.id == tarea.usuario_empresa_id %}selected{% endif %}>{{ usuario.nombre }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
       </td>
       <td class="px-4 py-2">
-        {{ empresas | selectattr('id', 'equalto', tarea.empresa_id) | map(attribute='nombre_empresa') | first }}
+        <select onchange="updateCampo(this,'empresa_id')" class="bg-transparent w-full" data-id="{{ tarea.id }}">
+          {% for empresa in empresas|sort(attribute='nombre_empresa') %}
+            <option value="{{ empresa.id }}" {% if empresa.id == tarea.empresa_id %}selected{% endif %}>{{ empresa.nombre_empresa }}</option>
+          {% endfor %}
+        </select>
       </td>
       <td class="px-4 py-2">
         <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2"
                 data-id="{{ tarea.id }}"
-                data-nora="{{ nombre_nora }}"
-                onclick="cargarTareaEnModal(this)">
+                data-nora="{{ nombre_nora }}">
           Ver
         </button>
         <button data-id="{{ tarea.id }}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">
@@ -155,149 +162,78 @@
         </button>
       </td>
     </tr>
+    <tr id="subtareas-{{ tarea.id }}" class="hidden">
+      <td colspan="8" class="p-0 border-0">
+        {% if tarea.subtareas and tarea.subtareas|length > 0 %}
+        <table class="w-full text-sm">
+          <tbody>
+            {% for s in tarea.subtareas %}
+            <tr data-subtarea-id="{{ s.id }}" class="bg-blue-50 border-t border-blue-100">
+              <td class="text-center pl-8">
+                <span title="Subtarea" class="inline-block mr-1 text-blue-400">↳</span>
+                <input type="checkbox" {% if s.estatus == 'completada' %}checked{% endif %} onchange="updateCampoSubtarea(this, 'estatus')">
+              </td>
+              <td class="px-4 py-2">
+                <input type="text" value="{{ s.titulo }}" class="w-full bg-transparent border border-transparent focus:border-gray-300 rounded px-1" onblur="updateCampoSubtarea(this, 'titulo')">
+              </td>
+              <td class="px-4 py-2 capitalize">
+                <select onchange="updateCampoSubtarea(this, 'prioridad')" class="bg-transparent d-none" data-id="{{ s.id }}" style="display:none">
+                  <option value="alta" {% if s.prioridad=='alta' %}selected{% endif %}>🔴 Alta</option>
+                  <option value="media" {% if s.prioridad=='media' %}selected{% endif %}>🟠 Media</option>
+                  <option value="baja" {% if s.prioridad=='baja' %}selected{% endif %}>🟢 Baja</option>
+                </select>
+              </td>
+              <td class="px-4 py-2">
+                <input type="date" value="{{ s.fecha_limite or '' }}" onchange="updateCampoSubtarea(this, 'fecha_limite')">
+              </td>
+              <td class="px-4 py-2 capitalize">
+                <select onchange="updateCampoSubtarea(this, 'estatus')" class="bg-transparent">
+                  <option value="pendiente"   {% if s.estatus=='pendiente' %}selected{% endif %}>⏳ Pendiente</option>
+                  <option value="en progreso" {% if s.estatus=='en progreso' %}selected{% endif %}>🚧 En progreso</option>
+                  <option value="retrasada"   {% if s.estatus=='retrasada' %}selected{% endif %}>❗ Retrasada</option>
+                  <option value="completada"  {% if s.estatus=='completada' %}selected{% endif %}>✅ Completada</option>
+                </select>
+              </td>
+              <td class="px-4 py-2">
+                <select onchange="updateCampoSubtarea(this, 'usuario_empresa_id')" class="bg-transparent w-full" data-id="{{ s.id }}">
+                  {% for usuario in usuarios %}
+                    {% if usuario.nombre != 'Luica Larios Admin' %}
+                      <option value="{{ usuario.id }}" {% if usuario.id == s.usuario_empresa_id %}selected{% endif %}>{{ usuario.nombre }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </td>
+              <td class="px-4 py-2">
+                <select onchange="updateCampoSubtarea(this, 'empresa_id')" class="bg-transparent w-full" data-id="{{ s.id }}">
+                  {% for empresa in empresas|sort(attribute='nombre_empresa') %}
+                    <option value="{{ empresa.id }}" {% if empresa.id == s.empresa_id %}selected{% endif %}>{{ empresa.nombre_empresa }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td class="px-4 py-2">
+                <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2" data-id="{{ s.id }}" data-nora="{{ nombre_nora }}">Ver</button>
+                <button data-id="{{ s.id }}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">Eliminar</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </td>
+    </tr>
     {% endfor %}
   </tbody>
 </table>
-
-<!-- =====================  LISTA COMPLETADAS  ===================== -->
-<div id="completadasSection" class="mt-8">
-  <button id="btnMostrarCompletadas" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium text-sm mb-2 transition">
-    Mostrar completadas
-  </button>
-  <div id="completadasLoading" class="hidden text-gray-500 text-sm py-4 flex items-center gap-2">
-    <span class="animate-spin">⏳</span> Cargando tareas completadas...
-  </div>
-  <div id="completadasError" class="hidden text-red-600 text-sm py-4">Error al cargar tareas completadas. Intenta de nuevo.</div>
-  <div id="completadasVacias" class="hidden text-gray-500 text-sm py-4">No hay tareas completadas.</div>
-  <div id="contenedorCompletadasTabla"></div>
-  <div id="completadasMasContainer" class="hidden mt-2 text-center">
-    <button id="btnCargarMasCompletadas" class="bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 font-medium text-xs">Cargar más</button>
-  </div>
+<!-- Paginación -->
+<div class="flex justify-center items-center gap-2 my-4">
+  {% if page > 1 %}
+    <a href="?page={{ page - 1 }}&per_page={{ per_page }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-blue-700">Anterior</a>
+  {% endif %}
+  <span class="text-sm text-gray-700">Página {{ page }} de {{ total_pages }}</span>
+  {% if page < total_pages %}
+    <a href="?page={{ page + 1 }}&per_page={{ per_page }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-blue-700">Siguiente</a>
+  {% endif %}
 </div>
-<script>
-(function() {
-  const btn = document.getElementById('btnMostrarCompletadas');
-  const loading = document.getElementById('completadasLoading');
-  const error = document.getElementById('completadasError');
-  const vacias = document.getElementById('completadasVacias');
-  const contenedor = document.getElementById('contenedorCompletadasTabla');
-  const masContainer = document.getElementById('completadasMasContainer');
-  let cargadas = false;
-  let offset = 0;
-  let tareas = [];
-  const LIMIT = 50;
-
-  function fetchCompletadas(mas = false) {
-    loading.classList.remove('hidden');
-    error.classList.add('hidden');
-    vacias.classList.add('hidden');
-    const url = `/panel_cliente/{{ nombre_nora }}/tareas/completadas_json?limit=${LIMIT}&offset=${offset}`;
-    fetch(url)
-      .then(r => {
-        if (!r.ok) throw new Error('Network');
-        return r.json();
-      })
-      .then(data => {
-        loading.classList.add('hidden');
-        if (!data || !data.length) {
-          if (!mas) vacias.classList.remove('hidden');
-          masContainer.classList.add('hidden');
-          return;
-        }
-        if (mas) {
-          tareas = tareas.concat(data);
-        } else {
-          tareas = data;
-        }
-        contenedor.innerHTML = renderCompletadasTabla(tareas);
-        cargadas = true;
-        offset += data.length;
-        if (data.length === LIMIT) {
-          masContainer.classList.remove('hidden');
-        } else {
-          masContainer.classList.add('hidden');
-        }
-        if (typeof initModalVerTareaListeners === "function") initModalVerTareaListeners();
-        if (typeof initEliminarTareaListeners === "function") initEliminarTareaListeners();
-      })
-      .catch(() => {
-        loading.classList.add('hidden');
-        error.classList.remove('hidden');
-        btn.disabled = false;
-      });
-  }
-
-  btn.addEventListener('click', function() {
-    if (cargadas) return;
-    btn.disabled = true;
-    offset = 0;
-    tareas = [];
-    fetchCompletadas();
-  });
-
-  document.getElementById('btnCargarMasCompletadas').addEventListener('click', function() {
-    fetchCompletadas(true);
-  });
-
-  function renderCompletadasTabla(tareas) {
-    return `
-    <table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="w-8"></th>
-          <th class="px-4 py-2 text-left">Título</th>
-          <th class="px-4 py-2 text-left">Prioridad</th>
-          <th class="px-4 py-2 text-left">Días Restantes</th>
-          <th class="px-4 py-2 text-left">Estatus</th>
-          <th class="px-4 py-2 text-left">Asignado a</th>
-          <th class="px-4 py-2 text-left">Empresa</th>
-          <th class="px-4 py-2 text-left">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${tareas.map(tarea => `
-          <tr class="border-t border-gray-200 opacity-70" data-id="${tarea.id}">
-            <td class="text-center">
-              <input type="checkbox" ${tarea.estatus === 'completada' ? 'checked' : ''} disabled>
-            </td>
-            <td class="px-4 py-2">
-              ${tarea.titulo}
-              ${tarea.recurrente || tarea.is_recurrente ? '<span title="Tarea recurrente">🔁</span>' : ''}
-              ${tarea.comentarios_count && tarea.comentarios_count > 0 ? '<span title="Tiene comentarios/actualizaciones">💬</span>' : ''}
-            </td>
-            <td class="px-4 py-2 capitalize">
-              ${tarea.prioridad === 'alta' ? '🔴' : tarea.prioridad === 'media' ? '🟠' : '🟢'} ${tarea.prioridad}
-            </td>
-            <td class="px-4 py-2">
-              ${tarea.dias_restantes !== null ? (
-                tarea.dias_restantes > 0 ? `<span class="text-green-700 font-medium">${tarea.dias_restantes} días</span>` :
-                tarea.dias_restantes === 0 ? `<span class="text-yellow-600 font-medium">Hoy</span>` :
-                `<span class="text-red-600 font-medium">Hace ${Math.abs(tarea.dias_restantes)} días</span>`
-              ) : '<span class="text-gray-500">Sin fecha</span>'}
-            </td>
-            <td class="px-4 py-2 capitalize">
-              ${tarea.estatus === 'pendiente' ? '⏳' : tarea.estatus === 'en progreso' ? '🚧' : tarea.estatus === 'retrasada' ? '❗' : tarea.estatus === 'completada' ? '✅' : ''} ${tarea.estatus}
-            </td>
-            <td class="px-4 py-2">${tarea.asignado_a || ''}</td>
-            <td class="px-4 py-2">${tarea.empresa || ''}</td>
-            <td class="px-4 py-2">
-              <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2"
-                      data-id="${tarea.id}"
-                      data-nora="{{ nombre_nora }}"
-                      onclick="cargarTareaEnModal(this)">
-                Ver
-              </button>
-              <button data-id="${tarea.id}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">
-                Eliminar
-              </button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>`;
-  }
-})();
-</script>
 
 {% include "panel_cliente_tareas/_modal_tarea.html" %}
 {% include "panel_cliente_tareas/_modal_nueva_tarea.html" %}
@@ -325,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (!r.ok) throw new Error('Network');
           return r.json();
         })
-        .then(data => {
+        .then data => {
           loading.classList.add('hidden');
           if (!data || !data.tareas || data.tareas.length === 0) {
             vacio.classList.remove('hidden');
@@ -372,7 +308,11 @@ document.addEventListener('DOMContentLoaded', function() {
           ${tarea.prioridad === 'alta' ? '🔴' : tarea.prioridad === 'media' ? '🟠' : '🟢'} ${tarea.prioridad}
         </td>
         <td class="px-4 py-2">
-          ${tarea.dias_restantes !== null ? (tarea.dias_restantes > 0 ? `<span class='text-green-700 font-medium'>${tarea.dias_restantes} días</span>` : (tarea.dias_restantes === 0 ? `<span class='text-yellow-600 font-medium'>Hoy</span>` : `<span class='text-red-600 font-medium'>Hace ${Math.abs(tarea.dias_restantes)} días</span>`)) : '<span class="text-gray-500">Sin fecha</span>'}
+          ${tarea.dias_restantes !== null ? (
+            tarea.dias_restantes > 0 ? `<span class="text-green-700 font-medium">${tarea.dias_restantes} días</span>` :
+            tarea.dias_restantes === 0 ? `<span class="text-yellow-600 font-medium">Hoy</span>` :
+            `<span class="text-red-600 font-medium">Hace ${Math.abs(tarea.dias_restantes)} días</span>`
+          ) : '<span class="text-gray-500">Sin fecha</span>'}
         </td>
         <td class="px-4 py-2 capitalize">
           ${tarea.estatus === 'pendiente' ? '⏳' : tarea.estatus === 'en progreso' ? '🚧' : tarea.estatus === 'retrasada' ? '❗' : tarea.estatus === 'completada' ? '✅' : ''} ${tarea.estatus}
@@ -380,8 +320,14 @@ document.addEventListener('DOMContentLoaded', function() {
         <td class="px-4 py-2">${tarea.asignado_a || ''}</td>
         <td class="px-4 py-2">${tarea.empresa || ''}</td>
         <td class="px-4 py-2">
-          <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2" data-id="${tarea.id}" data-nora="{{ nombre_nora }}" onclick="cargarTareaEnModal(this)">Ver</button>
-          <button data-id="${tarea.id}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">Eliminar</button>
+          <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2"
+                  data-id="${tarea.id}"
+                  data-nora="{{ nombre_nora }}">
+            Ver
+          </button>
+          <button data-id="${tarea.id}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">
+            Eliminar
+          </button>
         </td>
       </tr>`;
     }
@@ -396,6 +342,64 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="{{ url_for('static', filename='js/tareas_modal_ver.js') }}"></script>
 <script src="{{ url_for('static', filename='js/tareas_eliminar.js') }}"></script>
 <script src="{{ url_for('static', filename='js/tareas_modal_nueva.js') }}"></script>
+<script>
+window.updateCampoSubtarea = async function(elemento, campo) {
+  const fila = elemento.closest('tr');
+  const subtareaId = fila.getAttribute('data-subtarea-id');
+  const tareaId = fila.closest('tr[data-id]')?.getAttribute('data-id') || null;
+  const nombreNora = document.body.dataset.nora || document.body.dataset.noraname || document.body.dataset.noranombre || document.body.dataset.noranora;
+  let valor;
+  if (campo === 'estatus' && elemento.type === 'checkbox') {
+    valor = elemento.checked ? 'completada' : 'pendiente';
+  } else {
+    valor = elemento.value;
+  }
+  try {
+    const res = await fetch(`/panel_cliente/${nombreNora}/subtareas/actualizar/${subtareaId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ campo, valor })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      mostrarNotificacion('✅ Subtarea actualizada');
+      // Si se completó, recargar el bloque de subtareas
+      if (campo === 'estatus' && valor === 'completada' && tareaId) {
+        // Forzar recarga del bloque de subtareas
+        const filaSub = document.getElementById('subtareas-' + tareaId);
+        const contenedor = document.getElementById('contenedor-subtareas-' + tareaId);
+        if (filaSub && contenedor) {
+          contenedor.innerHTML = '<span class="text-gray-400">Cargando subtareas...</span>';
+          filaSub.dataset.cargado = '';
+          toggleSubtareas(tareaId); // Oculta
+          toggleSubtareas(tareaId); // Vuelve a mostrar y recarga
+        } else {
+          window.location.reload();
+        }
+      }
+    } else {
+      alert(data.error || 'Error al actualizar subtarea');
+    }
+  } catch (err) {
+    alert('Error de red al actualizar subtarea');
+  }
+};
+</script>
+<script>
+function toggleSubtareas(tareaId) {
+  const fila = document.getElementById('subtareas-' + tareaId);
+  const flecha = document.getElementById('flecha-' + tareaId);
+  if (!fila) return;
+  const visible = !fila.classList.contains('hidden');
+  if (visible) {
+    fila.classList.add('hidden');
+    if (flecha) flecha.classList.remove('rotate-180');
+  } else {
+    fila.classList.remove('hidden');
+    if (flecha) flecha.classList.add('rotate-180');
+  }
+}
+</script>
 
 {% endblock %}
 

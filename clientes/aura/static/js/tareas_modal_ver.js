@@ -2,6 +2,8 @@
 
 // import { postJSON } from "./tareas_utils.js";  // ❌ Elimina este import si no usas postJSON
 
+console.log('[DEBUG] tareas_modal_ver.js cargado');
+
 // ================== COMENTARIOS DE TAREA =====================
 async function cargarComentariosTarea(tareaId, nombreNora) {
   const contenedor = document.getElementById("comentariosTarea");
@@ -17,7 +19,7 @@ async function cargarComentariosTarea(tareaId, nombreNora) {
     const comentarios = await res.json();
     if (!Array.isArray(comentarios) || comentarios.length === 0) {
       contenedor.innerHTML = `<div class=\"flex flex-col items-center justify-center text-gray-500 text-xs py-2">
-        <svg xmlns=\"http://www.w3.org/2000/svg\" class=\"mx-auto mb-1\" width=\"24\" height=\"24\" fill=\"none\" viewBox=\"0 0 48 48\"><rect width=\"48\" height=\"48\" rx=\"12\" fill=\"#F3F4F6\"/><path d=\"M14 20a8 8 0 0 1 8-8h4a8 8 0 0 1 8 8v4a8 8 0 0 1-8 8h-2l-4 4v-4a8 8 0 0 1-8-8v-4z\" stroke=\"#A5B4FC\" stroke-width=\"2\" fill=\"#fff\"/><circle cx=\"20\" cy=\"24\" r=\"1.5\" fill=\"#A5B4FC\"/><circle cx=\"24\" cy=\"24\" r=\"1.5\" fill=\"#A5B4FC\"/><circle cx=\"28\" cy=\"24\" r=\"1.5\" fill=\"#A5B4FC\"/></svg>
+        <svg xmlns=\"http://www.w3.org/2000/svg" class=\"mx-auto mb-1\" width=\"24\" height=\"24\" fill=\"none\" viewBox=\"0 0 48 48\"><rect width=\"48\" height=\"48\" rx=\"12\" fill=\"#F3F4F6\"/><path d=\"M14 20a8 8 0 0 1 8-8h4a8 8 0 0 1 8 8v4a8 8 0 0 1-8 8h-2l-4 4v-4a8 8 0 0 1-8-8v-4z\" stroke=\"#A5B4FC\" stroke-width=\"2\" fill=\"#fff\"/><circle cx=\"20\" cy=\"24\" r=\"1.5\" fill=\"#A5B4FC\"/><circle cx=\"24\" cy=\"24\" r=\"1.5\" fill=\"#A5B4FC\"/><circle cx=\"28\" cy=\"24\" r=\"1.5\" fill=\"#A5B4FC\"/></svg>
         <span>Sin comentarios/actualizaciones.<br>Escribe el primero...</span>
       </div>`;
       return;
@@ -33,7 +35,7 @@ async function cargarComentariosTarea(tareaId, nombreNora) {
     `).join('');
   } catch (e) {
     contenedor.innerHTML = `<div class=\"flex flex-col items-center justify-center text-gray-500 text-xs py-2">
-      <svg xmlns=\"http://www.w3.org/2000/svg\" class=\"mx-auto mb-1\" width=\"24\" height=\"24\" fill=\"none\" viewBox=\"0 0 48 48\"><rect width=\"48\" height=\"48\" rx=\"12\" fill=\"#FEE2E2\"/><text x=\"24\" y=\"28\" text-anchor=\"middle\" font-size=\"18\" fill=\"#EF4444\">!</text></svg>
+      <svg xmlns=\"http://www.w3.org/2000/svg" class=\"mx-auto mb-1\" width=\"24\" height=\"24\" fill=\"none\" viewBox=\"0 0 48 48\"><rect width=\"48\" height=\"48\" rx=\"12\" fill=\"#FEE2E2\"/><text x=\"24\" y=\"28\" text-anchor=\"middle\" font-size=\"18\" fill=\"#EF4444\">!</text></svg>
       <span>Error al cargar comentarios</span>
     </div>`;
   }
@@ -68,29 +70,99 @@ if (formComentario) {
   });
 }
 
-// Hook para cargar comentarios al abrir modal
+// ================== SUBTAREAS EN MODAL =====================
+async function cargarSubtareasModal(tareaId, nombreNora) {
+  const loading = document.getElementById('subtareasModalLoading');
+  const lista = document.getElementById('subtareasModalLista');
+  const vacio = document.getElementById('subtareasModalVacio');
+  const error = document.getElementById('subtareasModalError');
+  if (!lista) return;
+  loading?.classList.remove('hidden');
+  vacio?.classList.add('hidden');
+  error?.classList.add('hidden');
+  lista.innerHTML = '';
+  try {
+    const res = await fetch(`/panel_cliente/${nombreNora}/tareas/${tareaId}/subtareas`);
+    if (!res.ok) throw new Error('Network');
+    const subtareas = await res.json();
+    loading?.classList.add('hidden');
+    if (!Array.isArray(subtareas) || subtareas.length === 0) {
+      vacio?.classList.remove('hidden');
+      return;
+    }
+    lista.innerHTML = subtareas.map(s => `
+      <div class="flex items-center gap-2 border-b border-gray-100 py-1 group">
+        <input type="checkbox" ${s.estatus === 'completada' ? 'checked' : ''} disabled class="accent-blue-600">
+        <span class="flex-1">${s.titulo}</span>
+        <span class="text-xs text-gray-400">${s.prioridad || ''}</span>
+        <!-- Opcional: botón editar/marcar completada -->
+      </div>
+    `).join('');
+  } catch (e) {
+    loading?.classList.add('hidden');
+    error?.classList.remove('hidden');
+    lista.innerHTML = '';
+  }
+}
+
+const formNuevaSubtareaModal = document.getElementById('formNuevaSubtareaModal');
+if (formNuevaSubtareaModal) {
+  formNuevaSubtareaModal.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const input = document.getElementById('inputNuevaSubtareaModal');
+    const titulo = input.value.trim();
+    if (!titulo) return;
+    const tareaId = document.getElementById('verIdTarea')?.value;
+    const nombreNora = document.body.dataset.nora;
+    const usuario_empresa_id = document.getElementById('verAsignado')?.value;
+    const empresa_id = document.getElementById('verEmpresa')?.value;
+    if (!tareaId || !usuario_empresa_id) return;
+    const data = new FormData();
+    data.append('titulo', titulo);
+    data.append('tarea_padre_id', tareaId);
+    data.append('usuario_empresa_id', usuario_empresa_id);
+    data.append('empresa_id', empresa_id);
+    fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
+      method: 'POST',
+      body: data
+    })
+    .then(r => r.json())
+    .then(resp => {
+      if (resp.ok) {
+        input.value = '';
+        cargarSubtareasModal(tareaId, nombreNora);
+      } else {
+        alert(resp.error || 'Error al crear subtarea');
+      }
+    })
+    .catch(() => alert('Error de red al crear subtarea'));
+  });
+}
+
+// Hook para cargar comentarios y subtareas al abrir modal
 window.initModalVerTareaListeners = function () {
-  document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
-    btn.addEventListener("click", async () => {
+  console.log('[DEBUG] Ejecutando initModalVerTareaListeners');
+  document.querySelectorAll('.btn-ver-tarea').forEach((btn) => {
+    btn.addEventListener('click', async () => {
       const tareaId = btn.getAttribute("data-id");
       const nombreNora = btn.getAttribute("data-nora");
-
+      let tarea = null;
       try {
-        const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
+        // Usar la nueva ruta que trae todo el contexto para el modal
+        let res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener_modal/${tareaId}`);
         if (!res.ok) {
           alert("❌ No se pudo cargar la información");
           return;
         }
-        const tarea = await res.json();
+        const data = await res.json();
+        tarea = data.tarea;
+        const tarea_padre = data.tarea_padre;
+        const tareas_principales = data.tareas_principales || [];
+        const subtareas = data.subtareas || [];
 
-        if (tarea.error) {
-          alert("❌ Error al cargar la tarea: " + tarea.error);
-          return;
-        }
-
+        // Mostrar modal
         const modal = document.getElementById("modalTarea");
         if (modal) modal.classList.remove("hidden");
-
         const tituloModal = document.getElementById("modalTitulo");
         if (tituloModal) tituloModal.textContent = "Ver / Editar tarea";
 
@@ -106,46 +178,40 @@ window.initModalVerTareaListeners = function () {
           const el = document.getElementById(id);
           if (el) el.value = valor || "";
         });
-
+        // Asignado y empresa
         const verAsignado = document.getElementById("verAsignado");
         if (verAsignado) {
-          if (verAsignado.tagName === "SELECT") {
-            [...verAsignado.options].forEach(opt => {
-              opt.selected = opt.value === (tarea.usuario_empresa_id || "");
-            });
-          } else {
-            verAsignado.value = tarea.asignado_nombre || "";
-          }
+          [...verAsignado.options].forEach(opt => {
+            opt.selected = opt.value === (tarea.usuario_empresa_id || "");
+          });
         }
-
         const verEmpresa = document.getElementById("verEmpresa");
         if (verEmpresa) {
-          if (verEmpresa.tagName === "SELECT") {
-            [...verEmpresa.options].forEach(opt => {
-              opt.selected = opt.value === (tarea.empresa_id || "");
-            });
-          } else {
-            verEmpresa.value = tarea.empresa_nombre || "";
-          }
+          [...verEmpresa.options].forEach(opt => {
+            opt.selected = opt.value === (tarea.empresa_id || "");
+          });
         }
-
-        // --- Recurrencia: mostrar/ocultar campos y normalizar valor ---
+        // Select de tarea padre
+        const selectPadre = document.getElementById("verTareaPadre");
+        if (selectPadre) {
+          // Limpiar y poblar opciones
+          selectPadre.innerHTML = '<option value="">— Ninguna (tarea principal) —</option>';
+          tareas_principales.forEach(t => {
+            if (t.id !== tarea.id) {
+              const opt = document.createElement('option');
+              opt.value = t.id;
+              opt.textContent = t.titulo + (t.empresa_nombre ? ` — ${t.empresa_nombre}` : '');
+              if (tarea_padre && tarea_padre.id === t.id) opt.selected = true;
+              selectPadre.appendChild(opt);
+            }
+          });
+        }
+        // Recurrencia
         const chkRecurrente = document.getElementById("verEsRecurrente");
         const hiddenRecurrente = document.getElementById("verIsRecurrente");
         const camposRecurrente = document.getElementById("verCamposRecurrente");
-
         if (chkRecurrente && hiddenRecurrente && camposRecurrente) {
-          // Mostrar/ocultar campos según el checkbox
-          chkRecurrente.addEventListener("change", function () {
-            if (chkRecurrente.checked) {
-              camposRecurrente.classList.remove("hidden");
-              hiddenRecurrente.value = "true";
-            } else {
-              camposRecurrente.classList.add("hidden");
-              hiddenRecurrente.value = "false";
-            }
-          });
-          // Al abrir modal: setear estado según datos existentes
+          chkRecurrente.checked = tarea.is_recurrente === true || tarea.is_recurrente === 'true';
           if (chkRecurrente.checked) {
             camposRecurrente.classList.remove("hidden");
             hiddenRecurrente.value = "true";
@@ -154,9 +220,8 @@ window.initModalVerTareaListeners = function () {
             hiddenRecurrente.value = "false";
           }
         }
-
         cargarComentariosTarea(tareaId, nombreNora);
-
+        cargarSubtareasModal(tareaId, nombreNora);
       } catch (error) {
         console.error(error);
         alert("❌ No se pudo cargar la información");
@@ -165,16 +230,13 @@ window.initModalVerTareaListeners = function () {
   });
 
   // Guardar cambios de tarea
-  const form = document.getElementById("formVerTarea");
+  const form = document.getElementById('formVerTarea');
   if (form) {
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const tareaId = document.getElementById("verIdTarea")?.value;
       const nombreNora = document.body.dataset.nora;
       const hiddenRecurrenteEl = document.getElementById("verIsRecurrente");
-
-      // Validación usuario asignado
       const usuarioAsignado = document.getElementById("verAsignado")?.value;
       if (!usuarioAsignado || usuarioAsignado === "None" || usuarioAsignado === "none") {
         const alertContainer = document.getElementById("alertaGuardado");
@@ -188,7 +250,9 @@ window.initModalVerTareaListeners = function () {
         }
         return;
       }
-
+      // Nuevo: tarea padre
+      const tareaPadreId = document.getElementById("verTareaPadre")?.value || null;
+      console.log('[DEBUG][modal] tareaId:', tareaId, '| tareaPadreId:', tareaPadreId);
       const payload = {
         titulo: document.getElementById("verTitulo")?.value,
         descripcion: document.getElementById("verDescripcion")?.value,
@@ -201,40 +265,41 @@ window.initModalVerTareaListeners = function () {
         dtstart: document.getElementById("verDtstart")?.value,
         rrule: document.getElementById("verRrule")?.value,
         until: document.getElementById("verUntil")?.value,
-        count: document.getElementById("verCount")?.value
+        count: document.getElementById("verCount")?.value,
+        tarea_padre_id: tareaPadreId
       };
-
+      console.log('[DEBUG][modal] payload a enviar:', payload);
       const alertContainer = document.getElementById("alertaGuardado");
       if (!alertContainer) return;
-
       alertContainer.classList.add("d-none");
       alertContainer.classList.remove("alert-success", "alert-danger");
       alertContainer.innerText = "";
-
       try {
-        const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/actualizar_completa/${tareaId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        // Log de depuración: mostrar status y respuesta cruda
-        console.log("[Depuración] Respuesta backend (status):", res.status);
-        let resultadoRaw = await res.text();
-        console.log("[Depuración] Respuesta backend (raw):", resultadoRaw);
-        let resultado;
-        try {
-          resultado = JSON.parse(resultadoRaw);
-        } catch (e) {
-          resultado = { ok: false, error: "Respuesta no es JSON válido", raw: resultadoRaw };
+        // Usar endpoint de actualización inline para cada campo
+        let errores = [];
+        for (const [campo, valor] of Object.entries(payload)) {
+          console.log(`[DEBUG][modal] Enviando update campo: ${campo} | valor:`, valor);
+          if (typeof valor === 'undefined') continue;
+          // Solo enviar campos relevantes (no enviar vacíos salvo tarea_padre_id)
+          if (campo === 'tarea_padre_id' || (valor !== null && valor !== '')) {
+            const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/actualizar/${tareaId}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ campo, valor })
+            });
+            const resultado = await res.json();
+            console.log(`[DEBUG][modal] Respuesta backend para campo ${campo}:`, resultado);
+            if (!resultado.ok) {
+              errores.push(resultado.error || `Error al actualizar ${campo}`);
+            }
+          }
         }
-
-        if (resultado.ok) {
+        if (errores.length === 0) {
           alertContainer.innerText = "✅ Cambios guardados correctamente";
           alertContainer.classList.remove("d-none");
           alertContainer.classList.add("alert", "alert-success");
         } else {
-          alertContainer.innerText = "❌ Error: " + (resultado.error || resultado.raw || "Error desconocido");
+          alertContainer.innerText = "❌ Error: " + errores.join("; ");
           alertContainer.classList.remove("d-none");
           alertContainer.classList.add("alert", "alert-danger");
         }
@@ -247,3 +312,10 @@ window.initModalVerTareaListeners = function () {
     });
   }
 };
+
+// Ejecutar automáticamente al cargar el DOM
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", window.initModalVerTareaListeners);
+} else {
+  window.initModalVerTareaListeners();
+}

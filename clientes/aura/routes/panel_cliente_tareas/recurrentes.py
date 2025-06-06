@@ -33,11 +33,21 @@ def vista_recurrentes(nombre_nora):
         .execute()
     )
     res_data = res_raw if isinstance(res_raw, list) else (res_raw.data or [])
-    res_error = None if isinstance(res_raw, list) else getattr(res_raw, "error", None)
+    tareas_recurrentes_ids = set(r["tarea_id"] for r in res_data)
+    print(f"[DEBUG recurrentes] IDs de tareas recurrentes: {tareas_recurrentes_ids}")
 
-    # Obtener todas las tareas activas de la Nora
+    # Obtener todos los tarea_padre_id de subtareas
+    subtareas_resp = supabase.table("subtareas").select("tarea_padre_id").execute()
+    ids_tareas_con_subtareas = set(s["tarea_padre_id"] for s in (subtareas_resp.data or []) if s.get("tarea_padre_id"))
+
+    # Obtener todas las tareas activas de la Nora (solo tareas principales)
+    # NOTA: La tabla 'tareas' NO tiene columna tarea_padre_id, así que solo filtramos por activo y nombre_nora
     tareas_resp = supabase.table("tareas").select("id, titulo, nombre_nora, empresa_id, usuario_empresa_id").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
     tareas = tareas_resp.data or []
+    print(f"[DEBUG recurrentes] Tareas activas traídas de la BD: {[{'id': t['id'], 'titulo': t['titulo']} for t in tareas]}")
+    for t in tareas:
+        t["es_subtarea"] = False  # Las tareas principales nunca son subtareas
+        t["ya_recurrente"] = t["id"] in tareas_recurrentes_ids
     tareas_dict = {t["id"]: t for t in tareas}
 
     # Obtener empresas y usuarios activos
@@ -64,6 +74,10 @@ def vista_recurrentes(nombre_nora):
             r["usuario_nombre"] = "—"
         recurrentes.append(r)
 
+    # Print tareas principales activas NO recurrentes
+    tareas_no_recurrentes = [t for t in tareas if not t["ya_recurrente"]]
+    print(f"[DEBUG recurrentes] Tareas principales activas NO recurrentes: {[{'id': t['id'], 'titulo': t['titulo']} for t in tareas_no_recurrentes]}")
+
     print(f"[DEBUG recurrentes] recurrentes mostrados para {nombre_nora}: {recurrentes}")
 
     return render_template(
@@ -71,6 +85,7 @@ def vista_recurrentes(nombre_nora):
         nombre_nora=nombre_nora,
         recurrentes=recurrentes,
         user=session.get("user", {}),
+        tareas=tareas,
     )
 
 # ───────────────────────────────────────────────────────────────
@@ -147,3 +162,50 @@ def eliminar_recurrente(nombre_nora, rec_id):
         return redirect(f"/panel_cliente/{nombre_nora}/tareas/recurrentes")
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+def crear_instancia_tarea_recurrente(tarea_base, fecha_instancia, id_instancia=None):
+    """
+    Crea una instancia de una tarea recurrente y replica sus subtareas.
+    - tarea_base: dict con los datos de la tarea padre (recurrente)
+    - fecha_instancia: fecha para la nueva instancia (str o datetime)
+    - id_instancia: opcional, forzar un id específico
+    """
+    from copy import deepcopy
+    if not tarea_base:
+        return None
+    nueva_id = id_instancia or str(uuid.uuid4())
+    nueva_tarea = deepcopy(tarea_base)
+    nueva_tarea["id"] = nueva_id
+    nueva_tarea["fecha_limite"] = fecha_instancia if isinstance(fecha_instancia, str) else fecha_instancia.strftime("%Y-%m-%d")
+    nueva_tarea["created_at"] = datetime.utcnow().isoformat()
+    nueva_tarea["updated_at"] = datetime.utcnow().isoformat()
+    nueva_tarea["origen"] = "recurrente"
+    # Elimina campos que no deben copiarse
+    nueva_tarea.pop("codigo_tarea", None)
+    supabase.table("tareas").insert(nueva_tarea).execute()
+    # Replicar subtareas
+    subtareas = supabase.table("subtareas").select("*").eq("tarea_padre_id", tarea_base["id"]).execute().data or []
+    for subt in subtareas:
+        nueva_subt = deepcopy(subt)
+        nueva_subt["id"] = str(uuid.uuid4())
+        nueva_subt["tarea_padre_id"] = nueva_id
+        nueva_subt["created_at"] = datetime.utcnow().isoformat()
+        nueva_subt["updated_at"] = datetime.utcnow().isoformat()
+        supabase.table("subtareas").insert(nueva_subt).execute()
+    return nueva_id
+
+@panel_tareas_recurrentes_bp.route(
+    "/<nombre_nora>/tareas/recurrentes/instanciar",
+    methods=["POST"],
+)
+def instanciar_recurrente(nombre_nora):
+    data = request.get_json() or request.form
+    tarea_id = data.get("tarea_id")
+    fecha = data.get("fecha")  # formato 'YYYY-MM-DD'
+    if not tarea_id or not fecha:
+        return jsonify({"ok": False, "error": "Faltan datos"}), 400
+    tarea_base = supabase.table("tareas").select("*").eq("id", tarea_id).single().execute().data
+    if not tarea_base:
+        return jsonify({"ok": False, "error": "Tarea no encontrada"}), 404
+    nueva_id = crear_instancia_tarea_recurrente(tarea_base, fecha)
+    return jsonify({"ok": True, "nueva_tarea_id": nueva_id})
