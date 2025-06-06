@@ -176,12 +176,26 @@ def crear_instancia_tarea_recurrente(tarea_base, fecha_instancia, id_instancia=N
     nueva_id = id_instancia or str(uuid.uuid4())
     nueva_tarea = deepcopy(tarea_base)
     nueva_tarea["id"] = nueva_id
-    nueva_tarea["fecha_limite"] = fecha_instancia if isinstance(fecha_instancia, str) else fecha_instancia.strftime("%Y-%m-%d")
+    fecha_str = fecha_instancia if isinstance(fecha_instancia, str) else fecha_instancia.strftime("%Y-%m-%d")
+    nueva_tarea["fecha_limite"] = fecha_str
     nueva_tarea["created_at"] = datetime.utcnow().isoformat()
     nueva_tarea["updated_at"] = datetime.utcnow().isoformat()
     nueva_tarea["origen"] = "recurrente"
-    # Elimina campos que no deben copiarse
-    nueva_tarea.pop("codigo_tarea", None)
+
+    # Generar codigo_tarea único: <codigo_tarea_base>-YYYYMMDD[-N]
+    codigo_base = tarea_base.get("codigo_tarea") or str(uuid.uuid4())
+    fecha_codigo = fecha_str.replace("-", "")
+    codigo_tarea = f"{codigo_base}-{fecha_codigo}"
+    # Buscar si ya existe una tarea con ese codigo_tarea
+    existe = supabase.table("tareas").select("id").eq("codigo_tarea", codigo_tarea).execute().data
+    sufijo = 1
+    codigo_final = codigo_tarea
+    while existe:
+        sufijo += 1
+        codigo_final = f"{codigo_tarea}-{sufijo}"
+        existe = supabase.table("tareas").select("id").eq("codigo_tarea", codigo_final).execute().data
+    nueva_tarea["codigo_tarea"] = codigo_final
+
     supabase.table("tareas").insert(nueva_tarea).execute()
     # Replicar subtareas
     subtareas = supabase.table("subtareas").select("*").eq("tarea_padre_id", tarea_base["id"]).execute().data or []

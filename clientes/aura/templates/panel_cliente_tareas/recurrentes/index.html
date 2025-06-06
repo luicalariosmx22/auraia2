@@ -82,6 +82,7 @@
     <h2 class="text-lg font-semibold mb-4 text-blue-700">Crear instancia de tarea recurrente</h2>
     <form id="formInstanciarTarea">
       <input type="hidden" id="instanciarTareaId" name="tarea_id">
+      <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
       <div class="mb-3">
         <label for="instanciarFecha" class="block text-sm font-medium text-gray-700">Fecha de la instancia</label>
         <input type="date" id="instanciarFecha" name="fecha" class="w-full border rounded px-3 py-2 mt-1" required>
@@ -157,11 +158,12 @@ const formInst = document.getElementById('formInstanciarTarea');
 if (formInst) {
   formInst.onsubmit = async function(e) {
     e.preventDefault();
+    const msg = document.getElementById('instanciarMsg');
+    msg.innerText = 'Creando instancia...';
+    // Enviar como JSON para máxima compatibilidad
     const tarea_id = document.getElementById('instanciarTareaId').value;
     const fecha = document.getElementById('instanciarFecha').value;
     const nombre_nora = '{{ nombre_nora }}';
-    const msg = document.getElementById('instanciarMsg');
-    msg.innerText = 'Creando instancia...';
     try {
       const resp = await fetch(`/panel_cliente/${nombre_nora}/tareas/recurrentes/instanciar`, {
         method: 'POST',
@@ -198,13 +200,12 @@ if (formNuevaRec) {
     e.preventDefault();
     const msg = document.getElementById('nuevaRecurrenteMsg');
     msg.innerText = 'Creando...';
-    const data = Object.fromEntries(new FormData(formNuevaRec));
-    data['nombre_nora'] = '{{ nombre_nora }}';
+    const formData = new FormData(formNuevaRec);
+    formData.append('nombre_nora', '{{ nombre_nora }}');
     try {
-      const resp = await fetch(`/panel_cliente/${data['nombre_nora']}/tareas/recurrentes/crear`, {
+      const resp = await fetch(`/panel_cliente/${formData.get('nombre_nora')}/tareas/recurrentes/crear`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: formData
       });
       const res = await resp.json();
       if (res.ok) {
