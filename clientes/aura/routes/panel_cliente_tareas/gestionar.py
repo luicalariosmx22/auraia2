@@ -239,6 +239,7 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         "usuario_empresa_id",  # ← Único campo para “Asignado a”
         "empresa_id",
         "tarea_padre_id",      # ← Permitir cambiar tarea padre
+        "descripcion",         # ← Permitir editar descripción
     ]:
         return jsonify({"error": "Campo no permitido"}), 400
 
@@ -259,6 +260,12 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
             datetime.strptime(valor, "%Y-%m-%d")  # Validar formato de fecha
         except ValueError:
             return jsonify({"error": "Fecha límite inválida"}), 400
+    if campo == "descripcion":
+        if not isinstance(valor, str):
+            return jsonify({"error": "Descripción inválida"}), 400
+        valor = valor.strip()
+        if len(valor) > 2000:
+            return jsonify({"error": "La descripción es demasiado larga (máx 2000 caracteres)"}), 400
 
     # Si se cambia tarea_padre_id, permitir None para volver a tarea principal
     update_data = {campo: valor, "updated_at": datetime.utcnow().isoformat()}
@@ -339,6 +346,7 @@ def crear_tarea(nombre_nora):
             "id": str(uuid.uuid4()),
             "nombre_nora": nombre_nora,
             "titulo": titulo.strip(),
+            "descripcion": data.get("descripcion", ""),
             "prioridad": prioridad.strip().lower() if prioridad else "media",
             "fecha_limite": fecha_limite.strip() or None,
             "estatus": estatus,
