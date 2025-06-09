@@ -11,11 +11,23 @@ print("🧩 cargando tareas_crud.py...")  # 🔍 Diagnóstico en tiempo de arran
 
 # ✅ Generar código único para tareas
 def generar_codigo_tarea(iniciales_usuario):
+    import re
     fecha = datetime.now().strftime("%d%m%y")
     iniciales = ''.join(filter(str.isalnum, iniciales_usuario.upper()))[:3]
     base_codigo = f"{iniciales}-{fecha}"
-    existentes = supabase.table("tareas").select("id").ilike("codigo_tarea", f"{base_codigo}-%").execute()
-    correlativo = len(existentes.data) + 1
+    # Buscar solo el máximo correlativo existente
+    max_codigo = supabase.table("tareas") \
+        .select("codigo_tarea") \
+        .ilike("codigo_tarea", f"{base_codigo}-%") \
+        .order("codigo_tarea", desc=True) \
+        .limit(1) \
+        .execute()
+    if max_codigo.data:
+        last = max_codigo.data[0]["codigo_tarea"]
+        m = re.match(rf"{base_codigo}-(\\d+)", last)
+        correlativo = int(m.group(1)) + 1 if m else 1
+    else:
+        correlativo = 1
     return f"{base_codigo}-{str(correlativo).zfill(3)}"
 
 # ✅ Crear tarea
@@ -117,6 +129,29 @@ def listar_tareas_por_usuario(usuario_empresa_id):
         .eq("activo", True) \
         .order("fecha_limite", desc=False).execute()
     return result.data
+
+# ✅ Listar tareas por usuario (PAGINADO)
+def listar_tareas_paginado(usuario_empresa_id, page=1, page_size=20):
+    try:
+        page = int(page) if page else 1
+        page_size = int(page_size) if page_size else 20
+        offset = (page - 1) * page_size
+        # Consulta paginada
+        res = supabase.table("tareas").select("*", count="exact") \
+            .eq("usuario_empresa_id", usuario_empresa_id) \
+            .eq("activo", True) \
+            .order("fecha_limite", desc=False) \
+            .range(offset, offset + page_size - 1) \
+            .execute()
+        return {
+            "tareas": res.data or [],
+            "total": res.count or 0,
+            "page": page,
+            "page_size": page_size
+        }
+    except Exception as e:
+        print(f"❌ Error en paginación: {e}")
+        return {"tareas": [], "total": 0, "page": page, "page_size": page_size, "error": str(e)}
 
 # ✅ Actualizar una tarea
 def actualizar_tarea(tarea_id, data):
@@ -335,7 +370,15 @@ def eliminar_tarea(tarea_id):
         supabase.table("tareas_recurrentes").delete().eq("tarea_id", tarea_id).execute()
         # Ahora sí borra la tarea principal
         supabase.table("tareas").delete().eq("id", tarea_id).execute()
-        return jsonify({"ok": True})
+        # --- OPTIMIZACIÓN: devolver la página actual de tareas paginadas ---
+        usuario_empresa_id = request.args.get("usuario_empresa_id")
+        page = request.args.get("page", 1)
+        page_size = request.args.get("page_size", 20)
+        if usuario_empresa_id:
+            result = listar_tareas_paginado(usuario_empresa_id, page, page_size)
+            return jsonify({"ok": True, "tareas": result["tareas"], "total": result["total"], "page": result["page"], "page_size": result["page_size"]})
+        else:
+            return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
 
@@ -366,3 +409,13 @@ def agregar_comentario_tarea(nombre_nora, tarea_id):
         return jsonify({"ok": True, "comentario": comentario})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
+
+@panel_tareas_crud_bp.route("/tareas/gestionar/listar", methods=["GET"])
+def listar_tareas_gestionar():
+    usuario_empresa_id = request.args.get("usuario_empresa_id")
+    page = request.args.get("page", 1)
+    page_size = request.args.get("page_size", 20)
+    if not usuario_empresa_id:
+        return jsonify({"error": "usuario_empresa_id es obligatorio"}), 400
+    result = listar_tareas_paginado(usuario_empresa_id, page, page_size)
+    return jsonify(result)

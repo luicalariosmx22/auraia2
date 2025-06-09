@@ -52,7 +52,6 @@ def vista_gestionar_tareas(nombre_nora):
         usuario_id = "00000000-0000-0000-0000-000000000000"
         session["usuario_empresa_id"] = usuario_id
 
-    # 👇 Lógica de permisos personalizada
     rol_tareas = obtener_rol_tareas(usuario_id, nombre_nora)
     permisos = {
         "es_supervisor": rol_tareas == "supervisor",
@@ -62,10 +61,8 @@ def vista_gestionar_tareas(nombre_nora):
         "rol_tareas": rol_tareas
     }
 
-    # --- Lógica para demo de roles (solo superadmin puede simular) ---
     rol_demo = request.args.get("rol_demo")
     if permisos.get("es_super_admin") and rol_demo:
-        # Sobrescribe los permisos según el rol_demo seleccionado
         if rol_demo == "usuario":
             permisos["es_supervisor"] = False
             permisos["es_admin"] = False
@@ -85,19 +82,7 @@ def vista_gestionar_tareas(nombre_nora):
             permisos["rol_tareas"] = "super_admin"
     # --- Fin lógica demo roles ---
 
-    tareas_resp = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute()
-    todas = tareas_resp.data or []
-
-    # --- Lógica para marcar tareas recurrentes ---
-    tareas_recurrentes_resp = supabase.table("tareas_recurrentes").select("tarea_id").execute()
-    tarea_ids_recurrentes = set(r["tarea_id"] for r in (tareas_recurrentes_resp.data or []))
-    for t in todas:
-        if t.get("id") in tarea_ids_recurrentes:
-            t["is_recurrente"] = True
-        else:
-            t["is_recurrente"] = False
-    # --- Fin lógica recurrente ---
-
+    # --- Filtros y paginación ---
     q = {
         "busqueda": request.args.get("busqueda", "").strip().lower(),
         "estatus": request.args.get("estatus", "").strip(),
@@ -107,30 +92,51 @@ def vista_gestionar_tareas(nombre_nora):
         "fecha_ini": request.args.get("fecha_ini", "").strip(),
         "fecha_fin": request.args.get("fecha_fin", "").strip()
     }
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+    except Exception:
+        page = 1
+        per_page = 10
+    offset = (page - 1) * per_page
+    # --- Consulta eficiente a Supabase ---
+    query = supabase.table("tareas").select("*", count="exact").eq("nombre_nora", nombre_nora).eq("activo", True)
+    if q["empresa_id"]:
+        query = query.eq("empresa_id", q["empresa_id"])
+    if q["usuario_empresa_id"]:
+        query = query.eq("usuario_empresa_id", q["usuario_empresa_id"])
+    if q["estatus"]:
+        query = query.eq("estatus", q["estatus"])
+    if q["prioridad"]:
+        query = query.eq("prioridad", q["prioridad"])
+    if q["fecha_ini"]:
+        query = query.gte("fecha_limite", q["fecha_ini"])
+    if q["fecha_fin"]:
+        query = query.lte("fecha_limite", q["fecha_fin"])
+    # Ordenamiento
+    orden = request.args.get("orden", "desc")
+    if orden == "asc":
+        query = query.order("created_at", desc=False)
+    else:
+        query = query.order("created_at", desc=True)
+    # Paginación
+    query = query.range(offset, offset + per_page - 1)
+    res = query.execute()
+    tareas_activas = res.data or []
+    total_activas = res.count or 0
+    total_pages = (total_activas + per_page - 1) // per_page
 
-    def coincide(t):
-        if q["busqueda"] and q["busqueda"] not in (t.get("titulo", "").lower() + " " + t.get("descripcion", "").lower()):
-            return False
-        if q["estatus"] and t.get("estatus") != q["estatus"]:
-            return False
-        if q["prioridad"] and t.get("prioridad") != q["prioridad"]:
-            return False
-        if q["empresa_id"] and (t.get("empresa_id") or "") != q["empresa_id"]:
-            return False
-        if q["usuario_empresa_id"] and (t.get("usuario_empresa_id") or "") != q["usuario_empresa_id"]:
-            return False
-        if q["fecha_ini"] and (t.get("fecha_limite") or "") < q["fecha_ini"]:
-            return False
-        if q["fecha_fin"] and (t.get("fecha_limite") or "") > q["fecha_fin"]:
-            return False
-        return True
+    # --- Filtro de búsqueda por texto (en memoria, si aplica) ---
+    if q["busqueda"]:
+        tareas_activas = [t for t in tareas_activas if q["busqueda"] in (t.get("titulo", "").lower() + " " + t.get("descripcion", "").lower())]
+        total_activas = len(tareas_activas)
+        total_pages = (total_activas + per_page - 1) // per_page
 
-    tareas = [t for t in todas if coincide(t)]
-
-    if request.args.get("tipo", "").strip().lower() == "recurrente":
-        tareas = [t for t in tareas if t.get("recurrente") is True]
-
-    for t in tareas:
+    # --- Marcar recurrentes y enriquecer tareas ---
+    tareas_recurrentes_resp = supabase.table("tareas_recurrentes").select("tarea_id").execute()
+    tarea_ids_recurrentes = set(r["tarea_id"] for r in (tareas_recurrentes_resp.data or []))
+    for t in tareas_activas:
+        t["is_recurrente"] = t.get("id") in tarea_ids_recurrentes
         if t.get("empresa_id"):
             try:
                 emp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", t["empresa_id"]).limit(1).execute()
@@ -150,7 +156,8 @@ def vista_gestionar_tareas(nombre_nora):
             t["dias_restantes"] = None
 
     # --- Conteo de comentarios por tarea para distintivo 💬 ---
-    tarea_ids = [t["id"] for t in tareas]
+    tarea_ids = [t["id"] for t in tareas_activas]
+    conteos = {}
     if tarea_ids:
         comentarios_agregados = (
             supabase.table("tarea_comentarios")
@@ -158,90 +165,52 @@ def vista_gestionar_tareas(nombre_nora):
             .in_("tarea_id", tarea_ids)
             .execute()
         )
-        conteos = {}
         for c in comentarios_agregados.data:
             tid = c["tarea_id"]
             conteos[tid] = conteos.get(tid, 0) + 1
-        for t in tareas:
-            t["comentarios_count"] = conteos.get(t["id"], 0)
-    else:
-        for t in tareas:
-            t["comentarios_count"] = 0
-    # --- Fin conteo comentarios ---
-    
+    for t in tareas_activas:
+        t["comentarios_count"] = conteos.get(t["id"], 0)
+
     usuarios = supabase.table("usuarios_clientes").select("id, nombre").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
     empresas = supabase.table("cliente_empresas").select("id, nombre_empresa").eq("nombre_nora", nombre_nora).execute().data or []
 
     logger = logging.getLogger(__name__)
-    logger.info(f"[Tareas] Recuperadas {len(tareas)} tareas para usuario_id={usuario_id} (Nora: {nombre_nora})")
-
-    tareas_activas = [t for t in tareas if t.get("estatus", "").strip() != "completada"]
-    tareas_completadas = [t for t in tareas if t.get("estatus", "").strip() == "completada"]
-    tareas_vencidas = [t for t in tareas_activas if (t.get("dias_restantes") or 0) < 0]
-
-    resumen = {
-        "tareas_activas": len(tareas_activas),
-        "tareas_completadas": len(tareas_completadas),
-        "tareas_vencidas": len(tareas_vencidas),
-        "porcentaje_cumplimiento": 0
-    }
-    total = sum(resumen.values())
-    if total > 0:
-        resumen["porcentaje_cumplimiento"] = round((resumen["tareas_completadas"] / total) * 100, 1)
-
-    cliente_id = session.get("cliente_id")
-    alertas_data = supabase.table("alertas_ranking").select("data").eq("cliente_id", cliente_id).single().execute().data if cliente_id else None
-    alertas = alertas_data["data"] if alertas_data and "data" in alertas_data else {}
-
-    nombre_usuario = session.get("user", {}).get("nombre", "Usuario")
-    mensaje_bienvenida = f"Hola {nombre_usuario}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
-
-    # --- Ordenamiento de tareas activas ---
-    orden = request.args.get("orden", "desc")
-    if orden == "asc":
-        tareas_activas.sort(key=lambda t: t.get("created_at") or "")
-    else:
-        tareas_activas.sort(key=lambda t: t.get("created_at") or "", reverse=True)
-    # --- Fin ordenamiento ---
-
-    # --- Paginación de tareas activas ---
-    try:
-        page = int(request.args.get("page", 1))
-        per_page = int(request.args.get("per_page", 10))
-    except Exception:
-        page = 1
-        per_page = 10
-    start = (page - 1) * per_page
-    end = start + per_page
-    total_activas = len(tareas_activas)
-    tareas_activas_paged = tareas_activas[start:end]
-    total_pages = (total_activas + per_page - 1) // per_page
-    # --- Fin paginación ---
+    logger.info(f"[Tareas] Recuperadas {len(tareas_activas)} tareas para usuario_id={usuario_id} (Nora: {nombre_nora})")
 
     # --- SUBTAREAS: lógica para obtener subtareas de una tarea principal ---
     def obtener_subtareas(tarea_padre_id):
         res = supabase.table("subtareas").select("*").eq("tarea_padre_id", tarea_padre_id).eq("activo", True).order("created_at", desc=False).execute()
         return res.data or []
-    # --- Fin lógica subtareas ---
-
-    # Para cada tarea activa, agregar subtareas si existen
     for t in tareas_activas:
         t["subtareas"] = obtener_subtareas(t["id"])
+
+    resumen = {
+        "tareas_activas": total_activas,
+        "tareas_completadas": 0,  # Si necesitas, haz otra consulta paginada para completadas
+        "tareas_vencidas": len([t for t in tareas_activas if (t.get("dias_restantes") or 0) < 0]),
+        "porcentaje_cumplimiento": 0
+    }
+    total = resumen["tareas_activas"] + resumen["tareas_completadas"]
+    if total > 0:
+        resumen["porcentaje_cumplimiento"] = round((resumen["tareas_completadas"] / total) * 100, 1)
+
+    nombre_usuario = session.get("user", {}).get("nombre", "Usuario")
+    mensaje_bienvenida = f"Hola {nombre_usuario}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
 
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
-        tareas=tareas,
+        tareas=[],  # ya no se usa
         resumen=resumen,
         usuarios=usuarios,
         mensaje_bienvenida=mensaje_bienvenida,
-        tareas_activas=tareas_activas_paged,
-        tareas_completadas=tareas_completadas,
+        tareas_activas=tareas_activas,
+        tareas_completadas=[],  # si quieres, haz paginación igual
         permisos=permisos,
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
         modulo_activo="tareas",
-        alertas=alertas,
+        alertas={},
         page=page,
         total_pages=total_pages,
         per_page=per_page,
