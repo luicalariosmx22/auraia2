@@ -134,10 +134,18 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 print(f"Registrando blueprint META ADS para {nombre_nora}")
                 safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
                 # Registrar reportes avanzados de Meta Ads
-                safe_register_blueprint(app, reportes_meta_ads_bp, url_prefix=f"/panel_cliente/<nombre_nora>/meta_ads")
+                safe_register_blueprint(app, reportes_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
                 # Registrar campañas avanzadas de Meta Ads
                 from clientes.aura.routes.campanas_meta_ads import campanas_meta_ads_bp
                 safe_register_blueprint(app, campanas_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+
+            if "meta_ads" in modulos:
+                from clientes.aura.routes.sincronizar_meta_ads import panel_cliente_meta_ads_bp
+                safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+
+            if "meta_ads" in modulos:
+                from clientes.aura.routes.reportes_meta_ads.vista_sincronizacion import panel_cliente_meta_ads_sincronizacion_bp
+                safe_register_blueprint(app, panel_cliente_meta_ads_sincronizacion_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
 
             # Si tienes un blueprint para Google Ads, registra aquí:
             # if "ads" in modulos:

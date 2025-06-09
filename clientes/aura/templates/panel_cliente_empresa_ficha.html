@@ -143,14 +143,22 @@
           </tr>
         </thead>
         <tbody>
+          {% set all_tareas = [] %}
           {% for t in tareas_activas %}
+            {% set _ = all_tareas.append(t) %}
+            {% if t.subtareas and t.subtareas|length > 0 %}
+              {% for s in t.subtareas %}
+                {% set _ = all_tareas.append(s) %}
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+          {% for t in all_tareas %}
           <tr class="border-t border-gray-100 hover:bg-blue-50 transition">
             <td class="px-3 py-2">
               {% if t.prioridad == 'alta' %}<span class="text-red-600 font-bold">🔴 Alta</span>{% elif t.prioridad == 'media' %}<span class="text-yellow-600 font-bold">🟠 Media</span>{% else %}<span class="text-green-600 font-bold">🟢 Baja</span>{% endif %}
             </td>
             <td class="px-3 py-2">
               <span class="font-medium">{{ t.titulo }}</span>
-              {% if t.recurrente or t.is_recurrente %}<span title="Tarea recurrente" class="ml-1">🔁</span>{% endif %}
             </td>
             <td class="px-3 py-2">
               {% if t.estatus == 'pendiente' %}<span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">⏳ Pendiente</span>{% elif t.estatus == 'en progreso' %}<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">🚧 En progreso</span>{% elif t.estatus == 'retrasada' %}<span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs">❗ Retrasada</span>{% elif t.estatus == 'completada' %}<span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">✅ Completada</span>{% else %}{{ t.estatus|capitalize }}{% endif %}

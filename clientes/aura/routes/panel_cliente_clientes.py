@@ -393,6 +393,20 @@ def ficha_empresa(empresa_id):
     # --- Consultar tareas ligadas a la empresa ---
     tareas = supabase.table("tareas").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data or []
 
+    # --- Consultar subtareas ligadas a la empresa ---
+    subtareas = supabase.table("subtareas").select("*").eq("empresa_id", empresa_id).eq("activo", True).execute().data or []
+    subtareas_por_tarea = {}
+    for s in subtareas:
+        subtareas_por_tarea.setdefault(s["tarea_padre_id"], []).append(s)
+    # Asociar subtareas a cada tarea
+    for t in tareas:
+        t["subtareas"] = subtareas_por_tarea.get(t["id"], [])
+
+    print('DEBUG tareas:', tareas)
+    print('DEBUG subtareas:', subtareas)
+    print('DEBUG tareas_activas:', [t for t in tareas if t.get('estatus') != 'completada'])
+    print('DEBUG tareas_completadas:', [t for t in tareas if t.get('estatus') == 'completada'])
+
     # --- Consultar pagos ligados a la empresa ---
     pagos = supabase.table("pagos").select("*").eq("empresa_id", empresa_id).execute().data or []
 

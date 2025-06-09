@@ -8,34 +8,17 @@
       <h3 class="text-lg font-bold text-green-700 mb-2 flex items-center gap-2">⚙️ Automatizaciones</h3>
       <p class="text-gray-600 mb-4">Configura la frecuencia, destinatarios y variables de los reportes automáticos.</p>
       <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-semibold w-fit" onclick="document.getElementById('modal-automatizacion').classList.remove('hidden')">Editar automatizaciones</button>
+      <a href="{{ url_for('panel_cliente_meta_ads_sincronizacion.sincronizar_gasto_manual_short', nombre_nora=nombre_nora) }}" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold w-fit text-center">Sincronizar gasto manual</a>
     </div>
     <!-- Reporte manual -->
     <div class="bg-white rounded-xl shadow p-6 border border-blue-100 flex flex-col">
       <h3 class="text-lg font-bold text-blue-700 mb-2 flex items-center gap-2">📤 Crear reporte manual</h3>
       <p class="text-gray-600 mb-4">Sube un archivo CSV o Excel para generar un reporte personalizado.</p>
-      <form method="post" enctype="multipart/form-data" class="flex flex-col gap-2">
-        <input type="file" name="archivo_reporte" accept=".csv,.xlsx,.xls" class="border rounded px-2 py-1">
-        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold w-fit mt-2">Subir y generar</button>
-      </form>
+      <a href="{{ url_for('reportes_meta_ads.vista_reporte_manual_meta_ads', nombre_nora=nombre_nora) }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold w-fit mt-2 text-center">Ir a carga avanzada</a>
     </div>
   </div>
-  <!-- Variables y empresas/cuentas -->
+  <!-- Selección de empresas/cuentas -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-    <!-- Variables personalizables -->
-    <div class="bg-white rounded-xl shadow p-6 border border-yellow-100 flex flex-col">
-      <h3 class="text-lg font-bold text-yellow-700 mb-2 flex items-center gap-2">🧩 Variables del reporte</h3>
-      <p class="text-gray-600 mb-4">Selecciona las variables que quieres incluir en los reportes para este cliente.</p>
-      <form class="flex flex-col gap-2">
-        <label class="inline-flex items-center"><input type="checkbox" checked> Impresiones</label>
-        <label class="inline-flex items-center"><input type="checkbox" checked> Clicks</label>
-        <label class="inline-flex items-center"><input type="checkbox" checked> Alcance</label>
-        <label class="inline-flex items-center"><input type="checkbox"> Costo por resultado</label>
-        <label class="inline-flex items-center"><input type="checkbox"> Frecuencia</label>
-        <label class="inline-flex items-center"><input type="checkbox"> Objetivo</label>
-        <button class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 font-semibold w-fit mt-2">Guardar variables</button>
-      </form>
-    </div>
-    <!-- Selección de empresas/cuentas -->
     <div class="bg-white rounded-xl shadow p-6 border border-pink-100 flex flex-col">
       <h3 class="text-lg font-bold text-pink-700 mb-2 flex items-center gap-2">🏢 Empresas / Cuentas</h3>
       <p class="text-gray-600 mb-4">Elige a qué empresas o cuentas se aplicarán los reportes automáticos.</p>
@@ -50,12 +33,6 @@
         <button class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700 font-semibold w-fit mt-2">Guardar selección</button>
       </form>
     </div>
-  </div>
-  <!-- Área de diseño del reporte -->
-  <div class="bg-white rounded-2xl shadow-lg p-8 border-2 border-gray-200 flex flex-col items-center mt-8">
-    <h3 class="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">🎨 Área de diseño del reporte</h3>
-    <p class="text-gray-600 mb-4 text-center">Previsualiza y personaliza el diseño del reporte que recibirán tus clientes.</p>
-    <a href="{{ url_for('reportes_meta_ads.vista_diseno_reporte', nombre_nora=nombre_nora) }}" class="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition">Ir al diseñador visual</a>
   </div>
   <!-- Modal automatizaciones -->
   <div id="modal-automatizacion" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">

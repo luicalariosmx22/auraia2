@@ -1,5 +1,5 @@
 from .sincronizar_meta_ads import panel_cliente_meta_ads_bp
-from clientes.aura.routes.reportes_meta_ads.vista_sincronizacion import panel_cliente_meta_ads_sincronizacion_bp
+from .vista_sincronizacion import panel_cliente_meta_ads_sincronizacion_bp
 
 __all__ = [
     "panel_cliente_meta_ads_bp",

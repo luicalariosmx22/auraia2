@@ -1,0 +1,83 @@
+{% extends 'base_cliente.html' %}
+{% block contenido %}
+<div class="max-w-4xl mx-auto py-10">
+  <h1 class="text-3xl font-extrabold text-center text-green-900 mb-8">Reportes en Borrador</h1>
+  <form method="get" action="" class="mb-6">
+    <div class="flex flex-col md:flex-row md:items-center gap-4">
+      <label for="empresa_id" class="font-semibold">Filtrar por empresa:</label>
+      <select name="empresa_id" id="empresa_id" class="border rounded px-3 py-2 min-w-[220px]" onchange="this.form.submit()">
+        <option value="">-- Todas las empresas --</option>
+        {% for empresa in empresas %}
+          <option value="{{ empresa.id }}" {% if empresa_id == empresa.id|string %}selected{% endif %}>{{ empresa.nombre_empresa }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+  {% set meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] %}
+  {% if prereportes and prereportes|length > 0 %}
+    <div class="bg-white rounded-xl shadow p-6 border border-gray-200">
+      <table class="min-w-full text-sm text-left">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2">Empresa</th>
+            <th class="px-4 py-2">Fecha de creación</th>
+            <th class="px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rep in prereportes %}
+          <tr class="border-b hover:bg-gray-50" id="prerep-{{ rep.id }}">
+            <td class="px-4 py-2 font-semibold">
+              {% set empresa = empresas|selectattr('id', 'equalto', rep.id_empresa)|first %}
+              {{ empresa.nombre_empresa if empresa else rep.id_empresa }}
+            </td>
+            <td class="px-4 py-2">
+              {% if rep.created_at %}
+                {% set dt = rep.created_at[:10].split('-') %}
+                {{ dt[2]|int }} de {{ meses[dt[1]|int - 1] }} de {{ dt[0] }}
+              {% else %}-{% endif %}
+            </td>
+            <td class="px-4 py-2 flex gap-2">
+              <a href="#" class="text-blue-600 hover:underline" title="Ver o modificar">Ver/Modificar</a>
+              <a href="#" class="text-red-600 hover:underline" title="Eliminar" onclick="eliminarPrereporte('{{ rep.id }}', this); return false;">Eliminar</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-gray-600 bg-white p-6 rounded-lg shadow text-center mt-8">
+      No hay reportes guardados en borrador.
+    </div>
+  {% endif %}
+  <div class="flex flex-row gap-4 mt-8">
+    <a href="{{ url_for('reportes_meta_ads.vista_reportes_meta_ads', nombre_nora=nombre_nora) }}"
+       class="inline-flex items-center px-4 py-2 bg-gray-200 text-blue-800 font-semibold rounded shadow hover:bg-gray-300 transition">
+      <span class="mr-2">&larr;</span> Volver a reportes
+    </a>
+  </div>
+</div>
+<script>
+  // Si el endpoint requiere nombre_nora, pásalo explícitamente
+  const urlEliminarPrereporte = "{{ url_for('reportes_meta_ads.eliminar_prereporte', nombre_nora=nombre_nora) if nombre_nora else url_for('reportes_meta_ads.eliminar_prereporte') }}";
+  function eliminarPrereporte(id, el) {
+    if (!confirm('¿Seguro que deseas eliminar este prereporte?')) return;
+    fetch(urlEliminarPrereporte, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        const row = document.getElementById('prerep-' + id);
+        if (row) row.remove();
+      } else {
+        alert('No se pudo eliminar: ' + (data.msg || 'Error desconocido'));
+      }
+    })
+    .catch(() => alert('Error de red al eliminar.'));
+  }
+</script>
+{% endblock %}

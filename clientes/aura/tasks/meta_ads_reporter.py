@@ -115,6 +115,8 @@ def enviar_reporte_semanal():
             print(f"📲 Enviando WhatsApp a: {numero}")
             enviar_mensaje_whatsapp(numero, mensaje)
 
+        # El guardado de reportes automáticos SÍ debe seguir insertando en meta_ads_reportes
+        # No modificar aquí, solo asegurarse que la carga manual no use esta lógica
         supabase.table('meta_ads_reportes').insert({
             'cuenta_id': cuenta['id'],
             'mensaje': mensaje,

@@ -51,6 +51,14 @@ def crear_tarea(data):
     }
     print("🚀 Payload a insertar:", nueva)
 
+    # --- ANTI-DUPLICADO: Verifica si ya existe una tarea igual para hoy ---
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    existe = supabase.table("tareas").select("id").eq("usuario_empresa_id", usuario_empresa_id) \
+        .eq("titulo", titulo).gte("created_at", f"{hoy}T00:00:00").lte("created_at", f"{hoy}T23:59:59").execute()
+    if existe.data:
+        print("⚠️ Ya existe una tarea igual hoy, no se inserta duplicado.")
+        return existe.data, 200
+
     try:
         # 1️⃣ Insertamos la tarea base
         result = supabase.table("tareas").insert(nueva).execute()
@@ -321,6 +329,11 @@ def actualizar_tarea_inline(nombre_nora, tarea_id):
 @panel_tareas_crud_bp.route("/tareas/gestionar/eliminar/<tarea_id>", methods=["DELETE"])
 def eliminar_tarea(tarea_id):
     try:
+        # Borra primero los registros relacionados para acelerar el borrado
+        supabase.table("subtareas").delete().eq("tarea_padre_id", tarea_id).execute()
+        supabase.table("tarea_comentarios").delete().eq("tarea_id", tarea_id).execute()
+        supabase.table("tareas_recurrentes").delete().eq("tarea_id", tarea_id).execute()
+        # Ahora sí borra la tarea principal
         supabase.table("tareas").delete().eq("id", tarea_id).execute()
         return jsonify({"ok": True})
     except Exception as e:
