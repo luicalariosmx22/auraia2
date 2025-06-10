@@ -29,6 +29,8 @@ panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 @panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar", methods=["GET", "POST"])
 def gestionar_tareas(nombre_nora):
     if request.method == "POST":
+        print("✅ Recibido POST a crear_tarea()")
+        print("🔎 Datos recibidos:", request.get_json(silent=True) or request.form.to_dict())
         return crear_tarea(nombre_nora)
     return vista_gestionar_tareas(nombre_nora)
 
@@ -277,90 +279,6 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# -------------------------------------------------------------------
-# API: crear tarea nueva
-# -------------------------------------------------------------------
-@panel_tareas_gestionar_bp.route(
-    "/panel_cliente/<nombre_nora>/tareas/gestionar/crear", methods=["POST"]
-)
-def crear_tarea(nombre_nora):
-    data = request.form.to_dict(flat=True) or request.get_json(silent=True) or {}
-
-    print("👤 usuario_empresa_id recibido:", data.get("usuario_empresa_id"))
-
-    titulo = data.get("titulo")
-    prioridad = (data.get("prioridad") or "media").strip().lower()
-    fecha_limite = data.get("fecha_limite")
-    estatus = (data.get("estatus") or "pendiente").strip().lower()
-
-    usuario_empresa_id = (data.get("usuario_empresa_id") or session.get("usuario_empresa_id") or "").strip()
-    if not usuario_empresa_id or usuario_empresa_id.strip() in ["", "none", "None"]:
-        return jsonify({"error": "No se puede determinar el usuario asignado"}), 400
-
-    empresa_id = (data.get("empresa_id") or "").strip() or None
-
-    if not titulo:
-        return jsonify({"error": "El título es obligatorio"}), 400
-    if prioridad not in ("baja", "media", "alta"):
-        return jsonify({"error": "Prioridad inválida"}), 400
-    if estatus not in ("pendiente", "en progreso", "retrasada", "completada"):
-        return jsonify({"error": "Estatus inválido"}), 400
-
-    usr_check = supabase.table("usuarios_clientes") \
-        .select("id") \
-        .eq("id", usuario_empresa_id) \
-        .limit(1) \
-        .execute()
-    if not usr_check.data:
-        return jsonify({"error": "Usuario asignado inválido"}), 400
-
-    creado_por = session.get("usuario_empresa_id") or "Nora"
-    nombre_usuario = session.get("name", "NN")
-    iniciales_usuario = "".join([s[0] for s in nombre_usuario.split()[:2]])
-
-    tarea_padre_id = data.get("tarea_padre_id")
-
-    if tarea_padre_id:
-        # Crear como subtarea
-        subtarea_data = {
-            "id": str(uuid.uuid4()),
-            "tarea_padre_id": tarea_padre_id,
-            "titulo": titulo.strip(),
-            "descripcion": data.get("descripcion", ""),
-            "prioridad": prioridad.strip().lower() if prioridad else "media",
-            "fecha_limite": fecha_limite.strip() or None,
-            "estatus": estatus,
-            "usuario_empresa_id": usuario_empresa_id,
-            "empresa_id": empresa_id,
-            "creado_por": creado_por,
-            "activo": True,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
-        }
-        supabase.table("subtareas").insert(subtarea_data).execute()
-        return jsonify({"ok": True, "subtarea": subtarea_data})
-    else:
-        # Crear como tarea principal
-        tarea_data = {
-            "id": str(uuid.uuid4()),
-            "nombre_nora": nombre_nora,
-            "titulo": titulo.strip(),
-            "descripcion": data.get("descripcion", ""),
-            "prioridad": prioridad.strip().lower() if prioridad else "media",
-            "fecha_limite": fecha_limite.strip() or None,
-            "estatus": estatus,
-            "usuario_empresa_id": usuario_empresa_id,
-            "empresa_id": empresa_id,
-            "codigo_tarea": generar_codigo_tarea(iniciales_usuario),
-            "origen": "manual",
-            "activo": True,
-            "creado_por": creado_por,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
-        }
-        supabase.table("tareas").insert(tarea_data).execute()
-        return jsonify({"ok": True, "tarea": tarea_data})
 
 # -------------------------------------------------------------------
 # API: obtener tarea por ID
@@ -687,4 +605,100 @@ def obtener_tarea_modal(nombre_nora, tarea_id):
             "subtareas": subtareas
         })
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# -------------------------------------------------------------------
+# API: crear tarea (versión robusta y moderna)
+# -------------------------------------------------------------------
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar/crear", methods=["POST"])
+def crear_tarea(nombre_nora):
+    data = request.get_json(silent=True) or request.form.to_dict(flat=True) or {}
+
+    usuario_empresa_id = (data.get("usuario_empresa_id") or "").strip()
+    titulo = (data.get("titulo") or "").strip()
+    if not usuario_empresa_id:
+        return jsonify({"error": "usuario_empresa_id es obligatorio"}), 400
+    if not titulo:
+        return jsonify({"error": "titulo es obligatorio"}), 400
+
+    def sanea_uuid(val):
+        return val.strip() or None if isinstance(val, str) else val
+
+    # 🧠 Generar un código de tarea único
+    import re
+    fecha = datetime.now().strftime("%d%m%y")
+    iniciales = ''.join(filter(str.isalnum, (data.get("iniciales_usuario", "NN")).upper()))[:3]
+    base_codigo = f"{iniciales}-{fecha}"
+    while True:
+        max_codigo = supabase.table("tareas") \
+            .select("codigo_tarea") \
+            .ilike("codigo_tarea", f"{base_codigo}-%") \
+            .order("codigo_tarea", desc=True) \
+            .limit(1) \
+            .execute()
+        if max_codigo.data:
+            last = max_codigo.data[0]["codigo_tarea"]
+            m = re.match(rf"{base_codigo}-(\d+)", last)
+            correlativo = int(m.group(1)) + 1 if m else 1
+        else:
+            correlativo = 1
+        codigo_generado = f"{base_codigo}-{str(correlativo).zfill(3)}"
+        existe_codigo = supabase.table("tareas").select("id").eq("codigo_tarea", codigo_generado).execute()
+        if not existe_codigo.data:
+            break
+
+    nueva = {
+        "id": str(uuid.uuid4()),
+        "codigo_tarea": codigo_generado,
+        "titulo": titulo,
+        "descripcion": data.get("descripcion") or "",
+        "fecha_limite": data.get("fecha_limite") or None,
+        "prioridad": (data.get("prioridad") or "media").strip().lower(),
+        "estatus": data.get("estatus", "pendiente"),
+        "usuario_empresa_id": usuario_empresa_id,
+        "empresa_id": sanea_uuid(data.get("empresa_id", "")),
+        "origen": data.get("origen", "manual"),
+        "creado_por": sanea_uuid(data.get("creado_por") or usuario_empresa_id),
+        "activo": True,
+        "nombre_nora": data.get("nombre_nora"),
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat(),
+    }
+
+    # ❌ Evitar duplicados por título en el día
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    existe = supabase.table("tareas").select("id").eq("usuario_empresa_id", usuario_empresa_id) \
+        .eq("titulo", titulo).gte("created_at", f"{hoy}T00:00:00").lte("created_at", f"{hoy}T23:59:59").execute()
+    if existe.data:
+        print("⚠️ Ya existe una tarea igual hoy, no se inserta duplicado.")
+        return jsonify({"ok": True, "id": existe.data[0]["id"], "duplicada": True}), 200
+
+    try:
+        # 1️⃣ Insertar tarea base
+        result = supabase.table("tareas").insert(nueva).execute()
+
+        # 2️⃣ Si es recurrente, insertarla también en tareas_recurrentes
+        es_recurrente = str(data.get("is_recurrente", "")).lower() in ("1", "true", "on", "yes")
+        if es_recurrente:
+            dtstart_val = data.get("dtstart")
+            rrule_val   = data.get("rrule") or ""
+            until_val   = data.get("until") or None
+            count_val   = data.get("count") or None
+            if dtstart_val and rrule_val:
+                rec_payload = {
+                    "id":        str(uuid.uuid4()),
+                    "tarea_id":  nueva["id"],
+                    "dtstart":   f"{dtstart_val}T00:00:00",
+                    "rrule":     rrule_val,
+                    "until":     f"{until_val}T23:59:59" if until_val else None,
+                    "count":     int(count_val) if count_val else None,
+                    "active":    True,
+                    "created_at": datetime.utcnow().isoformat(),
+                    "updated_at": datetime.utcnow().isoformat(),
+                }
+                supabase.table("tareas_recurrentes").insert(rec_payload).execute()
+
+        return jsonify({"ok": True, "tarea": nueva}), 200
+    except Exception as e:
+        print("❌ Error insertando tarea:", e)
         return jsonify({"error": str(e)}), 500

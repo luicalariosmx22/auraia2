@@ -90,7 +90,7 @@
 <!-- SOLO PARA PRUEBA -->
 <div id="modalNuevaTarea" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
   <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-0 relative animate-fade-in">
-    <form id="formTareaNueva" class="divide-y divide-gray-200" onsubmit="return false;">
+    <form id="formTareaNueva" method="post" onsubmit="return false;" class="divide-y divide-gray-200">
       <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl bg-gradient-to-r from-blue-600 to-blue-400">
         <h2 class="text-xl font-bold text-white flex items-center gap-2">
@@ -229,8 +229,8 @@
 
       <!-- Footer -->
       <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 rounded-b-2xl">
-        <button type="button" onclick="cerrarModalTarea()" class="text-gray-600 hover:text-blue-600 font-medium px-4 py-2 rounded transition">Cancelar</button>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Guardar tarea</button>
+        <button type="button" onclick="cerrarModalTarea();console.debug('[DEBUG] Botón Cancelar presionado');" class="text-gray-600 hover:text-blue-600 font-medium px-4 py-2 rounded transition">Cancelar</button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition" onclick="console.debug('[DEBUG] Botón Guardar tarea presionado', this);">Guardar tarea</button>
       </div>
 
       <!-- Ocultos requeridos -->
@@ -242,45 +242,8 @@
   </div>
 </div>
 <script>
-  // ...existing code...
-  // Reemplaza el submit para crear tarea o subtarea según el campo tarea_padre_id
-  const formNuevaTarea = document.getElementById('formTareaNueva');
-  if (formNuevaTarea) {
-    formNuevaTarea.onsubmit = function(e) {
-      e.preventDefault();
-      const data = new FormData(formNuevaTarea);
-      const tareaPadreId = data.get('tarea_padre_id');
-      let url = `/panel_cliente/${document.body.dataset.nora}/tareas/gestionar/crear`;
-      fetch(url, {
-        method: 'POST',
-        body: data
-      })
-      .then(r => r.json())
-      .then(resp => {
-        if (resp.ok) {
-          cerrarModalTarea();
-          if (tareaPadreId) {
-            // Si es subtarea, recarga solo el bloque de subtareas si está abierto
-            const contenedor = document.getElementById('contenedor-subtareas-' + tareaPadreId);
-            const fila = document.getElementById('subtareas-' + tareaPadreId);
-            if (contenedor && fila && !fila.classList.contains('hidden')) {
-              // Forzar recarga de subtareas
-              fila.dataset.cargado = '';
-              contenedor.innerHTML = '<span class="text-gray-400">Cargando subtareas...</span>';
-              toggleSubtareas(tareaPadreId); // Oculta
-              toggleSubtareas(tareaPadreId); // Vuelve a mostrar y recarga
-              return;
-            }
-          }
-          // Si es tarea normal o el bloque no está abierto, recarga toda la página
-          window.location.reload();
-        } else {
-          alert(resp.error || 'Error al crear tarea');
-        }
-      })
-      .catch(() => alert('Error de red al crear tarea'));
-      return false;
-    };
+  function cerrarModalTarea() {
+    document.getElementById("modalNuevaTarea")?.classList.add("hidden");
   }
 </script>
 

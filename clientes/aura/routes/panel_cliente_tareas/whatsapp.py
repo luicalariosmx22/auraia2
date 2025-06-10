@@ -53,21 +53,16 @@ def enviar_mensaje_whatsapp(numero, mensaje):
 # ✅ Programada: Enviar tareas del día por WhatsApp
 def enviar_tareas_del_dia_por_whatsapp():
     try:
-        # Obtener todas las Noras con sus módulos
-        bots = supabase.table("configuracion_bot").select("nombre_nora, modulos").execute().data
-
-        # Filtrar solo las que tienen "tareas" activado
-        noras_con_tareas = [
-            bot["nombre_nora"]
-            for bot in bots
-            if "tareas" in (
-                json.loads(bot["modulos"]) if isinstance(bot["modulos"], str) else bot["modulos"]
-            )
-        ]
+        # Obtener solo las Noras con el módulo de tareas activo (campo JSON)
+        nora_configs = supabase.table("configuracion_bot") \
+            .select("nombre_nora") \
+            .filter("modulos->>modulo_tareas", "eq", "true") \
+            .execute().data
 
         hoy = datetime.now(zona).strftime("%Y-%m-%d")
 
-        for nombre_nora in noras_con_tareas:
+        for config in nora_configs:
+            nombre_nora = config["nombre_nora"]
             print(f"📩 Enviando tareas del día para Nora: {nombre_nora}")
             usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
             for usuario in usuarios:
@@ -88,10 +83,13 @@ def enviar_tareas_del_dia_por_whatsapp():
 
 # ✅ Programada: Enviar resumen de tareas a las 6PM
 def enviar_resumen_6pm_por_whatsapp():
-    print("📤 Enviando resumen 6PM...")
+    print("\U0001F4E4 Enviando resumen 6PM...")
     hoy = datetime.now(zona).strftime("%Y-%m-%d")
 
-    nora_configs = supabase.table("configuracion_bot").select("nombre_nora").eq("modulo_tareas_activo", True).execute().data
+    nora_configs = supabase.table("configuracion_bot") \
+        .select("nombre_nora") \
+        .filter("modulos->>modulo_tareas", "eq", "true") \
+        .execute().data
 
     for config in nora_configs:
         nombre_nora = config["nombre_nora"]

@@ -22,7 +22,7 @@ import uuid
 panel_cliente_tareas_bp = Blueprint(
     "panel_cliente_tareas",
     __name__,
-    template_folder="../../../templates/panel_cliente_tareas"
+    template_folder="../../templates/panel_cliente_tareas"
 )
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -225,15 +225,16 @@ from . import (
     usuarios_clientes,
     estadisticas,
     automatizaciones,
-    verificar
+    verificar,
+    recurrentes
 )
 
 # Registrar blueprints locales
 def register_tareas_blueprints(app):
     app.register_blueprint(panel_cliente_tareas_bp, url_prefix="/panel_cliente")
     app.register_blueprint(panel_tareas_gestionar_bp)
-    app.register_blueprint(panel_tareas_recurrentes_bp)  # 🔁 Gestor de reglas recurrentes
     app.register_blueprint(panel_tareas_crud_bp)
+    app.register_blueprint(panel_tareas_recurrentes_bp)
     app.register_blueprint(plantillas_bp)
     app.register_blueprint(whatsapp_bp)
     app.register_blueprint(usuarios_clientes_bp)

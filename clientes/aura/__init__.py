@@ -129,7 +129,7 @@ def create_app(config_class=Config):
     print("🚀 Aplicación Flask creada y configuración inicial cargada por la factory.")
 
     # Inicializar extensiones
-    Session(app)  # Activa correctamente Flask-Session con SESSION_TYPE = filesystem
+    Session(app)  # Activa correctamente Flask-Session with SESSION_TYPE = filesystem
     socketio.init_app(app)
     print("Extensiones Flask-Session y Flask-SocketIO inicializadas.")
 
@@ -229,7 +229,7 @@ def create_app(config_class=Config):
 
     @app.route("/logout")
     def logout():
-        flask_session.clear()
+        session.clear()  # ✅ Corregido: usar session.clear() en vez de flask_session.clear()
         return redirect(url_for("login.login"))
 
     @app.route('/debug_info', methods=['GET'])

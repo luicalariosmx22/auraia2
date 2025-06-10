@@ -1,70 +1,98 @@
-// Elimina legacy y deja solo el flujo para el modal de creación actual
-
-// Nuevo flujo para el modal de creación de tarea
+// Solo flujo moderno para el modal de creación de tarea
 const formNueva = document.getElementById("formTareaNueva");
 let enviando = false;
 if (formNueva) {
+  console.debug('[DEBUG] Script tareas_modal_nueva.js cargado. formTareaNueva existe:', !!formNueva);
   formNueva.addEventListener("submit", async function (e) {
     e.preventDefault();
-    if (enviando) return;
-    enviando = true;
-
     const form = e.target;
-    // Armar payload manualmente para asegurar campos de recurrencia
-    // ⚠️ Tomar usuario_empresa_id del input hidden si el select está deshabilitado
+    console.debug('[DEBUG] Submit capturado en formTareaNueva');
+
+    if (enviando) {
+      console.warn("⛔ Ignorado doble envío.");
+      return;
+    }
+
+    enviando = true;
+    const boton = form.querySelector("button[type='submit']");
+    if (boton) {
+      console.debug('[DEBUG] Botón submit encontrado:', boton);
+      boton.disabled = true;
+      boton.classList.add("bg-yellow-400", "cursor-wait");
+      boton.textContent = "Enviando...";
+    } else {
+      console.warn('[DEBUG] No se encontró el botón submit dentro del form');
+    }
+
+    // Validación de usuario asignado
     let usuario_empresa_id = null;
     const selectUser = document.getElementById("usuario_empresa_id_modal");
     const hiddenUser = document.getElementById("usuario_empresa_id_hidden");
-    // Si el select existe y NO está deshabilitado, usa su valor
+    console.debug('[DEBUG] selectUser:', selectUser, 'valor:', selectUser?.value, 'disabled:', selectUser?.disabled);
+    console.debug('[DEBUG] hiddenUser:', hiddenUser, 'valor:', hiddenUser?.value);
     if (selectUser && !selectUser.disabled && selectUser.value && selectUser.value !== "None" && selectUser.value !== "none") {
       usuario_empresa_id = selectUser.value;
     } else if (hiddenUser && hiddenUser.value && hiddenUser.value !== "None" && hiddenUser.value !== "none") {
       usuario_empresa_id = hiddenUser.value;
     }
-    // Validación extra: si sigue siendo null, mostrar mensaje claro
+    console.debug('[DEBUG] usuario_empresa_id detectado:', usuario_empresa_id);
+
     if (!usuario_empresa_id || usuario_empresa_id === "" || usuario_empresa_id === "None" || usuario_empresa_id === "none") {
-      // Si hay un objeto global user, mostrar info extra
-      let userId = window.user && window.user.id ? window.user.id : null;
-      let msg = "Debes seleccionar un usuario asignado válido. Valor actual: " + usuario_empresa_id;
-      if (!userId) {
-        msg += "\n[ADVERTENCIA] El usuario actual no está definido en el contexto JS (window.user.id es null o vacío). Contacta a soporte.";
-      }
-      alert(msg);
+      alert("❌ Debes seleccionar un usuario válido");
       enviando = false;
+      if (boton) {
+        boton.disabled = false;
+        boton.classList.remove("bg-yellow-400", "cursor-wait");
+        boton.textContent = "Guardar";
+      }
+      console.warn('[DEBUG] Validación usuario_empresa_id falló');
       return;
     }
+
+    const userId = window?.user?.id || null;
     const payload = {
       titulo: document.getElementById("titulo")?.value,
       descripcion: document.getElementById("descripcion")?.value,
       prioridad: document.getElementById("prioridad")?.value,
       estatus: document.getElementById("estatus")?.value,
-      fecha_limite: document.getElementById("fecha_limite")?.value,
+      fecha_limite: document.getElementById("fecha_limite")?.value || null,
       usuario_empresa_id: usuario_empresa_id,
       empresa_id: document.getElementById("empresa_id_modal")?.value,
-      cliente_id: document.querySelector('[name="cliente_id"]')?.value,
-      creado_por: document.querySelector('[name="creado_por"]')?.value,
+      creado_por: document.querySelector('[name="creado_por"]')?.value || userId || null,
       nombre_nora: document.querySelector('[name="nombre_nora"]')?.value,
-      iniciales_usuario: document.querySelector('[name="iniciales_usuario"]')?.value,
       is_recurrente: document.getElementById("recurrente_checkbox")?.checked ? "true" : "false",
-      dtstart: document.getElementById("dtstart")?.value,
-      rrule: document.getElementById("rrule")?.value,
-      until: document.getElementById("until")?.value,
-      count: document.getElementById("count")?.value
+      dtstart: document.getElementById("dtstart")?.value || null,
+      rrule: document.getElementById("rrule")?.value || null,
+      until: document.getElementById("until")?.value || null,
+      count: document.getElementById("count")?.value || null
     };
-    const nombreNora = payload.nombre_nora;
+
+    console.debug("🟡 Payload enviado:", payload);
+    console.debug("[DEBUG] creado_por:", payload.creado_por);
+    console.debug("[DEBUG] usuario_empresa_id:", payload.usuario_empresa_id);
 
     try {
-      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
+      let nombreNora = document.body.dataset.nora;
+      let url = `/panel_cliente/${nombreNora}/tareas/gestionar`;
+      console.debug('[DEBUG] URL de fetch:', url);
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
+      console.debug("📩 Estado HTTP:", res.status); // 👈 AÑADE ESTO
 
-      const resultado = await res.json();
+      const resultado = await res.json().catch(err => {
+        console.error("❌ Error parsing JSON:", err);
+        return { error: "Respuesta no válida del backend" };
+      });
+
+      console.debug("🟢 Respuesta backend:", resultado);
+
       if (resultado.ok || resultado.id) {
+        console.debug('[DEBUG] Tarea creada correctamente, cerrando modal');
         cerrarModalTarea();
         if (window.insertarTareaEnTabla) {
-          // El backend regresa la tarea en resultado.tarea o resultado
           const tarea = resultado.tarea || resultado;
           window.insertarTareaEnTabla(tarea);
         }
@@ -75,17 +103,20 @@ if (formNueva) {
         }
         form.reset();
       } else {
-        // Mostrar mensaje de error del backend si existe
-        let msg = resultado.error || "No se pudo crear la tarea";
-        alert("❌ Error: " + msg);
-        // Opcional: mostrar el error en el modal en vez de alert
-        // document.getElementById("errorNuevaTarea").textContent = msg;
+        console.warn('[DEBUG] Error backend:', resultado.error);
+        alert("❌ Error: " + (resultado.error || "No se pudo crear la tarea"));
       }
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error de red o backend:", err);
       alert("❌ Error inesperado al guardar la tarea");
     } finally {
       enviando = false;
+      if (boton) {
+        boton.disabled = false;
+        boton.classList.remove("bg-yellow-400", "cursor-wait");
+        boton.textContent = "Guardar";
+        console.debug('[DEBUG] Botón submit reactivado');
+      }
     }
   });
 }
