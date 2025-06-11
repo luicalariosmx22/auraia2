@@ -10,7 +10,7 @@ Este archivo se asegura que la vista de Ads funcione bien:
 Este archivo DEBE estar en la carpeta routes (no en modules).
 """
 
-from flask import Blueprint, render_template, request, current_app, jsonify
+from flask import Blueprint, render_template, request, current_app, jsonify, redirect, url_for
 from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.modules.meta_ads import obtener_reporte_campanas
 from clientes.aura.utils.meta_ads import listar_campañas_activas   # 🆕 añadir
@@ -140,31 +140,50 @@ def campanas_activas_meta_ads():
 @panel_cliente_ads_bp.route('/cuentas_publicitarias/<nombre_nora>', methods=['GET'])
 def vista_cuentas_publicitarias(nombre_nora):
     cuentas_ads = supabase.table('meta_ads_cuentas').select('*').eq('nombre_visible', nombre_nora).execute().data or []
+    # Enriquecer con nombre de empresa
+    for cuenta in cuentas_ads:
+        empresa_id = cuenta.get('empresa_id')
+        cuenta['empresa_nombre'] = None
+        if empresa_id:
+            empresa = supabase.table('cliente_empresas').select('nombre_empresa').eq('id', empresa_id).single().execute().data
+            if empresa:
+                cuenta['empresa_nombre'] = empresa.get('nombre_empresa')
     return render_template('cuentas_publicitarias.html', nombre_nora=nombre_nora, cuentas_ads=cuentas_ads, moneda="MXN")
 
 @panel_cliente_ads_bp.route('/cuentas_publicitarias/<nombre_nora>/actualizar', methods=['POST'])
 def actualizar_cuentas_publicitarias(nombre_nora):
-    """
-    Actualiza la información de las cuentas publicitarias activas desde la API de Meta Ads y sincroniza en Supabase.
-    """
+    print(f"[DEBUG] Iniciando actualización de cuentas publicitarias para Nora: {nombre_nora}")
     from clientes.aura.utils.meta_ads import obtener_info_cuenta_ads
     cuentas = supabase.table('meta_ads_cuentas').select('*').eq('nombre_visible', nombre_nora).execute().data or []
+    print(f"[DEBUG] Cuentas encontradas: {len(cuentas)}")
     errores = []
+    cuentas_actualizadas = []
     for cuenta in cuentas:
         cuenta_id = cuenta['id_cuenta_publicitaria']
+        print(f"[DEBUG] Actualizando cuenta: {cuenta_id}")
         try:
             info = obtener_info_cuenta_ads(cuenta_id)  # Debe devolver dict con los datos actualizados
+            print(f"[DEBUG] Info obtenida de Meta API para {cuenta_id}: {info}")
             update_data = {
                 'nombre_cliente': info.get('nombre_cliente', cuenta['nombre_cliente']),
                 'account_status': info.get('account_status', cuenta['account_status']),
                 'ads_activos': info.get('ads_activos', cuenta.get('ads_activos')),
+                'anuncios_activos': info.get('anuncios_activos', cuenta.get('anuncios_activos')),
             }
+            print(f"[DEBUG] Datos a actualizar en Supabase para {cuenta_id}: {update_data}")
             supabase.table('meta_ads_cuentas').update(update_data).eq('id_cuenta_publicitaria', cuenta_id).execute()
+            cuentas_actualizadas.append({
+                'id_cuenta_publicitaria': cuenta_id,
+                'ads_activos': update_data['ads_activos']
+            })
         except Exception as e:
+            print(f"[ERROR] Error actualizando cuenta {cuenta_id}: {e}")
             errores.append({'cuenta_id': cuenta_id, 'error': str(e)})
     if errores:
-        return {'ok': False, 'errores': errores}, 207
-    return {'ok': True}
+        print(f"[DEBUG] Errores encontrados: {errores}")
+        return {'ok': False, 'errores': errores, 'cuentas': cuentas_actualizadas}, 207
+    print("[DEBUG] Actualización de cuentas publicitarias finalizada correctamente.")
+    return {'ok': True, 'cuentas': cuentas_actualizadas}
 
 @panel_cliente_ads_bp.route('/meta_ads/anuncios_activos_json')
 def anuncios_activos_json():
@@ -180,3 +199,73 @@ def anuncios_activos_json():
         return jsonify({"anuncios": anuncios})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@panel_cliente_ads_bp.route('/cuentas_publicitarias/<nombre_nora>/importar_desde_meta', methods=['POST'])
+def importar_cuentas_desde_meta(nombre_nora):
+    """
+    Consulta la API de Meta con el token global y agrega todas las cuentas publicitarias asociadas al usuario,
+    insertando solo las que no existan aún en Supabase para la Nora.
+    """
+    import os
+    import requests
+    from clientes.aura.utils.supabase_client import supabase
+    token = os.getenv('META_ACCESS_TOKEN')
+    if not token:
+        return jsonify({'ok': False, 'msg': 'No se encontró el token de Meta.'}), 400
+    url = f"https://graph.facebook.com/v19.0/me/adaccounts"
+    params = {
+        "fields": "id,account_id,name,account_status",
+        "access_token": token
+    }
+    try:
+        resp = requests.get(url, params=params, timeout=20)
+        resp.raise_for_status()
+        cuentas = resp.json().get('data', [])
+    except Exception as e:
+        return jsonify({'ok': False, 'msg': f'Error consultando Meta: {e}'}), 500
+    # Buscar cuentas ya existentes para la Nora
+    existentes = supabase.table('meta_ads_cuentas').select('id_cuenta_publicitaria').eq('nombre_visible', nombre_nora).execute().data or []
+    existentes_ids = {c['id_cuenta_publicitaria'] for c in existentes}
+    nuevas = []
+    for acc in cuentas:
+        id_publicitaria = acc.get('account_id')
+        if not id_publicitaria or id_publicitaria in existentes_ids:
+            continue
+        data = {
+            'id_cuenta_publicitaria': id_publicitaria,
+            'nombre_cliente': acc.get('name', ''),
+            'nombre_visible': nombre_nora,
+            'conectada': True,
+            'account_status': acc.get('account_status', 0)
+        }
+        nuevas.append(data)
+    if nuevas:
+        supabase.table('meta_ads_cuentas').insert(nuevas).execute()
+    return jsonify({'ok': True, 'agregadas': len(nuevas), 'total': len(cuentas)})
+
+@panel_cliente_ads_bp.route('/cuentas_publicitarias/<nombre_nora>/<cuenta_id>/vincular_empresa', methods=['GET', 'POST'])
+def vincular_empresa_a_cuenta(nombre_nora, cuenta_id):
+    from flask import render_template, request, redirect, url_for
+    # Obtener la cuenta
+    cuenta = supabase.table('meta_ads_cuentas').select('*').eq('id_cuenta_publicitaria', cuenta_id).single().execute().data
+    if not cuenta:
+        return "Cuenta publicitaria no encontrada", 404
+    # Obtener empresas disponibles para la Nora
+    empresas = supabase.table('cliente_empresas').select('id,nombre_empresa').eq('nombre_nora', nombre_nora).execute().data or []
+    if request.method == 'POST':
+        empresa_id = request.form.get('empresa_id')
+        if not empresa_id:
+            return render_template('vincular_empresa_cuenta.html', cuenta=cuenta, empresas=empresas, nombre_nora=nombre_nora, error='Debes seleccionar una empresa')
+        # Actualizar la cuenta con el empresa_id
+        supabase.table('meta_ads_cuentas').update({'empresa_id': empresa_id}).eq('id_cuenta_publicitaria', cuenta_id).execute()
+        return redirect(url_for('panel_cliente_ads.vista_cuentas_publicitarias', nombre_nora=nombre_nora))
+    return render_template('vincular_empresa_cuenta.html', cuenta=cuenta, empresas=empresas, nombre_nora=nombre_nora)
+
+@panel_cliente_ads_bp.route('/cuentas_publicitarias/<nombre_nora>/<cuenta_id>/ads_activos', methods=['GET'])
+def obtener_ads_activos_endpoint(nombre_nora, cuenta_id):
+    from clientes.aura.utils.meta_ads import obtener_ads_activos_cuenta
+    activos = obtener_ads_activos_cuenta(cuenta_id)
+    print(f"[DEBUG] Ads activos para cuenta {cuenta_id}: {activos}")  # Debug agregado
+    # Actualiza el campo en Supabase
+    supabase.table('meta_ads_cuentas').update({'ads_activos': activos}).eq('id_cuenta_publicitaria', cuenta_id).execute()
+    return jsonify({'ok': True, 'ads_activos': activos})

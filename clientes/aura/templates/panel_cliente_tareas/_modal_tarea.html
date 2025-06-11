@@ -61,127 +61,100 @@
           </div>
         </div>
 
-        <div class="mb-3">
-          <label class="inline-flex items-center">
-            <input type="checkbox" id="verEsRecurrente" name="es_recurrente" class="form-checkbox">
-            <span class="ml-2">¿Es recurrente?</span>
-          </label>
-          <input type="hidden" id="verIsRecurrente" name="is_recurrente" value="false">
-        </div>
-        <div id="verCamposRecurrente" class="mb-3 hidden">
-          <label for="verDtstart" class="block text-sm font-medium text-gray-700">Inicio recurrencia</label>
-          <input type="date" id="verDtstart" name="dtstart" class="w-full border rounded px-3 py-2 mt-1">
-
-          <label for="verRrule" class="block text-sm font-medium text-gray-700 mt-2">Tipo de recurrencia</label>
-          <select id="verRrule" name="rrule" class="w-full border rounded px-3 py-2 mt-1">
-            <option value="DAILY">Diaria</option>
-            <option value="WEEKLY">Semanal</option>
-            <option value="MONTHLY">Mensual</option>
-          </select>
-
-          <label for="verUntil" class="block text-sm font-medium text-gray-700 mt-2">Hasta (opcional)</label>
-          <input type="date" id="verUntil" name="until" class="w-full border rounded px-3 py-2 mt-1">
-
-          <label for="verCount" class="block text-sm font-medium text-gray-700 mt-2">Repeticiones (opcional)</label>
-          <input type="number" id="verCount" name="count" min="1" class="w-full border rounded px-3 py-2 mt-1">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Subtareas</label>
+          <div id="bloqueSubtareasModal" class="bg-gray-50 rounded border border-gray-200 p-2 min-h-[40px]">
+            <div id="subtareasModalLoading" class="text-xs text-gray-400 hidden">Cargando subtareas...</div>
+            <div id="subtareasModalLista"></div>
+            <div id="subtareasModalVacio" class="text-xs text-gray-400 hidden">Sin subtareas aún.</div>
+            <div id="subtareasModalError" class="text-xs text-red-500 hidden">Error al cargar subtareas.</div>
+          </div>
+          <!-- Buscador para convertir tarea existente en subtarea -->
+          <form id="formAgregarSubtareaExistente" class="flex gap-2 mt-2">
+            <input type="text" id="inputBuscarTareaExistente" name="buscar_tarea" placeholder="Buscar tarea para convertir en subtarea..." class="flex-1 border rounded px-2 py-1 text-sm" list="datalistTareasDisponibles" autocomplete="off">
+            <datalist id="datalistTareasDisponibles">
+              {% for t in tareas_disponibles_para_subtarea %}
+                <option value="{{ t.titulo }}" data-id="{{ t.id }}">{{ t.titulo }}{% if t.empresa_nombre %} — {{ t.empresa_nombre }}{% endif %}</option>
+              {% endfor %}
+            </datalist>
+            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Agregar como subtarea</button>
+          </form>
+          <p class="text-xs text-gray-500 mt-1">Busca una tarea existente y conviértela en subtarea de esta.</p>
         </div>
 
-      </form> <!-- Cierra el formVerTarea ANTES de las subtareas -->
-
-      <!-- SUBTAREAS (bloque AJAX) -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Subtareas</label>
-        <div id="bloqueSubtareasModal" class="bg-gray-50 rounded border border-gray-200 p-2 min-h-[40px]">
-          <div id="subtareasModalLoading" class="text-xs text-gray-400 hidden">Cargando subtareas...</div>
-          <div id="subtareasModalLista"></div>
-          <div id="subtareasModalVacio" class="text-xs text-gray-400 hidden">Sin subtareas aún.</div>
-          <div id="subtareasModalError" class="text-xs text-red-500 hidden">Error al cargar subtareas.</div>
-        </div>
-        <!-- Buscador para convertir tarea existente en subtarea -->
-        <form id="formAgregarSubtareaExistente" class="flex gap-2 mt-2">
-          <input type="text" id="inputBuscarTareaExistente" name="buscar_tarea" placeholder="Buscar tarea para convertir en subtarea..." class="flex-1 border rounded px-2 py-1 text-sm" list="datalistTareasDisponibles" autocomplete="off">
-          <datalist id="datalistTareasDisponibles">
-            {% for t in tareas_disponibles_para_subtarea %}
-              <option value="{{ t.titulo }}" data-id="{{ t.id }}">{{ t.titulo }}{% if t.empresa_nombre %} — {{ t.empresa_nombre }}{% endif %}</option>
-            {% endfor %}
-          </datalist>
-          <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Agregar como subtarea</button>
-        </form>
-        <p class="text-xs text-gray-500 mt-1">Busca una tarea existente y conviértela en subtarea de esta.</p>
-      </div>
-
-      <!-- Sección de comentarios/actualizaciones -->
-      <!--
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Comentarios / Actualizaciones</label>
-        <div id="comentariosTarea" class="space-y-3 max-h-40 overflow-y-auto bg-gray-50 rounded p-2 border border-gray-200 mb-2">
-          {% if comentarios and comentarios|length > 0 %}
-            {% for c in comentarios %}
-              <div class="border-b border-gray-200 pb-1 mb-1">
-                <div class="flex items-center gap-2 text-xs text-gray-500">
-                  <span class="font-semibold text-gray-700">{{ c.usuario_nombre }}</span>
-                  <span>{{ c.fecha|default(c.created_at)|replace('T',' ')|truncate(16, True, '') }}</span>
+        <!-- Sección de comentarios/actualizaciones -->
+        <!--
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Comentarios / Actualizaciones</label>
+          <div id="comentariosTarea" class="space-y-3 max-h-40 overflow-y-auto bg-gray-50 rounded p-2 border border-gray-200 mb-2">
+            {% if comentarios and comentarios|length > 0 %}
+              {% for c in comentarios %}
+                <div class="border-b border-gray-200 pb-1 mb-1">
+                  <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <span class="font-semibold text-gray-700">{{ c.usuario_nombre }}</span>
+                    <span>{{ c.fecha|default(c.created_at)|replace('T',' ')|truncate(16, True, '') }}</span>
+                  </div>
+                  <div class="text-gray-800 text-sm">{{ c.texto }}</div>
                 </div>
-                <div class="text-gray-800 text-sm">{{ c.texto }}</div>
+              {% endfor %}
+            {% else %}
+              <div class="flex flex-col items-center justify-center text-gray-400 text-sm py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2" width="32" height="32" fill="none" viewBox="0 0 48 48">
+                  <rect width="48" height="48" rx="12" fill="#F3F4F6"/>
+                  <path d="M14 20a8 8 0 0 1 8-8h4a8 8 0 0 1 8 8v4a8 8 0 0 1-8 8h-2l-4 4v-4a8 8 0 0 1-8-8v-4z" stroke="#A5B4FC" stroke-width="2" fill="#fff"/>
+                  <circle cx="20" cy="24" r="1.5" fill="#A5B4FC"/>
+                  <circle cx="24" cy="24" r="1.5" fill="#A5B4FC"/>
+                  <circle cx="28" cy="24" r="1.5" fill="#A5B4FC"/>
+                </svg>
+                <span>Sin comentarios aún.<br>¡Sé el primero en comentar!</span>
               </div>
-            {% endfor %}
-          {% else %}
-            <div class="flex flex-col items-center justify-center text-gray-400 text-sm py-4">
-              <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2" width="32" height="32" fill="none" viewBox="0 0 48 48">
-                <rect width="48" height="48" rx="12" fill="#F3F4F6"/>
-                <path d="M14 20a8 8 0 0 1 8-8h4a8 8 0 0 1 8 8v4a8 8 0 0 1-8 8h-2l-4 4v-4a8 8 0 0 1-8-8v-4z" stroke="#A5B4FC" stroke-width="2" fill="#fff"/>
-                <circle cx="20" cy="24" r="1.5" fill="#A5B4FC"/>
-                <circle cx="24" cy="24" r="1.5" fill="#A5B4FC"/>
-                <circle cx="28" cy="24" r="1.5" fill="#A5B4FC"/>
-              </svg>
-              <span>Sin comentarios aún.<br>¡Sé el primero en comentar!</span>
-            </div>
-          {% endif %}
+            {% endif %}
+          </div>
+          <form id="formNuevoComentario" class="flex gap-2">
+            <textarea id="nuevoComentario" name="nuevo_comentario" rows="1" placeholder="Agregar comentario..." class="flex-1 border rounded px-2 py-1 text-sm"></textarea>
+            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Enviar</button>
+          </form>
         </div>
-        <form id="formNuevoComentario" class="flex gap-2">
-          <textarea id="nuevoComentario" name="nuevo_comentario" rows="1" placeholder="Agregar comentario..." class="flex-1 border rounded px-2 py-1 text-sm"></textarea>
-          <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Enviar</button>
-        </form>
-      </div>
-      -->
+        -->
 
-      {# Mostrar y permitir cambiar la tarea padre si aplica #}
-      <!--
-      <div class="mb-3">
-        <label for="verTareaPadre" class="block text-xs text-gray-500 mb-1">Tarea principal:</label>
-        <select id="verTareaPadre" name="tarea_padre_id" class="w-full border rounded px-3 py-2 mt-1">
-          <option value="">— Ninguna (tarea principal) —</option>
-          {% for t in tareas_principales if t.id != tarea.id %}
-            <option value="{{ t.id }}" {% if tarea_padre and tarea_padre.id == t.id %}selected{% endif %}>{{ t.titulo }}{% if t.empresa_nombre %} — {{ t.empresa_nombre }}{% endif %}</option>
-          {% endfor %}
-        </select>
-      </div>
-      -->
-
-      {# Mostrar subtareas como vínculos si existen #}
-      {% if subtareas and subtareas|length > 0 %}
+        {# Mostrar y permitir cambiar la tarea padre si aplica #}
+        <!--
         <div class="mb-3">
-          <span class="text-xs text-gray-500">Subtareas:</span>
-          <ul class="list-disc ml-5">
-            {% for s in subtareas %}
-              <li>
-                <a href="#" onclick="abrirModalTarea('{{ s.id }}')" class="text-blue-700 hover:underline font-semibold">
-                  {{ s.titulo }}{% if s.empresa_nombre %} &mdash; {{ s.empresa_nombre }}{% endif %}
-                </a>
-              </li>
+          <label for="verTareaPadre" class="block text-xs text-gray-500 mb-1">Tarea principal:</label>
+          <select id="verTareaPadre" name="tarea_padre_id" class="w-full border rounded px-3 py-2 mt-1">
+            <option value="">— Ninguna (tarea principal) —</option>
+            {% for t in tareas_principales if t.id != tarea.id %}
+              <option value="{{ t.id }}" {% if tarea_padre and tarea_padre.id == t.id %}selected{% endif %}>{{ t.titulo }}{% if t.empresa_nombre %} — {{ t.empresa_nombre }}{% endif %}</option>
             {% endfor %}
-          </ul>
+          </select>
         </div>
-      {% endif %}
+        -->
 
-      <div class="mt-4">
-        <div id="alertaGuardado" class="d-none text-sm text-center py-2 rounded"></div>
-      </div>
+        {# Mostrar subtareas como vínculos si existen #}
+        {% if subtareas and subtareas|length > 0 %}
+          <div class="mb-3">
+            <span class="text-xs text-gray-500">Subtareas:</span>
+            <ul class="list-disc ml-5">
+              {% for s in subtareas %}
+                <li>
+                  <a href="#" onclick="abrirModalTarea('{{ s.id }}')" class="text-blue-700 hover:underline font-semibold">
+                    {{ s.titulo }}{% if s.empresa_nombre %} &mdash; {{ s.empresa_nombre }}{% endif %}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
 
-      <div class="flex justify-end gap-2 mt-4">
-        <button type="button" onclick="document.getElementById('modalTarea').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">Cerrar</button>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Guardar cambios</button>
-      </div>
+        <div class="mt-4">
+          <div id="alertaGuardado" class="d-none text-sm text-center py-2 rounded"></div>
+        </div>
+
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="document.getElementById('modalTarea').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">Cerrar</button>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Guardar cambios</button>
+        </div>
+      </form> <!-- Cierra el formVerTarea ANTES de las subtareas -->
     </div>
   </div>
 </div>

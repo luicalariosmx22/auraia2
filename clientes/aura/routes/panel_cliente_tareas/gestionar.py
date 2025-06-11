@@ -682,10 +682,20 @@ def crear_tarea(nombre_nora):
             "updated_at": datetime.utcnow().isoformat(),
         }
         try:
+            print(f"[crear_tarea][SUBTAREA] Payload a insertar: {nueva_subtarea}")
             result = supabase.table("subtareas").insert(nueva_subtarea).execute()
+            print(f"[crear_tarea][SUBTAREA] Resultado insert: {result}")
+            if hasattr(result, 'error') and result.error:
+                print(f"[crear_tarea][SUBTAREA][ERROR] {result.error}")
+                return jsonify({"error": str(result.error)}), 500
+            if not result.data:
+                print(f"[crear_tarea][SUBTAREA][ERROR] Insert vacío: {result}")
+                return jsonify({"error": "No se insertó la subtarea (respuesta vacía de Supabase)", "supabase_result": str(result)}), 500
             return jsonify({"ok": True, "subtarea": nueva_subtarea}), 200
         except Exception as e:
             print("❌ Error insertando subtarea:", e)
+            import traceback
+            traceback.print_exc()
             return jsonify({"error": str(e)}), 500
 
     # ...existing code for tareas normales...
@@ -728,17 +738,18 @@ def crear_tarea(nombre_nora):
         "descripcion": data.get("descripcion") or "",
         "fecha_limite": data.get("fecha_limite") or None,
         "prioridad": (data.get("prioridad") or "media").strip().lower(),
-        "estatus": data.get("estatus", "pendiente"),
+        "estatus": (data.get("estatus") or "pendiente").strip().lower(),
         "usuario_empresa_id": usuario_empresa_id,
         "empresa_id": sanea_uuid(data.get("empresa_id", "")),
         "origen": data.get("origen", "manual"),
         "creado_por": sanea_uuid(data.get("creado_por") or usuario_empresa_id),
         "activo": True,
-        "nombre_nora": data.get("nombre_nora"),
+        "nombre_nora": nombre_nora,  # <-- asegurar que se envía correctamente
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
     }
 
+    print(f"[crear_tarea][TAREA] Payload a insertar: {nueva}")
     # ❌ Evitar duplicados por título en el día
     hoy = datetime.now().strftime("%Y-%m-%d")
     existe = supabase.table("tareas").select("id").eq("usuario_empresa_id", usuario_empresa_id) \
@@ -750,31 +761,18 @@ def crear_tarea(nombre_nora):
     try:
         # 1️⃣ Insertar tarea base
         result = supabase.table("tareas").insert(nueva).execute()
-
-        # 2️⃣ Si es recurrente, insertarla también en tareas_recurrentes
-        es_recurrente = str(data.get("is_recurrente", "")).lower() in ("1", "true", "on", "yes")
-        if es_recurrente:
-            dtstart_val = data.get("dtstart")
-            rrule_val   = data.get("rrule") or ""
-            until_val   = data.get("until") or None
-            count_val   = data.get("count") or None
-            if dtstart_val and rrule_val:
-                rec_payload = {
-                    "id":        str(uuid.uuid4()),
-                    "tarea_id":  nueva["id"],
-                    "dtstart":   f"{dtstart_val}T00:00:00",
-                    "rrule":     rrule_val,
-                    "until":     f"{until_val}T23:59:59" if until_val else None,
-                    "count":     int(count_val) if count_val else None,
-                    "active":    True,
-                    "created_at": datetime.utcnow().isoformat(),
-                    "updated_at": datetime.utcnow().isoformat(),
-                }
-                supabase.table("tareas_recurrentes").insert(rec_payload).execute()
-
+        print(f"[crear_tarea][TAREA] Resultado insert: {result}")
+        if hasattr(result, 'error') and result.error:
+            print(f"[crear_tarea][TAREA][ERROR] {result.error}")
+            return jsonify({"error": str(result.error)}), 500
+        if not result.data:
+            print(f"[crear_tarea][TAREA][ERROR] Insert vacío: {result}")
+            return jsonify({"error": "No se insertó la tarea (respuesta vacía de Supabase)", "supabase_result": str(result)}), 500
         return jsonify({"ok": True, "tarea": nueva}), 200
     except Exception as e:
         print("❌ Error insertando tarea:", e)
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 # -------------------------------------------------------------------
@@ -795,7 +793,7 @@ def convertir_en_subtarea(nombre_nora):
         return jsonify({"error": "Tarea no encontrada"}), 404
     tarea = tarea_resp.data[0]
     print(f"[convertir_en_subtarea] Datos tarea a convertir: {tarea}")
-    # Crear subtarea con los datos de la tarea
+    # Crear subtarea con los datos de la tarea (sin lógica de recurrencia)
     creado_por_val = tarea.get("creado_por") or "LL"
     nueva_subtarea = {
         "id": str(uuid.uuid4()),
@@ -811,7 +809,6 @@ def convertir_en_subtarea(nombre_nora):
         "activo": True,
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat()
-        # "nombre_nora": nombre_nora  # ← Eliminar este campo si no existe en la tabla
     }
     print(f"[convertir_en_subtarea] Insertando nueva subtarea: {nueva_subtarea}")
     try:

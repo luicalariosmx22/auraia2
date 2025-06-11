@@ -6,14 +6,17 @@
     <div class="text-lg font-semibold text-blue-800">
       Total de cuentas publicitarias: {{ cuentas_ads|length }}
     </div>
-    <button id="btn-actualizar-cuentas" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Actualizar cuentas</button>
+    <div>
+      <button id="btn-actualizar-cuentas" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Actualizar cuentas</button>
+      <button id="btn-importar-meta" class="bg-purple-600 hover:bg-purple-800 text-white font-semibold px-6 py-2 rounded shadow transition ml-2">Importar desde Meta</button>
+    </div>
   </div>
   {% if cuentas_ads %}
     <table class="min-w-full bg-white rounded-xl shadow border">
       <thead class="bg-blue-100">
         <tr>
-          <th class="px-4 py-2">Cliente</th>
-          <th class="px-4 py-2">ID Cuenta</th>
+          <th class="px-4 py-2">Empresa</th>
+          <th class="px-4 py-2">Cuenta Publicitaria</th>
           <th class="px-4 py-2">Estado</th>
           <th class="px-4 py-2">Ads Activos</th>
           <th class="px-8 py-2">Acción</th>
@@ -22,13 +25,27 @@
       <tbody>
         {% for cuenta in cuentas_ads if cuenta.account_status == 1 %}
         <tr class="border-b">
-          <td class="px-4 py-2 font-semibold text-blue-900">{{ cuenta.nombre_cliente }}</td>
-          <td class="px-4 py-2 text-xs text-gray-600">{{ cuenta.id_cuenta_publicitaria }}</td>
+          <td class="px-4 py-2 text-xs text-gray-700">
+            {% if cuenta.empresa_id %}
+              <a href="/panel_cliente/{{ nombre_nora }}/empresa/{{ cuenta.empresa_id }}/ficha" class="underline text-blue-700 hover:text-blue-900">
+                {{ cuenta.empresa_nombre if cuenta.empresa_nombre else 'Empresa sin nombre' }}
+              </a>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td class="px-4 py-2 font-semibold text-blue-900">{{ cuenta.nombre_cliente }}<br><span class="text-xs text-gray-500">ID: {{ cuenta.id_cuenta_publicitaria }}</span></td>
           <td class="px-4 py-2"><span class="inline-block whitespace-nowrap align-middle">🟢 Activa</span></td>
-          <td class="px-4 py-2">{{ cuenta.ads_activos if cuenta.ads_activos is not none else '—' }}</td>
+          <td class="px-4 py-2">
+            <span id="ads-activos-{{ cuenta.id_cuenta_publicitaria }}">{{ cuenta.ads_activos if cuenta.ads_activos is not none else '—' }}</span>
+          </td>
           <td class="px-8 py-2 flex flex-row gap-2 items-center justify-center">
-            <a href="/panel_cliente/{{ nombre_nora }}/meta_ads/campanas_activas?cuenta_id={{ cuenta.id_cuenta_publicitaria }}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow transition text-sm text-center whitespace-nowrap">Ver campañas</a>
-            <a href="/panel_cliente/{{ nombre_nora }}/meta_ads/reportes?cuenta_id={{ cuenta.id_cuenta_publicitaria }}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow transition text-sm text-center whitespace-nowrap">Reportes</a>
+            <a href="{{ url_for('panel_cliente_ads.vincular_empresa_a_cuenta', nombre_nora=nombre_nora, cuenta_id=cuenta.id_cuenta_publicitaria) }}" class="bg-blue-600 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded shadow transition text-sm text-center whitespace-nowrap">
+              {% if cuenta.empresa_id %}<span class="inline-flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 01-8 0m8 0a4 4 0 00-8 0m8 0V5a4 4 0 00-8 0v2m8 0v2a4 4 0 01-8 0V7"></path></svg>Cambiar empresa</span>{% else %}<span class="inline-flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>Vincular empresa</span>{% endif %}
+            </a>
+            <button onclick="actualizarAdsActivos('{{ cuenta.id_cuenta_publicitaria }}')" class="bg-green-600 hover:bg-green-800 text-white font-semibold px-4 py-2 rounded shadow transition text-sm text-center whitespace-nowrap flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v16h16V4H4zm4 4h8v8H8V8z"></path></svg>Actualizar ads
+            </button>
           </td>
         </tr>
         {% else %}
@@ -47,11 +64,30 @@ document.getElementById('btn-actualizar-cuentas').onclick = async function() {
   try {
     const resp = await fetch(window.location.pathname + '/actualizar', { method: 'POST' });
     if (resp.ok) {
-      // Feedback visual de éxito antes de recargar
-      this.textContent = '¡Actualizado!';
-      this.classList.remove('bg-blue-500', 'hover:bg-blue-700');
-      this.classList.add('bg-green-600');
-      setTimeout(() => location.reload(), 700);
+      // Nuevo: feedback visual por fila
+      const data = await resp.json().catch(() => ({}));
+      if (data && data.ok && data.cuentas) {
+        for (const cuenta of data.cuentas) {
+          const span = document.getElementById('ads-activos-' + cuenta.id_cuenta_publicitaria);
+          if (span && span.textContent != cuenta.ads_activos) {
+            span.textContent = cuenta.ads_activos;
+            span.classList.add('text-green-700', 'font-bold');
+            setTimeout(() => span.classList.remove('text-green-700', 'font-bold'), 1200);
+          }
+        }
+        this.textContent = '¡Actualizado!';
+        this.classList.remove('bg-blue-500', 'hover:bg-blue-700');
+        this.classList.add('bg-green-600');
+        setTimeout(() => {
+          this.disabled = false;
+          this.textContent = 'Actualizar cuentas';
+          this.classList.remove('bg-green-600');
+          this.classList.add('bg-blue-500', 'hover:bg-blue-700');
+        }, 1200);
+      } else {
+        this.textContent = '¡Actualizado!';
+        setTimeout(() => location.reload(), 700);
+      }
     } else {
       const data = await resp.json().catch(() => ({}));
       let msg = 'Error al actualizar las cuentas';
@@ -68,5 +104,50 @@ document.getElementById('btn-actualizar-cuentas').onclick = async function() {
     this.textContent = 'Actualizar cuentas';
   }
 };
+
+document.getElementById('btn-importar-meta').onclick = async function() {
+  this.disabled = true;
+  this.textContent = 'Importando...';
+  try {
+    const resp = await fetch(window.location.pathname + '/importar_desde_meta', { method: 'POST' });
+    const data = await resp.json();
+    if (resp.ok && data.ok) {
+      this.textContent = `¡Importadas: ${data.agregadas}!`;
+      this.classList.remove('bg-purple-600', 'hover:bg-purple-800');
+      this.classList.add('bg-green-600');
+      setTimeout(() => location.reload(), 900);
+    } else {
+      alert('Error al importar: ' + (data.msg || resp.statusText));
+      this.disabled = false;
+      this.textContent = 'Importar desde Meta';
+    }
+  } catch (e) {
+    alert('Error de red al importar cuentas');
+    this.disabled = false;
+    this.textContent = 'Importar desde Meta';
+  }
+};
+
+function actualizarAdsActivos(cuentaId) {
+  const span = document.getElementById('ads-activos-' + cuentaId);
+  const old = span.textContent;
+  span.textContent = '...';
+  fetch(`/panel_cliente/${nombre_nora}/meta_ads/cuentas_publicitarias/${nombre_nora}/${cuentaId}/ads_activos`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        span.textContent = data.ads_activos;
+        span.classList.add('text-green-700');
+        setTimeout(() => span.classList.remove('text-green-700'), 1200);
+      } else {
+        span.textContent = old;
+        alert('Error al actualizar ads activos');
+      }
+    })
+    .catch(() => {
+      span.textContent = old;
+      alert('Error de red al actualizar ads activos');
+    });
+}
 </script>
 {% endblock %}

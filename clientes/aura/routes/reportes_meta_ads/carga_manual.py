@@ -17,7 +17,7 @@ import logging
 # Muestra advertencias si hay columnas no mapeadas o filas no insertadas
 # Permite ver y eliminar prereportes guardados
 
-def vista_reporte_manual_meta_ads(nombre_nora=None):
+def vista_reporte_manual_meta_ads():
     import sys
     # Diccionario de mapeo fijo: columna del archivo -> (columna_bd, tabla_destino)
     diccionario_mapeo = {

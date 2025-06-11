@@ -212,3 +212,25 @@ def listar_anuncios_activos(ad_account_id: str) -> list:
     ]
 
 from clientes.aura.utils.supabase_client import supabase
+
+def obtener_ads_activos_cuenta(ad_account_id, access_token=None):
+    """
+    Consulta la API de Meta para obtener el número de anuncios activos (entrega activa) de una cuenta publicitaria.
+    """
+    BASE_URL = "https://graph.facebook.com/v19.0"
+    token = access_token or os.getenv('META_ACCESS_TOKEN')
+    url = f"{BASE_URL}/act_{ad_account_id}/ads"
+    params = {
+        "fields": "id,name,effective_status",
+        "limit": 200,
+        "access_token": token
+    }
+    activos = 0
+    try:
+        resp = requests.get(url, params=params, timeout=20)
+        resp.raise_for_status()
+        data = resp.json().get('data', [])
+        activos = sum(1 for ad in data if ad.get('effective_status') == 'ACTIVE')
+    except Exception as e:
+        print(f"[MetaAds] Error al obtener ads activos para {ad_account_id}: {e}")
+    return activos

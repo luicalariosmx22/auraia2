@@ -1,0 +1,28 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="max-w-lg mx-auto bg-white rounded-xl shadow p-8 mt-8">
+  <h1 class="text-2xl font-bold text-blue-900 mb-6">Vincular cuenta publicitaria a empresa</h1>
+  {% if error %}
+    <div class="mb-4 px-4 py-2 rounded font-semibold bg-red-100 text-red-800 border border-red-300">{{ error }}</div>
+  {% endif %}
+  <form method="post">
+    <div class="mb-4">
+      <label class="block font-semibold mb-1">Cuenta publicitaria:</label>
+      <div class="bg-gray-100 rounded px-3 py-2">{{ cuenta.nombre_cliente }}<br><span class="text-xs text-gray-500">ID: {{ cuenta.id_cuenta_publicitaria }}</span></div>
+    </div>
+    <div class="mb-6">
+      <label for="empresa_id" class="block font-semibold mb-1">Selecciona empresa:</label>
+      <select name="empresa_id" id="empresa_id" class="border rounded px-3 py-2 w-full" required>
+        <option value="">-- Selecciona una empresa --</option>
+        {% for empresa in empresas %}
+          <option value="{{ empresa.id }}">{{ empresa.nombre_empresa }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex justify-end">
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow">Vincular</button>
+      <a href="{{ url_for('panel_cliente_ads.vista_cuentas_publicitarias', nombre_nora=nombre_nora) }}" class="ml-4 text-blue-700 hover:underline">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

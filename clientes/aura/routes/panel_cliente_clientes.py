@@ -595,3 +595,33 @@ def eliminar_documento(empresa_id, doc_id):
     except Exception as e:
         flash(f"Error al eliminar documento: {str(e)}", "error")
     return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/ads/nueva", methods=["GET", "POST"])
+def nueva_cuenta_ads_empresa(empresa_id):
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("email"):
+        return redirect(url_for('login.login_screen'))
+
+    if not modulo_activo_para_nora(nombre_nora, 'clientes'):
+        return "Módulo no activo", 403
+
+    # Validar empresa
+    empresa = supabase.table("cliente_empresas").select("id,nombre_empresa").eq("id", empresa_id).single().execute().data
+    if not empresa:
+        return "Empresa no encontrada", 404
+
+    if request.method == "POST":
+        cuenta_data = {
+            "id": str(uuid.uuid4()),
+            "empresa_id": empresa_id,
+            "nombre_nora": nombre_nora,
+            "tipo_plataforma": request.form.get("tipo_plataforma"),
+            "ad_account_id": request.form.get("ad_account_id"),
+            "nombre_cuenta": request.form.get("nombre_cuenta"),
+            "activo": True
+        }
+        supabase.table("meta_ads_cuentas").insert(cuenta_data).execute()
+        flash("Cuenta publicitaria vinculada", "success")
+        return redirect(url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora))
+
+    return render_template('panel_cliente_vincular_ads.html', nombre_nora=nombre_nora, empresa=empresa, user={"name": session.get("name", "Usuario")})

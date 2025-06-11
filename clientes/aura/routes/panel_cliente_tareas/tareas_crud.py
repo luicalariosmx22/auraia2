@@ -160,23 +160,13 @@ def crear_tarea_backend(nombre_nora):
             "updated_at": datetime.utcnow().isoformat(),
         }
 
-        print("🚨 Intentando insertar tarea nueva:", nueva)
-        try:
-            result = supabase.table("tareas").insert(nueva).execute()
-            tarea_creada = result.data[0]
-        except Exception as e:
-            if 'duplicate key value violates unique constraint' in str(e) and 'tareas_codigo_tarea_key' in str(e):
-                print("⚠️ Código duplicado detectado en último paso. Reintentando generación...")
-                while True:
-                    codigo_generado = generar_codigo_tarea(datos.get("iniciales_usuario", "NN"))
-                    existe_codigo = supabase.table("tareas").select("id").eq("codigo_tarea", codigo_generado).execute()
-                    if not existe_codigo.data:
-                        break
-                nueva["codigo_tarea"] = codigo_generado
-                result = supabase.table("tareas").insert(nueva).execute()
-                tarea_creada = result.data[0]
-            else:
-                raise e
+        print('🚨 Intentando insertar tarea nueva:', nueva)
+        result = supabase.table("tareas").insert(nueva).execute()
+        print('🚨 Resultado de insert:', result)
+        if not result.data or len(result.data) == 0:
+            print('❌ No se insertó la tarea. Respuesta:', result)
+            return jsonify({"ok": False, "error": "No se insertó la tarea en la base de datos", "debug": str(result)})
+        tarea_creada = result.data[0]
 
         # Si es recurrente
         if str(datos.get("is_recurrente", "")).lower() in ("1", "true", "on", "yes"):
