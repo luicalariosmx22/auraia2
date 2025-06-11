@@ -208,18 +208,27 @@ def obtener_tarea(nombre_nora, tarea_id):
 @panel_cliente_tareas_bp.route("/<nombre_nora>/tareas/gestionar/actualizar/<tarea_id>", methods=["POST"])
 def actualizar_tarea_inline(nombre_nora, tarea_id):
     datos = request.get_json()
-    campo = datos.get("campo")
-    valor = datos.get("valor")
+    if not datos:
+        return jsonify({"ok": False, "error": "No se recibió payload válido"})
 
-    if not campo:
-        return jsonify({"ok": False, "error": "Campo no especificado"})
-
-    # Lógica especial para mover entre tareas y subtareas
-    if campo == "tarea_padre_id":
-        if valor is None or valor == "":
+    # Si viene 'campo' y 'valor', modo antiguo (compatibilidad)
+    if "campo" in datos and "valor" in datos:
+        campo = datos["campo"]
+        valor = datos["valor"]
+        if campo == "tarea_padre_id" and (valor is None or valor == ""):
             valor = None
+        try:
+            supabase.table("tareas").update({campo: valor}).eq("id", tarea_id).execute()
+            return jsonify({"ok": True})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)})
+
+    # Modo nuevo: actualizar varios campos a la vez
     try:
-        supabase.table("tareas").update({campo: valor}).eq("id", tarea_id).execute()
+        datos["updated_at"] = datetime.now().isoformat()
+        if datos.get("empresa_id") == "":
+            datos.pop("empresa_id")
+        supabase.table("tareas").update(datos).eq("id", tarea_id).execute()
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
@@ -228,13 +237,12 @@ def actualizar_tarea_inline(nombre_nora, tarea_id):
 @panel_tareas_crud_bp.route("/tareas/gestionar/eliminar/<tarea_id>", methods=["DELETE"])
 def eliminar_tarea(tarea_id):
     try:
-        # Borra primero los registros relacionados para acelerar el borrado
-        supabase.table("subtareas").delete().eq("tarea_padre_id", tarea_id).execute()
-        supabase.table("tarea_comentarios").delete().eq("tarea_id", tarea_id).execute()
-        supabase.table("tareas_recurrentes").delete().eq("tarea_id", tarea_id).execute()
-        # Ahora sí borra la tarea principal
-        supabase.table("tareas").delete().eq("id", tarea_id).execute()
-        # --- OPTIMIZACIÓN: devolver la página actual de tareas paginadas ---
+        # Soft delete: marcar como inactiva la tarea y sus subtareas
+        supabase.table("subtareas").update({"activo": False, "updated_at": datetime.utcnow().isoformat()}).eq("tarea_padre_id", tarea_id).execute()
+        supabase.table("tareas").update({"activo": False, "updated_at": datetime.utcnow().isoformat()}).eq("id", tarea_id).execute()
+        # (Opcional) también puedes marcar como inactivos los comentarios y recurrencias si tu modelo lo soporta
+        # supabase.table("tarea_comentarios").update({"activo": False, "updated_at": datetime.utcnow().isoformat()}).eq("tarea_id", tarea_id).execute()
+        # supabase.table("tareas_recurrentes").update({"activo": False, "updated_at": datetime.utcnow().isoformat()}).eq("tarea_id", tarea_id).execute()
         usuario_empresa_id = request.args.get("usuario_empresa_id")
         page = request.args.get("page", 1)
         page_size = request.args.get("page_size", 20)

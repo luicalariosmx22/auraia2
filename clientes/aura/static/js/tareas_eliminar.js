@@ -7,17 +7,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const nombreNora = document.querySelector("#contenedorGestorTareas")?.dataset.nora;
       if (!nombreNora) return alert("⚠️ No se detectó el nombre de Nora.");
 
-      if (!confirm("¿Estás seguro de que quieres eliminar esta tarea?")) return;
-
-      fetch(`/panel_cliente/${nombreNora}/tareas/eliminar/${tareaId}`, {
+      fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/eliminar/${tareaId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       })
         .then((res) => res.json())
         .then((data) => {
           if (data.ok) {
-            alert("✅ Tarea eliminada correctamente.");
-            location.reload();
+            // Quitar la fila de la tarea eliminada del DOM
+            const fila = btn.closest("tr");
+            if (fila) fila.remove();
+            // Si no es una tabla, intentar ocultar el elemento padre relevante
+            // (opcional: puedes adaptar esto según la estructura de la UI)
           } else {
             alert("❌ Error al eliminar: " + (data.error || "Respuesta inválida"));
           }

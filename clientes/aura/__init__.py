@@ -188,6 +188,10 @@ def create_app(config_class=Config):
     registrar_blueprints_invitado(app, safe_register_blueprint)
     print("Registro de Blueprints completado.")
 
+    # Registrar blueprints de tareas (panel_cliente_tareas)
+    from clientes.aura.routes.panel_cliente_tareas import register_tareas_blueprints
+    register_tareas_blueprints(app)
+
     # Blueprints dinámicos
     try:
         response = supabase.table("configuracion_bot").select("nombre_nora").execute()

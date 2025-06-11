@@ -20,7 +20,7 @@
     {% endif %}
   {% endwith %}
 
-  <form method="post">
+  <form method="post" enctype="multipart/form-data">
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700">Nombre de la empresa *</label>
       <input type="text" name="nombre_empresa" required class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.nombre_empresa if empresa else '' }}">
@@ -47,7 +47,9 @@
       <input type="text" name="sitio_web" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.sitio_web if empresa else '' }}">
     </div>
     <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Logo (URL de imagen)</label>
+      <label class="block text-sm font-medium text-gray-700">Logo de la empresa</label>
+      <input type="file" name="logo_file" accept="image/*" class="w-full border px-3 py-2 rounded mt-1 mb-2">
+      <span class="text-xs text-gray-500">Puedes subir una imagen o pegar una URL:</span>
       <input type="text" name="logo_url" class="w-full border px-3 py-2 rounded mt-1" value="{{ empresa.logo_url if empresa else '' }}" placeholder="https://...">
     </div>
     <div class="mb-4">

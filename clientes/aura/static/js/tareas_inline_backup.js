@@ -115,7 +115,7 @@ function editarTarea(id) {
 
   // 🚀 Cargar descripción y empresa_id desde Supabase
   const nombreNora = document.body.dataset.nombreNora;
-  fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${id}`)
+  fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/obtener/${id}`)
     .then(res => res.json())
     .then(data => {
       if (data.descripcion) {
@@ -136,7 +136,7 @@ document.querySelectorAll(".btn-ver-tarea").forEach((btn) => {
     const nombreNora = btn.getAttribute("data-nora");
 
     try {
-      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener/${tareaId}`);
+      const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/obtener/${tareaId}`);
       if (!res.ok) {
         alert("❌ No se pudo cargar la información");
         return;
@@ -251,7 +251,7 @@ function toggleEstatus(checkbox) {
 function eliminarTarea(id) {
   const nombreNora = document.body.dataset.nombreNora;
   if (confirm("¿Eliminar esta tarea?")) {
-    fetch(`/panel_cliente/${nombreNora}/tareas/eliminar/${id}`, {
+    fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/eliminar/${id}`, {
       method: "POST"
     }).then(() => location.reload());
   }

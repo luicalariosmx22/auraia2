@@ -111,6 +111,7 @@ def editar_empresa(empresa_id):
 
     if request.method == "POST":
         import json
+        import uuid
         campos = {
             "nombre_empresa": request.form.get("nombre_empresa"),
             "razon_social": request.form.get("razon_social"),
@@ -118,7 +119,7 @@ def editar_empresa(empresa_id):
             "email_empresa": request.form.get("email_empresa"),
             "telefono_empresa": request.form.get("telefono_empresa"),
             "sitio_web": request.form.get("sitio_web"),
-            "logo_url": request.form.get("logo_url"),
+            # logo_url se asigna abajo
             "ubicacion": request.form.get("ubicacion"),
             "ciudad": request.form.get("ciudad"),
             "estado": request.form.get("estado"),
@@ -133,6 +134,21 @@ def editar_empresa(empresa_id):
             "notas": request.form.get("notas"),
             "activo": True if request.form.get("activo") else False
         }
+        logo_url = request.form.get("logo_url", "").strip() or None
+        logo_file = request.files.get("logo_file")
+        if logo_file and logo_file.filename:
+            ext = logo_file.filename.rsplit('.', 1)[-1].lower()
+            filename = f"empresas/{empresa_id}/logo_{uuid.uuid4()}.{ext}"
+            file_bytes = logo_file.read()
+            res = supabase.storage.from_('empresa-logos').upload(filename, file_bytes)
+            if hasattr(res, 'error') and res.error:
+                flash('Error al subir el logo: ' + str(res.error), 'danger')
+                campos["logo_url"] = logo_url  # fallback a URL manual
+            else:
+                public_url = supabase.storage.from_('empresa-logos').get_public_url(filename)
+                campos["logo_url"] = public_url
+        else:
+            campos["logo_url"] = logo_url
         supabase.table("cliente_empresas").update(campos).eq("id", empresa_id).execute()
         flash("Empresa actualizada", "success")
         return redirect(url_for('panel_cliente_clientes_bp.ficha_empresa', empresa_id=empresa_id))
@@ -150,13 +166,25 @@ def nueva_empresa():
         return redirect(url_for("login.login_screen"))
 
     if request.method == "POST":
+        import uuid
         nombre_empresa = request.form.get("nombre_empresa", "").strip()
         if not nombre_empresa:
             flash("❌ El nombre de la empresa es obligatorio", "error")
             return redirect(request.url)
-
+        logo_url = request.form.get("logo_url", "").strip() or None
+        logo_file = request.files.get("logo_file")
+        empresa_id = str(uuid.uuid4())
+        if logo_file and logo_file.filename:
+            ext = logo_file.filename.rsplit('.', 1)[-1].lower()
+            filename = f"empresas/{empresa_id}/logo_{uuid.uuid4()}.{ext}"
+            file_bytes = logo_file.read()
+            res = supabase.storage.from_('empresa-logos').upload(filename, file_bytes)
+            if hasattr(res, 'error') and res.error:
+                flash('Error al subir el logo: ' + str(res.error), 'danger')
+            else:
+                logo_url = supabase.storage.from_('empresa-logos').get_public_url(filename)
         empresa_data = {
-            "id": str(uuid.uuid4()),
+            "id": empresa_id,
             "nombre_nora": nombre_nora,
             "nombre_empresa": nombre_empresa,
             "razon_social": request.form.get("razon_social", "").strip() or None,
@@ -164,7 +192,7 @@ def nueva_empresa():
             "email_empresa": request.form.get("email_empresa", "").strip() or None,
             "telefono_empresa": request.form.get("telefono_empresa", "").strip() or None,
             "sitio_web": request.form.get("sitio_web", "").strip() or None,
-            "logo_url": request.form.get("logo_url", "").strip() or None,
+            "logo_url": logo_url,
             "ubicacion": request.form.get("ubicacion", "").strip() or None,
             "ciudad": request.form.get("ciudad", "").strip() or None,
             "estado": request.form.get("estado", "").strip() or None,

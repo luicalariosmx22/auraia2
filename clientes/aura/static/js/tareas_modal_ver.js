@@ -82,7 +82,7 @@ async function cargarSubtareasModal(tareaId, nombreNora) {
   error?.classList.add('hidden');
   lista.innerHTML = '';
   try {
-    const res = await fetch(`/panel_cliente/${nombreNora}/tareas/${tareaId}/subtareas`);
+    const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/${tareaId}/subtareas`);
     if (!res.ok) throw new Error('Network');
     const subtareas = await res.json();
     loading?.classList.add('hidden');
@@ -94,7 +94,7 @@ async function cargarSubtareasModal(tareaId, nombreNora) {
       <div class="flex items-center gap-2 border-b border-gray-100 py-1 group">
         <input type="checkbox" ${s.estatus === 'completada' ? 'checked' : ''} disabled class="accent-blue-600">
         <span class="flex-1">${s.titulo}</span>
-        <span class="text-xs text-gray-400">${s.prioridad || ''}</span>
+        <span class="text-xs text-gray-400">${s.empresa_nombre || ''}</span>
         <!-- Opcional: botón editar/marcar completada -->
       </div>
     `).join('');
@@ -111,45 +111,143 @@ if (formNuevaSubtareaModal) {
     e.preventDefault();
     const input = document.getElementById('inputNuevaSubtareaModal');
     const titulo = input.value.trim();
-    if (!titulo) return;
+    console.debug('[DEBUG][modal-ver] Submit subtarea | input:', input, '| titulo:', titulo);
+    if (!titulo) {
+      console.warn('[DEBUG][modal-ver] Título vacío, no se envía la subtarea');
+      return;
+    }
     const tareaId = document.getElementById('verIdTarea')?.value;
+    console.log('[DEBUG][modal-ver] verIdTarea:', tareaId);
     const nombreNora = document.body.dataset.nora;
     const usuario_empresa_id = document.getElementById('verAsignado')?.value;
     const empresa_id = document.getElementById('verEmpresa')?.value;
-    if (!tareaId || !usuario_empresa_id) return;
-    const data = new FormData();
-    data.append('titulo', titulo);
-    data.append('tarea_padre_id', tareaId);
-    data.append('usuario_empresa_id', usuario_empresa_id);
-    data.append('empresa_id', empresa_id);
-    fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
-      method: 'POST',
-      body: data
-    })
-    .then(r => r.json())
-    .then(resp => {
-      if (resp.ok) {
-        input.value = '';
-        cargarSubtareasModal(tareaId, nombreNora);
-      } else {
-        alert(resp.error || 'Error al crear subtarea');
+    // Puedes agregar aquí más campos opcionales si tu tabla subtareas los requiere
+    console.debug('[DEBUG][modal-ver] usuario_empresa_id:', usuario_empresa_id, '| empresa_id:', empresa_id);
+    if (!tareaId || !usuario_empresa_id) {
+      console.warn('[DEBUG][modal-ver] tareaId o usuario_empresa_id faltante:', tareaId, usuario_empresa_id);
+      return;
+    }
+    const creado_por = document.body.dataset.usuarioid || document.getElementById('verAsignado')?.value;
+    // nombre_nora solo para la URL, NO en el payload
+    const payload = {
+      titulo,
+      tarea_padre_id: tareaId,
+      usuario_empresa_id,
+      empresa_id,
+      creado_por
+      // No enviar nombre_nora aquí
+    };
+    console.log('[DEBUG][modal-ver] payload a enviar:', payload);
+    try {
+      const resp = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/crear`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      console.debug('[DEBUG][modal-ver] HTTP status:', resp.status);
+      let data = null;
+      try {
+        data = await resp.json();
+        console.debug('[DEBUG][modal-ver] Respuesta JSON backend:', data);
+      } catch (jsonErr) {
+        console.error('[DEBUG][modal-ver] Error parseando JSON:', jsonErr);
+        const text = await resp.text();
+        console.error('[DEBUG][modal-ver] Respuesta RAW:', text);
+        alert('Respuesta no válida del backend');
+        return;
       }
-    })
-    .catch(() => alert('Error de red al crear subtarea'));
+      if (data.ok) {
+        input.value = '';
+        console.info('[DEBUG][modal-ver] Subtarea creada correctamente, recargando lista de subtareas');
+        await cargarSubtareasModal(tareaId, nombreNora);
+        // No cerrar el modal ni recargar la página aquí
+      } else {
+        console.warn('[DEBUG][modal-ver] Error backend:', data.error);
+        alert(data.error || 'Error al crear subtarea');
+      }
+    } catch (err) {
+      console.error('[DEBUG][modal-ver] Error de red o JS:', err);
+      alert('Error de red al crear subtarea');
+    }
   });
 }
+
+// --- Agregar tarea existente como subtarea ---
+document.addEventListener("DOMContentLoaded", function() {
+  const formAgregar = document.getElementById("formAgregarSubtareaExistente");
+  if (formAgregar) {
+    formAgregar.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const input = document.getElementById("inputBuscarTareaExistente");
+      const datalist = document.getElementById("datalistTareasDisponibles");
+      const nombreNora = document.body.dataset.nora;
+      const tareaPadreId = document.getElementById("verIdTarea")?.value;
+      let tareaIdSeleccionada = null;
+      // Buscar el id de la tarea seleccionada por título
+      const valor = input.value.trim();
+      if (!valor) return alert("Selecciona una tarea válida");
+      for (const opt of datalist.options) {
+        if (opt.value === valor) {
+          tareaIdSeleccionada = opt.getAttribute("data-id");
+          break;
+        }
+      }
+      if (!tareaIdSeleccionada) return alert("Selecciona una tarea válida del listado");
+      // Actualizar tarea seleccionada para que sea subtarea de la actual
+      try {
+        console.log('[DEBUG][subtarea] Enviando petición para convertir tarea en subtarea:', {
+          tarea_id: tareaIdSeleccionada,
+          tarea_padre_id: tareaPadreId
+        });
+        const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/convertir_en_subtarea`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tarea_id: tareaIdSeleccionada, tarea_padre_id: tareaPadreId })
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          console.error('[DEBUG][subtarea] Error HTTP:', res.status, text);
+          alert(`Error HTTP ${res.status}: ${text}`);
+          return;
+        }
+        const data = await res.json();
+        if (data.ok) {
+          input.value = "";
+          // Siempre recargar la lista de subtareas, nunca recargar la página ni cerrar el modal
+          await cargarSubtareasModal(tareaPadreId, nombreNora);
+          // Opcional: mostrar mensaje de éxito temporal
+          // const msg = document.getElementById('msgSubtareaExistente');
+          // if (msg) { msg.textContent = 'Subtarea agregada'; setTimeout(() => { msg.textContent = ''; }, 1500); }
+        } else {
+          alert(data.error || "Error al convertir en subtarea");
+        }
+      } catch (err) {
+        console.error('[DEBUG][subtarea] Error de red o JS:', err);
+        alert("Error de red al convertir en subtarea");
+      }
+    });
+  }
+});
 
 // Hook para cargar comentarios y subtareas al abrir modal
 window.initModalVerTareaListeners = function () {
   console.log('[DEBUG] Ejecutando initModalVerTareaListeners');
   document.querySelectorAll('.btn-ver-tarea').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const tareaId = btn.getAttribute("data-id");
-      const nombreNora = btn.getAttribute("data-nora");
+    // Eliminar listeners previos clonando el nodo
+    const nuevoBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(nuevoBtn, btn);
+    nuevoBtn.addEventListener('click', async () => {
+      const tareaId = nuevoBtn.getAttribute("data-id");
+      const nombreNora = nuevoBtn.getAttribute("data-nora");
+      // Refuerzo: limpiar input y datalist antes de poblar
+      const inputBuscar = document.getElementById("inputBuscarTareaExistente");
+      if (inputBuscar) inputBuscar.value = "";
+      const datalist = document.getElementById("datalistTareasDisponibles");
+      if (datalist) datalist.innerHTML = "";
       let tarea = null;
       try {
         // Usar la nueva ruta que trae todo el contexto para el modal
-        let res = await fetch(`/panel_cliente/${nombreNora}/tareas/obtener_modal/${tareaId}`);
+        let res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/obtener_modal/${tareaId}`);
         if (!res.ok) {
           alert("❌ No se pudo cargar la información");
           return;
@@ -220,6 +318,20 @@ window.initModalVerTareaListeners = function () {
             hiddenRecurrente.value = "false";
           }
         }
+        // --- Poblar datalist de tareas disponibles para subtarea ---
+        const tareasDisponibles = data.tareas_disponibles_para_subtarea || [];
+        const datalist = document.getElementById("datalistTareasDisponibles");
+        if (datalist) {
+          datalist.innerHTML = "";
+          tareasDisponibles.forEach(t => {
+            const opt = document.createElement("option");
+            opt.value = t.titulo;
+            opt.setAttribute("data-id", t.id);
+            opt.textContent = t.titulo + (t.empresa_nombre ? ` — ${t.empresa_nombre}` : "");
+            datalist.appendChild(opt);
+          });
+        }
+
         cargarComentariosTarea(tareaId, nombreNora);
         cargarSubtareasModal(tareaId, nombreNora);
       } catch (error) {
@@ -265,9 +377,24 @@ window.initModalVerTareaListeners = function () {
         dtstart: document.getElementById("verDtstart")?.value,
         rrule: document.getElementById("verRrule")?.value,
         until: document.getElementById("verUntil")?.value,
-        count: document.getElementById("verCount")?.value,
-        tarea_padre_id: tareaPadreId
+        count: document.getElementById("verCount")?.value
+        // tarea_padre_id: tareaPadreId // ← No enviar este campo al actualizar tarea normal
       };
+      // Eliminar tarea_padre_id y campos de recurrencia del payload si existen (solo se deben enviar en creación)
+      const camposPermitidos = [
+        'titulo',
+        'prioridad',
+        'fecha_limite',
+        'estatus',
+        'usuario_empresa_id',
+        'empresa_id',
+        'descripcion'
+      ];
+      Object.keys(payload).forEach(k => {
+        if (!camposPermitidos.includes(k)) {
+          delete payload[k];
+        }
+      });
       console.log('[DEBUG][modal] payload a enviar:', payload);
       const alertContainer = document.getElementById("alertaGuardado");
       if (!alertContainer) return;
@@ -280,8 +407,7 @@ window.initModalVerTareaListeners = function () {
         for (const [campo, valor] of Object.entries(payload)) {
           console.log(`[DEBUG][modal] Enviando update campo: ${campo} | valor:`, valor);
           if (typeof valor === 'undefined') continue;
-          // Solo enviar campos relevantes (no enviar vacíos salvo tarea_padre_id)
-          if (campo === 'tarea_padre_id' || (valor !== null && valor !== '')) {
+          if (valor !== null && valor !== '') { // Solo enviar campos válidos
             const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/actualizar/${tareaId}`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -298,6 +424,11 @@ window.initModalVerTareaListeners = function () {
           alertContainer.innerText = "✅ Cambios guardados correctamente";
           alertContainer.classList.remove("d-none");
           alertContainer.classList.add("alert", "alert-success");
+          // --- NUEVO: cerrar modal y recargar para ver cambios ---
+          setTimeout(() => {
+            document.getElementById("modalTarea")?.classList.add("hidden");
+            window.location.reload();
+          }, 600);
         } else {
           alertContainer.innerText = "❌ Error: " + errores.join("; ");
           alertContainer.classList.remove("d-none");

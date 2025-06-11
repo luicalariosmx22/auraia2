@@ -59,13 +59,22 @@ if (formNueva) {
       usuario_empresa_id: usuario_empresa_id,
       empresa_id: document.getElementById("empresa_id_modal")?.value,
       creado_por: document.querySelector('[name="creado_por"]')?.value || userId || null,
-      nombre_nora: document.querySelector('[name="nombre_nora"]')?.value,
       is_recurrente: document.getElementById("recurrente_checkbox")?.checked ? "true" : "false",
       dtstart: document.getElementById("dtstart")?.value || null,
       rrule: document.getElementById("rrule")?.value || null,
       until: document.getElementById("until")?.value || null,
       count: document.getElementById("count")?.value || null
     };
+    // Si el formulario incluye tarea_padre_id (creación de subtarea), añádelo al payload
+    const tareaPadreInput = document.getElementById("tarea_padre_id");
+    if (tareaPadreInput && tareaPadreInput.value) {
+      payload.tarea_padre_id = tareaPadreInput.value;
+      // Eliminar nombre_nora si existe en el payload
+      if (payload.nombre_nora) delete payload.nombre_nora;
+    } else {
+      // Solo para tareas normales, si necesitas nombre_nora, puedes agregarlo aquí
+      // payload.nombre_nora = document.querySelector('[name="nombre_nora"]')?.value;
+    }
 
     console.debug("🟡 Payload enviado:", payload);
     console.debug("[DEBUG] creado_por:", payload.creado_por);
@@ -130,7 +139,32 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 
+// --- Refuerzo: poblar datalist de tareas activas para subtarea ---
+async function poblarDatalistTareasActivas() {
+  const datalist = document.getElementById("tareas_activas_datalist");
+  if (!datalist) return;
+  // Limpiar datalist
+  datalist.innerHTML = "";
+  let nombreNora = document.body.dataset.nora;
+  let url = `/panel_cliente/${nombreNora}/tareas/activas_para_subtarea`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("No se pudieron obtener tareas activas");
+    const data = await res.json();
+    if (Array.isArray(data.tareas)) {
+      data.tareas.forEach(tarea => {
+        const option = document.createElement("option");
+        option.value = tarea.id;
+        option.text = tarea.titulo;
+        datalist.appendChild(option);
+      });
+    }
+  } catch (err) {
+    console.error("❌ Error al poblar datalist de tareas activas:", err);
+  }
+}
 
+// Llama a poblarDatalistTareasActivas cada vez que se abre el modal de nueva subtarea
 window.abrirModalTarea = function () {
   const contenedor = document.getElementById("contenedorModalTarea");
   const modal = document.getElementById("modalTarea");
@@ -154,6 +188,7 @@ window.abrirModalTarea = function () {
     if (tareaId) tareaId.value = "";
     document.getElementById("modalTitulo").textContent = "Nueva tarea";
     if (boton) boton.innerHTML = "✖️ Cerrar formulario";
+    poblarDatalistTareasActivas(); // <-- poblar datalist cada vez
   }
 };
 

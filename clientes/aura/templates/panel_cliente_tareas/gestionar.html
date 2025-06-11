@@ -42,12 +42,12 @@
     </form>
   </div>
   <div class="flex gap-2">
-    <a href="/panel_cliente/{{ nombre_nora }}/tareas/completadas"
+    <a href="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/completadas"
        class="inline-flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
       <span class="text-lg">✅</span> Completadas
     </a>
     {% if permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin %}
-      <a href="/panel_cliente/{{ nombre_nora }}/tareas/recurrentes"
+      <a href="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/recurrentes"
          class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
         <span class="text-lg">🔁</span> Tareas recurrentes
       </a>
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
       loading.classList.remove('hidden');
       error.classList.add('hidden');
       vacio.classList.add('hidden');
-      fetch(`/panel_cliente/{{ nombre_nora }}/tareas/completadas_json`)
+      fetch(`/panel_cliente/{{ nombre_nora }}/tareas/gestionar/completadas_json`)
         .then(response => {
           if (!response.ok) throw new Error('Network');
           return response.json();
@@ -350,7 +350,7 @@ window.updateCampoSubtarea = async function(elemento, campo) {
     valor = elemento.value;
   }
   try {
-    const res = await fetch(`/panel_cliente/${nombreNora}/subtareas/actualizar/${subtareaId}`, {
+    const res = await fetch(`/panel_cliente/${nombreNora}/tareas/gestionar/subtareas/actualizar/${subtareaId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ campo, valor })
