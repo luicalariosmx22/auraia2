@@ -221,15 +221,9 @@ def create_app(config_class=Config):
     print("Definiendo rutas de nivel de aplicación...")
     @app.route("/")
     def index():
-        from flask import session, redirect, url_for
-        if session.get("email") and session.get("nombre_nora"):
-            if session.get("is_admin"):
-                return redirect("/admin")
-            return redirect(url_for("admin_nora_dashboard.dashboard_nora", nombre_nora=session.get("nombre_nora")))
-        
-        # ⚠️ Si no está logueado realmente, forzar limpieza por seguridad
-        session.clear()
-        return redirect("/login")
+        from flask import redirect, url_for, session
+        session.clear()  # Limpia cualquier sesión previa
+        return redirect(url_for("login.login"))
 
     @app.route("/logout")
     def logout():

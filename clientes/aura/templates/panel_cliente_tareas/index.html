@@ -26,9 +26,7 @@
     <div class="mt-3">
       {% include "panel_cliente_tareas/_permisos_equipo.html" %}
     </div>
-  </section>
-
-
+{% endif %}
 
 {% if config is defined %}
   <!-- Bloque: Automatizaciones (siempre visible) -->
@@ -46,6 +44,5 @@
 
   <!-- ✅ Seguimiento automático por WhatsApp -->
   {% include "panel_cliente_tareas/_seguimiento_whatsapp.html" %}
-{% endif %}
 
 {% endblock %}

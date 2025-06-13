@@ -5,6 +5,7 @@ from supabase import create_client
 from dotenv import load_dotenv
 from datetime import datetime
 import os
+from clientes.aura.middlewares.verificar_login import admin_login_required
 
 # Configurar Supabase
 load_dotenv()
@@ -15,6 +16,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 admin_noras_bp = Blueprint("admin_noras", __name__, url_prefix="/admin/noras")
 
 @admin_noras_bp.route("/")
+@admin_login_required
 def vista_admin():
     lista_noras = []
 
@@ -58,11 +60,13 @@ def vista_admin():
 
 
 @admin_noras_bp.route("/redir")
+@admin_login_required
 def redireccionar_a_noras():
     return redirect(url_for("admin_noras.vista_admin"))
 
 
 @admin_noras_bp.route("/debug_info", methods=["GET"])
+@admin_login_required
 def debug_info():
     try:
         rutas = [rule.rule for rule in admin_noras_bp.url_map.iter_rules()]
@@ -72,6 +76,7 @@ def debug_info():
 
 
 @admin_noras_bp.route("/debug/rutas", methods=["GET"])
+@admin_login_required
 def debug_rutas():
     """
     Devuelve todas las rutas registradas en la aplicación Flask.
@@ -87,6 +92,7 @@ def debug_rutas():
 
 
 @admin_noras_bp.route("/editar_nora", methods=["GET"])
+@admin_login_required
 def editar_nora():
     nombre = request.args.get("nombre")
     try:
@@ -103,6 +109,7 @@ def editar_nora():
 
 
 @admin_noras_bp.route("/editar_nora/<nombre>", methods=["POST"])
+@admin_login_required
 def actualizar_nora(nombre):
     try:
         # Recuperar los módulos seleccionados desde el formulario
@@ -121,6 +128,7 @@ def actualizar_nora(nombre):
 
 
 @admin_noras_bp.route("/borrar_nora", methods=["POST"])
+@admin_login_required
 def borrar_nora():
     data = request.get_json()
     nombre = data.get("nombre")

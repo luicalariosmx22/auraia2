@@ -6,6 +6,9 @@
     Supervisores activos: <strong>{{ supervisores_activos }}</strong> / 3
   </p>
 
+  <p>Usuarios encontrados: {{ usuarios|length }}</p>
+  <pre>{{ usuarios|tojson }}</pre>
+
   <div class="overflow-x-auto">
     <table class="min-w-full text-sm bg-white rounded-lg overflow-hidden shadow-sm">
       <thead class="bg-gray-100 text-gray-700 text-left">
@@ -97,7 +100,7 @@
       nuevo: { nombre: '', correo: '', telefono: '', ver_todas_tareas: false, crear_tareas_otros: false, reasignar_tareas: false, es_supervisor_tareas: false },
 
       async crearUsuario() {
-        const res = await fetch(`/usuarios/${nombreNora}/crear`, {
+        const res = await fetch(`/panel_cliente/${nombreNora}/tareas/usuarios`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(this.nuevo)
@@ -107,7 +110,7 @@
 
       async actualizarPermisos(id, campo, valor) {
         const payload = { [campo]: valor };
-        const res = await fetch(`/usuarios/${nombreNora}/editar/${id}`, {
+        const res = await fetch(`/panel_cliente/${nombreNora}/tareas/usuarios/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -116,7 +119,7 @@
 
       async eliminarUsuario(id) {
         if (confirm("¿Eliminar este usuario?")) {
-          await fetch(`/usuarios/${nombreNora}/eliminar/${id}`, { method: "DELETE" });
+          await fetch(`/panel_cliente/${nombreNora}/tareas/usuarios/${id}`, { method: "DELETE" });
           location.reload();
         }
       }

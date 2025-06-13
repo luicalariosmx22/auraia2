@@ -18,6 +18,7 @@ import os
 from datetime import datetime
 from flask import request, jsonify
 import uuid
+import re
 
 panel_cliente_tareas_bp = Blueprint(
     "panel_cliente_tareas",
@@ -29,12 +30,15 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# Cambia la ruta para que acepte el parámetro nombre_nora explícitamente y funcione con el url_prefix dinámico
 @panel_cliente_tareas_bp.route("/", endpoint="index_tareas")
 def vista_tareas_index():
-    print("🔵 Entrando a vista_tareas_index")
-    nombre_nora = request.path.split("/")[2]
-    print(f"🔵 nombre_nora extraído: {nombre_nora}")
-
+    nombre_nora = request.view_args.get("nombre_nora")
+    if not nombre_nora:
+        match = re.search(r"/panel_cliente/([^/]+)/tareas", request.path)
+        if match:
+            nombre_nora = match.group(1)
+    print(f"🔵 nombre_nora recibido: {nombre_nora}")
     user = session.get("user", {})
     cliente_id = user.get("cliente_id", "")
     empresa_id = user.get("empresa_id", "")
@@ -76,6 +80,9 @@ def vista_tareas_index():
     usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
     print(f"🔵 usuarios encontrados: {len(usuarios)}")
 
+    # Calcular supervisores activos para el template de permisos
+    supervisores_activos = len([u for u in usuarios if u.get("es_supervisor_tareas")])
+
     # ⚠️ Obtener alertas y ranking
     alertas, ranking, usuario_peor, empresa_mas = obtener_datos_alertas_y_ranking(nombre_nora, tareas, usuarios)
 
@@ -104,6 +111,7 @@ def vista_tareas_index():
     return render_template("panel_cliente_tareas/index.html",
         tareas_activas=tareas,
         usuarios=usuarios,
+        supervisores_activos=supervisores_activos,
         empresas=empresas,
         empresas_dict=empresas_dict,
         resumen=resumen,
@@ -159,7 +167,7 @@ def actualizar_tarea_completa(nombre_nora, tarea_id):
         # 📌 AQUÍ se crea/actualiza/desactiva la regla recurrente cuando se
         #    guarda el modal “Ver / Editar tarea”. 
         #    • Si no existe regla → insert into tareas_recurrentes
-        #    • Si existe → update or desactiva (`active=False`)
+        #    • Si
         # ────────────────────────────────────────────────────────────────
         is_recurrente = str(data.get("is_recurrente", "")).lower() in ("1", "true", "on", "yes")
 
@@ -231,7 +239,8 @@ from . import (
 
 # Registrar blueprints locales
 def register_tareas_blueprints(app):
-    app.register_blueprint(panel_cliente_tareas_bp, url_prefix="/panel_cliente")
+    # Eliminado el registro estático para evitar conflicto con el registro dinámico
+    # app.register_blueprint(panel_cliente_tareas_bp, url_prefix="/panel_cliente")
     app.register_blueprint(panel_tareas_gestionar_bp)
     app.register_blueprint(panel_tareas_crud_bp)
     app.register_blueprint(panel_tareas_recurrentes_bp)

@@ -1,10 +1,11 @@
 print("✅ admin_nora_dashboard.py cargado correctamente")
 
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, session
 from supabase import create_client
 from dotenv import load_dotenv
 from datetime import datetime
 import os
+from clientes.aura.middlewares.verificar_login import admin_login_required
 
 # Configurar Supabase
 load_dotenv()
@@ -15,7 +16,10 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 admin_nora_dashboard_bp = Blueprint("admin_nora_dashboard", __name__)
 
 @admin_nora_dashboard_bp.route("/admin/nora/<nombre_nora>/dashboard")
+@admin_login_required
 def dashboard_nora(nombre_nora):
+    if not session.get("email"):
+        return redirect(url_for("login.login"))
     print(f"🔍 Cargando dashboard para Nora: {nombre_nora}")
     datos = {
         "nombre_nora": nombre_nora,
@@ -96,6 +100,7 @@ def dashboard_nora(nombre_nora):
                            )
 
 @admin_nora_dashboard_bp.route("/admin/nora/<nombre_nora>/ticket/<ticket_id>/resolver", methods=["POST"])
+@admin_login_required
 def resolver_ticket(nombre_nora, ticket_id):
     print(f"🔍 Resolviendo ticket {ticket_id} para Nora: {nombre_nora}")
     try:

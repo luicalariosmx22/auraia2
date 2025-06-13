@@ -4,11 +4,13 @@
 from flask import Blueprint, render_template, current_app, session, redirect, url_for
 from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.verificador_rutas_runtime import verificar_rutas_vs_html
+from clientes.aura.middlewares.verificar_login import admin_login_required
 import traceback
 
 admin_dashboard_bp = Blueprint("admin_dashboard", __name__)
 
 @admin_dashboard_bp.route("/")
+@admin_login_required
 def dashboard_admin():
     # ✅ Verificación de login
     if "email" not in session or not session.get("is_admin"):

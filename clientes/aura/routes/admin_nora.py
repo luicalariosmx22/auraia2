@@ -5,6 +5,7 @@ from supabase import create_client
 from dotenv import load_dotenv
 from datetime import datetime
 import os
+from clientes.aura.middlewares.verificar_login import admin_login_required
 
 # Configurar Supabase
 load_dotenv()
@@ -352,3 +353,8 @@ def mostrar_entrenamiento(nombre_nora):
         print(f"❌ Error al cargar configuración de Nora: {str(e)}")
         flash("❌ Error al cargar configuración de Nora", "error")
         return redirect(url_for("admin_nora.mostrar_lista"))
+
+@admin_nora_bp.route("/admin/nora/<nombre_nora>")
+@admin_login_required
+def nora_admin(nombre_nora):
+    return render_template("admin/nora.html", nombre_nora=nombre_nora)
