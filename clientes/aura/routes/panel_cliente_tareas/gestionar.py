@@ -102,7 +102,7 @@ def vista_gestionar_tareas(nombre_nora):
         per_page = 10
     offset = (page - 1) * per_page
     # --- Consulta eficiente a Supabase ---
-    query = supabase.table("tareas").select("*", count="exact").eq("nombre_nora", nombre_nora).eq("activo", True)
+    query = supabase.table("tareas").select("*", count="exact").eq("nombre_nora", nombre_nora).eq("activo", True).neq("estatus", "completada")
     if q["empresa_id"]:
         query = query.eq("empresa_id", q["empresa_id"])
     if q["usuario_empresa_id"]:
@@ -293,7 +293,7 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
                 "estatus": "completada",
                 "activo": False,
                 "updated_at": datetime.utcnow().isoformat(),
-                "completada_en": datetime.utcnow().isoformat(),
+                # "completada_en": datetime.utcnow().isoformat(),  # Eliminado porque no existe la columna
             }).execute()
         except Exception as e:
             import traceback
@@ -512,7 +512,7 @@ def actualizar_campo_subtarea(nombre_nora, subtarea_id):
                 "estatus": "completada",
                 "activo": False,
                 "updated_at": datetime.utcnow().isoformat(),
-                "completada_en": datetime.utcnow().isoformat(),
+                # "completada_en": datetime.utcnow().isoformat(),  # Eliminado porque no existe la columna
             }).execute()
         except Exception:
             pass

@@ -1,0 +1,61 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="max-w-4xl mx-auto py-10">
+  <h1 class="text-4xl font-extrabold text-center text-indigo-900 mb-8">Estadísticas Semanales de Meta Ads</h1>
+  <div class="bg-white rounded-xl shadow p-8 border border-indigo-100 mb-8 flex flex-col md:flex-row gap-8 items-center justify-between">
+    <button id="btn-generar-reporte" class="bg-indigo-600 text-white px-8 py-4 rounded-lg font-bold text-xl hover:bg-indigo-700 transition shadow">Generar/Actualizar Reporte Semanal</button>
+    <button id="btn-sincronizar-anuncios" class="bg-green-600 text-white px-8 py-4 rounded-lg font-bold text-xl hover:bg-green-700 transition shadow">Sincronizar Anuncios Meta Ads</button>
+    <button id="btn-eliminar-reportes" class="bg-red-600 text-white px-8 py-4 rounded-lg font-bold text-xl hover:bg-red-700 transition shadow">Eliminar TODOS los Reportes</button>
+    <div id="reporte-status" class="mt-4 text-center text-lg"></div>
+  </div>
+  <div id="estadisticas-contenido" class="bg-white rounded-xl shadow p-8 border border-indigo-100"></div>
+</div>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/estadisticas_ads.js') }}"></script>
+<script>
+// Botón de sincronización de anuncios
+const btnSync = document.getElementById('btn-sincronizar-anuncios');
+const statusDiv = document.getElementById('reporte-status');
+if(btnSync) {
+  btnSync.addEventListener('click', async () => {
+    btnSync.disabled = true;
+    statusDiv.textContent = 'Sincronizando anuncios de Meta Ads...';
+    try {
+      const resp = await fetch(`/panel_cliente/{{ nombre_nora }}/meta_ads/estadisticas/sync`, {method: 'POST'});
+      const data = await resp.json();
+      if(data.ok) {
+        statusDiv.textContent = `Sincronización completada. Anuncios procesados: ${data.procesados}`;
+      } else {
+        statusDiv.textContent = 'Error en la sincronización: ' + (data.error || 'Error desconocido');
+      }
+    } catch(e) {
+      statusDiv.textContent = 'Error en la sincronización: ' + e;
+    }
+    btnSync.disabled = false;
+  });
+}
+
+// Botón de eliminar reportes
+const btnEliminar = document.getElementById('btn-eliminar-reportes');
+if(btnEliminar) {
+  btnEliminar.addEventListener('click', async () => {
+    if(!confirm('¿Estás seguro de que deseas eliminar TODOS los reportes semanales? Esta acción no se puede deshacer.')) return;
+    btnEliminar.disabled = true;
+    statusDiv.textContent = 'Eliminando todos los reportes...';
+    try {
+      const resp = await fetch(`/panel_cliente/{{ nombre_nora }}/meta_ads/estadisticas/eliminar_reportes`, {method: 'POST'});
+      const data = await resp.json();
+      if(data.ok) {
+        statusDiv.textContent = `Reportes eliminados: ${data.eliminados}`;
+      } else {
+        statusDiv.textContent = 'Error al eliminar reportes: ' + (data.error || 'Error desconocido');
+      }
+    } catch(e) {
+      statusDiv.textContent = 'Error al eliminar reportes: ' + e;
+    }
+    btnEliminar.disabled = false;
+  });
+}
+</script>
+{% endblock %}

@@ -3,7 +3,6 @@ from flask import render_template, request, redirect, url_for, flash
 from clientes.aura.utils.supabase_client import supabase
 
 @reportes_meta_ads_bp.route('/reportes', methods=['GET', 'POST'])
-@reportes_meta_ads_bp.route('/reportes/<nombre_nora>', methods=['GET', 'POST'])
 def vista_reportes_meta_ads(nombre_nora=None):
     if nombre_nora is None:
         nombre_nora = request.args.get('nombre_nora')

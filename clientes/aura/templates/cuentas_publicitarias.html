@@ -1,7 +1,7 @@
 {% extends "base_cliente.html" %}
 {% block contenido %}
 <div class="max-w-4xl mx-auto py-10">
-  <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">Cuentas Publicitarias Activas</h1>
+  <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">Cuentas Publicitarias</h1>
   <div class="flex justify-between items-center mb-4">
     <div class="text-lg font-semibold text-blue-800">
       Total de cuentas publicitarias: {{ cuentas_ads|length }}
@@ -11,6 +11,36 @@
       <button id="btn-importar-meta" class="bg-purple-600 hover:bg-purple-800 text-white font-semibold px-6 py-2 rounded shadow transition ml-2">Importar desde Meta</button>
     </div>
   </div>
+  <div class="flex flex-wrap gap-4 mb-6 items-end">
+    <div class="flex flex-col">
+      <label for="filtro-empresa" class="text-xs font-semibold text-gray-600 mb-1">Buscar empresa</label>
+      <input id="filtro-empresa" type="text" placeholder="Buscar empresa..." class="border px-3 py-2 rounded w-56" />
+    </div>
+    <div class="flex flex-col">
+      <label for="filtro-estado" class="text-xs font-semibold text-gray-600 mb-1">Estado</label>
+      <select id="filtro-estado" class="border px-3 py-2 rounded">
+        <option value="">Todas</option>
+        <option value="1">Solo activas</option>
+        <option value="0">Solo inactivas</option>
+      </select>
+    </div>
+    <div class="flex flex-col">
+      <label for="filtro-vinculo" class="text-xs font-semibold text-gray-600 mb-1">Vínculo empresa</label>
+      <select id="filtro-vinculo" class="border px-3 py-2 rounded">
+        <option value="">Todas</option>
+        <option value="con_empresa">Con empresa vinculada</option>
+        <option value="sin_empresa">Sin empresa vinculada</option>
+      </select>
+    </div>
+    <div class="flex flex-col">
+      <label for="filtro-anuncios" class="text-xs font-semibold text-gray-600 mb-1">Anuncios activos</label>
+      <select id="filtro-anuncios" class="border px-3 py-2 rounded">
+        <option value="">Todas</option>
+        <option value="con_activos">Con anuncios activos</option>
+        <option value="sin_activos">Sin anuncios activos</option>
+      </select>
+    </div>
+  </div>
   {% if cuentas_ads %}
     <table class="min-w-full bg-white rounded-xl shadow border">
       <thead class="bg-blue-100">
@@ -18,38 +48,51 @@
           <th class="px-4 py-2">Empresa</th>
           <th class="px-4 py-2">Cuenta Publicitaria</th>
           <th class="px-4 py-2">Estado</th>
-          <th class="px-4 py-2">Ads Activos</th>
+          <th class="px-2 py-2 w-12 text-center">Activos</th>
           <th class="px-8 py-2">Acción</th>
         </tr>
       </thead>
       <tbody>
-        {% for cuenta in cuentas_ads if cuenta.account_status == 1 %}
+        {% for cuenta in cuentas_ads %}
         <tr class="border-b">
-          <td class="px-4 py-2 text-xs text-gray-700">
+          <td class="px-4 py-2 align-middle">
             {% if cuenta.empresa_id %}
-              <a href="/panel_cliente/{{ nombre_nora }}/empresa/{{ cuenta.empresa_id }}/ficha" class="underline text-blue-700 hover:text-blue-900">
+              <a href="/panel_cliente/{{ nombre_nora }}/clientes/empresa/{{ cuenta.empresa_id }}/ficha?nombre_nora={{ nombre_nora }}" class="flex items-center gap-2 text-lg font-bold text-purple-800 hover:text-purple-900 underline">
+                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3v4M8 3v4m-5 4h18"/></svg>
                 {{ cuenta.empresa_nombre if cuenta.empresa_nombre else 'Empresa sin nombre' }}
               </a>
+              <div class="text-xs text-gray-500 ml-7">{{ cuenta.empresa_nombre if cuenta.empresa_nombre else 'Empresa sin nombre' }}</div>
             {% else %}
-              —
+              <span class="text-gray-400 italic">— Sin empresa vinculada —</span>
             {% endif %}
           </td>
           <td class="px-4 py-2 font-semibold text-blue-900">{{ cuenta.nombre_cliente }}<br><span class="text-xs text-gray-500">ID: {{ cuenta.id_cuenta_publicitaria }}</span></td>
-          <td class="px-4 py-2"><span class="inline-block whitespace-nowrap align-middle">🟢 Activa</span></td>
           <td class="px-4 py-2">
+            {% if cuenta.account_status == 1 %}
+              <span class="inline-block whitespace-nowrap align-middle">🟢 Activa</span>
+            {% else %}
+              <span class="inline-block whitespace-nowrap align-middle text-gray-400">⛔ Inactiva</span>
+            {% endif %}
+          </td>
+          <td class="px-2 py-2 text-center font-mono text-lg align-middle">
             <span id="ads-activos-{{ cuenta.id_cuenta_publicitaria }}">{{ cuenta.ads_activos if cuenta.ads_activos is not none else '—' }}</span>
           </td>
           <td class="px-8 py-2 flex flex-row gap-2 items-center justify-center">
-            <a href="{{ url_for('panel_cliente_ads.vincular_empresa_a_cuenta', nombre_nora=nombre_nora, cuenta_id=cuenta.id_cuenta_publicitaria) }}" class="bg-blue-600 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded shadow transition text-sm text-center whitespace-nowrap">
-              {% if cuenta.empresa_id %}<span class="inline-flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 01-8 0m8 0a4 4 0 00-8 0m8 0V5a4 4 0 00-8 0v2m8 0v2a4 4 0 01-8 0V7"></path></svg>Cambiar empresa</span>{% else %}<span class="inline-flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>Vincular empresa</span>{% endif %}
+            <a href="{{ url_for('panel_cliente_ads.vincular_empresa_a_cuenta', nombre_nora=nombre_nora, cuenta_id=cuenta.id_cuenta_publicitaria) }}" class="bg-blue-600 hover:bg-blue-800 text-white font-semibold px-2 py-1 rounded shadow transition text-xs text-center whitespace-nowrap">
+              {% if cuenta.empresa_id %}
+                Cambiar
+              {% else %}
+                Vincular
+              {% endif %}
             </a>
-            <button onclick="actualizarAdsActivos('{{ cuenta.id_cuenta_publicitaria }}')" class="bg-green-600 hover:bg-green-800 text-white font-semibold px-4 py-2 rounded shadow transition text-sm text-center whitespace-nowrap flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v16h16V4H4zm4 4h8v8H8V8z"></path></svg>Actualizar ads
+            <a href="{{ url_for('panel_cliente_ads.ficha_cuenta_publicitaria', cuenta_id=cuenta.id_cuenta_publicitaria, nombre_nora=nombre_nora) }}" class="bg-gray-200 hover:bg-gray-400 text-blue-900 font-semibold px-2 py-1 rounded shadow transition text-xs text-center whitespace-nowrap">Ficha</a>
+            <button onclick="actualizarAdsActivos('{{ cuenta.id_cuenta_publicitaria }}')" class="bg-green-600 hover:bg-green-800 text-white font-semibold px-2 py-1 rounded shadow transition text-xs text-center whitespace-nowrap flex items-center">
+              Actualizar
             </button>
           </td>
         </tr>
         {% else %}
-        <tr><td colspan="5" class="text-gray-400 text-center py-6">No hay cuentas activas.</td></tr>
+        <tr><td colspan="5" class="text-gray-400 text-center py-6">No hay cuentas configuradas.</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -73,6 +116,21 @@ document.getElementById('btn-actualizar-cuentas').onclick = async function() {
             span.textContent = cuenta.ads_activos;
             span.classList.add('text-green-700', 'font-bold');
             setTimeout(() => span.classList.remove('text-green-700', 'font-bold'), 1200);
+          }
+          // Nuevo: actualizar nombre de la cuenta si viene en la respuesta
+          if (cuenta.nombre_cliente) {
+            const nombreTd = document.querySelector(
+              `#ads-activos-${cuenta.id_cuenta_publicitaria}`
+            )?.closest('tr')?.querySelector('td:nth-child(2)');
+            if (nombreTd) {
+              // Solo el texto principal, antes del <br>
+              const br = nombreTd.querySelector('br');
+              if (br && br.previousSibling) {
+                br.previousSibling.textContent = cuenta.nombre_cliente;
+              } else {
+                nombreTd.childNodes[0].textContent = cuenta.nombre_cliente;
+              }
+            }
           }
         }
         this.textContent = '¡Actualizado!';
@@ -149,5 +207,56 @@ function actualizarAdsActivos(cuentaId) {
       alert('Error de red al actualizar ads activos');
     });
 }
+
+function filtrarCuentas() {
+  const empresa = document.getElementById('filtro-empresa').value.toLowerCase();
+  const estado = document.getElementById('filtro-estado').value;
+  const vinculo = document.getElementById('filtro-vinculo').value;
+  const anuncios = document.getElementById('filtro-anuncios').value;
+  document.querySelectorAll('tbody tr').forEach(tr => {
+    if (tr.querySelector('td')?.classList.contains('text-gray-400')) return; // fila vacía
+    let mostrar = true;
+    // Filtro empresa
+    if (empresa) {
+      const texto = tr.querySelector('td').innerText.toLowerCase();
+      if (!texto.includes(empresa)) mostrar = false;
+    }
+    // Filtro estado
+    if (estado) {
+      const esActiva = tr.querySelector('td:nth-child(3) span')?.textContent.includes('Activa');
+      if (estado === '1' && !esActiva) mostrar = false;
+      if (estado === '0' && esActiva) mostrar = false;
+    }
+    // Filtro empresa vinculada
+    if (vinculo) {
+      const tieneEmpresa = !tr.querySelector('td').innerText.includes('Sin empresa vinculada');
+      if (vinculo === 'con_empresa' && !tieneEmpresa) mostrar = false;
+      if (vinculo === 'sin_empresa' && tieneEmpresa) mostrar = false;
+    }
+    // Filtro anuncios activos
+    if (anuncios) {
+      const span = tr.querySelector('td:nth-child(4) span');
+      const val = span ? span.textContent.trim() : '';
+      if (anuncios === 'con_activos' && (!val || val === '—' || val === '0')) mostrar = false;
+      if (anuncios === 'sin_activos' && val && val !== '—' && val !== '0') mostrar = false;
+    }
+    tr.style.display = mostrar ? '' : 'none';
+  });
+}
+document.getElementById('filtro-empresa').addEventListener('input', filtrarCuentas);
+document.getElementById('filtro-estado').addEventListener('change', filtrarCuentas);
+document.getElementById('filtro-vinculo').addEventListener('change', filtrarCuentas);
+document.getElementById('filtro-anuncios').addEventListener('change', filtrarCuentas);
+
+function mostrarErroresMetaSync(errores) {
+  if (!errores || errores.length === 0) return;
+  let msg = 'Errores al sincronizar Meta Ads:';
+  msg += '\n' + errores.map(e => `Cuenta ${e.cuenta_id || ''}: ${e.error || e}`).join('\n');
+  alert(msg);
+}
+
+// Ejemplo de integración temporal: escucha eventos globales o llama esta función tras la sync
+// Supón que después de la sincronización recibes un objeto { ok: false, errores: [...] }
+// Llama mostrarErroresMetaSync(data.errores) donde corresponda
 </script>
 {% endblock %}

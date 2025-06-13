@@ -442,9 +442,20 @@ def ficha_empresa(empresa_id):
     usuarios = supabase.table("usuarios_clientes").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).execute().data or []
 
     # --- Consultar cuentas publicitarias ligadas a la empresa o cliente ---
-    cuentas_ads = []
-    if cliente_id:
-        cuentas_ads = supabase.table("meta_ads_cuentas").select("*").eq("cliente_id", cliente_id).execute().data or []
+    cuentas_ads = supabase.table("meta_ads_cuentas").select("*").eq("empresa_id", empresa_id).execute().data or []
+    cuentas_google = supabase.table("google_ads_cuentas").select("*").eq("empresa_id", empresa_id).execute().data or []
+    for c in cuentas_google:
+        c["tipo_plataforma"] = "google_ads"
+        c["id_cuenta_publicitaria"] = c.get("ad_account_id")
+    cuentas_ads = cuentas_ads + cuentas_google
+
+    # --- Consultar últimas 10 tareas completadas de la empresa ---
+    tareas_completadas = supabase.table("tareas").select("*") \
+        .eq("empresa_id", empresa_id) \
+        .eq("estatus", "completada") \
+        .order("updated_at", desc=True) \
+        .limit(10) \
+        .execute().data or []
 
     # --- Consultar reuniones ligadas a la empresa ---
     reuniones = supabase.table("reuniones_clientes").select("*").eq("empresa_id", empresa_id).order("fecha_hora", desc=True).execute().data or []
@@ -464,7 +475,8 @@ def ficha_empresa(empresa_id):
         cuentas_ads=cuentas_ads,
         reuniones=reuniones,
         accesos=accesos,
-        documentos=documentos
+        documentos=documentos,
+        tareas_completadas=tareas_completadas
     )
 
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/registrar_reunion", methods=["POST"])
@@ -625,3 +637,73 @@ def nueva_cuenta_ads_empresa(empresa_id):
         return redirect(url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora))
 
     return render_template('panel_cliente_vincular_ads.html', nombre_nora=nombre_nora, empresa=empresa, user={"name": session.get("name", "Usuario")})
+
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/editar_reunion/<reunion_id>", methods=["POST"])
+def editar_reunion(empresa_id, reunion_id):
+    nombre_nora = request.path.split("/")[2]
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+    # Obtener datos del formulario
+    fecha_hora = request.form.get("fecha_hora")
+    participantes = request.form.get("participantes")
+    minuta = request.form.get("minuta")
+    # Actualizar la reunión
+    supabase.table("reuniones_clientes").update({
+        "fecha_hora": fecha_hora,
+        "participantes": participantes,
+        "minuta": minuta
+    }).eq("id", reunion_id).execute()
+    flash("✅ Reunión actualizada correctamente", "success")
+    return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/eliminar_reunion/<reunion_id>", methods=["POST"])
+def eliminar_reunion(empresa_id, reunion_id):
+    # Importaciones ya están al inicio del archivo
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+    try:
+        supabase.table("reuniones_clientes").delete().eq("id", reunion_id).execute()
+        flash("✅ Reunión eliminada correctamente", "success")
+    except Exception as e:
+        flash(f"❌ Error al eliminar reunión: {str(e)}", "error")
+    return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+
+# --- ENDPOINT: Editar y guardar brief del cliente ---
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/editar_brief", methods=["POST"])
+def editar_brief_empresa(empresa_id):
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+    brief = request.form.get("brief", "").strip()
+    try:
+        supabase.table("cliente_empresas").update({"brief": brief}).eq("id", empresa_id).execute()
+        flash("✅ Brief actualizado correctamente", "success")
+    except Exception as e:
+        flash(f"❌ Error al actualizar brief: {str(e)}", "error")
+    return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+
+# --- ENDPOINT: Agregar cuenta Google Ads manualmente ---
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/agregar_cuenta_google_ads", methods=["POST"])
+def agregar_cuenta_google_ads_empresa(empresa_id):
+    import uuid
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+    nombre_nora = request.path.split("/")[2]
+    correo = request.form.get("correo", "").strip()
+    ad_account_id = request.form.get("ad_account_id", "").strip() or request.form.get("id_cuenta_publicitaria", "").strip()
+    if not correo or not ad_account_id:
+        flash("❌ Correo e ID de cuenta publicitaria son obligatorios", "error")
+        return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+    cuenta_data = {
+        "id": str(uuid.uuid4()),
+        "empresa_id": empresa_id,
+        "nombre_nora": nombre_nora,
+        "correo": correo,
+        "ad_account_id": ad_account_id,
+        "activo": True
+    }
+    try:
+        supabase.table("google_ads_cuentas").insert(cuenta_data).execute()
+        flash("✅ Cuenta Google Ads agregada correctamente", "success")
+    except Exception as e:
+        flash(f"❌ Error al agregar cuenta Google Ads: {str(e)}", "error")
+    return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))

@@ -58,9 +58,9 @@
             ('Ciudad', empresa.ciudad or '-'),
             ('Estado', empresa.estado or '-'),
             ('País', empresa.pais or '-'),
-            ('Representante legal', empresa.representante_legal or '-'),
-            ('Email representante', empresa.email_representante or '-'),
-            ('Teléfono representante', empresa.telefono_representante or '-'),
+            ('Contacto', empresa.representante_legal or '-'),
+            ('Email Contacto', empresa.email_representante or '-'),
+            ('Teléfono Contacto', empresa.telefono_representante or '-'),
             ('Fecha alta', empresa.fecha_alta or '-'),
             ('Fecha baja', empresa.fecha_baja or '-'),
             ('Notas', empresa.notas or '-'),
@@ -85,6 +85,34 @@
     </div>
   </div>
 
+  <!-- BRIEF DEL CLIENTE -->
+  <div class="bg-white rounded-lg shadow p-4 border border-blue-300 mb-4">
+    <div class="flex items-center justify-between mb-2">
+      <h4 class="text-lg font-semibold text-blue-700">📝 Brief del cliente</h4>
+      <a href="#" onclick="document.getElementById('modal-brief').classList.remove('hidden');return false;" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-semibold shadow-sm hover:bg-blue-700 transition">✏️ Editar brief</a>
+    </div>
+    <div class="text-gray-800 whitespace-pre-line min-h-[48px] text-sm">{{ empresa.brief or 'No hay brief registrado para este cliente.' }}</div>
+  </div>
+
+  <!-- Modal para editar brief -->
+  <div id="modal-brief" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg relative">
+      <button type="button" onclick="document.getElementById('modal-brief').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+      <h3 class="text-lg font-bold mb-4 text-blue-700 flex items-center gap-2">📝 Editar Brief del Cliente</h3>
+      <form method="post" action="{{ url_for('panel_cliente_clientes_bp.editar_brief_empresa', empresa_id=empresa.id) }}">
+        <div class="mb-3">
+          <label class="block text-xs font-semibold mb-1">Brief / Información relevante</label>
+          <textarea name="brief" rows="8" required class="w-full px-3 py-2 border rounded-lg text-sm">{{ empresa.brief }}</textarea>
+        </div>
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="document.getElementById('modal-brief').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- FIN BRIEF DEL CLIENTE -->
+  
   <!-- SUBMÓDULO: Contraseñas de redes sociales y plataformas digitales -->
   <div class="bg-white rounded-lg shadow p-4 border border-yellow-300 mb-4">
     <div class="flex items-center justify-between mb-2">
@@ -126,10 +154,8 @@
   <div class="mb-4" id="seccion-tareas">
     <div class="flex items-center justify-between mb-2">
       <h4 class="text-lg font-semibold text-blue-700">📋 Tareas Activas</h4>
-      <button type="button" onclick="exportarSeccionPDF('seccion-tareas', 'Tareas')" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs shadow-sm hover:bg-indigo-700 transition flex items-center gap-1"><span>📄</span> Exportar PDF</button>
     </div>
     {% set tareas_activas = tareas | selectattr('estatus', 'ne', 'completada') | list %}
-    {% set tareas_completadas = tareas | selectattr('estatus', 'equalto', 'completada') | list %}
     {% if tareas_activas %}
     <div class="overflow-x-auto rounded-lg shadow border border-gray-200 mb-4 bg-white">
       <table class="w-full text-sm align-middle">
@@ -176,25 +202,24 @@
         </tbody>
       </table>
     </div>
-    {% else %}
-      <p class="text-gray-500">No hay tareas activas ligadas a esta empresa.</p>
     {% endif %}
-    {% if tareas_completadas %}
-    <div class="overflow-x-auto rounded-lg shadow border border-gray-200 mt-2 bg-white">
-      <h5 class="text-sm font-semibold text-gray-600 mb-2 mt-2">✅ Tareas completadas</h5>
-      <table class="w-full text-sm align-middle opacity-70">
-        <thead class="bg-blue-50">
+    <!-- Últimas 5 tareas completadas -->
+    {% if tareas_completadas and tareas_completadas|length > 0 %}
+    <div class="overflow-x-auto rounded-lg shadow border border-green-100 mb-4 bg-white">
+      <h5 class="text-xs font-semibold text-green-700 mb-1 mt-1">Últimas 5 tareas completadas</h5>
+      <table class="w-full text-sm align-middle">
+        <thead class="bg-green-50">
           <tr>
             <th class="px-3 py-2 text-left font-semibold">Prioridad</th>
             <th class="px-3 py-2 text-left font-semibold">Título</th>
             <th class="px-3 py-2 text-left font-semibold">Estatus</th>
             <th class="px-3 py-2 text-left font-semibold">Asignado a</th>
-            <th class="px-3 py-2 text-left font-semibold">Fecha límite</th>
+            <th class="px-3 py-2 text-left font-semibold">Fecha completada</th>
           </tr>
         </thead>
         <tbody>
-          {% for t in tareas_completadas %}
-          <tr class="border-t border-gray-100 hover:bg-blue-50 transition">
+          {% for t in tareas_completadas[:5] %}
+          <tr class="border-t border-gray-100 hover:bg-green-50 transition">
             <td class="px-3 py-2">
               {% if t.prioridad == 'alta' %}<span class="text-red-600 font-bold">🔴 Alta</span>{% elif t.prioridad == 'media' %}<span class="text-yellow-600 font-bold">🟠 Media</span>{% else %}<span class="text-green-600 font-bold">🟢 Baja</span>{% endif %}
             </td>
@@ -207,8 +232,8 @@
             </td>
             <td class="px-3 py-2">{{ usuarios | selectattr('id', 'equalto', t.usuario_empresa_id) | map(attribute='nombre') | first or '—' }}</td>
             <td class="px-3 py-2">
-              {% if t.fecha_limite %}
-                <span>{{ t.fecha_limite }}</span>
+              {% if t.updated_at %}
+                <span>{{ t.updated_at[:10] }}</span>
               {% else %}
                 <span class="text-gray-400">—</span>
               {% endif %}
@@ -219,13 +244,11 @@
       </table>
     </div>
     {% endif %}
-  </div>
 
   <!-- PAGOS / TRANSACCIONES -->
   <div class="mb-4" id="seccion-pagos">
     <div class="flex items-center justify-between mb-2">
       <h4 class="text-lg font-semibold text-green-700">💳 Transacciones</h4>
-      <button type="button" onclick="exportarSeccionPDF('seccion-pagos', 'Pagos')" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs shadow-sm hover:bg-indigo-700 transition flex items-center gap-1"><span>📄</span> Exportar PDF</button>
     </div>
     {% if pagos %}
     <div class="overflow-x-auto rounded-lg shadow border border-gray-200 mb-2 bg-white">
@@ -269,7 +292,6 @@
   <div class="mb-4" id="seccion-reuniones">
     <div class="flex items-center justify-between mb-2">
         <h4 class="text-lg font-semibold text-purple-700">📅 Reuniones con el cliente</h4>
-        <button type="button" onclick="exportarSeccionPDF('seccion-reuniones', 'Reuniones')" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs shadow-sm hover:bg-indigo-700 transition flex items-center gap-1"><span>📄</span> Exportar PDF</button>
       </div>
     {% if reuniones %}
       <div class="overflow-x-auto rounded-lg shadow border border-gray-200 bg-white">
@@ -292,27 +314,39 @@
               </td>
               <td class="px-3 py-2">
                 <button type="button" onclick="document.getElementById('minuta-{{ r.id }}').classList.remove('hidden')" class="text-purple-700 hover:underline text-xs font-semibold">Ver minuta</button>
+                <form method="post" action="{{ url_for('panel_cliente_clientes_bp.eliminar_reunion', empresa_id=empresa.id, reunion_id=r.id) }}" style="display:inline" onsubmit="return confirm('¿Eliminar esta reunión?');">
+                  <button type="submit" class="ml-2 text-red-600 hover:text-red-800 text-xs font-semibold">Eliminar</button>
+                </form>
               </td>
             </tr>
-            <!-- Modal Minuta -->
+            <!-- Modal Minuta editable -->
             <div id="minuta-{{ r.id }}" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
               <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-5xl relative">
                 <button type="button" onclick="document.getElementById('minuta-{{ r.id }}').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
-                <h3 class="text-lg font-bold mb-4 text-purple-700 flex items-center gap-2">📝 Minuta de reunión</h3>
-                <div class="mb-2 text-xs text-gray-500">Fecha: {{ r.fecha_hora or '-' }} | Participantes: {{ r.participantes or '-' }}</div>
-                <div class="whitespace-pre-line text-gray-800 text-sm border rounded p-3 bg-gray-50 overflow-x-auto" id="minuta-texto-{{ r.id }}">{{ r.minuta }}</div>
-                <div class="flex justify-end mt-4 gap-2">
-                  <button type="button"
-                          class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700"
-                          data-id="{{ r.id }}"
-                          data-fecha="{{ r.fecha_hora or '-' }}"
-                          data-participantes="{{ r.participantes or '-' }}"
-                          onclick="exportarMinutaPDF(this)"
-                  >Exportar</button>
-                  <button type="button" onclick="document.getElementById('minuta-{{ r.id }}').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Cerrar</button>
-                </div>
+                <h3 class="text-lg font-bold mb-4 text-purple-700 flex items-center gap-2">📝 Editar reunión</h3>
+                <form method="post" action="{{ url_for('panel_cliente_clientes_bp.editar_reunion', empresa_id=empresa.id, reunion_id=r.id) }}" class="space-y-3">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-semibold mb-1">Fecha y hora</label>
+                      <input type="datetime-local" name="fecha_hora" value="{{ r.fecha_hora|replace(' ', 'T') }}" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold mb-1">Participantes</label>
+                      <input type="text" name="participantes" value="{{ r.participantes }}" class="w-full px-3 py-2 border rounded-lg text-sm">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold mb-1">Minuta / Notas</label>
+                    <textarea name="minuta" rows="6" required class="w-full px-3 py-2 border rounded-lg text-sm" id="minuta-texto-{{ r.id }}">{{ r.minuta }}</textarea>
+                  </div>
+                  <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="document.getElementById('minuta-{{ r.id }}').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700">Guardar cambios</button>
+                  </div>
+                </form>
               </div>
             </div>
+            <!-- Fin modal editable -->
             {% endfor %}
           </tbody>
         </table>
@@ -359,7 +393,6 @@
     <div class="flex items-center justify-between mb-2">
       <h4 class="text-lg font-semibold text-indigo-700 mb-2">📄 Documentos importantes</h4>
       <div class="flex gap-2">
-        <button type="button" onclick="exportarSeccionPDF('seccion-documentos', 'Documentos')" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs shadow-sm hover:bg-indigo-700 transition flex items-center gap-1"><span>📄</span> Exportar PDF</button>
         <button type="button" onclick="document.getElementById('form-doc-nuevo').classList.toggle('hidden')" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm">Agregar documento</button>
       </div>
     </div>
@@ -387,299 +420,79 @@
     {% endif %}
   </div>
 
+  <!-- CUENTAS PUBLICITARIAS (Meta y Google Ads) -->
+  <div class="mb-4" id="seccion-cuentas-publicitarias">
+    <h4 class="text-lg font-semibold text-blue-800 mb-2 flex items-center gap-2">💼 Cuentas Publicitarias</h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Meta Ads -->
+      <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+        <h5 class="text-base font-bold text-blue-700 mb-2 flex items-center gap-2">Meta Ads</h5>
+        {% set cuentas_meta = cuentas_ads | selectattr('tipo_plataforma', 'equalto', 'meta_ads') | selectattr('empresa_id', 'equalto', empresa.id) | list %}
+        {% if cuentas_meta %}
+          <ul class="divide-y divide-blue-100">
+            {% for c in cuentas_meta %}
+            <li class="py-2 flex flex-col">
+              <span class="font-semibold text-blue-900">{{ c.nombre_cliente or 'Sin nombre' }}</span>
+              <span class="text-xs text-gray-500">ID: {{ c.id_cuenta_publicitaria }}</span>
+              <span class="text-xs {% if c.account_status == 1 %}text-green-700{% else %}text-gray-400{% endif %}">{% if c.account_status == 1 %}🟢 Activa{% else %}⛔ Inactiva{% endif %}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <span class="text-gray-400 text-sm">No hay cuentas Meta Ads vinculadas.</span>
+        {% endif %}
+      </div>
+      <!-- Google Ads -->
+      <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+        <div class="flex items-center justify-between mb-2">
+          <h5 class="text-base font-bold text-green-700 mb-2 flex items-center gap-2">Google Ads</h5>
+          <button type="button" onclick="document.getElementById('modal-google-ads').classList.remove('hidden')" class="bg-green-600 text-white px-3 py-1 rounded text-xs font-semibold shadow-sm hover:bg-green-700 transition">+ Agregar</button>
+        </div>
+        {% set cuentas_google = cuentas_ads | selectattr('tipo_plataforma', 'equalto', 'google_ads') | selectattr('empresa_id', 'equalto', empresa.id) | list %}
+        {% if cuentas_google %}
+          <ul class="divide-y divide-green-100">
+            {% for c in cuentas_google %}
+            <li class="py-2 flex flex-col">
+              <span class="font-semibold text-green-900">{{ c.nombre_cliente or 'Sin nombre' }}</span>
+              <span class="text-xs text-gray-500">ID: {{ c.id_cuenta_publicitaria }}</span>
+              <span class="text-xs text-gray-500">Correo: {{ c.correo or '-' }}</span>
+              <span class="text-xs {% if c.account_status == 1 %}text-green-700{% else %}text-gray-400{% endif %}">{% if c.account_status == 1 %}🟢 Activa{% else %}⛔ Inactiva{% endif %}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <span class="text-gray-400 text-sm">No hay cuentas Google Ads vinculadas.</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para agregar cuenta Google Ads -->
+  <div id="modal-google-ads" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg relative">
+      <button type="button" onclick="document.getElementById('modal-google-ads').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+      <h3 class="text-lg font-bold mb-4 text-green-700 flex items-center gap-2">Agregar cuenta Google Ads</h3>
+      <form method="post" action="{{ url_for('panel_cliente_clientes_bp.agregar_cuenta_google_ads_empresa', empresa_id=empresa.id) }}">
+        <div class="mb-3">
+          <label class="block text-xs font-semibold mb-1">Correo asociado</label>
+          <input type="email" name="correo" required class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="mb-3">
+          <label class="block text-xs font-semibold mb-1">ID de cuenta publicitaria</label>
+          <input type="text" name="id_cuenta_publicitaria" required class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ej: 123-456-7890">
+        </div>
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="document.getElementById('modal-google-ads').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700">Agregar cuenta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Fin modal Google Ads -->
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
-  function exportarMinutaPDF(btn) {
-    const id = btn.getAttribute('data-id');
-    const fecha = btn.getAttribute('data-fecha') || '-';
-    const participantes = btn.getAttribute('data-participantes') || '-';
-    const doc = new window.jspdf.jsPDF('p', 'pt');
-
-    // Datos de empresa y cliente desde Jinja
-    const nombreEmpresa = '{{ empresa.nombre_empresa|default("Empresa") }}';
-    const nombreCliente = '{% if empresa.cliente %}{{ empresa.cliente.nombre_cliente|default("Cliente") }}{% else %}Cliente{% endif %}';
-    const nombreNora = '{{ nombre_nora|default("Nora")|replace(" ", "_") }}';
-    const logoUrl = '/static/images/nora_logo.png'; // Cambia la ruta si tu logo está en otro lugar
-
-    // Encabezado con logo y título
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 40;
-    // Logo Nora (si existe)
-    const img = new Image();
-    img.src = logoUrl;
-    img.onload = function() {
-      // Mantener proporción original del logo (ancho máx 50, alto máx 50)
-      let imgW = img.width;
-      let imgH = img.height;
-      if (imgW > 50 || imgH > 50) {
-        const scale = Math.min(50 / imgW, 50 / imgH);
-        imgW = imgW * scale;
-        imgH = imgH * scale;
-      }
-      doc.addImage(img, 'PNG', 40, y, imgW, imgH);
-      // Título con color azul
-      doc.setFontSize(22);
-      doc.setTextColor(37, 99, 235); // azul Tailwind #2563eb
-      doc.setFont('helvetica', 'bold');
-      doc.text('Minuta de reunión', pageWidth / 2, y + 30, { align: 'center' });
-      y += 60;
-      // Empresa y cliente
-      doc.setFontSize(13);
-      doc.setTextColor(55, 65, 81); // gris oscuro
-      doc.setFont('helvetica', 'bold');
-      doc.text('Empresa:', 110, y);
-      doc.setFont('helvetica', 'normal');
-      doc.text(nombreEmpresa, 180, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Cliente ligado:', 110, y + 20);
-      doc.setFont('helvetica', 'normal');
-      doc.text(nombreCliente, 210, y + 20);
-      y += 40;
-      // Línea separadora azul
-      doc.setDrawColor(37, 99, 235);
-      doc.setLineWidth(2);
-      doc.line(40, y, pageWidth - 40, y);
-      y += 20;
-      // Fecha y participantes
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Fecha:', 40, y);
-      doc.setFont('helvetica', 'normal');
-      doc.text(fecha, 100, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Participantes:', 40, y + 20);
-      doc.setFont('helvetica', 'normal');
-      doc.text(participantes, 130, y + 20);
-      y += 40;
-      // Otra línea separadora azul claro
-      doc.setDrawColor(96, 165, 250); // azul claro Tailwind #60a5fa
-      doc.setLineWidth(1);
-      doc.line(40, y, pageWidth - 40, y);
-      y += 20;
-      // Minuta en recuadro
-      const minuta = document.getElementById('minuta-texto-' + id).innerText;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(37, 99, 235);
-      doc.text('Minuta / Notas:', 40, y);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(55, 65, 81);
-      doc.setFillColor(219, 234, 254); // fondo azul muy claro #dbeafe
-      doc.setDrawColor(96, 165, 250); // borde azul claro
-      const boxTop = y + 10;
-      const boxLeft = 40;
-      const boxWidth = pageWidth - 80;
-      // Procesar negritas (**texto**)
-      function parseBoldLines(text) {
-        const lines = text.split('\n');
-        return lines.map(line => {
-          const parts = [];
-          let lastIdx = 0;
-          let match;
-          const boldRegex = /\*\*(.+?)\*\*/g;
-          while ((match = boldRegex.exec(line)) !== null) {
-            if (match.index > lastIdx) {
-              parts.push({ text: line.substring(lastIdx, match.index), bold: false });
-            }
-            parts.push({ text: match[1], bold: true });
-            lastIdx = match.index + match[0].length;
-          }
-          if (lastIdx < line.length) {
-            parts.push({ text: line.substring(lastIdx), bold: false });
-          }
-          return parts;
-        });
-      }
-      const parsedLines = parseBoldLines(minuta);
-      // Calcular altura
-      let totalLines = 0;
-      parsedLines.forEach(partsArr => {
-        let lineText = partsArr.map(p => p.text).join('');
-        const split = doc.splitTextToSize(lineText, boxWidth - 20);
-        totalLines += split.length;
-      });
-      let boxHeight = totalLines * 16 + 20;
-      const maxBoxHeight = doc.internal.pageSize.getHeight() - boxTop - 80;
-      if (boxHeight > maxBoxHeight) {
-        boxHeight = maxBoxHeight;
-      }
-      doc.rect(boxLeft, boxTop, boxWidth, boxHeight, 'FD');
-      doc.setFontSize(12);
-      let textY = boxTop + 20;
-      for (let i = 0; i < parsedLines.length; i++) {
-        let x = boxLeft + 10;
-        for (const part of parsedLines[i]) {
-          if (part.text) {
-            doc.setFont('helvetica', part.bold ? 'bold' : 'normal');
-            const split = doc.splitTextToSize(part.text, boxWidth - 20 - (x - boxLeft - 10));
-            for (let j = 0; j < split.length; j++) {
-              if (textY > boxTop + boxHeight - 10) {
-                doc.addPage();
-                textY = 60;
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(13);
-                doc.setTextColor(37, 99, 235);
-                doc.text('Minuta / Notas (continuación):', 40, textY);
-                textY += 20;
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(12);
-                doc.setTextColor(55, 65, 81);
-                x = boxLeft + 10;
-              }
-              doc.text(split[j], x, textY, { maxWidth: boxWidth - 20 });
-              if (j < split.length - 1) {
-                textY += 16;
-                x = boxLeft + 10;
-              } else {
-                x += doc.getTextWidth(split[j]);
-              }
-            }
-          }
-        }
-        textY += 16;
-      }
-      doc.setTextColor(0, 0, 0);
-      // Pie de página
-      doc.setFontSize(9);
-      doc.setTextColor(37, 99, 235);
-      doc.text('Exportado desde AuraAI', pageWidth - 140, doc.internal.pageSize.getHeight() - 30);
-      // Nombre de archivo
-      let fechaArchivo = fecha.split('T')[0] || fecha.split(' ')[0] || fecha;
-      fechaArchivo = fechaArchivo.replace(/[:\\/]/g, '-');
-      const nombreArchivo = `Reunion_${nombreNora}_${nombreCliente.replace(/ /g,'_')}_${fechaArchivo}.pdf`;
-      doc.save(nombreArchivo);
-    };
-    img.onerror = function() {
-      // Si no hay logo, igual genera el PDF sin logo
-      doc.setFontSize(22);
-      doc.setTextColor(37, 99, 235);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Minuta de reunión', pageWidth / 2, 60, { align: 'center' });
-      // Empresa y cliente
-      let y = 80;
-      doc.setFontSize(13);
-      doc.setTextColor(55, 65, 81);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Empresa:', 40, y);
-      doc.setFont('helvetica', 'normal');
-      doc.text(nombreEmpresa, 110, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Cliente ligado:', 40, y + 20);
-      doc.setFont('helvetica', 'normal');
-      doc.text(nombreCliente, 140, y + 20);
-      y += 40;
-      doc.setDrawColor(37, 99, 235);
-      doc.setLineWidth(2);
-      doc.line(40, y, pageWidth - 40, y);
-      y += 20;
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Fecha:', 40, y);
-      doc.setFont('helvetica', 'normal');
-      doc.text(fecha, 100, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Participantes:', 40, y + 20);
-      doc.setFont('helvetica', 'normal');
-      doc.text(participantes, 130, y + 20);
-      y += 40;
-      doc.setDrawColor(96, 165, 250);
-      doc.setLineWidth(1);
-      doc.line(40, y, pageWidth - 40, y);
-      y += 20;
-      const minuta = document.getElementById('minuta-texto-' + id).innerText;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(37, 99, 235);
-      doc.text('Minuta / Notas:', 40, y);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(55, 65, 81);
-      doc.setFillColor(219, 234, 254);
-      doc.setDrawColor(96, 165, 250);
-      const boxTop = y + 10;
-      const boxLeft = 40;
-      const boxWidth = pageWidth - 80;
-      // Procesar negritas (**texto**)
-      function parseBoldLines(text) {
-        const lines = text.split('\n');
-        return lines.map(line => {
-          const parts = [];
-          let lastIdx = 0;
-          let match;
-          const boldRegex = /\*\*(.+?)\*\*/g;
-          while ((match = boldRegex.exec(line)) !== null) {
-            if (match.index > lastIdx) {
-              parts.push({ text: line.substring(lastIdx, match.index), bold: false });
-            }
-            parts.push({ text: match[1], bold: true });
-            lastIdx = match.index + match[0].length;
-          }
-          if (lastIdx < line.length) {
-            parts.push({ text: line.substring(lastIdx), bold: false });
-          }
-          return parts;
-        });
-      }
-      const parsedLines = parseBoldLines(minuta);
-      // Calcular altura
-      let totalLines = 0;
-      parsedLines.forEach(partsArr => {
-        let lineText = partsArr.map(p => p.text).join('');
-        const split = doc.splitTextToSize(lineText, boxWidth - 20);
-        totalLines += split.length;
-      });
-      let boxHeight = totalLines * 16 + 20;
-      const maxBoxHeight = doc.internal.pageSize.getHeight() - boxTop - 80;
-      if (boxHeight > maxBoxHeight) {
-        boxHeight = maxBoxHeight;
-      }
-      doc.rect(boxLeft, boxTop, boxWidth, boxHeight, 'FD');
-      doc.setFontSize(12);
-      let textY = boxTop + 20;
-      for (let i = 0; i < parsedLines.length; i++) {
-        let x = boxLeft + 10;
-        for (const part of parsedLines[i]) {
-          if (part.text) {
-            doc.setFont('helvetica', part.bold ? 'bold' : 'normal');
-            const split = doc.splitTextToSize(part.text, boxWidth - 20 - (x - boxLeft - 10));
-            for (let j = 0; j < split.length; j++) {
-              if (textY > boxTop + boxHeight - 10) {
-                doc.addPage();
-                textY = 60;
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(13);
-                doc.setTextColor(37, 99, 235);
-                doc.text('Minuta / Notas (continuación):', 40, textY);
-                textY += 20;
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(12);
-                doc.setTextColor(55, 65, 81);
-                x = boxLeft + 10;
-              }
-              doc.text(split[j], x, textY, { maxWidth: boxWidth - 20 });
-              if (j < split.length - 1) {
-                textY += 16;
-                x = boxLeft + 10;
-              } else {
-                x += doc.getTextWidth(split[j]);
-              }
-            }
-          }
-        }
-        textY += 16;
-      }
-      doc.setTextColor(0, 0, 0);
-      // Pie de página
-      doc.setFontSize(9);
-      doc.setTextColor(37, 99, 235);
-      doc.text('Exportado desde AuraAI', pageWidth - 140, doc.internal.pageSize.getHeight() - 30);
-      let fechaArchivo = fecha.split('T')[0] || fecha.split(' ')[0] || fecha;
-      fechaArchivo = fechaArchivo.replace(/[:\\/]/g, '-');
-      const nombreArchivo = `Reunion_${nombreNora}_${nombreCliente.replace(/ /g,'_')}_${fechaArchivo}.pdf`;
-      doc.save(nombreArchivo);
-    };
-  }
-
   function exportarFichaEmpresaPDF() {
     const ficha = document.querySelector('.container.mx-auto.max-w-5xl');
     if (!ficha) return;
@@ -697,104 +510,6 @@
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
     html2pdf().set(opt).from(ficha).save();
-  }
-
-  function exportarSeccionPDF(idSeccion, nombreSeccion) {
-    const seccion = document.getElementById(idSeccion);
-    if (!seccion) return;
-    const now = new Date();
-    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
-    const anio = now.getFullYear();
-    const nombreArchivo = `${nombreSeccion}_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
-    const opt = {
-      margin:       0.2,
-      filename:     nombreArchivo,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(seccion).save();
-  }
-
-  function exportarTareasPDF() {
-    const seccion = document.getElementById('seccion-tareas');
-    if (!seccion) return;
-    const now = new Date();
-    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
-    const anio = now.getFullYear();
-    const nombreArchivo = `Tareas_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
-    const opt = {
-      margin: 0.2,
-      filename: nombreArchivo,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(seccion).save();
-  }
-  function exportarPagosPDF() {
-    const seccion = document.getElementById('seccion-pagos');
-    if (!seccion) return;
-    const now = new Date();
-    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
-    const anio = now.getFullYear();
-    const nombreArchivo = `Pagos_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
-    const opt = {
-      margin: 0.2,
-      filename: nombreArchivo,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(seccion).save();
-  }
-  function exportarCuentasAdsPDF() {
-    const seccion = document.getElementById('seccion-cuentas-ads');
-    if (!seccion) return;
-    const now = new Date();
-    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
-    const anio = now.getFullYear();
-    const nombreArchivo = `CuentasAds_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
-    const opt = {
-      margin: 0.2,
-      filename: nombreArchivo,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(seccion).save();
-  }
-  function exportarReunionesPDF() {
-    const seccion = document.getElementById('seccion-reuniones');
-    if (!seccion) return;
-    const now = new Date();
-    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
-    const anio = now.getFullYear();
-    const nombreArchivo = `Reuniones_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
-    const opt = {
-      margin: 0.2,
-      filename: nombreArchivo,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(seccion).save();
-  }
-  function exportarDocumentosPDF() {
-    const seccion = document.getElementById('seccion-documentos');
-    if (!seccion) return;
-    const now = new Date();
-    const mes = (now.getMonth() + 1).toString().padStart(2, '0');
-    const anio = now.getFullYear();
-    const nombreArchivo = `Documentos_${'{{ nombre_nora }}'}_${'{{ empresa.id }}'}_${mes}_${anio}.pdf`;
-    const opt = {
-      margin: 0.2,
-      filename: nombreArchivo,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(seccion).save();
   }
   </script>
   <script>

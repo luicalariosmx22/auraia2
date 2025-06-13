@@ -8,3 +8,6 @@ from .vistas import *
 from .carga_manual import *
 from .automatizaciones import *
 from .diseno import *
+from .estadisticas import estadisticas_ads_bp
+
+# Asegura que estadisticas_ads_bp esté disponible para registrar en la app principal

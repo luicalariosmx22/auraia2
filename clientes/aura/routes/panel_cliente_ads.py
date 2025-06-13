@@ -170,11 +170,16 @@ def actualizar_cuentas_publicitarias(nombre_nora):
                 'ads_activos': info.get('ads_activos', cuenta.get('ads_activos')),
                 'anuncios_activos': info.get('anuncios_activos', cuenta.get('anuncios_activos')),
             }
+            # Fallback si nombre_cliente viene vacío
+            if not update_data['nombre_cliente']:
+                update_data['nombre_cliente'] = 'Sin nombre'
             print(f"[DEBUG] Datos a actualizar en Supabase para {cuenta_id}: {update_data}")
-            supabase.table('meta_ads_cuentas').update(update_data).eq('id_cuenta_publicitaria', cuenta_id).execute()
+            resp_update = supabase.table('meta_ads_cuentas').update(update_data).eq('id_cuenta_publicitaria', cuenta_id).execute()
+            print(f"[DEBUG] Respuesta de update Supabase para {cuenta_id}: {resp_update}")
             cuentas_actualizadas.append({
                 'id_cuenta_publicitaria': cuenta_id,
-                'ads_activos': update_data['ads_activos']
+                'ads_activos': update_data['ads_activos'],
+                'nombre_cliente': update_data['nombre_cliente']
             })
         except Exception as e:
             print(f"[ERROR] Error actualizando cuenta {cuenta_id}: {e}")
@@ -217,10 +222,17 @@ def importar_cuentas_desde_meta(nombre_nora):
         "fields": "id,account_id,name,account_status",
         "access_token": token
     }
+    cuentas = []
     try:
-        resp = requests.get(url, params=params, timeout=20)
-        resp.raise_for_status()
-        cuentas = resp.json().get('data', [])
+        while url:
+            resp = requests.get(url, params=params if '?' not in url else None, timeout=20)
+            resp.raise_for_status()
+            data = resp.json()
+            cuentas.extend(data.get('data', []))
+            # Paginación: si hay siguiente página, seguir
+            paging = data.get('paging', {})
+            url = paging.get('next')
+            params = None  # Solo en la primera petición se usan params
     except Exception as e:
         return jsonify({'ok': False, 'msg': f'Error consultando Meta: {e}'}), 500
     # Buscar cuentas ya existentes para la Nora
@@ -269,3 +281,79 @@ def obtener_ads_activos_endpoint(nombre_nora, cuenta_id):
     # Actualiza el campo en Supabase
     supabase.table('meta_ads_cuentas').update({'ads_activos': activos}).eq('id_cuenta_publicitaria', cuenta_id).execute()
     return jsonify({'ok': True, 'ads_activos': activos})
+
+@panel_cliente_ads_bp.route('/cuenta/<cuenta_id>', methods=['GET'])
+def ficha_cuenta_publicitaria(cuenta_id):
+    nombre_nora = request.args.get('nombre_nora') or ''
+    cuenta = supabase.table('meta_ads_cuentas').select('*').eq('id_cuenta_publicitaria', cuenta_id).single().execute().data
+    if not cuenta:
+        return redirect(url_for('panel_cliente_ads.vista_cuentas_publicitarias', nombre_nora=nombre_nora))
+    # Enriquecer con nombre y logo de empresa si está vinculada
+    empresa_id = cuenta.get('empresa_id')
+    cuenta['empresa_nombre'] = None
+    cuenta['empresa_logo_url'] = None
+    if empresa_id:
+        empresa = supabase.table('cliente_empresas').select('nombre_empresa,logo_url').eq('id', empresa_id).single().execute().data
+        if empresa:
+            cuenta['empresa_nombre'] = empresa.get('nombre_empresa')
+            cuenta['empresa_logo_url'] = empresa.get('logo_url')
+    from datetime import datetime, timedelta
+    hoy = datetime.utcnow().date()
+    hace_7 = hoy - timedelta(days=7)
+    # Traer todos los reportes de los últimos 7 días para la cuenta
+    reportes_7d = supabase.table('meta_ads_reportes') \
+        .select('campana_id,conjunto_id,anuncio_id,importe_gastado') \
+        .gte('fecha_envio', hace_7.isoformat()) \
+        .lte('fecha_envio', hoy.isoformat()) \
+        .eq('id_cuenta_publicitaria', cuenta_id) \
+        .execute().data or []
+    # Campañas
+    campanas = supabase.table('meta_ads_campañas').select('campana_id,nombre_campana').eq('id_cuenta_publicitaria', cuenta_id).execute().data or []
+    campanas_dict = {}
+    for row in reportes_7d:
+        cid = row.get('campana_id')
+        if cid:
+            campanas_dict.setdefault(cid, 0)
+            campanas_dict[cid] += row.get('importe_gastado', 0) or 0
+    campanas_filtradas = []
+    for c in campanas:
+        gasto_7d = round(campanas_dict.get(c['campana_id'], 0), 2)
+        if gasto_7d > 0:
+            c['gasto_7d'] = gasto_7d
+            campanas_filtradas.append(c)
+    # Conjuntos de anuncios
+    conjuntos = supabase.table('meta_ads_conjuntos').select('conjunto_id,nombre_conjunto').eq('id_cuenta_publicitaria', cuenta_id).execute().data or []
+    conjuntos_dict = {}
+    for row in reportes_7d:
+        coid = row.get('conjunto_id')
+        if coid:
+            conjuntos_dict.setdefault(coid, 0)
+            conjuntos_dict[coid] += row.get('importe_gastado', 0) or 0
+    conjuntos_filtrados = []
+    for c in conjuntos:
+        gasto_7d = round(conjuntos_dict.get(c['conjunto_id'], 0), 2)
+        if gasto_7d > 0:
+            c['gasto_7d'] = gasto_7d
+            conjuntos_filtrados.append(c)
+    # Anuncios
+    anuncios = supabase.table('meta_ads_anuncios').select('anuncio_id,nombre_anuncio').eq('id_cuenta_publicitaria', cuenta_id).execute().data or []
+    anuncios_dict = {}
+    for row in reportes_7d:
+        aid = row.get('anuncio_id')
+        if aid:
+            anuncios_dict.setdefault(aid, 0)
+            anuncios_dict[aid] += row.get('importe_gastado', 0) or 0
+    anuncios_filtrados = []
+    for a in anuncios:
+        gasto_7d = round(anuncios_dict.get(a['anuncio_id'], 0), 2)
+        if gasto_7d > 0:
+            a['gasto_7d'] = gasto_7d
+            anuncios_filtrados.append(a)
+    return render_template(
+        'meta_ads_cuenta_ficha.html',
+        cuenta=cuenta,
+        nombre_nora=nombre_nora,
+        campanas=campanas_filtradas,
+        conjuntos=conjuntos_filtrados,
+        anuncios=anuncios_filtrados
+    )
