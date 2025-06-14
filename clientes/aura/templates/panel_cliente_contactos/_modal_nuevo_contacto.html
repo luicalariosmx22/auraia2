@@ -1,0 +1,83 @@
+<!-- Modal para crear nuevo contacto (siguiendo patrón de tareas) -->
+<div id="modalNuevoContacto" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-0 relative animate-fade-in" style="max-height:600px; min-width:600px;">
+    <form id="formNuevoContacto" method="post" onsubmit="return false;" class="divide-y divide-gray-200">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl bg-gradient-to-r from-blue-600 to-blue-400">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <span class="inline-block bg-white bg-opacity-20 rounded-full p-2">
+            <svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+              <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/>
+            </svg>
+          </span>
+          Nuevo contacto
+        </h2>
+        <button type="button" onclick="cerrarModalContacto()" aria-label="Cerrar" class="text-white hover:text-blue-100 text-2xl leading-none focus:outline-none">&times;</button>
+      </div>
+      <!-- Body -->
+      <div class="px-6 py-6 space-y-6 overflow-y-auto" style="max-height:400px;">
+        <div>
+          <label for="telefono" class="block text-sm font-semibold text-gray-700 mb-1">Teléfono <span class="text-red-500">*</span></label>
+          <input type="text" name="telefono" id="telefono" required class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+        </div>
+        <div>
+          <label for="nombre" class="block text-sm font-semibold text-gray-700 mb-1">Nombre <span class="text-red-500">*</span></label>
+          <input type="text" name="nombre" id="nombre" required class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+        </div>
+        <div>
+          <label for="correo" class="block text-sm font-semibold text-gray-700 mb-1">Correo</label>
+          <input type="email" name="correo" id="correo" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+        </div>
+        <div>
+          <label for="empresa" class="block text-sm font-semibold text-gray-700 mb-1">Empresa</label>
+          <input type="text" name="empresa" id="empresa" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+        </div>
+        <div>
+          <label for="rfc" class="block text-sm font-semibold text-gray-700 mb-1">RFC</label>
+          <input type="text" name="rfc" id="rfc" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+        </div>
+        <div>
+          <label for="direccion" class="block text-sm font-semibold text-gray-700 mb-1">Dirección</label>
+          <input type="text" name="direccion" id="direccion" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+        </div>
+        <div>
+          <label for="ciudad" class="block text-sm font-semibold text-gray-700 mb-1">Ciudad</label>
+          <input type="text" name="ciudad" id="ciudad" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+        </div>
+        <div>
+          <label for="cumpleanos" class="block text-sm font-semibold text-gray-700 mb-1">Cumpleaños</label>
+          <input type="date" name="cumpleanos" id="cumpleanos" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+        </div>
+        <div>
+          <label for="notas" class="block text-sm font-semibold text-gray-700 mb-1">Notas</label>
+          <textarea name="notas" id="notas" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Etiquetas</label>
+          <div id="etiquetas-catalogo-nuevo-contacto" class="flex flex-wrap gap-2 mb-2">
+            {% for etiqueta in etiquetas %}
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="hidden etiqueta-checkbox-nuevo" value="{{ etiqueta.nombre }}">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: {{ etiqueta.color }}; color: #fff;">
+                  {{ etiqueta.nombre }}
+                </span>
+              </label>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="etiquetas_string" id="etiquetas_string_nuevo_contacto">
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 rounded-b-2xl">
+        <button type="button" onclick="cerrarModalContacto()" class="text-gray-600 hover:text-blue-600 font-medium px-4 py-2 rounded transition">Cancelar</button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Guardar contacto</button>
+      </div>
+      <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
+    </form>
+  </div>
+</div>
+<script>
+  function cerrarModalContacto() {
+    document.getElementById("modalNuevoContacto")?.classList.add("hidden");
+  }
+</script>

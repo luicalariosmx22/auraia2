@@ -1,0 +1,18 @@
+{# Formulario reutilizable para crear nueva etiqueta #}
+<section x-data="{ crear: false }" class="mb-6">
+  <div class="text-right mb-3">
+    <button type="button" @click="crear = !crear"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm flex items-center gap-2 transition">
+      <span class="text-lg">➕</span> <span>Crear nueva etiqueta</span>
+    </button>
+  </div>
+  <div x-show="crear" x-transition class="mt-2">
+    <form action="/panel_cliente/{{ nombre_nora }}/etiquetas" method="POST" class="grid gap-3 bg-white p-4 rounded border shadow-lg">
+      <div class="flex gap-2 items-center">
+        <input type="text" name="nueva_etiqueta" placeholder="Nombre de la etiqueta" class="input flex-1" required>
+        <input type="color" name="color_etiqueta" value="#2196F3" class="input-color w-10 h-10 p-0 border-0 cursor-pointer">
+      </div>
+      <button type="submit" class="btn-primary w-full">Agregar etiqueta</button>
+    </form>
+  </div>
+</section>

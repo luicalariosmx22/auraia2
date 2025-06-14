@@ -97,49 +97,66 @@ def sincronizar_gasto_anuncios(empresa_id, ad_account_id, access_token):
         # --- NUEVO: Extraer campos avanzados de actions ---
         advanced_fields = {}
         for field in ['actions','video_play_actions','video_avg_time_watched_actions','post_engagement','post_reactions','post_comments','post_shares','thruplays','thruplay_rate','website_ctr','website_purchase_roas','purchase_roas']:
-            val = ad_actions.get(field, 0)
-            # Si es numérico, decide si es int o float
-            if isinstance(val, (int, float)):
-                if isinstance(val, float) and val.is_integer():
-                    advanced_fields[field] = safe_int(val)
-                elif isinstance(val, int):
-                    advanced_fields[field] = val
-                else:
-                    advanced_fields[field] = safe_float(val)
-            elif isinstance(val, str):
-                try:
-                    fval = float(val)
-                    if fval.is_integer():
-                        advanced_fields[field] = safe_int(fval)
+            try:
+                val = ad_actions.get(field, 0)
+                # Si es numérico, decide si es int o float
+                if isinstance(val, (int, float)):
+                    if isinstance(val, float) and val.is_integer():
+                        advanced_fields[field] = safe_int(val)
+                    elif isinstance(val, int):
+                        advanced_fields[field] = val
                     else:
-                        advanced_fields[field] = safe_float(fval)
-                except:
+                        advanced_fields[field] = safe_float(val)
+                elif isinstance(val, str):
+                    try:
+                        fval = float(val)
+                        if fval.is_integer():
+                            advanced_fields[field] = safe_int(fval)
+                        else:
+                            advanced_fields[field] = safe_float(fval)
+                    except:
+                        advanced_fields[field] = safe_str(val)
+                else:
                     advanced_fields[field] = safe_str(val)
-            else:
-                advanced_fields[field] = safe_str(val)
+            except Exception as e:
+                print(f"❌ Error en ciclo de advanced_fields: {e}")
+                break
         # Mensajes avanzados
         for field in ['messaging_conversations_started','cost_per_messaging_conversation_started']:
-            val = ad_messages.get(field, 0)
-            if isinstance(val, (int, float)):
-                if isinstance(val, float) and val.is_integer():
-                    advanced_fields[field] = safe_int(val)
-                elif isinstance(val, int):
-                    advanced_fields[field] = val
-                else:
-                    advanced_fields[field] = safe_float(val)
-            elif isinstance(val, str):
-                try:
-                    fval = float(val)
-                    if fval.is_integer():
-                        advanced_fields[field] = safe_int(fval)
+            try:
+                val = ad_messages.get(field, 0)
+                if isinstance(val, (int, float)):
+                    if isinstance(val, float) and val.is_integer():
+                        advanced_fields[field] = safe_int(val)
+                    elif isinstance(val, int):
+                        advanced_fields[field] = val
                     else:
-                        advanced_fields[field] = safe_float(fval)
-                except:
+                        advanced_fields[field] = safe_float(val)
+                elif isinstance(val, str):
+                    try:
+                        fval = float(val)
+                        if fval.is_integer():
+                            advanced_fields[field] = safe_int(fval)
+                        else:
+                            advanced_fields[field] = safe_float(fval)
+                    except:
+                        advanced_fields[field] = safe_str(val)
+                else:
                     advanced_fields[field] = safe_str(val)
-            else:
-                advanced_fields[field] = safe_str(val)
-        # Buscar si ya existe un anuncio con ese nombre y cuenta publicitaria
-        query = supabase.table('meta_ads_anuncios_detalle').select('id').eq('nombre_anuncio', nombre).eq('id_cuenta_publicitaria', ad_account_id)
+            except Exception as e:
+                print(f"❌ Error en ciclo de mensajes avanzados: {e}")
+                break
+        # Buscar si ya existe un anuncio con la clave primaria real
+        # NOTA: publisher_platform, fecha_inicio y fecha_fin deben estar disponibles en el contexto de cada anuncio
+        publisher_platform = ad.get('publisher_platform', 'facebook')  # Ajusta si tienes el valor real
+        fecha_inicio = ad.get('date_start', str(inicio))  # Ajusta si tienes el valor real
+        fecha_fin = ad.get('date_stop', str(fin))  # Ajusta si tienes el valor real
+        query = supabase.table('meta_ads_anuncios_detalle')\
+            .select('id')\
+            .eq('ad_id', ad_id)\
+            .eq('publisher_platform', publisher_platform)\
+            .eq('fecha_inicio', fecha_inicio)\
+            .eq('fecha_fin', fecha_fin)
         existente = query.execute()
         fields_to_update = {
             'importe_gastado': gasto,
@@ -168,20 +185,30 @@ def sincronizar_gasto_anuncios(empresa_id, ad_account_id, access_token):
             'link_clicks': link_clicks,
             'inline_link_clicks': inline_link_clicks,
             'mensajes': mensajes,
+            'publisher_platform': publisher_platform,
+            'fecha_inicio': fecha_inicio,
+            'fecha_fin': fecha_fin,
             **advanced_fields
         }
-        if existente.data:
-            supabase.table('meta_ads_anuncios_detalle')\
-                .update(fields_to_update)\
-                .eq('id', existente.data[0]['id']).execute()
-            print(f"🔄 Actualizado: {nombre} → ${gasto}")
-            if 'meta_ads_anuncios_detalle' not in tablas_actualizadas:
-                tablas_actualizadas.append('meta_ads_anuncios_detalle')
-        else:
-            supabase.table('meta_ads_anuncios_detalle').insert(fields_to_insert).execute()
-            print(f"🆕 Insertado: {nombre} (ad_id {ad_id}) para cuenta {ad_account_id}")
-            if 'meta_ads_anuncios_detalle' not in tablas_actualizadas:
-                tablas_actualizadas.append('meta_ads_anuncios_detalle')
+        try:
+            if existente.data:
+                supabase.table('meta_ads_anuncios_detalle')\
+                    .update(fields_to_update)\
+                    .eq('ad_id', ad_id)\
+                    .eq('publisher_platform', publisher_platform)\
+                    .eq('fecha_inicio', fecha_inicio)\
+                    .eq('fecha_fin', fecha_fin).execute()
+                print(f"🔄 Actualizado: {nombre} → ${gasto}")
+                if 'meta_ads_anuncios_detalle' not in tablas_actualizadas:
+                    tablas_actualizadas.append('meta_ads_anuncios_detalle')
+            else:
+                supabase.table('meta_ads_anuncios_detalle').insert(fields_to_insert).execute()
+                print(f"🆕 Insertado: {nombre} (ad_id {ad_id}) para cuenta {ad_account_id}")
+                if 'meta_ads_anuncios_detalle' not in tablas_actualizadas:
+                    tablas_actualizadas.append('meta_ads_anuncios_detalle')
+        except Exception as e:
+            print(f"❌ Error al insertar/actualizar anuncio {ad_id} ({publisher_platform}): {e}")
+            break  # Detener el ciclo principal al primer error
     # Mostrar resumen de tablas sincronizadas
     print("[MetaAds][DEBUG] Tablas sincronizadas en esta ejecución:", tablas_actualizadas)
 

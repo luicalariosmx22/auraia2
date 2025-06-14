@@ -1,4 +1,4 @@
-    {% extends "base_cliente.html" %}
+{% extends "base_cliente.html" %}
     {% block contenido %}
     <header class="header">
         <h1>🏷️ Etiquetas para {{ nombre_nora }}</h1>
@@ -7,38 +7,33 @@
         <p class="description">Aquí puedes gestionar las etiquetas para tus contactos.</p>
 
         <!-- Formulario para agregar nueva etiqueta -->
-        <section x-data="{ crear: false }" class="mb-6">
-          <div class="text-right mb-3">
-            <button @click="crear = !crear"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm">
-              ➕ Nueva etiqueta
-            </button>
-          </div>
-          <div x-show="crear" x-transition>
-            <form action="{{ url_for('panel_cliente_etiquetas.panel_etiquetas', nombre_nora=nombre_nora) }}" method="POST" class="grid gap-3 bg-white p-4 rounded border">
-              <input type="text" name="nueva_etiqueta" placeholder="Nombre de la etiqueta" class="input" required>
-              <input type="color" name="color_etiqueta" value="#2196F3" class="input">
-              <button type="submit" class="btn-primary">Agregar</button>
-            </form>
-          </div>
-        </section>
+        {% include "panel_cliente_contactos/_formulario_nueva_etiqueta.html" %}
 
         <!-- Lista de etiquetas existentes -->
         <section class="mb-6">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4">🏷️ Etiquetas existentes</h2>
+          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">🏷️ <span>Etiquetas existentes</span></h2>
 
           {% if etiquetas %}
-            <div class="space-y-4">
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {% for etiqueta in etiquetas %}
-                <div class="bg-white p-4 rounded border flex items-center justify-between">
-                  <form method="POST" action="{{ url_for('panel_cliente_etiquetas.editar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}" class="flex gap-2 items-center">
-                    <input type="text" name="nuevo_nombre" value="{{ etiqueta.nombre }}" class="input">
-                    <input type="color" name="nuevo_color" value="{{ etiqueta.color }}" class="input-color">
-                    <button type="submit" class="btn-save">💾</button>
-                  </form>
-                  <form method="POST" action="{{ url_for('panel_cliente_etiquetas.eliminar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}">
-                    <button type="submit" class="btn-delete">🗑</button>
-                  </form>
+                <div class="bg-white p-4 rounded border flex items-center justify-between shadow group transition hover:border-blue-400">
+                  <div class="flex items-center gap-3">
+                    <span class="inline-block w-8 h-8 rounded-full border-2 border-gray-200 shadow-sm" style='background-color: {{ etiqueta.color if etiqueta.color and etiqueta.color.startswith("#") else "#888" }};' title="Color de la etiqueta"></span>
+                    <span class="font-semibold text-gray-800 text-base" title="Nombre de la etiqueta">{{ etiqueta.nombre }}</span>
+                    {% if etiqueta.cantidad_contactos is defined %}
+                      <span class="ml-2 px-2 py-0.5 rounded text-xs font-semibold text-white" style='background-color: {{ etiqueta.color if etiqueta.color and etiqueta.color.startswith("#") else "#888" }};' title="Contactos con esta etiqueta">{{ etiqueta.cantidad_contactos }} contacto{{ 's' if etiqueta.cantidad_contactos != 1 else '' }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="flex gap-2 items-center">
+                    <form method="POST" action="{{ url_for('panel_cliente_contactos.editar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}" class="flex gap-2 items-center">
+                      <input type="text" name="nuevo_nombre" value="{{ etiqueta.nombre }}" class="input w-32" title="Editar nombre">
+                      <input type="color" name="nuevo_color" value="{{ etiqueta.color }}" class="input-color w-8 h-8 p-0 border-0 cursor-pointer" title="Editar color">
+                      <button type="submit" class="btn-save" title="Guardar cambios">💾</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('panel_cliente_contactos.eliminar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}">
+                      <button type="submit" class="btn-delete" title="Eliminar etiqueta">🗑</button>
+                    </form>
+                  </div>
                 </div>
               {% endfor %}
             </div>

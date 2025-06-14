@@ -2,64 +2,149 @@
 {% extends "base_cliente.html" %}
 {% block contenido %}
 
-<h1 class="text-xl font-semibold mb-6">📞 Contactos para {{ nombre_nora }}</h1>
-
-<!-- Agregar contacto -->
-<section x-data="{ crear: false }" class="mb-6">
-  <div class="text-right mb-3">
-    <button @click="crear = !crear"
+<!-- Encabezado del módulo de contactos -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 mt-2">
+  <div>
+    <h1 class="text-3xl font-extrabold text-nora-primary flex items-center gap-2 mb-2">
+      <span class="text-4xl">📞</span> Gestión de contactos para <span class="text-black">{{ nombre_nora }}</span>
+    </h1>
+    <p class="text-gray-600 text-base max-w-2xl">
+      Administra y consulta todos los contactos asociados a tu cuenta Nora. Aquí puedes agregar, editar, eliminar y convertir contactos en clientes, así como ver el historial de conversaciones y clasificar con etiquetas personalizadas.
+    </p>
+  </div>
+  <div class="mt-4 sm:mt-0 text-right">
+    <button id="btnNuevoContacto" type="button"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 text-sm">
       ➕ Nuevo contacto
     </button>
   </div>
-  <div x-show="crear" x-transition>
-    <form method="POST" action="{{ url_for('panel_cliente_contactos.agregar_contacto', nombre_nora=nombre_nora) }}" class="grid gap-2 bg-white p-4 rounded border">
-      <input type="text" name="telefono" placeholder="Teléfono" required class="input">
-      <input type="text" name="nombre" placeholder="Nombre" required class="input">
-      <input type="email" name="correo" placeholder="Correo" class="input">
-      <input type="text" name="empresa" placeholder="Empresa" class="input">
-      <input type="text" name="rfc" placeholder="RFC" class="input">
-      <input type="text" name="direccion" placeholder="Dirección" class="input">
-      <input type="text" name="ciudad" placeholder="Ciudad" class="input">
-      <input type="date" name="cumpleanos" placeholder="Cumpleaños" class="input">
-      <textarea name="notas" placeholder="Notas" rows="3" class="input"></textarea>
-      <button type="submit" class="btn-primary">Agregar Contacto</button>
-    </form>
+</div>
+
+{% include "panel_cliente_contactos/_modal_nuevo_contacto.html" %}
+
+<!-- Filtros de búsqueda -->
+<form method="GET" class="mb-8 flex flex-wrap gap-4 items-end bg-white p-4 rounded-2xl shadow border border-gray-200">
+  <div class="flex flex-col">
+    <label class="block text-xs text-gray-500 mb-1 font-semibold" for="filtro_nombre">Nombre</label>
+    <input type="text" id="filtro_nombre" name="filtro_nombre" value="{{ request.args.get('filtro_nombre', '') }}" class="rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition w-44" placeholder="Buscar nombre...">
   </div>
-</section>
+  <div class="flex flex-col">
+    <label class="block text-xs text-gray-500 mb-1 font-semibold" for="filtro_empresa">Empresa</label>
+    <input type="text" id="filtro_empresa" name="filtro_empresa" value="{{ request.args.get('filtro_empresa', '') }}" class="rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition w-44" placeholder="Buscar empresa...">
+  </div>
+  <div class="flex flex-col">
+    <label class="block text-xs text-gray-500 mb-1 font-semibold" for="filtro_etiqueta">Etiqueta</label>
+    <select id="filtro_etiqueta" name="filtro_etiqueta" class="rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition w-40">
+      <option value="">Todas</option>
+      {% for etiqueta in etiquetas %}
+        <option value="{{ etiqueta.id }}" {% if request.args.get('filtro_etiqueta') == etiqueta.id|string %}selected{% endif %}>{{ etiqueta.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="flex flex-col">
+    <label class="block text-xs text-gray-500 mb-1 font-semibold" for="filtro_ultimo">Último mensaje</label>
+    <select id="filtro_ultimo" name="filtro_ultimo" class="rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition w-40">
+      <option value="">Cualquiera</option>
+      <option value="hoy" {% if request.args.get('filtro_ultimo') == 'hoy' %}selected{% endif %}>Hoy</option>
+      <option value="1" {% if request.args.get('filtro_ultimo') == '1' %}selected{% endif %}>Hace 1 día</option>
+      <option value="7" {% if request.args.get('filtro_ultimo') == '7' %}selected{% endif %}>Menos de 7 días</option>
+      <option value="mas7" {% if request.args.get('filtro_ultimo') == 'mas7' %}selected{% endif %}>Más de 7 días</option>
+    </select>
+  </div>
+  <div class="flex flex-row gap-2 items-end">
+    <button type="submit" class="px-5 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition">🔍 Buscar</button>
+    <a href="{{ url_for('panel_cliente_contactos.panel_contactos', nombre_nora=nombre_nora) }}" class="px-4 py-2 rounded-lg bg-gray-100 text-blue-600 font-semibold shadow hover:bg-blue-50 transition text-xs">Limpiar</a>
+  </div>
+</form>
 
 <!-- Lista de contactos -->
 <section>
-  <h2 class="text-lg font-semibold text-gray-800 mb-4">📋 {{ contactos|length }} contacto{{ 's' if contactos|length != 1 else '' }}</h2>
-
+  <h2 class="text-2xl font-bold text-nora-primary flex items-center gap-2 mb-6">
+    <span>📋</span> {{ contactos|length }} contacto{{ 's' if contactos|length != 1 else '' }}
+  </h2>
   <form method="POST" action="{{ url_for('panel_cliente_contactos.acciones_contactos', nombre_nora=nombre_nora) }}">
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white border border-gray-200 text-sm rounded">
+    <div class="overflow-x-auto rounded-2xl shadow-lg border border-gray-200 bg-white">
+      <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-100">
-            <th class="px-2 py-2">✓</th>
-            <th class="px-2 py-2">Teléfono</th>
-            <th class="px-2 py-2">Nombre</th>
-            <th class="px-2 py-2">Correo</th>
-            <th class="px-2 py-2">Empresa</th>
-            <th class="px-2 py-2">Ciudad</th>
-            <th class="px-2 py-2">Último mensaje</th>
-            <th class="px-2 py-2">Acciones</th>
+          <tr class="bg-nora-primary/10 text-nora-primary uppercase text-xs">
+            <th class="px-3 py-2">✓</th>
+            <th class="px-3 py-2 text-left">Nombre</th>
+            <th class="px-3 py-2 text-left">Teléfono</th>
+            <th class="px-3 py-2 text-left">Empresa</th>
+            <th class="px-3 py-2 text-left">Etiquetas</th>
+            <th class="px-3 py-2 text-left">Tipo</th>
+            <th class="px-3 py-2 text-left">Último mensaje</th>
+            <th class="px-3 py-2 text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {% for c in contactos %}
-          <tr>
-            <td class="px-2 py-2"><input type="checkbox" name="contactos_seleccionados" value="{{ c.telefono }}"></td>
-            <td class="px-2 py-2">{{ c.telefono }}</td>
-            <td class="px-2 py-2">{{ c.nombre }}</td>
-            <td class="px-2 py-2">{{ c.correo }}</td>
-            <td class="px-2 py-2">{{ c.empresa }}</td>
-            <td class="px-2 py-2">{{ c.ciudad }}</td>
-            <td class="px-2 py-2">{{ c.ultimo_mensaje[:10] if c.ultimo_mensaje }}</td>
-            <td class="px-2 py-2">
-              <button class="btn-mini" name="accion" value="editar">✏️</button>
-              <button class="btn-mini" name="accion" value="eliminar">🗑</button>
+          <tr class="hover:bg-blue-50 transition border-b border-gray-100 align-middle">
+            <td class="px-3 py-2 text-center align-middle"><input type="checkbox" name="contactos_seleccionados" value="{{ c.telefono }}"></td>
+            <td class="px-3 py-2 align-middle" data-campo="nombre">
+              <span class="inline-flex items-center gap-2">
+                <span class="inline-block bg-green-100 text-green-700 rounded-full px-2 py-0.5 text-xs font-semibold">👤</span>
+                <span>{{ c.nombre }}</span>
+              </span>
+            </td>
+            <td class="px-3 py-2 align-middle" data-campo="telefono">
+              <span class="inline-flex items-center gap-2">
+                <span class="inline-block bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-xs font-semibold">📱</span>
+                <span>{{ c.telefono }}</span>
+              </span>
+            </td>
+            <td class="px-3 py-2 align-middle" data-campo="empresa">{{ c.empresa }}</td>
+            <td class="px-3 py-2 align-middle" data-campo="etiquetas">
+              <div class="inline-edit-etiquetas" data-contacto-id="{{ c.id }}">
+                {% if c.etiquetas_string %}
+                  <div class="flex flex-wrap gap-1 etiquetas-badges" onclick="editarEtiquetasInline(this, '{{ c.id }}', '{{ c.etiquetas_string|e }}')">
+                    {% for nombre_etiqueta in c.etiquetas_string.split(',') %}
+                      {% set nombre = nombre_etiqueta.strip() %}
+                      {% set etq = etiquetas|selectattr('nombre', 'equalto', nombre)|first %}
+                      {% set color = etq.color if etq and etq.color and etq.color.startswith('#') else '#888' %}
+                      <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium shadow-sm border border-white cursor-pointer transition hover:scale-105" style="background-color: {{ color }}; color: #fff;" title="{{ nombre }}">
+                        <span class="truncate">{{ nombre }}</span>
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <div class="etiquetas-badges text-gray-300 text-xs cursor-pointer" onclick="editarEtiquetasInline(this, '{{ c.id }}', '')">Sin etiquetas</div>
+                {% endif %}
+              </div>
+            </td>
+            <td class="px-3 py-2 align-middle">
+              {% if c.telefono_10 in telefonos_colaboradores %}
+                <span class="inline-block bg-yellow-100 text-yellow-800 rounded px-2 py-0.5 text-xs font-semibold">Colaborador</span>
+              {% elif c.telefono_10 in telefonos_clientes %}
+                <span class="inline-block bg-blue-100 text-blue-800 rounded px-2 py-0.5 text-xs font-semibold">Cliente</span>
+              {% else %}
+                <span class="inline-block bg-gray-100 text-gray-700 rounded px-2 py-0.5 text-xs font-semibold">Contacto</span>
+              {% endif %}
+            </td>
+            <td class="px-3 py-2 align-middle text-gray-500" data-campo="ultimo_mensaje">
+              <span class="inline-flex items-center gap-1">
+                <span class="text-lg">⏰</span>
+                {% if c.ultimo_mensaje_dt %}
+                  {% set dias = (now - c.ultimo_mensaje_dt).days %}
+                  {% if dias == 0 %}
+                    hoy
+                  {% elif dias == 1 %}
+                    hace 1 día
+                  {% elif dias > 1 %}
+                    hace {{ dias }} días
+                  {% else %}
+                    {{ c.ultimo_mensaje_dt }}
+                  {% endif %}
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+            </td>
+            <td class="px-3 py-2 align-middle flex gap-1 justify-center">
+              <button class="btn-mini btn-editar-contacto hover:bg-blue-200" title="Editar"><span class="sr-only">Editar</span>✏️</button>
+              <button class="btn-mini btn-eliminar-contacto hover:bg-red-200" title="Eliminar"><span class="sr-only">Eliminar</span>🗑</button>
+              <button class="btn-mini btn-convertir-cliente hover:bg-green-200" title="Convertir a cliente"><span class="sr-only">Convertir a cliente</span>👤</button>
+              <button class="btn-mini btn-historial-contacto hover:bg-yellow-100" title="Ver historial" data-telefono="{{ c.telefono }}" data-nombre="{{ c.nombre }}"><span class="sr-only">Ver historial</span>🕑</button>
               <input type="hidden" name="contactos_seleccionados" value="{{ c.telefono }}">
             </td>
           </tr>
@@ -68,29 +153,221 @@
       </table>
     </div>
   </form>
+  <!-- Paginación -->
+  {% set filtro_query = '' %}
+  {% for k, v in request.args.items() if k != 'page' and v %}{% set filtro_query = filtro_query + '&' + k + '=' + v %}{% endfor %}
+  <div class="flex justify-between items-center mt-4">
+    <div class="text-xs text-gray-500">
+      Mostrando {{ (page-1)*20+1 }}-{{ (page-1)*20+contactos|length }} de {{ total }} contactos
+    </div>
+    <div class="flex gap-1">
+      {% if page > 1 %}
+        <a href="{{ url_for('panel_cliente_contactos.panel_contactos', nombre_nora=nombre_nora) }}?page={{ page-1 }}{{ filtro_query }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-blue-100 text-blue-600 font-bold">&laquo;</a>
+      {% endif %}
+      {% for p in range(1, total_pages+1) %}
+        <a href="{{ url_for('panel_cliente_contactos.panel_contactos', nombre_nora=nombre_nora) }}?page={{ p }}{{ filtro_query }}"
+           class="px-3 py-1 rounded {{ 'bg-blue-600 text-white' if p==page else 'bg-gray-100 hover:bg-blue-100 text-blue-600' }} font-bold">{{ p }}</a>
+      {% endfor %}
+      {% if page < total_pages %}
+        <a href="{{ url_for('panel_cliente_contactos.panel_contactos', nombre_nora=nombre_nora) }}?page={{ page+1 }}{{ filtro_query }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-blue-100 text-blue-600 font-bold">&raquo;</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Leyenda de acciones -->
+  <div class="mt-8 flex flex-col items-center gap-2 text-sm">
+    <div class="flex gap-4">
+      <span class="flex items-center gap-1"><span class="btn-mini bg-blue-100">✏️</span> Editar</span>
+      <span class="flex items-center gap-1"><span class="btn-mini bg-red-100">🗑</span> Eliminar</span>
+      <span class="flex items-center gap-1"><span class="btn-mini bg-green-100">👤</span> Convertir a cliente</span>
+      <span class="flex items-center gap-1"><span class="btn-mini bg-yellow-100">🕑</span> Ver historial</span>
+    </div>
+    <div class="text-xs text-gray-400">Haz clic en los íconos de la columna Acciones para editar, eliminar, convertir o ver historial de cada contacto.</div>
+  </div>
 </section>
 
 <!-- Submódulo: Etiquetas -->
 <section class="mt-10">
-  <h2 class="text-xl font-semibold text-gray-800 mb-4">🏷️ Etiquetas</h2>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2 m-0">
+      <span class="inline-block bg-blue-100 text-blue-600 rounded-full px-2 py-1 text-lg">🏷️</span>
+      <span>Etiquetas</span>
+    </h2>
+    <button type="button" onclick="abrirModalGestionEtiquetas()" class="px-3 py-1 bg-gray-100 text-blue-700 rounded-lg shadow-sm hover:bg-blue-200 text-xs flex items-center gap-1 transition">
+      <span class="text-base">⚙️</span> Gestionar
+    </button>
+  </div>
 
-  {% if etiquetas %}
-    <div class="flex flex-wrap gap-3 mb-4">
-      {% for etiqueta in etiquetas %}
-        <span class="inline-block px-3 py-1 rounded text-sm font-medium" style="background-color: {{ etiqueta.color }};">
-          {{ etiqueta.nombre }}
-        </span>
-      {% endfor %}
+  <div class="flex flex-col md:flex-row md:items-start gap-8">
+    <div class="flex-1">
+      {% if etiquetas %}
+        <div class="flex flex-wrap gap-2 mb-2">
+          {% for etiqueta in etiquetas %}
+            {% set color = etiqueta.color if etiqueta.color and etiqueta.color.startswith('#') else '#888' %}
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium shadow border border-white transition hover:scale-105"
+                  style="background-color: {{ color }}; color: #fff; min-width:90px;">
+              <span class="truncate">{{ etiqueta.nombre }}</span>
+            </span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-gray-600">No hay etiquetas registradas para esta Nora.</p>
+      {% endif %}
     </div>
-  {% else %}
-    <p class="text-gray-600">No hay etiquetas registradas para esta Nora.</p>
-  {% endif %}
-
-  <form action="/panel_cliente/{{ nombre_nora }}/etiquetas/agregar" method="POST" class="grid sm:grid-cols-2 gap-4 mt-6">
-    <input type="text" name="nombre" placeholder="Nombre de etiqueta" required class="input">
-    <input type="color" name="color" value="#3498db" class="input">
-    <button type="submit" class="btn-primary col-span-2">➕ Crear nueva etiqueta</button>
-  </form>
+    <div class="w-full md:w-80 max-w-xs bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm">
+      {% include "panel_cliente_contactos/_formulario_nueva_etiqueta.html" %}
+    </div>
+  </div>
 </section>
 
+<!-- Modal historial de conversaciones -->
+<div id="modalHistorialContacto" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 transition-opacity duration-200 hidden">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col animate-fade-in">
+    <div class="flex justify-between items-center px-6 py-3 border-b sticky top-0 bg-white z-10 rounded-t-2xl">
+      <h3 class="font-semibold text-lg text-nora-primary">🕑 Historial de conversaciones</h3>
+      <button id="btnCerrarHistorial" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition-colors">&times;</button>
+    </div>
+    <div id="historialLoading" class="p-6 text-center text-nora-primary flex flex-col items-center gap-2 hidden">
+      <span class="loader-nora"></span>
+      <span>Cargando...</span>
+    </div>
+    <div id="historialMensajes" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50" style="scroll-behavior:smooth;"></div>
+    <div class="px-6 py-3 border-t text-right rounded-b-2xl bg-white">
+      <button id="btnCerrarHistorial2" class="btn-primary">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de gestión de etiquetas -->
+<div id="modalGestionEtiquetas" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-0 relative animate-fade-in" style="max-height:600px; min-width:600px;">
+    <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl bg-gradient-to-r from-blue-600 to-blue-400">
+      <h2 class="text-xl font-bold text-white flex items-center gap-2">
+        <span class="inline-block bg-white bg-opacity-20 rounded-full p-2">🏷️</span>
+        Gestionar etiquetas
+      </h2>
+      <button type="button" onclick="cerrarModalGestionEtiquetas()" aria-label="Cerrar" class="text-white hover:text-blue-100 text-2xl leading-none focus:outline-none">&times;</button>
+    </div>
+    <div class="px-6 py-6 space-y-6 overflow-y-auto" style="max-height:400px;">
+      {% include "panel_cliente_contactos/_formulario_nueva_etiqueta.html" %}
+      <section class="mb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">🏷️ <span>Etiquetas existentes</span></h2>
+        {% if etiquetas %}
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {% for etiqueta in etiquetas %}
+              <div class="bg-white p-4 rounded border flex items-center justify-between shadow group transition hover:border-blue-400">
+                <div class="flex items-center gap-3">
+                  <span class="inline-block w-8 h-8 rounded-full border-2 border-gray-300 shadow" style='background-color: {{ etiqueta.color if etiqueta.color and etiqueta.color.startswith("#") else "#888" }};' title="Color de la etiqueta"></span>
+                  <span class="font-semibold text-gray-800 text-base" title="Nombre de la etiqueta">{{ etiqueta.nombre }}</span>
+                  {% if etiqueta.cantidad_contactos is defined %}
+                    <span class="ml-2 px-2 py-0.5 rounded text-xs font-semibold text-white" style='background-color: {{ etiqueta.color if etiqueta.color and etiqueta.color.startswith("#") else "#888" }};' title="Contactos con esta etiqueta">{{ etiqueta.cantidad_contactos }} contacto{{ 's' if etiqueta.cantidad_contactos != 1 else '' }}</span>
+                  {% endif %}
+                </div>
+                <div class="flex gap-2 items-center">
+                  <form method="POST" action="{{ url_for('panel_cliente_contactos.editar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}" class="flex gap-2 items-center">
+                    <input type="text" name="nuevo_nombre" value="{{ etiqueta.nombre }}" class="input w-32" title="Editar nombre">
+                    <input type="color" name="nuevo_color" value="{{ etiqueta.color }}" class="input-color w-8 h-8 p-0 border-0 cursor-pointer" title="Editar color">
+                    <button type="submit" class="btn-save" title="Guardar cambios">💾</button>
+                  </form>
+                  <form method="POST" action="{{ url_for('panel_cliente_contactos.eliminar_etiqueta', nombre_nora=nombre_nora, etiqueta_id=etiqueta.id) }}">
+                    <button type="submit" class="btn-delete" title="Eliminar etiqueta">🗑</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-sm text-red-600">❌ No hay etiquetas registradas aún.</p>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</div>
+<script>
+  function abrirModalGestionEtiquetas() {
+    document.getElementById("modalGestionEtiquetas")?.classList.remove("hidden");
+  }
+  function cerrarModalGestionEtiquetas() {
+    document.getElementById("modalGestionEtiquetas")?.classList.add("hidden");
+  }
+</script>
+
+<style>
+@keyframes fade-in { from { opacity: 0; transform: translateY(40px);} to { opacity: 1; transform: none; } }
+.animate-fade-in { animation: fade-in 0.3s; }
+.text-nora-primary { color: #3b82f6; }
+.bg-nora-primary\/10 { background-color: #e0edfd; }
+.loader-nora { border: 4px solid #e0e7ef; border-top: 4px solid #3b82f6; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+
 {% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    console.log('[DEBUG] bloque scripts en panel_cliente_contactos.html ejecutado');
+  </script>
+  <script>
+    function editarEtiquetasInline(element, contactoId, etiquetasString) {
+      if (element.parentNode.querySelector('input')) return; // Ya está editando
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = etiquetasString;
+      input.className = 'inline-input-etiquetas px-2 py-1 rounded border border-gray-300 text-xs';
+      input.style.minWidth = '120px';
+      input.onblur = guardarEtiquetasInline;
+      input.onkeydown = function(e) {
+        if (e.key === 'Enter') {
+          input.blur();
+        } else if (e.key === 'Escape') {
+          cancelarEdicionInline(input, etiquetasString);
+        }
+      };
+      element.style.display = 'none';
+      element.parentNode.appendChild(input);
+      input.focus();
+      input.select();
+    }
+    function cancelarEdicionInline(input, etiquetasString) {
+      const badges = input.parentNode.querySelector('.etiquetas-badges');
+      if (badges) badges.style.display = '';
+      input.remove();
+    }
+    function guardarEtiquetasInline(e) {
+      const input = e.target;
+      const nuevoValor = input.value.trim();
+      const contactoId = input.parentNode.getAttribute('data-contacto-id');
+      // Construir la URL correcta con nombre_nora
+      const nombreNora = '{{ nombre_nora }}';
+      const url = `/panel_cliente/${nombreNora}/contactos/api/contacto/${contactoId}/etiquetas_string`;
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ etiquetas_string: nuevoValor })
+      })
+      .then(r => r.json())
+      .then((data) => {
+        if (data.success) {
+          location.reload();
+        } else {
+          alert('Error al actualizar etiquetas');
+        }
+      })
+      .catch(() => alert('Error de red al actualizar etiquetas'));
+    }
+  </script>
+  <style>
+    .inline-input-etiquetas { font-size: 0.9em; }
+    .etiquetas-badges { cursor: pointer; }
+    .etiquetas-badges span {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .etiquetas-badges span:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 6px rgba(0,0,0,0.25);
+    }
+  </style>
+  <script src="{{ url_for('static', filename='js/contactos_modal_nuevo.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/contactos_acciones.js') }}" defer></script>
+{% endblock %

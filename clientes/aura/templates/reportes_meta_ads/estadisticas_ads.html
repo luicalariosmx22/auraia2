@@ -4,12 +4,15 @@
   <h1 class="text-4xl font-extrabold text-center text-indigo-900 mb-8">Estadísticas Semanales de Meta Ads</h1>
   <div class="bg-white rounded-xl shadow p-8 border border-indigo-100 mb-8 flex flex-col md:flex-row gap-8 items-center justify-between">
     <button id="btn-generar-reporte" class="bg-indigo-600 text-white px-8 py-4 rounded-lg font-bold text-xl hover:bg-indigo-700 transition shadow">Generar/Actualizar Reporte Semanal</button>
-    <button id="btn-sincronizar-anuncios" class="bg-green-600 text-white px-8 py-4 rounded-lg font-bold text-xl hover:bg-green-700 transition shadow">Sincronizar Anuncios Meta Ads</button>
+    <button id="btn-sincronizar-anuncios" type="button" class="bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-xl hover:bg-blue-800 transition shadow" data-bs-toggle="modal" data-bs-target="#modalSyncMetaAds">
+      <i class="fa-solid fa-arrows-rotate mr-2"></i> Sincronización Manual Meta Ads
+    </button>
     <button id="btn-eliminar-reportes" class="bg-red-600 text-white px-8 py-4 rounded-lg font-bold text-xl hover:bg-red-700 transition shadow">Eliminar TODOS los Reportes</button>
     <div id="reporte-status" class="mt-4 text-center text-lg"></div>
   </div>
   <div id="estadisticas-contenido" class="bg-white rounded-xl shadow p-8 border border-indigo-100"></div>
 </div>
+{% include 'reportes_meta_ads/modal_sync_meta_ads.html' %}
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/estadisticas_ads.js') }}"></script>
@@ -18,22 +21,7 @@
 const btnSync = document.getElementById('btn-sincronizar-anuncios');
 const statusDiv = document.getElementById('reporte-status');
 if(btnSync) {
-  btnSync.addEventListener('click', async () => {
-    btnSync.disabled = true;
-    statusDiv.textContent = 'Sincronizando anuncios de Meta Ads...';
-    try {
-      const resp = await fetch(`/panel_cliente/{{ nombre_nora }}/meta_ads/estadisticas/sync`, {method: 'POST'});
-      const data = await resp.json();
-      if(data.ok) {
-        statusDiv.textContent = `Sincronización completada. Anuncios procesados: ${data.procesados}`;
-      } else {
-        statusDiv.textContent = 'Error en la sincronización: ' + (data.error || 'Error desconocido');
-      }
-    } catch(e) {
-      statusDiv.textContent = 'Error en la sincronización: ' + e;
-    }
-    btnSync.disabled = false;
-  });
+  // Ahora el botón abre el modal, la lógica de fetch está en el modal
 }
 
 // Botón de eliminar reportes
