@@ -19,7 +19,7 @@ def verificar_tareas():
     resultado = []
 
     # 1. Módulo activado
-    config = supabase.table("configuracion_bot").select("modulos, modulo_tareas_activo, tareas_recurrentes, alertas_whatsapp, reporte_semanal, cliente_id").eq("nombre_nora", nombre_nora).single().execute().data
+    config = supabase.table("configuracion_bot").select("modulos, modulo_tareas_activo, tareas_recurrentes, alertas_whatsapp, reporte_meta_ads, cliente_id").eq("nombre_nora", nombre_nora).single().execute().data
     mod_activo = config.get("modulo_tareas_activo", False)
     resultado.append({
         "nombre": "Módulo de tareas activado",

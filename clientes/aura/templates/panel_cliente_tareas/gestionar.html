@@ -27,10 +27,16 @@
 {% endif %}
 
 {% include "panel_cliente_tareas/_estadisticas.html" %}
-{% include "panel_cliente_tareas/_filtros.html" %}
 
-<div class="flex flex-wrap gap-2 justify-between items-center mb-4">
-  <div>
+<!-- Filtro avanzado/modal de filtros entre estadísticas y barra de botones -->
+<div class="mb-2">
+  {% include "panel_cliente_tareas/_filtros.html" %}
+</div>
+
+<!-- Filtros y botones en una sola línea, filtro a la izquierda, botones a la derecha -->
+<div class="flex flex-wrap justify-between items-end mb-4 gap-2">
+  <!-- Filtro alineado a la izquierda -->
+  <div class="flex-1 min-w-[220px]">
     <form method="get" id="formOrdenTareas" class="inline-block">
       <label for="ordenTareas" class="text-sm text-gray-700 mr-1">Ordenar por:</label>
       <select name="orden" id="ordenTareas" class="border rounded px-2 py-1 text-sm" onchange="this.form.submit()">
@@ -41,7 +47,8 @@
       <input type="hidden" name="per_page" value="{{ per_page }}">
     </form>
   </div>
-  <div class="flex gap-2">
+  <!-- Botones alineados a la derecha -->
+  <div class="flex gap-2 mt-2 sm:mt-0">
     <a href="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/completadas"
        class="inline-flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
       <span class="text-lg">✅</span> Completadas
@@ -59,8 +66,8 @@
     </button>
   </div>
 </div>
-{# --- módulo JS para manejar envío vía fetch --- #}
 
+{# --- módulo JS para manejar envío vía fetch --- #}
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -73,7 +80,7 @@
 </script>
 
 <!-- =======================  LISTA ACTIVAS  ======================= -->
-<h3 class="text-sm font-semibold text-gray-700 mb-2">⏳ Activas / En progreso</h3>
+<!-- <h3 class="text-sm font-semibold text-gray-700 mb-2">⏳ Activas / En progreso</h3> -->
 <table id="tablaTareas" class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden mb-10">
   <thead class="bg-gray-100">
     <tr>
@@ -89,7 +96,7 @@
   </thead>
   <tbody>
     {% for tarea in tareas_activas %}
-    <tr class="border-t border-gray-200" data-id="{{ tarea.id }}">
+    <tr class="border-t border-gray-100 hover:bg-blue-50 transition duration-100" data-id="{{ tarea.id }}">
       <td class="text-center">
         {% if tarea.subtareas and tarea.subtareas|length > 0 %}
         <button type="button" onclick="toggleSubtareas('{{ tarea.id }}')" class="focus:outline-none group">
@@ -168,7 +175,7 @@
         <table class="w-full text-sm">
           <tbody>
             {% for s in tarea.subtareas %}
-            <tr data-subtarea-id="{{ s.id }}" class="bg-blue-50 border-t border-blue-100">
+            <tr data-subtarea-id="{{ s.id }}" class="bg-blue-50 border-t border-blue-100 hover:bg-blue-100 transition duration-75">
               <td class="text-center pl-8">
                 <span title="Subtarea" class="inline-block mr-1 text-blue-400">↳</span>
                 <input type="checkbox" {% if s.estatus == 'completada' %}checked{% endif %} onchange="updateCampoSubtarea(this, 'estatus')">
@@ -227,11 +234,13 @@
 <!-- Paginación -->
 <div class="flex justify-center items-center gap-2 my-4">
   {% if page > 1 %}
-    <a href="?page={{ page - 1 }}&per_page={{ per_page }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-blue-700">Anterior</a>
+    <a href="?page={{ page - 1 }}&per_page={{ per_page }}{% if orden %}&orden={{ orden }}{% endif %}"
+       class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-blue-700 transition">Anterior</a>
   {% endif %}
   <span class="text-sm text-gray-700">Página {{ page }} de {{ total_pages }}</span>
   {% if page < total_pages %}
-    <a href="?page={{ page + 1 }}&per_page={{ per_page }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-blue-700">Siguiente</a>
+    <a href="?page={{ page + 1 }}&per_page={{ per_page }}{% if orden %}&orden={{ orden }}{% endif %}"
+       class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-blue-700 transition">Siguiente</a>
   {% endif %}
 </div>
 
@@ -395,6 +404,18 @@ function toggleSubtareas(tareaId) {
   }
 }
 </script>
-
+<style>
+/* Reduce al mínimo el espacio entre filas de tareas y subtareas */
+#tablaTareas td, #tablaTareas th {
+  padding-top: 0.05rem !important;
+  padding-bottom: 0.05rem !important;
+}
+#tablaTareas tr {
+  margin-bottom: 0 !important;
+}
+#tablaTareas tbody tr {
+  line-height: 1 !important;
+}
+</style>
+</style>
 {% endblock %}
-

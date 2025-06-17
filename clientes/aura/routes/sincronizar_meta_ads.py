@@ -6,6 +6,11 @@ from datetime import datetime, timedelta
 from clientes.aura.utils.supabase_client import supabase
 import os
 from flask import Blueprint, jsonify, request
+from facebook_business.adobjects.adaccount import AdAccount
+from facebook_business.api import FacebookAdsApi
+
+# Importa la función de validación centralizada (muy importante)
+from clientes.aura.routes.reportes_meta_ads.utils.validar_columnas_meta_ads import limpiar_columnas_solicitadas, obtener_breakdowns
 
 panel_cliente_meta_ads_bp = Blueprint('panel_cliente_meta_ads', __name__)
 
@@ -211,6 +216,30 @@ def sincronizar_gasto_anuncios(empresa_id, ad_account_id, access_token):
             break  # Detener el ciclo principal al primer error
     # Mostrar resumen de tablas sincronizadas
     print("[MetaAds][DEBUG] Tablas sincronizadas en esta ejecución:", tablas_actualizadas)
+
+    # Nueva lógica: sincronizar usando la API de Facebook y validación centralizada
+    FacebookAdsApi.init(access_token=access_token)
+    cuenta = AdAccount(f'act_{ad_account_id}')
+
+    # Aplicamos validación central de columnas
+    columnas_validas = limpiar_columnas_solicitadas(None)
+    breakdowns = obtener_breakdowns()
+
+    params = {
+        'time_range': {
+            'since': "2025-06-01",
+            'until': "2025-06-30"   # ⚠ Pon aquí tu rango real (puede ser parametrizable si lo recibes)
+        },
+        'level': 'ad',
+        'fields': columnas_validas,
+        'breakdowns': breakdowns,
+        'limit': 100
+    }
+
+    insights = cuenta.get_insights(params=params)
+    for insight in insights:
+        print(insight)
+        # Aquí insertas en Supabase como ya lo tienes programado
 
 @panel_cliente_meta_ads_bp.route('/panel_cliente/meta_ads/sincronizar', methods=['POST'])
 def route_sincronizar_gasto_anuncios():

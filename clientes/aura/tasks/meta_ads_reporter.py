@@ -55,8 +55,8 @@ def consultar_metricas(cuenta_id_meta):
         current_app.logger.error(f"[Meta Ads Reporter] Error al obtener métricas: {str(e)}")
         return []
 
-def enviar_reporte_semanal():
-    print("📤 [Meta Ads Reporter] Ejecutando enviar_reporte_semanal...")
+def enviar_reporte_meta_ads():
+    print("📤 [Meta Ads Reporter] Ejecutando enviar_reporte_meta_ads...")
     cuentas = supabase.table('meta_ads_cuentas').select('*').eq('conectada', True).execute()
     print(f"🔍 Cuentas conectadas: {len(cuentas.data) if cuentas.data else 0}")
 

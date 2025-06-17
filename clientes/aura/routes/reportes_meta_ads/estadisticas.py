@@ -7,6 +7,10 @@ import requests
 import json
 import threading
 
+from clientes.aura.routes.reportes_meta_ads.utils.columnas_meta_ads import (
+    limpiar_columnas_solicitadas, obtener_fields_para_meta, obtener_breakdowns, MAPEO_COLUMNAS_META_ADS
+)
+
 estadisticas_ads_bp = Blueprint('estadisticas_ads_bp', __name__)
 
 # NUEVA RUTA CORRECTA PARA ESTADÍSTICAS DE META ADS
@@ -15,7 +19,7 @@ def vista_estadisticas_ads(nombre_nora):
     if request.method == 'POST':
         fecha_fin = datetime.utcnow().date()
         fecha_inicio = fecha_fin - timedelta(days=6)
-        total = generar_reporte_semanal(fecha_inicio, fecha_fin)
+        total = generar_reporte_meta_ads(fecha_inicio, fecha_fin)
         return jsonify({'ok': True, 'insertados': total})
     return render_template('reportes_meta_ads/estadisticas_ads.html', nombre_nora=nombre_nora)
 
@@ -46,13 +50,25 @@ def sync_anuncios_meta_ads(nombre_nora):
 
 @estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/sync_manual', methods=['GET', 'POST'])
 def sync_anuncios_meta_ads_manual(nombre_nora):
-    if request.method == 'POST':
-        fecha_inicio = request.form.get('fecha_inicio')
-        fecha_fin = request.form.get('fecha_fin')
-        # Puedes agregar más variables aquí
-        resultado = sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin)
-        return jsonify({'ok': True, 'procesados': resultado.get("procesados", 0), 'sin_anuncios': resultado.get("sin_anuncios", [])})
-    return render_template('reportes_meta_ads/sync_manual.html', nombre_nora=nombre_nora)
+    """
+    Sincronización manual desde el modal: recibe fechas y columnas desde el formulario.
+    Al finalizar, genera el reporte semanal para ese rango de fechas.
+    """
+    from datetime import datetime
+    try:
+        fecha_inicio_str = request.form.get('fecha_inicio')
+        fecha_fin_str = request.form.get('fecha_fin')
+        columnas_str = request.form.get('columnas')
+        columnas = [c.strip() for c in columnas_str.split(',') if c.strip()] if columnas_str else None
+        fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y-%m-%d").date()
+        fecha_fin = datetime.strptime(fecha_fin_str, "%Y-%m-%d").date()
+        resultado = sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=columnas)
+        # Generar el reporte semanal para ese rango
+        total_reportes = generar_reporte_meta_ads(fecha_inicio, fecha_fin)
+        return jsonify({'ok': True, 'procesados': resultado["procesados"], 'sin_anuncios': resultado["sin_anuncios"], 'reportes_generados': total_reportes})
+    except Exception as e:
+        print(f"[ERROR] Error en sincronización manual: {e}")
+        return jsonify({'ok': False, 'error': str(e)})
 
 @estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/eliminar_reportes', methods=['POST'])
 def eliminar_reportes(nombre_nora):
@@ -77,11 +93,11 @@ def eliminar_reportes(nombre_nora):
 @estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/eliminar_anuncios_detalle', methods=['POST'])
 def eliminar_anuncios_detalle(nombre_nora):
     """
-    Elimina todos los registros de meta_ads_anuncios_detalle de forma segura.
+    Elimina TODOS los registros de meta_ads_anuncios_detalle de forma segura (sin filtro).
     """
     try:
-        res = supabase.table('meta_ads_anuncios_detalle').delete() \
-            .neq('ad_id', '00000000-0000-0000-0000-000000000000').execute()
+        # Supabase requiere un WHERE, así que usamos un filtro que siempre es verdadero
+        res = supabase.table('meta_ads_anuncios_detalle').delete().neq('id', 0).execute()
         if hasattr(res, 'count') and res.count is not None:
             eliminados = res.count
         elif hasattr(res, 'data') and res.data is not None:
@@ -101,11 +117,26 @@ def vista_detalle_reporte_ads(nombre_nora, reporte_id):
     reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).single().execute().data
     if not reporte:
         abort(404)
-    anuncios = supabase.table('meta_ads_anuncios_detalle').select('ad_id,nombre_anuncio,importe_gastado,alcance,impresiones,interacciones,clicks,link_clicks,mensajes').eq('id_cuenta_publicitaria', reporte['id_cuenta_publicitaria']).eq('fecha_inicio', reporte['fecha_inicio']).eq('fecha_fin', reporte['fecha_fin']).order('importe_gastado', desc=True).limit(100).execute().data or []
+    print(f"[DEBUG] Filtro solo por id_cuenta_publicitaria={reporte['id_cuenta_publicitaria']}")
+    anuncios = supabase.table('meta_ads_anuncios_detalle')\
+        .select('*')\
+        .eq('id_cuenta_publicitaria', reporte['id_cuenta_publicitaria'])\
+        .order('importe_gastado', desc=True)\
+        .limit(1000).execute().data or []
+    print(f"[DEBUG] Anuncios recuperados: {len(anuncios)}")
+    if anuncios:
+        print(f"[DEBUG] Primer anuncio: {anuncios[0]}")
+        fechas_inicio = [a['fecha_inicio'] for a in anuncios if a.get('fecha_inicio')]
+        fechas_fin = [a['fecha_fin'] for a in anuncios if a.get('fecha_fin')]
+        fecha_inicio_anuncios = min(fechas_inicio) if fechas_inicio else None
+        fecha_fin_anuncios = max(fechas_fin) if fechas_fin else None
+    else:
+        fecha_inicio_anuncios = None
+        fecha_fin_anuncios = None
     empresa = None
     if reporte.get('empresa_id'):
         empresa = supabase.table('cliente_empresas').select('*').eq('id', reporte['empresa_id']).single().execute().data
-    return render_template('reportes_meta_ads/detalle_reporte_ads.html', reporte=reporte, anuncios=anuncios, empresa=empresa)
+    return render_template('reportes_meta_ads/detalle_reporte_ads.html', reporte=reporte, anuncios=anuncios, empresa=empresa, fecha_inicio_anuncios=fecha_inicio_anuncios, fecha_fin_anuncios=fecha_fin_anuncios)
 
 def generar_resumen_por_plataforma(anuncios):
     plataformas = {
@@ -123,20 +154,21 @@ def generar_resumen_por_plataforma(anuncios):
         plataformas[plataforma]['importe_gastado'] += anuncio.get('importe_gastado') or 0
     return plataformas
 
-def generar_reporte_semanal(fecha_inicio, fecha_fin):
+def generar_reporte_meta_ads(fecha_inicio, fecha_fin):
     """
-    Genera y guarda el resumen semanal de Meta Ads basado en los datos de la tabla meta_ads_anuncios_detalle.
+    Genera y guarda el resumen de Meta Ads basado en los datos de la tabla meta_ads_anuncios_detalle para cualquier rango de fechas.
     """
-    print(f"[INFO] Iniciando generación de reporte semanal: {fecha_inicio} a {fecha_fin}")
+    print(f"[INFO] Iniciando generación de reporte Meta Ads: {fecha_inicio} a {fecha_fin}")
 
-    # 1. Traer todos los anuncios de la semana
+    # 1. Traer todos los anuncios del rango
+    print(f"[DEBUG] Recuperando TODOS los anuncios de la tabla sin filtrar por fecha.")
     try:
         anuncios = supabase.table('meta_ads_anuncios_detalle') \
             .select('*') \
-            .gte('fecha_inicio', fecha_inicio.isoformat()) \
-            .lte('fecha_fin', fecha_fin.isoformat()) \
             .execute().data or []
         print(f"[INFO] Anuncios recuperados: {len(anuncios)}")
+        if anuncios:
+            print(f"[DEBUG] Primer anuncio recuperado: {anuncios[0]}")
     except Exception as e:
         print(f"[ERROR] Error al recuperar anuncios: {e}")
         return 0
@@ -149,19 +181,7 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
     anuncios_por_ad = {}
     for a in anuncios:
         ad_key = (a['ad_id'], a.get('publisher_platform', ''), a.get('id_cuenta_publicitaria', ''))
-        if ad_key not in anuncios_por_ad:
-            anuncios_por_ad[ad_key] = a.copy()
-        else:
-            anuncios_por_ad[ad_key]['importe_gastado'] += a.get('importe_gastado', 0) or 0
-            anuncios_por_ad[ad_key]['impresiones'] += a.get('impresiones', 0) or 0
-            anuncios_por_ad[ad_key]['alcance'] += a.get('alcance', 0) or 0
-            anuncios_por_ad[ad_key]['clicks'] += a.get('clicks', 0) or 0
-            anuncios_por_ad[ad_key]['mensajes'] += a.get('mensajes', 0) or 0
-            anuncios_por_ad[ad_key]['link_clicks'] = anuncios_por_ad[ad_key].get('link_clicks', 0) + (a.get('link_clicks', 0) or 0)
-            anuncios_por_ad[ad_key]['interacciones'] = anuncios_por_ad[ad_key].get('interacciones', 0) + (a.get('interacciones', 0) or 0)
-            anuncios_por_ad[ad_key]['video_plays'] = anuncios_por_ad[ad_key].get('video_plays', 0) + (a.get('video_plays', 0) or 0)
-            anuncios_por_ad[ad_key]['reproducciones_video_3s'] = anuncios_por_ad[ad_key].get('reproducciones_video_3s', 0) + (a.get('reproducciones_video_3s', 0) or 0)
-            # Agrega aquí cualquier otro campo acumulable necesario
+        anuncios_por_ad[ad_key] = a.copy()
     anuncios = list(anuncios_por_ad.values())
 
     # 1b. Traer mapeo de cuentas → empresa_id y nombre
@@ -181,11 +201,10 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
 
     # 2. Agrupar por (empresa_id, id_cuenta_publicitaria)
     cuentas = {}
-
     for a in anuncios:
         cuenta_id = str(a.get('id_cuenta_publicitaria')) if a.get('id_cuenta_publicitaria') is not None else ''
         empresa_id = a.get('empresa_id')
-        empresa_nombre = a.get('empresa_nombre')  # <-- Usar el del anuncio si existe
+        empresa_nombre = a.get('empresa_nombre')
         if not empresa_id or not empresa_nombre:
             cuenta_info = cuentas_map.get(cuenta_id, {})
             if not empresa_id:
@@ -195,7 +214,6 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
         if not cuenta_id or not empresa_id:
             print(f"[WARN] Anuncio sin cuenta_id o empresa_id: {a}")
             continue
-
         key = (empresa_id, cuenta_id)
         if key not in cuentas:
             cuentas[key] = {
@@ -215,51 +233,38 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
                 'mensajes': 0,
                 'interacciones': 0,
                 'video_plays': 0,
-                'reproducciones_video_3s': 0,
                 'delivery_activos': 0,
                 'delivery_inactivos': 0
             }
-
-    # Sumar solo los anuncios de la cuenta correspondiente
     for key, c in cuentas.items():
         cuenta_id_actual = str(c['id_cuenta_publicitaria'])
         for a in anuncios:
             if str(a.get('id_cuenta_publicitaria')) != cuenta_id_actual:
                 continue
-            # Agrupación
             if a.get('campana_id'):
                 c['campanas'].add(a.get('campana_id'))
             if a.get('conjunto_id'):
                 c['conjuntos'].add(a.get('conjunto_id'))
             if a.get('ad_id'):
                 c['anuncios'].add(a.get('ad_id'))
-            # Sumas (conversión segura a float)
-            try:
-                importe_gastado = float(a.get('importe_gastado', 0) or 0)
-            except Exception:
-                importe_gastado = 0
-            c['importe_gastado'] += importe_gastado
-            c['impresiones'] += int(a.get('impresiones', 0) or 0)
-            c['alcance'] += int(a.get('alcance', 0) or 0)
-            c['clicks'] += int(a.get('clicks', 0) or 0)
-            c['link_clicks'] += int(a.get('link_clicks', 0) or 0)
-            c['mensajes'] += int(a.get('mensajes', 0) or 0)
-            c['interacciones'] += int(a.get('interacciones', 0) or 0)
-            c['video_plays'] += int(a.get('video_plays', 0) or 0)
-            c['reproducciones_video_3s'] += int(a.get('reproducciones_video_3s', 0) or 0)
+            c['importe_gastado'] += safe_float(a.get('importe_gastado'))
+            c['impresiones'] += safe_int(a.get('impresiones'))
+            c['alcance'] += safe_int(a.get('alcance'))
+            c['clicks'] += safe_int(a.get('clicks'))
+            c['link_clicks'] += safe_int(a.get('link_clicks'))
+            c['mensajes'] += safe_int(a.get('mensajes'))
+            c['interacciones'] += safe_int(a.get('interacciones'))
+            c['video_plays'] += safe_int(a.get('video_plays'))
             delivery = (a.get('delivery') or '').lower()
             if delivery == 'active':
                 c['delivery_activos'] += 1
             elif delivery:
                 c['delivery_inactivos'] += 1
-
-    # 3. Insertar resumen semanal por cuenta (con plataformas)
     inserts = []
     for c in cuentas.values():
-        # Filtrar anuncios solo de la cuenta actual
         anuncios_cuenta = [a for a in anuncios if a.get('id_cuenta_publicitaria') == c['id_cuenta_publicitaria']]
         resumen_plataformas = generar_resumen_por_plataforma(anuncios_cuenta)
-        inserts.append({
+        insert_obj = {
             'empresa_id': c['empresa_id'],
             'empresa_nombre': c['empresa_nombre'],
             'id_cuenta_publicitaria': c['id_cuenta_publicitaria'],
@@ -278,7 +283,6 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
             'mensajes': c['mensajes'],
             'interacciones': c['interacciones'],
             'video_plays': c['video_plays'],
-            'reproducciones_video_3s': c['reproducciones_video_3s'],
             'delivery_activos': c['delivery_activos'],
             'delivery_inactivos': c['delivery_inactivos'],
             'facebook_impresiones': resumen_plataformas['facebook']['impresiones'],
@@ -292,10 +296,10 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
             'instagram_mensajes': resumen_plataformas['instagram']['mensajes'],
             'instagram_importe_gastado': round(resumen_plataformas['instagram']['importe_gastado'], 2),
             'created_at': datetime.utcnow().isoformat()
-        })
-
+        }
+        print(f"[DEBUG] Insert a report: {insert_obj}")
+        inserts.append(insert_obj)
     print(f"[INFO] Registros a insertar: {len(inserts)}")
-
     if inserts:
         try:
             supabase.table('meta_ads_reportes_semanales').insert(inserts).execute()
@@ -304,18 +308,14 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
             print(f"[ERROR] Error al insertar en meta_ads_reportes_semanales: {e}")
     else:
         print("[INFO] No hay registros para insertar.")
-
     # Ejecutar actualización de empresa_nombre en reportes (solo una vez por ejecución)
     try:
         from clientes.aura.scripts.actualizar_empresa_nombre_reportes import actualizar_empresa_nombre_en_reportes
-        # Modificación: el script ahora filtra correctamente nulos y vacíos
         def actualizar_empresa_nombre_en_reportes_patch():
-            # Nulos
             reportes_null = supabase.table('meta_ads_reportes_semanales') \
                 .select('id, id_cuenta_publicitaria') \
                 .is_('empresa_nombre', 'null') \
                 .limit(500).execute().data or []
-            # Vacíos
             reportes_empty = supabase.table('meta_ads_reportes_semanales') \
                 .select('id, id_cuenta_publicitaria') \
                 .eq('empresa_nombre', '') \
@@ -342,8 +342,6 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
         print("[INFO] Actualización de empresa_nombre en reportes ejecutada.")
     except Exception as e:
         print(f"[WARN] No se pudo actualizar empresa_nombre en reportes: {e}")
-
-    # Ejecutar reparación de reportes sin empresa_nombre (solo una vez por ejecución)
     try:
         print("[INFO] Reparando registros faltantes de empresa_nombre...")
         reportes = supabase.table('meta_ads_reportes_semanales') \
@@ -351,7 +349,6 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
             .is_('empresa_nombre', 'null') \
             .limit(500) \
             .execute().data or []
-
         if not reportes:
             print("[INFO] No hay registros pendientes por reparar.")
         else:
@@ -369,7 +366,6 @@ def generar_reporte_semanal(fecha_inicio, fecha_fin):
                     print(f"[OK] Actualizado reporte {rep['id']} -> {empresa_nombre}")
     except Exception as e:
         print(f"[ERROR] Reparación fallida: {e}")
-
     return len(inserts)
 
 # Variable global para controlar la sincronización
@@ -385,50 +381,46 @@ def parar_sincronizacion(nombre_nora):
     return jsonify({'ok': True, 'msg': 'Sincronización detenida.'})
 
 # Modifica la función de sincronización para checar el flag:
-def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin):
+def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
     global sync_stop_flag
-    sync_stop_flag.clear()  # Reset al inicio
-    """
-    Sincroniza anuncios de Meta Ads para todas las cuentas activas y alimenta la tabla meta_ads_anuncios_detalle en Supabase.
-    Solo inserta/actualiza anuncios con spend > 0 en el periodo.
-    Devuelve un dict con el total procesado y un listado de cuentas sin anuncios.
-    """
+    sync_stop_flag.clear()
+    
     print(f"[SYNC] Iniciando sincronización de anuncios Meta Ads: {fecha_inicio} a {fecha_fin}")
     access_token = os.environ.get('META_ACCESS_TOKEN')
     if not access_token:
-        print("[ERROR] No se encontró META_ACCESS_TOKEN en variables de entorno.")
+        print("[ERROR] No se encontró META_ACCESS_TOKEN.")
         return {"procesados": 0, "sin_anuncios": []}
-    cuentas = supabase.table('meta_ads_cuentas').select('id_cuenta_publicitaria,empresa_id,nombre_cliente').execute().data or []
-    print(f"[SYNC] Cuentas publicitarias encontradas: {len(cuentas)}")
+
+    cuentas = supabase.table('meta_ads_cuentas').select('id_cuenta_publicitaria,empresa_id,nombre_cliente,estado_actual').execute().data or []
+    cuentas = [c for c in cuentas if c.get('estado_actual') != 'excluida']
+    print(f"[SYNC] Cuentas publicitarias encontradas (no excluidas): {len(cuentas)}")
+
     total_procesados = 0
     cuentas_sin_anuncios = []
+
     for cuenta in cuentas:
         if sync_stop_flag.is_set():
             print('[SYNC] Sincronización detenida por el usuario.')
             break
+
         cuenta_id = cuenta.get('id_cuenta_publicitaria')
         empresa_id = cuenta.get('empresa_id')
         nombre_cliente = cuenta.get('nombre_cliente')
         if not cuenta_id or not empresa_id:
             print(f"[WARN] Cuenta sin id o empresa_id: {cuenta}")
             continue
+
         print(f"[SYNC] Procesando cuenta: {cuenta_id}")
-        url_base = f"https://graph.facebook.com/v19.0/act_{cuenta_id}/insights"
-        fields_a = [
-            'ad_id', 'ad_name',
-            'adset_id', 'adset_name',
-            'campaign_id', 'campaign_name',
-            'impressions', 'reach', 'frequency',
-            'spend', 'clicks', 'unique_clicks',
-            'ctr', 'cpc', 'unique_ctr',
-            'quality_ranking', 'engagement_rate_ranking', 'conversion_rate_ranking',
-            'date_start', 'date_stop',
-            'account_id', 'account_name'
-        ]
+
+        # --- Obtener columnas válidas y fields finales ---
+        columnas_validas = limpiar_columnas_solicitadas(columnas)
+        fields_para_meta = obtener_fields_para_meta(columnas_validas)
+        breakdowns = obtener_breakdowns()
+
         params_a = {
             'level': 'ad',
-            'fields': ','.join(fields_a),
-            'breakdowns': 'publisher_platform',  # <-- Ajuste crítico para obtener la plataforma
+            'fields': ','.join(fields_para_meta),
+            'breakdowns': ','.join(breakdowns),
             'time_range': json.dumps({
                 'since': fecha_inicio.isoformat(),
                 'until': fecha_fin.isoformat()
@@ -436,6 +428,35 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin):
             'limit': 100,
             'access_token': access_token
         }
+
+        url_base = f"https://graph.facebook.com/v19.0/act_{cuenta_id}/insights"
+
+        def fetch_all(url, params):
+            results = []
+            next_url = url
+            next_params = params.copy()
+            while next_url:
+                r = requests.get(next_url, params=next_params)
+                if r.status_code != 200:
+                    print(f"[ERROR] Meta API error {r.status_code}: {r.text}")
+                    raise Exception(f"Meta API error {r.status_code}: {r.text}")
+                data = r.json()
+                results.extend(data.get('data', []))
+                paging = data.get('paging', {})
+                next_url = paging.get('next')
+                next_params = {}
+            return results
+
+        datos_a = fetch_all(url_base, params_a)
+        print(f"[SYNC] Anuncios encontrados (A): {len(datos_a)}")
+        if not datos_a:
+            cuentas_sin_anuncios.append({
+                "id_cuenta_publicitaria": cuenta_id,
+                "empresa_id": empresa_id,
+                "nombre_cliente": nombre_cliente
+            })
+
+        # 2do request para actions
         params_b = {
             'level': 'ad',
             'fields': 'ad_id,actions',
@@ -447,152 +468,80 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin):
             'limit': 100,
             'access_token': access_token
         }
-        def fetch_all(url, params):
-            results = []
-            next_url = url
-            next_params = params.copy()
-            while next_url:
-                r = requests.get(next_url, params=next_params)
-                if r.status_code != 200:
-                    print(f"[ERROR] Meta API error {r.status_code}: {r.text}")
-                    try:
-                        error_data = r.json().get("error", {})
-                        if error_data.get("code") == 200:
-                            print(f"[SYNC][WARN] Sin permisos suficientes para la cuenta. Saltando cuenta actual.")
-                            return []
-                    except Exception:
-                        pass
-                    raise Exception(f"Meta API error {r.status_code}: {r.text}")
-                data = r.json()
-                results.extend(data.get('data', []))
-                paging = data.get('paging', {})
-                next_url = paging.get('next')
-                next_params = {}
-            return results
-        datos_a = fetch_all(url_base, params_a)
         datos_b = fetch_all(url_base, params_b)
-        print(f"[SYNC] Anuncios encontrados (A): {len(datos_a)} | (B): {len(datos_b)}")
-        if not datos_a:
-            cuentas_sin_anuncios.append({
-                "id_cuenta_publicitaria": cuenta_id,
-                "empresa_id": empresa_id,
-                "nombre_cliente": nombre_cliente
-            })
-        anuncios = {}
-        for a in datos_a:
-            ad_id = a.get('ad_id')
-            platform = a.get('publisher_platform', '').lower()
-            if not ad_id or not platform:
-                continue
-            key = f"{ad_id}__{platform}"
-            anuncios[key] = {**a, 'publisher_platform': platform}
-        # --- Actions agregadas y mapeo robusto
-        # Definir mapeo de action_type a campo en registro
+
+        # Inicializar campos de actions en datos_a
+        for ad in datos_a:
+            ad_id = ad.get('ad_id')
+            ad['mensajes'] = 0
+            ad['interacciones'] = 0
+            ad['post_reactions'] = 0
+            ad['comments'] = 0
+            ad['shares'] = 0
+
         action_map = {
+            'onsite_conversion.messaging_conversation_started_7d': 'mensajes',
+            'messaging_conversations_started': 'mensajes',
+            'post_engagement': 'interacciones',
             'post_reaction': 'post_reactions',
             'comment': 'comments',
-            'share': 'shares',
-            'post_engagement': 'post_engagement',
-            'page_engagement': 'page_engagement',
-            'link_click': 'link_clicks',
-            'video_view': 'video_plays',
-            'onsite_conversion.messaging_conversation_started_7d': 'mensajes',
-            'onsite_conversion.post_save': 'saves'
+            'share': 'shares'
         }
-        # Inicializar métricas de actions en cada anuncio
-        for ad in anuncios.values():
-            for campo in action_map.values():
-                ad[campo] = 0
+        
+        # Enlazar actions de datos_b sobre datos_a
         for b in datos_b:
             ad_id = b.get('ad_id')
-            platform = b.get('publisher_platform', '').lower()
-            key = f"{ad_id}__{platform}"
-            if not ad_id or not platform or key not in anuncios:
-                continue
             actions = b.get('actions', [])
+            ad_match = next((a for a in datos_a if a.get('ad_id') == ad_id), None)
+            if not ad_match:
+                continue
             for act in actions:
                 tipo = act.get('action_type')
                 valor = act.get('value')
                 if tipo and valor is not None and tipo in action_map:
-                    campo_tabla = action_map[tipo]
+                    campo_local = action_map[tipo]
                     try:
                         valor = int(valor)
                     except:
-                        valor = float(valor) if valor else 0
-                    anuncios[key][campo_tabla] += valor
-        # --- Inserción/Upsert robusto con on_conflict --- hola mundo
-        for ad_id, ad in anuncios.items():
-            print(f"[DEBUG] Procesando anuncio: ad_id={ad_id}, ad={ad}")
+                        valor = 0
+                    ad_match[campo_local] += valor
+
+        for ad in datos_a:
             try:
-                spend = float(ad.get('spend', 0) or 0)
-            except Exception:
-                spend = 0
-            if spend <= 0:
-                print(f"[DEBUG] Anuncio {ad_id} omitido por gasto 0")
-                continue  # Solo anuncios con gasto positivo
+                registro = {}
 
-            # Validar que cuenta_id no sea None o vacío
-            print(f"[DEBUG] cuenta_id antes de validación: {cuenta_id}")
-            if not cuenta_id:
-                print(f"[ERROR] id_cuenta_publicitaria es None o vacío para el anuncio {ad_id}. Se omite este registro. ad={ad}")
-                continue
+                for col in columnas_validas:
+                    campo_api = obtener_fields_para_meta([col])[0]
+                    registro[col] = ad.get(campo_api)
 
-            registro = {
-                'ad_id': str(ad_id),
-                'nombre_anuncio': ad.get('ad_name'),
-                'conjunto_id': ad.get('adset_id'),
-                'nombre_conjunto': ad.get('adset_name'),
-                'campana_id': ad.get('campaign_id'),
-                'nombre_campana': ad.get('campaign_name'),
-                'id_cuenta_publicitaria': str(cuenta_id),
-                'importe_gastado': spend,
-                'impresiones': int(ad.get('impressions', 0) or 0),
-                'alcance': int(ad.get('reach', 0) or 0),
-                'clicks': int(ad.get('clicks', 0) or 0),
-                'unique_clicks': int(ad.get('unique_clicks', 0) or 0),
-                'ctr': float(ad.get('ctr', 0) or 0),
-                'cpc': float(ad.get('cpc', 0) or 0),
-                'unique_ctr': float(ad.get('unique_ctr', 0) or 0),
-                'quality_ranking': ad.get('quality_ranking'),
-                'engagement_rate_ranking': ad.get('engagement_rate_ranking'),
-                'conversion_rate_ranking': ad.get('conversion_rate_ranking'),
-                'post_reactions': ad.get('post_reactions', 0),
-                'comments': ad.get('comments', 0),
-                'shares': ad.get('shares', 0),
-                'post_engagement': ad.get('post_engagement', 0),
-                'page_engagement': ad.get('page_engagement', 0),
-                'link_clicks': ad.get('link_clicks', 0),
-                'video_plays': ad.get('video_plays', 0),
-                'mensajes': ad.get('mensajes', 0),
-                'publisher_platform': str(ad.get('publisher_platform')) if ad.get('publisher_platform') is not None else '',
-                'saves': ad.get('saves', 0),
-                'fecha_inicio': fecha_inicio.isoformat() if hasattr(fecha_inicio, 'isoformat') else str(fecha_inicio),
-                'fecha_fin': fecha_fin.isoformat() if hasattr(fecha_fin, 'isoformat') else str(fecha_fin),
-            }
+                registro['id_cuenta_publicitaria'] = str(cuenta_id)
+                registro['fecha_inicio'] = fecha_inicio.isoformat()
+                registro['fecha_fin'] = fecha_fin.isoformat()
+                registro['publisher_platform'] = ad.get('publisher_platform') or 'unknown'
+                # Enriquecimiento de actions
+                registro['mensajes'] = ad.get('mensajes') or 0
+                registro['interacciones'] = ad.get('interacciones') or 0
+                registro['post_reactions'] = ad.get('post_reactions') or 0
+                registro['comments'] = ad.get('comments') or 0
+                registro['shares'] = ad.get('shares') or 0
+                # Enriquecimiento de nombres
+                adset_id = ad.get('adset_id')
+                campaign_id = ad.get('campaign_id')
+                registro['nombre_conjunto'] = obtener_nombre_de_id(adset_id, access_token, tipo='adset')
+                registro['nombre_campana'] = obtener_nombre_de_id(campaign_id, access_token, tipo='campaign')
 
-            print(f"[DEBUG] Registro a upsert: {registro}")
-
-            # Depuración: imprime los valores clave antes del upsert
-            print('DEBUG registro upsert:', {
-                'ad_id': registro.get('ad_id'),
-                'fecha_inicio': registro.get('fecha_inicio'),
-                'fecha_fin': registro.get('fecha_fin'),
-                'publisher_platform': registro.get('publisher_platform'),
-                'id_cuenta_publicitaria': registro.get('id_cuenta_publicitaria')
-            })
-
-            try:
                 supabase.table('meta_ads_anuncios_detalle') \
                     .upsert(
                         registro,
                         on_conflict="ad_id,fecha_inicio,fecha_fin,publisher_platform"
                     ) \
                     .execute()
-                print(f"[SYNC] Insertado/Actualizado anuncio {ad_id} ({ad.get('publisher_platform')})")
+                total_procesados += 1
+
             except Exception as e:
-                print(f"[ERROR] Error al insertar/actualizar anuncio {ad_id} ({ad.get('publisher_platform')}): {e}")
-                print(f"[ERROR][EXTRA] Registro problemático: {registro}")
-                return  # Detener toda la sincronización al primer error
+                print(f"[ERROR] Error al insertar/actualizar anuncio {ad.get('ad_id')}: {e}")
+                print(f"[ERROR] Registro problemático: {registro}")
+
     print(f"[SYNC] Total anuncios procesados: {total_procesados}")
     return {"procesados": total_procesados, "sin_anuncios": cuentas_sin_anuncios}
 
@@ -601,7 +550,7 @@ def cuentas_publicitarias_json(nombre_nora):
     """
     Devuelve todas las cuentas publicitarias (id y nombre_cliente) para el modal de sincronización.
     """
-    cuentas = supabase.table('meta_ads_cuentas').select('id_cuenta_publicitaria,nombre_cliente').execute().data or []
+    cuentas = supabase.table('meta_ads_cuentas').select('id_cuenta_publicitaria,nombre_cliente,estado_actual').execute().data or []
     return jsonify({'ok': True, 'cuentas': cuentas})
 
 @estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/variables_json', methods=['GET'])
@@ -613,3 +562,125 @@ def variables_anuncios_detalle_json(nombre_nora):
     from clientes.aura.utils.supabase_client import supabase as sb
     columnas = obtener_columnas_tabla(sb, 'meta_ads_anuncios_detalle')
     return jsonify({'ok': True, 'variables': columnas})
+
+@estadisticas_ads_bp.route('/estadisticas/columnas_detalle', methods=['GET'])
+def obtener_columnas_anuncios_detalle():
+    """
+    Devuelve las columnas disponibles en meta_ads_anuncios_detalle para configurar sincronización.
+    """
+    columnas_estaticas = [
+        'importe_gastado', 'impresiones', 'alcance', 'clicks', 'link_clicks', 'unique_clicks',
+        'ctr', 'cpc', 'unique_ctr', 'post_reactions', 'comments', 'shares', 'video_plays',
+        'mensajes', 'publisher_platform'
+    ]
+    return jsonify({'ok': True, 'columnas': columnas_estaticas})
+
+@estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/columnas_disponibles', methods=['GET'])
+def columnas_disponibles_meta_ads(nombre_nora):
+    """
+    Devuelve las columnas válidas para sincronizar, incluyendo campos fijos y breakdowns.
+    """
+    columnas = list(MAPEO_COLUMNAS_META_ADS.keys())
+    columnas += ['fecha_inicio', 'fecha_fin', 'publisher_platform']  # Campos fijos siempre necesarios
+    return jsonify({'ok': True, 'columnas': columnas})
+
+@estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/excluir_cuentas', methods=['POST'])
+def excluir_cuentas_publicitarias(nombre_nora):
+    """
+    Marca como 'excluida' en estado_actual las cuentas seleccionadas y limpia el campo en las demás.
+    """
+    data = request.get_json()
+    cuentas_excluir = data.get('cuentas_excluir', '')
+    ids_excluir = [c for c in cuentas_excluir.split(',') if c]
+    # Primero, poner estado_actual = 'excluida' a las seleccionadas
+    if ids_excluir:
+        supabase.table('meta_ads_cuentas').update({'estado_actual': 'excluida'}).in_('id_cuenta_publicitaria', ids_excluir).execute()
+        # Obtener todos los IDs de cuentas
+        todas = supabase.table('meta_ads_cuentas').select('id_cuenta_publicitaria').execute().data or []
+        ids_todas = [c['id_cuenta_publicitaria'] for c in todas]
+        ids_no_excluir = [c for c in ids_todas if c not in ids_excluir]
+        if ids_no_excluir:
+            supabase.table('meta_ads_cuentas').update({'estado_actual': None}).in_('id_cuenta_publicitaria', ids_no_excluir).execute()
+    else:
+        # Si no hay exclusiones, limpiar todas
+        supabase.table('meta_ads_cuentas').update({'estado_actual': None}).execute()
+    return jsonify({'ok': True, 'excluidas': ids_excluir})
+
+@estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/sincronizacion_manual', methods=['GET'])
+def vista_sincronizacion_manual(nombre_nora):
+    """
+    Página dedicada para la sincronización manual de Meta Ads.
+    """
+    return render_template('reportes_meta_ads/sincronizacion_manual.html', nombre_nora=nombre_nora)
+
+@estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/insertar_anuncio_prueba', methods=['POST'])
+def insertar_anuncio_prueba(nombre_nora):
+    """
+    Inserta un anuncio de prueba en meta_ads_anuncios_detalle para validar el flujo de reportes.
+    """
+    from datetime import datetime
+    hoy = datetime.utcnow().date()
+    anuncio = {
+        'ad_id': 'TEST123',
+        'nombre_anuncio': 'Anuncio Prueba',
+        'conjunto_id': 'SET1',
+        'nombre_conjunto': 'Conjunto Prueba',
+        'campana_id': 'CAMP1',
+        'nombre_campana': 'Campaña Prueba',
+        'id_cuenta_publicitaria': 'CUENTA_PRUEBA',
+        'importe_gastado': 100.0,
+        'impresiones': 1000,
+        'alcance': 800,
+        'clicks': 50,
+        'unique_clicks': 40,
+        'ctr': 5.0,
+        'cpc': 2.0,
+        'unique_ctr': 4.0,
+        'quality_ranking': 'HIGH',
+        'engagement_rate_ranking': 'AVERAGE',
+        'conversion_rate_ranking': 'LOW',
+        'post_reactions': 10,
+        'comments': 2,
+        'shares': 1,
+        'post_engagement': 5,
+        'page_engagement': 3,
+        'link_clicks': 20,
+        'video_plays': 15,
+        'mensajes': 4,
+        'publisher_platform': 'facebook',
+        'saves': 0,
+        'fecha_inicio': hoy.isoformat(),
+        'fecha_fin': hoy.isoformat(),
+    }
+    try:
+        supabase.table('meta_ads_anuncios_detalle').insert(anuncio).execute()
+        return jsonify({'ok': True, 'msg': 'Anuncio de prueba insertado', 'anuncio': anuncio})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)})
+
+def safe_int(value):
+    try:
+        return int(value or 0)
+    except:
+        return 0
+
+def safe_float(value):
+    try:
+        return float(value or 0)
+    except:
+        return 0.0
+
+def obtener_nombre_de_id(object_id, access_token, tipo='campaign'):
+    if not object_id:
+        return None
+    base_url = f"https://graph.facebook.com/v19.0/{object_id}"
+    params = {
+        'fields': 'name',
+        'access_token': access_token
+    }
+    r = requests.get(base_url, params=params)
+    if r.status_code != 200:
+        print(f"[WARN] No se pudo obtener nombre de {tipo}: {object_id}")
+        return None
+    data = r.json()
+    return data.get('name')

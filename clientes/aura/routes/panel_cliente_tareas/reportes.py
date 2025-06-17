@@ -6,7 +6,7 @@ from clientes.aura.utils.twilio_sender import enviar_mensaje  # ✅ Corrección 
 
 zona = timezone("America/Hermosillo")
 
-def enviar_reporte_semanal():
+def enviar_reporte_meta_ads():
     print("📤 Enviando reporte semanal...")
 
     # Obtener todas las configuraciones de bots

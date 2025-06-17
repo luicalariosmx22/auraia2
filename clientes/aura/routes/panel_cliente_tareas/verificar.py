@@ -39,8 +39,8 @@ def verificar_modulo(nombre_nora):
     verificaciones["supervisores"] = {"estado": estado, "comentario": f"{len(supervisores)} supervisores activos"}
 
     # Automatizaciones activas
-    config = supabase.table("configuracion_bot").select("alertas_whatsapp, tareas_recurrentes, reporte_semanal").eq("nombre_nora", nombre_nora).single().execute().data
-    for campo in ["alertas_whatsapp", "tareas_recurrentes", "reporte_semanal"]:
+    config = supabase.table("configuracion_bot").select("alertas_whatsapp, tareas_recurrentes, reporte_meta_ads").eq("nombre_nora", nombre_nora).single().execute().data
+    for campo in ["alertas_whatsapp", "tareas_recurrentes", "reporte_meta_ads"]:
         valor = config.get(campo)
         estado = "🟢" if valor else "🔴"
         verificaciones[campo] = {"estado": estado, "comentario": "Activo" if valor else "Desactivado"}
@@ -84,7 +84,7 @@ def reparar_modulo(nombre_nora):
     campos_auto = {
         "alertas_whatsapp": True,
         "tareas_recurrentes": True,
-        "reporte_semanal": True
+        "reporte_meta_ads": True
     }
 
     for campo, valor in campos_auto.items():

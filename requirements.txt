@@ -25,3 +25,4 @@ pdfkit==1.0.0
 PyPDF2>=3.0.0
 fpdf2==2.8.3
 pandas==2.2.2
+facebook-business==17.0.0

@@ -9,7 +9,7 @@ from clientes.aura.routes.panel_cliente_tareas.whatsapp import (
     enviar_tareas_del_dia_por_whatsapp,
     enviar_resumen_6pm_por_whatsapp
 )
-from clientes.aura.routes.panel_cliente_tareas.reportes import enviar_reporte_semanal
+from clientes.aura.routes.panel_cliente_tareas.reportes import enviar_reporte_meta_ads
 from clientes.aura.utils.twilio_sender import enviar_mensaje
 
 zona = timezone("America/Hermosillo")
@@ -37,9 +37,9 @@ def inicializar_cron_jobs(scheduler):
 
     # ✅ Job: Enviar reporte semanal (Domingo 9:00 AM)
     scheduler.add_job(
-        func=enviar_reporte_semanal,
+        func=enviar_reporte_meta_ads,
         trigger=CronTrigger(day_of_week="sun", hour=9, minute=0, timezone=zona),
-        id="reporte_semanal",
+        id="reporte_meta_ads",
         name="Reporte semanal PDF por WhatsApp",
         replace_existing=True
     )

@@ -162,7 +162,6 @@
             </select>
           </div>
 
-          <!-- 🛠️ CAMBIO: Campo "Asignado a" muestra todos los usuarios, pero está readonly si no tienes permisos -->
           <div>
             <label for="usuario_empresa_id_modal" class="block text-sm font-semibold text-gray-700 mb-1">Asignado a</label>
             <select name="usuario_empresa_id" id="usuario_empresa_id_modal"
@@ -173,6 +172,10 @@
                 {% endif %}
               {% endfor %}
             </select>
+            <div class="flex items-center mt-2">
+              <input type="checkbox" id="asignar_a_empresa" name="asignar_a_empresa" class="mr-2" onchange="toggleAsignadoEmpresa(this)">
+              <label for="asignar_a_empresa" class="text-sm text-gray-700">Asignar a empresa</label>
+            </div>
           </div>
         </div>
 
@@ -207,6 +210,53 @@
   function cerrarModalTarea() {
     document.getElementById("modalNuevaTarea")?.classList.add("hidden");
   }
+
+  function toggleAsignadoEmpresa(checkbox) {
+    const select = document.getElementById('usuario_empresa_id_modal');
+    if (checkbox.checked) {
+      select.disabled = true;
+      select.value = '';
+    } else {
+      select.disabled = false;
+    }
+  }
+
+  // Envío AJAX del formulario de nueva tarea
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formTareaNueva');
+    if (form) {
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const data = new FormData(form);
+        // Si el checkbox está marcado, asegúrate de enviar el valor correcto
+        const asignarEmpresa = document.getElementById('asignar_a_empresa').checked;
+        if (asignarEmpresa) {
+          data.set('asignar_a_empresa', 'on');
+          data.set('usuario_empresa_id', '');
+        } else {
+          data.delete('asignar_a_empresa');
+        }
+        // Construir objeto para fetch
+        const payload = {};
+        data.forEach((v, k) => { payload[k] = v; });
+        // Enviar vía fetch
+        const nombreNora = document.body.dataset.nora || form.nombre_nora?.value;
+        const resp = await fetch(`/panel_cliente_tareas/${nombreNora}/crear`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const res = await resp.json();
+        if (res.ok) {
+          cerrarModalTarea();
+          // Opcional: recargar lista de tareas o mostrar notificación
+          window.location.reload();
+        } else {
+          alert('Error al crear tarea: ' + (res.error || '')); 
+        }
+      });
+    }
+  });
 </script>
 
 </body>

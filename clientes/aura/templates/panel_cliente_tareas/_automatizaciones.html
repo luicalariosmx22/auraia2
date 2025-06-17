@@ -20,9 +20,9 @@
     </label>
 
     <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
-      <span class="text-sm text-gray-700">📬 Reporte PDF semanal</span>
+      <span class="text-sm text-gray-700">📬 Reporte PDF Meta Ads (semanal/mensual)</span>
       <input type="checkbox" class="h-4 w-4 text-blue-600"
-             x-model="config.reporte_semanal" @change="guardar()">
+             x-model="config.reporte_meta_ads" @change="guardar()">
     </label>
 
     <label class="flex justify-between items-center bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm">
@@ -38,7 +38,7 @@
       config: {
         alertas_whatsapp: {{ config.alertas_whatsapp | lower }},
         tareas_recurrentes: {{ config.tareas_recurrentes | lower }},
-        reporte_semanal: {{ config.reporte_semanal | lower }},
+        reporte_meta_ads: {{ config.reporte_meta_ads | lower }},
         tareas_sugeridas_modulos: {{ config.tareas_sugeridas_modulos | lower }}
       },
       guardado: false,

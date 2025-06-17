@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session  # se importa session para controlar la autenticación
 import uuid  # ✅ Fix: se importa para generar IDs con uuid.uuid4()
+from collections import defaultdict
+from datetime import datetime
 
 from utils.validar_modulo_activo import modulo_activo_para_nora
 from clientes.aura.utils.supabase_client import supabase
@@ -430,10 +432,45 @@ def ficha_empresa(empresa_id):
     for t in tareas:
         t["subtareas"] = subtareas_por_tarea.get(t["id"], [])
 
-    print('DEBUG tareas:', tareas)
-    print('DEBUG subtareas:', subtareas)
-    print('DEBUG tareas_activas:', [t for t in tareas if t.get('estatus') != 'completada'])
-    print('DEBUG tareas_completadas:', [t for t in tareas if t.get('estatus') == 'completada'])
+    def fecha_limite_sort_key(t):
+        # None values are treated as greater than any date (appear last)
+        v = t.get('fecha_limite')
+        return (v is None or v == '', v or '')
+
+    # Ordenar tareas activas y subtareas por fecha_limite, None al final
+    tareas_activas = [t for t in tareas if t.get('estatus') != 'completada']
+    for t in tareas_activas:
+        t['subtareas'] = sorted(t.get('subtareas', []), key=fecha_limite_sort_key)
+    tareas_activas = sorted(tareas_activas, key=fecha_limite_sort_key)
+
+    # Agrupar tareas activas (y subtareas) por mes de fecha_limite
+    tareas_activas_por_mes = defaultdict(list)
+    for t in tareas_activas:
+        # Agrupa la tarea principal
+        fecha = t.get('fecha_limite')
+        if fecha:
+            try:
+                dt = datetime.strptime(fecha[:7], '%Y-%m')
+                mes_key = dt.strftime('%Y-%m')
+            except Exception:
+                mes_key = 'Sin fecha'
+        else:
+            mes_key = 'Sin fecha'
+        tareas_activas_por_mes[mes_key].append(t)
+        # Agrupa subtareas
+        for s in t.get('subtareas', []):
+            fecha_s = s.get('fecha_limite')
+            if fecha_s:
+                try:
+                    dt = datetime.strptime(fecha_s[:7], '%Y-%m')
+                    mes_key_s = dt.strftime('%Y-%m')
+                except Exception:
+                    mes_key_s = 'Sin fecha'
+            else:
+                mes_key_s = 'Sin fecha'
+            tareas_activas_por_mes[mes_key_s].append(s)
+    # Ordenar meses
+    meses_ordenados = sorted(tareas_activas_por_mes.keys(), key=lambda k: (k=='Sin fecha', k))
 
     # --- Consultar pagos ligados a la empresa ---
     pagos = supabase.table("pagos").select("*").eq("empresa_id", empresa_id).execute().data or []
@@ -463,6 +500,9 @@ def ficha_empresa(empresa_id):
     # --- Consultar documentos importantes ligados a la empresa ---
     documentos = supabase.table("empresa_documentos").select("*").eq("empresa_id", empresa_id).order("creado_en", desc=True).execute().data or []
 
+    # --- Consultar reportes semanales de Meta Ads ligados a la empresa ---
+    reportes_semanales = supabase.table("meta_ads_reportes_semanales").select("*").eq("empresa_id", empresa_id).order("fecha_fin", desc=True).limit(52).execute().data or []
+
     return render_template(
         "panel_cliente_empresa_ficha.html",
         empresa=empresa,
@@ -470,13 +510,17 @@ def ficha_empresa(empresa_id):
         user={"name": session.get("name", "Usuario")},
         modulo_activo="clientes",
         tareas=tareas,
+        tareas_activas=tareas_activas,
+        tareas_activas_por_mes=tareas_activas_por_mes,
+        meses_ordenados=meses_ordenados,
         pagos=pagos,
         usuarios=usuarios,
         cuentas_ads=cuentas_ads,
         reuniones=reuniones,
         accesos=accesos,
         documentos=documentos,
-        tareas_completadas=tareas_completadas
+        tareas_completadas=tareas_completadas,
+        reportes_semanales=reportes_semanales
     )
 
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/registrar_reunion", methods=["POST"])
@@ -706,4 +750,26 @@ def agregar_cuenta_google_ads_empresa(empresa_id):
         flash("✅ Cuenta Google Ads agregada correctamente", "success")
     except Exception as e:
         flash(f"❌ Error al agregar cuenta Google Ads: {str(e)}", "error")
+    return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))
+
+@panel_cliente_clientes_bp.route("/empresa/<empresa_id>/tarea/<tarea_id>/editar_inline", methods=["POST"])
+def editar_tarea_inline(empresa_id, tarea_id):
+    if not session.get("email"):
+        return redirect(url_for("login.login_screen"))
+    # Recoge los datos del formulario
+    prioridad = request.form.get("prioridad")
+    titulo = request.form.get("titulo")
+    estatus = request.form.get("estatus")
+    usuario_empresa_id = request.form.get("usuario_empresa_id")
+    fecha_limite = request.form.get("fecha_limite") or None
+    # Actualiza la tarea en la base de datos
+    update_data = {
+        "prioridad": prioridad,
+        "titulo": titulo,
+        "estatus": estatus,
+        "usuario_empresa_id": usuario_empresa_id,
+        "fecha_limite": fecha_limite
+    }
+    supabase.table("tareas").update(update_data).eq("id", tarea_id).execute()
+    flash("✅ Tarea actualizada", "success")
     return redirect(url_for("panel_cliente_clientes_bp.ficha_empresa", empresa_id=empresa_id))

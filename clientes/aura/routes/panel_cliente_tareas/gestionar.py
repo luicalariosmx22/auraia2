@@ -96,10 +96,10 @@ def vista_gestionar_tareas(nombre_nora):
     }
     try:
         page = int(request.args.get("page", 1))
-        per_page = int(request.args.get("per_page", 10))
+        per_page = int(request.args.get("per_page", 15))  # Cambiado a 15 por página
     except Exception:
         page = 1
-        per_page = 10
+        per_page = 15
     offset = (page - 1) * per_page
     # --- Consulta eficiente a Supabase ---
     query = supabase.table("tareas").select("*", count="exact").eq("nombre_nora", nombre_nora).eq("activo", True).neq("estatus", "completada")
@@ -107,6 +107,9 @@ def vista_gestionar_tareas(nombre_nora):
         query = query.eq("empresa_id", q["empresa_id"])
     if q["usuario_empresa_id"]:
         query = query.eq("usuario_empresa_id", q["usuario_empresa_id"])
+    # --- NO usar lógica combinada en la query ---
+    # if not q["usuario_empresa_id"]:
+    #     query = query.or_("asignada_a_empresa.is.true,usuario_empresa_id.is.not.null")
     if q["estatus"]:
         query = query.eq("estatus", q["estatus"])
     if q["prioridad"]:
@@ -117,28 +120,37 @@ def vista_gestionar_tareas(nombre_nora):
         query = query.lte("fecha_limite", q["fecha_fin"])
     # Ordenamiento
     orden = request.args.get("orden", "desc")
-    if orden == "asc":
-        query = query.order("created_at", desc=False)
-    else:
-        query = query.order("created_at", desc=True)
+    # Ordenar por fecha_limite más cercana a más lejana (sin usar nulls_last, para compatibilidad)
+    query = query.order("fecha_limite", desc=False)
     # Paginación
     query = query.range(offset, offset + per_page - 1)
     res = query.execute()
     tareas_activas = res.data or []
-    total_activas = res.count or 0
+    total_registros = res.count or 0
+    total_pages = (total_registros + per_page - 1) // per_page if per_page else 1
+
+    # --- Filtrar en memoria si no se filtra por usuario_empresa_id ---
+    if not q["usuario_empresa_id"]:
+        tareas_activas = [
+            t for t in tareas_activas
+            if (t.get("asignada_a_empresa") is True) or (t.get("usuario_empresa_id"))
+        ]
+    total_activas = len(tareas_activas)
     total_pages = (total_activas + per_page - 1) // per_page
 
     # --- Filtro de búsqueda por texto (en memoria, si aplica) ---
     if q["busqueda"]:
         tareas_activas = [t for t in tareas_activas if q["busqueda"] in (t.get("titulo", "").lower() + " " + t.get("descripcion", "").lower())]
-        total_activas = len(tareas_activas)
-        total_pages = (total_activas + per_page - 1) // per_page
+        total_registros = len(tareas_activas)
+        total_pages = (total_registros + per_page - 1) // per_page if per_page else 1
 
     # --- Marcar recurrentes y enriquecer tareas ---
     tareas_recurrentes_resp = supabase.table("tareas_recurrentes").select("tarea_id").execute()
     tarea_ids_recurrentes = set(r["tarea_id"] for r in (tareas_recurrentes_resp.data or []))
+    # Enriquecer tareas: mostrar si está asignada a empresa
     for t in tareas_activas:
         t["is_recurrente"] = t.get("id") in tarea_ids_recurrentes
+        t["asignada_a_empresa"] = t.get("asignada_a_empresa", False)
         if t.get("empresa_id"):
             try:
                 emp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", t["empresa_id"]).limit(1).execute()
@@ -185,6 +197,18 @@ def vista_gestionar_tareas(nombre_nora):
         return res.data or []
     for t in tareas_activas:
         t["subtareas"] = obtener_subtareas(t["id"])
+        # Enriquecer subtareas con info de asignación a empresa
+        for s in t["subtareas"]:
+            if s.get("asignada_a_empresa"):
+                s["asignado_nombre"] = "(Empresa)"
+            elif s.get("usuario_empresa_id"):
+                try:
+                    usr = supabase.table("usuarios_clientes").select("nombre").eq("id", s["usuario_empresa_id"]).limit(1).execute()
+                    s["asignado_nombre"] = usr.data[0]["nombre"] if usr.data else ""
+                except Exception:
+                    s["asignado_nombre"] = ""
+            else:
+                s["asignado_nombre"] = ""
 
     resumen = {
         "tareas_activas": total_activas,
@@ -198,6 +222,14 @@ def vista_gestionar_tareas(nombre_nora):
 
     nombre_usuario = session.get("user", {}).get("nombre", "Usuario")
     mensaje_bienvenida = f"Hola {nombre_usuario}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
+
+    # --- Obtener reports de Meta para la empresa (si aplica) ---
+    meta_reports = []
+    if q["empresa_id"]:
+        try:
+            meta_reports = supabase.table("meta_ads_reportes").select("*").eq("empresa_id", q["empresa_id"]).order("fecha", desc=True).execute().data or []
+        except Exception as e:
+            print(f"Error al obtener reports de Meta: {e}")
 
     return render_template(
         "panel_cliente_tareas/gestionar.html",
@@ -216,8 +248,9 @@ def vista_gestionar_tareas(nombre_nora):
         page=page,
         total_pages=total_pages,
         per_page=per_page,
-        total_activas=total_activas,
+        total_activas=total_registros,
         orden=orden,
+        meta_reports=meta_reports,
     )
 
 # -------------------------------------------------------------------
@@ -232,7 +265,16 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
     campo = payload.get("campo")
     valor = payload.get("valor")
 
-    # Permitir actualizar tarea_padre_id
+    # Permitir actualizar asignada_a_empresa
+    if campo == "asignada_a_empresa":
+        valor_bool = valor in (True, "true", "on", 1, "1")
+        update_data = {"asignada_a_empresa": valor_bool, "usuario_empresa_id": None if valor_bool else payload.get("usuario_empresa_id"), "updated_at": datetime.utcnow().isoformat()}
+        try:
+            supabase.table("tareas").update(update_data).eq("id", tarea_id).execute()
+            return jsonify({"ok": True})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    # Solo permitir ciertos campos
     if campo not in [
         "titulo",
         "prioridad",
@@ -297,15 +339,6 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
             }).execute()
         except Exception as e:
             import traceback
-            print(f"[ERROR][tareas_completadas] {e}")
-            traceback.print_exc()
-            return jsonify({"error": f"Error al insertar en tareas_completadas: {e}"}), 500
-        return jsonify({"ok": True, "completada": True})
-
-    try:
-        supabase.table("tareas").update(update_data).eq("id", tarea_id).execute()
-        return jsonify({"ok": True})
-    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 # -------------------------------------------------------------------
@@ -474,6 +507,7 @@ def actualizar_campo_subtarea(nombre_nora, subtarea_id):
         "estatus",
         "usuario_empresa_id",
         "empresa_id",
+        "asignada_a_empresa",  # Permitir edición inline de asignada_a_empresa
     ]:
         return jsonify({"error": "Campo no permitido"}), 400
 
@@ -494,6 +528,11 @@ def actualizar_campo_subtarea(nombre_nora, subtarea_id):
             datetime.strptime(valor, "%Y-%m-%d")
         except ValueError:
             return jsonify({"error": "Fecha inválida"}), 400
+    if campo == "asignada_a_empresa":
+        valor = valor in (True, "true", "1", 1, "on")
+        # Si se asigna a empresa, usuario_empresa_id debe ser None
+        if valor:
+            supabase.table("subtareas").update({"usuario_empresa_id": None}).eq("id", subtarea_id).execute()
 
     # Si se marca como completada, mover a tabla de subtareas completadas
     if campo == "estatus" and valor == "completada":
@@ -662,10 +701,13 @@ def crear_tarea(nombre_nora):
 
     # --- Si es SUBTAREA ---
     if data.get("tarea_padre_id"):
-        required = ["titulo", "usuario_empresa_id", "empresa_id", "tarea_padre_id", "creado_por"]
+        required = ["titulo", "empresa_id", "tarea_padre_id", "creado_por"]
         missing = [f for f in required if not data.get(f)]
         if missing:
             return jsonify({"error": f"Faltan campos obligatorios: {', '.join(missing)}"}), 400
+        # Permitir subtarea asignada a empresa (sin usuario)
+        asignada_a_empresa = data.get("asignada_a_empresa") in (True, "true", "1", 1, "on")
+        usuario_empresa_id = data.get("usuario_empresa_id") if not asignada_a_empresa else None
         nueva_subtarea = {
             "id": str(uuid.uuid4()),
             "titulo": data["titulo"],
@@ -673,10 +715,11 @@ def crear_tarea(nombre_nora):
             "prioridad": (data.get("prioridad") or "media").strip().lower(),
             "estatus": data.get("estatus", "pendiente"),
             "fecha_limite": data.get("fecha_limite") or None,
-            "usuario_empresa_id": data["usuario_empresa_id"],
+            "usuario_empresa_id": usuario_empresa_id,
             "empresa_id": data["empresa_id"],
             "tarea_padre_id": data["tarea_padre_id"],
             "creado_por": data["creado_por"],
+            "asignada_a_empresa": asignada_a_empresa,
             "activo": True,
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat(),
@@ -698,11 +741,12 @@ def crear_tarea(nombre_nora):
             traceback.print_exc()
             return jsonify({"error": str(e)}), 500
 
-    # ...existing code for tareas normales...
-    usuario_empresa_id = (data.get("usuario_empresa_id") or "").strip()
+    # --- TAREA NORMAL (principal) ---
+    asignar_a_empresa = data.get("asignar_a_empresa") in (True, "true", "on", 1, "1")
+    usuario_empresa_id = (data.get("usuario_empresa_id") or "").strip() if not asignar_a_empresa else None
     titulo = (data.get("titulo") or "").strip()
-    if not usuario_empresa_id:
-        return jsonify({"error": "usuario_empresa_id es obligatorio"}), 400
+    if not asignar_a_empresa and not usuario_empresa_id:
+        return jsonify({"error": "usuario_empresa_id es obligatorio si no se asigna a empresa"}), 400
     if not titulo:
         return jsonify({"error": "titulo es obligatorio"}), 400
     def sanea_uuid(val):
@@ -741,6 +785,7 @@ def crear_tarea(nombre_nora):
         "estatus": (data.get("estatus") or "pendiente").strip().lower(),
         "usuario_empresa_id": usuario_empresa_id,
         "empresa_id": sanea_uuid(data.get("empresa_id", "")),
+        "asignada_a_empresa": asignar_a_empresa,
         "origen": data.get("origen", "manual"),
         "creado_por": sanea_uuid(data.get("creado_por") or usuario_empresa_id),
         "activo": True,

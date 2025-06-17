@@ -23,50 +23,15 @@ document.addEventListener('DOMContentLoaded', function() {
         status.className = 'mt-4 text-center text-lg text-red-700';
       }
       btn.disabled = false;
-      btn.textContent = 'Generar/Actualizar Reporte Semanal';
+      btn.textContent = 'Generar/Actualizar Reporte Meta Ads';
     };
-  }
-
-  // --- Sincronización de anuncios Meta Ads ---
-  const btnSync = document.getElementById('btn-sincronizar-anuncios');
-  const statusDiv = document.getElementById('reporte-status');
-  if (btnSync) {
-    btnSync.addEventListener('click', async () => {
-      btnSync.disabled = true;
-      statusDiv.textContent = 'Sincronizando anuncios de Meta Ads...';
-      const nombreNora = document.body.dataset.nora;
-      let url = `/panel_cliente/${nombreNora}/meta_ads/estadisticas/sync`;
-      try {
-        const resp = await fetch(url, { method: 'POST' });
-        const data = await resp.json();
-        if (data.ok) {
-          let msg = `Sincronización completada. Anuncios procesados: ${data.procesados}`;
-          if (data.procesados === 0) {
-            msg += `<br><span class='text-red-700 font-bold'>No se insertaron anuncios. Verifica el token de Meta, permisos de la cuenta o si ya existen los anuncios para este periodo.</span>`;
-          }
-          if (Array.isArray(data.sin_anuncios) && data.sin_anuncios.length > 0) {
-            msg += `<br><span class='text-red-700 font-bold'>Cuentas sin anuncios:</span><ul class='list-disc list-inside'>`;
-            for (const c of data.sin_anuncios) {
-              msg += `<li><b>${c.nombre_cliente || 'Sin nombre'}</b> (ID: ${c.id_cuenta_publicitaria})</li>`;
-            }
-            msg += '</ul>';
-          }
-          statusDiv.innerHTML = msg;
-        } else {
-          statusDiv.textContent = 'Error en la sincronización: ' + (data.error || 'Error desconocido');
-        }
-      } catch (e) {
-        statusDiv.textContent = 'Error en la sincronización: ' + e;
-      }
-      btnSync.disabled = false;
-    });
   }
 
   // Botón de eliminar reportes
   const btnEliminar = document.getElementById('btn-eliminar-reportes');
   if(btnEliminar) {
     btnEliminar.addEventListener('click', async () => {
-      if(!confirm('¿Estás seguro de que deseas eliminar TODOS los reportes semanales? Esta acción no se puede deshacer.')) return;
+      if(!confirm('¿Estás seguro de que deseas eliminar TODOS los reportes de Meta Ads? Esta acción no se puede deshacer.')) return;
       btnEliminar.disabled = true;
       statusDiv.textContent = 'Eliminando todos los reportes...';
       const nombreNora = document.body.dataset.nora;
@@ -84,6 +49,15 @@ document.addEventListener('DOMContentLoaded', function() {
       btnEliminar.disabled = false;
     });
   }
+
+  const btnAbrirModalSync = document.getElementById("btn-abrir-modal-sync");
+  if (btnAbrirModalSync) {
+    btnAbrirModalSync.addEventListener("click", function() {
+      cargarColumnasDisponibles();
+    });
+  }
+
+  // --- ELIMINADO BLOQUE DE REPORTES DISPONIBLES ---
 });
 
 async function cargarEstadisticas() {
@@ -130,7 +104,7 @@ function renderTablaYGraficas(reportes, cont, nombreNora) {
       <td class="px-4 py-2 text-blue-700 font-semibold">$${(rep.facebook_importe_gastado||0).toFixed(2)}</td>
       <td class="px-4 py-2 text-pink-700 font-semibold">$${(rep.instagram_importe_gastado||0).toFixed(2)}</td>
       <td class="px-4 py-2">
-        <a href="/panel_cliente/${nombreNora}/meta_ads/estadisticas/reporte/${rep.id}" class="text-blue-700 hover:underline font-semibold">Ver detalle</a>
+        <a href="/panel_cliente/${nombreNora}/meta_ads/estadisticas/reporte/${rep.id}" class="text-blue-700 hover:underline font-semibold">Ver</a>
       </td>
     </tr>`;
   }
@@ -174,6 +148,56 @@ function renderTablaYGraficas(reportes, cont, nombreNora) {
     },
     options: {responsive: true, plugins: {legend: {display: true}}}
   });
+}
+
+async function cargarColumnasDisponibles() {
+  const colDiv = document.getElementById("modal-columnas");
+  colDiv.innerHTML = '<option>Cargando...</option>';
+  try {
+    const nombreNora = document.body.getAttribute('data-nora');
+    const res = await fetch(`/panel_cliente/${nombreNora}/meta_ads/estadisticas/columnas_disponibles`);
+    const data = await res.json();
+    if (data.ok && Array.isArray(data.columnas)) {
+      colDiv.innerHTML = "";
+      data.columnas.forEach(col => {
+        const option = document.createElement("option");
+        option.value = col;
+        option.textContent = col;
+        colDiv.appendChild(option);
+      });
+    } else {
+      colDiv.innerHTML = '<option>Error al cargar columnas.</option>';
+    }
+  } catch (e) {
+    colDiv.innerHTML = '<option>Error de red.</option>';
+  }
+}
+
+// Limpieza del bloque de carga de columnas dinámicas (dentro de la función abrirModalSync o donde cargues columnas)
+async function cargarColumnas() {
+  const columnasSelect = document.getElementById("modal-columnas");
+  const columnasError = document.getElementById("columnas-error");
+  columnasSelect.innerHTML = '<option disabled>Cargando...</option>';
+  columnasError.classList.add('hidden');
+  try {
+    const resp = await fetch('/api/meta_ads/columnas_anuncios_detalle');
+    const data = await resp.json();
+    columnasSelect.innerHTML = "";
+    if (!data.ok || !Array.isArray(data.columnas)) {
+      columnasError.textContent = 'Error al obtener columnas';
+      columnasError.classList.remove('hidden');
+      return;
+    }
+    for (const col of data.columnas) {
+      const opt = document.createElement("option");
+      opt.value = col;
+      opt.textContent = col;
+      columnasSelect.appendChild(opt);
+    }
+  } catch (e) {
+    columnasError.textContent = 'Error de red al cargar columnas';
+    columnasError.classList.remove('hidden');
+  }
 }
 
 // Cargar estadísticas al iniciar

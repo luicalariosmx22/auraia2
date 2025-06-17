@@ -44,20 +44,30 @@ def listar_tareas_por_usuario(usuario_empresa_id):
     return result.data
 
 # ✅ Listar tareas por usuario (PAGINADO)
-def listar_tareas_paginado(usuario_empresa_id, page=1, page_size=20):
+def listar_tareas_paginado(usuario_empresa_id=None, page=1, page_size=20, asignada_a_empresa=False, incluir_empresa_y_usuario=False):
     try:
         page = int(page) if page else 1
         page_size = int(page_size) if page_size else 20
         offset = (page - 1) * page_size
-        # Consulta paginada
-        res = supabase.table("tareas").select("*", count="exact") \
-            .eq("usuario_empresa_id", usuario_empresa_id) \
-            .eq("activo", True) \
-            .order("fecha_limite", desc=False) \
-            .range(offset, offset + page_size - 1) \
-            .execute()
+        query = supabase.table("tareas").select("*", count="exact")
+        query = query.eq("activo", True)
+        # Solo un filtro a la vez en la query
+        if asignada_a_empresa:
+            query = query.eq("asignada_a_empresa", True)
+        elif usuario_empresa_id:
+            query = query.eq("usuario_empresa_id", usuario_empresa_id).eq("asignada_a_empresa", False)
+        # else: traer todas activas
+        query = query.order("fecha_limite", desc=False).range(offset, offset + page_size - 1)
+        res = query.execute()
+        tareas = res.data or []
+        # Si se pide incluir ambos tipos (empresa y usuario), filtrar en memoria
+        if incluir_empresa_y_usuario:
+            tareas = [
+                t for t in tareas
+                if (t.get("asignada_a_empresa") is True) or (t.get("usuario_empresa_id") and not t.get("asignada_a_empresa"))
+            ]
         return {
-            "tareas": res.data or [],
+            "tareas": tareas,
             "total": res.count or 0,
             "page": page,
             "page_size": page_size
@@ -124,6 +134,7 @@ def crear_tarea_backend(nombre_nora):
         return jsonify({"error": "No se recibió payload válido"}), 400
 
     usuario_empresa_id = (datos.get("usuario_empresa_id") or "").strip()
+    asignar_a_empresa = str(datos.get("asignar_a_empresa", "")).lower() in ("1", "true", "on", "yes")
     titulo = (datos.get("titulo") or "").strip()
     hoy = datetime.now().strftime("%Y-%m-%d")
 
@@ -151,7 +162,6 @@ def crear_tarea_backend(nombre_nora):
             "prioridad": (datos.get("prioridad") or "media").strip().lower(),
             "estatus": datos.get("estatus", "pendiente"),
             "fecha_limite": datos.get("fecha_limite") or None,
-            "usuario_empresa_id": usuario_empresa_id,
             "empresa_id": datos.get("empresa_id") or None,
             "creado_por": datos.get("creado_por"),
             "nombre_nora": datos.get("nombre_nora"),
@@ -159,6 +169,12 @@ def crear_tarea_backend(nombre_nora):
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat(),
         }
+        # Si se asigna a empresa, usuario_empresa_id queda None
+        if not asignar_a_empresa:
+            nueva["usuario_empresa_id"] = usuario_empresa_id
+        else:
+            nueva["usuario_empresa_id"] = None
+            nueva["asignada_a_empresa"] = True
 
         print('🚨 Intentando insertar tarea nueva:', nueva)
         result = supabase.table("tareas").insert(nueva).execute()

@@ -5,31 +5,17 @@ import os
 def filtrar_columnas_mapeables(columnas):
     return [col for col in columnas if col != 'id' and col != 'empresa_id' and not col.endswith('_id') and col != 'subobjetivo']
 
-def obtener_columnas_tabla(supabase, tabla):
-    try:
-        sql_public = f"SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{tabla}' ORDER BY ordinal_position;"
-        resp = supabase.rpc('execute_sql', {'sql': sql_public}).execute()
-        if resp.data and len(resp.data) > 0:
-            if isinstance(resp.data[0], dict):
-                columnas = [row['column_name'] for row in resp.data]
-            else:
-                columnas = resp.data
-            if tabla == 'meta_ads_conjuntos_anuncios':
-                columnas = [col for col in columnas if col != 'subobjetivo']
-            return columnas
-        sql_any = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{tabla}' ORDER BY ordinal_position;"
-        resp = supabase.rpc('execute_sql', {'sql': sql_any}).execute()
-        if resp.data and len(resp.data) > 0:
-            if isinstance(resp.data[0], dict):
-                columnas = [row['column_name'] for row in resp.data]
-            else:
-                columnas = resp.data
-            if tabla == 'meta_ads_conjuntos_anuncios':
-                columnas = [col for col in columnas if col != 'subobjetivo']
-            return columnas
-    except Exception as e:
-        print(f"[ERROR] obtener_columnas_tabla({tabla}): {e}")
-    return []
+def obtener_columnas_tabla(supabase_client, tabla):
+    """
+    Fallback seguro para obtener columnas para el modal de mapeo.
+    """
+    columnas_fijas = [
+        "ad_id", "publisher_platform", "fecha_inicio", "fecha_fin", "importe_gastado",
+        "alcance", "impresiones", "clicks", "link_clicks", "mensajes",
+        "post_reactions", "comments", "shares", "video_plays",
+        "page_engagement", "post_engagement", "saves"
+    ]
+    return [{'columna_bd': col, 'tipo': 'unknown'} for col in columnas_fijas]
 
 def obtener_columnas_db_dict(supabase):
     campos_campanas = filtrar_columnas_mapeables(obtener_columnas_tabla(supabase, 'meta_ads_campañas'))

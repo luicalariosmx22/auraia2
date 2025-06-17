@@ -1,0 +1,399 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<a href="/panel_cliente/{{ nombre_nora }}/meta_ads/estadisticas" class="inline-block mb-6 text-blue-700 hover:underline font-semibold">← Regresar a estadísticas</a>
+<div class="max-w-5xl mx-auto py-10">
+  <h1 class="text-3xl font-extrabold text-center text-indigo-900 mb-8">Sincronización Manual de Meta Ads</h1>
+  <!-- Botones principales arriba -->
+  <div class="flex flex-wrap gap-3 justify-center mb-8">
+    <button id="btnSyncMetaAds" type="button" class="btn btn-primary px-5 py-3 fw-bold">
+      <i class="fa-solid fa-arrows-rotate me-2"></i> Sincronizar
+    </button>
+    <button id="btnPararSyncMetaAds" type="button" class="btn btn-danger px-5 py-3 fw-bold">
+      <i class="fa-solid fa-circle-stop me-2"></i> Parar Sincronización
+    </button>
+    <button id="btnEliminarAnunciosDetalle" type="button" class="btn btn-warning text-white px-5 py-3 fw-bold">
+      <i class="fa-solid fa-trash me-2"></i> Eliminar Anuncios Detalle
+    </button>
+  </div>
+  <form id="formSyncMetaAds" method="POST" class="bg-white rounded-xl shadow p-8 border border-indigo-100">
+    <div id="syncMetaAdsStatus" class="text-center text-secondary small mb-6"></div>
+    <div class="row mb-4">
+      <div class="col-12 mb-3">
+        <label class="form-label">Rango de fechas</label>
+        <div class="flex flex-wrap gap-2 mb-2">
+          <button type="button" class="btn btn-outline-primary btn-sm" id="btnFechaHoy">Hoy</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="btnFecha7">Últimos 7 días</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="btnFechaMesActual">Mes actual</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="btnFechaMesPasado">Mes pasado</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" id="btnFecha30">Últimos 30 días</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="btnFechaPersonalizado">Personalizado</button>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="sync_fecha_inicio" class="form-label">Fecha de inicio</label>
+        <input type="date" class="form-control" id="sync_fecha_inicio" name="fecha_inicio" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="sync_fecha_fin" class="form-label">Fecha de fin</label>
+        <input type="date" class="form-control" id="sync_fecha_fin" name="fecha_fin" required>
+      </div>
+    </div>
+    <div class="mb-4">
+      <label for="sync_cuentas" class="form-label">Cuentas publicitarias</label>
+      <div class="w-full">
+        <button type="button" id="btnSelectAllCuentas" class="btn btn-outline-secondary btn-sm mb-2">Seleccionar todas</button>
+        <button type="button" id="btnDeselectAllCuentas" class="btn btn-outline-secondary btn-sm mb-2 ms-2">Quitar todas</button>
+        <div id="cuentas-list" class="border rounded p-2 bg-gray-50 mb-2 cuentas-grid" style="min-height:120px;font-size:1.08em"></div>
+        <input type="hidden" id="sync_cuentas" name="cuentas">
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="form-label text-danger fw-bold">Excluir siempre (Cuentas publicitarias que NO se deben sincronizar):</label>
+      <div id="cuentas-excluir-list" class="border rounded p-2 bg-gray-50 mb-2 cuentas-grid" style="font-size:0.97em"></div>
+      <input type="hidden" id="sync_cuentas_excluir" name="cuentas_excluir">
+      <div class="form-text mb-2">Selecciona las cuentas que nunca deben sincronizarse. Se recomienda guardar esta preferencia en la tabla <b>meta_ads_cuentas</b>.</div>
+      <button id="btnGuardarExclusion" type="button" class="btn btn-outline-primary btn-sm">Guardar exclusión</button>
+      <span id="exclusionStatus" class="ms-3 text-sm"></span>
+    </div>
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Selecciona columnas a sincronizar:</label>
+      <button type="button" id="btnSelectAllColumnas" class="btn btn-outline-secondary btn-sm mb-2">Seleccionar todas</button>
+      <button type="button" id="btnDeselectAllColumnas" class="btn btn-outline-secondary btn-sm mb-2 ms-2">Quitar todas</button>
+      <div class="columnas-grid-wrapper">
+        <div id="columnas-lista" class="columnas-grid border rounded p-2 bg-gray-50 mb-2" style="font-size:0.97em"></div>
+      </div>
+      <input type="hidden" id="sync_columnas" name="columnas">
+      <div id="columnas-error" class="text-xs text-red-500 mt-1 hidden">Error al cargar columnas.</div>
+    </div>
+    <!-- Cuentas excluidas al final -->
+    <div class="mb-4">
+      <label class="form-label text-danger fw-bold">Excluidas:</label>
+      <div id="cuentas-excluidas-list" class="border rounded p-2 bg-gray-50 cuentas-grid" style="font-size:1.05em"></div>
+    </div>
+    <!-- Botón cancelar abajo -->
+    <div class="flex justify-end mt-6">
+      <a href="/panel_cliente/{{ nombre_nora }}/meta_ads/estadisticas" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+<style>
+.cuentas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1.5fr);
+  gap: 0.3em 1em;
+}
+.cuentas-grid label {
+  margin-bottom: 0.2em;
+}
+.columnas-grid-wrapper {
+  width: 100%;
+}
+.columnas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1.5fr);
+  gap: 0.3em 1em;
+}
+.columnas-grid label {
+  margin-bottom: 0.2em;
+}
+</style>
+<script>
+// Sincronizar
+const btnSync = document.getElementById('btnSyncMetaAds');
+const btnParar = document.getElementById('btnPararSyncMetaAds');
+const btnEliminar = document.getElementById('btnEliminarAnunciosDetalle');
+const status = document.getElementById('syncMetaAdsStatus');
+
+function setStatusFeedback({msg, type = 'info', loading = false}) {
+  status.innerHTML =
+    (loading ? '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' : '') +
+    (type === 'success' ? '<span class="text-success fw-bold">✅ ' :
+     type === 'error' ? '<span class="text-danger fw-bold">❌ ' :
+     type === 'warning' ? '<span class="text-warning fw-bold">⚠️ ' : '<span>') +
+    msg + '</span>';
+}
+
+function setButtonsDisabled(disabled) {
+  btnSync.disabled = btnParar.disabled = btnEliminar.disabled = disabled;
+}
+
+btnSync.onclick = async function() {
+  setButtonsDisabled(true);
+  setStatusFeedback({msg: 'Sincronizando...', loading: true});
+  const form = document.getElementById('formSyncMetaAds');
+  const data = new FormData(form);
+  // Guardar exclusión antes de sincronizar
+  const cuentasExcluir = document.getElementById('sync_cuentas_excluir').value;
+  try {
+    await fetch(`/panel_cliente/${document.body.getAttribute('data-nora')}/meta_ads/estadisticas/excluir_cuentas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cuentas_excluir: cuentasExcluir })
+    });
+  } catch (e) {
+    setStatusFeedback({msg: 'No se pudo guardar la exclusión de cuentas: ' + e, type: 'warning'});
+  }
+  try {
+    const resp = await fetch(`/panel_cliente/${document.body.getAttribute('data-nora')}/meta_ads/estadisticas/sync_manual`, {
+      method: 'POST',
+      body: data
+    });
+    if (resp.ok) {
+      setStatusFeedback({msg: 'Sincronización lanzada correctamente.', type: 'success'});
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      const res = await resp.text();
+      setStatusFeedback({msg: 'Error: ' + res, type: 'error'});
+    }
+  } catch (err) {
+    setStatusFeedback({msg: 'Error de red: ' + err, type: 'error'});
+  }
+  setButtonsDisabled(false);
+};
+btnParar.onclick = async function() {
+  setButtonsDisabled(true);
+  setStatusFeedback({msg: 'Deteniendo sincronización...', loading: true});
+  try {
+    const resp = await fetch(`/panel_cliente/${document.body.dataset.nora}/meta_ads/estadisticas/parar_sincronizacion`, {method: 'POST'});
+    const data = await resp.json();
+    if(data.ok) {
+      setStatusFeedback({msg: 'Sincronización detenida.', type: 'success'});
+    } else {
+      setStatusFeedback({msg: 'Error al detener sincronización: ' + (data.error || 'Error desconocido'), type: 'error'});
+    }
+  } catch(e) {
+    setStatusFeedback({msg: 'Error al detener sincronización: ' + e, type: 'error'});
+  }
+  setButtonsDisabled(false);
+};
+btnEliminar.onclick = async function() {
+  if(!confirm('¿Estás seguro de que deseas eliminar TODOS los registros de anuncios_detalle? Esta acción no se puede deshacer.')) return;
+  setButtonsDisabled(true);
+  setStatusFeedback({msg: 'Eliminando todos los anuncios detalle...', loading: true});
+  try {
+    const resp = await fetch(`/panel_cliente/${document.body.dataset.nora}/meta_ads/estadisticas/eliminar_anuncios_detalle`, {method: 'POST'});
+    const data = await resp.json();
+    if(data.ok) {
+      setStatusFeedback({msg: `Anuncios detalle eliminados: ${data.eliminados}`, type: 'success'});
+    } else {
+      setStatusFeedback({msg: 'Error al eliminar anuncios detalle: ' + (data.error || 'Error desconocido'), type: 'error'});
+    }
+  } catch(e) {
+    setStatusFeedback({msg: 'Error al eliminar anuncios detalle: ' + e, type: 'error'});
+  }
+  setButtonsDisabled(false);
+};
+const formSync = document.getElementById('formSyncMetaAds');
+formSync.onsubmit = function(e) { e.preventDefault(); };
+// --- Cargar cuentas y columnas al cargar la página ---
+window.addEventListener('DOMContentLoaded', async function() {
+  // Cargar cuentas
+  const cuentasDiv = document.getElementById('cuentas-list');
+  const cuentasExcluidasDiv = document.getElementById('cuentas-excluidas-list');
+  cuentasDiv.innerHTML = '<span class="text-secondary">Cargando cuentas...</span>';
+  cuentasExcluidasDiv.innerHTML = '<span class="text-secondary">Cargando excluidas...</span>';
+  try {
+    const resp = await fetch(`/panel_cliente/${document.body.getAttribute('data-nora')}/meta_ads/estadisticas/cuentas_json`);
+    const data = await resp.json();
+    if(data.ok && Array.isArray(data.cuentas)) {
+      // Separar cuentas normales y excluidas
+      const cuentasNormales = data.cuentas.filter(c => c.estado_actual !== 'excluida');
+      const cuentasExcluidas = data.cuentas.filter(c => c.estado_actual === 'excluida');
+      cuentasDiv.innerHTML = cuentasNormales.length ? cuentasNormales.map(c =>
+        `<label class='d-block'><input type='checkbox' class='cuenta-checkbox' value='${c.id_cuenta_publicitaria}'> ${c.nombre_cliente || c.id_cuenta_publicitaria}</label>`
+      ).join('') : '<span class="text-danger">No hay cuentas configuradas.</span>';
+      cuentasExcluidasDiv.innerHTML = cuentasExcluidas.length ? cuentasExcluidas.map(c =>
+        `<label class='d-block text-danger'><i class='fa-solid fa-ban me-1'></i> ${c.nombre_cliente || c.id_cuenta_publicitaria}</label>`
+      ).join('') : '<span class="text-secondary">No hay cuentas excluidas.</span>';
+    } else {
+      cuentasDiv.innerHTML = '<span class="text-danger">Error al cargar cuentas.</span>';
+      cuentasExcluidasDiv.innerHTML = '<span class="text-danger">Error al cargar excluidas.</span>';
+    }
+  } catch(e) {
+    cuentasDiv.innerHTML = '<span class="text-danger">Error de red.</span>';
+    cuentasExcluidasDiv.innerHTML = '<span class="text-danger">Error de red.</span>';
+  }
+  // Cargar cuentas para excluir
+  const cuentasExcluirDiv = document.getElementById('cuentas-excluir-list');
+  if (cuentasExcluirDiv) {
+    cuentasExcluirDiv.innerHTML = '<span class="text-secondary">Cargando cuentas...</span>';
+    try {
+      const resp = await fetch(`/panel_cliente/${document.body.getAttribute('data-nora')}/meta_ads/estadisticas/cuentas_json`);
+      const data = await resp.json();
+      if(data.ok && Array.isArray(data.cuentas)) {
+        cuentasExcluirDiv.innerHTML = data.cuentas.length ? data.cuentas.map(c =>
+          `<label class='d-block'><input type='checkbox' class='cuenta-excluir-checkbox' value='${c.id_cuenta_publicitaria}'${c.estado_actual === 'excluida' ? ' checked' : ''}> ${c.nombre_cliente || c.id_cuenta_publicitaria}</label>`
+        ).join('') : '<span class="text-danger">No hay cuentas configuradas.</span>';
+        // Forzar el valor del input oculto según los checkboxes marcados
+        const seleccionadas = data.cuentas.filter(c => c.estado_actual === 'excluida').map(c => c.id_cuenta_publicitaria);
+        document.getElementById('sync_cuentas_excluir').value = seleccionadas.join(',');
+      } else {
+        cuentasExcluirDiv.innerHTML = '<span class="text-danger">Error al cargar cuentas.</span>';
+      }
+    } catch(e) {
+      cuentasExcluirDiv.innerHTML = '<span class="text-danger">Error de red.</span>';
+    }
+  }
+  // Cargar columnas disponibles
+  await cargarColumnasDisponibles();
+});
+// Cargar columnas disponibles
+async function cargarColumnasDisponibles() {
+  const columnasDiv = document.getElementById('columnas-lista');
+  columnasDiv.innerHTML = '<span class="text-secondary">Cargando columnas...</span>';
+  try {
+    const resp = await fetch(`/panel_cliente/${document.body.getAttribute('data-nora')}/meta_ads/estadisticas/columnas_disponibles`);
+    const data = await resp.json();
+    if (data.ok && Array.isArray(data.columnas)) {
+      columnasDiv.innerHTML = data.columnas.length ? data.columnas.map(col =>
+        `<label class='d-block'><input type='checkbox' class='columna-checkbox' value='${col}'> ${col}</label>`
+      ).join('') : '<span class="text-danger">No hay columnas.</span>';
+    } else {
+      columnasDiv.innerHTML = '<span class="text-danger">Error al cargar columnas.</span>';
+    }
+  } catch (e) {
+    columnasDiv.innerHTML = '<span class="text-danger">Error al cargar columnas.</span>';
+  }
+}
+// Guardar selección de cuentas en el input oculto
+const cuentasDiv = document.getElementById('cuentas-list');
+if (cuentasDiv) {
+  cuentasDiv.addEventListener('change', function() {
+    const seleccionadas = Array.from(document.querySelectorAll('.cuenta-checkbox:checked')).map(cb => cb.value);
+    document.getElementById('sync_cuentas').value = seleccionadas.join(',');
+  });
+}
+// Guardar selección de cuentas a excluir en el input oculto
+const cuentasExcluirDiv = document.getElementById('cuentas-excluir-list');
+if (cuentasExcluirDiv) {
+  cuentasExcluirDiv.addEventListener('change', function() {
+    const seleccionadas = Array.from(document.querySelectorAll('.cuenta-excluir-checkbox:checked')).map(cb => cb.value);
+    document.getElementById('sync_cuentas_excluir').value = seleccionadas.join(',');
+  });
+}
+// Guardar selección de columnas en el input oculto
+const columnasDiv = document.getElementById('columnas-lista');
+if (columnasDiv) {
+  columnasDiv.addEventListener('change', function() {
+    const seleccionadas = Array.from(document.querySelectorAll('.columna-checkbox:checked')).map(cb => cb.value);
+    document.getElementById('sync_columnas').value = seleccionadas.join(',');
+  });
+}
+const btnGuardarExclusion = document.getElementById('btnGuardarExclusion');
+const exclusionStatus = document.getElementById('exclusionStatus');
+if (btnGuardarExclusion) {
+  btnGuardarExclusion.onclick = async function() {
+    btnGuardarExclusion.disabled = true;
+    exclusionStatus.textContent = 'Guardando...';
+    exclusionStatus.className = 'ms-3 text-sm text-secondary';
+    const cuentasExcluir = document.getElementById('sync_cuentas_excluir').value;
+    try {
+      const resp = await fetch(`/panel_cliente/${document.body.getAttribute('data-nora')}/meta_ads/estadisticas/excluir_cuentas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cuentas_excluir: cuentasExcluir })
+      });
+      if (resp.ok) {
+        exclusionStatus.textContent = '¡Exclusión guardada!';
+        exclusionStatus.className = 'ms-3 text-sm text-success fw-bold';
+      } else {
+        exclusionStatus.textContent = 'Error al guardar.';
+        exclusionStatus.className = 'ms-3 text-sm text-danger fw-bold';
+      }
+    } catch (e) {
+      exclusionStatus.textContent = 'Error de red.';
+      exclusionStatus.className = 'ms-3 text-sm text-danger fw-bold';
+    }
+    setTimeout(() => { exclusionStatus.textContent = ''; btnGuardarExclusion.disabled = false; }, 1800);
+  };
+}
+// Botón seleccionar todas las cuentas
+const btnSelectAllCuentas = document.getElementById('btnSelectAllCuentas');
+if (btnSelectAllCuentas) {
+  btnSelectAllCuentas.onclick = function() {
+    document.querySelectorAll('.cuenta-checkbox').forEach(cb => { cb.checked = true; });
+    const seleccionadas = Array.from(document.querySelectorAll('.cuenta-checkbox:checked')).map(cb => cb.value);
+    document.getElementById('sync_cuentas').value = seleccionadas.join(',');
+  };
+}
+// Botón quitar todas las cuentas
+const btnDeselectAllCuentas = document.getElementById('btnDeselectAllCuentas');
+if (btnDeselectAllCuentas) {
+  btnDeselectAllCuentas.onclick = function() {
+    document.querySelectorAll('.cuenta-checkbox').forEach(cb => { cb.checked = false; });
+    document.getElementById('sync_cuentas').value = '';
+  };
+}
+// Botón seleccionar todas las columnas
+const btnSelectAllColumnas = document.getElementById('btnSelectAllColumnas');
+if (btnSelectAllColumnas) {
+  btnSelectAllColumnas.onclick = function() {
+    document.querySelectorAll('.columna-checkbox').forEach(cb => { cb.checked = true; });
+    const seleccionadas = Array.from(document.querySelectorAll('.columna-checkbox:checked')).map(cb => cb.value);
+    document.getElementById('sync_columnas').value = seleccionadas.join(',');
+  };
+}
+// Botón quitar todas las columnas
+const btnDeselectAllColumnas = document.getElementById('btnDeselectAllColumnas');
+if (btnDeselectAllColumnas) {
+  btnDeselectAllColumnas.onclick = function() {
+    document.querySelectorAll('.columna-checkbox').forEach(cb => { cb.checked = false; });
+    document.getElementById('sync_columnas').value = '';
+  };
+}
+// Funciones para rangos de fechas
+function setFechaInputs(fechaInicio, fechaFin) {
+  document.getElementById('sync_fecha_inicio').value = fechaInicio;
+  document.getElementById('sync_fecha_fin').value = fechaFin;
+}
+function pad(n) { return n < 10 ? '0' + n : n; }
+function getTodayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function getMonthStartEnd(year, month) {
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
+  return [start, end];
+}
+document.getElementById('btnFechaHoy').onclick = function() {
+  const hoy = getTodayStr();
+  setFechaInputs(hoy, hoy);
+};
+document.getElementById('btnFecha7').onclick = function() {
+  const d = new Date();
+  const fin = getTodayStr();
+  d.setDate(d.getDate() - 6);
+  const ini = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+  setFechaInputs(ini, fin);
+};
+document.getElementById('btnFechaMesActual').onclick = function() {
+  const d = new Date();
+  const [ini, _] = getMonthStartEnd(d.getFullYear(), d.getMonth());
+  const hoy = getTodayStr();
+  setFechaInputs(
+    ini.getFullYear() + '-' + pad(ini.getMonth()+1) + '-' + pad(ini.getDate()),
+    hoy
+  );
+};
+document.getElementById('btnFechaMesPasado').onclick = function() {
+  const d = new Date();
+  d.setMonth(d.getMonth() - 1);
+  const [ini, fin] = getMonthStartEnd(d.getFullYear(), d.getMonth());
+  setFechaInputs(
+    ini.getFullYear() + '-' + pad(ini.getMonth()+1) + '-' + pad(ini.getDate()),
+    fin.getFullYear() + '-' + pad(fin.getMonth()+1) + '-' + pad(fin.getDate())
+  );
+};
+document.getElementById('btnFecha30').onclick = function() {
+  const d = new Date();
+  const fin = getTodayStr();
+  d.setDate(d.getDate() - 29);
+  const ini = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+  setFechaInputs(ini, fin);
+};
+document.getElementById('btnFechaPersonalizado').onclick = function() {
+  document.getElementById('sync_fecha_inicio').focus();
+};
+</script>
+{% endblock %}

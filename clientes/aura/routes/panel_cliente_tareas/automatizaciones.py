@@ -111,7 +111,7 @@ def guardar_preferencias_automatizaciones():
     update_data = {
         "alertas_whatsapp": data.get("alertas_whatsapp", False),
         "tareas_recurrentes": data.get("tareas_recurrentes", False),
-        "reporte_semanal": data.get("reporte_semanal", False),
+        "reporte_meta_ads": data.get("reporte_meta_ads", False),
         "tareas_sugeridas_modulos": data.get("tareas_sugeridas_modulos", False),
         "updated_at": datetime.now(zona).isoformat()
     }

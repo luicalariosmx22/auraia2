@@ -19,7 +19,7 @@ from werkzeug.serving import WSGIRequestHandler
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import pytz  # Para manejar zonas horarias
-from clientes.aura.tasks.meta_ads_reporter import enviar_reporte_semanal
+from clientes.aura.tasks.meta_ads_reporter import enviar_reporte_meta_ads
 
 print("📥 Importando módulo Ads...")
 from clientes.aura.modules.ads import ads_bp  # ✅ Updated import
@@ -125,14 +125,14 @@ if not app.debug:
 scheduler = BackgroundScheduler(timezone=pytz.timezone('America/Hermosillo'))
 
 scheduler.add_job(
-    func=enviar_reporte_semanal,
+    func=enviar_reporte_meta_ads,
     trigger=CronTrigger(
         day_of_week='mon',  # 'mon' para lunes
         hour=10,            # Para las 10 AM
         minute=0,
         timezone='America/Hermosillo'  # Zona horaria específica
     ),
-    id='job_enviar_reporte_semanal',  # ID único para el trabajo
+    id='job_enviar_reporte_meta_ads',  # ID único para el trabajo
     name='Reporte Semanal Meta Ads Aura',
     replace_existing=True  # Reemplaza el trabajo si ya existe con este ID
 )
