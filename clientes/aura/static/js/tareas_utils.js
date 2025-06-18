@@ -12,7 +12,6 @@ export async function postJSON(url, payload = {}) {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data.error) {
-    alert("❌ " + (data.error || res.statusText));
     throw new Error(data.error || res.statusText);
   }
   return data;

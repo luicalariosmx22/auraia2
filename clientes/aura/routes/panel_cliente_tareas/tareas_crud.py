@@ -230,10 +230,21 @@ def actualizar_tarea_inline(nombre_nora, tarea_id):
             return jsonify({"ok": False, "error": str(e)})
 
     # Modo nuevo: actualizar varios campos a la vez
+    # COPILOT: INICIO CAMBIO - Log de los datos recibidos para depuración
+    print(f"[DEBUG][actualizar_tarea_inline] Datos recibidos: {datos}")
+    # COPILOT: FIN CAMBIO
     try:
         datos["updated_at"] = datetime.now().isoformat()
         if datos.get("empresa_id") == "":
             datos.pop("empresa_id")
+        # Validar que todos los campos existen en la tabla tareas
+        campos_validos = [
+            'titulo', 'descripcion', 'fecha_limite', 'prioridad', 'estatus', 'origen',
+            'empresa_id', 'usuario_empresa_id', 'activo', 'nombre_nora', 'asignada_a_empresa'
+        ]
+        for k in list(datos.keys()):
+            if k not in campos_validos and k not in ("updated_at"):
+                return jsonify({"ok": False, "error": f"Campo no permitido: {k}"})
         supabase.table("tareas").update(datos).eq("id", tarea_id).execute()
         return jsonify({"ok": True})
     except Exception as e:
@@ -297,3 +308,15 @@ def listar_tareas_gestionar():
         return jsonify({"error": "usuario_empresa_id es obligatorio"}), 400
     result = listar_tareas_paginado(usuario_empresa_id, page, page_size)
     return jsonify(result)
+
+# COPILOT: INICIO CAMBIO - Ruta para obtener tareas completadas en formato JSON
+@panel_cliente_tareas_bp.route("/<nombre_nora>/tareas/gestionar/completadas", methods=["GET"])
+def tareas_completadas(nombre_nora):
+    # Aquí deberías usar tu lógica real para obtener las tareas completadas
+    # Por ejemplo, usando Supabase:
+    from flask import jsonify
+    from datetime import datetime
+    res = supabase.table("tareas").select("*").eq("nombre_nora", nombre_nora).eq("estatus", "completada").order("fecha_limite", desc=False).execute()
+    tareas = res.data if hasattr(res, 'data') else []
+    return jsonify({"tareas": tareas})
+# COPILOT: FIN CAMBIO

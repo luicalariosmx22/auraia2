@@ -70,16 +70,6 @@
             <div id="subtareasModalError" class="text-xs text-red-500 hidden">Error al cargar subtareas.</div>
           </div>
           <!-- Buscador para convertir tarea existente en subtarea -->
-          <form id="formAgregarSubtareaExistente" class="flex gap-2 mt-2">
-            <input type="text" id="inputBuscarTareaExistente" name="buscar_tarea" placeholder="Buscar tarea para convertir en subtarea..." class="flex-1 border rounded px-2 py-1 text-sm" list="datalistTareasDisponibles" autocomplete="off">
-            <datalist id="datalistTareasDisponibles">
-              {% for t in tareas_disponibles_para_subtarea %}
-                <option value="{{ t.titulo }}" data-id="{{ t.id }}">{{ t.titulo }}{% if t.empresa_nombre %} — {{ t.empresa_nombre }}{% endif %}</option>
-              {% endfor %}
-            </datalist>
-            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Agregar como subtarea</button>
-          </form>
-          <p class="text-xs text-gray-500 mt-1">Busca una tarea existente y conviértela en subtarea de esta.</p>
         </div>
 
         <!-- Sección de comentarios/actualizaciones -->
@@ -154,7 +144,20 @@
           <button type="button" onclick="document.getElementById('modalTarea').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">Cerrar</button>
           <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Guardar cambios</button>
         </div>
-      </form> <!-- Cierra el formVerTarea ANTES de las subtareas -->
+      </form>
+      <!-- Cambia el form de subtarea a un div y maneja el submit por JS -->
+      <div id="formAgregarSubtareaExistente" class="flex gap-2 mt-2">
+        <input type="text" id="inputBuscarTareaExistente" name="buscar_tarea" placeholder="Buscar tarea para convertir en subtarea..." class="flex-1 border rounded px-2 py-1 text-sm" list="datalistTareasDisponibles" autocomplete="off">
+        <datalist id="datalistTareasDisponibles">
+          {% for t in tareas_disponibles_para_subtarea %}
+            <option value="{{ t.titulo }}" data-id="{{ t.id }}">{{ t.titulo }}{% if t.empresa_nombre %} — {{ t.empresa_nombre }}{% endif %}</option>
+          {% endfor %}
+        </datalist>
+        <button id="btnAgregarSubtareaExistente" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Agregar como subtarea</button>
+      </div>
+      <p class="text-xs text-gray-500 mt-1">Busca una tarea existente y conviértela en subtarea de esta.</p>
     </div>
   </div>
 </div>
+
+<!-- El bloque <script> ha sido eliminado para evitar duplicidad de lógica. Toda la lógica está en el archivo JS externo -->

@@ -99,10 +99,10 @@ def vista_gestionar_tareas(nombre_nora):
     }
     try:
         page = int(request.args.get("page", 1))
-        per_page = int(request.args.get("per_page", 15))  # Cambiado a 15 por página
+        per_page = int(request.args.get("per_page", 25))  # Cambiado a 25 por página
     except Exception:
         page = 1
-        per_page = 15
+        per_page = 25
     offset = (page - 1) * per_page
     # --- Consulta eficiente a Supabase ---
     query = supabase.table("tareas").select("*", count="exact").eq("nombre_nora", nombre_nora).eq("activo", True).neq("estatus", "completada")
@@ -236,14 +236,6 @@ def vista_gestionar_tareas(nombre_nora):
     nombre_usuario = session.get("user", {}).get("nombre", "Usuario")
     mensaje_bienvenida = f"Hola {nombre_usuario}, aquí puedes gestionar tus tareas. Asegúrate de mantener tus pendientes actualizados para un mejor seguimiento."
 
-    # --- Obtener reports de Meta para la empresa (si aplica) ---
-    meta_reports = []
-    if q["empresa_id"]:
-        try:
-            meta_reports = supabase.table("meta_ads_reportes").select("*").eq("empresa_id", q["empresa_id"]).order("fecha", desc=True).execute().data or []
-        except Exception as e:
-            print(f"Error al obtener reports de Meta: {e}")
-
     return render_template(
         "panel_cliente_tareas/gestionar.html",
         nombre_nora=nombre_nora,
@@ -263,7 +255,6 @@ def vista_gestionar_tareas(nombre_nora):
         per_page=per_page,
         total_activas=total_registros,
         orden=orden,
-        meta_reports=meta_reports,
         hoy=datetime.now().date(),
     )
 
@@ -296,7 +287,6 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         "estatus",
         "usuario_empresa_id",  # ← Único campo para “Asignado a”
         "empresa_id",
-        # "tarea_padre_id",      # ← Eliminado porque no existe en la tabla
         "descripcion",         # ← Permitir editar descripción
     ]:
         return jsonify({"error": "Campo no permitido"}), 400
@@ -325,14 +315,9 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         if len(valor) > 2000:
             return jsonify({"error": "La descripción es demasiado larga (máx 2000 caracteres)"}), 400
 
-    # Si se cambia tarea_padre_id, permitir None para volver a tarea principal
-    # update_data = {campo: valor, "updated_at": datetime.utcnow().isoformat()}
     update_data = {campo: valor, "updated_at": datetime.utcnow().isoformat()}
-    # if campo == "tarea_padre_id" and (valor is None or valor == ""):
-    #     update_data["tarea_padre_id"] = None
 
     # --- Lógica especial: mover tarea a completadas y marcar como inactiva ---
-    # Si se marca como completada, mover a tabla de tareas completadas y marcar como inactiva
     if campo == "estatus" and valor == "completada":
         # Obtener la tarea actual
         tarea_resp = supabase.table("tareas").select("*").eq("id", tarea_id).limit(1).execute()
@@ -341,19 +326,20 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         tarea = tarea_resp.data[0]
         # Marcar como inactiva
         supabase.table("tareas").update({"activo": False, "estatus": "completada", "updated_at": datetime.utcnow().isoformat()}).eq("id", tarea_id).execute()
-        # Insertar en tabla de tareas completadas (crear si no existe)
+        # Insertar en tabla de tareas_completadas solo los campos válidos
+        campos_validos = [
+            "id", "nombre_nora", "titulo", "prioridad", "fecha_limite", "estatus", "usuario_empresa_id", "empresa_id", "descripcion", "activo", "updated_at", "created_at"
+        ]
+        tarea_insert = {k: tarea.get(k) for k in campos_validos if k in tarea}
+        tarea_insert["id"] = tarea_id
+        tarea_insert["estatus"] = "completada"
+        tarea_insert["activo"] = False
+        tarea_insert["updated_at"] = datetime.utcnow().isoformat()
         try:
-            supabase.table("tareas_completadas").insert({
-                **tarea,
-                "id": tarea_id,
-                "estatus": "completada",
-                "activo": False,
-                "updated_at": datetime.utcnow().isoformat(),
-                # "completada_en": datetime.utcnow().isoformat(),  # Eliminado porque no existe la columna
-            }).execute()
+            supabase.table("tareas_completadas").insert(tarea_insert).execute()
         except Exception as e:
             import traceback
-            # ... puedes agregar logging aquí si quieres ...
+            traceback.print_exc()
             return jsonify({"error": str(e)}), 500
         return jsonify({"ok": True})
 
@@ -412,95 +398,6 @@ def eliminar_tarea(nombre_nora, tarea_id):
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# -------------------------------------------------------------------
-# API: obtener tareas completadas (JSON para lazy-load)
-# -------------------------------------------------------------------
-@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar/completadas_json", methods=["GET"])
-def tareas_completadas_json(nombre_nora):
-    if not session.get("email"):
-        return jsonify({"error": "No autenticado"}), 401
-    if not modulo_activo_para_nora(nombre_nora, "tareas"):
-        return jsonify({"error": "Módulo no activo"}), 403
-
-    # Paginación
-    try:
-        limit = int(request.args.get("limit", 50))
-        offset = int(request.args.get("offset", 0))
-    except Exception:
-        limit = 50
-        offset = 0
-
-    # Obtener tareas completadas, ordenadas por fecha de actualización descendente
-    tareas_resp = supabase.table("tareas").select("*") \
-        .eq("nombre_nora", nombre_nora) \
-        .eq("activo", True) \
-        .eq("estatus", "completada") \
-        .order("updated_at", desc=True) \
-        .range(offset, offset + limit - 1) \
-        .execute()
-    tareas = tareas_resp.data or []
-
-    # Marcar tareas recurrentes
-    tareas_recurrentes_resp = supabase.table("tareas_recurrentes").select("tarea_id").execute()
-    tarea_ids_recurrentes = set(r["tarea_id"] for r in (tareas_recurrentes_resp.data or []))
-    for t in tareas:
-        t["is_recurrente"] = t.get("id") in tarea_ids_recurrentes
-
-    # Agregar nombre de empresa y usuario asignado
-    for t in tareas:
-        t["empresa"] = ""
-        if t.get("empresa_id"):
-            try:
-                emp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", t["empresa_id"]).limit(1).execute()
-                t["empresa"] = emp.data[0]["nombre_empresa"] if emp.data else ""
-            except Exception:
-                t["empresa"] = ""
-        t["asignado_a"] = ""
-        if t.get("usuario_empresa_id"):
-            try:
-                usr = supabase.table("usuarios_clientes").select("nombre").eq("id", t["usuario_empresa_id"]).limit(1).execute()
-                t["asignado_a"] = usr.data[0]["nombre"] if usr.data else ""
-            except Exception:
-                t["asignado_a"] = ""
-        try:
-            fecha = t.get("fecha_limite")
-            t["dias_restantes"] = (date.fromisoformat(fecha) - date.today()).days if fecha else None
-        except Exception:
-            t["dias_restantes"] = None
-
-    # Conteo de comentarios por tarea
-    tarea_ids = [t["id"] for t in tareas]
-    conteos = {}
-    if tarea_ids:
-        comentarios_agregados = (
-            supabase.table("tarea_comentarios")
-            .select("tarea_id", "id", count="exact")
-            .in_("tarea_id", tarea_ids)
-            .execute()
-        )
-        for c in comentarios_agregados.data:
-            tid = c["tarea_id"]
-            conteos[tid] = conteos.get(tid, 0) + 1
-    for t in tareas:
-        t["comentarios_count"] = conteos.get(t["id"], 0)
-
-    tareas_json = [
-        {
-            "id": t["id"],
-            "titulo": t.get("titulo", ""),
-            "prioridad": t.get("prioridad", ""),
-            "dias_restantes": t.get("dias_restantes"),
-            "estatus": t.get("estatus", ""),
-            "asignado_a": t.get("asignado_a", ""),
-            "empresa": t.get("empresa", ""),
-            "comentarios_count": t.get("comentarios_count", 0),
-            "recurrente": t.get("recurrente", False),
-            "is_recurrente": t.get("is_recurrente", False)
-        }
-        for t in tareas
-    ]
-    return jsonify(tareas_json)
 
 # -------------------------------------------------------------------
 # API: obtener subtareas de una tarea principal
@@ -959,3 +856,38 @@ def convertir_en_subtarea(nombre_nora):
         print(f"[convertir_en_subtarea][ERROR] {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+# COPILOT: INICIO CAMBIO - Buscar en la tabla tareas_completadas y limitar a 15 resultados
+@panel_tareas_gestionar_bp.route("/panel_cliente/<nombre_nora>/tareas/gestionar/completadas", methods=["GET"])
+def tareas_completadas(nombre_nora):
+    empresa_id = request.args.get("empresa_id")
+    usuario_empresa_id = request.args.get("usuario_empresa_id")
+    prioridad = request.args.get("prioridad")
+    fecha_ini = request.args.get("fecha_ini")
+    fecha_fin = request.args.get("fecha_fin")
+    busqueda = request.args.get("busqueda")
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 15))
+    offset = (page - 1) * per_page
+
+    query = supabase.table("tareas_completadas").select("*").eq("nombre_nora", nombre_nora)
+    if empresa_id:
+        query = query.eq("empresa_id", empresa_id)
+    if usuario_empresa_id:
+        query = query.eq("usuario_empresa_id", usuario_empresa_id)
+    if prioridad:
+        query = query.eq("prioridad", prioridad)
+    if fecha_ini:
+        query = query.gte("fecha_limite", fecha_ini)
+    if fecha_fin:
+        query = query.lte("fecha_limite", fecha_fin)
+    if busqueda:
+        query = query.ilike("titulo", f"%{busqueda}%")
+    # Obtener total para paginación
+    total_res = query.execute()
+    total = len(total_res.data) if hasattr(total_res, 'data') else 0
+    # Obtener página actual
+    res = query.order("fecha_limite", desc=False).range(offset, offset + per_page - 1).execute()
+    tareas = res.data if hasattr(res, 'data') else []
+    return jsonify({"tareas": tareas, "total": total, "page": page, "per_page": per_page})
+# COPILOT: FIN CAMBIO

@@ -4,80 +4,80 @@
 <!-- Modal VER TAREA (nuevo diseño tipo tailwind, limpio) -->
 <div id="modalVerTarea" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" aria-modal="true" role="dialog">
   <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-0 relative animate-fade-in">
-    <form id="formVerTarea" class="divide-y divide-gray-200">
-      <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl bg-gradient-to-r from-blue-600 to-blue-400">
-        <h2 class="text-xl font-bold text-white">Ver / Editar tarea</h2>
-        <button type="button" onclick="cerrarModalVerTarea()" aria-label="Cerrar" class="text-white hover:text-blue-100 text-2xl leading-none focus:outline-none">&times;</button>
+    <!-- El formulario de ver tarea ha sido removido de este modal para evitar duplicidad de IDs. -->
+    <!-- Todos los campos relacionados con ver tarea han sido renombrados para evitar conflicto de IDs -->
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl bg-gradient-to-r from-blue-600 to-blue-400">
+      <h2 class="text-xl font-bold text-white">Ver / Editar tarea</h2>
+      <button type="button" onclick="cerrarModalVerTarea()" aria-label="Cerrar" class="text-white hover:text-blue-100 text-2xl leading-none focus:outline-none">&times;</button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
+      <input type="hidden" id="nuevaIdTarea" name="id">
+      <div>
+        <label for="nuevaTitulo" class="block text-sm font-semibold text-gray-700 mb-1">Título</label>
+        <input type="text" id="nuevaTitulo" name="titulo"
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
       </div>
 
-      <!-- Body -->
-      <div class="px-6 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
-        <input type="hidden" id="verIdTarea" name="id">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label for="verTitulo" class="block text-sm font-semibold text-gray-700 mb-1">Título</label>
-          <input type="text" id="verTitulo" name="titulo"
+          <label for="nuevaFechaLimite" class="block text-sm font-semibold text-gray-700 mb-1">Fecha límite</label>
+          <input type="date" id="nuevaFechaLimite" name="fecha_limite"
                  class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="verFechaLimite" class="block text-sm font-semibold text-gray-700 mb-1">Fecha límite</label>
-            <input type="date" id="verFechaLimite" name="fecha_limite"
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
-          </div>
-          <div>
-            <label for="verPrioridad" class="block text-sm font-semibold text-gray-700 mb-1">Prioridad</label>
-            <select id="verPrioridad" name="prioridad"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
-              <option value="baja">Baja</option>
-              <option value="media">Media</option>
-              <option value="alta">Alta</option>
-            </select>
-          </div>
-        </div>
-
         <div>
-          <label for="verDescripcion" class="block text-sm font-semibold text-gray-700 mb-1">Descripción</label>
-          <textarea id="verDescripcion" name="descripcion" rows="3"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base"></textarea>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="verEstatus" class="block text-sm font-semibold text-gray-700 mb-1">Estatus</label>
-            <select id="verEstatus" name="estatus"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
-              <option value="pendiente">Pendiente</option>
-              <option value="en progreso">En progreso</option>
-              <option value="retrasada">Retrasada</option>
-              <option value="completada">Completada</option>
-            </select>
-          </div>
-          <!-- ✅ Campo EMPRESA (solo visible como texto o input readonly) -->
-          <div class="col-md-12">
-            <label>Empresa</label>
-            <input type="text" class="form-control" id="verEmpresaTexto" name="empresa_nombre" readonly disabled>
-            <input type="hidden" id="verEmpresa" name="empresa_id">
-          </div>
-          <!-- ✅ Campo ASIGNADO A (solo si tiene permisos) -->
-          <div class="col-md-4">
-            <label>Asignado a</label>
-            <select class="form-select" id="verAsignado" name="usuario_empresa_id">
-              {% for u in usuarios %}
-                <option value="{{ u.id }}" {% if (usuario_empresa_id and u.id == usuario_empresa_id) or (not usuario_empresa_id and u.id == user.id) %}selected{% endif %}>{{ u.nombre }}</option>
-              {% endfor %}
-            </select>
-          </div>
+          <label for="nuevaPrioridad" class="block text-sm font-semibold text-gray-700 mb-1">Prioridad</label>
+          <select id="nuevaPrioridad" name="prioridad"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+          </select>
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 rounded-b-2xl">
-        <button type="button" onclick="cerrarModalVerTarea()" class="text-gray-600 hover:text-blue-600 font-medium px-4 py-2 rounded transition">Cancelar</button>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Guardar cambios</button>
+      <div>
+        <label for="nuevaDescripcion" class="block text-sm font-semibold text-gray-700 mb-1">Descripción</label>
+        <textarea id="nuevaDescripcion" name="descripcion" rows="3"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base"></textarea>
       </div>
-    </form>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="nuevaEstatus" class="block text-sm font-semibold text-gray-700 mb-1">Estatus</label>
+          <select id="nuevaEstatus" name="estatus"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base">
+            <option value="pendiente">Pendiente</option>
+            <option value="en progreso">En progreso</option>
+            <option value="retrasada">Retrasada</option>
+            <option value="completada">Completada</option>
+          </select>
+        </div>
+        <!-- ✅ Campo EMPRESA (solo visible como texto o input readonly) -->
+        <div class="col-md-12">
+          <label>Empresa</label>
+          <input type="text" class="form-control" id="nuevaEmpresaTexto" name="empresa_nombre" readonly disabled>
+          <input type="hidden" id="nuevaEmpresa" name="empresa_id">
+        </div>
+        <!-- ✅ Campo ASIGNADO A (solo si tiene permisos) -->
+        <div class="col-md-4">
+          <label>Asignado a</label>
+          <select class="form-select" id="nuevaAsignado" name="usuario_empresa_id">
+            {% for u in usuarios %}
+              <option value="{{ u.id }}" {% if (usuario_empresa_id and u.id == usuario_empresa_id) or (not usuario_empresa_id and u.id == user.id) %}selected{% endif %}>{{ u.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 rounded-b-2xl">
+      <button type="button" onclick="cerrarModalVerTarea()" class="text-gray-600 hover:text-blue-600 font-medium px-4 py-2 rounded transition">Cancelar</button>
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Guardar cambios</button>
+    </div>
   </div>
 </div>
 <script>
@@ -251,9 +251,7 @@
           cerrarModalTarea();
           // Opcional: recargar lista de tareas o mostrar notificación
           window.location.reload();
-        } else {
-          alert('Error al crear tarea: ' + (res.error || '')); 
-        }
+        } 
       });
     }
   });

@@ -43,7 +43,6 @@ window.handleAutoCompleteInput = function (input, campo) {
     if (opt.value === val) id = opt.getAttribute("data-id");
   });
   if (!id) {
-    alert("Selecciona una opción válida.");
     return;
   }
   window.updateCampo(input, campo, id).then(() => location.reload());
@@ -121,16 +120,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await res.json();
       if (data.ok) {
-        alert("✅ Tarea actualizada");
         document.getElementById("modalTarea").classList.add("hidden");
         location.reload();
       } else {
-        alert("❌ Error al guardar");
         console.warn(data);
       }
     } catch (err) {
       console.error("❌ Error al actualizar la tarea", err);
-      alert("Error de red");
     }
   });
 });

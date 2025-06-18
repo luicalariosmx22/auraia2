@@ -49,10 +49,6 @@
   </div>
   <!-- Botones alineados a la derecha -->
   <div class="flex gap-2 mt-2 sm:mt-0">
-    <a href="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/completadas"
-       class="inline-flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-      <span class="text-lg">✅</span> Completadas
-    </a>
     {% if permisos.es_supervisor or permisos.es_admin or permisos.es_super_admin %}
       <a href="/panel_cliente/{{ nombre_nora }}/tareas/gestionar/recurrentes"
          class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
@@ -270,86 +266,67 @@ document.addEventListener('DOMContentLoaded', function() {
   const error = document.getElementById('completadasError');
   const vacio = document.getElementById('completadasVacias');
   const tablaContainer = document.getElementById('contenedorCompletadasTabla');
-  let loaded = false;
+  const paginacionContainer = document.getElementById('contenedorCompletadasPaginacion');
+  let currentPage = 1;
+  let perPage = 15;
+  let totalPages = 1;
+
+  function cargarCompletadas(page = 1) {
+    loading.classList.remove('hidden');
+    error.classList.add('hidden');
+    vacio.classList.add('hidden');
+    tablaContainer.innerHTML = '';
+    paginacionContainer.innerHTML = '';
+    fetch(`/panel_cliente/{{ nombre_nora }}/tareas/gestionar/completadas?page=${page}&per_page=${perPage}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Network');
+        return response.json();
+      })
+      .then((data) => {
+        loading.classList.add('hidden');
+        if (!data || !data.tareas || data.tareas.length === 0) {
+          vacio.classList.remove('hidden');
+          return;
+        }
+        tablaContainer.innerHTML = renderCompletadasTable(data.tareas);
+        // Render paginación
+        currentPage = data.page || 1;
+        perPage = data.per_page || 15;
+        const total = data.total || 0;
+        totalPages = Math.ceil(total / perPage);
+        paginacionContainer.innerHTML = renderCompletadasPaginacion(currentPage, totalPages);
+        // Listeners paginación
+        paginacionContainer.querySelectorAll('button[data-page]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            cargarCompletadas(parseInt(this.dataset.page));
+          });
+        });
+      })
+      .catch(e => {
+        loading.classList.add('hidden');
+        error.classList.remove('hidden');
+        console.error('Error cargando tareas completadas', e);
+      });
+  }
+
   if (btn) {
     btn.addEventListener('click', function() {
-      if (loaded) return; // Solo cargar una vez
       btn.disabled = true;
-      loading.classList.remove('hidden');
-      error.classList.add('hidden');
-      vacio.classList.add('hidden');
-      fetch(`/panel_cliente/{{ nombre_nora }}/tareas/gestionar/completadas_json`)
-        .then(response => {
-          if (!response.ok) throw new Error('Network');
-          return response.json();
-        })
-        .then((data) => {
-          loading.classList.add('hidden');
-          if (!data || !data.tareas || data.tareas.length === 0) {
-            vacio.classList.remove('hidden');
-            return;
-          }
-          tablaContainer.innerHTML = renderCompletadasTable(data.tareas);
-          loaded = true;
-        })
-        .catch(e => {
-          loading.classList.add('hidden');
-          error.classList.remove('hidden');
-          console.error('Error cargando tareas completadas', e);
-        });
+      cargarCompletadas(1);
     });
   }
 });
 
-function renderCompletadasTable(tareas) {
-  let html = `<table class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
-    <thead class="bg-gray-50">
-      <tr>
-        <th class="w-8"></th>
-        <th class="px-4 py-2 text-left">Título</th>
-        <th class="px-4 py-2 text-left">Prioridad</th>
-        <th class="px-4 py-2 text-left">Días Restantes</th>
-        <th class="px-4 py-2 text-left">Estatus</th>
-        <th class="px-4 py-2 text-left">Asignado a</th>
-        <th class="px-4 py-2 text-left">Empresa</th>
-        <th class="px-4 py-2 text-left">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>`;
-
-  tareas.forEach(tarea => {
-    html += `<tr class="border-t border-gray-200 opacity-70" data-id="${tarea.id}">
-      <td class="text-center"><input type="checkbox" ${tarea.estatus === 'completada' ? 'checked' : ''} disabled></td>
-      <td class="px-4 py-2">
-        ${tarea.titulo}
-        ${tarea.recurrente || tarea.is_recurrente ? '<span title="Tarea recurrente">🔁</span>' : ''}
-        ${tarea.comentarios_count && tarea.comentarios_count > 0 ? '<span title="Tiene comentarios">💬</span>' : ''}
-      </td>
-      <td class="px-4 py-2 capitalize">
-        ${tarea.prioridad === 'alta' ? '🔴' : tarea.prioridad === 'media' ? '🟠' : '🟢'} ${tarea.prioridad}
-      </td>
-      <td class="px-4 py-2">
-        ${
-          tarea.dias_restantes !== null
-            ? tarea.dias_restantes > 0
-              ? `<span class="text-green-700 font-medium">${tarea.dias_restantes} días</span>`
-              : tarea.dias_restantes === 0
-                ? `<span class="text-yellow-600 font-medium">Hoy</span>`
-                : `<span class="text-red-600 font-medium">Hace ${Math.abs(tarea.dias_restantes)} días</span>`
-            : '<span class="text-gray-500">Sin fecha</span>'
-        }
-      </td>
-      <td class="px-4 py-2 capitalize">${tarea.estatus}</td>
-      <td class="px-4 py-2">${tarea.asignado_a || ''}</td>
-      <td class="px-4 py-2">${tarea.empresa || ''}</td>
-      <td class="px-4 py-2">
-        <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2" data-id="${tarea.id}" data-nora="{{ nombre_nora }}">Ver</button>
-        <button data-id="${tarea.id}" class="btn-eliminar-tarea text-red-600 hover:underline text-xs">Eliminar</button>
-      </td>
-    </tr>`;
-  });
-
-  html += '</tbody></table>';
+function renderCompletadasPaginacion(page, totalPages) {
+  let html = '<div class="flex justify-center items-center gap-2 my-4">';
+  if (page > 1) {
+    html += `<button data-page="${page - 1}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-blue-700 transition">Anterior</button>`;
+  }
+  html += `<span class="text-sm text-gray-700">Página ${page} de ${totalPages}</span>`;
+  if (page < totalPages) {
+    html += `<button data-page="${page + 1}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-blue-700 transition">Siguiente</button>`;
+  }
+  html += '</div>';
   return html;
 }
 </script>
@@ -442,4 +419,5 @@ function toggleSubtareas(tareaId) {
   letter-spacing: 0;
 }
 </style>
+
 {% endblock %}
