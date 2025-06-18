@@ -147,6 +147,43 @@ def vista_gestionar_tareas(nombre_nora):
         total_registros = len(tareas_activas)
         total_pages = (total_registros + per_page - 1) // per_page if per_page else 1
 
+    # --- Si el filtro es 'completada', consultar tareas_completadas ---
+    tareas_completadas = []
+    if q["estatus"] == "completada":
+        query = supabase.table("tareas_completadas").select("*", count="exact").eq("nombre_nora", nombre_nora)
+        if q["empresa_id"]:
+            query = query.eq("empresa_id", q["empresa_id"])
+        if q["usuario_empresa_id"]:
+            query = query.eq("usuario_empresa_id", q["usuario_empresa_id"])
+        if q["prioridad"]:
+            query = query.eq("prioridad", q["prioridad"])
+        if q["fecha_ini"]:
+            query = query.gte("fecha_limite", q["fecha_ini"])
+        if q["fecha_fin"]:
+            query = query.lte("fecha_limite", q["fecha_fin"])
+        if q["busqueda"]:
+            query = query.ilike("titulo", f"%{q['busqueda']}%")
+        query = query.order("fecha_limite", desc=False)
+        query = query.range(offset, offset + per_page - 1)
+        res = query.execute()
+        tareas_completadas = res.data or []
+        total_registros = res.count or 0
+        total_pages = (total_registros + per_page - 1) // per_page if per_page else 1
+        tareas_activas = []  # No mostrar activas si está el filtro completada
+        # Normalizar fecha_limite a objeto date
+        for t in tareas_completadas:
+            try:
+                fecha = t.get("fecha_limite")
+                if fecha:
+                    if isinstance(fecha, date):
+                        t["fecha_limite"] = fecha
+                    else:
+                        t["fecha_limite"] = date.fromisoformat(fecha)
+                else:
+                    t["fecha_limite"] = None
+            except Exception:
+                t["fecha_limite"] = None
+
     # --- Marcar recurrentes y enriquecer tareas ---
     tareas_recurrentes_resp = supabase.table("tareas_recurrentes").select("tarea_id").execute()
     tarea_ids_recurrentes = set(r["tarea_id"] for r in (tareas_recurrentes_resp.data or []))
@@ -244,7 +281,7 @@ def vista_gestionar_tareas(nombre_nora):
         usuarios=usuarios,
         mensaje_bienvenida=mensaje_bienvenida,
         tareas_activas=tareas_activas,
-        tareas_completadas=[],  # si quieres, haz paginación igual
+        tareas_completadas=tareas_completadas,
         permisos=permisos,
         empresas=empresas,
         user={"name": session.get("name", "Usuario"), "id": usuario_id},
