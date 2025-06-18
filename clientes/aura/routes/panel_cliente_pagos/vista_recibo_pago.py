@@ -41,6 +41,34 @@ def ver_recibo(nombre_nora, pago_id):
     pago["cliente_nombre"] = cliente["nombre_cliente"] if cliente else "—"
     pago["empresa_nombre"] = empresa["nombre_empresa"] if empresa else "—"
 
+    # Obtener ítems del recibo (servicios/productos)
+    items = supabase.table("pagos_items").select("nombre,cantidad,costo_unit").eq("pago_id", pago_id).execute().data
+    if items:
+        pago["servicios"] = [
+            {
+                "nombre": it["nombre"],
+                "cantidad": it.get("cantidad", 1),
+                "costo_unit": it.get("costo_unit", 0),
+                "subtotal": (it.get("cantidad", 1) or 1) * (it.get("costo_unit", 0) or 0)
+            }
+            for it in items if it.get("nombre")
+        ]
+    else:
+        pago["servicios"] = []
+
+    # --- Normalizar fecha_venc a objeto date ---
+    from datetime import date
+    fecha_venc = pago.get("fecha_venc") or pago.get("fecha_vencimiento")
+    if fecha_venc and not isinstance(fecha_venc, date):
+        try:
+            pago["fecha_venc"] = date.fromisoformat(fecha_venc)
+        except Exception:
+            pago["fecha_venc"] = None
+    elif fecha_venc:
+        pago["fecha_venc"] = fecha_venc
+    else:
+        pago["fecha_venc"] = None
+
     return render_template("panel_cliente_pagos/recibo_detalle.html", pago=pago, nombre_nora=nombre_nora)
 
 @panel_cliente_pagos_recibo_bp.route("/recibo/<pago_id>/pdf")

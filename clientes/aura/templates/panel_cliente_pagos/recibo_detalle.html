@@ -1,8 +1,16 @@
 {% extends "base_cliente.html" %}
 {% block contenido %}
-<div class="max-w-4xl mx-auto px-6 py-10 bg-white shadow rounded-lg">
+<div class="max-w-4xl mx-auto px-6 py-10 bg-white shadow rounded-lg" id="recibo-pdf-contenedor">
   <div class="flex justify-between items-center border-b pb-4 mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">Recibo #{{ pago.id[:8] }}</h1>
+    <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-4">
+      <img src="https://sylqljdiiyhtgtrghwjk.supabase.co/storage/v1/object/public/empresa-logos/empresas/24b827a5-b826-4dda-987a-20b9a1ad8125/logo_a90a4938-f13a-4685-bf09-1fee33f23b1f.jpg" alt="Aura Marketing" class="h-20 w-20 rounded-full border bg-white object-contain">
+      <span>
+        Aura Marketing
+        <span class="block text-base font-normal text-gray-500">RFC: AICR970711QS4 &nbsp; | &nbsp; Hermosillo, Sonora, Mexico &nbsp; | &nbsp; <a href="https://www.agenciaaura.mx" class="underline text-blue-600" target="_blank">www.agenciaaura.mx</a></span>
+        <span class="block text-base font-normal text-gray-500">Tel: 6629360887 &nbsp; | &nbsp; agenciaauramx@gmail.com</span>
+        <span class="block mt-2 text-xl font-bold text-indigo-700">Recibo #{{ pago.id[:8] }}</span>
+      </span>
+    </h1>
     <span class="text-sm px-3 py-1 rounded-full font-medium
       {% if pago.estatus == 'pagado' %}bg-green-100 text-green-800
       {% elif pago.estatus == 'pendiente' %}bg-yellow-100 text-yellow-800
@@ -11,68 +19,131 @@
     </span>
   </div>
   <!-- 🚀 Acciones rápidas -->
-  <div class="flex flex-wrap gap-2 mb-8">
+  <div class="flex flex-wrap gap-2 mb-8 no-print" id="acciones-rapidas">
     <a href="{{ url_for('panel_cliente_pagos.panel_cliente_pagos', nombre_nora=nombre_nora) }}"
        class="bg-gray-100 hover:bg-gray-200 text-blue-700 border border-gray-300 px-3 py-1 rounded text-sm font-medium flex items-center gap-1">
       ← Volver a pagos
     </a>
-
-    <a href="{{ url_for('panel_cliente_pagos_recibo.exportar_pdf', nombre_nora=nombre_nora, pago_id=pago.id) }}"
-       class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-3 py-1 rounded">📄 Descargar PDF</a>
-
+    <button type="button" onclick="exportarReciboPDF()"
+      class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1 rounded font-semibold flex items-center gap-1 shadow-sm">
+      📄 Exportar PDF
+    </button>
     <a href="{{ url_for('panel_cliente_pagos_recibo.enviar_correo', nombre_nora=nombre_nora, pago_id=pago.id) }}"
        class="bg-blue-100 hover:bg-blue-200 text-blue-800 text-sm px-3 py-1 rounded">✉️ Enviar correo</a>
-
     <a href="{{ url_for('panel_cliente_pagos_recibo.enviar_whatsapp', nombre_nora=nombre_nora, pago_id=pago.id) }}"
        class="bg-green-100 hover:bg-green-200 text-green-800 text-sm px-3 py-1 rounded">📲 WhatsApp</a>
-
     <a href="{{ url_for('panel_cliente_pagos_recibo.editar_recibo', nombre_nora=nombre_nora, pago_id=pago.id) }}"
        class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 text-sm px-3 py-1 rounded">✏️ Editar</a>
   </div>
 
-  <div class="mb-6">
-    <h2 class="text-gray-600 text-sm font-semibold">Empresa</h2>
-    <p class="text-lg font-medium text-gray-800">{{ pago.empresa_nombre }}</p>
-    <p class="text-sm text-gray-500 mt-1">ID: {{ pago.empresa_id }}</p>
-  </div>
+  <div id="recibo-pdf">
+    <div class="mb-6">
+      <h2 class="text-gray-600 text-sm font-semibold">Empresa</h2>
+      <p class="text-lg font-medium text-gray-800">{{ pago.empresa_nombre }}</p>
+      <p class="text-sm text-gray-500 mt-1">ID: {{ pago.empresa_id }}</p>
+    </div>
 
-  <div class="mb-6">
-    <h2 class="text-gray-600 text-sm font-semibold">Cliente</h2>
-    <p class="text-base font-medium text-gray-700">{{ pago.cliente_nombre }}</p>
-    <p class="text-sm text-gray-500">ID: {{ pago.cliente_id }}</p>
-  </div>
+    <div class="mb-6">
+      <h2 class="text-gray-600 text-sm font-semibold">Cliente</h2>
+      <p class="text-base font-medium text-gray-700">{{ pago.cliente_nombre }}</p>
+      <p class="text-sm text-gray-500">ID: {{ pago.cliente_id }}</p>
+    </div>
 
-  <div class="mb-6 grid grid-cols-2 gap-4">
-    <div>
-      <h3 class="text-sm text-gray-500 font-semibold">Concepto</h3>
-      <p class="text-gray-800">{{ pago.concepto }}</p>
+    <div class="mb-6 grid grid-cols-2 gap-4">
+      <div>
+        <h3 class="text-sm text-gray-500 font-semibold">Concepto</h3>
+        <p class="text-gray-800">{{ pago.concepto }}</p>
+      </div>
+      <div>
+        <h3 class="text-sm text-gray-500 font-semibold">Forma de pago</h3>
+        <p class="text-gray-800">{{ pago.forma_pago or '—' }}</p>
+      </div>
+      <div></div>
+        <h3 class="text-sm text-gray-500 font-semibold">Fecha de vencimiento</h3>
+        <p class="text-gray-800">
+          {# Calcula días restantes o vencidos #}
+          {% set hoy_dt = hoy if hoy is defined else none %}
+          {% set fecha_venc = pago.fecha_venc %}
+          {% if fecha_venc and hoy_dt %}
+            {% set dias_restantes = (fecha_venc - hoy_dt).days %}
+            {% if dias_restantes > 0 %}
+              en {{ dias_restantes }} días
+            {% elif dias_restantes == 0 %}
+              hoy
+            {% else %}
+              hace {{ dias_restantes|abs }} días
+            {% endif %}
+          {% elif fecha_venc %}
+            {{ fecha_venc }}
+          {% else %}
+            —
+          {% endif %}
+        </p>
+      </div>
+      <div>
+        <h3 class="text-sm text-gray-500 font-semibold">Fecha de pago</h3>
+        <p class="text-gray-800">{{ pago.fecha_pago or '—' }}</p>
+      </div>
     </div>
-    <div>
-      <h3 class="text-sm text-gray-500 font-semibold">Forma de pago</h3>
-      <p class="text-gray-800">{{ pago.forma_pago or '—' }}</p>
-    </div>
-    <div></div>
-      <h3 class="text-sm text-gray-500 font-semibold">Fecha de vencimiento</h3>
-      <p class="text-gray-800">{{ pago.fecha_vencimiento }}</p>
-    </div>
-    <div>
-      <h3 class="text-sm text-gray-500 font-semibold">Fecha de pago</h3>
-      <p class="text-gray-800">{{ pago.fecha_pago or '—' }}</p>
-    </div>
-  </div>
 
-  <div class="mt-8 border-t pt-4">
-    <div class="flex justify-between text-lg font-semibold">
-      <span>Total</span>
-      <span>${{ "%.2f"|format(pago.monto) }}</span>
+    {% if pago.notas or pago.servicios %}
+    <div class="mt-6 text-sm text-gray-600">
+      <h4 class="font-semibold text-gray-700">Notas:</h4>
+      {% if pago.notas %}
+      <p>{{ pago.notas }}</p>
+      {% endif %}
+      {% if pago.servicios %}
+      <div class="mt-2">
+        <h5 class="font-semibold text-gray-700 mb-1">Servicios/Productos incluidos:</h5>
+        <ul class="list-disc list-inside">
+          {% for item in pago.servicios %}
+            <li>
+              <span class="font-semibold">{{ item.nombre }}</span>
+              <span class="text-gray-500">x{{ item.cantidad }}</span>
+              <span class="text-gray-500">@ ${{ '%.2f'|format(item.costo_unit) }}</span>
+              <span class="text-gray-700">= ${{ '%.2f'|format(item.subtotal) }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="mt-10 flex justify-end">
+      <div class="bg-gray-50 rounded-xl px-8 py-4 shadow border text-right">
+        <div class="text-xs text-gray-500 font-semibold mb-1">Total a pagar</div>
+        <div class="text-3xl font-extrabold text-indigo-700">${{ "%.2f"|format(pago.monto) }}</div>
+      </div>
     </div>
   </div>
-
-  {% if pago.notas %}
-  <div class="mt-6 text-sm text-gray-600">
-    <h4 class="font-semibold text-gray-700">Notas:</h4>
-    <p>{{ pago.notas }}</p>
-  </div>
-  {% endif %}
 </div>
+
+<!-- Scripts para exportar PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function exportarReciboPDF() {
+  const acciones = document.getElementById('acciones-rapidas');
+  if (acciones) acciones.style.display = 'none';
+  // Exporta el contenedor principal para conservar el diseño
+  const contenedor = document.getElementById('recibo-pdf-contenedor');
+  if (!contenedor) return;
+  const nombreEmpresa = '{{ pago.empresa_nombre|default("Empresa")|replace(" ", "_") }}';
+  const nombreCliente = '{{ pago.cliente_nombre|default("Cliente")|replace(" ", "_") }}';
+  const fecha = '{{ pago.fecha_pago or pago.fecha_vencimiento or "" }}';
+  const nombreArchivo = `Aura - Recibo ${nombreEmpresa} ${nombreCliente} ${fecha}.pdf`;
+  const opt = {
+    margin:       [0.3, 0.3, 0.3, 0.3], // top, left, bottom, right (inches)
+    filename:     nombreArchivo,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { useCORS: true, scale: 3, backgroundColor: null },
+    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+  html2pdf().set(opt).from(contenedor).save().then(() => {
+    if (acciones) acciones.style.display = '';
+  });
+}
+</script>
 {% endblock %}

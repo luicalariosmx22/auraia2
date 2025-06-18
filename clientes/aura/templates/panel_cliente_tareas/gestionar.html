@@ -84,20 +84,20 @@
 <table id="tablaTareas" class="w-full text-sm border border-gray-300 rounded-lg overflow-hidden mb-10">
   <thead class="bg-gray-100">
     <tr>
-      <th class="w-8"></th> <!-- checkbox -->
-      <th class="px-4 py-2 text-left">Título</th>
-      <th class="px-4 py-2 text-left">Prioridad</th>
-      <th class="px-4 py-2 text-left">Días Restantes</th>
-      <th class="px-4 py-2 text-left">Estatus</th>
-      <th class="px-4 py-2 text-left">Asignado a</th>
-      <th class="px-4 py-2 text-left">Empresa</th>
-      <th class="px-4 py-2 text-left">Acciones</th>
+      <th class="w-8 p-1"></th> <!-- checkbox -->
+      <th class="w-[32%] px-1 py-1 text-left">Título</th>
+      <th class="px-1 py-1 text-left">Prioridad</th>
+      <th class="px-1 py-1 text-left">Días Restantes</th>
+      <th class="px-1 py-1 text-left">Estatus</th>
+      <th class="px-1 py-1 text-left">Asignado a</th>
+      <th class="px-1 py-1 text-left">Empresa</th>
+      <th class="px-1 py-1 text-left">Acciones</th>
     </tr>
   </thead>
   <tbody>
     {% for tarea in tareas_activas %}
     <tr class="border-t border-gray-100 hover:bg-blue-50 transition duration-100" data-id="{{ tarea.id }}">
-      <td class="text-center">
+      <td class="text-center p-1">
         {% if tarea.subtareas and tarea.subtareas|length > 0 %}
         <button type="button" onclick="toggleSubtareas('{{ tarea.id }}')" class="focus:outline-none group">
           <svg id="flecha-{{ tarea.id }}" class="inline w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-transform rotate-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -109,14 +109,14 @@
                {% if tarea.estatus == 'completada' %}checked{% endif %}
                onchange="toggleEstatus(this)">
       </td>
-      <td class="px-4 py-2">
+      <td class="px-1 py-1">
         <input type="text"
-               class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1"
+               class="w-full bg-transparent focus:bg-white border border-transparent focus:border-gray-300 rounded px-1 text-xs titulo-tarea-input"
                value="{{ tarea.titulo }}"
                onblur="updateCampo(this,'titulo')"
                data-id="{{ tarea.id }}">
       </td>
-      <td class="px-4 py-2 text-center">
+      <td class="px-1 py-1 text-center">
         {% if tarea.prioridad == 'alta' %}
           <span title="Prioridad alta" class="text-lg align-middle">🔴</span>
         {% elif tarea.prioridad == 'media' %}
@@ -131,10 +131,23 @@
           <span title="Tiene comentarios/actualizaciones" class="ml-1 align-middle">💬</span>
         {% endif %}
       </td>
-      <td class="px-4 py-2">
-        <input type="date" value="{{ tarea.fecha_limite }}" onchange="updateCampo(this,'fecha_limite')" data-id="{{ tarea.id }}">
+      <td class="px-1 py-1">
+        {# Mostrar días restantes o vencidos #}
+        {% if tarea.fecha_limite %}
+          {% set fecha_limite = tarea.fecha_limite %}
+          {% set dias_restantes = (fecha_limite - hoy).days %}
+          {% if dias_restantes > 0 %}
+            <span class="text-green-700 font-medium">en {{ dias_restantes }} días</span>
+          {% elif dias_restantes == 0 %}
+            <span class="text-yellow-600 font-medium">hoy</span>
+          {% else %}
+            <span class="text-red-600 font-medium">hace {{ dias_restantes|abs }} días</span>
+          {% endif %}
+        {% else %}
+          <span class="text-gray-500">Sin fecha</span>
+        {% endif %}
       </td>
-      <td class="px-4 py-2 capitalize">
+      <td class="px-1 py-1 capitalize">
         <select onchange="updateCampo(this,'estatus')" class="bg-transparent" data-id="{{ tarea.id }}">
           <option value="pendiente"   {% if tarea.estatus=='pendiente' %}selected{% endif %}>⏳ Pendiente</option>
           <option value="en progreso" {% if tarea.estatus=='en progreso' %}selected{% endif %}>🚧 En progreso</option>
@@ -142,7 +155,7 @@
           <option value="completada"  {% if tarea.estatus=='completada' %}selected{% endif %}>✅ Completada</option>
         </select>
       </td>
-      <td class="px-4 py-2">
+      <td class="px-1 py-1">
         <select onchange="updateCampo(this,'usuario_empresa_id')" class="bg-transparent w-full" data-id="{{ tarea.id }}">
           {% for usuario in usuarios %}
             {% if usuario.nombre != 'Luica Larios Admin' %}
@@ -151,14 +164,14 @@
           {% endfor %}
         </select>
       </td>
-      <td class="px-4 py-2">
+      <td class="px-1 py-1">
         <select onchange="updateCampo(this,'empresa_id')" class="bg-transparent w-full" data-id="{{ tarea.id }}">
           {% for empresa in empresas|sort(attribute='nombre_empresa') %}
             <option value="{{ empresa.id }}" {% if empresa.id == tarea.empresa_id %}selected{% endif %}>{{ empresa.nombre_empresa }}</option>
           {% endfor %}
         </select>
       </td>
-      <td class="px-4 py-2">
+      <td class="px-1 py-1">
         <button class="btn-ver-tarea text-blue-600 hover:underline text-xs mr-2"
                 data-id="{{ tarea.id }}"
                 data-nora="{{ nombre_nora }}">
@@ -405,10 +418,12 @@ function toggleSubtareas(tareaId) {
 }
 </script>
 <style>
-/* Reduce al mínimo el espacio entre filas de tareas y subtareas */
+/* Reduce al mínimo el espacio entre filas y columnas de tareas y subtareas */
 #tablaTareas td, #tablaTareas th {
-  padding-top: 0.05rem !important;
-  padding-bottom: 0.05rem !important;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
 }
 #tablaTareas tr {
   margin-bottom: 0 !important;
@@ -416,6 +431,15 @@ function toggleSubtareas(tareaId) {
 #tablaTareas tbody tr {
   line-height: 1 !important;
 }
-</style>
+/* El input del título ocupa más espacio y muestra más caracteres */
+.titulo-tarea-input {
+  font-size: 0.85rem;
+  font-weight: normal;
+  min-width: 180px;
+  max-width: 100%;
+  padding-left: 0.15rem;
+  padding-right: 0.15rem;
+  letter-spacing: 0;
+}
 </style>
 {% endblock %}

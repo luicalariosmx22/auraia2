@@ -3,6 +3,7 @@ from datetime import date
 import uuid
 import logging
 import os
+import threading
 
 from flask import (
     Blueprint,
@@ -20,6 +21,8 @@ from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.generar_codigo_tarea import generar_codigo_tarea
 from clientes.aura.utils.permisos import obtener_permisos
 from clientes.aura.utils.permisos_tareas import puede_crear_para_otros, es_supervisor, obtener_rol_tareas
+from clientes.aura.utils.whatsapp_utils import enviar_mensaje_whatsapp
+from clientes.aura.utils.email_utils import enviar_correo
 
 panel_tareas_gestionar_bp = Blueprint("panel_tareas_gestionar_bp", __name__)
 
@@ -163,10 +166,20 @@ def vista_gestionar_tareas(nombre_nora):
                 t["asignado_nombre"] = usr.data[0]["nombre"] if usr.data else ""
             except Exception:
                 t["asignado_nombre"] = ""
+        # --- Normalizar fecha_limite a objeto date ---
         try:
             fecha = t.get("fecha_limite")
-            t["dias_restantes"] = (date.fromisoformat(fecha) - date.today()).days if fecha else None
+            if fecha:
+                if isinstance(fecha, date):
+                    t["fecha_limite"] = fecha
+                else:
+                    t["fecha_limite"] = date.fromisoformat(fecha)
+                t["dias_restantes"] = (t["fecha_limite"] - date.today()).days
+            else:
+                t["fecha_limite"] = None
+                t["dias_restantes"] = None
         except Exception:
+            t["fecha_limite"] = None
             t["dias_restantes"] = None
 
     # --- Conteo de comentarios por tarea para distintivo 💬 ---
@@ -251,6 +264,7 @@ def vista_gestionar_tareas(nombre_nora):
         total_activas=total_registros,
         orden=orden,
         meta_reports=meta_reports,
+        hoy=datetime.now().date(),
     )
 
 # -------------------------------------------------------------------
@@ -339,6 +353,15 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
             }).execute()
         except Exception as e:
             import traceback
+            # ... puedes agregar logging aquí si quieres ...
+            return jsonify({"error": str(e)}), 500
+        return jsonify({"ok": True})
+
+    # --- Agregado: siempre retornar respuesta válida ---
+    try:
+        supabase.table("tareas").update(update_data).eq("id", tarea_id).execute()
+        return jsonify({"ok": True})
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 # -------------------------------------------------------------------
@@ -813,6 +836,73 @@ def crear_tarea(nombre_nora):
         if not result.data:
             print(f"[crear_tarea][TAREA][ERROR] Insert vacío: {result}")
             return jsonify({"error": "No se insertó la tarea (respuesta vacía de Supabase)", "supabase_result": str(result)}), 500
+        # --- Notificar al usuario asignado (si aplica) ---
+        if usuario_empresa_id:
+            usuario = supabase.table("usuarios_clientes").select("nombre, telefono, correo").eq("id", usuario_empresa_id).limit(1).execute().data
+            if usuario:
+                nombre_usuario = usuario[0].get("nombre")
+                telefono = usuario[0].get("telefono")
+                correo = usuario[0].get("correo")
+                mensaje = f"👋 Hola {nombre_usuario}, se te ha asignado una nueva tarea: '{titulo}'. Ingresa a tu panel para más detalles."
+                if telefono:
+                    enviar_mensaje_whatsapp(telefono, mensaje)
+                if correo:
+                    asunto = "Nueva tarea asignada"
+                    # --- Obtener información adicional de la tarea para el correo ---
+                    asignador = session.get("user", {}).get("nombre", "Administrador")
+                    descripcion = nueva.get("descripcion", "")
+                    fecha_limite = nueva.get("fecha_limite") or "Sin fecha límite"
+                    prioridad = nueva.get("prioridad", "media").capitalize()
+                    empresa_nombre = ""
+                    if nueva.get("empresa_id"):
+                        try:
+                            emp = supabase.table("cliente_empresas").select("nombre_empresa").eq("id", nueva["empresa_id"]).limit(1).execute()
+                            empresa_nombre = emp.data[0]["nombre_empresa"] if emp.data else ""
+                        except Exception:
+                            empresa_nombre = ""
+                    cuerpo_html = f"""
+<p style="font-size:1.1em;">Hola <b>{nombre_usuario}</b>,</p>
+<p>Se te ha asignado una nueva tarea con la siguiente información:</p>
+<table style="border-collapse:collapse;font-size:1em;">
+    <tr>
+        <td style="padding:6px 12px;font-weight:bold;background:#f5f5f5;">Título</td>
+        <td style="padding:6px 12px;">{titulo}</td>
+    </tr>
+    <tr>
+        <td style="padding:6px 12px;font-weight:bold;background:#f5f5f5;">Asignada por</td>
+        <td style="padding:6px 12px;">{asignador}</td>
+    </tr>
+    <tr>
+        <td style="padding:6px 12px;font-weight:bold;background:#f5f5f5;">Descripción</td>
+        <td style="padding:6px 12px;">{descripcion}</td>
+    </tr>
+    <tr>
+        <td style="padding:6px 12px;font-weight:bold;background:#f5f5f5;">Fecha límite</td>
+        <td style="padding:6px 12px;">{fecha_limite}</td>
+    </tr>
+    <tr>
+        <td style="padding:6px 12px;font-weight:bold;background:#f5f5f5;">Prioridad</td>
+        <td style="padding:6px 12px;">{prioridad}</td>
+    </tr>
+    <tr>
+        <td style="padding:6px 12px;font-weight:bold;background:#f5f5f5;">Empresa</td>
+        <td style="padding:6px 12px;">{empresa_nombre}</td>
+    </tr>
+    <tr>
+        <td style="padding:6px 12px;font-weight:bold;background:#f5f5f5;">Código de tarea</td>
+        <td style="padding:6px 12px;">{nueva.get("codigo_tarea", "")}</td>
+    </tr>
+</table>
+<p style="margin-top:18px;">
+    <a href="https://panel.soynoraai.com" style="background:#4f8cff;color:#fff;padding:10px 18px;text-decoration:none;border-radius:5px;font-weight:bold;">Ir al panel</a>
+</p>
+<p style="color:#888;font-size:0.95em;">Este es un mensaje automático de Nora AI.</p>
+"""
+                    threading.Thread(
+                        target=enviar_correo,
+                        args=(correo, asunto, cuerpo_html),
+                        daemon=True
+                    ).start()
         return jsonify({"ok": True, "tarea": nueva}), 200
     except Exception as e:
         print("❌ Error insertando tarea:", e)
