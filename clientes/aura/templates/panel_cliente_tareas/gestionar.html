@@ -128,8 +128,8 @@
           {% endif %}
         </td>
         <td class="px-1 py-1 capitalize">✅ Completada</td>
-        <td class="px-1 py-1">{{ tarea.asignado_a or tarea.asignado_nombre or '' }}</td>
-        <td class="px-1 py-1">{{ tarea.empresa_nombre or '' }}</td>
+        <td class="px-1 py-1">{{ tarea.asignado_nombre or tarea.asignado_a or '-' }}</td>
+        <td class="px-1 py-1">{{ tarea.empresa_nombre or '-' }}</td>
         <td class="px-1 py-1 text-xs text-gray-400">-</td>
       </tr>
       {% endfor %}

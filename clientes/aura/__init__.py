@@ -106,6 +106,14 @@ def create_app(config_class=Config):
         template_folder='templates',
         static_folder='static'
     )
+    import logging
+    app.logger.setLevel(logging.DEBUG)  # Fuerza nivel de log global
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
+
     load_dotenv()
 
     # --- INICIO DE CAMBIOS PARA DEPURACIÓN ---

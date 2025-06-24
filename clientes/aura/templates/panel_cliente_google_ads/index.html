@@ -1,0 +1,69 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_google_ads/index.html -->
+<!-- 👉 Vista principal del módulo Google Ads con branding tipo tarjetas -->
+
+{% extends "base_cliente.html" %}
+{% block contenido %}
+
+<h1 class="text-3xl font-bold text-nora-primary text-center mb-10">¿Qué quieres hacer con Google Ads?</h1>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+  
+  <!-- Campañas -->
+  <div class="bg-white rounded-lg shadow p-6 border-t-4 border-blue-500">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-blue-600">Campañas</h2>
+      <span>📣</span>
+    </div>
+    <p class="text-gray-600 mb-4">
+      Crea, administra y consulta campañas activas en Google Ads.
+    </p>
+    <a href="#" class="inline-block bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700">
+      Ir a Campañas
+    </a>
+  </div>
+
+  <!-- Reportes -->
+  <div class="bg-white rounded-lg shadow p-6 border-t-4 border-green-500">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-green-600">Reportes</h2>
+      <span>📄</span>
+    </div>
+    <p class="text-gray-600 mb-4">
+      Consulta el histórico de reportes automáticos y resultados de tus campañas.
+    </p>
+    <a href="#" class="inline-block bg-green-600 text-white text-sm px-4 py-2 rounded hover:bg-green-700">
+      Ir a Reportes
+    </a>
+  </div>
+
+  <!-- Google Ads Lab -->
+  <div class="bg-white rounded-lg shadow p-6 border-t-4 border-yellow-400">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-yellow-600">Google Ads Lab</h2>
+      <span>🧪</span>
+    </div>
+    <p class="text-gray-600 mb-4">
+      Explora y prueba endpoints de la API de Google Ads en modo laboratorio.
+    </p>
+    <a href="#" class="inline-block bg-yellow-500 text-white text-sm px-4 py-2 rounded hover:bg-yellow-600">
+      Ir al Ads Lab
+    </a>
+  </div>
+
+  <!-- Cuentas Publicitarias -->
+  <div class="bg-white rounded-lg shadow p-6 border-t-4 border-indigo-500">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-indigo-600">Cuentas Publicitarias</h2>
+      <span>🧾</span>
+    </div>
+    <p class="text-gray-600 mb-4">
+      Consulta y administra todas tus cuentas de Google Ads activas.
+    </p>
+    <a href="{{ url_for('panel_cliente_google_ads.ver_cuentas_google_ads', nombre_nora=nombre_nora) }}" class="inline-block bg-indigo-600 text-white text-sm px-4 py-2 rounded hover:bg-indigo-700">
+      Ver cuentas
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

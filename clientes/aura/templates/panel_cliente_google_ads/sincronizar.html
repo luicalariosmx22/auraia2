@@ -1,0 +1,30 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_google_ads/sincronizar.html -->
+<!-- 👉 Frontend para la sincronización de cuentas publicitarias de Google Ads -->
+
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<h1 class="text-2xl font-bold text-nora-primary mb-4">Sincronizar cuentas de Google Ads</h1>
+<p class="mb-6 text-gray-700">Conecta y sincroniza tus cuentas publicitarias de Google Ads para gestionar campañas y reportes desde Nora.</p>
+
+<div class="bg-white rounded shadow p-6 max-w-xl mx-auto">
+    <h2 class="text-lg font-bold mb-4">Cuentas Google Ads asociadas</h2>
+    {% if cuentas %}
+    <ul class="mb-6 list-disc ml-6">
+      {% for cuenta in cuentas %}
+        <li class="font-mono">{{ cuenta }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <div class="mb-6 text-gray-500">No se encontraron cuentas asociadas al token.</div>
+    {% endif %}
+    <div class="flex flex-wrap gap-3 mt-4">
+      <a href="{{ url_for('panel_cliente_google_ads.ver_cuentas_google_ads', nombre_nora=nombre_nora) }}" class="bg-nora-primary text-white px-4 py-2 rounded">Gestionar/excluir cuentas</a>
+      <form method="post" style="display:inline;">
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">🔄 Sincronizar ahora</button>
+      </form>
+      {% if config['MODO_DEV'] or config['MODO_DEV'] == True or config['MODO_DEV'] == 'true' %}
+      <a href="{{ url_for('panel_cliente_google_ads.autorizar_google_ads', nombre_nora=nombre_nora) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Obtener refresh_token (DEV)</a>
+      {% endif %}
+    </div>
+</div>
+{% endblock %}

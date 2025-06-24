@@ -223,6 +223,7 @@
   <div class="page-break mb-12">
     <h3 class="text-lg font-semibold text-indigo-800 mb-3">Top 3 Anuncios por Mensajes</h3>
     {% set top_anuncios = anuncios | sort(attribute='mensajes', reverse=True) %}
+    {% set top_anuncios = top_anuncios[:3] %}
     <div class="overflow-x-auto border rounded-xl shadow avoid-break">
       <table class="min-w-full text-sm text-gray-700 avoid-break">
         <thead class="bg-indigo-50">
@@ -237,7 +238,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for anuncio in top_anuncios[:3] %}
+          {% for anuncio in top_anuncios %}
           <tr class="border-b hover:bg-indigo-50">
             <td class="px-4 py-2 font-mono text-indigo-700">{{ (anuncio.nombre_anuncio or anuncio.ad_id or 'Sin nombre')[:50] }}</td>
             <td class="px-4 py-2">

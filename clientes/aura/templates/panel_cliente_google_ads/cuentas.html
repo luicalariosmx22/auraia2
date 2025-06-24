@@ -1,0 +1,42 @@
+<!-- Vista: panel_cliente_google_ads/cuentas.html -->
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<h1 class="text-2xl font-bold text-nora-primary mb-4">Cuentas Google Ads asociadas al token</h1>
+{% if mensaje %}
+  <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ mensaje }}</div>
+{% endif %}
+<form method="post">
+  <div class="mb-6">
+    <p class="mb-2 text-gray-700">Total de cuentas encontradas: <b>{{ cuentas|length }}</b></p>
+    <table class="min-w-full bg-white rounded shadow">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="px-4 py-2 text-left">Resource Name</th>
+          <th class="px-4 py-2 text-left">Excluir</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cuenta in cuentas %}
+        <tr class="border-b">
+          <td class="px-4 py-2 font-mono">{{ cuenta }}</td>
+          <td class="px-4 py-2">
+            <input type="checkbox" name="excluir" value="{{ cuenta }}" {% if cuenta in cuentas_excluidas %}checked{% endif %}>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <button type="submit" class="bg-nora-primary text-white px-4 py-2 rounded">Actualizar exclusiones</button>
+</form>
+<div class="mt-8">
+  <h2 class="text-lg font-bold mb-2">Cuentas operativas</h2>
+  <ul class="list-disc ml-6">
+    {% for cuenta in cuentas_mostradas %}
+      <li class="font-mono">{{ cuenta }}</li>
+    {% else %}
+      <li class="text-gray-400">No hay cuentas operativas seleccionadas.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

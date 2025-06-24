@@ -260,9 +260,25 @@ def vista_gestionar_tareas(nombre_nora):
             else:
                 s["asignado_nombre"] = ""
 
+    # Calcular tareas_completadas según los filtros activos
+    tareas_completadas_query = supabase.table("tareas_completadas").select("id", count="exact").eq("nombre_nora", nombre_nora)
+    if q["empresa_id"]:
+        tareas_completadas_query = tareas_completadas_query.eq("empresa_id", q["empresa_id"])
+    if q["usuario_empresa_id"]:
+        tareas_completadas_query = tareas_completadas_query.eq("usuario_empresa_id", q["usuario_empresa_id"])
+    if q["prioridad"]:
+        tareas_completadas_query = tareas_completadas_query.eq("prioridad", q["prioridad"])
+    if q["fecha_ini"]:
+        tareas_completadas_query = tareas_completadas_query.gte("fecha_limite", q["fecha_ini"])
+    if q["fecha_fin"]:
+        tareas_completadas_query = tareas_completadas_query.lte("fecha_limite", q["fecha_fin"])
+    if q["busqueda"]:
+        tareas_completadas_query = tareas_completadas_query.ilike("titulo", f"%{q['busqueda']}%")
+    tareas_completadas_count = tareas_completadas_query.execute().count or 0
+
     resumen = {
         "tareas_activas": total_activas,
-        "tareas_completadas": 0,  # Si necesitas, haz otra consulta paginada para completadas
+        "tareas_completadas": tareas_completadas_count,
         "tareas_vencidas": len([t for t in tareas_activas if (t.get("dias_restantes") or 0) < 0]),
         "porcentaje_cumplimiento": 0
     }
@@ -373,10 +389,16 @@ def actualizar_campo_tarea(nombre_nora, tarea_id):
         tarea_insert["activo"] = False
         tarea_insert["updated_at"] = datetime.utcnow().isoformat()
         try:
-            supabase.table("tareas_completadas").insert(tarea_insert).execute()
+            result = supabase.table("tareas_completadas").insert(tarea_insert).execute()
+            print("[DEBUG] Resultado insert tareas_completadas:", result)
+            if hasattr(result, 'error') and result.error:
+                print("[ERROR] Supabase insert error:", result.error)
+            if hasattr(result, 'data'):
+                print("[DEBUG] Datos insertados:", result.data)
         except Exception as e:
             import traceback
             traceback.print_exc()
+            print("[ERROR] Datos enviados:", tarea_insert)
             return jsonify({"error": str(e)}), 500
         return jsonify({"ok": True})
 
@@ -500,7 +522,7 @@ def actualizar_campo_subtarea(nombre_nora, subtarea_id):
         subtarea = res.data[0]
         # Marcar como inactiva
         supabase.table("subtareas").update({"activo": False, "updated_at": datetime.utcnow().isoformat()}).eq("id", subtarea_id).execute()
-        # Insertar en tabla de subtareas completadas (crear si no existe)
+        # Insertar en tabla de subtareas_completadas (crear si no existe)
         try:
             supabase.table("subtareas_completadas").insert({
                 **subtarea,
