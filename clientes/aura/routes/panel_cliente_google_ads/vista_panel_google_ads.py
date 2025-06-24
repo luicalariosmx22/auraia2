@@ -55,7 +55,8 @@ def sincronizar_google_ads():
         mensaje=mensaje
     )
 
-@panel_cliente_google_ads_bp.route("/autorizar/<nombre_nora>", methods=["GET"], strict_slashes=False)
+# Cambia la ruta para que acepte el parámetro nombre_nora en la URL
+@panel_cliente_google_ads_bp.route("/panel_cliente/<nombre_nora>/google_ads/autorizar", methods=["GET"], strict_slashes=False)
 def autorizar_google_ads(nombre_nora):
     import google_auth_oauthlib
     print("[DEBUG] google-auth-oauthlib version:", google_auth_oauthlib.__version__)
