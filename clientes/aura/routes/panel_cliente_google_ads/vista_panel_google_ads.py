@@ -81,7 +81,12 @@ def autorizar_google_ads(nombre_nora):
                 "token_uri": "https://oauth2.googleapis.com/token"
             }
         },
-        scopes=["https://www.googleapis.com/auth/adwords"],
+        scopes=[
+            "https://www.googleapis.com/auth/adwords",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "openid"
+        ],
         redirect_uri=redirect_uri
     )
 
@@ -125,7 +130,12 @@ def google_ads_oauth_callback(nombre_nora):
                 "token_uri": "https://oauth2.googleapis.com/token"
             }
         },
-        scopes=["https://www.googleapis.com/auth/adwords"],
+        scopes=[
+            "https://www.googleapis.com/auth/adwords",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "openid"
+        ],
         state=state,
         redirect_uri=redirect_uri
     )
