@@ -224,6 +224,9 @@ def create_app(config_class=Config):
     # --- Registrar Blueprints de reportes y campañas Meta Ads ---
     safe_register_blueprint(app, reportes_meta_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/meta_ads")
     safe_register_blueprint(app, campanas_meta_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/meta_ads/campanas")
+    # Registrar blueprint de Google Ads panel cliente (OAuth, etc.)
+    from clientes.aura.routes.panel_cliente_google_ads.panel_cliente_google_ads import panel_cliente_google_ads_bp
+    safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/google_ads")
 
     # --- Rutas de Nivel de Aplicación ---
     print("Definiendo rutas de nivel de aplicación...")
