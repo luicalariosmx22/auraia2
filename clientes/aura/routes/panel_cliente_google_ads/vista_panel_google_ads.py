@@ -55,14 +55,17 @@ def sincronizar_google_ads():
         mensaje=mensaje
     )
 
-# Cambia la ruta para que acepte el parámetro nombre_nora en la URL
-@panel_cliente_google_ads_bp.route("/panel_cliente/<nombre_nora>/google_ads/autorizar", methods=["GET"], strict_slashes=False)
-def autorizar_google_ads(nombre_nora):
-    import google_auth_oauthlib
-    print("[DEBUG] google-auth-oauthlib version:", google_auth_oauthlib.__version__)
+# Cambia la ruta para que acepte el parámetro nombre_nora en la URL relativa al blueprint
+@panel_cliente_google_ads_bp.route("/autorizar", methods=["GET"], strict_slashes=False)
+def autorizar_google_ads():
+    nombre_nora = request.view_args.get("nombre_nora") or request.args.get("nombre_nora") or session.get("nombre_nora")
+    # Debug version print can be removed after Railway deploy
+    # import google_auth_oauthlib
+    # print("[DEBUG] google-auth-oauthlib version:", google_auth_oauthlib.__version__)
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    redirect_uri = "https://app.soynoraai.com/panel_cliente/aura/google_ads/oauth_callback"
+    # Dynamic redirect_uri with nombre_nora
+    redirect_uri = url_for('panel_cliente_google_ads.google_ads_oauth_callback', nombre_nora=nombre_nora, _external=True)
 
     if not client_id or not client_secret:
         return "❌ Faltan CLIENT_ID o CLIENT_SECRET en .env.local", 500
@@ -95,10 +98,11 @@ def autorizar_google_ads(nombre_nora):
 def google_ads_oauth_callback():
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    redirect_uri = "https://app.soynoraai.com/panel_cliente/aura/google_ads/oauth_callback"
+    nombre_nora = session.get("nombre_nora")
+    # Dynamic redirect_uri with nombre_nora
+    redirect_uri = url_for('panel_cliente_google_ads.google_ads_oauth_callback', nombre_nora=nombre_nora, _external=True)
 
     state = session.get("google_ads_state")
-    nombre_nora = session.get("nombre_nora")
     if not state:
         return "❌ Estado inválido. Inicia el flujo de autorización desde /autorizar", 400
 
@@ -119,10 +123,11 @@ def google_ads_oauth_callback():
     flow.fetch_token(authorization_response=request.url)
     refresh_token = flow.credentials.refresh_token
 
+    # Use url_for for the return link
     return f"""
     <h2>✅ Refresh Token generado con éxito</h2>
     <p>Agrega esto a tu archivo <code>.env.local</code>:</p>
     <pre>GOOGLE_REFRESH_TOKEN={refresh_token}</pre>
     <p><strong>Luego reinicia tu servidor en Railway.</strong></p>
-    <p>Volver a <a href='/panel_cliente/{nombre_nora}/google_ads/autorizar'>autorizar Google Ads</a></p>
+    <p>Volver a <a href='{url_for('panel_cliente_google_ads.autorizar_google_ads', nombre_nora=nombre_nora)}'>autorizar Google Ads</a></p>
     """
