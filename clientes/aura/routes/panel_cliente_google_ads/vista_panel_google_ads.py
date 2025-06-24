@@ -57,11 +57,15 @@ def sincronizar_google_ads():
 
 # --- FLUJO OAUTH GOOGLE ADS ---
 # Esta ruta inicia el flujo OAuth. El redirect_uri es dinámico y depende de nombre_nora.
-@panel_cliente_google_ads_bp.route("/autorizar", methods=["GET"], strict_slashes=False)
+@panel_cliente_google_ads_bp.route("/autorizar", methods=["GET", "POST"], strict_slashes=False)
 def autorizar_google_ads():
     nombre_nora = request.view_args.get("nombre_nora")
     if not nombre_nora:
         return "❌ Error: nombre_nora no especificado en la URL.", 400
+    # Si es GET, muestra el template de autorización
+    if request.method == "GET":
+        return render_template("panel_cliente_google_ads/autorizar.html", nombre_nora=nombre_nora)
+    # Si es POST, inicia el flujo OAuth
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
     redirect_uri = url_for('panel_cliente_google_ads.google_ads_oauth_callback', nombre_nora=nombre_nora, _external=True)

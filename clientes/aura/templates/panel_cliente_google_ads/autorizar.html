@@ -9,11 +9,13 @@
     Para sincronizar tus cuentas publicitarias, necesitamos que autorices a Nora a acceder a tu cuenta de Google Ads mediante OAuth.
   </p>
 
-  <a href="{{ url_for('panel_cliente_google_ads.autorizar_google_ads', nombre_nora=nombre_nora) }}"
-     class="inline-flex items-center px-5 py-3 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded shadow-sm transition">
-    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5 mr-2">
-    Continuar con Google
-  </a>
+  <form method="post">
+    <button type="submit"
+      class="inline-flex items-center px-5 py-3 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded shadow-sm transition">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5 mr-2">
+      Continuar con Google
+    </button>
+  </form>
 
   <p class="text-sm text-gray-500 mt-4">
     Esta acción solo se requiere una vez por cuenta.
