@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import logging
 from .listar_cuentas import listar_cuentas_publicitarias
 from flask import redirect, session, url_for
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_oauthlib.flow import InstalledAppFlow, Flow
 
 # No redefinas blueprint aquí, solo usa el del archivo contenedor
 from clientes.aura.routes.panel_cliente_google_ads.panel_cliente_google_ads import panel_cliente_google_ads_bp
@@ -55,21 +55,19 @@ def sincronizar_google_ads():
         mensaje=mensaje
     )
 
-@panel_cliente_google_ads_bp.route("/autorizar", strict_slashes=False)
+@panel_cliente_google_ads_bp.route("/autorizar", methods=["GET"], strict_slashes=False)
 def autorizar_google_ads():
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-
-    # Solo permitir en modo desarrollo
-    if os.getenv("MODO_DEV", "False").lower() != "true":
-        return "❌ Esta ruta solo está permitida en modo desarrollo (MODO_DEV=True)", 403
+    # Cambia <TU_DOMINIO> por tu dominio real
+    redirect_uri = f"https://<TU_DOMINIO>.up.railway.app/panel_cliente/aura/google_ads/oauth_callback"
 
     if not client_id or not client_secret:
         return "❌ Faltan CLIENT_ID o CLIENT_SECRET en .env.local", 500
 
-    flow = InstalledAppFlow.from_client_config(
+    flow = Flow.from_client_config(
         {
-            "installed": {
+            "web": {
                 "client_id": client_id,
                 "client_secret": client_secret,
                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -77,16 +75,44 @@ def autorizar_google_ads():
             }
         },
         scopes=["https://www.googleapis.com/auth/adwords"],
+        redirect_uri=redirect_uri
     )
 
-    creds = flow.run_local_server(port=8080, prompt="consent")
+    auth_url, _ = flow.authorization_url(prompt="consent", access_type="offline", include_granted_scopes="true")
+    session["google_ads_state"] = flow.state
 
-    refresh_token = creds.refresh_token
-    print("✅ REFRESH TOKEN:", refresh_token)
+    return redirect(auth_url)
+
+@panel_cliente_google_ads_bp.route("/oauth_callback", methods=["GET"], strict_slashes=False)
+def google_ads_oauth_callback():
+    client_id = os.getenv("GOOGLE_CLIENT_ID")
+    client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+    redirect_uri = f"https://<TU_DOMINIO>.up.railway.app/panel_cliente/aura/google_ads/oauth_callback"
+
+    state = session.get("google_ads_state")
+    if not state:
+        return "❌ Estado inválido. Inicia el flujo de autorización desde /autorizar", 400
+
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token"
+            }
+        },
+        scopes=["https://www.googleapis.com/auth/adwords"],
+        state=state,
+        redirect_uri=redirect_uri
+    )
+
+    flow.fetch_token(authorization_response=request.url)
+    refresh_token = flow.credentials.refresh_token
 
     return f"""
     <h2>✅ Refresh Token generado con éxito</h2>
-    <p>Copia y pega el siguiente valor en tu archivo <code>.env.local</code>:</p>
-    <pre style=\"background:#f4f4f4;padding:1em;border-radius:5px;\">GOOGLE_REFRESH_TOKEN={refresh_token}</pre>
-    <p><strong>Luego reinicia tu servidor para que se aplique correctamente.</strong></p>
+    <p>Agrega esto a tu archivo <code>.env.local</code>:</p>
+    <pre>GOOGLE_REFRESH_TOKEN={refresh_token}</pre>
+    <p><strong>Luego reinicia tu servidor en Railway.</strong></p>
     """
