@@ -155,9 +155,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
 
             # Si tienes un blueprint para Google Ads, registra aquí:
             print("🧠 Verificando si 'google_ads' está en modulos:", modulos)
-            if "google_ads" in modulos:
-                safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/google_ads")
-                print(f"✅ Blueprint 'panel_cliente_google_ads' registrado para {nombre_nora}")
+            # if "google_ads" in modulos:
+            #     safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/google_ads")
+            #     print(f"✅ Blueprint 'panel_cliente_google_ads' registrado para {nombre_nora}")
 
             if "contactos" in modulos:
                 safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
