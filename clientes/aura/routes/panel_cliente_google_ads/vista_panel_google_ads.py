@@ -60,6 +60,8 @@ def sincronizar_google_ads():
 @panel_cliente_google_ads_bp.route("/autorizar", methods=["GET"], strict_slashes=False)
 def autorizar_google_ads():
     nombre_nora = request.view_args.get("nombre_nora") or request.args.get("nombre_nora") or session.get("nombre_nora")
+    if not nombre_nora:
+        return "❌ Error: nombre_nora no especificado en la URL.", 400
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
     # redirect_uri dinámico para soportar múltiples usuarios

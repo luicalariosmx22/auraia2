@@ -136,6 +136,16 @@ def create_app(config_class=Config):
 
     print("🚀 Aplicación Flask creada y configuración inicial cargada por la factory.")
 
+    # --- Agrega esto en tu create_app o donde creas la app Flask principal ---
+    # Esto fuerza a Flask a respetar el protocolo https cuando está detrás de un proxy (como Railway)
+    try:
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+        app.config['PREFERRED_URL_SCHEME'] = 'https'
+        print("ProxyFix y PREFERRED_URL_SCHEME configurados para https.")
+    except Exception as e:
+        print(f"[WARN] No se pudo aplicar ProxyFix: {e}")
+
     # Inicializar extensiones
     Session(app)  # Activa correctamente Flask-Session with SESSION_TYPE = filesystem
     socketio.init_app(app)
