@@ -81,13 +81,14 @@ def autorizar_google_ads():
         redirect_uri=redirect_uri
     )
 
-    auth_url, _ = flow.authorization_url(
+    # CORREGIDO: guardar el state retornado por authorization_url
+    auth_url, state = flow.authorization_url(
         prompt="consent",
         access_type="offline",
         include_granted_scopes="true"
     )
 
-    session["google_ads_state"] = flow.state
+    session["google_ads_state"] = state
     session["nombre_nora"] = nombre_nora
 
     return redirect(auth_url)
