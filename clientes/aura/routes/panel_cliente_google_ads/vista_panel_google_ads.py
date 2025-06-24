@@ -99,13 +99,22 @@ def autorizar_google_ads(nombre_nora):
 # Callback de Google: aquí se recibe el refresh_token y se muestra al usuario
 @panel_cliente_google_ads_bp.route("/oauth_callback", methods=["GET"], strict_slashes=False)
 def google_ads_oauth_callback(nombre_nora):
+    import logging
+    from google_auth_oauthlib.flow import Flow
+
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    redirect_uri = url_for('panel_cliente_google_ads.google_ads_oauth_callback', nombre_nora=nombre_nora, _external=True)
+
+    redirect_uri = url_for("panel_cliente_google_ads.google_ads_oauth_callback", nombre_nora=nombre_nora, _external=True)
+
+    # Logs de entrada
+    logging.debug("🌀 Callback recibido desde Google OAuth")
+    logging.debug("👉 request.args: %s", dict(request.args))
+    logging.debug("👉 session: %s", dict(session))
 
     state = session.get("google_ads_state")
     if not state:
-        return "❌ Estado inválido. Inicia el flujo de autorización desde /autorizar", 400
+        return "❌ Estado inválido. Falta google_ads_state en la sesión", 400
 
     flow = Flow.from_client_config(
         {
@@ -121,14 +130,17 @@ def google_ads_oauth_callback(nombre_nora):
         redirect_uri=redirect_uri
     )
 
-    flow.fetch_token(authorization_response=request.url)
-    refresh_token = flow.credentials.refresh_token
+    try:
+        flow.fetch_token(authorization_response=request.url)
+        refresh_token = flow.credentials.refresh_token
+        logging.info(f"✅ Refresh token generado para {nombre_nora}: {refresh_token}")
+    except Exception as e:
+        logging.exception("❌ Error al intercambiar código por token")
+        return f"<h3>Error al completar el proceso de autorización</h3><pre>{str(e)}</pre>", 500
 
-    # Mostrar el refresh_token y un link para volver a autorizar
     return f"""
-    <h2>✅ Refresh Token generado con éxito</h2>
-    <p>Agrega esto a tu archivo <code>.env.local</code>:</p>
+    <h2>✅ Token generado con éxito para <code>{nombre_nora}</code></h2>
+    <p>Agrega esta línea en tu archivo <code>.env.local</code>:</p>
     <pre>GOOGLE_REFRESH_TOKEN={refresh_token}</pre>
-    <p><strong>Luego reinicia tu servidor en Railway.</strong></p>
-    <p>Volver a <a href='{url_for('panel_cliente_google_ads.autorizar_google_ads', nombre_nora=nombre_nora)}'>autorizar Google Ads</a></p>
+    <p><strong>No olvides reiniciar Railway para que lo tome.</strong></p>
     """
