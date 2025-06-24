@@ -1,13 +1,13 @@
-from flask import render_template, request, redirect, url_for, flash
+# ✅ Archivo: clientes/aura/routes/panel_cliente_google_ads/vista_panel_google_ads.py
+# 👉 Vistas para autorizar Google Ads con OAuth, soportando múltiples usuarios (nombre_nora)
+
+from flask import render_template, request, redirect, url_for, flash, session
 from clientes.aura.utils.permisos import obtener_permisos
 import os
 from dotenv import load_dotenv
 import logging
 from .listar_cuentas import listar_cuentas_publicitarias
-from flask import redirect, session, url_for
-from google_auth_oauthlib.flow import InstalledAppFlow, Flow
-
-# No redefinas blueprint aquí, solo usa el del archivo contenedor
+from google_auth_oauthlib.flow import Flow
 from clientes.aura.routes.panel_cliente_google_ads.panel_cliente_google_ads import panel_cliente_google_ads_bp
 
 # Cargar variables de entorno desde .env.local si existe
@@ -55,16 +55,14 @@ def sincronizar_google_ads():
         mensaje=mensaje
     )
 
-# Cambia la ruta para que acepte el parámetro nombre_nora en la URL relativa al blueprint
+# --- FLUJO OAUTH GOOGLE ADS ---
+# Esta ruta inicia el flujo OAuth. El redirect_uri es dinámico y depende de nombre_nora.
 @panel_cliente_google_ads_bp.route("/autorizar", methods=["GET"], strict_slashes=False)
 def autorizar_google_ads():
     nombre_nora = request.view_args.get("nombre_nora") or request.args.get("nombre_nora") or session.get("nombre_nora")
-    # Debug version print can be removed after Railway deploy
-    # import google_auth_oauthlib
-    # print("[DEBUG] google-auth-oauthlib version:", google_auth_oauthlib.__version__)
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    # Dynamic redirect_uri with nombre_nora
+    # redirect_uri dinámico para soportar múltiples usuarios
     redirect_uri = url_for('panel_cliente_google_ads.google_ads_oauth_callback', nombre_nora=nombre_nora, _external=True)
 
     if not client_id or not client_secret:
@@ -94,12 +92,12 @@ def autorizar_google_ads():
 
     return redirect(auth_url)
 
+# Callback de Google: aquí se recibe el refresh_token y se muestra al usuario
 @panel_cliente_google_ads_bp.route("/oauth_callback", methods=["GET"], strict_slashes=False)
 def google_ads_oauth_callback():
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
     nombre_nora = session.get("nombre_nora")
-    # Dynamic redirect_uri with nombre_nora
     redirect_uri = url_for('panel_cliente_google_ads.google_ads_oauth_callback', nombre_nora=nombre_nora, _external=True)
 
     state = session.get("google_ads_state")
@@ -123,7 +121,7 @@ def google_ads_oauth_callback():
     flow.fetch_token(authorization_response=request.url)
     refresh_token = flow.credentials.refresh_token
 
-    # Use url_for for the return link
+    # Mostrar el refresh_token y un link para volver a autorizar
     return f"""
     <h2>✅ Refresh Token generado con éxito</h2>
     <p>Agrega esto a tu archivo <code>.env.local</code>:</p>
