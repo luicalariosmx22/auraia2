@@ -58,13 +58,11 @@ def sincronizar_google_ads():
 # --- FLUJO OAUTH GOOGLE ADS ---
 # Esta ruta inicia el flujo OAuth. El redirect_uri es dinámico y depende de nombre_nora.
 @panel_cliente_google_ads_bp.route("/autorizar", methods=["GET"], strict_slashes=False)
-def autorizar_google_ads():
-    nombre_nora = request.view_args.get("nombre_nora") or request.args.get("nombre_nora") or session.get("nombre_nora")
+def autorizar_google_ads(nombre_nora):
     if not nombre_nora:
         return "❌ Error: nombre_nora no especificado en la URL.", 400
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    # redirect_uri dinámico para soportar múltiples usuarios
     redirect_uri = url_for('panel_cliente_google_ads.google_ads_oauth_callback', nombre_nora=nombre_nora, _external=True)
 
     if not client_id or not client_secret:
@@ -83,7 +81,6 @@ def autorizar_google_ads():
         redirect_uri=redirect_uri
     )
 
-    # CORREGIDO: guardar el state retornado por authorization_url
     auth_url, state = flow.authorization_url(
         prompt="consent",
         access_type="offline",
@@ -97,10 +94,9 @@ def autorizar_google_ads():
 
 # Callback de Google: aquí se recibe el refresh_token y se muestra al usuario
 @panel_cliente_google_ads_bp.route("/oauth_callback", methods=["GET"], strict_slashes=False)
-def google_ads_oauth_callback():
+def google_ads_oauth_callback(nombre_nora):
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    nombre_nora = session.get("nombre_nora")
     redirect_uri = url_for('panel_cliente_google_ads.google_ads_oauth_callback', nombre_nora=nombre_nora, _external=True)
 
     state = session.get("google_ads_state")
