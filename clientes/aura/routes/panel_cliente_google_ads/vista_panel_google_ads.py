@@ -55,12 +55,13 @@ def sincronizar_google_ads():
         mensaje=mensaje
     )
 
-@panel_cliente_google_ads_bp.route("/autorizar", methods=["GET"], strict_slashes=False)
-def autorizar_google_ads():
+@panel_cliente_google_ads_bp.route("/autorizar/<nombre_nora>", methods=["GET"], strict_slashes=False)
+def autorizar_google_ads(nombre_nora):
+    import google_auth_oauthlib
+    print("[DEBUG] google-auth-oauthlib version:", google_auth_oauthlib.__version__)
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    # Cambia <TU_DOMINIO> por tu dominio real
-    redirect_uri = f"https://<TU_DOMINIO>.up.railway.app/panel_cliente/aura/google_ads/oauth_callback"
+    redirect_uri = "https://app.soynoraai.com/panel_cliente/aura/google_ads/oauth_callback"
 
     if not client_id or not client_secret:
         return "❌ Faltan CLIENT_ID o CLIENT_SECRET en .env.local", 500
@@ -84,8 +85,8 @@ def autorizar_google_ads():
         include_granted_scopes="true"
     )
 
-    # ✅ Solo aquí está disponible el .state
     session["google_ads_state"] = flow.state
+    session["nombre_nora"] = nombre_nora
 
     return redirect(auth_url)
 
@@ -93,9 +94,10 @@ def autorizar_google_ads():
 def google_ads_oauth_callback():
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    redirect_uri = f"https://<TU_DOMINIO>.up.railway.app/panel_cliente/aura/google_ads/oauth_callback"
+    redirect_uri = "https://app.soynoraai.com/panel_cliente/aura/google_ads/oauth_callback"
 
     state = session.get("google_ads_state")
+    nombre_nora = session.get("nombre_nora")
     if not state:
         return "❌ Estado inválido. Inicia el flujo de autorización desde /autorizar", 400
 
@@ -121,4 +123,5 @@ def google_ads_oauth_callback():
     <p>Agrega esto a tu archivo <code>.env.local</code>:</p>
     <pre>GOOGLE_REFRESH_TOKEN={refresh_token}</pre>
     <p><strong>Luego reinicia tu servidor en Railway.</strong></p>
+    <p>Volver a <a href='/panel_cliente/{nombre_nora}/google_ads/autorizar'>autorizar Google Ads</a></p>
     """
