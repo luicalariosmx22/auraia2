@@ -11,24 +11,24 @@ from clientes.aura.utils.supabase_client import supabase
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def obtener_configuracion_nora(numero_nora: str) -> Tuple[str, str, str, str]:
+def obtener_configuracion_nora(nombre_nora: str) -> Tuple[str, str, str, str]:
     """
     Obtiene la configuración completa desde la base de datos para un número específico.
     Retorna personalidad, instrucciones, modo_respuesta y mensaje_fuera_tema.
     """
     try:
-        print(f"🔍 Buscando configuración para Nora: {numero_nora}")
+        print(f"🔍 Buscando configuración para Nora: {nombre_nora}")
         resultado = (
             supabase
             .table("configuracion_bot")
             .select("personalidad, instrucciones, modo_respuesta, mensaje_fuera_tema")
-            .eq("nombre_nora", numero_nora)
+            .eq("nombre_nora", nombre_nora)
             .limit(1)
             .execute()
         )
         if resultado.data:
             datos = resultado.data[0]
-            print(f"✅ Configuración encontrada para {numero_nora}")
+            print(f"✅ Configuración encontrada para {nombre_nora}")
             personalidad = datos.get("personalidad", "profesional y amigable").strip()
             instrucciones = datos.get("instrucciones", "Responde de forma clara y útil.").strip()
             modo_respuesta = datos.get("modo_respuesta", "flexible")
@@ -36,7 +36,7 @@ def obtener_configuracion_nora(numero_nora: str) -> Tuple[str, str, str, str]:
                 "Lo siento, no tengo información sobre ese tema. Te conectaré con un humano para ayudarte mejor.")
             return personalidad, instrucciones, modo_respuesta, mensaje_fuera_tema
         else:
-            print(f"⚠️ No se encontró configuración para {numero_nora}, usando valores por defecto")
+            print(f"⚠️ No se encontró configuración para {nombre_nora}, usando valores por defecto")
         return "profesional y amigable", "Responde de forma clara y útil.", "flexible", \
                "Lo siento, no tengo información sobre ese tema. Te conectaré con un humano para ayudarte mejor."
     except Exception as e:
@@ -101,25 +101,25 @@ def construir_contexto(base_conocimiento: List[dict], historial: List[dict]) -> 
 
 def manejar_respuesta_ai(
     mensaje_usuario: str,
-    numero_nora: Optional[str] = None,
+    nombre_nora: Optional[str] = None,
     historial: Optional[List[dict]] = None,
     prompt: Optional[str] = None,
     base_conocimiento: Optional[List[dict]] = None
 ) -> Tuple[str, List[dict]]:
     try:
-        if numero_nora is None:
+        if nombre_nora is None:
             resultado = supabase.table("configuracion_bot").select("nombre_nora").limit(1).execute()
-            numero_nora = resultado.data[0].get("nombre_nora", "aura") if resultado.data else "aura"
+            nombre_nora = resultado.data[0].get("nombre_nora", "aura") if resultado.data else "aura"
 
         if base_conocimiento is None:
-            base_conocimiento = obtener_base_conocimiento(numero_nora)
+            base_conocimiento = obtener_base_conocimiento(nombre_nora)
             print(f"🔍 Base de conocimiento obtenida: {len(base_conocimiento)} bloques.")
 
         if historial is None:
             historial = []
 
         # Obtener configuración completa de Nora
-        personalidad, instrucciones, modo_respuesta, mensaje_fuera_tema = obtener_configuracion_nora(numero_nora)
+        personalidad, instrucciones, modo_respuesta, mensaje_fuera_tema = obtener_configuracion_nora(nombre_nora)
         print(f"⚙️ Configuración Nora - Modo: {modo_respuesta}")
 
         # Verificar relevancia si está en modo estricto

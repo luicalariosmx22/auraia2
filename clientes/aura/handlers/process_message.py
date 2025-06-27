@@ -216,7 +216,7 @@ def procesar_mensaje(data):
     # Generar respuesta desde IA
     respuesta, historial = manejar_respuesta_ai(
         mensaje_usuario=mensaje_usuario,
-        numero_nora=numero_nora
+        nombre_nora=nombre_nora  # ✅ Ahora usa nombre_nora correctamente
     )
 
     if not respuesta:
