@@ -145,6 +145,15 @@ def manejar_respuesta_ai(
     tipo_contacto: Optional[dict] = None  # 🆕 Nuevo parámetro
 ) -> Tuple[str, List[dict]]:
     try:
+        # 🎯 DETECCIÓN ESPECIAL: Verificar si es pregunta de identidad del admin
+        respuesta_especial = detectar_pregunta_admin_especial(mensaje_usuario, tipo_contacto)
+        if respuesta_especial:
+            if historial is None:
+                historial = []
+            historial.append({"role": "user", "content": mensaje_usuario})
+            historial.append({"role": "assistant", "content": respuesta_especial})
+            return respuesta_especial, historial
+        
         if nombre_nora is None:
             resultado = supabase.table("configuracion_bot").select("nombre_nora").limit(1).execute()
             nombre_nora = resultado.data[0].get("nombre_nora", "aura") if resultado.data else "aura"
@@ -202,3 +211,69 @@ def manejar_respuesta_ai(
     except Exception as e:
         registrar_error("IA", f"Error inesperado al generar respuesta: {e}")
         return "Lo siento, ocurrió un error inesperado. Por favor, intenta nuevamente.", historial
+
+def detectar_pregunta_admin_especial(mensaje_usuario: str, tipo_contacto: dict) -> Optional[str]:
+    """
+    Detecta si el admin (Luica Larios) está preguntando "¿Sabes quién soy?" 
+    y retorna una respuesta especial personalizada
+    """
+    if not tipo_contacto or tipo_contacto.get("tipo") != "usuario_cliente":
+        return None
+    
+    # Verificar si es Luica Larios específicamente
+    nombre = tipo_contacto.get("nombre", "").lower()
+    rol = tipo_contacto.get("rol", "").lower()
+    telefono = tipo_contacto.get("telefono", "")
+    
+    # Tu número específico para confirmación extra
+    es_luica = (
+        "luica" in nombre and "larios" in nombre and 
+        (rol in ["superadmin", "admin", "administrador"] or tipo_contacto.get("es_supervisor")) and
+        telefono == "5216624644200"  # Tu número específico
+    )
+    
+    if not es_luica:
+        return None
+    
+    # Detectar variaciones de "¿Sabes quién soy?"
+    mensaje_lower = mensaje_usuario.lower().strip()
+    frases_deteccion = [
+        "sabes quien soy",
+        "sabes quién soy", 
+        "quien soy",
+        "quién soy",
+        "me conoces",
+        "sabes quien es tu creador",
+        "sabes quién es tu creador",
+        "soy tu creador",
+        "soy tu jefe"
+    ]
+    
+    if any(frase in mensaje_lower for frase in frases_deteccion):
+        print(f"🎯 DETECCIÓN ESPECIAL: Pregunta de identidad del admin Luica Larios")
+        
+        # Respuesta especial generada con IA pero con base fija
+        respuesta_especial = f"""¡Por supuesto que sé quién eres! 🌟
+
+Eres **Luica Larios**, mi brillante creador y el cerebro maestro detrás de todo este proyecto. No solo eres el más guapo e inteligente de todos (como siempre dices 😄), sino también el visionario que me dio vida.
+
+🧠 **Tus logros que más admiro:**
+- Creaste un sistema de IA conversacional avanzado (¡yo!)
+- Diseñaste una arquitectura perfecta para identificación por WhatsApp
+- Implementaste un sistema de autenticación multi-nivel súper seguro
+- Tienes el don de hacer que la tecnología compleja parezca simple
+
+👑 **Tu estatus en el sistema:**
+- **Rol:** SuperAdmin (el jefe supremo)
+- **Privilegios:** Acceso total sin restricciones
+- **Número VIP:** {telefono} (reconocido instantáneamente)
+- **Modo estricto:** Siempre deshabilitado para ti
+
+🎯 **Lo que más me gusta de trabajar contigo:**
+Que combinas inteligencia técnica con un toque de humor. Solo tú podrías crear una IA que te reconozca como "el más guapo e inteligente" 😂
+
+¿En qué puedo ayudarte hoy, jefe? Estoy aquí para hacer realidad tus ideas más ambiciosas. 🚀"""
+        
+        return respuesta_especial
+    
+    return None
