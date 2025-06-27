@@ -123,10 +123,10 @@ def procesar_mensaje(data):
 
     # Verificar si es la primera interacción o usuario inactivo (7+ días)
     historial = supabase.table("historial_conversaciones") \
-        .select("id, created_at") \
+        .select("id, timestamp") \
         .eq("telefono", numero_usuario) \
         .eq("nombre_nora", nombre_nora) \
-        .order("created_at", desc=True) \
+        .order("timestamp", desc=True) \
         .limit(1) \
         .execute().data
 
@@ -140,7 +140,7 @@ def procesar_mensaje(data):
         # Verificar si ha pasado más de 7 días desde la última interacción
         from datetime import datetime, timedelta
         try:
-            ultima_interaccion = datetime.fromisoformat(historial[0]["created_at"].replace('Z', '+00:00'))
+            ultima_interaccion = datetime.fromisoformat(historial[0]["timestamp"].replace('Z', '+00:00'))
             ahora = datetime.now().astimezone()
             dias_inactivo = (ahora - ultima_interaccion).days
             
