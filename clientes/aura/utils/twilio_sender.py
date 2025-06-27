@@ -32,11 +32,13 @@ def normalizar_numero(numero):
 
 def registrar_envio(numero, mensaje, sid, tipo="enviado"):
     try:
+        # Usar las columnas correctas de la tabla historial_conversaciones
         supabase.table("historial_conversaciones").insert({
             "telefono": numero,
             "mensaje": mensaje,
             "tipo": tipo,
-            "sid": sid
+            "emisor": numero,  # Usar emisor en lugar de sid
+            # "sid": sid  # Esta columna no existe en la tabla
         }).execute()
     except Exception as e:
         print("❌ Error registrando historial:", e)

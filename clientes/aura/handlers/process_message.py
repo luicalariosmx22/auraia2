@@ -88,6 +88,103 @@ def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_per
     except Exception as e:
         print(f"❌ Error actualizando/creando contacto: {e}")
 
+def identificar_tipo_contacto(numero_usuario, nombre_nora):
+    """
+    Identifica si el número pertenece a 'clientes' o 'usuarios_clientes'
+    """
+    try:
+        # Normalizar el número para búsquedas consistentes
+        numero_normalizado = normalizar_numero(numero_usuario)
+        ultimos_10 = numero_normalizado[-10:] if len(numero_normalizado) >= 10 else numero_normalizado
+        
+        print(f"🔍 Buscando contacto: {numero_normalizado} (últimos 10: {ultimos_10})")
+        
+        # Buscar en tabla clientes (búsqueda exacta primero)
+        response_clientes = supabase.table("clientes") \
+            .select("id, nombre_cliente, email, telefono") \
+            .eq("telefono", numero_normalizado) \
+            .eq("nombre_nora", nombre_nora) \
+            .execute()
+        
+        # Si no encuentra exacto, buscar por últimos 10 dígitos
+        if not response_clientes.data:
+            response_clientes = supabase.table("clientes") \
+                .select("id, nombre_cliente, email, telefono") \
+                .like("telefono", f"%{ultimos_10}") \
+                .eq("nombre_nora", nombre_nora) \
+                .execute()
+        
+        if response_clientes.data:
+            cliente = response_clientes.data[0]
+            print(f"🏢 Contacto identificado como CLIENTE: {cliente.get('nombre_cliente', 'Sin nombre')}")
+            
+            # Obtener empresas asociadas al cliente
+            empresas_data = supabase.table("cliente_empresas") \
+                .select("*") \
+                .eq("nombre_nora", nombre_nora) \
+                .eq("cliente_id", cliente["id"]) \
+                .execute()
+                
+            empresas = empresas_data.data if empresas_data.data else []
+            print(f"🏭 Cliente tiene {len(empresas)} empresa(s) asociada(s)")
+            
+            return {
+                "tipo": "cliente",
+                "id": cliente["id"],
+                "nombre": cliente.get("nombre_cliente", "Cliente"),
+                "email": cliente.get("email", ""),
+                "telefono": cliente.get("telefono", numero_normalizado),
+                "empresas": empresas  # 🆕 Información de empresas
+            }
+        
+        # Si no está en clientes, buscar en usuarios_clientes (búsqueda exacta primero)
+        response_usuarios = supabase.table("usuarios_clientes") \
+            .select("id, nombre, telefono") \
+            .eq("telefono", numero_normalizado) \
+            .eq("nombre_nora", nombre_nora) \
+            .execute()
+        
+        # Si no encuentra exacto, buscar por últimos 10 dígitos
+        if not response_usuarios.data:
+            response_usuarios = supabase.table("usuarios_clientes") \
+                .select("id, nombre, telefono") \
+                .like("telefono", f"%{ultimos_10}") \
+                .eq("nombre_nora", nombre_nora) \
+                .execute()
+        
+        if response_usuarios.data:
+            usuario = response_usuarios.data[0]
+            print(f"👤 Contacto identificado como USUARIO: {usuario.get('nombre', 'Sin nombre')}")
+            return {
+                "tipo": "usuario_cliente",
+                "id": usuario["id"],
+                "nombre": usuario.get("nombre", "Usuario"),
+                "email": "",  # No existe columna email en usuarios_clientes
+                "telefono": usuario.get("telefono", numero_normalizado)
+            }
+        
+        # No encontrado en ninguna tabla
+        print(f"❓ Contacto NO identificado en BD: {numero_normalizado}")
+        return {
+            "tipo": "desconocido",
+            "id": None,
+            "nombre": "Visitante",
+            "email": "",
+            "telefono": numero_normalizado
+        }
+        
+    except Exception as e:
+        print(f"❌ Error identificando tipo de contacto: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            "tipo": "error",
+            "id": None,
+            "nombre": "Usuario",
+            "email": "",
+            "telefono": numero_usuario
+        }
+
 def procesar_mensaje(data):
     """
     Procesa el mensaje recibido, limpia el texto, normaliza el número, obtiene historial y llama a la IA.
@@ -121,6 +218,10 @@ def procesar_mensaje(data):
     # Obtener configuración completa de Nora para mensajes de bienvenida
     config = obtener_config_nora(nombre_nora)
 
+    # 🔍 Identificar tipo de contacto (cliente/usuario_cliente/desconocido)
+    tipo_contacto = identificar_tipo_contacto(numero_usuario, nombre_nora)
+    print(f"📊 Tipo de contacto identificado: {tipo_contacto}")
+
     # Verificar si es la primera interacción o usuario inactivo (7+ días)
     historial = supabase.table("historial_conversaciones") \
         .select("id, timestamp") \
@@ -140,8 +241,21 @@ def procesar_mensaje(data):
         # Verificar si ha pasado más de 7 días desde la última interacción
         from datetime import datetime, timedelta
         try:
-            ultima_interaccion = datetime.fromisoformat(historial[0]["timestamp"].replace('Z', '+00:00'))
-            ahora = datetime.now().astimezone()
+            # Manejar diferentes formatos de timestamp
+            timestamp_str = historial[0]["timestamp"]
+            if isinstance(timestamp_str, str):
+                # Remover 'Z' o '+00:00' si existe y parsear
+                timestamp_str = timestamp_str.replace('Z', '').replace('+00:00', '')
+                if '.' in timestamp_str:
+                    # Con microsegundos
+                    ultima_interaccion = datetime.fromisoformat(timestamp_str)
+                else:
+                    # Sin microsegundos
+                    ultima_interaccion = datetime.fromisoformat(timestamp_str)
+            else:
+                ultima_interaccion = timestamp_str
+            
+            ahora = datetime.now()
             dias_inactivo = (ahora - ultima_interaccion).days
             
             if dias_inactivo >= 7:
@@ -149,6 +263,9 @@ def procesar_mensaje(data):
                 print(f"🔄 Usuario inactivo por {dias_inactivo} días - enviando bienvenida")
         except Exception as e:
             print(f"❌ Error calculando días de inactividad: {e}")
+            print(f"🔍 Timestamp recibido: {historial[0]['timestamp']}")
+            # En caso de error, no enviar bienvenida
+            debe_enviar_bienvenida = False
 
     if debe_enviar_bienvenida:
         mensaje_bienvenida = config.get("bienvenida", "").strip()
@@ -188,7 +305,6 @@ def procesar_mensaje(data):
         etiquetas_res = supabase.table("etiquetas_nora") \
             .select("etiqueta") \
             .eq("nombre_nora", nombre_nora) \
-            .eq("activo", True) \
             .execute()
 
         etiquetas = [et["etiqueta"] for et in etiquetas_res.data] if etiquetas_res.data else []
@@ -216,7 +332,8 @@ def procesar_mensaje(data):
     # Generar respuesta desde IA
     respuesta, historial = manejar_respuesta_ai(
         mensaje_usuario=mensaje_usuario,
-        nombre_nora=nombre_nora  # ✅ Ahora usa nombre_nora correctamente
+        nombre_nora=nombre_nora,  # ✅ Ahora usa nombre_nora correctamente
+        tipo_contacto=tipo_contacto  # 🆕 Información del tipo de contacto
     )
 
     if not respuesta:
@@ -238,14 +355,14 @@ def procesar_mensaje(data):
     # 🧠 Detectar si el último bloque fue un MENÚ y responder sin IA
     try:
         historial_menus = supabase.table("historial_conversaciones") \
-            .select("mensaje, origen, tipo") \
+            .select("mensaje, emisor, tipo") \
             .eq("telefono", numero_usuario) \
             .eq("nombre_nora", nombre_nora) \
             .order("timestamp", desc=True) \
             .limit(5) \
             .execute().data
 
-        ultimo_menu = next((h for h in historial_menus if h["origen"] == numero_nora and h["tipo"] == "respuesta" and "¿" in h["mensaje"]), None)
+        ultimo_menu = next((h for h in historial_menus if h["emisor"] == numero_nora and h["tipo"] == "respuesta" and "¿" in h["mensaje"]), None)
 
         if ultimo_menu:
             print("🧭 Último mensaje fue un MENÚ. Intentando interpretar respuesta del usuario...")

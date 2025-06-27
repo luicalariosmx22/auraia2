@@ -153,13 +153,76 @@ def test_verificar_bd():
         print(f"❌ Error verificando BD: {e}")
         return False
 
+def test_identificacion_tipo_contacto():
+    """Test adicional: Verificar identificación de tipo de contacto"""
+    print("\n" + "=" * 60)
+    print("🧪 TEST ADICIONAL: Identificación de Tipo de Contacto")
+    print("=" * 60)
+    
+    try:
+        from clientes.aura.handlers.process_message import identificar_tipo_contacto
+        
+        # Test con número de ejemplo
+        numero_test = "5215512345678"
+        nombre_nora = "aura"
+        
+        tipo_contacto = identificar_tipo_contacto(numero_test, nombre_nora)
+        
+        print(f"📱 Número de prueba: {numero_test}")
+        print(f"📊 Resultado de identificación:")
+        print(f"   🏷️ Tipo: {tipo_contacto['tipo']}")
+        print(f"   👤 Nombre: {tipo_contacto['nombre']}")
+        print(f"   📧 Email: {tipo_contacto['email']}")
+        print(f"   🆔 ID: {tipo_contacto['id']}")
+        
+        return True
+    except Exception as e:
+        print(f"❌ Error en identificación de tipo de contacto: {e}")
+        return False
+
+def test_identificacion_contacto():
+    """Test 6: Verificar identificación de tipo de contacto"""
+    print("\n" + "=" * 60)
+    print("🧪 TEST 6: Identificación de Tipo de Contacto")
+    print("=" * 60)
+    
+    try:
+        from clientes.aura.handlers.process_message import identificar_tipo_contacto
+        
+        nombre_nora = "aura"
+        numero_test = "5215512345678"
+        
+        print(f"🔍 Identificando tipo de contacto para: {numero_test}")
+        resultado = identificar_tipo_contacto(numero_test, nombre_nora)
+        
+        print(f"✅ Resultado de identificación:")
+        print(f"   📋 Tipo: {resultado.get('tipo', 'No definido')}")
+        print(f"   👤 Nombre: {resultado.get('nombre', 'Sin nombre')}")
+        print(f"   📧 Email: {resultado.get('email', 'Sin email')}")
+        print(f"   📞 Teléfono: {resultado.get('telefono', 'Sin teléfono')}")
+        print(f"   🆔 ID: {resultado.get('id', 'Sin ID')}")
+        
+        # Verificar que el resultado tenga la estructura esperada
+        if 'tipo' in resultado and resultado['tipo'] in ['cliente', 'usuario_cliente', 'desconocido', 'error']:
+            print("✅ Estructura de respuesta válida")
+            return True
+        else:
+            print("❌ Estructura de respuesta inválida")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error en identificación de contacto: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
 def ejecutar_todos_los_tests():
     """Ejecutar todos los tests en secuencia"""
     print("🚀 INICIANDO TESTS DE NORA - WhatsApp Response")
     print("=" * 80)
     
     tests_pasados = 0
-    total_tests = 5
+    total_tests = 6
     
     # Test 1: Configuración
     if test_configuracion_nora():
@@ -178,7 +241,11 @@ def ejecutar_todos_los_tests():
     if exito_ia:
         tests_pasados += 1
     
-    # Test 5: Proceso completo
+    # Test 5: Identificación de contacto
+    if test_identificacion_contacto():
+        tests_pasados += 1
+    
+    # Test 6: Proceso completo
     if test_proceso_completo():
         tests_pasados += 1
     
@@ -190,6 +257,7 @@ def ejecutar_todos_los_tests():
     
     if tests_pasados == total_tests:
         print("🎉 ¡TODOS LOS TESTS PASARON! Nora debería responder correctamente en WhatsApp.")
+        print("🔍 Ahora también identifica el tipo de contacto (cliente/usuario_cliente/desconocido).")
     else:
         print(f"⚠️ {total_tests - tests_pasados} tests fallaron. Revisa los errores arriba.")
     

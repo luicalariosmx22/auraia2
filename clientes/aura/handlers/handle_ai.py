@@ -45,8 +45,37 @@ def obtener_configuracion_nora(nombre_nora: str) -> Tuple[str, str, str, str]:
         return "profesional y amigable", "Responde de forma clara y útil.", "flexible", \
                "Lo siento, no tengo información sobre ese tema. Te conectaré con un humano para ayudarte mejor."
 
-def construir_prompt(personalidad: str, instrucciones: str, modo_respuesta: str = "flexible") -> str:
+def construir_prompt(personalidad: str, instrucciones: str, modo_respuesta: str = "flexible", tipo_contacto: dict = None) -> str:
     prompt_base = f"{personalidad}\n\n{instrucciones}"
+    
+    # 🆕 Agregar información del tipo de contacto al prompt
+    if tipo_contacto:
+        if tipo_contacto["tipo"] == "cliente":
+            prompt_base += f"\n\nNOTA IMPORTANTE: Estás hablando con {tipo_contacto['nombre']}, quien es un CLIENTE registrado en nuestro sistema."
+            
+            # 🏢 Agregar información de empresas si las tiene
+            empresas = tipo_contacto.get("empresas", [])
+            if empresas:
+                prompt_base += f"\n\n🏢 INFORMACIÓN DE SUS EMPRESAS:"
+                for empresa in empresas:
+                    nombre_empresa = empresa.get('nombre_empresa', 'Sin nombre')
+                    descripcion = empresa.get('descripcion', '')
+                    industria = empresa.get('industria', '')
+                    
+                    prompt_base += f"\n- Empresa: {nombre_empresa}"
+                    if industria:
+                        prompt_base += f" (Industria: {industria})"
+                    if descripcion:
+                        prompt_base += f"\n  Descripción: {descripcion}"
+                
+                prompt_base += f"\n\nPuedes hacer referencia a su(s) empresa(s) y ofrecer servicios específicos para su industria. Sé personalizado y profesional."
+            else:
+                prompt_base += " Trata de ser más personalizado y profesional."
+                
+        elif tipo_contacto["tipo"] == "usuario_cliente":
+            prompt_base += f"\n\nNOTA IMPORTANTE: Estás hablando con {tipo_contacto['nombre']}, quien es un USUARIO de uno de nuestros clientes. Brinda un servicio especializado."
+        else:
+            prompt_base += "\n\nNOTA IMPORTANTE: Estás hablando con un visitante que no está registrado en nuestro sistema. Sé amable y trata de convertirlo en cliente potencial."
     
     if modo_respuesta == "estricto":
         prompt_restriccion = "\n\nIMPORTANTE: Solo puedes responder sobre temas relacionados con la información proporcionada en tu base de conocimiento. Si la pregunta no está relacionada con tu empresa, servicios o información que tienes disponible, debes responder exactamente con el mensaje configurado para temas fuera de tu área."
@@ -104,7 +133,8 @@ def manejar_respuesta_ai(
     nombre_nora: Optional[str] = None,
     historial: Optional[List[dict]] = None,
     prompt: Optional[str] = None,
-    base_conocimiento: Optional[List[dict]] = None
+    base_conocimiento: Optional[List[dict]] = None,
+    tipo_contacto: Optional[dict] = None  # 🆕 Nuevo parámetro
 ) -> Tuple[str, List[dict]]:
     try:
         if nombre_nora is None:
@@ -132,7 +162,7 @@ def manejar_respuesta_ai(
                 return mensaje_fuera_tema, historial
 
         if not any(msg["role"] == "system" for msg in historial):
-            prompt = construir_prompt(personalidad, instrucciones, modo_respuesta)
+            prompt = construir_prompt(personalidad, instrucciones, modo_respuesta, tipo_contacto)  # 🆕 Pasar tipo_contacto
             historial.insert(0, {"role": "system", "content": prompt})
 
         historial.append({"role": "user", "content": mensaje_usuario})
