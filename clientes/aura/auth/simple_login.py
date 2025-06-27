@@ -1,38 +1,71 @@
 #!/usr/bin/env python3
 """
 🔑 Sistema de Login Simple para Testing y Desarrollo
+⚠️  ADVERTENCIA: Este sistema NO debe usarse en producción
+📝 Implementar autenticación segura con hash de contraseñas antes de deployment
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
+from clientes.aura.utils.supabase_client import supabase
+from clientes.aura.auth.google_login import google_login_bp
+import hashlib
 
 # Crear blueprint para login simple
 simple_login_bp = Blueprint("simple_login", __name__)
 
-# Usuarios de prueba (en producción esto vendría de la base de datos)
-USUARIOS_PRUEBA = {
-    "admin@test.com": {
-        "password": "123456",
-        "tipo": "admin",
-        "nombre": "Admin Test",
-        "nombre_nora": "aura",
-        "is_admin": True
-    },
-    "cliente@test.com": {
-        "password": "123456", 
-        "tipo": "cliente",
-        "nombre": "Cliente Test",
-        "nombre_nora": "aura",
-        "is_admin": False
-    },
-    "aura@test.com": {
-        "password": "123456",
-        "tipo": "cliente", 
-        "nombre": "Cliente Aura",
-        "nombre_nora": "aura",
-        "is_admin": False
-    }
-}
+# Autenticación a través de base de datos segura y Google OAuth
+
+def verificar_usuario_bd(email):
+    """
+    Verifica si el usuario existe en la tabla usuarios_clientes
+    """
+    try:
+        response = supabase.table("usuarios_clientes") \
+            .select("*") \
+            .eq("correo", email) \
+            .eq("activo", True) \
+            .execute()
+        
+        if response.data:
+            usuario = response.data[0]
+            print(f"✅ Usuario encontrado en BD: {usuario['nombre']}")
+            return usuario
+        else:
+            print(f"❌ Usuario no encontrado en BD: {email}")
+            return None
+            
+    except Exception as e:
+        print(f"❌ Error verificando usuario: {e}")
+        return None
+
+def es_administrador(usuario):
+    """
+    Verifica si el usuario es administrador basado en rol y permisos
+    """
+    if not usuario:
+        return False
+    
+    # Verificar rol de admin o supervisor
+    if usuario.get("rol") == "admin":
+        return True
+    
+    if usuario.get("es_supervisor") or usuario.get("es_supervisor_tareas"):
+        return True
+    
+    # Verificar módulos con permisos de admin
+    modulos = usuario.get("modulos", {})
+    if isinstance(modulos, dict):
+        for modulo, permisos in modulos.items():
+            if isinstance(permisos, dict) and permisos.get("admin", False):
+                return True
+    
+    return False
+
+@simple_login_bp.route("/google/login")
+def google_login():
+    """Redirigir a Google OAuth"""
+    return redirect(url_for("google_login.login"))
 
 @simple_login_bp.route("/simple")
 def login_simple():
@@ -41,7 +74,7 @@ def login_simple():
 
 @simple_login_bp.route("/simple/auth", methods=["POST"])
 def auth_simple():
-    """Autenticación simple para testing"""
+    """Autenticación con email/password contra base de datos"""
     email = request.form.get("email", "").strip()
     password = request.form.get("password", "").strip()
     
@@ -49,39 +82,84 @@ def auth_simple():
         flash("Email y contraseña son obligatorios", "error")
         return redirect(url_for("simple_login.login_simple"))
     
-    # Verificar credenciales
-    usuario = USUARIOS_PRUEBA.get(email)
-    if not usuario or usuario["password"] != password:
-        flash("Credenciales incorrectas", "error")
+    # Verificar usuario en base de datos
+    usuario = verificar_usuario_bd(email)
+    if not usuario:
+        flash("Usuario no encontrado o inactivo", "error")
         return redirect(url_for("simple_login.login_simple"))
     
-    # Establecer sesión con configuración explícita
-    session.permanent = True  # Hacer la sesión permanente
-    session["email"] = email
-    session["name"] = usuario["nombre"]
-    session["nombre_nora"] = usuario["nombre_nora"]
-    session["is_admin"] = usuario["is_admin"]
-    session["user"] = {
-        "id": f"test-{email}",
-        "email": email,
-        "nombre": usuario["nombre"],
-        "nombre_nora": usuario["nombre_nora"],
-        "tipo": usuario["tipo"]
-    }
+    # Verificar contraseña (si existe en BD)
+    password_bd = usuario.get("password")
+    if password_bd:
+        # Hash simple para comparar (en producción usar bcrypt)
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        if password_hash != password_bd:
+            flash("Contraseña incorrecta", "error")
+            return redirect(url_for("simple_login.login_simple"))
+    else:
+        flash("Usuario sin contraseña configurada. Use Google Login.", "error")
+        return redirect(url_for("simple_login.login_simple"))
     
-    # Forzar que la sesión se guarde
-    session.modified = True
-    
-    print(f"🔐 Sesión establecida para {email}")
-    print(f"📊 Session keys: {list(session.keys())}")
+    # Establecer sesión
+    establecer_sesion_usuario(usuario)
     
     flash(f"✅ Bienvenido {usuario['nombre']}", "success")
     
-    # Redirigir según el tipo de usuario
-    if usuario["is_admin"]:
+    # Redirigir según permisos
+    if es_administrador(usuario):
         return redirect("/admin")
     else:
-        return redirect(f"/panel_cliente/{usuario['nombre_nora']}/entrenar")
+        nombre_nora = usuario.get("nombre_nora", "aura")
+        return redirect(f"/panel_cliente/{nombre_nora}/entrenar")
+
+@simple_login_bp.route("/google/callback")
+def google_callback():
+    """Callback de Google OAuth"""
+    # Obtener email del token de Google (implementar según tu sistema OAuth)
+    email = request.args.get("email")  # Temporal - implementar OAuth real
+    
+    if not email:
+        flash("Error en autenticación con Google", "error")
+        return redirect(url_for("simple_login.login_simple"))
+    
+    # Verificar usuario en base de datos
+    usuario = verificar_usuario_bd(email)
+    if not usuario:
+        flash("Usuario no autorizado en el sistema", "error")
+        return redirect(url_for("simple_login.login_simple"))
+    
+    # Establecer sesión
+    establecer_sesion_usuario(usuario)
+    
+    flash(f"✅ Bienvenido {usuario['nombre']} (Google)", "success")
+    
+    # Redirigir según permisos
+    if es_administrador(usuario):
+        return redirect("/admin")
+    else:
+        nombre_nora = usuario.get("nombre_nora", "aura")
+        return redirect(f"/panel_cliente/{nombre_nora}/entrenar")
+
+def establecer_sesion_usuario(usuario):
+    """Establece la sesión del usuario autenticado"""
+    session.permanent = True
+    session["email"] = usuario["correo"]
+    session["name"] = usuario["nombre"]
+    session["nombre_nora"] = usuario.get("nombre_nora", "aura")
+    session["is_admin"] = es_administrador(usuario)
+    session["user"] = {
+        "id": usuario["id"],
+        "email": usuario["correo"],
+        "nombre": usuario["nombre"],
+        "nombre_nora": usuario.get("nombre_nora", "aura"),
+        "rol": usuario.get("rol", "cliente"),
+        "modulos": usuario.get("modulos", {}),
+        "es_supervisor": usuario.get("es_supervisor", False)
+    }
+    session.modified = True
+    
+    print(f"🔐 Sesión establecida para {usuario['correo']}")
+    print(f"📊 Permisos: Admin={es_administrador(usuario)}, Rol={usuario.get('rol')}")
 
 @simple_login_bp.route("/logout")
 def logout_simple():
