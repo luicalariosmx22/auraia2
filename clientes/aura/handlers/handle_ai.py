@@ -50,7 +50,17 @@ def construir_prompt(personalidad: str, instrucciones: str, modo_respuesta: str 
     
     # 🆕 Agregar información del tipo de contacto al prompt
     if tipo_contacto:
-        if tipo_contacto["tipo"] == "cliente":
+        if tipo_contacto["tipo"] == "usuario_cliente":
+            rol = tipo_contacto.get("rol", "empleado")
+            prompt_base += f"\n\nNOTA IMPORTANTE: Estás hablando con {tipo_contacto['nombre']}, quien es un USUARIO INTERNO ({rol}) de nuestro equipo."
+            
+            # Verificar si es supervisor o admin
+            if tipo_contacto.get("es_supervisor") or tipo_contacto.get("rol") == "interno":
+                prompt_base += f"\n🔑 ACCESO PRIVILEGIADO: Esta persona tiene permisos de supervisión. Puedes proporcionar información interna, estadísticas detalladas y acceso a funciones administrativas."
+            
+            prompt_base += f"\n\nPuedes responder cualquier pregunta relacionada con el trabajo, proyectos, tareas, o información interna de la empresa. Sé profesional y directo."
+            
+        elif tipo_contacto["tipo"] == "cliente":
             prompt_base += f"\n\nNOTA IMPORTANTE: Estás hablando con {tipo_contacto['nombre']}, quien es un CLIENTE registrado en nuestro sistema."
             
             # 🏢 Agregar información de empresas si las tiene
@@ -72,8 +82,6 @@ def construir_prompt(personalidad: str, instrucciones: str, modo_respuesta: str 
             else:
                 prompt_base += " Trata de ser más personalizado y profesional."
                 
-        elif tipo_contacto["tipo"] == "usuario_cliente":
-            prompt_base += f"\n\nNOTA IMPORTANTE: Estás hablando con {tipo_contacto['nombre']}, quien es un USUARIO de uno de nuestros clientes. Brinda un servicio especializado."
         else:
             prompt_base += "\n\nNOTA IMPORTANTE: Estás hablando con un visitante que no está registrado en nuestro sistema. Sé amable y trata de convertirlo en cliente potencial."
     
@@ -160,6 +168,12 @@ def manejar_respuesta_ai(
                 historial.append({"role": "user", "content": mensaje_usuario})
                 historial.append({"role": "assistant", "content": mensaje_fuera_tema})
                 return mensaje_fuera_tema, historial
+        elif tipo_contacto and tipo_contacto.get("tipo") == "usuario_cliente":
+            print(f"🔓 Modo estricto DESHABILITADO para usuario interno: {tipo_contacto.get('nombre')}")
+        elif tipo_contacto and tipo_contacto.get("tipo") == "cliente":
+            print(f"🔓 Modo estricto DESHABILITADO para cliente: {tipo_contacto.get('nombre')}")
+        else:
+            print(f"⚠️ Visitante desconocido - aplicando modo estricto")
 
         if not any(msg["role"] == "system" for msg in historial):
             prompt = construir_prompt(personalidad, instrucciones, modo_respuesta, tipo_contacto)  # 🆕 Pasar tipo_contacto

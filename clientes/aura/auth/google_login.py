@@ -24,6 +24,7 @@ USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
 def verificar_usuario_google(email):
     """
     Verifica si el usuario de Google existe en usuarios_clientes
+    NOTA: Para WhatsApp, la identificación se hace por teléfono
     """
     try:
         response = supabase.table("usuarios_clientes") \
@@ -35,6 +36,7 @@ def verificar_usuario_google(email):
         if response.data:
             usuario = response.data[0]
             print(f"✅ Usuario Google encontrado en BD: {usuario['nombre']}")
+            print(f"📞 Teléfono asociado: {usuario.get('telefono', 'Sin teléfono')}")
             return usuario
         else:
             print(f"❌ Usuario Google no autorizado: {email}")
@@ -42,6 +44,51 @@ def verificar_usuario_google(email):
             
     except Exception as e:
         print(f"❌ Error verificando usuario Google: {e}")
+        return None
+
+def buscar_usuario_por_telefono(telefono, nombre_nora):
+    """
+    Busca un usuario por su número de teléfono en usuarios_clientes
+    Esta es la función principal para WhatsApp
+    """
+    try:
+        from clientes.aura.utils.normalizador import normalizar_numero
+        
+        # Normalizar el número para búsquedas consistentes
+        numero_normalizado = normalizar_numero(telefono)
+        ultimos_10 = numero_normalizado[-10:] if len(numero_normalizado) >= 10 else numero_normalizado
+        
+        print(f"🔍 Buscando usuario por teléfono: {numero_normalizado} (últimos 10: {ultimos_10})")
+        
+        # Buscar por número exacto primero
+        response = supabase.table("usuarios_clientes") \
+            .select("*") \
+            .eq("telefono", numero_normalizado) \
+            .eq("nombre_nora", nombre_nora) \
+            .eq("activo", True) \
+            .execute()
+        
+        # Si no encuentra exacto, buscar por últimos 10 dígitos
+        if not response.data:
+            response = supabase.table("usuarios_clientes") \
+                .select("*") \
+                .like("telefono", f"%{ultimos_10}") \
+                .eq("nombre_nora", nombre_nora) \
+                .eq("activo", True) \
+                .execute()
+        
+        if response.data:
+            usuario = response.data[0]
+            print(f"✅ Usuario encontrado por teléfono: {usuario['nombre']}")
+            print(f"📧 Email: {usuario.get('correo', 'Sin email')}")
+            print(f"🏷️ Rol: {usuario.get('rol', 'Sin rol')}")
+            return usuario
+        else:
+            print(f"❓ Usuario no encontrado por teléfono: {numero_normalizado}")
+            return None
+            
+    except Exception as e:
+        print(f"❌ Error buscando usuario por teléfono: {e}")
         return None
 
 def es_administrador_google(usuario):

@@ -91,6 +91,7 @@ def actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_per
 def identificar_tipo_contacto(numero_usuario, nombre_nora):
     """
     Identifica si el número pertenece a 'clientes' o 'usuarios_clientes'
+    🔑 PRIORIDAD: usuarios_clientes (empleados) > clientes (empresas)
     """
     try:
         # Normalizar el número para búsquedas consistentes
@@ -99,7 +100,39 @@ def identificar_tipo_contacto(numero_usuario, nombre_nora):
         
         print(f"🔍 Buscando contacto: {numero_normalizado} (últimos 10: {ultimos_10})")
         
-        # Buscar en tabla clientes (búsqueda exacta primero)
+        # 🥇 PRIORIDAD 1: Buscar en usuarios_clientes (empleados/internos)
+        response_usuarios = supabase.table("usuarios_clientes") \
+            .select("id, nombre, telefono, correo, rol, es_supervisor, es_supervisor_tareas, modulos") \
+            .eq("telefono", numero_normalizado) \
+            .eq("nombre_nora", nombre_nora) \
+            .eq("activo", True) \
+            .execute()
+        
+        # Si no encuentra exacto, buscar por últimos 10 dígitos
+        if not response_usuarios.data:
+            response_usuarios = supabase.table("usuarios_clientes") \
+                .select("id, nombre, telefono, correo, rol, es_supervisor, es_supervisor_tareas, modulos") \
+                .like("telefono", f"%{ultimos_10}") \
+                .eq("nombre_nora", nombre_nora) \
+                .eq("activo", True) \
+                .execute()
+        
+        if response_usuarios.data:
+            usuario = response_usuarios.data[0]
+            print(f"👨‍💼 Contacto identificado como USUARIO INTERNO: {usuario.get('nombre', 'Sin nombre')}")
+            print(f"🏷️ Rol: {usuario.get('rol', 'Sin rol')}")
+            return {
+                "tipo": "usuario_cliente",
+                "id": usuario["id"],
+                "nombre": usuario.get("nombre", "Usuario"),
+                "email": usuario.get("correo", ""),
+                "telefono": usuario.get("telefono", numero_normalizado),
+                "rol": usuario.get("rol", "cliente"),
+                "es_supervisor": usuario.get("es_supervisor", False),
+                "modulos": usuario.get("modulos", [])
+            }
+        
+        # 🥈 PRIORIDAD 2: Buscar en tabla clientes (empresas)
         response_clientes = supabase.table("clientes") \
             .select("id, nombre_cliente, email, telefono") \
             .eq("telefono", numero_normalizado) \
@@ -135,32 +168,6 @@ def identificar_tipo_contacto(numero_usuario, nombre_nora):
                 "email": cliente.get("email", ""),
                 "telefono": cliente.get("telefono", numero_normalizado),
                 "empresas": empresas  # 🆕 Información de empresas
-            }
-        
-        # Si no está en clientes, buscar en usuarios_clientes (búsqueda exacta primero)
-        response_usuarios = supabase.table("usuarios_clientes") \
-            .select("id, nombre, telefono") \
-            .eq("telefono", numero_normalizado) \
-            .eq("nombre_nora", nombre_nora) \
-            .execute()
-        
-        # Si no encuentra exacto, buscar por últimos 10 dígitos
-        if not response_usuarios.data:
-            response_usuarios = supabase.table("usuarios_clientes") \
-                .select("id, nombre, telefono") \
-                .like("telefono", f"%{ultimos_10}") \
-                .eq("nombre_nora", nombre_nora) \
-                .execute()
-        
-        if response_usuarios.data:
-            usuario = response_usuarios.data[0]
-            print(f"👤 Contacto identificado como USUARIO: {usuario.get('nombre', 'Sin nombre')}")
-            return {
-                "tipo": "usuario_cliente",
-                "id": usuario["id"],
-                "nombre": usuario.get("nombre", "Usuario"),
-                "email": "",  # No existe columna email en usuarios_clientes
-                "telefono": usuario.get("telefono", numero_normalizado)
             }
         
         # No encontrado en ninguna tabla
