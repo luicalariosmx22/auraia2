@@ -152,8 +152,8 @@ def manejar_respuesta_ai(
         personalidad, instrucciones, modo_respuesta, mensaje_fuera_tema = obtener_configuracion_nora(nombre_nora)
         print(f"⚙️ Configuración Nora - Modo: {modo_respuesta}")
 
-        # Verificar relevancia si está en modo estricto
-        if modo_respuesta == "estricto":
+        # Si el contacto NO es cliente ni usuario_cliente, aplicar modo estricto
+        if modo_respuesta == "estricto" and not (tipo_contacto and tipo_contacto.get("tipo") in ["cliente", "usuario_cliente"]):
             es_relevante = verificar_relevancia_pregunta(mensaje_usuario, base_conocimiento)
             if not es_relevante:
                 print(f"🚫 Pregunta fuera del área de conocimiento en modo estricto")

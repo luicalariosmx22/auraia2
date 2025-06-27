@@ -292,16 +292,32 @@ def procesar_mensaje(data):
     # Actualizar contacto con el último mensaje y foto de perfil
     actualizar_contacto(numero_usuario, nombre_nora, mensaje_usuario, imagen_perfil, nombre_contacto=nombre_usuario)
 
-    # --- MENÚ DE CONOCIMIENTO (etiquetas) ---
-    # Detectar si el mensaje es para mostrar el menú
+    # --- MENÚ DE CONOCIMIENTO (etiquetas) O MENÚ PERSONALIZADO PARA CLIENTES ---
     if mensaje_usuario.lower() in ["menu", "opciones", "categorías"]:
-        mensaje_menu = construir_menu_desde_etiquetas(nombre_nora)
+        # Si es un cliente, mostrar menú personalizado
+        if tipo_contacto["tipo"] == "cliente":
+            from clientes.aura.utils.menu_cliente import construir_menu_cliente
+            mensaje_menu = construir_menu_cliente(tipo_contacto, nombre_nora)
+        else:
+            # Para visitantes, mostrar menú general de conocimiento
+            mensaje_menu = construir_menu_desde_etiquetas(nombre_nora)
+        
         enviar_mensaje(numero_usuario, mensaje_menu)
         guardar_en_historial(numero_usuario, mensaje_menu, numero_nora, nombre_nora, "respuesta")
         return mensaje_menu
 
     # Detectar si es respuesta a un menú (número o etiqueta)
     try:
+        # 🏢 Si es cliente, primero verificar si está respondiendo al menú de cliente
+        if tipo_contacto["tipo"] == "cliente" and mensaje_usuario.strip().isdigit():
+            from clientes.aura.utils.menu_cliente import procesar_seleccion_menu_cliente
+            respuesta_menu_cliente = procesar_seleccion_menu_cliente(mensaje_usuario.strip(), tipo_contacto, nombre_nora)
+            if respuesta_menu_cliente and "❌ Opción inválida" not in respuesta_menu_cliente:
+                enviar_mensaje(numero_usuario, respuesta_menu_cliente)
+                guardar_en_historial(numero_usuario, respuesta_menu_cliente, numero_nora, nombre_nora, "respuesta")
+                return respuesta_menu_cliente
+        
+        # 📋 Menú general de etiquetas para visitantes o si no es respuesta de menú de cliente
         etiquetas_res = supabase.table("etiquetas_nora") \
             .select("etiqueta") \
             .eq("nombre_nora", nombre_nora) \
