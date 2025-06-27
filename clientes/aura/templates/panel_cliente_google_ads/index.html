@@ -6,6 +6,28 @@
 
 <h1 class="text-3xl font-bold text-nora-primary text-center mb-10">¿Qué quieres hacer con Google Ads?</h1>
 
+<!-- Selector de Empresa -->
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+    <h2 class="text-xl font-bold text-purple-600 mb-4">Selecciona la Empresa</h2>
+    <form id="empresaForm" class="space-y-4">
+      <div class="flex items-center space-x-4">
+        <select id="empresa_id" name="empresa_id" class="flex-1 form-select rounded-md border-gray-300 shadow-sm">
+          <option value="">Selecciona una empresa...</option>
+          {% for empresa in empresas %}
+          <option value="{{ empresa.id }}" {% if empresa_id == empresa.id %}selected{% endif %}>
+            {{ empresa.nombre }}
+          </option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+          Guardar Selección
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
   
   <!-- Campañas -->
@@ -31,7 +53,7 @@
     <p class="text-gray-600 mb-4">
       Consulta el histórico de reportes automáticos y resultados de tus campañas.
     </p>
-    <a href="#" class="inline-block bg-green-600 text-white text-sm px-4 py-2 rounded hover:bg-green-700">
+    <a href="{{ url_for('panel_cliente_google_ads.reporte_google_ads', nombre_nora=nombre_nora) }}" class="inline-block bg-green-600 text-white text-sm px-4 py-2 rounded hover:bg-green-700">
       Ir a Reportes
     </a>
   </div>
@@ -66,4 +88,38 @@
 
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('empresaForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const empresa_id = document.getElementById('empresa_id').value;
+    if (!empresa_id) {
+        alert('Por favor selecciona una empresa');
+        return;
+    }
+    
+    try {
+        const response = await fetch("{{ url_for('panel_cliente_google_ads.actualizar_empresa', nombre_nora=nombre_nora) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ empresa_id })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error al actualizar empresa');
+        }
+        
+        // Recargar la página para reflejar la nueva selección
+        window.location.reload();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al actualizar empresa: ' + error.message);
+    }
+});
+</script>
 {% endblock %}

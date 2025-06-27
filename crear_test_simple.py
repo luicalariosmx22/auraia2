@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+"""
+Script para diagnosticar el problema específico de las cookies y sesiones en el navegador
+"""
+
+import os
+import sys
+import time
+
+def crear_pagina_test_simple():
+    """Crear una página HTML simple para test"""
+    
+    html_content = '''<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Simple de Bloques</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        button { padding: 10px 20px; margin: 10px 0; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 300px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test Simple de Bloques</h1>
+    
+    <div class="section">
+        <h2>Paso 1: Login</h2>
+        <p>Primero, <a href="/login/simple" target="_blank">haz login aquí</a> con:</p>
+        <ul>
+            <li>Email: admin@test.com</li>
+            <li>Password: 123456</li>
+        </ul>
+        <p>Luego regresa a esta página</p>
+    </div>
+    
+    <div class="section">
+        <h2>Paso 2: Verificar Sesión</h2>
+        <button onclick="verificarSesion()">Verificar Sesión</button>
+        <div id="resultado-sesion"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Paso 3: Test de Bloques</h2>
+        <button onclick="testBloques()">Test Bloques</button>
+        <div id="resultado-bloques"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Paso 4: Test Manual</h2>
+        <p>Ejecuta esto en la consola del navegador (F12):</p>
+        <pre>fetch('/panel_cliente/aura/entrenar/bloques')
+  .then(r => {
+    console.log('Status:', r.status);
+    console.log('Headers:', [...r.headers.entries()]);
+    return r.json();
+  })
+  .then(data => console.log('Data:', data))
+  .catch(e => console.error('Error:', e));</pre>
+    </div>
+
+    <script>
+        async function verificarSesion() {
+            const div = document.getElementById('resultado-sesion');
+            try {
+                const response = await fetch('/debug/session');
+                const data = await response.json();
+                
+                const email = data.session_contents?.email;
+                const nora = data.session_contents?.nombre_nora;
+                
+                div.innerHTML = `
+                    <div class="${email && nora ? 'success' : 'error'}">
+                        <h3>Estado de Sesión:</h3>
+                        <p>Email: ${email || '❌ NO ENCONTRADO'}</p>
+                        <p>Nombre Nora: ${nora || '❌ NO ENCONTRADO'}</p>
+                        <p>Estado: ${email && nora ? '✅ VÁLIDA' : '❌ INVÁLIDA'}</p>
+                        <details>
+                            <summary>Ver datos completos</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            } catch (error) {
+                div.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testBloques() {
+            const div = document.getElementById('resultado-bloques');
+            try {
+                const response = await fetch('/panel_cliente/aura/entrenar/bloques');
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                if (response.status === 302) {
+                    div.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Redirección (302)</h3>
+                            <p>El servidor está redirigiendo. Esto significa que la sesión no es válida desde el navegador.</p>
+                            <p>Location: ${response.headers.get('Location') || 'No especificado'}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                div.innerHTML = `
+                    <div class="${data.success ? 'success' : 'error'}">
+                        <h3>${data.success ? '✅' : '❌'} Resultado:</h3>
+                        <p>Success: ${data.success}</p>
+                        <p>Bloques: ${data.data ? data.data.length : 0}</p>
+                        <details>
+                            <summary>Ver datos completos</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            } catch (error) {
+                div.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>'''
+    
+    return html_content
+
+def main():
+    print("🔧 Creando página de test simple...")
+    
+    html_content = crear_pagina_test_simple()
+    
+    # Guardar en el directorio static para que sea accesible
+    static_dir = "static"
+    if not os.path.exists(static_dir):
+        os.makedirs(static_dir)
+    
+    test_file = os.path.join(static_dir, "test_simple.html")
+    
+    with open(test_file, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+    
+    print(f"✅ Página creada en: {test_file}")
+    print(f"🌐 Accede a: http://localhost:5000/static/test_simple.html")
+    print("\n📋 Pasos para el test:")
+    print("1. Abre la página en el navegador")
+    print("2. Haz login usando el enlace")
+    print("3. Regresa y ejecuta los tests")
+    print("4. Verifica los resultados")
+
+if __name__ == "__main__":
+    main()

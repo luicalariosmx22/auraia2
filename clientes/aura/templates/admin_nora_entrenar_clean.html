@@ -1,0 +1,549 @@
+{% extends "base_cliente.html" %}
+
+{% block titulo %}Entrenamiento de Nora{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div class="flex items-center space-x-4">
+        <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-full">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800">🎯 Entrena a Nora</h1>
+          <p class="text-gray-600 mt-1">Configura la personalidad e instrucciones de <span class="font-semibold text-purple-600">{{ nombre_nora|capitalize }}</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6 space-y-2">
+          {% for category, message in messages %}
+            <div class="{% if category == 'success' %}bg-green-100 border-green-400 text-green-700{% elif category == 'error' %}bg-red-100 border-red-400 text-red-700{% else %}bg-blue-100 border-blue-400 text-blue-700{% endif %} border px-4 py-3 rounded-lg shadow-sm">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- 🚀 Barra de navegación rápida -->
+    <div class="sticky top-4 z-40 mb-8">
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 backdrop-blur-sm bg-white/95">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+            <span class="mr-2">🎯</span>
+            Navegación Rápida
+          </h3>
+          <span class="text-xs text-gray-500 hidden sm:block">Click para saltar a cada sección</span>
+        </div>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+          <!-- Botón Personalidad -->
+          <button onclick="scrollToSection('seccion-personalidad')" class="group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 transform hover:scale-105 hover:shadow-md active:scale-95">
+            <span class="text-xl sm:text-2xl mb-1 group-hover:animate-bounce">🎭</span>
+            <span class="text-xs font-medium text-purple-700 text-center">Personalidad</span>
+          </button>
+
+          <!-- Botón Instrucciones -->
+          <button onclick="scrollToSection('seccion-instrucciones')" class="group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 transition-all duration-200 transform hover:scale-105 hover:shadow-md active:scale-95">
+            <span class="text-xl sm:text-2xl mb-1 group-hover:animate-bounce">🏢</span>
+            <span class="text-xs font-medium text-blue-700 text-center">Instrucciones</span>
+          </button>
+
+          <!-- Botón Límites -->
+          <button onclick="scrollToSection('seccion-limites')" class="group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 transform hover:scale-105 hover:shadow-md active:scale-95">
+            <span class="text-xl sm:text-2xl mb-1 group-hover:animate-bounce">🎯</span>
+            <span class="text-xs font-medium text-orange-700 text-center">Límites</span>
+          </button>
+
+          <!-- Botón Estado IA -->
+          <button onclick="scrollToSection('seccion-estado-ia')" class="group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-green-200 bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all duration-200 transform hover:scale-105 hover:shadow-md active:scale-95">
+            <span class="text-xl sm:text-2xl mb-1 group-hover:animate-bounce">🤖</span>
+            <span class="text-xs font-medium text-green-700 text-center">Estado IA</span>
+          </button>
+
+          <!-- Botón Bienvenida -->
+          <button onclick="scrollToSection('seccion-bienvenida')" class="group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-pink-200 bg-gradient-to-br from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200 transition-all duration-200 transform hover:scale-105 hover:shadow-md active:scale-95">
+            <span class="text-xl sm:text-2xl mb-1 group-hover:animate-bounce">👋</span>
+            <span class="text-xs font-medium text-pink-700 text-center">Bienvenida</span>
+          </button>
+
+          <!-- Botón Conocimiento -->
+          <button onclick="scrollToSection('seccion-conocimiento')" class="group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-teal-200 bg-gradient-to-br from-teal-50 to-teal-100 hover:from-teal-100 hover:to-teal-200 transition-all duration-200 transform hover:scale-105 hover:shadow-md active:scale-95">
+            <span class="text-xl sm:text-2xl mb-1 group-hover:animate-bounce">📚</span>
+            <span class="text-xs font-medium text-teal-700 text-center">Conocimiento</span>
+          </button>
+        </div>
+        
+        <!-- Indicador de progreso opcional -->
+        <div class="mt-3 text-center">
+          <span class="text-xs text-gray-400">💡 Tip: Usa estos botones para navegar rápidamente sin hacer scroll</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-6">
+      <!-- Formulario para personalidad -->
+      <div id="seccion-personalidad" class="bg-white rounded-xl shadow-lg overflow-hidden scroll-mt-24">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+          <h2 class="text-xl font-bold text-white flex items-center">
+            <span class="mr-2">🎭</span>
+            Personalidad de Nora
+          </h2>
+          <p class="text-purple-100 text-sm mt-1">Define cómo se comporta y comunica Nora</p>
+        </div>
+        <form method="POST" action="{{ url_for('cliente_nora.personalidad', nombre_nora=nombre_nora) }}" class="p-6">
+          <div class="mb-4">
+            <label for="personalidad" class="block text-sm font-medium text-gray-700 mb-2">
+              Describe la personalidad que quieres que tenga Nora
+            </label>
+            <textarea 
+              id="personalidad" 
+              name="personalidad" 
+              rows="4" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none transition-all duration-200"
+              placeholder="Ej: Cercana, profesional, amigable, empática, con sentido del humor..."
+            >{{ config.personalidad or "" }}</textarea>
+            <p class="text-xs text-gray-500 mt-1">💡 Tip: Sé específico sobre el tono y estilo de comunicación que prefieres</p>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Guardar Personalidad
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Formulario para instrucciones -->
+      <div id="seccion-instrucciones" class="bg-white rounded-xl shadow-lg overflow-hidden scroll-mt-24">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+          <h2 class="text-xl font-bold text-white flex items-center">
+            <span class="mr-2">🏢</span>
+            Instrucciones para Nora
+          </h2>
+          <p class="text-blue-100 text-sm mt-1">Información clave sobre tu empresa y servicios</p>
+        </div>
+        <form method="POST" action="{{ url_for('cliente_nora.instrucciones', nombre_nora=nombre_nora) }}" class="p-6">
+          <div class="mb-4">
+            <label for="instrucciones" class="block text-sm font-medium text-gray-700 mb-2">
+              Proporciona información detallada sobre tu empresa
+            </label>
+            <textarea 
+              id="instrucciones" 
+              name="instrucciones" 
+              rows="6" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
+              placeholder="Ej: Somos una agencia de marketing digital especializada en IA. Ofrecemos servicios de automatización, chatbots y análisis de datos. Nuestros horarios son de 9 AM a 6 PM..."
+            >{{ config.instrucciones or "" }}</textarea>
+            <p class="text-xs text-gray-500 mt-1">💡 Tip: Incluye servicios, horarios, precios, políticas y cualquier información relevante</p>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Guardar Instrucciones
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Formulario para límites de respuesta -->
+      <div id="seccion-limites" class="bg-white rounded-xl shadow-lg overflow-hidden scroll-mt-24">
+        <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+          <h2 class="text-xl font-bold text-white flex items-center">
+            <span class="mr-2">🎯</span>
+            Límites de Respuesta
+          </h2>
+          <p class="text-orange-100 text-sm mt-1">Controla sobre qué temas puede responder Nora</p>
+        </div>
+        <form method="POST" action="{{ url_for('cliente_nora.limites', nombre_nora=nombre_nora) }}" class="p-6">
+          <div class="mb-6">
+            <p class="text-sm font-medium text-gray-700 mb-4">¿Cómo debe responder Nora a preguntas fuera de su área?</p>
+            <div class="space-y-3">
+              <label class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <input type="radio" name="modo_respuesta" value="estricto" {{ 'checked' if config.modo_respuesta == 'estricto' else '' }} class="w-5 h-5 text-orange-600 border-gray-300 focus:ring-orange-500">
+                <div class="ml-3">
+                  <div class="flex items-center">
+                    <span class="text-2xl mr-2">🔒</span>
+                    <span class="font-medium text-gray-900">Modo Estricto</span>
+                  </div>
+                  <p class="text-sm text-gray-500">Solo responde sobre temas relacionados con tu empresa. Si no sabe, deriva al humano.</p>
+                </div>
+              </label>
+              
+              <label class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <input type="radio" name="modo_respuesta" value="flexible" {{ 'checked' if config.modo_respuesta == 'flexible' or not config.modo_respuesta else '' }} class="w-5 h-5 text-orange-600 border-gray-300 focus:ring-orange-500">
+                <div class="ml-3">
+                  <div class="flex items-center">
+                    <span class="text-2xl mr-2">🔓</span>
+                    <span class="font-medium text-gray-900">Modo Flexible</span>
+                  </div>
+                  <p class="text-sm text-gray-500">Puede ayudar con temas generales, pero siempre prioriza información de tu empresa.</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="mensaje_fuera_tema" class="block text-sm font-medium text-gray-700 mb-2">
+              Mensaje cuando no puede responder (Modo Estricto)
+            </label>
+            <textarea 
+              id="mensaje_fuera_tema" 
+              name="mensaje_fuera_tema" 
+              rows="3" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none transition-all duration-200"
+              placeholder="Ej: Lo siento, solo puedo ayudarte con consultas sobre nuestros servicios. Un agente humano te contactará pronto para temas generales."
+            >{{ config.mensaje_fuera_tema or "Lo siento, solo puedo ayudarte con consultas relacionadas a nuestra empresa. Un agente humano te contactará pronto para resolver tu consulta." }}</textarea>
+            <p class="text-xs text-gray-500 mt-1">💡 Este mensaje se enviará cuando la pregunta no esté relacionada con tu empresa</p>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Guardar Límites
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Formulario para estado de IA -->
+      <div id="seccion-estado-ia" class="bg-white rounded-xl shadow-lg overflow-hidden scroll-mt-24">
+        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+          <h2 class="text-xl font-bold text-white flex items-center">
+            <span class="mr-2">🤖</span>
+            Estado de la IA
+          </h2>
+          <p class="text-green-100 text-sm mt-1">Activa o desactiva las respuestas automáticas de Nora</p>
+        </div>
+        <form method="POST" action="{{ url_for('cliente_nora.estado_ia', nombre_nora=nombre_nora) }}" class="p-6">
+          <div class="mb-6">
+            <p class="text-sm font-medium text-gray-700 mb-4">Selecciona el estado de la IA:</p>
+            <div class="space-y-3">
+              <label class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <input type="radio" name="ia_activa" value="true" {{ 'checked' if config.ia_activa else '' }} class="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500">
+                <div class="ml-3">
+                  <div class="flex items-center">
+                    <span class="text-2xl mr-2">✅</span>
+                    <span class="font-medium text-gray-900">IA Activada</span>
+                  </div>
+                  <p class="text-sm text-gray-500">Nora responderá automáticamente a los mensajes</p>
+                </div>
+              </label>
+              
+              <label class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <input type="radio" name="ia_activa" value="false" {{ 'checked' if not config.ia_activa else '' }} class="w-5 h-5 text-red-600 border-gray-300 focus:ring-red-500">
+                <div class="ml-3">
+                  <div class="flex items-center">
+                    <span class="text-2xl mr-2">❌</span>
+                    <span class="font-medium text-gray-900">IA Desactivada</span>
+                  </div>
+                  <p class="text-sm text-gray-500">Solo respuestas manuales, Nora no intervendrá</p>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Guardar Estado IA
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Formulario para mensaje de bienvenida -->
+      <div id="seccion-bienvenida" class="bg-white rounded-xl shadow-lg overflow-hidden scroll-mt-24">
+        <div class="bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-4">
+          <h2 class="text-xl font-bold text-white flex items-center">
+            <span class="mr-2">👋</span>
+            Mensaje de Bienvenida
+          </h2>
+          <p class="text-pink-100 text-sm mt-1">Primer mensaje que reciben nuevos contactos o usuarios inactivos por 7+ días</p>
+        </div>
+        <form method="POST" action="{{ url_for('cliente_nora.bienvenida', nombre_nora=nombre_nora) }}" class="p-6">
+          <div class="mb-4">
+            <label for="bienvenida" class="block text-sm font-medium text-gray-700 mb-2">
+              Mensaje de bienvenida personalizado
+            </label>
+            <textarea 
+              id="bienvenida" 
+              name="bienvenida" 
+              rows="5" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none transition-all duration-200"
+              placeholder="Ej: ¡Hola! 👋 Soy Nora, tu asistente virtual de [Nombre Empresa]. Estoy aquí para ayudarte con información sobre nuestros servicios de marketing digital e IA. ¿En qué puedo ayudarte hoy?"
+            >{{ config.bienvenida or "" }}</textarea>
+            <p class="text-xs text-gray-500 mt-1">💡 Tip: Incluye una presentación amigable, menciona tu empresa y los servicios principales</p>
+          </div>
+          
+          <!-- Indicadores visuales de cuándo se envía -->
+          <div class="mb-4 p-4 bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg">
+            <h4 class="text-sm font-semibold text-pink-800 mb-2 flex items-center">
+              <span class="mr-2">📋</span>
+              ¿Cuándo se envía este mensaje?
+            </h4>
+            <div class="grid md:grid-cols-2 gap-3 text-xs text-pink-700">
+              <div class="flex items-start space-x-2">
+                <span class="text-green-500 mt-0.5">✅</span>
+                <span><strong>Nuevos contactos:</strong> Primera vez que te escriben</span>
+              </div>
+              <div class="flex items-start space-x-2">
+                <span class="text-green-500 mt-0.5">✅</span>
+                <span><strong>Usuarios inactivos:</strong> No han escrito en 7+ días</span>
+              </div>
+              <div class="flex items-start space-x-2">
+                <span class="text-blue-500 mt-0.5">ℹ️</span>
+                <span><strong>Automático:</strong> Se envía antes de cualquier respuesta de IA</span>
+              </div>
+              <div class="flex items-start space-x-2">
+                <span class="text-purple-500 mt-0.5">🎯</span>
+                <span><strong>Una sola vez:</strong> Por conversación o después de inactividad</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ejemplos de buenos mensajes -->
+          <div class="mb-4">
+            <button type="button" class="text-sm text-pink-600 hover:text-pink-700 font-medium mb-2 flex items-center" onclick="toggleExamples()">
+              <span class="mr-1">💡</span>
+              Ver ejemplos de mensajes efectivos
+              <svg id="example-arrow" class="w-4 h-4 ml-1 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div id="examples-container" class="hidden bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+              <div class="text-xs text-gray-600">
+                <strong>🏢 Para Agencia de Marketing:</strong><br>
+                "¡Hola! 👋 Soy Nora de [Tu Agencia]. Te ayudo con consultas sobre marketing digital, automatización con IA y publicidad en redes sociales. ¿Cómo puedo ayudarte a hacer crecer tu negocio?"
+              </div>
+              <div class="text-xs text-gray-600">
+                <strong>🛍️ Para E-commerce:</strong><br>
+                "¡Bienvenido/a! 🛒 Soy Nora, tu asistente de [Tu Tienda]. Puedo ayudarte con información de productos, seguimiento de pedidos y resolver dudas. ¿En qué te puedo ayudar?"
+              </div>
+              <div class="text-xs text-gray-600">
+                <strong>💼 Para Servicios Profesionales:</strong><br>
+                "¡Hola! 👨‍💼 Soy Nora de [Tu Empresa]. Estoy aquí para brindarte información sobre nuestros servicios, horarios y resolver tus consultas. ¿Qué necesitas saber?"
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" class="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Guardar Mensaje de Bienvenida
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Formulario para gestión de base de conocimiento -->
+      <div id="seccion-conocimiento" class="bg-white rounded-xl shadow-lg overflow-hidden scroll-mt-24">
+        <div class="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-4">
+          <h2 class="text-xl font-bold text-white flex items-center">
+            <span class="mr-2">📚</span>
+            Base de Conocimiento
+          </h2>
+          <p class="text-teal-100 text-sm mt-1">Gestiona la información que Nora conoce y puede compartir</p>
+        </div>
+        
+        <div class="p-6">
+          <!-- Estadísticas rápidas -->
+          <div class="grid md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-blue-700" id="total-bloques">-</div>
+              <div class="text-sm text-blue-600">Bloques Activos</div>
+            </div>
+            <div class="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-green-700" id="total-etiquetas">-</div>
+              <div class="text-sm text-green-600">Etiquetas Únicas</div>
+            </div>
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4 text-center">
+              <div class="text-2xl font-bold text-purple-700" id="bloques-prioritarios">-</div>
+              <div class="text-sm text-purple-600">Prioritarios</div>
+            </div>
+          </div>
+
+          <!-- Pestañas -->
+          <div class="mb-6">
+            <div class="border-b border-gray-200">
+              <nav class="-mb-px flex space-x-8">
+                <button class="tab-button active py-2 px-1 border-b-2 border-teal-500 text-teal-600 font-medium text-sm" data-tab="ver-conocimiento">
+                  👁️ Ver Conocimiento
+                </button>
+                <button class="tab-button py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm" data-tab="agregar-conocimiento">
+                  ➕ Agregar Nuevo
+                </button>
+                <button class="tab-button py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm" data-tab="gestionar-etiquetas">
+                  🏷️ Gestionar Etiquetas
+                </button>
+              </nav>
+            </div>
+          </div>
+
+          <!-- Contenido de pestañas -->
+          
+          <!-- Pestaña: Ver Conocimiento -->
+          <div id="tab-ver-conocimiento" class="tab-content">
+            <div class="mb-4">
+              <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                <div class="flex-1">
+                  <input type="text" id="buscar-conocimiento" placeholder="🔍 Buscar en el conocimiento..." 
+                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                </div>
+                <div class="sm:w-48">
+                  <select id="filtro-etiqueta" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                    <option value="">Todas las etiquetas</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div id="lista-conocimiento" class="space-y-4 max-h-96 overflow-y-auto">
+              <!-- Los bloques se cargarán aquí dinámicamente -->
+              <div class="text-center py-8 text-gray-500">
+                <div class="animate-spin w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p>Cargando base de conocimiento...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña: Agregar Conocimiento -->
+          <div id="tab-agregar-conocimiento" class="tab-content hidden">
+            <form id="form-agregar-conocimiento" class="space-y-4">
+              <div>
+                <label for="nuevo-contenido" class="block text-sm font-medium text-gray-700 mb-2">
+                  Contenido del conocimiento
+                </label>
+                <textarea 
+                  id="nuevo-contenido" 
+                  name="contenido" 
+                  rows="4" 
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                  placeholder="Ej: Ofrecemos servicios de marketing digital especializado en IA. Nuestros horarios son de 9 AM a 6 PM de lunes a viernes..."
+                  maxlength="500"
+                ></textarea>
+                <p class="text-xs text-gray-500 mt-1">
+                  <span id="contador-caracteres">0</span>/500 caracteres
+                </p>
+              </div>
+
+              <div>
+                <label for="nuevas-etiquetas" class="block text-sm font-medium text-gray-700 mb-2">
+                  Etiquetas (separadas por comas)
+                </label>
+                <input 
+                  type="text" 
+                  id="nuevas-etiquetas" 
+                  name="etiquetas" 
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  placeholder="Ej: servicios, horarios, precios, marketing"
+                >
+                <p class="text-xs text-gray-500 mt-1">💡 Las etiquetas ayudan a organizar y encontrar el conocimiento</p>
+              </div>
+
+              <div class="flex items-center">
+                <input type="checkbox" id="nueva-prioridad" name="prioridad" class="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                <label for="nueva-prioridad" class="ml-2 text-sm text-gray-700">
+                  ⭐ Marcar como prioritario (aparecerá primero en las respuestas)
+                </label>
+              </div>
+
+              <div class="flex justify-end">
+                <button type="submit" class="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                  </svg>
+                  Agregar Conocimiento
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Pestaña: Gestionar Etiquetas -->
+          <div id="tab-gestionar-etiquetas" class="tab-content hidden">
+            <div class="space-y-4">
+              <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-900 mb-2">📊 Estadísticas de Etiquetas</h4>
+                <div id="stats-etiquetas" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <!-- Se llenarán dinámicamente -->
+                </div>
+              </div>
+              
+              <div>
+                <h4 class="font-medium text-gray-900 mb-3">🏷️ Etiquetas Disponibles</h4>
+                <div id="lista-etiquetas" class="flex flex-wrap gap-2">
+                  <!-- Se llenarán dinámicamente -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tips adicionales -->
+    <div class="mt-8 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-6">
+      <h3 class="text-lg font-semibold text-yellow-800 mb-3 flex items-center">
+        <span class="mr-2">💡</span>
+        Consejos para entrenar a Nora
+      </h3>
+      <div class="grid md:grid-cols-2 gap-4 text-sm text-yellow-700">
+        <div class="space-y-2">
+          <p><strong>Personalidad:</strong> Sé específico sobre el tono (formal/informal, serio/divertido)</p>
+          <p><strong>Instrucciones:</strong> Incluye horarios, precios y políticas importantes</p>
+          <p><strong>Bienvenida:</strong> Mantén un tono amigable y menciona los servicios principales</p>
+        </div>
+        <div class="space-y-2">
+          <p><strong>Límites:</strong> Modo estricto previene respuestas fuera del área empresarial</p>
+          <p><strong>Estado IA:</strong> Desactiva si prefieres responder manualmente</p>
+          <p><strong>Actualizaciones:</strong> Revisa y actualiza regularmente la información</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript Modules -->
+<script src="/static/js/panel-entrenamiento-core.js"></script>
+<script src="/static/js/ui-utils.js"></script>
+<script src="/static/js/conocimiento-manager.js"></script>
+<script src="/static/js/form-handlers.js"></script>
+
+<!-- Configuration Variables -->
+<script>
+// Global configuration passed from Jinja2 to JavaScript
+window.PANEL_CONFIG = {
+    nombreNora: '{{ nombre_nora }}',
+    endpoints: {
+        bloques: '/panel_cliente/{{ nombre_nora }}/entrenar/bloques',
+        personalidad: '/panel_cliente/{{ nombre_nora }}/entrenar/personalidad',
+        instrucciones: '/panel_cliente/{{ nombre_nora }}/entrenar/instrucciones',
+        estadoIA: '/panel_cliente/{{ nombre_nora }}/entrenar/estado_ia',
+        limites: '/panel_cliente/{{ nombre_nora }}/entrenar/limites',
+        bienvenida: '/panel_cliente/{{ nombre_nora }}/entrenar/bienvenida'
+    },
+    limits: {
+        maxContentLength: 500,
+        maxTags: 10
+    }
+};
+</script>
+
+{% endblock %}

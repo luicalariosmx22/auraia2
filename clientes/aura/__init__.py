@@ -35,10 +35,10 @@ from .routes.panel_cliente_envios import panel_cliente_envios_bp
 from .routes.admin_nora import admin_nora_bp
 from .routes.admin_noras import admin_noras_bp # Lo tenías en app.py original
 from .routes.cliente_nora import cliente_nora_bp
-from .routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
+# ✅ panel_cliente_conocimiento removido - ahora está integrado en admin_nora
 from .routes.panel_cliente_ads import panel_cliente_ads_bp
 from .routes.cobranza import cobranza_bp
-from .routes.panel_cliente_etiquetas_conocimiento import panel_cliente_etiquetas_conocimiento_bp # Nueva importación
+# ✅ panel_cliente_etiquetas_conocimiento removido - ahora está integrado en admin_nora
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp # Nueva importación
 from clientes.aura.routes.panel_cliente_pagos.vista_presupuestos import panel_cliente_pagos_presupuestos_bp # Nueva importación
 from clientes.aura.routes.panel_cliente_pagos.vista_presupuesto_nuevo import panel_cliente_pagos_presupuesto_nuevo_bp # Nueva importación
@@ -132,6 +132,15 @@ def create_app(config_class=Config):
     print(f"DEBUG: SESSION_COOKIE_NAME configurado como: {app.config['SESSION_COOKIE_NAME']}")
     print(f"DEBUG: SECRET_KEY DESPUÉS de from_object: {app.config.get('SECRET_KEY')}")
     print(f"DEBUG: SESSION_TYPE DESPUÉS de from_object: {app.config.get('SESSION_TYPE')}")
+    
+    # 🍪 CONFIGURACIÓN ESPECÍFICA PARA COOKIES DE NAVEGADOR
+    app.config['SESSION_COOKIE_HTTPONLY'] = False  # Permitir acceso desde JavaScript para debug
+    app.config['SESSION_COOKIE_SECURE'] = False    # No requerir HTTPS para desarrollo local
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Permitir cookies en requests de navegador
+    app.config['SESSION_PERMANENT'] = True         # Hacer sesiones permanentes
+    app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 horas
+    print("🍪 Configuración de cookies optimizada para navegador")
+    
     # --- FIN DE CAMBIOS PARA DEPURACIÓN ---
 
     print("🚀 Aplicación Flask creada y configuración inicial cargada por la factory.")
@@ -238,18 +247,21 @@ def create_app(config_class=Config):
     from clientes.aura.routes.panel_cliente_google_ads.panel_cliente_google_ads import panel_cliente_google_ads_bp
     safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/google_ads")
 
+    # --- Registrar Blueprint Cliente Nora (Panel de Entrenamiento) ---
+    safe_register_blueprint(app, cliente_nora_bp, url_prefix="")
+
     # --- Rutas de Nivel de Aplicación ---
     print("Definiendo rutas de nivel de aplicación...")
     @app.route("/")
     def index():
         from flask import redirect, url_for, session
         session.clear()  # Limpia cualquier sesión previa
-        return redirect(url_for("login.login"))
+        return redirect("/login/simple")
 
     @app.route("/logout")
     def logout():
         session.clear()  # ✅ Corregido: usar session.clear() en vez de flask_session.clear()
-        return redirect(url_for("login.login"))
+        return redirect("/login/simple")
 
     @app.route('/debug_info', methods=['GET'])
     def debug_info():
@@ -271,7 +283,7 @@ def create_app(config_class=Config):
         ruta = request.path
         if ruta.startswith("/admin") and not session.get("is_admin", False):
             print(f"❌ Bloqueado acceso no autorizado a {ruta}")
-            return redirect("/login")
+            return redirect("/login/simple")
         if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
             socketio_polling_logger = logging.getLogger('socketio_polling_custom')
             socketio_polling_logger.info(f"{request.remote_addr} - {request.method} {request.full_path}")

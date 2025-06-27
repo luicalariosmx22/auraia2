@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Interfaz Conocimiento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8">🧪 Test Interfaz de Conocimiento</h1>
+        
+        <!-- Formulario para gestión de base de conocimiento -->
+        <div id="seccion-conocimiento" class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-4">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <span class="mr-2">📚</span>
+                    Base de Conocimiento
+                </h2>
+                <p class="text-teal-100 text-sm mt-1">Gestiona la información que Nora conoce y puede compartir</p>
+            </div>
+            
+            <div class="p-6">
+                <!-- Estadísticas rápidas -->
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-blue-700" id="total-bloques">-</div>
+                        <div class="text-sm text-blue-600">Bloques Activos</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-green-700" id="total-etiquetas">-</div>
+                        <div class="text-sm text-green-600">Etiquetas Únicas</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-purple-700" id="bloques-prioritarios">-</div>
+                        <div class="text-sm text-purple-600">Prioritarios</div>
+                    </div>
+                </div>
+
+                <!-- Pestañas -->
+                <div class="mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8">
+                            <button class="tab-button active py-2 px-1 border-b-2 border-teal-500 text-teal-600 font-medium text-sm" data-tab="ver-conocimiento">
+                                👁️ Ver Conocimiento
+                            </button>
+                            <button class="tab-button py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm" data-tab="agregar-conocimiento">
+                                ➕ Agregar Nuevo
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Contenido de pestañas -->
+                
+                <!-- Pestaña: Ver Conocimiento -->
+                <div id="tab-ver-conocimiento" class="tab-content">
+                    <div class="mb-4">
+                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                            <div class="flex-1">
+                                <input type="text" id="buscar-conocimiento" placeholder="🔍 Buscar en el conocimiento..." 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                            </div>
+                            <div class="sm:w-48">
+                                <select id="filtro-etiqueta" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                                    <option value="">Todas las etiquetas</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="lista-conocimiento" class="space-y-4 max-h-96 overflow-y-auto">
+                        <!-- Los bloques se cargarán aquí dinámicamente -->
+                        <div class="text-center py-8 text-gray-500">
+                            <div class="animate-spin w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                            <p>Cargando base de conocimiento...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña: Agregar Conocimiento -->
+                <div id="tab-agregar-conocimiento" class="tab-content hidden">
+                    <div class="text-center py-8">
+                        <p>🧪 Funcionalidad de agregar en desarrollo</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <button onclick="cargarDatosPrueba()" class="px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">
+                🚀 Cargar Datos de Prueba
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let conocimientoData = [];
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando test de interfaz...');
+            inicializarPestanas();
+        });
+        
+        function inicializarPestanas() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.getAttribute('data-tab');
+
+                    // Activar botón de pestaña
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active', 'border-teal-500', 'text-teal-600');
+                        btn.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    button.classList.remove('border-transparent', 'text-gray-500');
+                    button.classList.add('active', 'border-teal-500', 'text-teal-600');
+
+                    // Mostrar contenido de pestaña correspondiente
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    const targetContent = document.getElementById('tab-' + targetTab);
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+        
+        function cargarDatosPrueba() {
+            console.log('🧪 Cargando datos de prueba...');
+            
+            const datosPrueba = [
+                {
+                    id: "test-001",
+                    contenido: "🧪 Esta es una empresa de marketing digital especializada en automatización con IA. Ofrecemos servicios de chatbots, análisis de datos y estrategias de contenido.",
+                    etiquetas: ["test", "servicios", "marketing", "ia"],
+                    prioridad: true,
+                    activo: true
+                },
+                {
+                    id: "test-002",
+                    contenido: "🧪 Nuestro horario de atención es de lunes a viernes de 9:00 AM a 6:00 PM. Los fines de semana respondemos emergencias por WhatsApp.",
+                    etiquetas: ["test", "horarios", "contacto"],
+                    prioridad: false,
+                    activo: true
+                },
+                {
+                    id: "test-003",
+                    contenido: "🧪 Ofrecemos planes desde $99/mes para pequeñas empresas hasta $999/mes para corporativos. Incluye chatbot, análisis mensual y soporte técnico.",
+                    etiquetas: ["test", "precios", "planes"],
+                    prioridad: true,
+                    activo: true
+                }
+            ];
+            
+            conocimientoData = datosPrueba;
+            actualizarEstadisticas();
+            mostrarConocimiento(conocimientoData);
+            actualizarFiltroEtiquetas();
+            
+            // Mostrar mensaje de éxito
+            const container = document.getElementById('lista-conocimiento');
+            container.insertAdjacentHTML('afterbegin', `
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    ✅ Datos de prueba cargados correctamente
+                </div>
+            `);
+        }
+        
+        function actualizarEstadisticas() {
+            const totalBloques = conocimientoData.length;
+            const totalEtiquetas = new Set(conocimientoData.flatMap(b => b.etiquetas || [])).size;
+            const bloquesPrioritarios = conocimientoData.filter(b => b.prioridad).length;
+            
+            document.getElementById('total-bloques').textContent = totalBloques;
+            document.getElementById('total-etiquetas').textContent = totalEtiquetas;
+            document.getElementById('bloques-prioritarios').textContent = bloquesPrioritarios;
+        }
+        
+        function mostrarConocimiento(bloques) {
+            const container = document.getElementById('lista-conocimiento');
+            
+            if (bloques.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <p>📚 No hay conocimiento agregado aún</p>
+                        <p class="text-sm mt-2">Haz click en "Cargar Datos de Prueba"</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const bloquesHtml = bloques.map(bloque => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center space-x-2">
+                            ${bloque.prioridad ? '<span class="text-yellow-500">⭐</span>' : ''}
+                            <span class="text-sm font-medium text-gray-900">ID: ${bloque.id}</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="alert('✏️ Editar: ' + '${bloque.id}')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                ✏️ Editar
+                            </button>
+                            <button onclick="eliminarBloque('${bloque.id}')" class="text-red-600 hover:text-red-800 text-sm">
+                                🗑️ Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-3">${bloque.contenido}</p>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        ${(bloque.etiquetas || []).map(etiqueta => `
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
+                                ${etiqueta}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = bloquesHtml;
+        }
+        
+        function actualizarFiltroEtiquetas() {
+            const select = document.getElementById('filtro-etiqueta');
+            const etiquetasUnicas = [...new Set(conocimientoData.flatMap(b => b.etiquetas || []))].sort();
+            
+            select.innerHTML = '<option value="">Todas las etiquetas</option>' +
+                etiquetasUnicas.map(etiqueta => `<option value="${etiqueta}">${etiqueta}</option>`).join('');
+        }
+        
+        function eliminarBloque(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este bloque?')) {
+                const index = conocimientoData.findIndex(bloque => bloque.id === id);
+                if (index !== -1) {
+                    conocimientoData.splice(index, 1);
+                    actualizarEstadisticas();
+                    mostrarConocimiento(conocimientoData);
+                    actualizarFiltroEtiquetas();
+                    alert('✅ Bloque eliminado');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing - Google Ads SQL Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+            padding: 2rem;
+        }
+        .test-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        .test-card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-test {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-test:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <div class="text-center mb-4">
+                <h1><i class="fas fa-vial"></i> Suite de Pruebas</h1>
+                <p class="lead">Prueba los generadores con datos de ejemplo</p>
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Volver al Generador
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="test-card text-center">
+                        <i class="fas fa-bolt fa-3x text-warning mb-3"></i>
+                        <h4>Test Generador Simple</h4>
+                        <p class="text-muted">Prueba el mapeo predefinido con datos de ejemplo de Google Ads</p>
+                        <button class="btn btn-test" onclick="runSimpleTest()">
+                            <i class="fas fa-play"></i> Ejecutar Test Simple
+                        </button>
+                        <div id="simpleResult" class="mt-3"></div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="test-card text-center">
+                        <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+                        <h4>Test Generador con IA</h4>
+                        <p class="text-muted">Prueba el análisis automático con OpenAI (requiere API key)</p>
+                        <button class="btn btn-test" onclick="runAITest()" id="aiTestBtn">
+                            <i class="fas fa-play"></i> Ejecutar Test IA
+                        </button>
+                        <div id="aiResult" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="test-card">
+                        <h5><i class="fas fa-info-circle"></i> Información de las Pruebas</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>📊 Datos de Ejemplo:</h6>
+                                <ul class="text-muted">
+                                    <li>3 campañas de Google Ads</li>
+                                    <li>Títulos, descripciones y métricas</li>
+                                    <li>URLs y configuración de rutas</li>
+                                    <li>Datos de rendimiento (clics, CTR, etc.)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>🎯 Resultado Esperado:</h6>
+                                <ul class="text-muted">
+                                    <li>Archivo SQL con 3 sentencias INSERT</li>
+                                    <li>Mapeo correcto de columnas</li>
+                                    <li>Datos limpios y validados</li>
+                                    <li>Formato compatible con Supabase</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12" id="globalResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function runSimpleTest() {
+            const btn = event.target;
+            const resultDiv = document.getElementById('simpleResult');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ejecutando...';
+            
+            try {
+                const response = await fetch('/run_test', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> Test Exitoso</h6>
+                            <p class="mb-2">${result.message}</p>
+                            <div class="btn-group btn-group-sm">
+                                <a href="/download/${result.output_file}" class="btn btn-success">
+                                    <i class="fas fa-download"></i> Descargar
+                                </a>
+                                <a href="/preview/${result.output_file}" class="btn btn-outline-primary" target="_blank">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    showGlobalResult('Simple', result);
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h6><i class="fas fa-times-circle"></i> Test Fallido</h6>
+                            <p class="mb-0">${result.error}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Error</h6>
+                        <p class="mb-0">Error de conexión: ${error.message}</p>
+                    </div>
+                `;
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play"></i> Ejecutar Test Simple';
+        }
+
+        async function runAITest() {
+            const btn = document.getElementById('aiTestBtn');
+            const resultDiv = document.getElementById('aiResult');
+            
+            // Verificar si hay API key
+            try {
+                const configResponse = await fetch('/api/config');
+                const config = await configResponse.json();
+                
+                if (!config.has_openai_key) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-exclamation-triangle"></i> API Key Requerida</h6>
+                            <p class="mb-0">Configura OPENAI_API_KEY en el archivo .env para usar este test</p>
+                        </div>
+                    `;
+                    return;
+                }
+            } catch (error) {
+                console.error('Error verificando configuración:', error);
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ejecutando...';
+            
+            try {
+                // Crear FormData para simular upload con IA
+                const formData = new FormData();
+                
+                // Aquí podrías crear un archivo temporal o usar el endpoint de test
+                // Por simplicidad, usaremos el mismo endpoint pero con generator_type = 'ai'
+                const response = await fetch('/run_test', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> Test IA Exitoso</h6>
+                            <p class="mb-2">${result.message}</p>
+                            <div class="btn-group btn-group-sm">
+                                <a href="/download/${result.output_file}" class="btn btn-success">
+                                    <i class="fas fa-download"></i> Descargar
+                                </a>
+                                <a href="/preview/${result.output_file}" class="btn btn-outline-primary" target="_blank">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    showGlobalResult('IA', result);
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h6><i class="fas fa-times-circle"></i> Test IA Fallido</h6>
+                            <p class="mb-0">${result.error}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Error</h6>
+                        <p class="mb-0">Error de conexión: ${error.message}</p>
+                    </div>
+                `;
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play"></i> Ejecutar Test IA';
+        }
+
+        function showGlobalResult(type, result) {
+            const globalDiv = document.getElementById('globalResults');
+            
+            globalDiv.innerHTML = `
+                <div class="test-card">
+                    <h5><i class="fas fa-chart-line"></i> Resultado del Test ${type}</h5>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>Tipo:</strong> Generador ${type}<br>
+                                    <strong>Estado:</strong> <span class="text-success">Exitoso</span><br>
+                                    <strong>Archivo:</strong> ${result.output_file.split('/').pop()}
+                                </div>
+                                <div class="col-6">
+                                    <strong>Mensaje:</strong> ${result.message}<br>
+                                    <strong>Timestamp:</strong> ${new Date().toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="btn-group">
+                                <a href="/download/${result.output_file}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-download"></i> Descargar
+                                </a>
+                                <a href="/preview/${result.output_file}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                    <i class="fas fa-eye"></i> Vista Previa
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <details class="mt-3">
+                        <summary class="btn btn-link p-0">Ver preview del SQL generado</summary>
+                        <pre class="mt-2 p-3 bg-light border rounded" style="max-height: 300px; overflow-y: auto;"><code>${result.preview}</code></pre>
+                    </details>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

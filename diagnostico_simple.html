@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 Diagnóstico Simple - Panel Entrenamiento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">🔧 Diagnóstico Simple - Panel Entrenamiento</h1>
+        
+        <!-- Estado JavaScript -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">📊 Estado JavaScript</h2>
+            <div id="js-status" class="space-y-2"></div>
+        </div>
+        
+        <!-- Pruebas de Funciones -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">🎯 Pruebas de Funciones</h2>
+            <div class="space-x-4">
+                <button onclick="testSimple()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Test Simple
+                </button>
+                <button onclick="testCargarConocimiento()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    Test cargarConocimiento
+                </button>
+            </div>
+        </div>
+        
+        <!-- Log -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">📝 Log</h2>
+            <div id="log" class="bg-gray-50 p-4 rounded border h-64 overflow-y-auto font-mono text-sm"></div>
+        </div>
+    </div>
+
+    <!-- Configuración básica -->
+    <script>
+    // Configuración mínima
+    window.PANEL_CONFIG = {
+        nombreNora: 'test',
+        endpoints: {
+            bloques: '/panel_cliente/test/entrenar/bloques'
+        },
+        limits: {
+            maxContentLength: 500,
+            maxTags: 10
+        }
+    };
+    
+    // Logging
+    const originalLog = console.log;
+    const originalError = console.error;
+    
+    function logToUI(message, type = 'log') {
+        const logDiv = document.getElementById('log');
+        const timestamp = new Date().toLocaleTimeString();
+        const color = type === 'error' ? 'text-red-600' : type === 'warn' ? 'text-yellow-600' : 'text-gray-700';
+        logDiv.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    console.log = function(...args) {
+        originalLog.apply(console, args);
+        logToUI(args.join(' '), 'log');
+    };
+    
+    console.error = function(...args) {
+        originalError.apply(console, args);
+        logToUI('ERROR: ' + args.join(' '), 'error');
+    };
+    </script>
+
+    <!-- Cargar JS -->
+    <script src="/static/js/ui-utils.js"></script>
+    <script src="/static/js/conocimiento-manager.js"></script>
+    <script src="/static/js/form-handlers.js"></script>
+    <script src="/static/js/panel-entrenamiento-core.js"></script>
+
+    <script>
+    function updateJSStatus() {
+        const status = document.getElementById('js-status');
+        status.innerHTML = `
+            <div><strong>window.PANEL_CONFIG:</strong> ${!!window.PANEL_CONFIG ? '✅ Configurado' : '❌ No encontrado'}</div>
+            <div><strong>cargarConocimiento:</strong> ${typeof window.cargarConocimiento === 'function' ? '✅ Disponible' : '❌ No encontrada'}</div>
+            <div><strong>agregarBloque:</strong> ${typeof window.agregarBloque === 'function' ? '✅ Disponible' : '❌ No encontrada'}</div>
+            <div><strong>mostrarToast:</strong> ${typeof window.mostrarToast === 'function' ? '✅ Disponible' : '❌ No encontrada'}</div>
+            <div><strong>conocimientoData:</strong> ${typeof window.conocimientoData !== 'undefined' ? `✅ Definida (${window.conocimientoData ? window.conocimientoData.length : 0} items)` : '❌ No definida'}</div>
+        `;
+    }
+
+    function testSimple() {
+        console.log('🧪 Test Simple iniciado...');
+        console.log('✅ JavaScript funcionando correctamente');
+        alert('✅ Test Simple exitoso!');
+    }
+
+    async function testCargarConocimiento() {
+        console.log('🧪 Testing cargarConocimiento...');
+        try {
+            if (typeof window.cargarConocimiento === 'function') {
+                console.log('✅ cargarConocimiento encontrada, ejecutando...');
+                await window.cargarConocimiento();
+                console.log('✅ cargarConocimiento ejecutada sin errores');
+            } else {
+                console.error('❌ cargarConocimiento no está definida');
+                console.log('🔍 Funciones disponibles en window:', Object.keys(window).filter(k => k.includes('cargar')));
+            }
+        } catch (error) {
+            console.error('❌ Error en cargarConocimiento:', error);
+        }
+        updateJSStatus();
+    }
+
+    // Actualizar estado inicial
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📋 Página de diagnóstico cargada');
+        setTimeout(updateJSStatus, 1000);
+    });
+    </script>
+</body>
+</html>

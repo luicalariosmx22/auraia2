@@ -18,9 +18,9 @@
       <tbody>
         {% for cuenta in cuentas %}
         <tr class="border-b">
-          <td class="px-4 py-2 font-mono">{{ cuenta }}</td>
+          <td class="px-4 py-2 font-mono">{{ cuenta.display_name }}</td>
           <td class="px-4 py-2">
-            <input type="checkbox" name="excluir" value="{{ cuenta }}" {% if cuenta in cuentas_excluidas %}checked{% endif %}>
+            <input type="checkbox" name="excluir" value="{{ cuenta.id }}" {% if cuenta.id in cuentas_excluidas %}checked{% endif %}>
           </td>
         </tr>
         {% endfor %}

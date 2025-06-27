@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Base de Conocimiento</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .bloque { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .prioridad { background-color: #fff3cd; border-color: #ffeaa7; }
+        .etiquetas { margin-top: 10px; }
+        .etiqueta { display: inline-block; background: #007bff; color: white; padding: 2px 8px; margin: 2px; border-radius: 3px; font-size: 12px; }
+        .error { color: red; padding: 20px; background: #ffebee; border-radius: 5px; margin: 10px 0; }
+        .success { color: green; padding: 20px; background: #e8f5e8; border-radius: 5px; margin: 10px 0; }
+        .loading { color: #666; padding: 20px; text-align: center; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Base de Conocimiento</h1>
+    <p>Esta página verifica si los endpoints de la base de conocimiento están funcionando correctamente.</p>
+    
+    <div>
+        <button onclick="testConexion()" class="btn-primary">🔍 Probar Conexión</button>
+        <button onclick="crearDatosPrueba()" class="btn-success">➕ Crear Datos de Prueba</button>
+        <button onclick="cargarBloques()" class="btn-primary">📋 Cargar Bloques</button>
+    </div>
+    
+    <div id="resultados"></div>
+    <div id="bloques"></div>
+
+    <script>
+        const nombreNora = 'aura'; // Cambia esto por el nombre de tu Nora
+        
+        function mostrarMensaje(mensaje, tipo = 'info') {
+            const div = document.createElement('div');
+            div.className = tipo;
+            div.innerHTML = mensaje;
+            document.getElementById('resultados').appendChild(div);
+        }
+        
+        function limpiarResultados() {
+            document.getElementById('resultados').innerHTML = '';
+            document.getElementById('bloques').innerHTML = '';
+        }
+        
+        async function testConexion() {
+            limpiarResultados();
+            mostrarMensaje('🔄 Probando conexión...', 'loading');
+            
+            try {
+                const response = await fetch(`/admin/nora/${nombreNora}/test-db`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    mostrarMensaje(`✅ Conexión exitosa: ${data.total_conocimiento} bloques en total, ${data.conocimiento_nora} para "${nombreNora}"`, 'success');
+                    if (data.sample_data) {
+                        mostrarMensaje(`📄 Datos de ejemplo: ${JSON.stringify(data.sample_data, null, 2)}`, 'success');
+                    }
+                } else {
+                    mostrarMensaje(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje(`❌ Error de conexión: ${error.message}`, 'error');
+            }
+        }
+        
+        async function crearDatosPrueba() {
+            limpiarResultados();
+            mostrarMensaje('🔄 Creando datos de prueba...', 'loading');
+            
+            try {
+                const response = await fetch(`/admin/nora/${nombreNora}/test-create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    mostrarMensaje(`✅ ${data.message}`, 'success');
+                    await cargarBloques(); // Cargar automáticamente después de crear
+                } else {
+                    mostrarMensaje(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje(`❌ Error creando datos: ${error.message}`, 'error');
+            }
+        }
+        
+        async function cargarBloques() {
+            mostrarMensaje('🔄 Cargando bloques...', 'loading');
+            
+            try {
+                const response = await fetch(`/admin/nora/${nombreNora}/entrenar/bloques`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    mostrarMensaje(`✅ Cargados ${data.data.length} bloques`, 'success');
+                    mostrarBloques(data.data);
+                } else {
+                    mostrarMensaje(`❌ Error: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje(`❌ Error cargando bloques: ${error.message}`, 'error');
+            }
+        }
+        
+        function mostrarBloques(bloques) {
+            const container = document.getElementById('bloques');
+            container.innerHTML = '<h2>📚 Bloques de Conocimiento</h2>';
+            
+            if (bloques.length === 0) {
+                container.innerHTML += '<p>No hay bloques de conocimiento.</p>';
+                return;
+            }
+            
+            bloques.forEach(bloque => {
+                const div = document.createElement('div');
+                div.className = 'bloque' + (bloque.prioridad ? ' prioridad' : '');
+                
+                div.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 10px;">
+                        ${bloque.prioridad ? '⭐ ' : ''}ID: ${bloque.id}
+                        <span style="float: right; font-size: 12px; color: #666;">
+                            ${new Date(bloque.fecha_creacion).toLocaleString()}
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 10px;">${bloque.contenido}</div>
+                    <div class="etiquetas">
+                        ${bloque.etiquetas ? bloque.etiquetas.map(tag => `<span class="etiqueta">${tag}</span>`).join('') : ''}
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+        
+        // Cargar automáticamente al inicio
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarBloques();
+        });
+    </script>
+</body>
+</html>

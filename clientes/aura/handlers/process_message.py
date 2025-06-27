@@ -118,18 +118,42 @@ def procesar_mensaje(data):
         nombre_nora = "nora"
         numero_nora = numero_nora_recibido
 
-    # Verificar si es la primera interacción
+    # Obtener configuración completa de Nora para mensajes de bienvenida
+    config = obtener_config_nora(nombre_nora)
+
+    # Verificar si es la primera interacción o usuario inactivo (7+ días)
     historial = supabase.table("historial_conversaciones") \
-        .select("id") \
+        .select("id, created_at") \
         .eq("telefono", numero_usuario) \
         .eq("nombre_nora", nombre_nora) \
+        .order("created_at", desc=True) \
         .limit(1) \
         .execute().data
 
+    debe_enviar_bienvenida = False
+    
     if not historial:
-        mensaje_bienvenida = config.get("mensaje_bienvenida", "").strip() if 'config' in locals() else ""
+        # No hay historial, es nuevo contacto
+        debe_enviar_bienvenida = True
+        print("👋 Nuevo contacto detectado - enviando bienvenida")
+    else:
+        # Verificar si ha pasado más de 7 días desde la última interacción
+        from datetime import datetime, timedelta
+        try:
+            ultima_interaccion = datetime.fromisoformat(historial[0]["created_at"].replace('Z', '+00:00'))
+            ahora = datetime.now().astimezone()
+            dias_inactivo = (ahora - ultima_interaccion).days
+            
+            if dias_inactivo >= 7:
+                debe_enviar_bienvenida = True
+                print(f"🔄 Usuario inactivo por {dias_inactivo} días - enviando bienvenida")
+        except Exception as e:
+            print(f"❌ Error calculando días de inactividad: {e}")
+
+    if debe_enviar_bienvenida:
+        mensaje_bienvenida = config.get("bienvenida", "").strip()
         if mensaje_bienvenida:
-            print("📩 Enviando mensaje de bienvenida visible...")
+            print("📩 Enviando mensaje de bienvenida...")
             enviar_mensaje(numero_usuario, mensaje_bienvenida)
             guardar_en_historial(
                 telefono=numero_usuario,

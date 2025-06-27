@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte Google Ads - {{ nombre_nora }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="text-primary">📊 Reporte de Google Ads</h2>
+            <p class="text-muted">Cliente: {{ nombre_nora }}</p>
+        </div>
+    </div>
+
+    <!-- Resumen General -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Campañas</h5>
+                    <h2 class="mb-0">{{ stats.total_campañas }}</h2>
+                    <small class="text-success">{{ stats.campañas_activas }} activas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Impresiones</h5>
+                    <h2 class="mb-0">{{ "{:,}".format(stats.total_impresiones) }}</h2>
+                    <small class="text-muted">Total acumulado</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Clics</h5>
+                    <h2 class="mb-0">{{ "{:,}".format(stats.total_clics) }}</h2>
+                    <small class="text-muted">Total acumulado</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">CTR Promedio</h5>
+                    <h2 class="mb-0">{{ stats.ctr_promedio }}%</h2>
+                    <small class="text-muted">General</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Campañas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Top 5 Campañas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Campaña</th>
+                                    <th>Impresiones</th>
+                                    <th>Clics</th>
+                                    <th>CTR</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for campaña in top_campañas %}
+                                <tr>
+                                    <td>{{ campaña.campaña }}</td>
+                                    <td>{{ "{:,}".format(campaña.impresiones) }}</td>
+                                    <td>{{ "{:,}".format(campaña.clics) }}</td>
+                                    <td>{{ "%.2f"|format(campaña.clics / campaña.impresiones * 100) }}%</td>
+                                    <td>
+                                        <span class="badge {% if campaña.estado == 'active' %}bg-success{% else %}bg-warning{% endif %}">
+                                            {{ campaña.estado }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estados de Anuncios -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Estados de Anuncios</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartEstados"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Top 10 Keywords</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Keyword</th>
+                                    <th>CTR</th>
+                                    <th>Impresiones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for kw in top_keywords %}
+                                <tr>
+                                    <td>{{ kw.keyword }}</td>
+                                    <td>{{ "%.2f"|format(kw.ctr) }}%</td>
+                                    <td>{{ "{:,}".format(kw.impresiones) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Gráfico de estados de anuncios
+const ctxEstados = document.getElementById('chartEstados').getContext('2d');
+new Chart(ctxEstados, {
+    type: 'doughnut',
+    data: {
+        labels: {{ estados_anuncios.keys()|list|tojson }},
+        datasets: [{
+            data: {{ estados_anuncios.values()|list }},
+            backgroundColor: [
+                '#28a745',
+                '#ffc107',
+                '#dc3545',
+                '#6c757d'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

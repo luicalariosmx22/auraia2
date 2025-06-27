@@ -1,0 +1,282 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="text-primary">📊 Reporte de Google Ads</h2>
+            <p class="text-muted">Cliente: {{ nombre_nora }}</p>
+        </div>
+    </div>
+
+    <!-- Selector de Empresa -->
+    <div class="row mb-4">
+        <div class="col">
+            {% if not empresa_id %}
+            <div class="alert alert-warning">
+                <h4 class="alert-heading">📋 Seleccione una empresa</h4>
+                <p>Por favor, seleccione una empresa para ver el reporte de Google Ads.</p>
+                <hr>
+                <form id="empresaForm" class="mt-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-auto">
+                            <select id="empresa_id" name="empresa_id" class="form-select">
+                                <option value="">Seleccionar empresa...</option>
+                                {% for empresa in empresas %}
+                                <option value="{{ empresa.id }}">{{ empresa.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Seleccionar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {% else %}
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Empresa:</strong> {{ empresa_actual.nombre if empresa_actual else 'No seleccionada' }}
+                </div>
+                <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#cambiarEmpresaModal">
+                    Cambiar empresa
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if empresa_id %}
+    <!-- Resumen General -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Campañas</h5>
+                    <h2 class="mb-0">{{ stats.total_campañas }}</h2>
+                    <small class="text-success">{{ stats.campañas_activas }} activas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Impresiones</h5>
+                    <h2 class="mb-0">{{ "{:,}".format(stats.total_impresiones) }}</h2>
+                    <small class="text-muted">Total acumulado</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Clics</h5>
+                    <h2 class="mb-0">{{ "{:,}".format(stats.total_clics) }}</h2>
+                    <small class="text-muted">Total acumulado</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">CTR Promedio</h5>
+                    <h2 class="mb-0">{{ stats.ctr_promedio }}%</h2>
+                    <small class="text-muted">General</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Campañas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Top 5 Campañas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Campaña</th>
+                                    <th>Impresiones</th>
+                                    <th>Clics</th>
+                                    <th>CTR</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for campaña in top_campanas %}
+                                <tr>
+                                    <td>{{ campaña.nombre }}</td>
+                                    <td>{{ "{:,}".format(campaña.impresiones) }}</td>
+                                    <td>{{ "{:,}".format(campaña.clics) }}</td>
+                                    <td>{{ "%.2f"|format(campaña.clics / campaña.impresiones * 100) if campaña.impresiones > 0 else "0.00" }}%</td>
+                                    <td>
+                                        <span class="badge {% if campaña.estado == 'ENABLED' %}bg-success{% else %}bg-warning{% endif %}">
+                                            {{ campaña.estado }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estados de Anuncios y Keywords -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Estados de Anuncios</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartEstados"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Top 10 Keywords</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Keyword</th>
+                                    <th>CTR</th>
+                                    <th>Impresiones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for kw in top_keywords %}
+                                <tr>
+                                    <td>{{ kw.keyword }}</td>
+                                    <td>{{ "%.2f"|format(kw.ctr) }}%</td>
+                                    <td>{{ "{:,}".format(kw.impresiones) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal Cambiar Empresa -->
+<div class="modal fade" id="cambiarEmpresaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Empresa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cambiarEmpresaForm">
+                    <div class="mb-3">
+                        <label for="nueva_empresa_id" class="form-label">Seleccionar Empresa</label>
+                        <select id="nueva_empresa_id" name="empresa_id" class="form-select">
+                            <option value="">Seleccionar empresa...</option>
+                            {% for empresa in empresas %}
+                            <option value="{{ empresa.id }}" {% if empresa_id == empresa.id %}selected{% endif %}>
+                                {{ empresa.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Agregar el JavaScript para manejar los formularios -->
+{% block extra_js %}
+<script>
+async function actualizarEmpresa(empresa_id) {
+    try {
+        const response = await fetch("{{ url_for('panel_cliente_google_ads.actualizar_empresa', nombre_nora=nombre_nora) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ empresa_id })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error al actualizar empresa');
+        }
+        
+        // Recargar la página para mostrar los datos de la nueva empresa
+        window.location.reload();
+    } catch (error) {
+        alert('Error al actualizar empresa: ' + error.message);
+    }
+}
+
+// Manejar el formulario principal de selección de empresa
+document.getElementById('empresaForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const empresa_id = document.getElementById('empresa_id').value;
+    if (!empresa_id) {
+        alert('Por favor selecciona una empresa');
+        return;
+    }
+    await actualizarEmpresa(empresa_id);
+});
+
+// Manejar el formulario del modal
+document.getElementById('cambiarEmpresaForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const empresa_id = document.getElementById('nueva_empresa_id').value;
+    if (!empresa_id) {
+        alert('Por favor selecciona una empresa');
+        return;
+    }
+    await actualizarEmpresa(empresa_id);
+    // El modal se cerrará automáticamente al recargar la página
+});
+</script>
+{% endblock %}
+
+<!-- Chart.js para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Gráfico de estados de anuncios
+const ctxEstados = document.getElementById('chartEstados').getContext('2d');
+new Chart(ctxEstados, {
+    type: 'doughnut',
+    data: {
+        labels: {{ estados_anuncios.keys()|list|tojson }},
+        datasets: [{
+            data: {{ estados_anuncios.values()|list }},
+            backgroundColor: [
+                '#28a745',
+                '#ffc107',
+                '#dc3545',
+                '#6c757d'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

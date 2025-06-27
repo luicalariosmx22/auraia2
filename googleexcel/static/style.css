@@ -1,0 +1,285 @@
+/* Google Ads SQL Generator - Estilos personalizados */
+
+:root {
+    --primary-color: #4285f4;
+    --secondary-color: #34a853;
+    --warning-color: #fbbc05;
+    --danger-color: #ea4335;
+    --dark-color: #1a73e8;
+    --light-color: #f8f9fa;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Utilidades generales */
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+/* Gradientes personalizados */
+.gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+.gradient-warning {
+    background: linear-gradient(135deg, var(--warning-color) 0%, #ff9800 100%);
+}
+
+.gradient-danger {
+    background: linear-gradient(135deg, var(--danger-color) 0%, #d32f2f 100%);
+}
+
+/* Sombras personalizadas */
+.shadow-soft {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.shadow-medium {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.shadow-strong {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+/* Efectos de hover */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* Iconos */
+.icon-lg {
+    font-size: 2.5rem;
+}
+
+.icon-xl {
+    font-size: 3.5rem;
+}
+
+/* Botones personalizados */
+.btn-google {
+    background: linear-gradient(135deg, #4285f4 0%, #34a853 50%, #fbbc05 100%);
+    border: none;
+    color: white;
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-google::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-google:hover::before {
+    left: 100%;
+}
+
+.btn-google:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(66, 133, 244, 0.3);
+    color: white;
+}
+
+/* Cards mejoradas */
+.card-hover {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.card-hover:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+/* Progress bars */
+.progress-modern {
+    height: 8px;
+    border-radius: 10px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.progress-modern .progress-bar {
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    transition: width 0.3s ease;
+}
+
+/* Alerts personalizados */
+.alert-modern {
+    border: none;
+    border-radius: 15px;
+    padding: 1.5rem;
+    border-left: 4px solid;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.alert-modern.alert-success {
+    background: #d4edda;
+    border-left-color: var(--secondary-color);
+    color: #155724;
+}
+
+.alert-modern.alert-info {
+    background: #d1ecf1;
+    border-left-color: var(--primary-color);
+    color: #0c5460;
+}
+
+.alert-modern.alert-warning {
+    background: #fff3cd;
+    border-left-color: var(--warning-color);
+    color: #856404;
+}
+
+.alert-modern.alert-danger {
+    background: #f8d7da;
+    border-left-color: var(--danger-color);
+    color: #721c24;
+}
+
+/* Código syntax highlighting */
+.code-block {
+    background: #2d3748;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    overflow-x: auto;
+}
+
+.code-block .keyword {
+    color: #81e6d9;
+}
+
+.code-block .string {
+    color: #fbb6ce;
+}
+
+.code-block .number {
+    color: #faf089;
+}
+
+.code-block .comment {
+    color: #a0aec0;
+    font-style: italic;
+}
+
+/* Loading states */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner-modern {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .btn-google {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .feature-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .upload-area {
+        padding: 2rem 1rem;
+    }
+    
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .card-hover {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .stats-card {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .code-block {
+        background: white !important;
+        color: black !important;
+        border: 1px solid #ccc;
+    }
+}

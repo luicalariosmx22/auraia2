@@ -24,3 +24,5 @@ __pycache__/
 venv311/
 flask_session/
 clientes/aura/templates/panel_cliente_tareas/dominio brenda Ibarra.pdf
+*.sql
+*.md

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Prueba Módulos JS Completa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">🧪 Prueba Completa de Módulos JavaScript</h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Estado de Carga</h2>
+                <div id="load-status" class="space-y-1 text-sm max-h-32 overflow-auto"></div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Botones de Prueba</h2>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="testScrollToSection()" class="bg-blue-500 text-white px-3 py-2 rounded text-sm hover:bg-blue-600">
+                        Test Scroll
+                    </button>
+                    <button onclick="testToggleExamples()" class="bg-green-500 text-white px-3 py-2 rounded text-sm hover:bg-green-600">
+                        Test Toggle
+                    </button>
+                    <button onclick="testPanelConfig()" class="bg-purple-500 text-white px-3 py-2 rounded text-sm hover:bg-purple-600">
+                        Test Config
+                    </button>
+                    <button onclick="testTabs()" class="bg-orange-500 text-white px-3 py-2 rounded text-sm hover:bg-orange-600">
+                        Test Tabs
+                    </button>
+                    <button onclick="testFormHandlers()" class="bg-pink-500 text-white px-3 py-2 rounded text-sm hover:bg-pink-600">
+                        Test Forms
+                    </button>
+                    <button onclick="testConocimiento()" class="bg-teal-500 text-white px-3 py-2 rounded text-sm hover:bg-teal-600">
+                        Test Conocimiento
+                    </button>
+                    <button onclick="testAll()" class="bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600">
+                        Test All
+                    </button>
+                    <button onclick="clearLog()" class="bg-gray-500 text-white px-3 py-2 rounded text-sm hover:bg-gray-600">
+                        Clear Log
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Elementos de prueba -->
+        <div id="test-section" class="bg-yellow-100 p-4 rounded-lg mb-4">
+            <h3 class="font-semibold">🎯 Sección de Prueba para Scroll</h3>
+            <p>Esta sección es para probar scrollToSection().</p>
+        </div>
+        
+        <div id="examples-container" class="hidden bg-green-100 p-4 rounded-lg mb-4">
+            <h3 class="font-semibold">📝 Contenedor de Ejemplos</h3>
+            <p>Este contenedor se muestra/oculta con toggleExamples().</p>
+        </div>
+        
+        <!-- Tabs de prueba -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-4">
+            <div class="border-b border-gray-200 mb-4">
+                <nav class="flex space-x-8">
+                    <button data-tab="tab1" class="tab-button py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        Tab 1
+                    </button>
+                    <button data-tab="tab2" class="tab-button py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        Tab 2
+                    </button>
+                </nav>
+            </div>
+            <div id="tab-tab1" class="tab-content">
+                <p>Contenido de Tab 1</p>
+            </div>
+            <div id="tab-tab2" class="tab-content hidden">
+                <p>Contenido de Tab 2</p>
+            </div>
+        </div>
+        
+        <!-- Formulario de prueba -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-4">
+            <h3 class="text-lg font-semibold mb-4">Formulario de Prueba</h3>
+            <form id="test-form">
+                <textarea id="test-textarea" data-max-length="100" data-counter="test-counter" 
+                         class="w-full p-3 border border-gray-300 rounded-lg" 
+                         placeholder="Escribe algo aquí..."></textarea>
+                <div class="flex justify-between items-center mt-2">
+                    <span id="test-counter" class="text-sm text-gray-500">0/100</span>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Console output -->
+        <div class="bg-black text-green-400 p-4 rounded-lg">
+            <h3 class="font-semibold mb-2">📊 Console Output:</h3>
+            <pre id="console-output" class="text-xs max-h-64 overflow-auto"></pre>
+        </div>
+    </div>
+    
+    <!-- Cargar archivos JavaScript en orden -->
+    <script src="clientes/aura/static/js/panel-entrenamiento-core.js" onerror="logScriptError('panel-entrenamiento-core.js')" onload="logScriptLoad('panel-entrenamiento-core.js')"></script>
+    <script src="clientes/aura/static/js/ui-utils.js" onerror="logScriptError('ui-utils.js')" onload="logScriptLoad('ui-utils.js')"></script>
+    <script src="clientes/aura/static/js/conocimiento-manager.js" onerror="logScriptError('conocimiento-manager.js')" onload="logScriptLoad('conocimiento-manager.js')"></script>
+    <script src="clientes/aura/static/js/form-handlers.js" onerror="logScriptError('form-handlers.js')" onload="logScriptLoad('form-handlers.js')"></script>
+    
+    <script>
+    // Función de logging
+    function log(message, type = 'info') {
+        const output = document.getElementById('console-output');
+        const timestamp = new Date().toLocaleTimeString();
+        const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '📝';
+        output.textContent += `${timestamp} ${icon} ${message}\n`;
+        output.scrollTop = output.scrollHeight;
+        console.log(`${icon} ${message}`);
+    }
+    
+    function updateLoadStatus(file, status, message = '') {
+        const statusDiv = document.getElementById('load-status');
+        const statusElement = document.createElement('div');
+        const icon = status === 'success' ? '✅' : status === 'error' ? '❌' : '⏳';
+        const color = status === 'success' ? 'text-green-600' : status === 'error' ? 'text-red-600' : 'text-yellow-600';
+        statusElement.className = color;
+        statusElement.textContent = `${icon} ${file} ${message}`;
+        statusDiv.appendChild(statusElement);
+    }
+    
+    function logScriptLoad(filename) {
+        updateLoadStatus(filename, 'success', '(cargado)');
+        log(`✅ ${filename} cargado correctamente`, 'success');
+    }
+    
+    function logScriptError(filename) {
+        updateLoadStatus(filename, 'error', '(error)');
+        log(`❌ Error cargando ${filename}`, 'error');
+    }
+    
+    // Configuración después de que los scripts se carguen
+    function configurarPanel() {
+        if (typeof PANEL_CONFIG !== 'undefined') {
+            PANEL_CONFIG.nombreNora = 'test-nora';
+            PANEL_CONFIG.endpoints = {
+                bloques: '/test/bloques',
+                personalidad: '/test/personalidad',
+                instrucciones: '/test/instrucciones',
+                estadoIA: '/test/estado_ia',
+                limites: '/test/limites',
+                bienvenida: '/test/bienvenida'
+            };
+            log('✅ PANEL_CONFIG configurado', 'success');
+        } else {
+            log('❌ PANEL_CONFIG no disponible', 'error');
+        }
+    }
+    
+    // Funciones de prueba
+    function testScrollToSection() {
+        log('=== TEST SCROLL TO SECTION ===');
+        if (typeof scrollToSection === 'function') {
+            scrollToSection('test-section');
+            log('✅ scrollToSection ejecutada', 'success');
+        } else {
+            log('❌ scrollToSection no disponible', 'error');
+        }
+    }
+    
+    function testToggleExamples() {
+        log('=== TEST TOGGLE EXAMPLES ===');
+        if (typeof toggleExamples === 'function') {
+            toggleExamples();
+            log('✅ toggleExamples ejecutada', 'success');
+        } else {
+            log('❌ toggleExamples no disponible', 'error');
+        }
+    }
+    
+    function testPanelConfig() {
+        log('=== TEST PANEL CONFIG ===');
+        if (typeof PANEL_CONFIG !== 'undefined') {
+            log('✅ PANEL_CONFIG disponible', 'success');
+            log(`nombreNora: ${PANEL_CONFIG.nombreNora}`);
+            log(`endpoints: ${Object.keys(PANEL_CONFIG.endpoints).length} configurados`);
+        } else {
+            log('❌ PANEL_CONFIG no disponible', 'error');
+        }
+    }
+    
+    function testTabs() {
+        log('=== TEST TABS ===');
+        if (typeof initializeTabs === 'function') {
+            initializeTabs();
+            log('✅ initializeTabs ejecutada', 'success');
+        } else {
+            log('❌ initializeTabs no disponible', 'error');
+        }
+    }
+    
+    function testFormHandlers() {
+        log('=== TEST FORM HANDLERS ===');
+        if (typeof initializeFormHandlers === 'function') {
+            initializeFormHandlers();
+            log('✅ initializeFormHandlers ejecutada', 'success');
+        } else {
+            log('❌ initializeFormHandlers no disponible', 'error');
+        }
+        
+        if (typeof initializeCharacterCounters === 'function') {
+            initializeCharacterCounters();
+            log('✅ initializeCharacterCounters ejecutada', 'success');
+        } else {
+            log('❌ initializeCharacterCounters no disponible', 'error');
+        }
+    }
+    
+    function testConocimiento() {
+        log('=== TEST CONOCIMIENTO ===');
+        if (typeof cargarConocimiento === 'function') {
+            cargarConocimiento();
+            log('✅ cargarConocimiento ejecutada', 'success');
+        } else {
+            log('❌ cargarConocimiento no disponible', 'error');
+        }
+    }
+    
+    function testAll() {
+        log('=== EJECUTANDO TODAS LAS PRUEBAS ===');
+        const tests = [
+            testPanelConfig,
+            testScrollToSection,
+            testToggleExamples,
+            testTabs,
+            testFormHandlers,
+            testConocimiento
+        ];
+        
+        tests.forEach((test, index) => {
+            setTimeout(() => test(), index * 500);
+        });
+        
+        setTimeout(() => log('=== TODAS LAS PRUEBAS COMPLETADAS ==='), tests.length * 500);
+    }
+    
+    function clearLog() {
+        document.getElementById('console-output').textContent = '';
+        document.getElementById('load-status').innerHTML = '';
+        log('🧹 Log limpiado');
+    }
+    
+    // Verificar funciones cuando se carga la página
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            log('🚀 Página completamente cargada');
+            configurarPanel();
+            
+            const funciones = [
+                'scrollToSection',
+                'toggleExamples',
+                'initializeTabs', 
+                'initializeFormHandlers',
+                'initializeCharacterCounters',
+                'cargarConocimiento'
+            ];
+            
+            log('📋 Verificando funciones:');
+            funciones.forEach(fn => {
+                const disponible = typeof window[fn] === 'function';
+                log(`${disponible ? '✅' : '❌'} ${fn}: ${typeof window[fn]}`);
+            });
+            
+            log('🎯 Prueba lista - haz clic en los botones para probar');
+        }, 1000);
+    });
+    
+    log('🔧 Inicializando prueba completa...');
+    </script>
+</body>
+</html>

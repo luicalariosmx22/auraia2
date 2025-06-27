@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Conocimiento Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">🧪 Test Conocimiento Manager</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">📊 Estado del Sistema</h2>
+            <div id="status" class="space-y-2"></div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">🎯 Test Funciones</h2>
+            <div class="space-x-4">
+                <button onclick="testCargarConocimientoSimple()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                    🧪 Test Simple
+                </button>
+                <button onclick="testCargarConocimiento()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Probar cargarConocimiento()
+                </button>
+                <button onclick="testConfiguration()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    Verificar Configuración
+                </button>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">📝 Log</h2>
+            <div id="log" class="bg-gray-50 p-4 rounded border h-64 overflow-y-auto font-mono text-sm"></div>
+        </div>
+    </div>
+
+    <!-- Configuración de prueba -->
+    <script>
+    // Configuración de prueba
+    window.PANEL_CONFIG = {
+        nombreNora: 'test',
+        endpoints: {
+            bloques: '/panel_cliente/test/entrenar/bloques',
+            personalidad: '/panel_cliente/test/entrenar/personalidad',
+            instrucciones: '/panel_cliente/test/entrenar/instrucciones',
+            estadoIA: '/panel_cliente/test/entrenar/estado_ia',
+            limites: '/panel_cliente/test/entrenar/limites',
+            bienvenida: '/panel_cliente/test/entrenar/bienvenida'
+        },
+        limits: {
+            maxContentLength: 500,
+            maxTags: 10
+        }
+    };
+
+    // Override console.log para capturar en el UI
+    const originalLog = console.log;
+    const originalError = console.error;
+    const originalWarn = console.warn;
+    
+    function logToUI(message, type = 'log') {
+        const logDiv = document.getElementById('log');
+        const timestamp = new Date().toLocaleTimeString();
+        const color = type === 'error' ? 'text-red-600' : type === 'warn' ? 'text-yellow-600' : 'text-gray-700';
+        logDiv.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    console.log = function(...args) {
+        originalLog.apply(console, args);
+        logToUI(args.join(' '), 'log');
+    };
+    
+    console.error = function(...args) {
+        originalError.apply(console, args);
+        logToUI('ERROR: ' + args.join(' '), 'error');
+    };
+    
+    console.warn = function(...args) {
+        originalWarn.apply(console, args);
+        logToUI('WARN: ' + args.join(' '), 'warn');
+    };
+
+    // Función showToast de prueba
+    window.showToast = function(message, type) {
+        console.log(`TOAST [${type}]: ${message}`);
+        alert(`${type.toUpperCase()}: ${message}`);
+    };
+    </script>
+
+    <!-- Cargar módulos JS -->
+    <script src="/static/js/test-simple.js"></script>
+    <script src="/static/js/ui-utils.js"></script>
+    <script src="/static/js/conocimiento-manager.js"></script>
+    <script src="/static/js/form-handlers.js"></script>
+    <script src="/static/js/panel-entrenamiento-core.js"></script>
+
+    <script>
+    function updateStatus() {
+        const status = document.getElementById('status');
+        status.innerHTML = `
+            <div><strong>PANEL_CONFIG:</strong> ${!!window.PANEL_CONFIG ? '✅ Configurado' : '❌ No encontrado'}</div>
+            <div><strong>cargarConocimiento:</strong> ${typeof cargarConocimiento === 'function' ? '✅ Disponible' : '❌ No encontrada'}</div>
+            <div><strong>showToast:</strong> ${typeof window.showToast === 'function' ? '✅ Disponible' : '❌ No encontrada'}</div>
+            <div><strong>conocimientoData:</strong> ${typeof conocimientoData !== 'undefined' ? `✅ Definida (${conocimientoData ? conocimientoData.length : 0} items)` : '❌ No definida'}</div>
+        `;
+    }
+
+    function testConfiguration() {
+        console.log('🔍 Testing configuration...');
+        console.log('PANEL_CONFIG:', window.PANEL_CONFIG);
+        console.log('Endpoint bloques:', window.PANEL_CONFIG?.endpoints?.bloques);
+        updateStatus();
+    }
+
+    async function testCargarConocimiento() {
+        console.log('🧪 Testing cargarConocimiento...');
+        try {
+            if (typeof cargarConocimiento === 'function') {
+                await cargarConocimiento();
+                console.log('✅ cargarConocimiento ejecutada sin errores');
+            } else {
+                console.error('❌ cargarConocimiento no está definida');
+            }
+        } catch (error) {
+            console.error('❌ Error en cargarConocimiento:', error);
+        }
+        updateStatus();
+    }
+
+    function testCargarConocimientoSimple() {
+        console.log('🧪 Testing cargarConocimientoTest...');
+        if (typeof window.cargarConocimientoTest === 'function') {
+            console.log('✅ cargarConocimientoTest encontrada, ejecutando...');
+            window.cargarConocimientoTest();
+        } else {
+            console.error('❌ cargarConocimientoTest no está definida');
+            console.log('🔍 window disponible:', typeof window);
+            console.log('🔍 Funciones en window:', Object.keys(window).filter(key => key.includes('cargar')));
+        }
+    }
+
+    // Actualizar estado inicial
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📋 Página cargada, actualizando estado...');
+        setTimeout(updateStatus, 1000);
+    });
+    </script>
+</body>
+</html>

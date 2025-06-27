@@ -119,6 +119,25 @@ def index():
 def panel_conversaciones():
     return render_template('panel_conversaciones.html')
 
+# =============================================================================
+# 🔑 RUTAS DE REDIRECT PARA SISTEMA DE LOGIN
+# =============================================================================
+
+@main_bp.route("/")
+def index_redirect():
+    """Página principal - redirige al login simple"""
+    return redirect("/login/simple")
+
+@main_bp.route("/dashboard")
+def dashboard_redirect():
+    """Dashboard principal - redirige al login simple"""
+    return redirect("/login/simple")
+
+@main_bp.route("/admin")
+def admin_main_redirect():
+    """Redirect a panel de administración vía login"""
+    return redirect("/login/simple")
+
 # ✅ ÚNICO BLOQUE PARA INICIAR LA APP
 if __name__ == "__main__":
     from app import app, socketio

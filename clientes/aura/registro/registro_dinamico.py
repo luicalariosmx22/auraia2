@@ -13,8 +13,8 @@ from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_b
 from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import panel_cliente_whatsapp_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
-from clientes.aura.routes.panel_cliente_conocimiento import panel_cliente_conocimiento_bp
-from clientes.aura.routes.panel_cliente_etiquetas_conocimiento import panel_cliente_etiquetas_conocimiento_bp
+
+
 from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp
 from clientes.aura.routes.panel_cliente_tareas.recurrentes import panel_tareas_recurrentes_bp
@@ -177,14 +177,11 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "qr_whatsapp_web" in modulos:
                 safe_register_blueprint(app, panel_cliente_whatsapp_bp, url_prefix=f"/panel_cliente/{nombre_nora}/whatsapp")
 
-            if "conocimiento" in modulos:
-                safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
-                # Registro de etiquetas_conocimiento
-                safe_register_blueprint(
-                    app,
-                    panel_cliente_etiquetas_conocimiento_bp,
-                    url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas_conocimiento"
-                )
+            # ✅ Conocimiento ahora está integrado en el panel de entrenamiento de admin_nora
+            # if "conocimiento" in modulos:
+            #     safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
+            #     safe_register_blueprint(app, panel_cliente_etiquetas_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas_conocimiento")
+            
             # Registrar módulo Meta Ads si está activo
             if "meta_ads" in modulos:
                 # from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
