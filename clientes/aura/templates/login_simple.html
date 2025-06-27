@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔑 Login Simple - AuraAI</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- TEMPLATE ACTUALIZADO - SIN USUARIOS DE PRUEBA - VERSION 2024 -->
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
     <div class="min-h-screen flex items-center justify-center p-6">
@@ -57,59 +58,38 @@
                 </form>
             </div>
 
-            <!-- Usuarios de Prueba -->
-            <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-                <h3 class="text-lg font-semibold text-yellow-800 mb-4 flex items-center">
-                    <span class="mr-2">👥</span>
-                    Usuarios de Prueba
+            <!-- Información de Autenticación -->
+            <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <h3 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                    <span class="mr-2">�</span>
+                    Métodos de Autenticación
                 </h3>
                 
                 <div class="space-y-4">
-                    <!-- Admin -->
-                    <div class="bg-white rounded-lg p-4 border border-yellow-200">
+                    <!-- Google Login -->
+                    <div class="bg-white rounded-lg p-4 border border-blue-200">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="font-medium text-gray-800">🔧 Administrador</span>
-                            <button onclick="fillLogin('admin@test.com', '123456')" 
-                                    class="text-xs bg-purple-500 text-white px-3 py-1 rounded-full hover:bg-purple-600 transition-colors">
-                                Usar
-                            </button>
+                            <span class="font-medium text-gray-800">🌟 Google Login</span>
+                            <a href="{{ url_for('simple_login.google_login') }}" 
+                               class="text-xs bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition-colors">
+                                Iniciar con Google
+                            </a>
                         </div>
                         <div class="text-sm text-gray-600">
-                            <div>📧 <code>admin@test.com</code></div>
-                            <div>🔑 <code>123456</code></div>
-                            <div class="text-xs text-purple-600 mt-1">Acceso completo al sistema</div>
+                            <div class="text-xs text-red-600 mt-1">Autenticación segura con tu cuenta de Google</div>
                         </div>
                     </div>
 
-                    <!-- Cliente -->
-                    <div class="bg-white rounded-lg p-4 border border-yellow-200">
+                    <!-- Autenticación BD -->
+                    <div class="bg-white rounded-lg p-4 border border-blue-200">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="font-medium text-gray-800">👤 Cliente</span>
-                            <button onclick="fillLogin('cliente@test.com', '123456')" 
-                                    class="text-xs bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition-colors">
-                                Usar
-                            </button>
+                            <span class="font-medium text-gray-800">📧 Email & Contraseña</span>
+                            <span class="text-xs bg-gray-400 text-white px-3 py-1 rounded-full">
+                                Deshabilitado
+                            </span>
                         </div>
                         <div class="text-sm text-gray-600">
-                            <div>📧 <code>cliente@test.com</code></div>
-                            <div>🔑 <code>123456</code></div>
-                            <div class="text-xs text-blue-600 mt-1">Panel de entrenamiento de Nora</div>
-                        </div>
-                    </div>
-
-                    <!-- Cliente Aura -->
-                    <div class="bg-white rounded-lg p-4 border border-yellow-200">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-medium text-gray-800">🤖 Cliente Aura</span>
-                            <button onclick="fillLogin('aura@test.com', '123456')" 
-                                    class="text-xs bg-teal-500 text-white px-3 py-1 rounded-full hover:bg-teal-600 transition-colors">
-                                Usar
-                            </button>
-                        </div>
-                        <div class="text-sm text-gray-600">
-                            <div>📧 <code>aura@test.com</code></div>
-                            <div>🔑 <code>123456</code></div>
-                            <div class="text-xs text-teal-600 mt-1">Acceso a bloques de conocimiento existentes</div>
+                            <div class="text-xs text-gray-500 mt-1">Contacta al administrador para habilitar</div>
                         </div>
                     </div>
                 </div>
