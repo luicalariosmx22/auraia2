@@ -521,10 +521,10 @@
 </div>
 
 <!-- JavaScript Modules -->
-<script src="/static/js/ui-utils.js"></script>
-<script src="/static/js/conocimiento-manager.js"></script>
-<script src="/static/js/form-handlers.js"></script>
-<script src="/static/js/panel-entrenamiento-core.js"></script>
+<script src="/admin/nora/static/js/ui-utils.js"></script>
+<script src="/admin/nora/static/js/conocimiento-manager.js"></script>
+<script src="/admin/nora/static/js/form-handlers.js"></script>
+<script src="/admin/nora/static/js/panel-entrenamiento-core.js"></script>
 
 <!-- Configuration Variables -->
 <script>
@@ -532,18 +532,51 @@
 window.PANEL_CONFIG = {
     nombreNora: '{{ nombre_nora }}',
     endpoints: {
-        bloques: '/panel_cliente/{{ nombre_nora }}/entrenar/bloques',
-        personalidad: '/panel_cliente/{{ nombre_nora }}/entrenar/personalidad',
-        instrucciones: '/panel_cliente/{{ nombre_nora }}/entrenar/instrucciones',
-        estadoIA: '/panel_cliente/{{ nombre_nora }}/entrenar/estado_ia',
-        limites: '/panel_cliente/{{ nombre_nora }}/entrenar/limites',
-        bienvenida: '/panel_cliente/{{ nombre_nora }}/entrenar/bienvenida'
+        bloques: '/admin/nora/{{ nombre_nora }}/entrenar/bloques',
+        personalidad: '/admin/nora/{{ nombre_nora }}/entrenar/personalidad',
+        instrucciones: '/admin/nora/{{ nombre_nora }}/entrenar/instrucciones',
+        estadoIA: '/admin/nora/{{ nombre_nora }}/entrenar/estado_ia',
+        limites: '/admin/nora/{{ nombre_nora }}/entrenar/limites',
+        bienvenida: '/admin/nora/{{ nombre_nora }}/entrenar/bienvenida'
     },
     limits: {
         maxContentLength: 500,
         maxTags: 10
     }
 };
+
+// Debug específico de funciones de conocimiento después de cargar todos los scripts
+setTimeout(() => {
+    console.log('🔍 VERIFICACIÓN FINAL - Funciones de conocimiento disponibles:');
+    console.log('cargarConocimiento:', typeof window.cargarConocimiento);
+    console.log('agregarBloque:', typeof window.agregarBloque);
+    console.log('eliminarBloque:', typeof window.eliminarBloque);
+    console.log('mostrarToast:', typeof window.mostrarToast);
+    
+    // Verificar si hay funciones de conocimiento disponibles
+    if (!window.cargarConocimiento && window.inicializarConocimientoManager) {
+        console.log('🔄 Forzando reinicialización del conocimiento manager...');
+        window.inicializarConocimientoManager();
+    }
+    
+    // Intentar cargar conocimiento manualmente si está disponible
+    if (typeof window.cargarConocimiento === 'function') {
+        console.log('🚀 Iniciando carga manual de conocimiento...');
+        window.cargarConocimiento().then(() => {
+            console.log('✅ Conocimiento cargado manualmente con éxito');
+        }).catch(error => {
+            console.error('❌ Error cargando conocimiento manualmente:', error);
+        });
+    } else {
+        console.error('❌ cargarConocimiento no está disponible en window');
+        
+        // Diagnóstico adicional
+        console.log('🔍 Propiedades de window que contienen "cargar":', 
+            Object.keys(window).filter(key => key.toLowerCase().includes('cargar')));
+        console.log('🔍 Propiedades de window que contienen "conocimiento":', 
+            Object.keys(window).filter(key => key.toLowerCase().includes('conocimiento')));
+    }
+}, 1000);
 </script>
 
 {% endblock %}

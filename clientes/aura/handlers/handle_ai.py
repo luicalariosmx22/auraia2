@@ -17,25 +17,30 @@ def obtener_configuracion_nora(numero_nora: str) -> Tuple[str, str, str, str]:
     Retorna personalidad, instrucciones, modo_respuesta y mensaje_fuera_tema.
     """
     try:
+        print(f"🔍 Buscando configuración para Nora: {numero_nora}")
         resultado = (
             supabase
             .table("configuracion_bot")
             .select("personalidad, instrucciones, modo_respuesta, mensaje_fuera_tema")
-            .eq("numero_nora", numero_nora)
+            .eq("nombre_nora", numero_nora)
             .limit(1)
             .execute()
         )
         if resultado.data:
             datos = resultado.data[0]
+            print(f"✅ Configuración encontrada para {numero_nora}")
             personalidad = datos.get("personalidad", "profesional y amigable").strip()
             instrucciones = datos.get("instrucciones", "Responde de forma clara y útil.").strip()
             modo_respuesta = datos.get("modo_respuesta", "flexible")
             mensaje_fuera_tema = datos.get("mensaje_fuera_tema", 
                 "Lo siento, no tengo información sobre ese tema. Te conectaré con un humano para ayudarte mejor.")
             return personalidad, instrucciones, modo_respuesta, mensaje_fuera_tema
+        else:
+            print(f"⚠️ No se encontró configuración para {numero_nora}, usando valores por defecto")
         return "profesional y amigable", "Responde de forma clara y útil.", "flexible", \
                "Lo siento, no tengo información sobre ese tema. Te conectaré con un humano para ayudarte mejor."
     except Exception as e:
+        print(f"❌ Error al obtener configuración de Nora: {e}")
         registrar_error("IA", f"No se pudo cargar configuración de Nora: {e}")
         return "profesional y amigable", "Responde de forma clara y útil.", "flexible", \
                "Lo siento, no tengo información sobre ese tema. Te conectaré con un humano para ayudarte mejor."
@@ -103,8 +108,8 @@ def manejar_respuesta_ai(
 ) -> Tuple[str, List[dict]]:
     try:
         if numero_nora is None:
-            resultado = supabase.table("configuracion_bot").select("numero_nora").limit(1).execute()
-            numero_nora = resultado.data[0].get("numero_nora", "5215593372311") if resultado.data else "5215593372311"
+            resultado = supabase.table("configuracion_bot").select("nombre_nora").limit(1).execute()
+            numero_nora = resultado.data[0].get("nombre_nora", "aura") if resultado.data else "aura"
 
         if base_conocimiento is None:
             base_conocimiento = obtener_base_conocimiento(numero_nora)

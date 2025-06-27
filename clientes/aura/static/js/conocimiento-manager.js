@@ -3,7 +3,8 @@
  * Funciones para cargar, crear, editar y eliminar bloques de conocimiento
  */
 
-console.log('📚 CONOCIMIENTO MANAGER cargado - versión 1.0');
+console.log('📚 CONOCIMIENTO MANAGER iniciando carga - versión 1.1');
+console.log('🔍 window disponible al inicio:', typeof window !== 'undefined');
 
 // =============================================================================
 // 🌍 VARIABLES GLOBALES
@@ -11,6 +12,9 @@ console.log('📚 CONOCIMIENTO MANAGER cargado - versión 1.0');
 // Definir conocimientoData globalmente
 if (typeof window.conocimientoData === 'undefined') {
     window.conocimientoData = [];
+    console.log('✅ conocimientoData inicializada');
+} else {
+    console.log('⚠️ conocimientoData ya existía');
 }
 let conocimientoData = window.conocimientoData;
 
@@ -36,14 +40,9 @@ function mostrarToast(mensaje, tipo = 'info') {
 // Exportar inmediatamente
 window.mostrarToast = mostrarToast;
 console.log('✅ mostrarToast exportada:', typeof window.mostrarToast);
+console.log('🔍 mostrarToast en window:', window.hasOwnProperty('mostrarToast'));
 
-// =============================================================================
-// �📋 FUNCIONES PRINCIPALES DE CONOCIMIENTO
-// =============================================================================
 
-/**
- * Cargar bloques de conocimiento desde el servidor
- */
 async function cargarConocimiento() {
     console.log('🚀 INICIANDO cargarConocimiento...');
     console.log('🔍 window disponible:', typeof window !== 'undefined');
@@ -113,6 +112,7 @@ async function cargarConocimiento() {
 // Exportar inmediatamente
 window.cargarConocimiento = cargarConocimiento;
 console.log('✅ cargarConocimiento exportada:', typeof window.cargarConocimiento);
+console.log('🔍 cargarConocimiento en window:', window.hasOwnProperty('cargarConocimiento'));
 
 
 
@@ -538,3 +538,11 @@ inicializarConocimientoManager();
 
 // También exportar la función de inicialización por si se necesita llamar manualmente
 window.inicializarConocimientoManager = inicializarConocimientoManager;
+
+console.log('🎉 CONOCIMIENTO MANAGER - Archivo completamente procesado');
+console.log('🔍 Funciones finales en window:', {
+    cargarConocimiento: typeof window.cargarConocimiento,
+    mostrarToast: typeof window.mostrarToast,
+    agregarBloque: typeof window.agregarBloque,
+    eliminarBloque: typeof window.eliminarBloque
+});

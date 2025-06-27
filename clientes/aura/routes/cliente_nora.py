@@ -830,6 +830,9 @@ def diagnostico_completo(nombre_nora):
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h2 class="text-xl font-semibold mb-4">🧪 Pruebas de Función</h2>
                     <div class="space-y-2">
+                        <button onclick="testCargarConocimiento()" class="w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                            🎯 Test cargarConocimiento()
+                        </button>
                         <button onclick="testScrollToSection()" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                             Test scrollToSection()
                         </button>
@@ -875,6 +878,24 @@ def diagnostico_completo(nombre_nora):
         
         log('🚀 Iniciando diagnóstico...');
         log('📂 Archivos JavaScript a cargar: panel-entrenamiento-core.js, ui-utils.js, conocimiento-manager.js, form-handlers.js');
+        
+        // Definir PANEL_CONFIG antes de cargar los archivos
+        window.PANEL_CONFIG = {{
+            nombreNora: '{nombre_nora}',
+            endpoints: {{
+                bloques: '/panel_cliente/{nombre_nora}/entrenar/bloques',
+                personalidad: '/panel_cliente/{nombre_nora}/entrenar/personalidad',
+                instrucciones: '/panel_cliente/{nombre_nora}/entrenar/instrucciones',
+                estadoIA: '/panel_cliente/{nombre_nora}/entrenar/estado_ia',
+                limites: '/panel_cliente/{nombre_nora}/entrenar/limites',
+                bienvenida: '/panel_cliente/{nombre_nora}/entrenar/bienvenida'
+            }},
+            limits: {{
+                maxContentLength: 500,
+                maxTags: 10
+            }}
+        }};
+        log('✅ PANEL_CONFIG definido', 'success');
         </script>
         
         <script src="/static/js/panel-entrenamiento-core.js" 
@@ -891,31 +912,72 @@ def diagnostico_completo(nombre_nora):
                 onerror="log('❌ Error cargando form-handlers.js', 'error')"></script>
         
         <script>
-        // Configurar después de cargar scripts
+        // Verificar después de cargar scripts
         setTimeout(() => {{
-            if (typeof PANEL_CONFIG !== 'undefined') {{
-                PANEL_CONFIG.nombreNora = '{nombre_nora}';
-                PANEL_CONFIG.endpoints = {{
-                    bloques: '/panel_cliente/{nombre_nora}/entrenar/bloques',
-                    personalidad: '/panel_cliente/{nombre_nora}/entrenar/personalidad',
-                    instrucciones: '/panel_cliente/{nombre_nora}/entrenar/instrucciones',
-                    estadoIA: '/panel_cliente/{nombre_nora}/entrenar/estado_ia',
-                    limites: '/panel_cliente/{nombre_nora}/entrenar/limites',
-                    bienvenida: '/panel_cliente/{nombre_nora}/entrenar/bienvenida'
-                }};
-                log('✅ PANEL_CONFIG configurado', 'success');
+            log('🔍 Verificando funciones después de cargar scripts...');
+            
+            // Verificar PANEL_CONFIG
+            if (typeof window.PANEL_CONFIG !== 'undefined') {{
+                log('✅ PANEL_CONFIG disponible', 'success');
             }} else {{
                 log('❌ PANEL_CONFIG no disponible', 'error');
             }}
             
-            // Verificar funciones
-            const funciones = ['scrollToSection', 'toggleExamples', 'initializeTabs', 'initializeFormHandlers', 'cargarConocimiento'];
+            // Verificar funciones específicamente
+            const funciones = [
+                'scrollToSection', 
+                'toggleExamples', 
+                'initializeTabs', 
+                'initializeFormHandlers',
+                'cargarConocimiento',
+                'agregarBloque',
+                'eliminarBloque',
+                'mostrarToast'
+            ];
+            
             funciones.forEach(fn => {{
                 const disponible = typeof window[fn] === 'function';
                 log(`${{disponible ? '✅' : '❌'}} ${{fn}}: ${{typeof window[fn]}}`, disponible ? 'success' : 'error');
             }});
             
-        }}, 1000);
+            // Debug específico para cargarConocimiento
+            if (typeof window.cargarConocimiento === 'undefined') {{
+                log('🔍 Buscando cargarConocimiento en window...', 'warning');
+                const funcionesCargar = Object.keys(window).filter(key => key.includes('cargar'));
+                log(`🔍 Funciones que contienen 'cargar': ${{funcionesCargar.join(', ')}}`, 'warning');
+            }}
+            
+        }}, 1500);
+        
+        function testCargarConocimiento() {{
+            log('🎯 Probando cargarConocimiento específicamente...');
+            if (typeof window.cargarConocimiento === 'function') {{
+                log('✅ cargarConocimiento encontrada, ejecutando...', 'success');
+                try {{
+                    window.cargarConocimiento();
+                    log('✅ cargarConocimiento ejecutada sin errores', 'success');
+                }} catch (error) {{
+                    log(`❌ Error ejecutando cargarConocimiento: ${{error.message}}`, 'error');
+                }}
+            }} else {{
+                log('❌ cargarConocimiento no está disponible', 'error');
+                log(`🔍 Tipo: ${{typeof window.cargarConocimiento}}`, 'warning');
+                log(`🔍 En window: ${{window.hasOwnProperty('cargarConocimiento')}}`, 'warning');
+                
+                // Buscar todas las funciones que contengan 'cargar'
+                const funcionesCargar = Object.keys(window).filter(key => 
+                    typeof window[key] === 'function' && key.toLowerCase().includes('cargar')
+                );
+                log(`🔍 Funciones con 'cargar': ${{funcionesCargar.join(', ')}}`, 'warning');
+                
+                // Buscar todas las funciones del conocimiento-manager
+                const funcionesConocimiento = Object.keys(window).filter(key => 
+                    typeof window[key] === 'function' && 
+                    (key.includes('conocimiento') || key.includes('Conocimiento') || key.includes('bloque') || key.includes('Bloque'))
+                );
+                log(`🔍 Funciones de conocimiento: ${{funcionesConocimiento.join(', ')}}`, 'warning');
+            }}
+        }}
         
         function testScrollToSection() {{
             log('🧪 Probando scrollToSection...');

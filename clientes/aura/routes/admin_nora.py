@@ -1,6 +1,6 @@
 print("✅ admin_nora.py cargado correctamente")
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, send_from_directory
 from supabase import create_client
 from dotenv import load_dotenv
 from datetime import datetime
@@ -15,6 +15,22 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 admin_nora_bp = Blueprint("admin_nora", __name__)
+
+# ==============================================================================
+# 🗂️ RUTAS ESTÁTICAS PARA ARCHIVOS JAVASCRIPT
+# ==============================================================================
+
+@admin_nora_bp.route("/admin/nora/static/js/<filename>")
+def static_js(filename):
+    """Servir archivos JavaScript estáticos para el panel de admin"""
+    try:
+        js_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'js')
+        return send_from_directory(js_path, filename)
+    except Exception as e:
+        print(f"❌ Error sirviendo archivo JS {filename}: {e}")
+        return f"Error cargando {filename}", 404
+
+# ==============================================================================
 
 # 👉 Agrega soporte para /nora/editar?nombre=... redireccionando a la ruta con <nombre_nora>
 @admin_nora_bp.route("/admin/nora/editar", methods=["GET"])
@@ -681,293 +697,6 @@ def test_create_knowledge(nombre_nora):
 def mostrar_entrenamiento(nombre_nora):
     """Mostrar la página de entrenamiento (alias de entrenar_nora)"""
     return entrenar_nora(nombre_nora)
-
-
-# Ruta para guardar estado de IA
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/estado_ia", methods=["POST"])
-def guardar_estado_ia(nombre_nora):
-    try:
-        ia_activa = request.form.get("ia_activa") == "true"
-        supabase.table("configuracion_bot").update({"ia_activa": ia_activa}).eq("nombre_nora", nombre_nora).execute()
-        
-        # Si es una petición AJAX, retornar JSON
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/x-www-form-urlencoded':
-            return jsonify({
-                "success": True,
-                "message": "✅ Estado de IA actualizado correctamente"
-            })
-        
-        flash("✅ Estado de IA actualizado correctamente", "success")
-    except Exception as e:
-        print(f"❌ Error al actualizar estado de IA: {str(e)}")
-        
-        # Si es una petición AJAX, retornar JSON de error
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/x-www-form-urlencoded':
-            return jsonify({
-                "success": False,
-                "message": "❌ Error al actualizar estado de IA"
-            }), 500
-        
-        flash("❌ Error al actualizar estado de IA", "error")
-    
-    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
-
-
-# Ruta para cambiar nombre
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/cambiar_nombre", methods=["POST"])
-def cambiar_nombre_nora(nombre_nora):
-    try:
-        nuevo_nombre = request.form.get("nuevo_nombre", "").strip()
-        if nuevo_nombre and nuevo_nombre != nombre_nora:
-            supabase.table("configuracion_bot").update({"nombre_nora": nuevo_nombre}).eq("nombre_nora", nombre_nora).execute()
-            flash("✅ Nombre de Nora actualizado correctamente", "success")
-            return redirect(url_for("admin_nora.mostrar_lista"))
-        flash("⚠️ El nuevo nombre no puede estar vacío o ser igual al actual", "warning")
-    except Exception as e:
-        print(f"❌ Error al cambiar nombre de Nora: {str(e)}")
-        flash("❌ Error al cambiar nombre de Nora", "error")
-    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
-
-
-# Ruta para guardar personalidad
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/personalidad", methods=["POST"])
-def guardar_personalidad(nombre_nora):
-    try:
-        personalidad = request.form.get("personalidad", "").strip()
-        supabase.table("configuracion_bot").update({"personalidad": personalidad}).eq("nombre_nora", nombre_nora).execute()
-        
-        # Si es una petición AJAX, retornar JSON
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/x-www-form-urlencoded':
-            return jsonify({
-                "success": True,
-                "message": "✅ Personalidad actualizada correctamente"
-            })
-        
-        flash("✅ Personalidad actualizada correctamente", "success")
-    except Exception as e:
-        print(f"❌ Error al actualizar personalidad: {str(e)}")
-        
-        # Si es una petición AJAX, retornar JSON de error
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/x-www-form-urlencoded':
-            return jsonify({
-                "success": False,
-                "message": "❌ Error al actualizar personalidad"
-            }), 500
-        
-        flash("❌ Error al actualizar personalidad", "error")
-    
-    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
-
-
-# Ruta para guardar instrucciones
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/instrucciones", methods=["POST"])
-def guardar_instrucciones(nombre_nora):
-    try:
-        instrucciones = request.form.get("instrucciones", "").strip()
-        supabase.table("configuracion_bot").update({"instrucciones": instrucciones}).eq("nombre_nora", nombre_nora).execute()
-        
-        # Si es una petición AJAX, retornar JSON
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/x-www-form-urlencoded':
-            return jsonify({
-                "success": True,
-                "message": "✅ Instrucciones actualizadas correctamente"
-            })
-        
-        flash("✅ Instrucciones actualizadas correctamente", "success")
-    except Exception as e:
-        print(f"❌ Error al actualizar instrucciones: {str(e)}")
-        
-        # Si es una petición AJAX, retornar JSON de error
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/x-www-form-urlencoded':
-            return jsonify({
-                "success": False,
-                "message": "❌ Error al actualizar instrucciones"
-            }), 500
-        
-        flash("❌ Error al actualizar instrucciones", "error")
-    
-    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
-
-
-# Ruta para guardar conocimiento
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/conocimiento", methods=["POST"])
-def guardar_conocimiento(nombre_nora):
-    try:
-        conocimiento = request.form.get("base_conocimiento", "").strip()
-        supabase.table("configuracion_bot").update({"base_conocimiento": conocimiento}).eq("nombre_nora", nombre_nora).execute()
-        
-        # Si es una petición AJAX, retornar JSON
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/x-www-form-urlencoded':
-            return jsonify({
-                "success": True,
-                "message": "✅ Base de conocimiento actualizada correctamente"
-            })
-        
-        flash("✅ Base de conocimiento actualizada correctamente", "success")
-    except Exception as e:
-        print(f"❌ Error al actualizar base de conocimiento: {str(e)}")
-        
-        # Si es una petición AJAX, retornar JSON de error
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/x-www-form-urlencoded':
-            return jsonify({
-                "success": False,
-                "message": "❌ Error al actualizar base de conocimiento"
-            }), 500
-        
-        flash("❌ Error al actualizar base de conocimiento", "error")
-    
-    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
-
-
-# ==============================================================================
-# 🔧 ENDPOINTS PARA GESTIÓN DE BLOQUES DE CONOCIMIENTO
-# ==============================================================================
-
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/bloques", methods=["GET"])
-def listar_bloques_conocimiento(nombre_nora):
-    """Obtener todos los bloques de conocimiento activos para la Nora"""
-    try:
-        print(f"🔍 Buscando bloques para: {nombre_nora}")
-        res = supabase.table("conocimiento_nora").select("*").eq("nombre_nora", nombre_nora).eq("activo", True).order("fecha_creacion", desc=True).execute()
-        print(f"✅ Resultado consulta: {len(res.data)} bloques encontrados")
-        print(f"📄 Datos: {res.data}")
-        return jsonify({"success": True, "data": res.data})
-    except Exception as e:
-        print(f"❌ Error al listar bloques: {str(e)}")
-        return jsonify({"success": False, "message": f"Error al cargar los bloques: {str(e)}"}), 500
-
-
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/bloques", methods=["POST"])
-def crear_bloque_conocimiento(nombre_nora):
-    """Crear un nuevo bloque de conocimiento"""
-    try:
-        data = request.get_json()
-        contenido = data.get("contenido", "").strip()
-        etiquetas = data.get("etiquetas", [])
-        prioridad = data.get("prioridad", False)
-
-        # Validaciones
-        if not contenido:
-            return jsonify({"success": False, "message": "El contenido es obligatorio"}), 400
-        if len(contenido) > 500:
-            return jsonify({"success": False, "message": "El contenido debe tener máximo 500 caracteres"}), 400
-        if not etiquetas or not isinstance(etiquetas, list) or len(etiquetas) == 0:
-            return jsonify({"success": False, "message": "Debes incluir al menos una etiqueta"}), 400
-
-        # Crear el nuevo bloque (sin id y fecha_creacion, se generan automáticamente)
-        nuevo_bloque = {
-            "nombre_nora": nombre_nora,
-            "contenido": contenido,
-            "etiquetas": etiquetas,  # PostgreSQL text[] array
-            "origen": "manual",
-            "prioridad": bool(prioridad),
-            "activo": True
-        }
-        
-        print(f"🔧 Creando bloque: {nuevo_bloque}")
-        res = supabase.table("conocimiento_nora").insert(nuevo_bloque).execute()
-        print(f"✅ Bloque creado: {res.data}")
-        return jsonify({"success": True, "data": res.data[0], "message": "✅ Bloque creado correctamente"})
-        
-    except Exception as e:
-        print(f"❌ Error al crear bloque: {str(e)}")
-        return jsonify({"success": False, "message": "Error al crear el bloque"}), 500
-
-
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/bloques/<bloque_id>", methods=["PUT"])
-def editar_bloque_conocimiento(nombre_nora, bloque_id):
-    """Editar un bloque de conocimiento existente"""
-    try:
-        data = request.get_json()
-        contenido = data.get("contenido", "").strip()
-        etiquetas = data.get("etiquetas", [])
-        prioridad = data.get("prioridad", False)
-
-        # Validaciones
-        if not contenido:
-            return jsonify({"success": False, "message": "El contenido es obligatorio"}), 400
-        if len(contenido) > 500:
-            return jsonify({"success": False, "message": "El contenido debe tener máximo 500 caracteres"}), 400
-        if not etiquetas or not isinstance(etiquetas, list) or len(etiquetas) == 0:
-            return jsonify({"success": False, "message": "Debes incluir al menos una etiqueta"}), 400
-
-        # Actualizar el bloque
-        update_data = {
-            "contenido": contenido,
-            "etiquetas": etiquetas,
-            "prioridad": bool(prioridad)
-        }
-        
-        res = supabase.table("conocimiento_nora").update(update_data).eq("id", bloque_id).eq("nombre_nora", nombre_nora).execute()
-        
-        if not res.data:
-            return jsonify({"success": False, "message": "Bloque no encontrado"}), 404
-            
-        return jsonify({"success": True, "data": res.data[0], "message": "✅ Bloque actualizado correctamente"})
-        
-    except Exception as e:
-        print(f"❌ Error al editar bloque: {str(e)}")
-        return jsonify({"success": False, "message": "Error al actualizar el bloque"}), 500
-
-
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/bloques/<bloque_id>", methods=["DELETE"])
-def eliminar_bloque_conocimiento(nombre_nora, bloque_id):
-    """Eliminar (desactivar) un bloque de conocimiento"""
-    try:
-        res = supabase.table("conocimiento_nora").update({"activo": False}).eq("id", bloque_id).eq("nombre_nora", nombre_nora).execute()
-        
-        if not res.data:
-            return jsonify({"success": False, "message": "Bloque no encontrado"}), 404
-            
-        return jsonify({"success": True, "message": "✅ Bloque eliminado correctamente"})
-        
-    except Exception as e:
-        print(f"❌ Error al eliminar bloque: {str(e)}")
-        return jsonify({"success": False, "message": "Error al eliminar el bloque"}), 500
-
-
-# ==============================================================================
-
-# Ruta para guardar límites de respuesta
-@admin_nora_bp.route("/admin/nora/<nombre_nora>/entrenar/limites", methods=["POST"])
-def guardar_limites(nombre_nora):
-    try:
-        modo_respuesta = request.form.get("modo_respuesta", "flexible")
-        mensaje_fuera_tema = request.form.get("mensaje_fuera_tema", "").strip()
-        
-        # Si no hay mensaje, usar uno por defecto
-        if not mensaje_fuera_tema:
-            mensaje_fuera_tema = "Lo siento, solo puedo ayudarte con consultas relacionadas a nuestra empresa. Un agente humano te contactará pronto para resolver tu consulta."
-        
-        update_data = {
-            "modo_respuesta": modo_respuesta,
-            "mensaje_fuera_tema": mensaje_fuera_tema
-        }
-        
-        supabase.table("configuracion_bot").update(update_data).eq("nombre_nora", nombre_nora).execute()
-        
-        # Si es una petición AJAX, retornar JSON
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({
-                "success": True,
-                "message": "✅ Límites de respuesta actualizados correctamente"
-            })
-        
-        flash("✅ Límites de respuesta actualizados correctamente", "success")
-        
-    except Exception as e:
-        print(f"❌ Error al actualizar límites: {str(e)}")
-        
-        # Si es una petición AJAX, retornar JSON de error
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({
-                "success": False,
-                "message": "❌ Error al actualizar límites de respuesta"
-            }), 500
-        
-        flash("❌ Error al actualizar límites de respuesta", "error")
-    
-    return redirect(url_for("admin_nora.mostrar_entrenamiento", nombre_nora=nombre_nora))
 
 
 # ==============================================================================

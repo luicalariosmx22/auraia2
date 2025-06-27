@@ -147,11 +147,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     try {
-        if (typeof cargarConocimiento === 'function') {
-            cargarConocimiento();
+        if (typeof window.cargarConocimiento === 'function') {
+            window.cargarConocimiento();
             console.log('✅ Conocimiento cargado');
         } else {
-            console.warn('⚠️ cargarConocimiento no disponible');
+            console.warn('⚠️ cargarConocimiento no disponible en window');
         }
     } catch (error) {
         console.error('❌ Error cargando conocimiento:', error);
