@@ -391,6 +391,78 @@ def procesar_mensaje(data):
     except Exception as e:
         print(f"❌ Error en detección de agradecimiento: {e}")
 
+    # 🎯 DETECTAR INTENCIONES ESPECÍFICAS (CREAR TAREAS, ETC.)
+    from clientes.aura.utils.detector_intenciones import detector_intenciones
+    from clientes.aura.utils.formulario_conversacional import (
+        obtener_formulario_activo, 
+        tiene_formulario_activo,
+        cancelar_formulario,
+        crear_formulario_tarea
+    )
+    
+    # Verificar si hay un formulario activo
+    if tiene_formulario_activo(numero_usuario):
+        print("📋 Usuario tiene formulario activo")
+        formulario = obtener_formulario_activo(numero_usuario)
+        
+        # Verificar si quiere cancelar
+        if detector_intenciones.es_mensaje_cancelar(mensaje_usuario):
+            respuesta_cancelacion = cancelar_formulario(numero_usuario)
+            guardar_en_historial(numero_usuario, respuesta_cancelacion, numero_nora, nombre_nora, "respuesta")
+            enviar_mensaje(numero_usuario, respuesta_cancelacion)
+            return respuesta_cancelacion
+        
+        # Procesar respuesta del formulario
+        respuesta_formulario = formulario.procesar_respuesta(numero_usuario, mensaje_usuario)
+        if respuesta_formulario:
+            guardar_en_historial(numero_usuario, respuesta_formulario, numero_nora, nombre_nora, "respuesta")
+            enviar_mensaje(numero_usuario, respuesta_formulario)
+            return respuesta_formulario
+    
+    # Detectar intención de crear tarea
+    elif detector_intenciones.es_mensaje_crear_tarea(mensaje_usuario, tipo_contacto):
+        print("🎯 Intención de crear tarea detectada")
+        
+        # Verificar si el usuario tiene permisos para crear tareas
+        from clientes.aura.auth.privilegios import PrivilegiosManager
+        manager = PrivilegiosManager(tipo_contacto)
+        
+        puede_crear = manager.puede_acceder("tareas", "write")
+        
+        if not puede_crear:
+            respuesta_sin_permisos = "❌ No tienes permisos para crear tareas en el sistema."
+            guardar_en_historial(numero_usuario, respuesta_sin_permisos, numero_nora, nombre_nora, "respuesta")
+            enviar_mensaje(numero_usuario, respuesta_sin_permisos)
+            return respuesta_sin_permisos
+        
+        # Extraer contexto del mensaje
+        contexto = detector_intenciones.extraer_contexto_tarea(mensaje_usuario)
+        
+        # Crear formulario de tarea
+        formulario_tarea = crear_formulario_tarea(tipo_contacto)
+        
+        # Generar mensaje de bienvenida personalizado
+        mensaje_bienvenida = detector_intenciones.generar_mensaje_bienvenida_tarea(contexto)
+        
+        # Iniciar formulario
+        primera_pregunta = formulario_tarea.iniciar_formulario(numero_usuario)
+        
+        # Combinar mensaje de bienvenida con primera pregunta
+        respuesta_completa = f"{mensaje_bienvenida}\n\n{primera_pregunta}"
+        
+        # Si había contexto sugerido, pre-completar primera respuesta si es el título
+        estado_formulario = obtener_formulario_activo(numero_usuario)
+        if contexto.get("titulo_sugerido") and estado_formulario:
+            # Pre-procesar el título sugerido
+            titulo_sugerido = contexto["titulo_sugerido"]
+            respuesta_titulo = formulario_tarea.procesar_respuesta(numero_usuario, titulo_sugerido)
+            if respuesta_titulo:
+                respuesta_completa = f"{mensaje_bienvenida}\n\n✅ Título detectado: *{titulo_sugerido}*\n\n{respuesta_titulo}"
+        
+        guardar_en_historial(numero_usuario, respuesta_completa, numero_nora, nombre_nora, "respuesta")
+        enviar_mensaje(numero_usuario, respuesta_completa)
+        return respuesta_completa
+
     # Generar respuesta desde IA
     respuesta, historial = manejar_respuesta_ai(
         mensaje_usuario=mensaje_usuario,
