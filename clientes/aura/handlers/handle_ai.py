@@ -60,6 +60,14 @@ def construir_prompt(personalidad: str, instrucciones: str, modo_respuesta: str 
             
             prompt_base += f"\n\nPuedes responder cualquier pregunta relacionada con el trabajo, proyectos, tareas, o información interna de la empresa. Sé profesional y directo."
             
+            # 📋 Agregar información sobre módulo de tareas
+            prompt_base += f"\n\n📋 FUNCIONALIDADES DE TAREAS DISPONIBLES:"
+            prompt_base += f"\n• Puedes consultar tareas por usuario o empresa"
+            prompt_base += f"\n• Ejemplos: 'tareas de Juan', 'tareas de Empresa ABC', 'tareas pendientes de María'"
+            prompt_base += f"\n• Puedes filtrar por estatus (pendientes, completadas, en proceso)"
+            prompt_base += f"\n• Puedes filtrar por prioridad (alta, media, baja)"
+            prompt_base += f"\n• Puedes mostrar tareas vencidas o urgentes"
+            
         elif tipo_contacto["tipo"] == "cliente":
             prompt_base += f"\n\nNOTA IMPORTANTE: Estás hablando con {tipo_contacto['nombre']}, quien es un CLIENTE registrado en nuestro sistema."
             
@@ -153,6 +161,16 @@ def manejar_respuesta_ai(
             historial.append({"role": "user", "content": mensaje_usuario})
             historial.append({"role": "assistant", "content": respuesta_especial})
             return respuesta_especial, historial
+        
+        # 📋 CONSULTAS DE TAREAS: Verificar si es una consulta sobre tareas
+        from clientes.aura.utils.consultor_tareas import procesar_consulta_tareas
+        respuesta_tareas = procesar_consulta_tareas(mensaje_usuario, tipo_contacto, nombre_nora)
+        if respuesta_tareas:
+            if historial is None:
+                historial = []
+            historial.append({"role": "user", "content": mensaje_usuario})
+            historial.append({"role": "assistant", "content": respuesta_tareas})
+            return respuesta_tareas, historial
         
         if nombre_nora is None:
             resultado = supabase.table("configuracion_bot").select("nombre_nora").limit(1).execute()
