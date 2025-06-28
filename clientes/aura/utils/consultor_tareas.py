@@ -27,11 +27,99 @@ class ConsultorTareas:
         """Verifica si el usuario puede consultar tareas"""
         return self.privilegios.puede_acceder("tareas", "read")
     
+    def obtener_empresas_cliente(self) -> List[Dict]:
+        """
+        Obtiene las empresas a las que pertenece el cliente
+        Solo aplica para usuarios tipo 'cliente'
+        """
+        try:
+            tipo_usuario = self.privilegios.get_tipo_usuario()
+            
+            # Si es admin o superadmin, puede ver todas las empresas
+            if tipo_usuario in ["superadmin", "admin", "usuario_interno"]:
+                return []  # Sin restricciones
+            
+            # Si es cliente, obtener solo sus empresas
+            if tipo_usuario == "cliente":
+                cliente_id = self.usuario_consultor.get("id")
+                if not cliente_id:
+                    return []
+                
+                resultado = supabase.table("cliente_empresas") \
+                    .select("id, nombre_empresa") \
+                    .eq("cliente_id", cliente_id) \
+                    .eq("activo", True) \
+                    .execute()
+                
+                return resultado.data if resultado.data else []
+            
+            return []  # Otros tipos sin acceso a empresas
+            
+        except Exception as e:
+            print(f"❌ Error obteniendo empresas del cliente: {e}")
+            return []
+    
+    def puede_acceder_empresa(self, empresa_id: str) -> bool:
+        """
+        Verifica si el usuario puede acceder a una empresa específica
+        """
+        tipo_usuario = self.privilegios.get_tipo_usuario()
+        
+        # Admins pueden acceder a todo
+        if tipo_usuario in ["superadmin", "admin", "usuario_interno"]:
+            return True
+        
+        # Clientes solo a sus empresas
+        if tipo_usuario == "cliente":
+            empresas_cliente = self.obtener_empresas_cliente()
+            empresa_ids = [emp["id"] for emp in empresas_cliente]
+            return empresa_id in empresa_ids
+        
+        return False
+    
+    def obtener_consultas_permitidas(self) -> Dict[str, List[str]]:
+        """
+        Obtiene las entidades (empresas/usuarios) que el cliente puede consultar
+        """
+        tipo_usuario = self.privilegios.get_tipo_usuario()
+        
+        if tipo_usuario in ["superadmin", "admin", "usuario_interno"]:
+            return {"empresas": [], "usuarios": []}  # Sin restricciones
+        
+        if tipo_usuario == "cliente":
+            empresas_cliente = self.obtener_empresas_cliente()
+            nombres_empresas = [emp["nombre_empresa"] for emp in empresas_cliente]
+            
+            # También puede consultar sus propias tareas como usuario
+            nombre_cliente = self.usuario_consultor.get("nombre_completo", "")
+            
+            return {
+                "empresas": nombres_empresas,
+                "usuarios": [nombre_cliente] if nombre_cliente else []
+            }
+        
+        return {"empresas": [], "usuarios": []}
+    
     def detectar_consulta_tareas(self, mensaje: str) -> Optional[Dict]:
         """
         Detecta si el mensaje es una consulta sobre tareas y extrae parámetros
         """
         mensaje_lower = mensaje.lower().strip()
+        
+        # Patrones específicos para clientes (mis tareas, mi empresa)
+        patrones_cliente = [
+            r"(?:mis|mi)\s+tareas?",
+            r"tareas?\s+(?:de\s+)?(?:mi|nuestra)\s+empresa",
+            r"(?:cuáles?|qué)\s+son\s+mis\s+tareas?",
+            r"(?:hay|tengo)\s+tareas?\s+(?:pendientes?|activas?)?",
+            r"ver\s+mis\s+tareas?",
+            r"mostrar\s+mis\s+tareas?"
+        ]
+        
+        # Verificar patrones de cliente primero
+        for patron in patrones_cliente:
+            if re.search(patron, mensaje_lower):
+                return self._procesar_consulta_cliente()
         
         # Patrones mejorados para mejor extracción de entidades
         patrones_tareas = [
@@ -254,23 +342,40 @@ class ConsultorTareas:
     def buscar_empresa_por_nombre(self, nombre_empresa: str) -> Tuple[List[Dict], str]:
         """
         Busca empresas por nombre con diferentes niveles de coincidencia
+        Aplica filtros según el tipo de usuario (clientes solo ven sus empresas)
         Retorna: (empresas_encontradas, tipo_coincidencia)
         """
         try:
+            # Obtener empresas permitidas para el usuario
+            empresas_permitidas = self.obtener_empresas_cliente()
+            tipo_usuario = self.privilegios.get_tipo_usuario()
+            
             # 1. Búsqueda exacta
-            exacta = supabase.table("cliente_empresas") \
+            query_exacta = supabase.table("cliente_empresas") \
                 .select("id, nombre_empresa") \
-                .eq("nombre_empresa", nombre_empresa) \
-                .execute()
+                .eq("nombre_empresa", nombre_empresa)
+            
+            # Aplicar filtro de cliente si es necesario
+            if tipo_usuario == "cliente" and empresas_permitidas:
+                empresa_ids = [emp["id"] for emp in empresas_permitidas]
+                query_exacta = query_exacta.in_("id", empresa_ids)
+            
+            exacta = query_exacta.execute()
             
             if exacta.data:
                 return exacta.data, "exacta"
             
             # 2. Búsqueda parcial (contiene)
-            parcial = supabase.table("cliente_empresas") \
+            query_parcial = supabase.table("cliente_empresas") \
                 .select("id, nombre_empresa") \
-                .ilike("nombre_empresa", f"%{nombre_empresa}%") \
-                .execute()
+                .ilike("nombre_empresa", f"%{nombre_empresa}%")
+            
+            # Aplicar filtro de cliente si es necesario
+            if tipo_usuario == "cliente" and empresas_permitidas:
+                empresa_ids = [emp["id"] for emp in empresas_permitidas]
+                query_parcial = query_parcial.in_("id", empresa_ids)
+            
+            parcial = query_parcial.execute()
             
             if parcial.data:
                 return parcial.data, "parcial"
@@ -660,6 +765,173 @@ class ConsultorTareas:
         
         return None
 
+    def _procesar_consulta_cliente(self) -> Dict:
+        """
+        Procesa consultas específicas de clientes (mis tareas, mi empresa)
+        """
+        tipo_usuario = self.privilegios.get_tipo_usuario()
+        
+        if tipo_usuario == "cliente":
+            # Para clientes, siempre consultar sus empresas
+            empresas_cliente = self.obtener_empresas_cliente()
+            
+            if len(empresas_cliente) == 1:
+                # Si solo tiene una empresa, usar esa directamente
+                return {
+                    "es_consulta_tareas": True,
+                    "entidad": empresas_cliente[0]["nombre_empresa"],
+                    "tipo": "empresa",
+                    "filtros": {},
+                    "es_consulta_cliente": True,
+                    "empresa_directa": empresas_cliente[0]
+                }
+            elif len(empresas_cliente) > 1:
+                # Si tiene múltiples empresas, necesitará especificar
+                nombres_empresas = [emp["nombre_empresa"] for emp in empresas_cliente]
+                return {
+                    "es_consulta_tareas": True,
+                    "entidad": "mis empresas",
+                    "tipo": "empresa",
+                    "filtros": {},
+                    "es_consulta_cliente": True,
+                    "requiere_especificar_empresa": True,
+                    "empresas_cliente": empresas_cliente
+                }
+            else:
+                # Cliente sin empresas asignadas
+                return {
+                    "es_consulta_tareas": True,
+                    "entidad": "cliente sin empresas",
+                    "tipo": "error",
+                    "filtros": {},
+                    "es_consulta_cliente": True,
+                    "sin_empresas": True
+                }
+        
+        # Para usuarios internos/admin, sus propias tareas
+        nombre_usuario = self.usuario_consultor.get("nombre_completo", "")
+        return {
+            "es_consulta_tareas": True,
+            "entidad": nombre_usuario if nombre_usuario else "usuario actual",
+            "tipo": "usuario",
+            "filtros": {},
+            "es_consulta_cliente": True
+        }
+    
+    def _procesar_consulta_cliente_directa(self, consulta_info: Dict, telefono: str = None) -> str:
+        """
+        Procesa consultas directas de clientes (mis tareas, mi empresa)
+        """
+        try:
+            # Cliente sin empresas
+            if consulta_info.get("sin_empresas"):
+                return "❌ No tienes empresas asignadas. Contacta al administrador para que te asigne una empresa."
+            
+            # Cliente con múltiples empresas que necesita especificar
+            if consulta_info.get("requiere_especificar_empresa"):
+                empresas = consulta_info.get("empresas_cliente", [])
+                
+                mensaje = f"🏢 Tienes acceso a {len(empresas)} empresas:\n\n"
+                for i, empresa in enumerate(empresas, 1):
+                    mensaje += f"{i}. **{empresa['nombre_empresa']}**\n"
+                
+                mensaje += "\n💬 **¿De cuál empresa quieres ver las tareas?** Responde con el número o nombre de la empresa."
+                
+                # Establecer confirmación para empresas del cliente
+                if telefono:
+                    from clientes.aura.utils.gestor_estados import establecer_confirmacion_tareas
+                    info_busqueda = {
+                        "empresas_encontradas": empresas,
+                        "requiere_confirmacion": True,
+                        "tipo_coincidencia": "cliente_multiple"
+                    }
+                    establecer_confirmacion_tareas(telefono, consulta_info, info_busqueda)
+                
+                return mensaje
+            
+            # Cliente con empresa directa o usuario específico
+            if consulta_info.get("empresa_directa"):
+                empresa = consulta_info["empresa_directa"]
+                tareas = self._buscar_tareas_empresa_directa(empresa["id"], consulta_info.get("filtros", {}))
+                
+                info_busqueda = {
+                    "empresas_encontradas": [empresa],
+                    "tipo_coincidencia": "cliente_directo",
+                    "requiere_confirmacion": False
+                }
+                
+                return self.formatear_respuesta_tareas(tareas, consulta_info, info_busqueda)
+            
+            # Consulta de usuario (mis tareas como empleado)
+            if consulta_info["tipo"] == "usuario":
+                usuario_id = self.usuario_consultor.get("id")
+                if usuario_id:
+                    tareas = self._buscar_tareas_usuario_directo(usuario_id, consulta_info.get("filtros", {}))
+                    
+                    info_busqueda = {
+                        "usuarios_encontrados": [self.usuario_consultor],
+                        "tipo_coincidencia": "usuario_directo",
+                        "requiere_confirmacion": False
+                    }
+                    
+                    return self.formatear_respuesta_tareas(tareas, consulta_info, info_busqueda)
+            
+            return "❌ No pude procesar tu consulta. Intenta ser más específico."
+            
+        except Exception as e:
+            print(f"❌ Error procesando consulta de cliente: {e}")
+            return "❌ Ocurrió un error procesando tu consulta. Por favor, intenta nuevamente."
+    
+    def _buscar_tareas_empresa_directa(self, empresa_id: str, filtros: Dict = None) -> List[Dict]:
+        """
+        Busca tareas de una empresa específica sin filtros de búsqueda
+        """
+        try:
+            query = supabase.table("tareas") \
+                .select("""
+                    *,
+                    usuarios_clientes!tareas_usuario_empresa_id_fkey(nombre, correo),
+                    cliente_empresas!tareas_empresa_id_fkey(nombre_empresa)
+                """) \
+                .eq("empresa_id", empresa_id) \
+                .eq("nombre_nora", self.nombre_nora) \
+                .eq("activo", True)
+            
+            if filtros:
+                query = self._aplicar_filtros(query, filtros)
+            
+            resultado = query.execute()
+            return resultado.data if resultado.data else []
+            
+        except Exception as e:
+            print(f"❌ Error buscando tareas de empresa: {e}")
+            return []
+    
+    def _buscar_tareas_usuario_directo(self, usuario_id: str, filtros: Dict = None) -> List[Dict]:
+        """
+        Busca tareas de un usuario específico sin filtros de búsqueda
+        """
+        try:
+            query = supabase.table("tareas") \
+                .select("""
+                    *,
+                    usuarios_clientes!tareas_usuario_empresa_id_fkey(nombre, correo),
+                    cliente_empresas!tareas_empresa_id_fkey(nombre_empresa)
+                """) \
+                .eq("usuario_empresa_id", usuario_id) \
+                .eq("nombre_nora", self.nombre_nora) \
+                .eq("activo", True)
+            
+            if filtros:
+                query = self._aplicar_filtros(query, filtros)
+            
+            resultado = query.execute()
+            return resultado.data if resultado.data else []
+            
+        except Exception as e:
+            print(f"❌ Error buscando tareas de usuario: {e}")
+            return []
+
 def procesar_consulta_tareas(mensaje: str, usuario: Dict, telefono: str = None, nombre_nora: str = "aura") -> Optional[str]:
     """
     Función principal para procesar consultas de tareas desde la IA
@@ -683,6 +955,10 @@ def procesar_consulta_tareas(mensaje: str, usuario: Dict, telefono: str = None, 
             return None  # No es una consulta de tareas
         
         print(f"🔍 Consulta de tareas detectada: {consulta_info}")
+        
+        # Manejar consultas especiales de clientes
+        if consulta_info.get("es_consulta_cliente"):
+            return consultor._procesar_consulta_cliente_directa(consulta_info, telefono)
         
         # Buscar tareas según el tipo
         tareas = []
