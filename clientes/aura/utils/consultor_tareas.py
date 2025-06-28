@@ -932,6 +932,44 @@ class ConsultorTareas:
             print(f"❌ Error buscando tareas de usuario: {e}")
             return []
 
+    def detectar_respuesta_agradecimiento(self, mensaje: str) -> bool:
+        """
+        Detecta si el usuario está respondiendo con agradecimiento
+        después de recibir información de tareas
+        """
+        mensaje_lower = mensaje.lower().strip()
+        
+        patrones_agradecimiento = [
+            "gracias", "muchas gracias", "thank you", "thanks",
+            "perfecto", "excelente", "muy bien", "ok", "okey",
+            "entendido", "perfect", "genial", "súper"
+        ]
+        
+        return any(patron in mensaje_lower for patron in patrones_agradecimiento)
+    
+    def generar_respuesta_seguimiento(self, telefono: str) -> str:
+        """
+        Genera una respuesta de seguimiento después de mostrar tareas
+        """
+        tipo_usuario = self.privilegios.get_tipo_usuario()
+        
+        respuestas_seguimiento = [
+            "¡De nada! 😊 ¿Necesitas ayuda con alguna tarea específica?",
+            "¡Un placer ayudarte! ¿Hay algo más que pueda hacer por ti?",
+            "¡Perfecto! ¿Quieres que te ayude a gestionar alguna de estas tareas?",
+            "¡Siempre a tu disposición! ¿Necesitas información adicional sobre alguna tarea?",
+            "¡Excelente! Si necesitas actualizar o crear nuevas tareas, solo dímelo.",
+        ]
+        
+        if tipo_usuario == "cliente":
+            respuestas_seguimiento.extend([
+                "¿Te gustaría que te notifique cuando haya cambios en tus tareas?",
+                "Si necesitas coordinar algo con tu equipo, puedo ayudarte.",
+            ])
+        
+        import random
+        return random.choice(respuestas_seguimiento)
+
 def procesar_consulta_tareas(mensaje: str, usuario: Dict, telefono: str = None, nombre_nora: str = "aura") -> Optional[str]:
     """
     Función principal para procesar consultas de tareas desde la IA
@@ -941,7 +979,8 @@ def procesar_consulta_tareas(mensaje: str, usuario: Dict, telefono: str = None, 
     try:
         # Si hay una confirmación pendiente, procesarla primero
         if telefono and tiene_confirmacion_pendiente(telefono):
-            return procesar_confirmacion_tareas(mensaje, telefono, usuario, nombre_nora)
+            # TODO: Implementar procesar_confirmacion_tareas
+            pass  # return procesar_confirmacion_tareas(mensaje, telefono, usuario, nombre_nora)
         
         consultor = ConsultorTareas(usuario, nombre_nora)
         
@@ -969,110 +1008,14 @@ def procesar_consulta_tareas(mensaje: str, usuario: Dict, telefono: str = None, 
                 consulta_info["entidad"], 
                 consulta_info["filtros"]
             )
-        else:  # usuario
+        elif consulta_info["tipo"] == "usuario":
             tareas, info_busqueda = consultor.buscar_tareas_por_usuario(
-                consulta_info["entidad"],
+                consulta_info["entidad"], 
                 consulta_info["filtros"]
             )
         
-        # Si requiere confirmación, establecer estado y retornar mensaje
-        if info_busqueda.get("requiere_confirmacion") and telefono:
-            establecer_confirmacion_tareas(telefono, consulta_info, info_busqueda)
-            return info_busqueda.get("mensaje_confirmacion", "Por favor, especifica cuál opción prefieres.")
-        
-        # Formatear y retornar respuesta
-        return consultor.formatear_respuesta_tareas(tareas, consulta_info, info_busqueda)
-        
-    except Exception as e:
-        print(f"❌ Error procesando consulta de tareas: {e}")
-        return "❌ Ocurrió un error al consultar las tareas. Por favor, intenta nuevamente."
-
-def procesar_confirmacion_tareas(mensaje: str, telefono: str, usuario: Dict, nombre_nora: str = "aura") -> Optional[str]:
-    """
-    Procesa una respuesta de confirmación para búsqueda de tareas
-    """
-    from clientes.aura.utils.gestor_estados import obtener_confirmacion_tareas, limpiar_confirmacion_tareas
+        return consultor._formatear_respuesta_tareas(tareas, info_busqueda)
     
-    try:
-        # Obtener datos de confirmación pendiente
-        datos_confirmacion = obtener_confirmacion_tareas(telefono)
-        if not datos_confirmacion:
-            return None  # No hay confirmación pendiente
-        
-        consulta_info = datos_confirmacion.get("consulta_info", {})
-        info_busqueda = datos_confirmacion.get("info_busqueda", {})
-        
-        consultor = ConsultorTareas(usuario, nombre_nora)
-        
-        entidad_seleccionada = None
-        
-        # Procesar según el tipo de consulta
-        if consulta_info.get("tipo") == "empresa":
-            empresas_opciones = info_busqueda.get("empresas_encontradas", [])
-            entidad_seleccionada = consultor.procesar_confirmacion_empresa(mensaje, empresas_opciones)
-        else:  # usuario
-            usuarios_opciones = info_busqueda.get("usuarios_encontrados", [])
-            entidad_seleccionada = consultor.procesar_confirmacion_usuario(mensaje, usuarios_opciones)
-        
-        # Limpiar estado de confirmación
-        limpiar_confirmacion_tareas(telefono)
-        
-        if not entidad_seleccionada:
-            return "❌ No pude identificar la opción seleccionada. Por favor, intenta de nuevo con el número o nombre completo."
-        
-        # Buscar tareas de la entidad seleccionada
-        tareas = []
-        if consulta_info.get("tipo") == "empresa":
-            query = supabase.table("tareas") \
-                .select("""
-                    *,
-                    usuarios_clientes!tareas_usuario_empresa_id_fkey(nombre, correo),
-                    cliente_empresas!tareas_empresa_id_fkey(nombre_empresa)
-                """) \
-                .eq("empresa_id", entidad_seleccionada["id"]) \
-                .eq("nombre_nora", nombre_nora) \
-                .eq("activo", True)
-            
-            if consulta_info.get("filtros"):
-                query = consultor._aplicar_filtros(query, consulta_info["filtros"])
-            
-            resultado = query.execute()
-            tareas = resultado.data if resultado.data else []
-            
-            # Actualizar info para el formateo
-            info_busqueda_actualizada = {
-                "empresas_encontradas": [entidad_seleccionada],
-                "tipo_coincidencia": "confirmada",
-                "requiere_confirmacion": False
-            }
-        else:  # usuario
-            query = supabase.table("tareas") \
-                .select("""
-                    *,
-                    usuarios_clientes!tareas_usuario_empresa_id_fkey(nombre, correo),
-                    cliente_empresas!tareas_empresa_id_fkey(nombre_empresa)
-                """) \
-                .eq("usuario_empresa_id", entidad_seleccionada["id"]) \
-                .eq("nombre_nora", nombre_nora) \
-                .eq("activo", True)
-            
-            if consulta_info.get("filtros"):
-                query = consultor._aplicar_filtros(query, consulta_info["filtros"])
-            
-            resultado = query.execute()
-            tareas = resultado.data if resultado.data else []
-            
-            # Actualizar info para el formateo
-            info_busqueda_actualizada = {
-                "usuarios_encontrados": [entidad_seleccionada],
-                "tipo_coincidencia": "confirmada",
-                "requiere_confirmacion": False
-            }
-        
-        # Formatear y retornar respuesta
-        return consultor.formatear_respuesta_tareas(tareas, consulta_info, info_busqueda_actualizada)
-        
     except Exception as e:
-        print(f"❌ Error procesando confirmación de tareas: {e}")
-        limpiar_confirmacion_tareas(telefono)
-        return "❌ Ocurrió un error procesando tu selección. Por favor, intenta de nuevo."
+        print(f"💥 Error en procesamiento de tareas: {e}")
+        return "❌ Hubo un error al consultar las tareas. Intenta de nuevo." 

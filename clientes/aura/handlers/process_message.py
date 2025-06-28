@@ -275,9 +275,16 @@ def procesar_mensaje(data):
             debe_enviar_bienvenida = False
 
     if debe_enviar_bienvenida:
-        mensaje_bienvenida = config.get("bienvenida", "").strip()
+        # 🎯 MENSAJE ESPECIAL PARA USUARIOS_CLIENTES (EMPLEADOS)
+        if tipo_contacto["tipo"] == "usuario_cliente":
+            mensaje_bienvenida = generar_mensaje_bienvenida_empleado(tipo_contacto, nombre_nora)
+            print("📩 Enviando mensaje de bienvenida personalizado para empleado...")
+        else:
+            # Mensaje de bienvenida estándar para otros usuarios
+            mensaje_bienvenida = config.get("bienvenida", "").strip()
+            print("📩 Enviando mensaje de bienvenida estándar...")
+        
         if mensaje_bienvenida:
-            print("📩 Enviando mensaje de bienvenida...")
             enviar_mensaje(numero_usuario, mensaje_bienvenida)
             guardar_en_historial(
                 telefono=numero_usuario,
@@ -351,6 +358,38 @@ def procesar_mensaje(data):
 
     except Exception as e:
         print(f"❌ Error interpretando respuesta al menú de conocimiento: {e}")
+
+    # 🎯 DETECTAR RESPUESTAS DE AGRADECIMIENTO DESPUÉS DE MOSTRAR TAREAS
+    try:
+        from clientes.aura.utils.consultor_tareas import ConsultorTareas
+        
+        consultor_temp = ConsultorTareas(tipo_contacto, nombre_nora)
+        if consultor_temp.detectar_respuesta_agradecimiento(mensaje_usuario):
+            # Verificar si recientemente se mostraron tareas
+            historial_reciente = supabase.table("historial_conversaciones") \
+                .select("mensaje, emisor, tipo") \
+                .eq("telefono", numero_usuario) \
+                .eq("nombre_nora", nombre_nora) \
+                .eq("emisor", numero_nora) \
+                .eq("tipo", "respuesta") \
+                .order("timestamp", desc=True) \
+                .limit(3) \
+                .execute().data
+            
+            # Verificar si el último mensaje de Nora contenía información de tareas
+            ultimo_mensaje_nora = historial_reciente[0]["mensaje"] if historial_reciente else ""
+            
+            if any(keyword in ultimo_mensaje_nora.lower() for keyword in ["tareas", "📋", "pendiente", "vencida", "completada"]):
+                print("🎯 Agradecimiento detectado después de mostrar tareas")
+                respuesta_seguimiento = consultor_temp.generar_respuesta_seguimiento(numero_usuario)
+                
+                # Guardar y enviar respuesta
+                guardar_en_historial(numero_usuario, respuesta_seguimiento, numero_nora, nombre_nora, "respuesta")
+                enviar_mensaje(numero_usuario, respuesta_seguimiento)
+                return respuesta_seguimiento
+                
+    except Exception as e:
+        print(f"❌ Error en detección de agradecimiento: {e}")
 
     # Generar respuesta desde IA
     respuesta, historial = manejar_respuesta_ai(
@@ -449,3 +488,46 @@ def procesar_mensaje(data):
         print(f"❌ Error interpretando menú: {e}")
 
     return respuesta
+
+def generar_mensaje_bienvenida_empleado(usuario_datos, nombre_nora):
+    """
+    Genera un mensaje de bienvenida personalizado para usuarios_clientes (empleados)
+    """
+    try:
+        nombre = usuario_datos.get("nombre", "Usuario")
+        rol = usuario_datos.get("rol", "miembro del equipo")
+        
+        # Buscar empresas donde trabaja este usuario
+        usuario_id = usuario_datos.get("id")
+        empresas_usuario = supabase.table("cliente_empresas") \
+            .select("nombre_empresa") \
+            .eq("nombre_nora", nombre_nora) \
+            .execute()
+        
+        # Si hay empresas, tomar la primera como principal
+        empresa_principal = "tu empresa"
+        if empresas_usuario.data and len(empresas_usuario.data) > 0:
+            empresa_principal = empresas_usuario.data[0]["nombre_empresa"]
+        
+        # Construir mensaje personalizado
+        mensaje = f"👋 ¡Hola {nombre}!\n\n"
+        mensaje += f"🏢 Hemos detectado en el sistema que eres parte del equipo de trabajo de *{empresa_principal}* "
+        mensaje += f"con el rol de *{rol}*.\n\n"
+        mensaje += "📋 *Puedes consultar:*\n"
+        mensaje += "• Tareas de tu empresa\n"
+        mensaje += "• Tareas asignadas a ti\n"
+        mensaje += "• Estado de proyectos\n"
+        mensaje += "• Reportes y estadísticas\n"
+        mensaje += "• Base de conocimiento\n\n"
+        mensaje += "💡 *Comandos útiles:*\n"
+        mensaje += "• \"mis tareas\" - Ver tus tareas pendientes\n"
+        mensaje += "• \"tareas de mi empresa\" - Ver todas las tareas\n"
+        mensaje += "• \"crear tarea\" - Agregar nueva tarea\n"
+        mensaje += "• \"menu\" - Ver opciones disponibles\n\n"
+        mensaje += "¿En qué puedo ayudarte hoy? 😊"
+        
+        return mensaje
+        
+    except Exception as e:
+        print(f"❌ Error generando mensaje de bienvenida empleado: {e}")
+        return f"👋 ¡Hola! Eres parte del equipo de trabajo. ¿En qué puedo ayudarte?"
