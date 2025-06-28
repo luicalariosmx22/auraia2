@@ -15,8 +15,19 @@ def test_consultas_problematicas():
     try:
         from clientes.aura.utils.consultor_tareas import ConsultorTareas
         
+        # Crear un usuario de prueba (admin)
+        usuario_admin = {
+            'id': 1,
+            'nombre_completo': 'Admin Test',
+            'telefono': '+56900000001',
+            'email': 'admin@test.com',
+            'role': 'super_admin',
+            'is_active': True,
+            'cliente_id': 1
+        }
+        
         # Crear consultor
-        consultor = ConsultorTareas("aura")
+        consultor = ConsultorTareas(usuario_admin, "aura")
         
         # Casos problemáticos específicos
         casos_test = [
