@@ -164,7 +164,8 @@ def manejar_respuesta_ai(
         
         # 📋 CONSULTAS DE TAREAS: Verificar si es una consulta sobre tareas
         from clientes.aura.utils.consultor_tareas import procesar_consulta_tareas
-        respuesta_tareas = procesar_consulta_tareas(mensaje_usuario, tipo_contacto, nombre_nora)
+        telefono_usuario = tipo_contacto.get("telefono") if isinstance(tipo_contacto, dict) else None
+        respuesta_tareas = procesar_consulta_tareas(mensaje_usuario, tipo_contacto, telefono_usuario, nombre_nora)
         if respuesta_tareas:
             if historial is None:
                 historial = []

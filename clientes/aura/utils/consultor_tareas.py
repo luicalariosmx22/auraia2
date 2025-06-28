@@ -161,63 +161,197 @@ class ConsultorTareas:
         
         return filtros
     
-    def buscar_tareas_por_usuario(self, nombre_usuario: str, filtros: Dict = None) -> List[Dict]:
+    def buscar_usuario_por_nombre(self, nombre_usuario: str) -> Tuple[List[Dict], str]:
         """
-        Busca tareas asignadas a un usuario específico
+        Busca usuarios por nombre con diferentes niveles de coincidencia
+        Retorna: (usuarios_encontrados, tipo_coincidencia)
         """
         try:
-            # Construir consulta base
+            # 1. Búsqueda exacta
+            exacta = supabase.table("usuarios_clientes") \
+                .select("id, nombre, correo") \
+                .eq("nombre", nombre_usuario) \
+                .eq("nombre_nora", self.nombre_nora) \
+                .eq("activo", True) \
+                .execute()
+            
+            if exacta.data:
+                return exacta.data, "exacta"
+            
+            # 2. Búsqueda parcial (contiene)
+            parcial = supabase.table("usuarios_clientes") \
+                .select("id, nombre, correo") \
+                .ilike("nombre", f"%{nombre_usuario}%") \
+                .eq("nombre_nora", self.nombre_nora) \
+                .eq("activo", True) \
+                .execute()
+            
+            if parcial.data:
+                return parcial.data, "parcial"
+            
+            # 3. Búsqueda difusa (por palabras)
+            palabras = nombre_usuario.split()
+            if len(palabras) > 1:
+                usuarios_difusos = []
+                for palabra in palabras:
+                    if len(palabra) > 2:  # Solo palabras significativas
+                        resultado = supabase.table("usuarios_clientes") \
+                            .select("id, nombre, correo") \
+                            .ilike("nombre", f"%{palabra}%") \
+                            .eq("nombre_nora", self.nombre_nora) \
+                            .eq("activo", True) \
+                            .execute()
+                        
+                        if resultado.data:
+                            usuarios_difusos.extend(resultado.data)
+                
+                # Eliminar duplicados
+                usuarios_unicos = []
+                ids_vistos = set()
+                for usuario in usuarios_difusos:
+                    if usuario["id"] not in ids_vistos:
+                        usuarios_unicos.append(usuario)
+                        ids_vistos.add(usuario["id"])
+                
+                if usuarios_unicos:
+                    return usuarios_unicos, "difusa"
+            
+            return [], "sin_coincidencias"
+            
+        except Exception as e:
+            print(f"❌ Error buscando usuario: {e}")
+            return [], "error"
+
+    def buscar_empresa_por_nombre(self, nombre_empresa: str) -> Tuple[List[Dict], str]:
+        """
+        Busca empresas por nombre con diferentes niveles de coincidencia
+        Retorna: (empresas_encontradas, tipo_coincidencia)
+        """
+        try:
+            # 1. Búsqueda exacta
+            exacta = supabase.table("cliente_empresas") \
+                .select("id, nombre_empresa") \
+                .eq("nombre_empresa", nombre_empresa) \
+                .execute()
+            
+            if exacta.data:
+                return exacta.data, "exacta"
+            
+            # 2. Búsqueda parcial (contiene)
+            parcial = supabase.table("cliente_empresas") \
+                .select("id, nombre_empresa") \
+                .ilike("nombre_empresa", f"%{nombre_empresa}%") \
+                .execute()
+            
+            if parcial.data:
+                return parcial.data, "parcial"
+            
+            # 3. Búsqueda difusa (por palabras)
+            palabras = nombre_empresa.split()
+            if len(palabras) > 1:
+                empresas_difusas = []
+                for palabra in palabras:
+                    if len(palabra) > 2:  # Solo palabras significativas
+                        resultado = supabase.table("cliente_empresas") \
+                            .select("id, nombre_empresa") \
+                            .ilike("nombre_empresa", f"%{palabra}%") \
+                            .execute()
+                        
+                        if resultado.data:
+                            empresas_difusas.extend(resultado.data)
+                
+                # Eliminar duplicados
+                empresas_unicas = []
+                ids_vistos = set()
+                for empresa in empresas_difusas:
+                    if empresa["id"] not in ids_vistos:
+                        empresas_unicas.append(empresa)
+                        ids_vistos.add(empresa["id"])
+                
+                if empresas_unicas:
+                    return empresas_unicas, "difusa"
+            
+            return [], "sin_coincidencias"
+            
+        except Exception as e:
+            print(f"❌ Error buscando empresa: {e}")
+            return [], "error"
+
+    def buscar_tareas_por_usuario(self, nombre_usuario: str, filtros: Dict = None) -> Tuple[List[Dict], Dict]:
+        """
+        Busca tareas asignadas a un usuario específico
+        Retorna: (tareas, info_busqueda)
+        """
+        try:
+            usuarios, tipo_coincidencia = self.buscar_usuario_por_nombre(nombre_usuario)
+            
+            info_busqueda = {
+                "usuarios_encontrados": usuarios,
+                "tipo_coincidencia": tipo_coincidencia,
+                "requiere_confirmacion": False,
+                "mensaje_confirmacion": None
+            }
+            
+            if not usuarios:
+                return [], info_busqueda
+            
+            # Si hay múltiples coincidencias, requerir confirmación
+            if len(usuarios) > 1:
+                info_busqueda["requiere_confirmacion"] = True
+                info_busqueda["mensaje_confirmacion"] = self._generar_mensaje_confirmacion_usuario(usuarios, nombre_usuario)
+                return [], info_busqueda
+            
+            # Buscar tareas del usuario único
+            usuario_id = usuarios[0]["id"]
             query = supabase.table("tareas") \
                 .select("""
                     *,
                     usuarios_clientes!tareas_usuario_empresa_id_fkey(nombre, correo),
                     cliente_empresas!tareas_empresa_id_fkey(nombre_empresa)
                 """) \
+                .eq("usuario_empresa_id", usuario_id) \
                 .eq("nombre_nora", self.nombre_nora) \
                 .eq("activo", True)
-            
-            # Buscar usuario por nombre (búsqueda flexible)
-            usuario_resultado = supabase.table("usuarios_clientes") \
-                .select("id, nombre") \
-                .ilike("nombre", f"%{nombre_usuario}%") \
-                .eq("nombre_nora", self.nombre_nora) \
-                .eq("activo", True) \
-                .execute()
-            
-            if not usuario_resultado.data:
-                return []
-            
-            usuario_id = usuario_resultado.data[0]["id"]
-            query = query.eq("usuario_empresa_id", usuario_id)
             
             # Aplicar filtros adicionales
             if filtros:
                 query = self._aplicar_filtros(query, filtros)
             
             resultado = query.execute()
-            return resultado.data if resultado.data else []
+            tareas = resultado.data if resultado.data else []
+            
+            return tareas, info_busqueda
             
         except Exception as e:
             print(f"❌ Error buscando tareas por usuario: {e}")
-            return []
+            return [], {"error": str(e)}
     
-    def buscar_tareas_por_empresa(self, nombre_empresa: str, filtros: Dict = None) -> List[Dict]:
+    def buscar_tareas_por_empresa(self, nombre_empresa: str, filtros: Dict = None) -> Tuple[List[Dict], Dict]:
         """
         Busca tareas asignadas a una empresa específica
+        Retorna: (tareas, info_busqueda)
         """
         try:
-            # Buscar empresa por nombre
-            empresa_resultado = supabase.table("cliente_empresas") \
-                .select("id, nombre_empresa") \
-                .ilike("nombre_empresa", f"%{nombre_empresa}%") \
-                .execute()
+            empresas, tipo_coincidencia = self.buscar_empresa_por_nombre(nombre_empresa)
             
-            if not empresa_resultado.data:
-                return []
+            info_busqueda = {
+                "empresas_encontradas": empresas,
+                "tipo_coincidencia": tipo_coincidencia,
+                "requiere_confirmacion": False,
+                "mensaje_confirmacion": None
+            }
             
-            empresa_id = empresa_resultado.data[0]["id"]
+            if not empresas:
+                return [], info_busqueda
             
-            # Construir consulta
+            # Si hay múltiples coincidencias, requerir confirmación
+            if len(empresas) > 1:
+                info_busqueda["requiere_confirmacion"] = True
+                info_busqueda["mensaje_confirmacion"] = self._generar_mensaje_confirmacion_empresa(empresas, nombre_empresa)
+                return [], info_busqueda
+            
+            # Buscar tareas de la empresa única
+            empresa_id = empresas[0]["id"]
             query = supabase.table("tareas") \
                 .select("""
                     *,
@@ -233,11 +367,13 @@ class ConsultorTareas:
                 query = self._aplicar_filtros(query, filtros)
             
             resultado = query.execute()
-            return resultado.data if resultado.data else []
+            tareas = resultado.data if resultado.data else []
+            
+            return tareas, info_busqueda
             
         except Exception as e:
             print(f"❌ Error buscando tareas por empresa: {e}")
-            return []
+            return [], {"error": str(e)}
     
     def _aplicar_filtros(self, query, filtros: Dict):
         """Aplica filtros adicionales a la consulta"""
@@ -261,13 +397,56 @@ class ConsultorTareas:
         
         return query
     
-    def formatear_respuesta_tareas(self, tareas: List[Dict], consulta_info: Dict) -> str:
+    def formatear_respuesta_tareas(self, tareas: List[Dict], consulta_info: Dict, info_busqueda: Dict = None) -> str:
         """
         Formatea la respuesta sobre tareas para el usuario
         """
+        # Si hay un mensaje de confirmación pendiente, retornarlo
+        if info_busqueda and info_busqueda.get("requiere_confirmacion"):
+            return info_busqueda.get("mensaje_confirmacion", "")
+        
+        # Si no se encontraron entidades
+        if info_busqueda and not info_busqueda.get("usuarios_encontrados", []) and not info_busqueda.get("empresas_encontradas", []):
+            entidad = consulta_info.get("entidad", "la entidad solicitada")
+            tipo = consulta_info.get("tipo", "usuario")
+            
+            mensaje = f"🔍 No encontré ningún **{tipo}** que coincida con **{entidad}**.\n\n"
+            mensaje += "💡 **Sugerencias:**\n"
+            mensaje += "• Verifica la ortografía\n"
+            mensaje += "• Intenta con un nombre más específico\n"
+            mensaje += "• Usa solo el nombre o apellido\n"
+            
+            if tipo == "usuario":
+                mensaje += "• Pregunta por tareas de una empresa específica\n"
+            else:
+                mensaje += "• Pregunta por tareas de un usuario específico\n"
+            
+            return mensaje
+        
         if not tareas:
             entidad = consulta_info.get("entidad", "la entidad solicitada")
-            return f"🔍 No encontré tareas activas para **{entidad}** en este momento.\n\n¿Te gustaría que busque con otros criterios o necesitas crear una nueva tarea?"
+            tipo_busqueda = info_busqueda.get("tipo_coincidencia", "")
+            
+            if info_busqueda:
+                usuarios = info_busqueda.get("usuarios_encontrados", [])
+                empresas = info_busqueda.get("empresas_encontradas", [])
+                
+                if usuarios:
+                    entidad_real = usuarios[0].get("nombre", entidad)
+                elif empresas:
+                    entidad_real = empresas[0].get("nombre_empresa", entidad)
+                else:
+                    entidad_real = entidad
+            else:
+                entidad_real = entidad
+            
+            mensaje = f"🔍 No encontré tareas activas para **{entidad_real}** en este momento.\n\n"
+            
+            if tipo_busqueda == "parcial" or tipo_busqueda == "difusa":
+                mensaje += f"✅ Encontré el registro, pero no tiene tareas asignadas.\n\n"
+            
+            mensaje += "¿Te gustaría que busque con otros criterios o necesitas crear una nueva tarea?"
+            return mensaje
         
         # Contar tareas por estatus
         conteo_estatus = {}
@@ -275,11 +454,21 @@ class ConsultorTareas:
             estatus = tarea.get("estatus", "sin_estatus")
             conteo_estatus[estatus] = conteo_estatus.get(estatus, 0) + 1
         
-        entidad = consulta_info.get("entidad", "")
+        # Determinar el nombre real de la entidad
+        entidad_real = consulta_info.get("entidad", "")
+        if info_busqueda:
+            usuarios = info_busqueda.get("usuarios_encontrados", [])
+            empresas = info_busqueda.get("empresas_encontradas", [])
+            
+            if usuarios:
+                entidad_real = usuarios[0].get("nombre", entidad_real)
+            elif empresas:
+                entidad_real = empresas[0].get("nombre_empresa", entidad_real)
+        
         tipo = consulta_info.get("tipo", "usuario")
         
         # Encabezado
-        respuesta = f"📋 **Tareas de {entidad}** ({tipo}):\n\n"
+        respuesta = f"📋 **Tareas de {entidad_real}** ({tipo}):\n\n"
         
         # Resumen por estatus
         respuesta += "📊 **Resumen:**\n"
@@ -365,12 +554,94 @@ class ConsultorTareas:
             return f"En {diff} días"
         else:
             return fecha_obj.strftime("%d/%m/%Y")
+    
+    def _generar_mensaje_confirmacion_usuario(self, usuarios: List[Dict], nombre_buscado: str) -> str:
+        """Genera mensaje de confirmación cuando hay múltiples usuarios"""
+        mensaje = f"🤔 Encontré {len(usuarios)} usuarios que podrían coincidir con **{nombre_buscado}**:\n\n"
+        
+        for i, usuario in enumerate(usuarios[:5], 1):  # Máximo 5 opciones
+            nombre = usuario.get("nombre", "Sin nombre")
+            correo = usuario.get("correo", "Sin correo")
+            mensaje += f"{i}. **{nombre}**"
+            if correo:
+                mensaje += f" ({correo})"
+            mensaje += "\n"
+        
+        if len(usuarios) > 5:
+            mensaje += f"... y {len(usuarios) - 5} más.\n"
+        
+        mensaje += "\n¿Podrías especificar a cuál te refieres? Puedes responder con el número o el nombre completo."
+        return mensaje
 
-def procesar_consulta_tareas(mensaje: str, usuario: Dict, nombre_nora: str = "aura") -> Optional[str]:
+    def _generar_mensaje_confirmacion_empresa(self, empresas: List[Dict], nombre_buscado: str) -> str:
+        """Genera mensaje de confirmación cuando hay múltiples empresas"""
+        mensaje = f"🤔 Encontré {len(empresas)} empresas que podrían coincidir con **{nombre_buscado}**:\n\n"
+        
+        for i, empresa in enumerate(empresas[:5], 1):  # Máximo 5 opciones
+            nombre = empresa.get("nombre_empresa", "Sin nombre")
+            mensaje += f"{i}. **{nombre}**\n"
+        
+        if len(empresas) > 5:
+            mensaje += f"... y {len(empresas) - 5} más.\n"
+        
+        mensaje += "\n¿Podrías especificar a cuál te refieres? Puedes responder con el número o el nombre completo."
+        return mensaje
+
+    def procesar_confirmacion_usuario(self, respuesta: str, usuarios_opciones: List[Dict]) -> Optional[Dict]:
+        """
+        Procesa la respuesta de confirmación del usuario para seleccionar un usuario específico
+        """
+        respuesta_limpia = respuesta.strip().lower()
+        
+        # Intentar por número
+        try:
+            numero = int(respuesta_limpia)
+            if 1 <= numero <= len(usuarios_opciones):
+                return usuarios_opciones[numero - 1]
+        except ValueError:
+            pass
+        
+        # Intentar por nombre
+        for usuario in usuarios_opciones:
+            nombre_usuario = usuario.get("nombre", "").lower()
+            if respuesta_limpia in nombre_usuario or nombre_usuario in respuesta_limpia:
+                return usuario
+        
+        return None
+
+    def procesar_confirmacion_empresa(self, respuesta: str, empresas_opciones: List[Dict]) -> Optional[Dict]:
+        """
+        Procesa la respuesta de confirmación del usuario para seleccionar una empresa específica
+        """
+        respuesta_limpia = respuesta.strip().lower()
+        
+        # Intentar por número
+        try:
+            numero = int(respuesta_limpia)
+            if 1 <= numero <= len(empresas_opciones):
+                return empresas_opciones[numero - 1]
+        except ValueError:
+            pass
+        
+        # Intentar por nombre
+        for empresa in empresas_opciones:
+            nombre_empresa = empresa.get("nombre_empresa", "").lower()
+            if respuesta_limpia in nombre_empresa or nombre_empresa in respuesta_limpia:
+                return empresa
+        
+        return None
+
+def procesar_consulta_tareas(mensaje: str, usuario: Dict, telefono: str = None, nombre_nora: str = "aura") -> Optional[str]:
     """
     Función principal para procesar consultas de tareas desde la IA
     """
+    from clientes.aura.utils.gestor_estados import tiene_confirmacion_pendiente, establecer_confirmacion_tareas
+    
     try:
+        # Si hay una confirmación pendiente, procesarla primero
+        if telefono and tiene_confirmacion_pendiente(telefono):
+            return procesar_confirmacion_tareas(mensaje, telefono, usuario, nombre_nora)
+        
         consultor = ConsultorTareas(usuario, nombre_nora)
         
         # Verificar permisos
@@ -386,20 +657,117 @@ def procesar_consulta_tareas(mensaje: str, usuario: Dict, nombre_nora: str = "au
         
         # Buscar tareas según el tipo
         tareas = []
+        info_busqueda = {}
+        
         if consulta_info["tipo"] == "empresa":
-            tareas = consultor.buscar_tareas_por_empresa(
+            tareas, info_busqueda = consultor.buscar_tareas_por_empresa(
                 consulta_info["entidad"], 
                 consulta_info["filtros"]
             )
         else:  # usuario
-            tareas = consultor.buscar_tareas_por_usuario(
+            tareas, info_busqueda = consultor.buscar_tareas_por_usuario(
                 consulta_info["entidad"],
                 consulta_info["filtros"]
             )
         
+        # Si requiere confirmación, establecer estado y retornar mensaje
+        if info_busqueda.get("requiere_confirmacion") and telefono:
+            establecer_confirmacion_tareas(telefono, consulta_info, info_busqueda)
+            return info_busqueda.get("mensaje_confirmacion", "Por favor, especifica cuál opción prefieres.")
+        
         # Formatear y retornar respuesta
-        return consultor.formatear_respuesta_tareas(tareas, consulta_info)
+        return consultor.formatear_respuesta_tareas(tareas, consulta_info, info_busqueda)
         
     except Exception as e:
         print(f"❌ Error procesando consulta de tareas: {e}")
         return "❌ Ocurrió un error al consultar las tareas. Por favor, intenta nuevamente."
+
+def procesar_confirmacion_tareas(mensaje: str, telefono: str, usuario: Dict, nombre_nora: str = "aura") -> Optional[str]:
+    """
+    Procesa una respuesta de confirmación para búsqueda de tareas
+    """
+    from clientes.aura.utils.gestor_estados import obtener_confirmacion_tareas, limpiar_confirmacion_tareas
+    
+    try:
+        # Obtener datos de confirmación pendiente
+        datos_confirmacion = obtener_confirmacion_tareas(telefono)
+        if not datos_confirmacion:
+            return None  # No hay confirmación pendiente
+        
+        consulta_info = datos_confirmacion.get("consulta_info", {})
+        info_busqueda = datos_confirmacion.get("info_busqueda", {})
+        
+        consultor = ConsultorTareas(usuario, nombre_nora)
+        
+        entidad_seleccionada = None
+        
+        # Procesar según el tipo de consulta
+        if consulta_info.get("tipo") == "empresa":
+            empresas_opciones = info_busqueda.get("empresas_encontradas", [])
+            entidad_seleccionada = consultor.procesar_confirmacion_empresa(mensaje, empresas_opciones)
+        else:  # usuario
+            usuarios_opciones = info_busqueda.get("usuarios_encontrados", [])
+            entidad_seleccionada = consultor.procesar_confirmacion_usuario(mensaje, usuarios_opciones)
+        
+        # Limpiar estado de confirmación
+        limpiar_confirmacion_tareas(telefono)
+        
+        if not entidad_seleccionada:
+            return "❌ No pude identificar la opción seleccionada. Por favor, intenta de nuevo con el número o nombre completo."
+        
+        # Buscar tareas de la entidad seleccionada
+        tareas = []
+        if consulta_info.get("tipo") == "empresa":
+            query = supabase.table("tareas") \
+                .select("""
+                    *,
+                    usuarios_clientes!tareas_usuario_empresa_id_fkey(nombre, correo),
+                    cliente_empresas!tareas_empresa_id_fkey(nombre_empresa)
+                """) \
+                .eq("empresa_id", entidad_seleccionada["id"]) \
+                .eq("nombre_nora", nombre_nora) \
+                .eq("activo", True)
+            
+            if consulta_info.get("filtros"):
+                query = consultor._aplicar_filtros(query, consulta_info["filtros"])
+            
+            resultado = query.execute()
+            tareas = resultado.data if resultado.data else []
+            
+            # Actualizar info para el formateo
+            info_busqueda_actualizada = {
+                "empresas_encontradas": [entidad_seleccionada],
+                "tipo_coincidencia": "confirmada",
+                "requiere_confirmacion": False
+            }
+        else:  # usuario
+            query = supabase.table("tareas") \
+                .select("""
+                    *,
+                    usuarios_clientes!tareas_usuario_empresa_id_fkey(nombre, correo),
+                    cliente_empresas!tareas_empresa_id_fkey(nombre_empresa)
+                """) \
+                .eq("usuario_empresa_id", entidad_seleccionada["id"]) \
+                .eq("nombre_nora", nombre_nora) \
+                .eq("activo", True)
+            
+            if consulta_info.get("filtros"):
+                query = consultor._aplicar_filtros(query, consulta_info["filtros"])
+            
+            resultado = query.execute()
+            tareas = resultado.data if resultado.data else []
+            
+            # Actualizar info para el formateo
+            info_busqueda_actualizada = {
+                "usuarios_encontrados": [entidad_seleccionada],
+                "tipo_coincidencia": "confirmada",
+                "requiere_confirmacion": False
+            }
+        
+        # Formatear y retornar respuesta
+        return consultor.formatear_respuesta_tareas(tareas, consulta_info, info_busqueda_actualizada)
+        
+    except Exception as e:
+        print(f"❌ Error procesando confirmación de tareas: {e}")
+        limpiar_confirmacion_tareas(telefono)
+        return "❌ Ocurrió un error procesando tu selección. Por favor, intenta de nuevo."
