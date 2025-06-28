@@ -521,23 +521,29 @@
 </div>
 
 <!-- JavaScript Modules -->
-<script src="/admin/nora/static/js/ui-utils.js"></script>
-<script src="/admin/nora/static/js/conocimiento-manager.js"></script>
-<script src="/admin/nora/static/js/form-handlers.js"></script>
-<script src="/admin/nora/static/js/panel-entrenamiento-core.js"></script>
+<script src="/static/js/ui-utils.js"></script>
+<script src="/static/js/conocimiento-manager.js"></script>
+<script src="/static/js/form-handlers.js"></script>
+<script src="/static/js/panel-entrenamiento-core.js"></script>
 
 <!-- Configuration Variables -->
 <script>
+// Detectar el contexto (admin o cliente) basado en la URL actual
+const currentPath = window.location.pathname;
+const isAdminContext = currentPath.includes('/admin/');
+const baseEndpoint = isAdminContext ? '/admin/nora' : '/panel_cliente';
+
 // Global configuration passed from Jinja2 to JavaScript
 window.PANEL_CONFIG = {
     nombreNora: '{{ nombre_nora }}',
+    context: isAdminContext ? 'admin' : 'cliente',
     endpoints: {
-        bloques: '/admin/nora/{{ nombre_nora }}/entrenar/bloques',
-        personalidad: '/admin/nora/{{ nombre_nora }}/entrenar/personalidad',
-        instrucciones: '/admin/nora/{{ nombre_nora }}/entrenar/instrucciones',
-        estadoIA: '/admin/nora/{{ nombre_nora }}/entrenar/estado_ia',
-        limites: '/admin/nora/{{ nombre_nora }}/entrenar/limites',
-        bienvenida: '/admin/nora/{{ nombre_nora }}/entrenar/bienvenida'
+        bloques: `${baseEndpoint}/{{ nombre_nora }}/entrenar/bloques`,
+        personalidad: `${baseEndpoint}/{{ nombre_nora }}/entrenar/personalidad`,
+        instrucciones: `${baseEndpoint}/{{ nombre_nora }}/entrenar/instrucciones`,
+        estadoIA: `${baseEndpoint}/{{ nombre_nora }}/entrenar/estado_ia`,
+        limites: `${baseEndpoint}/{{ nombre_nora }}/entrenar/limites`,
+        bienvenida: `${baseEndpoint}/{{ nombre_nora }}/entrenar/bienvenida`
     },
     limits: {
         maxContentLength: 500,
@@ -545,8 +551,13 @@ window.PANEL_CONFIG = {
     }
 };
 
-// Debug específico de funciones de conocimiento después de cargar todos los scripts
-setTimeout(() => {
+console.log('🔧 CONFIGURACIÓN DETECTADA:');
+console.log('   Contexto:', window.PANEL_CONFIG.context);
+console.log('   Base endpoint:', baseEndpoint);
+console.log('   Endpoint bloques:', window.PANEL_CONFIG.endpoints.bloques);
+
+// Función para verificar y cargar conocimiento cuando esté listo
+function verificarYCargarConocimiento() {
     console.log('🔍 VERIFICACIÓN FINAL - Funciones de conocimiento disponibles:');
     console.log('cargarConocimiento:', typeof window.cargarConocimiento);
     console.log('agregarBloque:', typeof window.agregarBloque);
@@ -554,29 +565,45 @@ setTimeout(() => {
     console.log('mostrarToast:', typeof window.mostrarToast);
     
     // Verificar si hay funciones de conocimiento disponibles
-    if (!window.cargarConocimiento && window.inicializarConocimientoManager) {
-        console.log('🔄 Forzando reinicialización del conocimiento manager...');
-        window.inicializarConocimientoManager();
-    }
-    
-    // Intentar cargar conocimiento manualmente si está disponible
     if (typeof window.cargarConocimiento === 'function') {
-        console.log('🚀 Iniciando carga manual de conocimiento...');
+        console.log('� Iniciando carga automática de conocimiento...');
         window.cargarConocimiento().then(() => {
-            console.log('✅ Conocimiento cargado manualmente con éxito');
+            console.log('✅ Conocimiento cargado automáticamente con éxito');
         }).catch(error => {
-            console.error('❌ Error cargando conocimiento manualmente:', error);
+            console.error('❌ Error cargando conocimiento automáticamente:', error);
         });
     } else {
-        console.error('❌ cargarConocimiento no está disponible en window');
+        console.error('❌ cargarConocimiento no está disponible');
         
-        // Diagnóstico adicional
-        console.log('🔍 Propiedades de window que contienen "cargar":', 
-            Object.keys(window).filter(key => key.toLowerCase().includes('cargar')));
-        console.log('🔍 Propiedades de window que contienen "conocimiento":', 
-            Object.keys(window).filter(key => key.toLowerCase().includes('conocimiento')));
+        // Intentar reinicializar si es posible
+        if (typeof window.inicializarConocimientoManager === 'function') {
+            console.log('� Reintentando reinicialización...');
+            window.inicializarConocimientoManager();
+            
+            // Intentar cargar nuevamente después de reinicializar
+            setTimeout(() => {
+                if (typeof window.cargarConocimiento === 'function') {
+                    console.log('🚀 Reintentando carga después de reinicialización...');
+                    window.cargarConocimiento();
+                } else {
+                    console.error('❌ cargarConocimiento sigue sin estar disponible después de reinicialización');
+                }
+            }, 500);
+        } else {
+            console.error('❌ No se puede reinicializar - inicializarConocimientoManager no disponible');
+        }
     }
-}, 1000);
+}
+
+// Usar un enfoque más robusto para la carga
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(verificarYCargarConocimiento, 500);
+    });
+} else {
+    // DOM ya está listo
+    setTimeout(verificarYCargarConocimiento, 500);
+}
 </script>
 
 {% endblock %}

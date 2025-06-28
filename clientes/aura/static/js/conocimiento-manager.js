@@ -67,9 +67,28 @@ async function cargarConocimiento() {
         const endpoint = window.PANEL_CONFIG.endpoints.bloques;
         console.log('🔄 Cargando conocimiento desde:', endpoint);
 
-        const response = await fetch(endpoint);
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            credentials: 'same-origin', // Incluir cookies de sesión
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest' // Marcar como AJAX
+            }
+        });
         console.log('📡 Response status:', response.status, response.statusText);
         console.log('📡 Response headers:', [...response.headers.entries()]);
+        
+        // Si es 401, significa que la sesión expiró
+        if (response.status === 401) {
+            console.error('❌ Sesión expirada o no autenticado');
+            const errorData = await response.json();
+            console.error('🔐 Error de auth:', errorData);
+            if (errorData.error === 'authentication_required') {
+                // Mostrar mensaje de error específico para sesión expirada
+                mostrarBannerSesionExpirada();
+                throw new Error(`Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente.`);
+            }
+        }
         
         // Si es una redirección (302), significa que no estamos autenticados
         if (response.status === 302) {
@@ -262,12 +281,23 @@ async function agregarBloque() {
     try {
         const response = await fetch(window.PANEL_CONFIG.endpoints.bloques, {
             method: 'POST',
+            credentials: 'same-origin', // Incluir cookies de sesión
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify(nuevoBloque)
         });
+        
+        // Manejar error de autenticación
+        if (response.status === 401) {
+            const errorData = await response.json();
+            if (errorData.error === 'authentication_required') {
+                mostrarBannerSesionExpirada();
+                throw new Error('Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente.');
+            }
+        }
         
         const resultado = await response.json();
         
@@ -310,10 +340,21 @@ async function eliminarBloque(idBloque) {
     try {
         const response = await fetch(`${window.PANEL_CONFIG.endpoints.bloques}/${idBloque}`, {
             method: 'DELETE',
+            credentials: 'same-origin', // Incluir cookies de sesión
             headers: {
+                'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
+        
+        // Manejar error de autenticación
+        if (response.status === 401) {
+            const errorData = await response.json();
+            if (errorData.error === 'authentication_required') {
+                mostrarBannerSesionExpirada();
+                throw new Error('Sesión expirada. Por favor, recarga la página e inicia sesión nuevamente.');
+            }
+        }
         
         const resultado = await response.json();
         
@@ -464,6 +505,43 @@ function ocultarBannerDebug() {
     const bannerDemo = document.getElementById('banner-demo');
     if (bannerDemo) {
         bannerDemo.remove();
+    }
+}
+
+/**
+ * Mostrar banner de sesión expirada
+ */
+function mostrarBannerSesionExpirada() {
+    const bannerSesion = document.createElement('div');
+    bannerSesion.id = 'banner-sesion-expirada';
+    bannerSesion.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded';
+    bannerSesion.innerHTML = `
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <span class="text-2xl">🔐</span>
+            </div>
+            <div class="ml-3 flex-grow">
+                <p class="text-sm font-medium">Sesión Expirada</p>
+                <p class="text-xs mt-1">Tu sesión ha expirado. Por favor, recarga la página e inicia sesión nuevamente para gestionar el conocimiento.</p>
+            </div>
+            <div class="ml-3">
+                <button onclick="window.location.reload()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded transition-colors">
+                    🔄 Recargar Página
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Eliminar banner existente si hay uno
+    const bannerExistente = document.getElementById('banner-sesion-expirada');
+    if (bannerExistente) {
+        bannerExistente.remove();
+    }
+    
+    // Insertar al inicio del contenido principal
+    const mainContent = document.querySelector('.max-w-4xl');
+    if (mainContent) {
+        mainContent.insertBefore(bannerSesion, mainContent.firstChild);
     }
 }
 

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnóstico de Conocimiento - Test de Sesión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <span class="mr-2">🔍</span>
+                Diagnóstico de Conocimiento - Test de Sesión
+            </h1>
+            <p class="text-gray-600 mb-4">
+                Esta página simula exactamente cómo funciona el panel de entrenamiento.
+                <strong>Importante:</strong> Asegúrate de estar logueado antes de hacer clic en "Probar Carga".
+            </p>
+            
+            <!-- Status de Sesión -->
+            <div id="session-status" class="mb-6 p-4 rounded-lg border">
+                <h3 class="font-semibold mb-2">📊 Estado de Sesión</h3>
+                <div id="session-info">Verificando sesión...</div>
+            </div>
+            
+            <!-- Botones de Test -->
+            <div class="mb-6 space-x-4">
+                <button id="test-load" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
+                    🔄 Probar Carga de Conocimiento
+                </button>
+                <button id="test-session" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors">
+                    🔍 Verificar Sesión
+                </button>
+                <button id="clear-logs" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors">
+                    🗑️ Limpiar Logs
+                </button>
+            </div>
+            
+            <!-- Log de Resultados -->
+            <div class="mb-6">
+                <h3 class="font-semibold mb-2">📋 Log de Resultados</h3>
+                <div id="log-results" class="bg-gray-50 border rounded-lg p-4 h-64 overflow-y-auto font-mono text-sm">
+                    <!-- Los resultados aparecerán aquí -->
+                </div>
+            </div>
+            
+            <!-- Datos de Conocimiento -->
+            <div id="knowledge-data" class="hidden">
+                <h3 class="font-semibold mb-2">📚 Datos de Conocimiento Cargados</h3>
+                <div id="knowledge-content" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <!-- Los datos aparecerán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración (simula la misma configuración del panel real)
+        window.PANEL_CONFIG = {
+            nombreNora: 'aura',
+            context: 'cliente',
+            endpoints: {
+                bloques: '/panel_cliente/aura/entrenar/bloques'
+            }
+        };
+
+        // Elementos del DOM
+        const logResults = document.getElementById('log-results');
+        const sessionInfo = document.getElementById('session-info');
+        const sessionStatus = document.getElementById('session-status');
+        const knowledgeData = document.getElementById('knowledge-data');
+        const knowledgeContent = document.getElementById('knowledge-content');
+
+        // Función para agregar log
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                'info': 'text-blue-600',
+                'success': 'text-green-600',
+                'error': 'text-red-600',
+                'warning': 'text-yellow-600'
+            };
+            
+            logResults.innerHTML += `<div class="${colors[type] || 'text-gray-600'}">[${timestamp}] ${message}</div>`;
+            logResults.scrollTop = logResults.scrollHeight;
+        }
+
+        // Función para probar la carga de conocimiento (misma lógica que el panel real)
+        async function testKnowledgeLoad() {
+            addLog('🚀 Iniciando prueba de carga de conocimiento...', 'info');
+            
+            try {
+                const endpoint = window.PANEL_CONFIG.endpoints.bloques;
+                addLog(`📡 Endpoint: ${endpoint}`, 'info');
+
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    credentials: 'same-origin', // Incluir cookies de sesión
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest' // Marcar como AJAX
+                    }
+                });
+
+                addLog(`📊 Status: ${response.status} ${response.statusText}`, 'info');
+                addLog(`📊 Headers: ${JSON.stringify([...response.headers.entries()])}`, 'info');
+                
+                // Si es 401, significa que la sesión expiró
+                if (response.status === 401) {
+                    addLog('❌ Sesión expirada o no autenticado', 'error');
+                    const errorData = await response.json();
+                    addLog(`🔐 Error de auth: ${JSON.stringify(errorData)}`, 'error');
+                    
+                    sessionStatus.className = 'mb-6 p-4 rounded-lg border border-red-200 bg-red-50';
+                    sessionInfo.innerHTML = `
+                        <div class="text-red-700">
+                            <strong>❌ Sin autenticación</strong><br>
+                            ${errorData.message}<br>
+                            <small>Debug: ${JSON.stringify(errorData.debug)}</small>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Si es una redirección (302), significa que no estamos autenticados
+                if (response.status === 302) {
+                    addLog('❌ Redirección detectada - posible problema de sesión', 'error');
+                    sessionStatus.className = 'mb-6 p-4 rounded-lg border border-red-200 bg-red-50';
+                    sessionInfo.innerHTML = '<div class="text-red-700"><strong>❌ Redirección detectada</strong><br>Posible problema de sesión</div>';
+                    return;
+                }
+                
+                // Si no es JSON, podría ser una página HTML de error
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    addLog(`❌ Respuesta no es JSON: ${contentType}`, 'error');
+                    const textResponse = await response.text();
+                    addLog(`📄 Contenido: ${textResponse.substring(0, 200)}...`, 'warning');
+                    return;
+                }
+
+                const resultado = await response.json();
+                addLog(`📦 Resultado JSON: ${JSON.stringify(resultado)}`, 'info');
+
+                if (!response.ok || !resultado.success) {
+                    throw new Error(resultado.message || "Error cargando conocimiento");
+                }
+
+                // ¡Éxito! Mostrar los datos
+                addLog(`✅ Cargados ${resultado.data.length} bloques de conocimiento`, 'success');
+                
+                sessionStatus.className = 'mb-6 p-4 rounded-lg border border-green-200 bg-green-50';
+                sessionInfo.innerHTML = '<div class="text-green-700"><strong>✅ Sesión válida</strong><br>Conocimiento cargado correctamente</div>';
+                
+                // Mostrar datos de conocimiento
+                knowledgeData.classList.remove('hidden');
+                knowledgeContent.innerHTML = `
+                    <h4 class="font-semibold mb-2">Total de bloques: ${resultado.data.length}</h4>
+                    <div class="space-y-2">
+                        ${resultado.data.map(bloque => `
+                            <div class="bg-white p-3 rounded border">
+                                <div class="font-medium text-sm">${bloque.contenido.substring(0, 100)}...</div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    Etiquetas: ${JSON.stringify(bloque.etiquetas || [])} | 
+                                    Prioridad: ${bloque.prioridad ? 'Sí' : 'No'}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                addLog(`❌ Error completo: ${error.message}`, 'error');
+                sessionStatus.className = 'mb-6 p-4 rounded-lg border border-red-200 bg-red-50';
+                sessionInfo.innerHTML = `<div class="text-red-700"><strong>❌ Error</strong><br>${error.message}</div>`;
+            }
+        }
+
+        // Función para verificar sesión
+        async function testSession() {
+            addLog('🔍 Verificando información de sesión...', 'info');
+            
+            try {
+                const response = await fetch('/debug/session', {
+                    credentials: 'same-origin'
+                });
+                
+                if (response.ok) {
+                    const sessionData = await response.json();
+                    addLog(`📊 Sesión: ${JSON.stringify(sessionData)}`, 'info');
+                } else {
+                    addLog(`⚠️ No se pudo obtener info de sesión: ${response.status}`, 'warning');
+                }
+            } catch (error) {
+                addLog(`❌ Error verificando sesión: ${error.message}`, 'error');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('test-load').addEventListener('click', testKnowledgeLoad);
+        document.getElementById('test-session').addEventListener('click', testSession);
+        document.getElementById('clear-logs').addEventListener('click', () => {
+            logResults.innerHTML = '';
+            knowledgeData.classList.add('hidden');
+        });
+
+        // Inicialización
+        addLog('🔧 Página de diagnóstico cargada', 'success');
+        addLog('💡 Asegúrate de estar logueado antes de probar', 'warning');
+        
+        // Verificar sesión automáticamente al cargar
+        setTimeout(testSession, 1000);
+    </script>
+</body>
+</html>

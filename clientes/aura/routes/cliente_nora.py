@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import os
 import uuid
 from datetime import datetime
-from clientes.aura.utils.login_required import login_required_cliente, login_required_cliente_debug
+from clientes.aura.utils.login_required import login_required_cliente, login_required_cliente_debug, login_required_ajax, login_required_ajax_debug
 
 # Configurar Supabase
 load_dotenv()
@@ -171,7 +171,7 @@ def estado_ia(nombre_nora):
 
 # ✅ Endpoint: Obtener bloques de conocimiento activos
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/bloques", methods=["GET"])
-@login_required_cliente_debug
+@login_required_ajax_debug
 def obtener_bloques_conocimiento(nombre_nora):
     try:
         res = supabase.table("conocimiento_nora") \
@@ -187,7 +187,7 @@ def obtener_bloques_conocimiento(nombre_nora):
 
 # ✅ Endpoint: Agregar nuevo bloque de conocimiento
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/bloques", methods=["POST"])
-@login_required_cliente
+@login_required_ajax
 def agregar_bloque_conocimiento(nombre_nora):
     try:
         body = request.get_json()
@@ -217,7 +217,7 @@ def agregar_bloque_conocimiento(nombre_nora):
 
 # ✅ Endpoint: Eliminar (desactivar) un bloque de conocimiento
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/bloques/<id_bloque>", methods=["DELETE"])
-@login_required_cliente
+@login_required_ajax
 def eliminar_bloque_conocimiento(nombre_nora, id_bloque):
     try:
         res = supabase.table("conocimiento_nora") \
@@ -1025,3 +1025,7 @@ def diagnostico_completo(nombre_nora):
 def diagnostico_simple():
     """Página de diagnóstico simple para JS"""
     return send_from_directory('.', 'diagnostico_simple.html')
+
+
+# Temporary endpoint removed - authentication is now working properly
+# The proper authenticated endpoint is: /panel_cliente/<nombre_nora>/entrenar/bloques

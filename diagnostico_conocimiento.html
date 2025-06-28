@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Diagnóstico de Conocimiento</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .result { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin: 10px 0; }
+        .success { border-color: #28a745; background: #d4edda; }
+        .error { border-color: #dc3545; background: #f8d7da; }
+        .warning { border-color: #ffc107; background: #fff3cd; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; max-height: 300px; }
+        .loading { display: none; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Diagnóstico de Base de Conocimiento</h1>
+        <p>Esta página ayuda a diagnosticar problemas con la carga de conocimiento.</p>
+        
+        <div class="result">
+            <h3>🌐 Información del Contexto</h3>
+            <p><strong>URL actual:</strong> <span id="url-actual"></span></p>
+            <p><strong>Contexto detectado:</strong> <span id="contexto"></span></p>
+            <p><strong>Endpoint calculado:</strong> <span id="endpoint"></span></p>
+        </div>
+
+        <div class="result">
+            <h3>🔧 Acciones de Diagnóstico</h3>
+            <button onclick="probarEndpoint()">📡 Probar Endpoint</button>
+            <button onclick="verificarScripts()">📜 Verificar Scripts</button>
+            <button onclick="simularCarga()">🚀 Simular Carga</button>
+            <button onclick="limpiarResultados()">🧹 Limpiar</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <p>⏳ Ejecutando prueba...</p>
+        </div>
+
+        <div id="resultados"></div>
+    </div>
+
+    <script>
+        // Configuración basada en la URL actual
+        const currentPath = window.location.pathname;
+        const isAdminContext = currentPath.includes('/admin/');
+        const baseEndpoint = isAdminContext ? '/admin/nora' : '/panel_cliente';
+        const nombreNora = 'aura'; // Hardcodeado para prueba
+        const endpointBloques = `${baseEndpoint}/${nombreNora}/entrenar/bloques`;
+
+        // Mostrar información inicial
+        document.getElementById('url-actual').textContent = window.location.href;
+        document.getElementById('contexto').textContent = isAdminContext ? 'Admin' : 'Cliente';
+        document.getElementById('endpoint').textContent = endpointBloques;
+
+        function mostrarResultado(titulo, contenido, tipo = 'result') {
+            const resultadosDiv = document.getElementById('resultados');
+            const div = document.createElement('div');
+            div.className = `result ${tipo}`;
+            div.innerHTML = `
+                <h4>${titulo}</h4>
+                <div>${contenido}</div>
+            `;
+            resultadosDiv.appendChild(div);
+        }
+
+        function mostrarLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        async function probarEndpoint() {
+            mostrarLoading(true);
+            
+            try {
+                console.log('🚀 Probando endpoint:', endpointBloques);
+                
+                const response = await fetch(endpointBloques);
+                
+                mostrarResultado('📡 Respuesta del Endpoint', `
+                    <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>URL:</strong> ${response.url}</p>
+                    <p><strong>Headers:</strong></p>
+                    <pre>${JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)}</pre>
+                `, response.ok ? 'success' : 'error');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarResultado('📦 Datos Recibidos', `
+                        <p><strong>Success:</strong> ${data.success}</p>
+                        <p><strong>Total bloques:</strong> ${data.data ? data.data.length : 'N/A'}</p>
+                        <p><strong>Datos completos:</strong></p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, 'success');
+                } else {
+                    const errorText = await response.text();
+                    mostrarResultado('❌ Error del Servidor', `
+                        <p><strong>Respuesta:</strong></p>
+                        <pre>${errorText.substring(0, 1000)}${errorText.length > 1000 ? '...' : ''}</pre>
+                    `, 'error');
+                }
+                
+            } catch (error) {
+                mostrarResultado('❌ Error de Red', `
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Stack:</strong></p>
+                    <pre>${error.stack}</pre>
+                `, 'error');
+            }
+            
+            mostrarLoading(false);
+        }
+
+        function verificarScripts() {
+            const scripts = [
+                '/static/js/ui-utils.js',
+                '/static/js/conocimiento-manager.js',
+                '/static/js/form-handlers.js',
+                '/static/js/panel-entrenamiento-core.js'
+            ];
+
+            const funciones = [
+                'cargarConocimiento',
+                'agregarBloque',
+                'eliminarBloque',
+                'mostrarToast',
+                'inicializarConocimientoManager'
+            ];
+
+            let resultado = '<h5>📜 Scripts en la página:</h5><ul>';
+            document.querySelectorAll('script').forEach(script => {
+                if (script.src) {
+                    resultado += `<li>${script.src}</li>`;
+                }
+            });
+            resultado += '</ul>';
+
+            resultado += '<h5>🔍 Funciones en window:</h5><ul>';
+            funciones.forEach(func => {
+                const disponible = typeof window[func] === 'function';
+                resultado += `<li><strong>${func}:</strong> ${disponible ? '✅ Disponible' : '❌ No disponible'}</li>`;
+            });
+            resultado += '</ul>';
+
+            resultado += '<h5>🌍 Propiedades de window con "conocimiento":</h5><ul>';
+            Object.keys(window).filter(key => key.toLowerCase().includes('conocimiento')).forEach(key => {
+                resultado += `<li><strong>${key}:</strong> ${typeof window[key]}</li>`;
+            });
+            resultado += '</ul>';
+
+            mostrarResultado('📜 Verificación de Scripts', resultado, 'warning');
+        }
+
+        async function simularCarga() {
+            mostrarLoading(true);
+            
+            try {
+                // Simular el proceso de carga completo
+                mostrarResultado('🔄 Iniciando Simulación', 'Verificando configuración...', 'warning');
+                
+                // Verificar PANEL_CONFIG
+                const panelConfig = {
+                    nombreNora: nombreNora,
+                    context: isAdminContext ? 'admin' : 'cliente',
+                    endpoints: {
+                        bloques: endpointBloques
+                    }
+                };
+                
+                window.PANEL_CONFIG = panelConfig;
+                
+                mostrarResultado('⚙️ Configuración Creada', `
+                    <pre>${JSON.stringify(panelConfig, null, 2)}</pre>
+                `, 'success');
+                
+                // Intentar cargar conocimiento
+                if (typeof window.cargarConocimiento === 'function') {
+                    mostrarResultado('🚀 Ejecutando cargarConocimiento()', 'Función encontrada, ejecutando...', 'warning');
+                    await window.cargarConocimiento();
+                    mostrarResultado('✅ Carga Completada', 'cargarConocimiento() ejecutado correctamente', 'success');
+                } else {
+                    mostrarResultado('❌ Función No Disponible', 'cargarConocimiento() no está disponible en window', 'error');
+                    
+                    // Intentar reinicializar
+                    if (typeof window.inicializarConocimientoManager === 'function') {
+                        mostrarResultado('🔄 Reinicializando', 'Ejecutando inicializarConocimientoManager()...', 'warning');
+                        window.inicializarConocimientoManager();
+                        
+                        setTimeout(async () => {
+                            if (typeof window.cargarConocimiento === 'function') {
+                                mostrarResultado('🚀 Reintentando Carga', 'Función disponible después de reinicialización', 'warning');
+                                await window.cargarConocimiento();
+                                mostrarResultado('✅ Carga Completada (Reintento)', 'cargarConocimiento() ejecutado después de reinicialización', 'success');
+                            } else {
+                                mostrarResultado('❌ Fallo Final', 'cargarConocimiento() sigue sin estar disponible', 'error');
+                            }
+                        }, 1000);
+                    }
+                }
+                
+            } catch (error) {
+                mostrarResultado('❌ Error en Simulación', `
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `, 'error');
+            }
+            
+            mostrarLoading(false);
+        }
+
+        function limpiarResultados() {
+            document.getElementById('resultados').innerHTML = '';
+        }
+
+        // Auto-ejecutar verificación al cargar
+        setTimeout(() => {
+            verificarScripts();
+        }, 1000);
+    </script>
+</body>
+</html>
