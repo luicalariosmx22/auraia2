@@ -108,30 +108,59 @@ class ConsultorTareas:
         # Indicadores de consulta por empresa
         indicadores_empresa = [
             "empresa", "compañía", "organización", "negocio", 
-            "corporación", "firma", "s.a.", "s.l.", "inc", "ltda"
+            "corporación", "firma", "s.a.", "s.l.", "inc", "ltda",
+            "pastelerías", "pastelerias", "cakes", "corp"  # 🆕 Añadimos indicadores específicos
         ]
         
         # Indicadores de consulta por usuario
         indicadores_usuario = [
             "usuario", "empleado", "trabajador", "persona",
-            "colaborador", "miembro", "staff"
+            "colaborador", "miembro", "staff", "departamento"
         ]
         
         entidad_lower = entidad.lower()
         mensaje_lower = mensaje.lower()
         
-        # Verificar indicadores explícitos
+        # 🔥 PRIORIDAD 1: Verificar indicadores explícitos en el mensaje
         if any(ind in mensaje_lower for ind in indicadores_empresa):
+            print(f"🏢 Detectado como EMPRESA por indicador en mensaje: {[ind for ind in indicadores_empresa if ind in mensaje_lower]}")
             return "empresa"
+            
         if any(ind in mensaje_lower for ind in indicadores_usuario):
+            print(f"👤 Detectado como USUARIO por indicador en mensaje: {[ind for ind in indicadores_usuario if ind in mensaje_lower]}")
             return "usuario"
         
-        # Verificar en la entidad misma
+        # 🔥 PRIORIDAD 2: Verificar en la entidad misma
         if any(ind in entidad_lower for ind in indicadores_empresa):
+            print(f"🏢 Detectado como EMPRESA por indicador en entidad: {[ind for ind in indicadores_empresa if ind in entidad_lower]}")
+            return "empresa"
+            
+        if any(ind in entidad_lower for ind in indicadores_usuario):
+            print(f"👤 Detectado como USUARIO por indicador en entidad: {[ind for ind in indicadores_usuario if ind in entidad_lower]}")
+            return "usuario"
+        
+        # 🔥 PRIORIDAD 3: Detectar patrones de nombres típicos
+        # Nombres de empresas tienden a tener palabras en mayúscula o términos comerciales
+        if any(word in entidad_lower for word in ["suspiros", "tech", "corp", "solutions", "marketing", "group"]):
+            print(f"🏢 Detectado como EMPRESA por patrón de nombre comercial")
             return "empresa"
         
-        # Por defecto, asumir que es usuario si no hay indicadores claros
-        return "usuario"
+        # Nombres de usuarios tienden a ser nombres propios simples
+        palabras_entidad = entidad_lower.split()
+        if len(palabras_entidad) <= 2 and all(len(palabra) >= 2 for palabra in palabras_entidad):
+            # Si son 1-2 palabras cortas, probablemente es un nombre de persona
+            nombres_comunes = ["maría", "david", "josé", "luis", "ana", "carlos", "juan", "laura"]
+            if any(nombre in entidad_lower for nombre in nombres_comunes):
+                print(f"👤 Detectado como USUARIO por nombre común")
+                return "usuario"
+        
+        # 🔥 DEFAULT: Si no está claro, preferir empresa para términos largos o usuario para términos cortos
+        if len(entidad.split()) >= 2:
+            print(f"🏢 Detectado como EMPRESA por defecto (término largo)")
+            return "empresa"
+        else:
+            print(f"👤 Detectado como USUARIO por defecto (término corto)")
+            return "usuario"
     
     def _extraer_filtros(self, mensaje: str) -> Dict:
         """Extrae filtros adicionales del mensaje"""
