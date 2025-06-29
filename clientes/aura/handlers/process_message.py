@@ -465,15 +465,33 @@ def procesar_mensaje(data):
 
     # 🧠 SISTEMA DE RESPUESTAS INTELIGENTES - Detectar preguntas ambiguas
     from clientes.aura.utils.respuestas_inteligentes import SistemaRespuestasInteligentes
+    from clientes.aura.utils.memoria_conversacion import memoria_conversacion
     
     sistema_inteligente = SistemaRespuestasInteligentes(nombre_nora)
     
+    # Obtener opciones previas de la memoria si existen
+    opciones_previas = memoria_conversacion.obtener_opciones(numero_usuario, nombre_nora)
+    
     # Analizar si la pregunta es ambigua o necesita opciones
-    respuesta_inteligente = sistema_inteligente.procesar_pregunta(mensaje_usuario, telefono=numero_usuario)
+    respuesta_inteligente = sistema_inteligente.procesar_pregunta(mensaje_usuario, opciones_previas)
     
     if respuesta_inteligente:
         # Si el sistema inteligente detectó ambigüedad o duplicados, usar su respuesta
         print(f"🎯 Respuesta inteligente generada: {respuesta_inteligente[:100]}...")
+        
+        # Si la respuesta es un menú de opciones, guardar en memoria
+        if "1️⃣" in respuesta_inteligente or "2️⃣" in respuesta_inteligente:
+            # Generar opciones para guardar en memoria
+            analisis = sistema_inteligente.analizar_pregunta(mensaje_usuario)
+            opciones = sistema_inteligente.buscar_opciones_relacionadas(analisis)
+            opciones_unicas = sistema_inteligente.detectar_duplicados(opciones)
+            
+            if opciones_unicas:
+                memoria_conversacion.guardar_opciones(numero_usuario, nombre_nora, opciones_unicas)
+                print(f"💾 Guardadas {len(opciones_unicas)} opciones en memoria para el usuario")
+        else:
+            # Si no es un menú, limpiar memoria previa
+            memoria_conversacion.limpiar_memoria(numero_usuario, nombre_nora)
         
         # Guardar respuesta en historial
         guardar_en_historial(
@@ -488,7 +506,8 @@ def procesar_mensaje(data):
         enviar_mensaje(numero_usuario, respuesta_inteligente)
         return respuesta_inteligente
     
-    # Si no hay respuesta inteligente, proceder con IA normal
+    # Si no hay respuesta inteligente, limpiar memoria y proceder con IA normal
+    memoria_conversacion.limpiar_memoria(numero_usuario, nombre_nora)
     respuesta, historial = manejar_respuesta_ai(
         mensaje_usuario=mensaje_usuario,
         nombre_nora=nombre_nora,  # ✅ Ahora usa nombre_nora correctamente
