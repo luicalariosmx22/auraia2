@@ -166,7 +166,12 @@ class SistemaRespuestasInteligentes:
         if not opciones:
             return self._generar_respuesta_sin_opciones(analisis)
         
-        # Si hay una sola opción muy clara
+        # NUEVA LÓGICA: Ser específico con lo que pregunta el usuario
+        respuesta_especifica = self._generar_respuesta_especifica(analisis, opciones)
+        if respuesta_especifica:
+            return respuesta_especifica
+        
+        # Si hay una sola opción muy clara, dar respuesta completa
         if len(opciones) == 1 and opciones[0]['puntuacion'] >= 3:
             respuesta = opciones[0]['bloque']['contenido']
             if opciones[0].get('tiene_duplicados'):
@@ -176,59 +181,152 @@ class SistemaRespuestasInteligentes:
         # Si hay múltiples opciones, ofrecer menú
         return self._generar_menu_opciones(analisis, opciones)
     
-    def _generar_respuesta_sin_opciones(self, analisis: Dict) -> str:
-        """Genera respuesta cuando no se encuentran opciones específicas"""
-        if analisis['es_pregunta_curso'] and analisis['es_pregunta_precio']:
-            return """
-🎓 **Cursos Disponibles:**
-
-Tengo información sobre varios cursos, pero necesito saber cuál te interesa específicamente:
-
-1️⃣ Curso de Inteligencia Artificial
-2️⃣ Cursos de Marketing Digital  
-3️⃣ Otros cursos disponibles
-
-¿Cuál te gustaría conocer en detalle? Así te puedo dar información exacta sobre costos, fechas y ubicación.
-            """.strip()
+    def _generar_respuesta_especifica(self, analisis: Dict, opciones: List[Dict]) -> str:
+        """Genera respuesta específica basada en lo que exactamente pregunta el usuario"""
+        mensaje_lower = analisis['mensaje_procesado']
         
+        # Detectar si pregunta sobre un curso específico
+        curso_especifico = None
+        if 'marketing' in mensaje_lower:
+            curso_especifico = 'marketing'
+        elif 'inteligencia artificial' in mensaje_lower or 'ia' in mensaje_lower:
+            curso_especifico = 'inteligencia artificial'
+        
+        if curso_especifico:
+            # Buscar información específica del curso
+            bloque_curso = self._encontrar_bloque_especifico(opciones, curso_especifico)
+            if bloque_curso:
+                contenido = bloque_curso['contenido']
+                
+                # Si pregunta precio específico, extraer solo el precio
+                if analisis['es_pregunta_precio']:
+                    precio_info = self._extraer_precio_especifico(contenido)
+                    if precio_info:
+                        return f"💰 **Precio del Curso de {curso_especifico.title()}:**\n\n{precio_info}"
+                
+                # Si pregunta ubicación específica, extraer solo ubicación
+                elif analisis['es_pregunta_ubicacion']:
+                    ubicacion_info = self._extraer_ubicacion_especifica(contenido)
+                    if ubicacion_info:
+                        return f"📍 **Ubicación del Curso de {curso_especifico.title()}:**\n\n{ubicacion_info}"
+                
+                # Si pregunta horario específico, extraer solo horario
+                elif analisis['es_pregunta_horario']:
+                    horario_info = self._extraer_horario_especifico(contenido)
+                    if horario_info:
+                        return f"🕒 **Horario del Curso de {curso_especifico.title()}:**\n\n{horario_info}"
+                
+                # Si pregunta sobre el curso en general, dar info completa
+                else:
+                    return f"🎓 **Curso de {curso_especifico.title()}:**\n\n{contenido}"
+        
+        # Si pregunta precio pero no especifica curso, mostrar precios disponibles
+        elif analisis['es_pregunta_precio'] and not curso_especifico:
+            precios_disponibles = self._extraer_todos_los_precios(opciones)
+            if precios_disponibles:
+                return f"💰 **Precios Disponibles:**\n\n{precios_disponibles}"
+        
+        return None  # No se pudo generar respuesta específica
+    
+    def _encontrar_bloque_especifico(self, opciones: List[Dict], curso_objetivo: str) -> Dict:
+        """Encuentra el bloque específico del curso buscado"""
+        for opcion in opciones:
+            etiquetas = opcion['bloque'].get('etiquetas', [])
+            for etiqueta in etiquetas:
+                if curso_objetivo.lower() in etiqueta.lower():
+                    return opcion['bloque']
+        return None
+    
+    def _extraer_precio_especifico(self, contenido: str) -> str:
+        """Extrae solo la información de precio del contenido"""
+        lineas = contenido.split('\n')
+        for linea in lineas:
+            if any(palabra in linea.lower() for palabra in ['precio', 'costo', '$', 'mxn', 'pago']):
+                return linea.strip()
+        return None
+    
+    def _extraer_ubicacion_especifica(self, contenido: str) -> str:
+        """Extrae solo la información de ubicación del contenido"""
+        lineas = contenido.split('\n')
+        for linea in lineas:
+            if any(palabra in linea.lower() for palabra in ['ubicación', 'dirección', 'lugar', 'instalaciones', 'av.', 'calle']):
+                return linea.strip()
+        return None
+    
+    def _extraer_horario_especifico(self, contenido: str) -> str:
+        """Extrae solo la información de horario del contenido"""
+        lineas = contenido.split('\n')
+        for linea in lineas:
+            if any(palabra in linea.lower() for palabra in ['horario', 'fecha', 'hora', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes']):
+                return linea.strip()
+        return None
+    
+    def _extraer_todos_los_precios(self, opciones: List[Dict]) -> str:
+        """Extrae todos los precios disponibles de las opciones"""
+        precios = []
+        for opcion in opciones:
+            contenido = opcion['bloque']['contenido']
+            etiquetas = opcion['bloque'].get('etiquetas', [])
+            
+            # Determinar nombre del curso/servicio
+            nombre_curso = "Servicio"
+            for etiqueta in etiquetas:
+                if 'marketing' in etiqueta.lower():
+                    nombre_curso = "Marketing Digital"
+                    break
+                elif 'inteligencia artificial' in etiqueta.lower():
+                    nombre_curso = "Inteligencia Artificial"
+                    break
+                elif 'curso' in etiqueta.lower():
+                    nombre_curso = etiqueta
+                    break
+            
+            # Extraer precio
+            precio_info = self._extraer_precio_especifico(contenido)
+            if precio_info:
+                precios.append(f"• **{nombre_curso}:** {precio_info}")
+        
+        return '\n'.join(precios) if precios else None
+    
+    def _generar_respuesta_sin_opciones(self, analisis: Dict) -> str:
+        """Genera respuesta cuando no se encuentran opciones específicas - busca por categorías"""
+        conocimiento = self.obtener_conocimiento_completo()
+        
+        if analisis['es_pregunta_curso'] and analisis['es_pregunta_precio']:
+            # Buscar todos los bloques relacionados con cursos
+            bloques_cursos = self._buscar_por_categoria(conocimiento, ['curso', 'capacitacion', 'entrenamiento'])
+            if bloques_cursos:
+                return self._generar_respuesta_completa_cursos(bloques_cursos, incluir_precios=True)
+            
         elif analisis['es_pregunta_curso']:
-            return """
-🎓 **Información de Cursos:**
-
-Ofrecemos varios cursos especializados. ¿Te interesa alguno en particular?
-
-• **Inteligencia Artificial** - Curso intensivo presencial
-• **Marketing Digital** - Estrategias y contenido viral
-• **Automatización** - Herramientas y procesos
-
-Escribe el nombre del curso que te interesa y te doy toda la información completa.
-            """.strip()
+            # Buscar información de cursos
+            bloques_cursos = self._buscar_por_categoria(conocimiento, ['curso', 'capacitacion', 'entrenamiento'])
+            if bloques_cursos:
+                return self._generar_respuesta_completa_cursos(bloques_cursos, incluir_precios=False)
         
         elif analisis['es_pregunta_precio']:
-            return """
-💰 **Información de Precios:**
-
-Para darte información precisa de costos, ¿me puedes especificar qué servicio o curso te interesa?
-
-Tengo precios disponibles para:
-• Cursos de capacitación
-• Servicios de consultoría
-• Proyectos de automatización
-
-¿Cuál te gustaría conocer?
-            """.strip()
+            # Buscar información de precios en general
+            bloques_precios = self._buscar_por_categoria(conocimiento, ['precio', 'costo', 'pago'])
+            if bloques_precios:
+                return self._generar_respuesta_completa_precios(bloques_precios)
         
-        else:
-            return """
-🤔 No tengo información específica sobre eso, pero puedo ayudarte con:
+        elif analisis['es_pregunta_ia']:
+            # Buscar específicamente información de IA
+            bloques_ia = self._buscar_por_categoria(conocimiento, ['inteligencia artificial', 'ia', 'artificial'])
+            if bloques_ia:
+                return self._generar_respuesta_completa_ia(bloques_ia)
+        
+        # Si no encuentra nada específico, respuesta genérica
+        return """
+🤔 No tengo información específica sobre eso en este momento.
 
-📚 **Cursos y Capacitaciones**
-💼 **Servicios de Consultoría** 
-🤖 **Automatización e IA**
-📈 **Marketing Digital**
+¿Podrías ser más específico sobre qué te interesa? Por ejemplo:
+• "¿Cuánto cuesta el curso de inteligencia artificial?"
+• "¿Qué cursos tienen disponibles?"
+• "¿Cuál es la duración del curso?"
 
-¿Sobre cuál de estos temas te gustaría saber más?
-            """.strip()
+Así podré darte información más precisa.
+        """.strip()
     
     def _generar_menu_opciones(self, analisis: Dict, opciones: List[Dict]) -> str:
         """Genera un menú de opciones cuando hay múltiples resultados"""
@@ -353,64 +451,225 @@ Escribe el **número** de la opción que te interesa o pregúntame algo más esp
             # Analizar la pregunta actual
             analisis = self.analizar_pregunta(mensaje_usuario)
             
-            # Solo procesar con sistema inteligente si detecta términos específicos que pueden ser ambiguos
+            # Solo procesar con sistema inteligente si detecta términos específicos
             debe_procesar = (
                 analisis['es_pregunta_precio'] or 
                 analisis['es_pregunta_curso'] or
                 analisis['es_pregunta_ia'] or
-                (len(mensaje_usuario.split()) <= 5 and any([  # Preguntas muy cortas
-                    analisis['es_pregunta_ubicacion'],
-                    analisis['es_pregunta_horario']
-                ]))
+                analisis['es_pregunta_ubicacion'] or
+                analisis['es_pregunta_horario']
             )
             
             if not debe_procesar:
                 return None  # Dejar que la IA normal lo maneje
             
-            # Buscar opciones relacionadas
-            opciones = self.buscar_opciones_relacionadas(analisis)
+            # PRIMERO: Intentar dar respuesta específica basada en lo que exactamente pregunta el usuario
+            conocimiento = self.obtener_conocimiento_completo()
+            mensaje_lower = analisis['mensaje_procesado']
             
-            if not opciones:
-                # Si no encuentra opciones específicas pero detectó términos ambiguos, generar respuesta de clarificación
-                return self._generar_respuesta_sin_opciones(analisis)
+            # Detectar si pregunta sobre un curso específico
+            curso_especifico = None
+            if 'marketing' in mensaje_lower:
+                curso_especifico = 'marketing'
+            elif 'inteligencia artificial' in mensaje_lower or 'ia' in mensaje_lower:
+                curso_especifico = 'inteligencia artificial'
             
-            # Detectar duplicados
-            opciones_unicas = self.detectar_duplicados(opciones)
+            # Si pregunta sobre un curso específico, dar solo información de ese curso
+            if curso_especifico:
+                bloque_especifico = self._buscar_curso_especifico(conocimiento, curso_especifico)
+                if bloque_especifico:
+                    return self._generar_respuesta_curso_especifico(bloque_especifico, analisis, curso_especifico)
             
-            # Si hay múltiples opciones o una sola pero con duplicados, generar menú
-            if len(opciones_unicas) > 1 or (len(opciones_unicas) == 1 and opciones_unicas[0].get('tiene_duplicados')):
-                # Guardar opciones en memoria para próxima interacción
-                if telefono:
-                    memoria_conversacion.guardar_opciones(telefono, self.nombre_nora, opciones_unicas)
-                
-                return self.generar_respuesta_contextual(analisis, opciones_unicas)
+            # Si pregunta sobre cursos en general
+            elif analisis['es_pregunta_curso']:
+                bloques_cursos = self._buscar_por_categoria(conocimiento, ['curso', 'capacitacion', 'entrenamiento'])
+                if bloques_cursos:
+                    if analisis['es_pregunta_precio']:
+                        # Si pregunta precio de cursos pero no especifica cuál, listar opciones
+                        return self._generar_menu_precios_cursos(bloques_cursos)
+                    else:
+                        return self._generar_respuesta_completa_cursos(bloques_cursos, False)
             
-            # Si hay una sola opción clara y no tiene duplicados, dejar que la IA normal responda
-            return None
+            # Si pregunta sobre IA en general
+            elif analisis['es_pregunta_ia']:
+                bloques_ia = self._buscar_por_categoria(conocimiento, ['inteligencia artificial', 'ia', 'artificial'])
+                if bloques_ia:
+                    return self._generar_respuesta_completa_ia(bloques_ia)
+            
+            # Si pregunta solo precio sin especificar qué
+            elif analisis['es_pregunta_precio'] and not analisis['es_pregunta_curso']:
+                bloques_precios = self._buscar_por_categoria(conocimiento, ['precio', 'costo', 'pago'])
+                if bloques_precios:
+                    return self._generar_respuesta_completa_precios(bloques_precios)
+            
+            # Si no encuentra información específica por categorías, generar respuesta de clarificación
+            return self._generar_respuesta_sin_opciones(analisis)
             
         except Exception as e:
             print(f"❌ Error en sistema de respuestas inteligentes: {e}")
             return None
 
-# Función de utilidad para usar el sistema
-def generar_respuesta_inteligente(mensaje_usuario: str, nombre_nora: str, opciones_previas: List[Dict] = None) -> Tuple[str, List[Dict]]:
-    """
-    Función principal para generar respuestas inteligentes
-    Retorna: (respuesta_texto, opciones_para_siguiente_interaccion)
-    """
-    sistema = SistemaRespuestasInteligentes(nombre_nora)
+    def _buscar_por_categoria(self, conocimiento: List[Dict], palabras_clave: List[str]) -> List[Dict]:
+        """Busca bloques por palabras clave en etiquetas y contenido"""
+        bloques_encontrados = []
+        
+        for bloque in conocimiento:
+            contenido = bloque.get('contenido', '').lower()
+            etiquetas = [e.lower() for e in bloque.get('etiquetas', [])]
+            etiquetas_texto = ' '.join(etiquetas)
+            
+            # Buscar en etiquetas y contenido
+            for palabra in palabras_clave:
+                palabra_lower = palabra.lower()
+                if (palabra_lower in etiquetas_texto or 
+                    palabra_lower in contenido or
+                    any(palabra_lower in etiqueta for etiqueta in etiquetas)):
+                    bloques_encontrados.append(bloque)
+                    break  # No agregar el mismo bloque múltiples veces
+        
+        return bloques_encontrados
     
-    # Si hay opciones previas, intentar procesar selección
-    if opciones_previas:
-        respuesta_seleccion = sistema.procesar_seleccion_menu(mensaje_usuario, opciones_previas)
-        if respuesta_seleccion:
-            return respuesta_seleccion, []
+    def _generar_respuesta_completa_cursos(self, bloques_cursos: List[Dict], incluir_precios: bool = False) -> str:
+        """Genera respuesta completa con información de cursos"""
+        if not bloques_cursos:
+            return "No tengo información disponible sobre cursos en este momento."
+        
+        respuesta = "🎓 **Información de Cursos:**\n\n"
+        
+        # Agrupar por tipo de curso usando etiquetas
+        cursos_agrupados = {}
+        
+        for bloque in bloques_cursos:
+            etiquetas = bloque.get('etiquetas', [])
+            contenido = bloque.get('contenido', '')
+            
+            # Determinar categoría del curso
+            categoria = 'General'
+            if any('inteligencia artificial' in e.lower() or 'ia' in e.lower() for e in etiquetas):
+                categoria = 'Inteligencia Artificial'
+            elif any('marketing' in e.lower() for e in etiquetas):
+                categoria = 'Marketing Digital'
+            elif any('automatizacion' in e.lower() for e in etiquetas):
+                categoria = 'Automatización'
+            
+            if categoria not in cursos_agrupados:
+                cursos_agrupados[categoria] = []
+            cursos_agrupados[categoria].append(contenido)
+        
+        # Generar respuesta por categoría
+        for categoria, contenidos in cursos_agrupados.items():
+            if categoria != 'General':
+                respuesta += f"🔹 **{categoria}:**\n"
+            
+            for contenido in contenidos:
+                # Limpiar y formatear contenido
+                contenido_limpio = contenido.strip()
+                if not contenido_limpio.startswith('•') and not contenido_limpio.startswith('-'):
+                    respuesta += f"• {contenido_limpio}\n"
+                else:
+                    respuesta += f"{contenido_limpio}\n"
+            respuesta += "\n"
+        
+        if incluir_precios:
+            respuesta += "💰 Para información específica de precios y fechas, pregúntame sobre el curso que más te interese.\n"
+        
+        return respuesta.strip()
     
-    # Analizar nueva pregunta
-    analisis = sistema.analizar_pregunta(mensaje_usuario)
-    opciones = sistema.buscar_opciones_relacionadas(analisis)
-    opciones_unicas = sistema.detectar_duplicados(opciones)
+    def _generar_respuesta_completa_precios(self, bloques_precios: List[Dict]) -> str:
+        """Genera respuesta completa con información de precios"""
+        if not bloques_precios:
+            return "No tengo información de precios disponible en este momento."
+        
+        respuesta = "💰 **Información de Precios:**\n\n"
+        
+        for bloque in bloques_precios:
+            contenido = bloque.get('contenido', '').strip()
+            respuesta += f"• {contenido}\n"
+        
+        return respuesta.strip()
     
-    respuesta = sistema.generar_respuesta_contextual(analisis, opciones_unicas)
+    def _generar_respuesta_completa_ia(self, bloques_ia: List[Dict]) -> str:
+        """Genera respuesta completa con información de IA"""
+        if not bloques_ia:
+            return "No tengo información sobre Inteligencia Artificial disponible en este momento."
+        
+        respuesta = "🤖 **Inteligencia Artificial:**\n\n"
+        
+        for bloque in bloques_ia:
+            contenido = bloque.get('contenido', '').strip()
+            respuesta += f"• {contenido}\n\n"
+        
+        return respuesta.strip()
     
-    return respuesta, opciones_unicas
+    def _buscar_curso_especifico(self, conocimiento: List[Dict], curso_objetivo: str) -> Dict:
+        """Busca un bloque específico de un curso determinado"""
+        for bloque in conocimiento:
+            etiquetas = bloque.get('etiquetas', [])
+            for etiqueta in etiquetas:
+                if curso_objetivo.lower() in etiqueta.lower():
+                    return bloque
+        return None
+    
+    def _generar_respuesta_curso_especifico(self, bloque: Dict, analisis: Dict, nombre_curso: str) -> str:
+        """Genera respuesta específica para un curso determinado"""
+        contenido = bloque.get('contenido', '')
+        
+        # Si pregunta precio específico, extraer solo el precio
+        if analisis['es_pregunta_precio']:
+            precio_info = self._extraer_informacion_especifica(contenido, ['precio', 'costo', '$', 'mxn', 'pago'])
+            if precio_info:
+                return f"💰 **Precio del Curso de {nombre_curso.title()}:**\n\n{precio_info}"
+        
+        # Si pregunta ubicación específica, extraer solo ubicación  
+        elif analisis['es_pregunta_ubicacion']:
+            ubicacion_info = self._extraer_informacion_especifica(contenido, ['ubicación', 'dirección', 'lugar', 'instalaciones', 'av.', 'calle'])
+            if ubicacion_info:
+                return f"📍 **Ubicación del Curso de {nombre_curso.title()}:**\n\n{ubicacion_info}"
+        
+        # Si pregunta horario específico, extraer solo horario
+        elif analisis['es_pregunta_horario']:
+            horario_info = self._extraer_informacion_especifica(contenido, ['horario', 'fecha', 'hora', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes'])
+            if horario_info:
+                return f"🕒 **Horario del Curso de {nombre_curso.title()}:**\n\n{horario_info}"
+        
+        # Si pregunta sobre el curso en general, dar info completa
+        else:
+            return f"🎓 **Curso de {nombre_curso.title()}:**\n\n{contenido}"
+        
+        # Si no se encontró información específica, dar el contenido completo
+        return f"🎓 **Curso de {nombre_curso.title()}:**\n\n{contenido}"
+    
+    def _extraer_informacion_especifica(self, contenido: str, palabras_clave: List[str]) -> str:
+        """Extrae información específica del contenido basada en palabras clave"""
+        lineas = contenido.split('\n')
+        for linea in lineas:
+            if any(palabra in linea.lower() for palabra in palabras_clave):
+                return linea.strip()
+        return None
+    
+    def _generar_menu_precios_cursos(self, bloques_cursos: List[Dict]) -> str:
+        """Genera menú cuando pregunta precio de cursos pero no especifica cuál"""
+        precios_encontrados = []
+        
+        for bloque in bloques_cursos:
+            etiquetas = bloque.get('etiquetas', [])
+            contenido = bloque.get('contenido', '')
+            
+            # Determinar nombre del curso
+            nombre_curso = "Curso"
+            if any('marketing' in e.lower() for e in etiquetas):
+                nombre_curso = "Marketing Digital"
+            elif any('inteligencia artificial' in e.lower() or 'ia' in e.lower() for e in etiquetas):
+                nombre_curso = "Inteligencia Artificial"
+            elif etiquetas:
+                nombre_curso = etiquetas[0]
+            
+            # Extraer precio si existe
+            precio_info = self._extraer_informacion_especifica(contenido, ['precio', 'costo', '$', 'mxn', 'pago'])
+            if precio_info:
+                precios_encontrados.append(f"• **{nombre_curso}:** {precio_info}")
+        
+        if precios_encontrados:
+            return f"💰 **Precios de Cursos Disponibles:**\n\n" + '\n'.join(precios_encontrados)
+        else:
+            return "💰 Para información de precios, ¿te interesa algún curso en particular? Tengo información sobre cursos de Inteligencia Artificial, Marketing Digital y más."
