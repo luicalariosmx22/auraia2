@@ -463,7 +463,32 @@ def procesar_mensaje(data):
         enviar_mensaje(numero_usuario, respuesta_completa)
         return respuesta_completa
 
-    # Generar respuesta desde IA
+    # 🧠 SISTEMA DE RESPUESTAS INTELIGENTES - Detectar preguntas ambiguas
+    from clientes.aura.utils.respuestas_inteligentes import SistemaRespuestasInteligentes
+    
+    sistema_inteligente = SistemaRespuestasInteligentes(nombre_nora)
+    
+    # Analizar si la pregunta es ambigua o necesita opciones
+    respuesta_inteligente = sistema_inteligente.procesar_pregunta(mensaje_usuario, telefono=numero_usuario)
+    
+    if respuesta_inteligente:
+        # Si el sistema inteligente detectó ambigüedad o duplicados, usar su respuesta
+        print(f"🎯 Respuesta inteligente generada: {respuesta_inteligente[:100]}...")
+        
+        # Guardar respuesta en historial
+        guardar_en_historial(
+            telefono=numero_usuario,
+            mensaje=respuesta_inteligente,
+            origen=numero_nora,
+            nombre_nora=nombre_nora,
+            tipo="respuesta"
+        )
+        
+        # Enviar respuesta al usuario
+        enviar_mensaje(numero_usuario, respuesta_inteligente)
+        return respuesta_inteligente
+    
+    # Si no hay respuesta inteligente, proceder con IA normal
     respuesta, historial = manejar_respuesta_ai(
         mensaje_usuario=mensaje_usuario,
         nombre_nora=nombre_nora,  # ✅ Ahora usa nombre_nora correctamente
