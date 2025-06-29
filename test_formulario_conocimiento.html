@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test - Formulario Agregar Conocimiento</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { border-color: #4CAF50; background: #f8fff8; }
+        .error { border-color: #f44336; background: #fff8f8; }
+        .warning { border-color: #ff9800; background: #fffdf8; }
+        .info { border-color: #2196F3; background: #f8f9ff; }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #005a8a; }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .highlight { background: yellow; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Formulario Agregar Conocimiento</h1>
+        <p><strong>Objetivo:</strong> Verificar que el formulario de agregar conocimiento funcione correctamente</p>
+        
+        <div class="test-section info">
+            <h3>📋 Instrucciones:</h3>
+            <ol>
+                <li>Abre el panel de entrenamiento de Nora</li>
+                <li>Ve a la pestaña "➕ Agregar Nuevo"</li>
+                <li>Llena el formulario con datos de prueba</li>
+                <li>Ejecuta este script en la consola del navegador</li>
+                <li>Verifica que el formulario se envíe correctamente</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔧 Diagnóstico Automático</h2>
+        <button onclick="ejecutarDiagnostico()">▶️ Ejecutar Diagnóstico</button>
+        <div id="resultados-diagnostico"></div>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Pruebas de Funcionalidad</h2>
+        <button onclick="probarFormulario()">📝 Probar Formulario</button>
+        <button onclick="probarValidaciones()">✅ Probar Validaciones</button>
+        <button onclick="probarEventos()">🎯 Probar Eventos</button>
+        <div id="resultados-pruebas"></div>
+    </div>
+
+    <div class="container">
+        <h2>📊 Código JavaScript para Consola</h2>
+        <p>Copia y pega este código en la consola del navegador del panel:</p>
+        <pre id="codigo-consola"></pre>
+        <button onclick="copiarCodigo()">📋 Copiar Código</button>
+    </div>
+
+    <script>
+        // Código JavaScript para pruebas
+        const codigoConsola = `
+// 🧪 DIAGNÓSTICO COMPLETO - Formulario Agregar Conocimiento
+console.log('🧪 INICIANDO DIAGNÓSTICO COMPLETO...');
+console.log('============================================');
+
+// 1. Verificar elementos del DOM
+console.log('\\n1️⃣ VERIFICANDO ELEMENTOS DEL DOM:');
+const elementos = {
+    formulario: document.getElementById('form-agregar-conocimiento'),
+    contenido: document.getElementById('nuevo-contenido'),
+    etiquetas: document.getElementById('nuevas-etiquetas'),
+    prioridad: document.getElementById('nueva-prioridad'),
+    boton: document.getElementById('btn-agregar-conocimiento'),
+    contador: document.getElementById('contador-caracteres')
+};
+
+Object.entries(elementos).forEach(([nombre, elemento]) => {
+    const existe = elemento !== null;
+    console.log(\`   \${existe ? '✅' : '❌'} \${nombre}: \${existe ? 'Encontrado' : 'NO ENCONTRADO'}\`);
+});
+
+// 2. Verificar funciones disponibles
+console.log('\\n2️⃣ VERIFICANDO FUNCIONES:');
+const funciones = {
+    agregarBloque: window.agregarBloque,
+    cargarConocimiento: window.cargarConocimiento,
+    mostrarToast: window.mostrarToast,
+    setButtonLoading: window.setButtonLoading,
+    clearForm: window.clearForm,
+    switchTab: window.switchTab,
+    configurarEventosConocimiento: window.configurarEventosConocimiento
+};
+
+Object.entries(funciones).forEach(([nombre, funcion]) => {
+    const disponible = typeof funcion === 'function';
+    console.log(\`   \${disponible ? '✅' : '❌'} \${nombre}: \${typeof funcion}\`);
+});
+
+// 3. Verificar configuración
+console.log('\\n3️⃣ VERIFICANDO CONFIGURACIÓN:');
+console.log('   window.PANEL_CONFIG:', !!window.PANEL_CONFIG);
+if (window.PANEL_CONFIG) {
+    console.log('   - endpoints:', !!window.PANEL_CONFIG.endpoints);
+    console.log('   - bloques endpoint:', window.PANEL_CONFIG.endpoints?.bloques);
+    console.log('   - limits:', window.PANEL_CONFIG.limits);
+}
+
+// 4. Probar llenar formulario
+console.log('\\n4️⃣ PROBANDO LLENAR FORMULARIO:');
+function probarFormulario() {
+    try {
+        if (elementos.contenido) {
+            elementos.contenido.value = 'Contenido de prueba desde consola - ' + new Date().toLocaleTimeString();
+            console.log('   ✅ Contenido llenado');
+        }
+        
+        if (elementos.etiquetas) {
+            elementos.etiquetas.value = 'prueba, consola, test';
+            console.log('   ✅ Etiquetas llenadas');
+        }
+        
+        if (elementos.prioridad) {
+            elementos.prioridad.checked = true;
+            console.log('   ✅ Prioridad marcada');
+        }
+        
+        // Disparar evento input para contador
+        if (elementos.contenido) {
+            elementos.contenido.dispatchEvent(new Event('input'));
+            console.log('   ✅ Evento input disparado');
+        }
+        
+    } catch (error) {
+        console.error('   ❌ Error llenando formulario:', error);
+    }
+}
+
+// 5. Probar validaciones
+console.log('\\n5️⃣ PROBANDO VALIDACIONES:');
+function probarValidaciones() {
+    try {
+        // Contenido vacío
+        if (elementos.contenido) {
+            const valorOriginal = elementos.contenido.value;
+            elementos.contenido.value = '';
+            
+            if (typeof window.agregarBloque === 'function') {
+                window.agregarBloque();
+                console.log('   ✅ Validación contenido vacío probada');
+            }
+            
+            elementos.contenido.value = valorOriginal;
+        }
+        
+        // Contenido muy largo
+        if (elementos.contenido) {
+            const valorOriginal = elementos.contenido.value;
+            elementos.contenido.value = 'a'.repeat(600);
+            
+            if (typeof window.agregarBloque === 'function') {
+                window.agregarBloque();
+                console.log('   ✅ Validación contenido largo probada');
+            }
+            
+            elementos.contenido.value = valorOriginal;
+        }
+        
+    } catch (error) {
+        console.error('   ❌ Error probando validaciones:', error);
+    }
+}
+
+// 6. Simular envío exitoso
+console.log('\\n6️⃣ SIMULANDO ENVÍO:');
+function simularEnvio() {
+    try {
+        // Cambiar a pestaña de agregar
+        if (typeof window.switchTab === 'function') {
+            window.switchTab('agregar-conocimiento');
+            console.log('   ✅ Cambiado a pestaña agregar');
+        }
+        
+        // Llenar formulario
+        probarFormulario();
+        
+        // Simular clic en botón
+        if (elementos.boton && elementos.formulario) {
+            console.log('   🚀 Simulando envío del formulario...');
+            // Disparar evento submit
+            elementos.formulario.dispatchEvent(new Event('submit'));
+            console.log('   ✅ Evento submit disparado');
+        }
+        
+    } catch (error) {
+        console.error('   ❌ Error simulando envío:', error);
+    }
+}
+
+// Ejecutar pruebas
+probarFormulario();
+probarValidaciones();
+
+console.log('\\n🎯 COMANDOS DISPONIBLES:');
+console.log('   - probarFormulario()    : Llena el formulario con datos de prueba');
+console.log('   - probarValidaciones()  : Prueba las validaciones');
+console.log('   - simularEnvio()        : Simula el envío del formulario');
+console.log('   - window.agregarBloque(): Ejecuta la función de agregar bloque');
+
+console.log('\\n============================================');
+console.log('🧪 DIAGNÓSTICO COMPLETADO');
+
+// Funciones disponibles globalmente
+window.probarFormulario = probarFormulario;
+window.probarValidaciones = probarValidaciones;
+window.simularEnvio = simularEnvio;
+        `;
+
+        // Cargar código en el elemento
+        document.getElementById('codigo-consola').textContent = codigoConsola.trim();
+
+        function ejecutarDiagnostico() {
+            const resultados = document.getElementById('resultados-diagnostico');
+            resultados.innerHTML = `
+                <div class="test-section info">
+                    <h4>🔍 Diagnóstico en Progreso...</h4>
+                    <p>Verificando elementos básicos del sistema de pruebas...</p>
+                    <pre>
+✅ Página de pruebas cargada correctamente
+✅ Código JavaScript generado
+✅ Elementos de interfaz disponibles
+⚠️  Para diagnóstico completo, ejecutar en el panel real
+                    </pre>
+                </div>
+            `;
+        }
+
+        function probarFormulario() {
+            const resultados = document.getElementById('resultados-pruebas');
+            resultados.innerHTML = `
+                <div class="test-section warning">
+                    <h4>📝 Instrucciones para Probar Formulario</h4>
+                    <ol>
+                        <li>Ve al panel de entrenamiento de Nora</li>
+                        <li>Abre la pestaña "➕ Agregar Nuevo"</li>
+                        <li>Abre la consola del navegador (F12)</li>
+                        <li>Copia y pega el código de arriba</li>
+                        <li>Ejecuta <code>simularEnvio()</code></li>
+                    </ol>
+                </div>
+            `;
+        }
+
+        function probarValidaciones() {
+            const resultados = document.getElementById('resultados-pruebas');
+            resultados.innerHTML = `
+                <div class="test-section info">
+                    <h4>✅ Validaciones a Probar</h4>
+                    <ul>
+                        <li>✅ Contenido vacío (debe mostrar error)</li>
+                        <li>✅ Contenido muy largo (>500 caracteres)</li>
+                        <li>✅ Demasiadas etiquetas (>10)</li>
+                        <li>✅ Formulario válido (debe enviar correctamente)</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function probarEventos() {
+            const resultados = document.getElementById('resultados-pruebas');
+            resultados.innerHTML = `
+                <div class="test-section success">
+                    <h4>🎯 Eventos a Verificar</h4>
+                    <ul>
+                        <li>✅ Submit del formulario</li>
+                        <li>✅ Contador de caracteres</li>
+                        <li>✅ Cambio de pestañas</li>
+                        <li>✅ Validación en tiempo real</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function copiarCodigo() {
+            const codigo = document.getElementById('codigo-consola');
+            navigator.clipboard.writeText(codigo.textContent).then(() => {
+                alert('✅ Código copiado al portapapeles');
+            }).catch(() => {
+                // Fallback para navegadores que no soportan clipboard API
+                codigo.select();
+                document.execCommand('copy');
+                alert('✅ Código copiado al portapapeles');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -4,7 +4,17 @@
  */
 
 // =============================================================================
-// 🎯 FUNCIONES DE NAVEGACIÓN Y SCROLL
+// � ESTADO GLOBAL
+// =============================================================================
+if (typeof window.PANEL_STATE === 'undefined') {
+    window.PANEL_STATE = {
+        currentTab: 'ver-conocimiento',
+        initialized: false
+    };
+}
+
+// =============================================================================
+// �🎯 FUNCIONES DE NAVEGACIÓN Y SCROLL
 // =============================================================================
 
 /**
@@ -88,7 +98,7 @@ function switchTab(targetTab, tabButtons, tabContents) {
     }
     
     // Actualizar estado global
-    PANEL_STATE.currentTab = targetTab;
+    window.PANEL_STATE.currentTab = targetTab;
     
     // Cargar datos según la pestaña
     handleTabSwitch(targetTab);
@@ -98,18 +108,30 @@ function switchTab(targetTab, tabButtons, tabContents) {
  * Manejar cambios de tab y cargar datos necesarios
  */
 function handleTabSwitch(tabName) {
+    console.log(`🎯 Cambiando a pestaña: ${tabName}`);
+    
     switch(tabName) {
         case 'ver-conocimiento':
-            cargarConocimiento();
+            if (typeof window.cargarConocimiento === 'function') {
+                window.cargarConocimiento();
+            }
+            break;
+        case 'agregar-conocimiento':
+            // Enfocar en el primer campo del formulario
+            setTimeout(() => {
+                const contenidoField = document.getElementById('nuevo-contenido');
+                if (contenidoField) {
+                    contenidoField.focus();
+                }
+            }, 100);
             break;
         case 'gestionar-etiquetas':
-            cargarEstadisticasEtiquetas();
-            break;
-        case 'configuracion':
-            // Cargar configuración si es necesario
+            if (typeof window.cargarEstadisticasEtiquetas === 'function') {
+                window.cargarEstadisticasEtiquetas();
+            }
             break;
         default:
-            console.log(`Tab no reconocida: ${tabName}`);
+            console.log(`Tab cargada: ${tabName}`);
     }
 }
 
@@ -242,3 +264,118 @@ function clearForm(formId) {
         });
     }
 }
+
+// =============================================================================
+// 🛡️ UTILIDADES DE SEGURIDAD Y FORMATO
+// =============================================================================
+
+/**
+ * Escape HTML para prevenir XSS
+ */
+function escapeHtml(text) {
+    if (typeof text !== 'string') {
+        return text;
+    }
+    
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+/**
+ * Formatear fecha a formato legible
+ */
+function formatDate(dateString) {
+    if (!dateString) return 'Fecha no disponible';
+    
+    try {
+        const date = new Date(dateString);
+        
+        // Verificar si la fecha es válida
+        if (isNaN(date.getTime())) {
+            return 'Fecha inválida';
+        }
+        
+        // Formato: "15 Jun 2025, 14:30"
+        const options = {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        };
+        
+        return date.toLocaleDateString('es-ES', options);
+    } catch (error) {
+        console.error('Error formateando fecha:', error);
+        return 'Error en fecha';
+    }
+}
+
+/**
+ * Formatear fecha relativa (hace X tiempo)
+ */
+function formatRelativeDate(dateString) {
+    if (!dateString) return 'Fecha no disponible';
+    
+    try {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInMs = now - date;
+        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        const diffInDays = Math.floor(diffInHours / 24);
+        
+        if (diffInMinutes < 1) return 'Ahora mismo';
+        if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`;
+        if (diffInHours < 24) return `Hace ${diffInHours}h`;
+        if (diffInDays < 7) return `Hace ${diffInDays} días`;
+        
+        // Para fechas más antiguas, usar formato completo
+        return formatDate(dateString);
+    } catch (error) {
+        console.error('Error formateando fecha relativa:', error);
+        return formatDate(dateString);
+    }
+}
+
+// Exportar funciones globalmente
+window.escapeHtml = escapeHtml;
+window.formatDate = formatDate;
+window.formatRelativeDate = formatRelativeDate;
+window.setButtonLoading = setButtonLoading;
+window.clearForm = clearForm;
+window.switchTab = switchTab;
+window.scrollToSection = scrollToSection;
+window.toggleExamples = toggleExamples;
+window.initializeTabs = initializeTabs;
+
+// Inicializar tabs automáticamente cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initializeTabs, 100);
+    });
+} else {
+    setTimeout(initializeTabs, 100);
+}
+
+console.log('✅ Utilidades de seguridad y formato cargadas');
+console.log('✅ Funciones UI exportadas:', {
+    escapeHtml: typeof window.escapeHtml,
+    formatDate: typeof window.formatDate,
+    formatRelativeDate: typeof window.formatRelativeDate,
+    setButtonLoading: typeof window.setButtonLoading,
+    clearForm: typeof window.clearForm,
+    switchTab: typeof window.switchTab,
+    scrollToSection: typeof window.scrollToSection,
+    toggleExamples: typeof window.toggleExamples,
+    initializeTabs: typeof window.initializeTabs
+});
+console.log('🎯 Sistema de pestañas inicializado automáticamente');

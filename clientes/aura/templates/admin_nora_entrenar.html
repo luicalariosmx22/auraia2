@@ -10,7 +10,16 @@
       <div class="flex items-center space-x-4">
         <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-full">
           <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+            <path st    console.log('🔍 VERIFICACIÓN FINAL - Funciones de conocimiento disponibles:');
+    console.log('cargarConocimiento:', typeof window.cargarConocimiento);
+    console.log('agregarBloque:', typeof window.agregarBloque);
+    console.log('eliminarBloque:', typeof window.eliminarBloque);
+    console.log('mostrarToast:', typeof window.mostrarToast);
+    console.log('configurarEventosConocimiento:', typeof window.configurarEventosConocimiento);
+    
+    // Verificar si hay funciones de conocimiento disponibles
+    if (typeof window.cargarConocimiento === 'function') {
+        console.log('🚀 Iniciando carga automática de conocimiento...');cap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
           </svg>
         </div>
         <div>
@@ -466,7 +475,7 @@
               </div>
 
               <div class="flex justify-end">
-                <button type="submit" class="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+                <button type="submit" id="btn-agregar-conocimiento" class="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                   </svg>
@@ -592,6 +601,22 @@ function verificarYCargarConocimiento() {
         } else {
             console.error('❌ No se puede reinicializar - inicializarConocimientoManager no disponible');
         }
+    }
+    
+    // Verificar configuración de eventos adicional
+    if (typeof window.configurarEventosConocimiento === 'function') {
+        console.log('🎯 Configurando eventos de conocimiento...');
+        window.configurarEventosConocimiento();
+    } else {
+        console.warn('⚠️ configurarEventosConocimiento no disponible');
+    }
+    
+    // Inicializar sistema de pestañas
+    if (typeof window.initializeTabs === 'function') {
+        console.log('🎯 Inicializando sistema de pestañas...');
+        window.initializeTabs();
+    } else {
+        console.warn('⚠️ initializeTabs no disponible');
     }
 }
 

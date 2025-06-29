@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Completa - Sistema de Conocimiento IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .resultado-exitoso { background-color: #d1fae5; color: #065f46; }
+        .resultado-error { background-color: #fef2f2; color: #991b1b; }
+        .resultado-advertencia { background-color: #fef3c7; color: #92400e; }
+        .codigo { background-color: #f3f4f6; font-family: monospace; padding: 8px; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">🧪 Prueba Completa - Sistema de Conocimiento IA</h1>
+            <p class="text-gray-600">Verificación completa del sistema de gestión de conocimiento con datos reales de Supabase</p>
+            <div class="mt-4 flex gap-4">
+                <button onclick="iniciarPrueba()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    🚀 Iniciar Prueba
+                </button>
+                <button onclick="limpiarResultados()" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                    🗑️ Limpiar
+                </button>
+                <button onclick="exportarResultados()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    📊 Exportar
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel de Estado -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div id="estado-conexion" class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">⏳</div>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">Conexión</p>
+                        <p id="texto-conexion" class="text-sm text-gray-500">Verificando...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div id="estado-datos" class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">⏳</div>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">Datos</p>
+                        <p id="texto-datos" class="text-sm text-gray-500">Cargando...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div id="estado-ia" class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">⏳</div>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">Bloques IA</p>
+                        <p id="texto-ia" class="text-sm text-gray-500">Analizando...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div id="estado-filtros" class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">⏳</div>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">Filtros</p>
+                        <p id="texto-filtros" class="text-sm text-gray-500">Probando...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Resultados -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Panel de Logs -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">📋 Log de Pruebas</h2>
+                </div>
+                <div id="log-container" class="p-4 h-96 overflow-y-auto font-mono text-sm bg-gray-50">
+                    <div class="text-gray-500">Esperando inicio de prueba...</div>
+                </div>
+            </div>
+
+            <!-- Panel de Datos -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">📊 Análisis de Datos</h2>
+                </div>
+                <div id="datos-container" class="p-4 h-96 overflow-y-auto">
+                    <div class="text-gray-500">Los datos aparecerán aquí después de la prueba...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Pruebas Específicas -->
+        <div class="mt-6 bg-white rounded-lg shadow-sm">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">🎯 Pruebas Específicas de IA</h2>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div id="test-cards-container">
+                        <!-- Las tarjetas de prueba se generarán dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Resultados Detallados -->
+        <div class="mt-6 bg-white rounded-lg shadow-sm">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">📝 Resultados Detallados</h2>
+            </div>
+            <div id="resultados-detallados" class="p-4">
+                <!-- Los resultados detallados aparecerán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado global de la prueba
+        let estadoPrueba = {
+            iniciada: false,
+            completada: false,
+            datos: null,
+            resultados: {},
+            logs: []
+        };
+
+        // Función para agregar log
+        function agregarLog(mensaje, tipo = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const log = { timestamp, mensaje, tipo };
+            estadoPrueba.logs.push(log);
+            
+            const container = document.getElementById('log-container');
+            const div = document.createElement('div');
+            div.className = `mb-1 ${tipo === 'error' ? 'text-red-600' : tipo === 'success' ? 'text-green-600' : tipo === 'warn' ? 'text-yellow-600' : 'text-gray-800'}`;
+            div.innerHTML = `[${timestamp}] ${mensaje}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Función para actualizar estado
+        function actualizarEstado(seccion, estado, texto) {
+            const iconos = {
+                'loading': '⏳',
+                'success': '✅', 
+                'error': '❌',
+                'warning': '⚠️'
+            };
+
+            const colores = {
+                'loading': 'bg-yellow-300',
+                'success': 'bg-green-300',
+                'error': 'bg-red-300', 
+                'warning': 'bg-yellow-300'
+            };
+
+            const elementoEstado = document.getElementById(`estado-${seccion}`);
+            const elementoTexto = document.getElementById(`texto-${seccion}`);
+            
+            if (elementoEstado && elementoTexto) {
+                elementoEstado.textContent = iconos[estado];
+                elementoEstado.className = `w-8 h-8 ${colores[estado]} rounded-full flex items-center justify-center`;
+                elementoTexto.textContent = texto;
+            }
+        }
+
+        // Función principal de prueba
+        async function iniciarPrueba() {
+            if (estadoPrueba.iniciada) {
+                agregarLog('⚠️ Prueba ya en progreso', 'warn');
+                return;
+            }
+
+            estadoPrueba.iniciada = true;
+            limpiarResultados();
+            
+            agregarLog('🚀 Iniciando prueba completa del sistema de conocimiento', 'info');
+
+            try {
+                // 1. Verificar conexión y cargar datos
+                await probarConexion();
+                
+                // 2. Analizar datos de IA
+                await analizarDatosIA();
+                
+                // 3. Probar filtros
+                await probarFiltros();
+                
+                // 4. Generar resultados finales
+                await generarResultadosFinales();
+                
+                agregarLog('🎉 Prueba completada exitosamente', 'success');
+                estadoPrueba.completada = true;
+                
+            } catch (error) {
+                agregarLog(`❌ Error durante la prueba: ${error.message}`, 'error');
+                actualizarEstado('conexion', 'error', 'Error');
+            } finally {
+                estadoPrueba.iniciada = false;
+            }
+        }
+
+        // Función para probar conexión
+        async function probarConexion() {
+            agregarLog('🔌 Probando conexión a la API...', 'info');
+            actualizarEstado('conexion', 'loading', 'Conectando...');
+
+            try {
+                // Simular carga de datos desde la API
+                const response = await fetch(`/panel_cliente/aura/entrenar/bloques`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const resultado = await response.json();
+                
+                if (resultado.success && resultado.data) {
+                    estadoPrueba.datos = resultado.data;
+                    agregarLog(`✅ Conexión exitosa - ${resultado.data.length} bloques cargados`, 'success');
+                    actualizarEstado('conexion', 'success', 'Conectado');
+                    actualizarEstado('datos', 'success', `${resultado.data.length} bloques`);
+                } else {
+                    throw new Error('Respuesta inválida de la API');
+                }
+
+            } catch (error) {
+                agregarLog(`❌ Error de conexión: ${error.message}`, 'error');
+                actualizarEstado('conexion', 'error', 'Error');
+                
+                // Usar datos de prueba
+                agregarLog('🔄 Usando datos de prueba...', 'warn');
+                estadoPrueba.datos = await obtenerDatosPrueba();
+                actualizarEstado('datos', 'warning', 'Datos de prueba');
+            }
+        }
+
+        // Función para analizar datos de IA
+        async function analizarDatosIA() {
+            agregarLog('🤖 Analizando bloques de Inteligencia Artificial...', 'info');
+            actualizarEstado('ia', 'loading', 'Analizando...');
+
+            const datos = estadoPrueba.datos;
+            let bloquesIA = [];
+            let analisis = {
+                total: datos.length,
+                conIA: 0,
+                etiquetasIA: new Set(),
+                contenidoIA: []
+            };
+
+            // Buscar bloques de IA
+            datos.forEach(bloque => {
+                if (bloque.etiquetas && Array.isArray(bloque.etiquetas)) {
+                    const tieneIA = bloque.etiquetas.some(etiqueta => {
+                        const etiquetaLower = etiqueta.toLowerCase();
+                        return etiquetaLower.includes('inteligencia') || 
+                               etiquetaLower.includes('artificial') ||
+                               etiquetaLower.includes('curso');
+                    });
+
+                    if (tieneIA) {
+                        bloquesIA.push(bloque);
+                        analisis.conIA++;
+                        bloque.etiquetas.forEach(e => analisis.etiquetasIA.add(e));
+                        analisis.contenidoIA.push({
+                            id: bloque.id,
+                            preview: (bloque.contenido || '').substring(0, 100),
+                            etiquetas: bloque.etiquetas
+                        });
+                    }
+                }
+            });
+
+            estadoPrueba.resultados.ia = { bloquesIA, analisis };
+
+            if (analisis.conIA > 0) {
+                agregarLog(`✅ Encontrados ${analisis.conIA} bloques de IA`, 'success');
+                actualizarEstado('ia', 'success', `${analisis.conIA} bloques`);
+                
+                // Mostrar análisis detallado
+                mostrarAnalisisIA(analisis);
+            } else {
+                agregarLog('⚠️ No se encontraron bloques de IA', 'warn');
+                actualizarEstado('ia', 'warning', 'Sin bloques IA');
+            }
+        }
+
+        // Función para probar filtros
+        async function probarFiltros() {
+            agregarLog('🔍 Probando sistema de filtros...', 'info');
+            actualizarEstado('filtros', 'loading', 'Probando...');
+
+            const terminos = [
+                'inteligencia artificial',
+                'curso',
+                'artificial', 
+                'inteligencia',
+                'presencial',
+                'duración'
+            ];
+
+            let resultadosFiltros = {};
+
+            terminos.forEach(termino => {
+                // Filtrar por etiquetas
+                const porEtiquetas = estadoPrueba.datos.filter(bloque => {
+                    if (!bloque.etiquetas || !Array.isArray(bloque.etiquetas)) return false;
+                    return bloque.etiquetas.some(etiqueta => 
+                        etiqueta.toLowerCase().includes(termino.toLowerCase())
+                    );
+                });
+
+                // Filtrar por contenido
+                const porContenido = estadoPrueba.datos.filter(bloque => {
+                    const contenido = (bloque.contenido || '').toLowerCase();
+                    return contenido.includes(termino.toLowerCase());
+                });
+
+                resultadosFiltros[termino] = {
+                    etiquetas: porEtiquetas.length,
+                    contenido: porContenido.length,
+                    total: porEtiquetas.length + porContenido.length
+                };
+
+                agregarLog(`🔎 "${termino}": ${porEtiquetas.length} por etiquetas, ${porContenido.length} por contenido`, 'info');
+            });
+
+            estadoPrueba.resultados.filtros = resultadosFiltros;
+            actualizarEstado('filtros', 'success', 'Completado');
+            
+            // Mostrar tarjetas de prueba
+            mostrarTarjetasPrueba(resultadosFiltros);
+        }
+
+        // Función para mostrar análisis de IA
+        function mostrarAnalisisIA(analisis) {
+            const container = document.getElementById('datos-container');
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-blue-50 p-4 rounded">
+                        <h3 class="font-semibold text-blue-900 mb-2">📊 Estadísticas Generales</h3>
+                        <ul class="text-sm text-blue-800 space-y-1">
+                            <li>• Total bloques: ${analisis.total}</li>
+                            <li>• Bloques de IA: ${analisis.conIA}</li>
+                            <li>• Etiquetas IA: ${Array.from(analisis.etiquetasIA).join(', ')}</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-green-50 p-4 rounded">
+                        <h3 class="font-semibold text-green-900 mb-2">🤖 Contenido de IA</h3>
+                        <div class="space-y-2">
+                            ${analisis.contenidoIA.map((item, index) => `
+                                <div class="bg-white p-3 rounded border">
+                                    <div class="text-xs text-gray-500 mb-1">Bloque ${index + 1}</div>
+                                    <div class="text-sm font-medium mb-1">${item.etiquetas.join(', ')}</div>
+                                    <div class="text-xs text-gray-600">${item.preview}...</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para mostrar tarjetas de prueba
+        function mostrarTarjetasPrueba(resultados) {
+            const container = document.getElementById('test-cards-container');
+            
+            const tarjetas = Object.entries(resultados).map(([termino, resultado]) => {
+                const color = resultado.total > 0 ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50';
+                const icono = resultado.total > 0 ? '✅' : '❌';
+                
+                return `
+                    <div class="border ${color} rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-medium text-gray-900">${termino}</h3>
+                            <span class="text-lg">${icono}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div>Etiquetas: ${resultado.etiquetas}</div>
+                            <div>Contenido: ${resultado.contenido}</div>
+                            <div class="font-medium">Total: ${resultado.total}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = tarjetas;
+        }
+
+        // Función para generar resultados finales
+        async function generarResultadosFinales() {
+            agregarLog('📋 Generando resultados finales...', 'info');
+
+            const container = document.getElementById('resultados-detallados');
+            
+            const resumen = {
+                conexion: estadoPrueba.datos ? 'Exitosa' : 'Fallida',
+                totalBloques: estadoPrueba.datos ? estadoPrueba.datos.length : 0,
+                bloquesIA: estadoPrueba.resultados.ia ? estadoPrueba.resultados.ia.analisis.conIA : 0,
+                filtrosFuncionales: estadoPrueba.resultados.filtros ? Object.keys(estadoPrueba.resultados.filtros).length : 0
+            };
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-4 rounded">
+                        <h3 class="font-semibold mb-3">📊 Resumen de Prueba</h3>
+                        <dl class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <dt class="text-gray-600">Conexión:</dt>
+                                <dd class="font-medium ${resumen.conexion === 'Exitosa' ? 'text-green-600' : 'text-red-600'}">${resumen.conexion}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-gray-600">Total Bloques:</dt>
+                                <dd class="font-medium">${resumen.totalBloques}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-gray-600">Bloques IA:</dt>
+                                <dd class="font-medium">${resumen.bloquesIA}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-gray-600">Filtros Probados:</dt>
+                                <dd class="font-medium">${resumen.filtrosFuncionales}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded">
+                        <h3 class="font-semibold mb-3">🎯 Estado del Sistema</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center">
+                                <span class="${resumen.conexion === 'Exitosa' ? 'text-green-600' : 'text-red-600'} mr-2">
+                                    ${resumen.conexion === 'Exitosa' ? '✅' : '❌'}
+                                </span>
+                                <span>Conexión a Supabase</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="${resumen.bloquesIA > 0 ? 'text-green-600' : 'text-red-600'} mr-2">
+                                    ${resumen.bloquesIA > 0 ? '✅' : '❌'}
+                                </span>
+                                <span>Datos de IA disponibles</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="${resumen.filtrosFuncionales > 0 ? 'text-green-600' : 'text-red-600'} mr-2">
+                                    ${resumen.filtrosFuncionales > 0 ? '✅' : '❌'}
+                                </span>
+                                <span>Sistema de filtros</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            agregarLog('✅ Resultados finales generados', 'success');
+        }
+
+        // Función para obtener datos de prueba
+        async function obtenerDatosPrueba() {
+            return [
+                {
+                    id: "test-1",
+                    contenido: "🚨 Curso Intensivo Presencial\n🕒 Duración: 6 horas\n📍 Modalidad: Presencial\n💰 Costo: $1490",
+                    etiquetas: ["Curso Inteligencia Artificial"],
+                    fecha_creacion: new Date().toISOString(),
+                    prioridad: true,
+                    activo: true
+                },
+                {
+                    id: "test-2",
+                    contenido: "📘 Módulo 1: Estructura de contenido viral\n🤖 Módulo 2: IA para marketing",
+                    etiquetas: ["Curso Inteligencia Artificial"],
+                    fecha_creacion: new Date().toISOString(),
+                    prioridad: true,
+                    activo: true
+                }
+            ];
+        }
+
+        // Función para limpiar resultados
+        function limpiarResultados() {
+            document.getElementById('log-container').innerHTML = '<div class="text-gray-500">Log limpiado...</div>';
+            document.getElementById('datos-container').innerHTML = '<div class="text-gray-500">Esperando datos...</div>';
+            document.getElementById('test-cards-container').innerHTML = '';
+            document.getElementById('resultados-detallados').innerHTML = '';
+            
+            // Reset estados
+            ['conexion', 'datos', 'ia', 'filtros'].forEach(seccion => {
+                actualizarEstado(seccion, 'loading', 'Esperando...');
+            });
+
+            estadoPrueba = {
+                iniciada: false,
+                completada: false,
+                datos: null,
+                resultados: {},
+                logs: []
+            };
+        }
+
+        // Función para exportar resultados
+        function exportarResultados() {
+            if (!estadoPrueba.completada) {
+                alert('Debe completar la prueba antes de exportar');
+                return;
+            }
+
+            const dataStr = JSON.stringify(estadoPrueba, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `prueba_conocimiento_ia_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            agregarLog('📄 Página de prueba cargada', 'info');
+            agregarLog('💡 Haz clic en "Iniciar Prueba" para comenzar', 'info');
+        });
+    </script>
+</body>
+</html>

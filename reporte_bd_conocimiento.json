@@ -1,0 +1,10 @@
+{
+  "base_datos": "ruta_a_tu_base_de_datos.db",
+  "tamaño_archivo": 0,
+  "tablas": {},
+  "resumen_conocimiento": {
+    "total_registros": 0,
+    "etiquetas_encontradas": [],
+    "terminos_ia_curso": 0
+  }
+}
