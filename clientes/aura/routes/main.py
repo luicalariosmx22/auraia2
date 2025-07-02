@@ -68,50 +68,50 @@ def logout():
     session.pop('logueado', None)
     return redirect(url_for('main.login'))
 
-# HOME (Panel principal)
-@main_bp.route('/')
-@login_requerido
-def index():
-    try:
-        # Cargar datos desde Supabase
-        response_bot_data = supabase.table("bot_data").select("*").execute()
-        response_categorias = supabase.table("categorias").select("*").execute()
-
-        if response_bot_data.error or not response_bot_data.data:
-            print(f"❌ Error al cargar bot_data: {response_bot_data.error}")
-            data = {}
-        else:
-            data = response_bot_data.data[0]
-
-        if response_categorias.error or not response_categorias.data:
-            print(f"❌ Error al cargar categorias: {response_categorias.error}")
-            categorias = []
-        else:
-            categorias = [c["nombre"] for c in response_categorias.data]
-
-    except Exception as e:
-        print(f"❌ Error al cargar datos: {str(e)}")
-        data = {}
-        categorias = []
-
-    info_twilio = {
-        "nombre": os.getenv("TWILIO_ACCOUNT_SID", "No disponible"),
-        "estado": "activo",
-        "fecha_creado": "N/A"
-    }
-
-    info_openai = {
-        "estado": "activo" if data.get("usar_openai", False) else "inactivo"
-    }
-
-    return render_template(
-        'index.html',
-        datos=data,
-        categorias=categorias,
-        usar_openai=data.get("usar_openai", False),
-        info_twilio=info_twilio,
-        info_openai=info_openai
-    )
+# HOME (Panel principal) - COMENTADO PARA EVITAR CONFLICTO CON RUTA RAÍZ
+# @main_bp.route('/')
+# @login_requerido
+# def index():
+#     try:
+#         # Cargar datos desde Supabase
+#         response_bot_data = supabase.table("bot_data").select("*").execute()
+#         response_categorias = supabase.table("categorias").select("*").execute()
+# 
+#         if response_bot_data.error or not response_bot_data.data:
+#             print(f"❌ Error al cargar bot_data: {response_bot_data.error}")
+#             data = {}
+#         else:
+#             data = response_bot_data.data[0]
+# 
+#         if response_categorias.error or not response_categorias.data:
+#             print(f"❌ Error al cargar categorias: {response_categorias.error}")
+#             categorias = []
+#         else:
+#             categorias = [c["nombre"] for c in response_categorias.data]
+# 
+#     except Exception as e:
+#         print(f"❌ Error al cargar datos: {str(e)}")
+#         data = {}
+#         categorias = []
+# 
+#     info_twilio = {
+#         "nombre": os.getenv("TWILIO_ACCOUNT_SID", "No disponible"),
+#         "estado": "activo",
+#         "fecha_creado": "N/A"
+#     }
+# 
+#     info_openai = {
+#         "estado": "activo" if data.get("usar_openai", False) else "inactivo"
+#     }
+# 
+#     return render_template(
+#         'index.html',
+#         datos=data,
+#         categorias=categorias,
+#         usar_openai=data.get("usar_openai", False),
+#         info_twilio=info_twilio,
+#         info_openai=info_openai
+#     )
 
 # PANEL EN TIEMPO REAL
 @main_bp.route('/panel')
@@ -120,23 +120,23 @@ def panel_conversaciones():
     return render_template('panel_conversaciones.html')
 
 # =============================================================================
-# 🔑 RUTAS DE REDIRECT PARA SISTEMA DE LOGIN
+# 🔑 RUTAS DE REDIRECT PARA SISTEMA DE LOGIN - COMENTADAS PARA EVITAR CONFLICTO
 # =============================================================================
 
-@main_bp.route("/")
-def index_redirect():
-    """Página principal - redirige al login simple"""
-    return redirect("/login/simple")
+# @main_bp.route("/")
+# def index_redirect():
+#     """Página principal - redirige al login simple"""
+#     return redirect("/login/simple")
 
-@main_bp.route("/dashboard")
-def dashboard_redirect():
-    """Dashboard principal - redirige al login simple"""
-    return redirect("/login/simple")
+# @main_bp.route("/dashboard")
+# def dashboard_redirect():
+#     """Dashboard principal - redirige al login simple"""
+#     return redirect("/login/simple")
 
-@main_bp.route("/admin")
-def admin_main_redirect():
-    """Redirect a panel de administración vía login"""
-    return redirect("/login/simple")
+# @main_bp.route("/admin")
+# def admin_main_redirect():
+#     """Redirect a panel de administración vía login"""
+#     return redirect("/login/simple")
 
 # ✅ ÚNICO BLOQUE PARA INICIAR LA APP
 if __name__ == "__main__":

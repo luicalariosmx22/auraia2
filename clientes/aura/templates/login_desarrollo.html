@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraAI2 - Login Desarrollo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md">
+        <!-- Header de Desarrollo -->
+        <div class="text-center mb-8">
+            <div class="bg-yellow-500 text-black px-4 py-2 rounded-lg mb-4 font-bold">
+                🔧 MODO DESARROLLO - SOLO LOCALHOST
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Login de Desarrollo</h1>
+            <p class="text-yellow-100">Acceso rápido para testing</p>
+        </div>
+
+        <!-- Formulario de Desarrollo -->
+        <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+            <h2 class="text-xl font-bold text-white text-center mb-6">🚀 Acceso Rápido</h2>
+            
+            <!-- Mensajes Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-3 rounded-lg {% if category == 'error' %}bg-red-500{% elif category == 'success' %}bg-green-500{% elif category == 'warning' %}bg-yellow-500{% else %}bg-blue-500{% endif %} text-white text-sm">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('login_supabase.login_desarrollo') }}" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-yellow-100 mb-2">Email (existente o temporal)</label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                           placeholder="dev@localhost.com"
+                           value="dev@localhost.com">
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    🔧 Entrar en Modo Desarrollo
+                </button>
+            </form>
+
+            <!-- Usuarios Preconfigurados -->
+            <div class="mt-6 pt-6 border-t border-white/20">
+                <p class="text-sm text-yellow-100 mb-3">🎯 Usuarios Preconfigurados:</p>
+                <div class="space-y-2">
+                    <button onclick="setEmail('admin@aura.com')" 
+                            class="w-full text-left bg-white/5 hover:bg-white/10 p-2 rounded border border-white/20 text-yellow-100 text-sm">
+                        👑 admin@aura.com (Administrador)
+                    </button>
+                    <button onclick="setEmail('aura@cliente.com')" 
+                            class="w-full text-left bg-white/5 hover:bg-white/10 p-2 rounded border border-white/20 text-yellow-100 text-sm">
+                        👤 aura@cliente.com (Cliente)
+                    </button>
+                    <button onclick="setEmail('dev@localhost.com')" 
+                            class="w-full text-left bg-white/5 hover:bg-white/10 p-2 rounded border border-white/20 text-yellow-100 text-sm">
+                        🔧 dev@localhost.com (Temporal)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advertencias -->
+            <div class="mt-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
+                <h3 class="text-red-200 font-bold text-sm mb-2">⚠️ ADVERTENCIAS:</h3>
+                <ul class="text-red-100 text-xs space-y-1">
+                    <li>• Solo funciona en localhost/127.0.0.1</li>
+                    <li>• No usar en producción</li>
+                    <li>• Sesiones temporales para testing</li>
+                    <li>• Los usuarios deben existir en Supabase</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-6">
+            <a href="{{ url_for('login_supabase.login_principal') }}" 
+               class="text-yellow-200 hover:text-white text-sm underline">
+                ⬅ Volver al Login Normal
+            </a>
+            <p class="text-xs text-yellow-300 mt-2">
+                🔧 Modo desarrollo | 
+                <a href="{{ url_for('login_supabase.test_conexion') }}" class="hover:underline">Test Supabase</a> |
+                <a href="{{ url_for('login_supabase.status') }}" class="hover:underline">Estado Sesión</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function setEmail(email) {
+            document.getElementById('email').value = email;
+            document.getElementById('email').focus();
+        }
+
+        // Auto-focus
+        document.getElementById('email').focus();
+
+        // Efectos visuales
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.classList.add('ring-2', 'ring-yellow-400', 'scale-105');
+            });
+            input.addEventListener('blur', function() {
+                this.classList.remove('ring-2', 'ring-yellow-400', 'scale-105');
+            });
+        });
+
+        // Prevenir uso fuera de localhost
+        if (!window.location.hostname.includes('localhost') && 
+            !window.location.hostname.includes('127.0.0.1')) {
+            document.body.innerHTML = `
+                <div class="min-h-screen flex items-center justify-center bg-red-600">
+                    <div class="text-center text-white">
+                        <h1 class="text-4xl font-bold mb-4">🚫 Acceso Denegado</h1>
+                        <p class="text-xl mb-4">Login de desarrollo solo disponible en localhost</p>
+                        <a href="/" class="bg-white text-red-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100">
+                            Ir al Login Principal
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

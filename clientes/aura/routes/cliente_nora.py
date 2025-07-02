@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 import os
 import uuid
 from datetime import datetime
-from clientes.aura.utils.login_required import login_required_cliente, login_required_cliente_debug, login_required_ajax, login_required_ajax_debug
+from clientes.aura.utils.auth_supabase import login_required_supabase, login_required_ajax_supabase
+from clientes.aura.utils.login_required import login_required_cliente, login_required_ajax, login_required_ajax_debug
 
 # Configurar Supabase
 load_dotenv()
@@ -20,7 +21,7 @@ cliente_nora_bp = Blueprint("cliente_nora", __name__,
 
 # Ruta para entrenamiento (personalidad, instrucciones, IA, nombre_nora)
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar", methods=["GET"])
-@login_required_cliente
+@login_required_supabase
 def panel_entrenamiento(nombre_nora):
     try:
         config_res = supabase.table("configuracion_bot") \
@@ -64,7 +65,7 @@ def panel_entrenamiento(nombre_nora):
 
 # Ruta para actualizar la personalidad
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/personalidad", methods=["POST"])
-@login_required_cliente
+@login_required_ajax_supabase
 def personalidad(nombre_nora):
     try:
         personalidad = request.form.get("personalidad", "").strip()
@@ -98,7 +99,7 @@ def personalidad(nombre_nora):
 
 # Ruta para actualizar las instrucciones
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/instrucciones", methods=["POST"])
-@login_required_cliente
+@login_required_ajax_supabase
 def instrucciones(nombre_nora):
     try:
         instrucciones = request.form.get("instrucciones", "").strip()
@@ -132,7 +133,7 @@ def instrucciones(nombre_nora):
 
 # Ruta para activar o desactivar la IA
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/estado_ia", methods=["POST"])
-@login_required_cliente
+@login_required_ajax_supabase
 def estado_ia(nombre_nora):
     try:
         ia_activa = request.form.get("ia_activa") == "true"
@@ -236,7 +237,7 @@ def eliminar_bloque_conocimiento(nombre_nora, id_bloque):
 
 # Ruta para actualizar límites de respuesta
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/limites", methods=["POST"])
-@login_required_cliente
+@login_required_ajax_supabase
 def limites(nombre_nora):
     try:
         modo_respuesta = request.form.get("modo_respuesta", "flexible")
@@ -275,7 +276,7 @@ def limites(nombre_nora):
 
 # Ruta para actualizar mensaje de bienvenida
 @cliente_nora_bp.route("/panel_cliente/<nombre_nora>/entrenar/bienvenida", methods=["POST"])
-@login_required_cliente
+@login_required_ajax_supabase
 def bienvenida(nombre_nora):
     try:
         bienvenida = request.form.get("bienvenida", "").strip()

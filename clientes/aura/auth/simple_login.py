@@ -232,3 +232,47 @@ def test_session():
         "is_admin": session.get("is_admin", False),
         "nombre_nora": session.get("nombre_nora")
     })
+
+@simple_login_bp.route("/login_supabase")
+def login_supabase():
+    """Redirigir a la nueva página de login con Supabase"""
+    from clientes.aura.utils.auth_supabase import es_localhost, es_desarrollo
+    
+    # Si ya está autenticado, redirigir
+    if session.get("email"):
+        if session.get("is_admin"):
+            return redirect("/admin")
+        else:
+            nombre_nora = session.get("nombre_nora", "aura")
+            return redirect(f"/panel_cliente/{nombre_nora}/entrenar")
+    
+    # Mostrar página de login
+    return render_template("login_supabase.html", 
+                         es_localhost=es_localhost() if 'request' in globals() else False,
+                         es_desarrollo=es_desarrollo() if 'request' in globals() else False)
+
+@simple_login_bp.route("/dev/activate")
+def activate_dev_mode():
+    """Activar modo desarrollo solo en localhost"""
+    from clientes.aura.utils.auth_supabase import es_localhost
+    
+    if not es_localhost():
+        flash("Modo desarrollo solo disponible en localhost", "error")
+        return redirect(url_for("simple_login.login_simple"))
+    
+    # Establecer sesión de desarrollo
+    session["email"] = "dev@localhost.com"
+    session["name"] = "Desarrollador Local"
+    session["nombre_nora"] = "aura"
+    session["is_admin"] = True
+    session["user"] = {
+        "id": "dev-id",
+        "email": "dev@localhost.com",
+        "nombre": "Desarrollador Local",
+        "nombre_nora": "aura",
+        "rol": "admin"
+    }
+    session.permanent = True
+    
+    flash("✅ Modo desarrollo activado", "success")
+    return redirect("/admin")

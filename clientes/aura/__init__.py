@@ -267,7 +267,10 @@ def create_app(config_class=Config):
     @app.route("/")
     def index():
         from flask import redirect, url_for, session
+        print(f"🏠 ACCESO A RAÍZ - Host: {request.host}")
+        print(f"🍪 Sesión actual: {dict(session)}")
         session.clear()  # Limpia cualquier sesión previa
+        print(f"🧹 Sesión limpiada, redirigiendo a login")
         return redirect("/login/simple")
 
     @app.route("/logout")
@@ -277,6 +280,7 @@ def create_app(config_class=Config):
 
     @app.route('/debug_info', methods=['GET'])
     def debug_info():
+        from clientes.aura.utils.auth_supabase import es_localhost, es_desarrollo
         return jsonify({
             "session_data": dict(session),
             "app_config": {k: str(v) for k, v in app.config.items() if k not in ['SECRET_KEY']},
@@ -285,6 +289,13 @@ def create_app(config_class=Config):
                 "method": request.method,
                 "headers": dict(request.headers),
                 "cookies": request.cookies
+            },
+            "auth_debug": {
+                "es_localhost": es_localhost(),
+                "es_desarrollo": es_desarrollo(),
+                "AURA_DEV_MODE": os.getenv('AURA_DEV_MODE'),
+                "FLASK_ENV": os.getenv('FLASK_ENV'),
+                "DEBUG": app.debug
             }
         })
     
@@ -311,5 +322,16 @@ def create_app(config_class=Config):
         print("🕒 Cron de tareas recurrentes iniciado.")
     except Exception as e:
         print(f"❌ Error al iniciar el cron de tareas recurrentes: {e}")
+
+    # Nueva ruta para limpiar completamente la sesión
+    @app.route("/clear-session")
+    def clear_session_force():
+        """Limpia completamente la sesión y redirige al login"""
+        from flask import session
+        print("🧹 FORZANDO LIMPIEZA COMPLETA DE SESIÓN")
+        session.clear()
+        session.permanent = False
+        print("🧹 Sesión completamente limpiada")
+        return redirect("/login/simple")
 
     return app

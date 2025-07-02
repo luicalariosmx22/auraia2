@@ -1,21 +1,22 @@
 from functools import wraps
 from flask import session, redirect, url_for, jsonify, request
+from .auth_supabase import login_required_supabase, login_required_ajax_supabase
 
 def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get("email"):
-            return redirect("/login/simple")
-        return f(*args, **kwargs)
-    return decorated_function
+    """Decorador legacy - redirige al nuevo sistema"""
+    return login_required_supabase(f)
 
 def login_required_cliente(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get("email") or not session.get("nombre_nora"):
-            return redirect("/login/simple")
-        return f(*args, **kwargs)
-    return decorated_function
+    """Decorador legacy - redirige al nuevo sistema Supabase"""
+    return login_required_supabase(f)
+
+def login_required_ajax(f):
+    """Decorador legacy para AJAX - redirige al nuevo sistema Supabase"""
+    return login_required_ajax_supabase(f)
+
+def login_required_ajax_debug(f):
+    """Decorador legacy para AJAX con debug - redirige al nuevo sistema Supabase"""
+    return login_required_ajax_supabase(f)
 
 def login_required_cliente_debug(f):
     """Versión debug del decorador para investigar problemas de sesión"""
