@@ -6,28 +6,6 @@
 
 <h1 class="text-3xl font-bold text-nora-primary text-center mb-10">¿Qué quieres hacer con Google Ads?</h1>
 
-<!-- Selector de Empresa -->
-<div class="max-w-4xl mx-auto mb-8">
-  <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
-    <h2 class="text-xl font-bold text-purple-600 mb-4">Selecciona la Empresa</h2>
-    <form id="empresaForm" class="space-y-4">
-      <div class="flex items-center space-x-4">
-        <select id="empresa_id" name="empresa_id" class="flex-1 form-select rounded-md border-gray-300 shadow-sm">
-          <option value="">Selecciona una empresa...</option>
-          {% for empresa in empresas %}
-          <option value="{{ empresa.id }}" {% if empresa_id == empresa.id %}selected{% endif %}>
-            {{ empresa.nombre }}
-          </option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
-          Guardar Selección
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
   
   <!-- Campañas -->
@@ -39,7 +17,7 @@
     <p class="text-gray-600 mb-4">
       Crea, administra y consulta campañas activas en Google Ads.
     </p>
-    <a href="#" class="inline-block bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700">
+    <a href="{{ url_for('panel_cliente_google_ads.vista_campanas_google_ads', nombre_nora=nombre_nora) }}" class="inline-block bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700">
       Ir a Campañas
     </a>
   </div>
@@ -53,7 +31,7 @@
     <p class="text-gray-600 mb-4">
       Consulta el histórico de reportes automáticos y resultados de tus campañas.
     </p>
-    <a href="{{ url_for('panel_cliente_google_ads.reporte_google_ads', nombre_nora=nombre_nora) }}" class="inline-block bg-green-600 text-white text-sm px-4 py-2 rounded hover:bg-green-700">
+    <a href="{{ url_for('panel_cliente_google_ads.vista_reportes_google_ads', nombre_nora=nombre_nora) }}" class="inline-block bg-green-600 text-white text-sm px-4 py-2 rounded hover:bg-green-700">
       Ir a Reportes
     </a>
   </div>
@@ -67,7 +45,7 @@
     <p class="text-gray-600 mb-4">
       Explora y prueba endpoints de la API de Google Ads en modo laboratorio.
     </p>
-    <a href="#" class="inline-block bg-yellow-500 text-white text-sm px-4 py-2 rounded hover:bg-yellow-600">
+    <a href="{{ url_for('panel_cliente_google_ads.campanas_activas_google_ads', nombre_nora=nombre_nora) }}" class="inline-block bg-yellow-500 text-white text-sm px-4 py-2 rounded hover:bg-yellow-600">
       Ir al Ads Lab
     </a>
   </div>
@@ -81,7 +59,7 @@
     <p class="text-gray-600 mb-4">
       Consulta y administra todas tus cuentas de Google Ads activas.
     </p>
-    <a href="{{ url_for('panel_cliente_google_ads.ver_cuentas_google_ads', nombre_nora=nombre_nora) }}" class="inline-block bg-indigo-600 text-white text-sm px-4 py-2 rounded hover:bg-indigo-700">
+    <a href="{{ url_for('panel_cliente_google_ads.vista_cuentas_publicitarias_google_ads', nombre_nora=nombre_nora) }}" class="inline-block bg-indigo-600 text-white text-small px-4 py-2 rounded hover:bg-indigo-700">
       Ver cuentas
     </a>
   </div>
@@ -92,6 +70,7 @@
 
 {% block extra_js %}
 <script>
+// Manejar formulario de empresa
 document.getElementById('empresaForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -119,6 +98,58 @@ document.getElementById('empresaForm').addEventListener('submit', async function
     } catch (error) {
         console.error('Error:', error);
         alert('Error al actualizar empresa: ' + error.message);
+    }
+});
+
+// Manejar importación de cuentas
+document.getElementById('btnImportarCuentas').addEventListener('click', async function() {
+    const btn = this;
+    const icono = document.getElementById('iconoImportar');
+    const estado = document.getElementById('estadoImportacion');
+    
+    // Cambiar estado del botón
+    btn.disabled = true;
+    icono.textContent = '⏳';
+    btn.innerHTML = '<span id="iconoImportar">⏳</span> Importando cuentas...';
+    estado.innerHTML = '<div class="text-blue-600">🔄 Conectando con Google Ads API...</div>';
+    
+    try {
+        const response = await fetch("{{ url_for('panel_cliente_google_ads.importar_cuentas_automatico', nombre_nora=nombre_nora) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.ok) {
+            icono.textContent = '✅';
+            btn.innerHTML = '<span id="iconoImportar">✅</span> Importación completada';
+            estado.innerHTML = `<div class="text-green-600">✅ ${data.mensaje}</div>`;
+            
+            // Si se importaron cuentas nuevas, recargar la página después de 2 segundos
+            if (data.cuentas_importadas > 0) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+        } else {
+            throw new Error(data.error || 'Error desconocido');
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        icono.textContent = '❌';
+        btn.innerHTML = '<span id="iconoImportar">❌</span> Error en importación';
+        estado.innerHTML = `<div class="text-red-600">❌ Error: ${error.message}</div>`;
+    } finally {
+        // Restaurar botón después de 3 segundos
+        setTimeout(() => {
+            btn.disabled = false;
+            icono.textContent = '🔄';
+            btn.innerHTML = '<span id="iconoImportar">🔄</span> Verificar/Importar Cuentas Google Ads';
+        }, 3000);
     }
 });
 </script>

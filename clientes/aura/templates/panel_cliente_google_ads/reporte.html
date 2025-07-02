@@ -46,24 +46,40 @@
         </div>
     </div>
 
-    {% if empresa_id %}
+    <!-- Mensajes de estado -->
+    {% if mensaje_info %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>{{ mensaje_info }}
+    </div>
+    {% endif %}
+
+    {% if mensaje_warning %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ mensaje_warning }}
+        <hr>
+        <div class="mt-2">
+            <button class="btn btn-sm btn-warning" onclick="vincularCuentaGoogleAds()">
+                <i class="fas fa-link me-1"></i>Vincular Cuenta de Google Ads
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if mensaje_exito %}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle me-2"></i>{{ mensaje_exito }}
+    </div>
+    {% endif %}
+
+    {% if empresa_id and stats %}
     <!-- Resumen General -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Campañas</h5>
-                    <h2 class="mb-0">{{ stats.total_campañas }}</h2>
-                    <small class="text-success">{{ stats.campañas_activas }} activas</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
                     <h5 class="card-title">Impresiones</h5>
-                    <h2 class="mb-0">{{ "{:,}".format(stats.total_impresiones) }}</h2>
-                    <small class="text-muted">Total acumulado</small>
+                    <h2 class="mb-0">{{ "{:,}".format(stats.impresiones) if stats and stats.impresiones else "0" }}</h2>
+                    <small class="text-muted">Últimos {{ stats.periodo_dias if stats else 30 }} días</small>
                 </div>
             </div>
         </div>
@@ -71,17 +87,26 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Clics</h5>
-                    <h2 class="mb-0">{{ "{:,}".format(stats.total_clics) }}</h2>
-                    <small class="text-muted">Total acumulado</small>
+                    <h2 class="mb-0">{{ "{:,}".format(stats.clics) if stats and stats.clics else "0" }}</h2>
+                    <small class="text-muted">Total período</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">CTR Promedio</h5>
-                    <h2 class="mb-0">{{ stats.ctr_promedio }}%</h2>
-                    <small class="text-muted">General</small>
+                    <h5 class="card-title">CTR</h5>
+                    <h2 class="mb-0">{{ stats.ctr if stats and stats.ctr else "0.0" }}%</h2>
+                    <small class="text-muted">Promedio</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Costo Total</h5>
+                    <h2 class="mb-0">${{ stats.costo_total if stats and stats.costo_total else "0.00" }}</h2>
+                    <small class="text-muted">CPC: ${{ stats.cpc_promedio if stats and stats.cpc_promedio else "0.00" }}</small>
                 </div>
             </div>
         </div>
@@ -247,6 +272,120 @@ document.getElementById('cambiarEmpresaForm')?.addEventListener('submit', async 
     await actualizarEmpresa(empresa_id);
     // El modal se cerrará automáticamente al recargar la página
 });
+
+// Función para vincular cuenta de Google Ads
+async function vincularCuentaGoogleAds() {
+    try {
+        // Obtener cuentas disponibles
+        const response = await fetch(`/cliente/{{ nombre_nora }}/google_ads/cuentas_disponibles`);
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Error obteniendo cuentas');
+        }
+        
+        if (data.cuentas.length === 0) {
+            alert('No se encontraron cuentas de Google Ads disponibles. Verifica tu configuración.');
+            return;
+        }
+        
+        // Crear opciones para el select
+        let opciones = data.cuentas.map(cuenta => 
+            `<option value="${cuenta.id}">${cuenta.nombre} (${cuenta.id}) - ${cuenta.moneda}</option>`
+        ).join('');
+        
+        // Mostrar modal o prompt con las opciones
+        const customerIdSeleccionado = await mostrarSelectorCuentas(opciones);
+        
+        if (customerIdSeleccionado) {
+            // Vincular la cuenta seleccionada
+            const empresaId = '{{ empresa_id or "" }}';
+            
+            if (!empresaId) {
+                alert('No hay empresa seleccionada');
+                return;
+            }
+            
+            const vinculacionResponse = await fetch(`/cliente/{{ nombre_nora }}/google_ads/vincular_cuenta`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    empresa_id: empresaId,
+                    customer_id: customerIdSeleccionado
+                })
+            });
+            
+            const vinculacionData = await vinculacionResponse.json();
+            
+            if (vinculacionResponse.ok) {
+                alert('✅ Cuenta de Google Ads vinculada exitosamente');
+                location.reload(); // Recargar para mostrar los nuevos datos
+            } else {
+                alert('❌ Error vinculando cuenta: ' + (vinculacionData.error || 'Error desconocido'));
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error: ' + error.message);
+    }
+}
+
+// Función auxiliar para mostrar selector de cuentas
+function mostrarSelectorCuentas(opciones) {
+    return new Promise((resolve) => {
+        // Crear modal dinámico
+        const modalHtml = `
+            <div class="modal fade" id="selectorCuentasModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Seleccionar Cuenta de Google Ads</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Selecciona la cuenta de Google Ads que deseas vincular con esta empresa:</p>
+                            <select id="selectCuentaGoogleAds" class="form-select">
+                                <option value="">Seleccionar cuenta...</option>
+                                ${opciones}
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" onclick="confirmarSeleccionCuenta()">Vincular</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Agregar modal al DOM
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById('selectorCuentasModal'));
+        modal.show();
+        
+        // Limpiar cuando se cierre el modal
+        document.getElementById('selectorCuentasModal').addEventListener('hidden.bs.modal', function() {
+            document.getElementById('selectorCuentasModal').remove();
+            resolve(null);
+        });
+        
+        // Función global para confirmar selección
+        window.confirmarSeleccionCuenta = () => {
+            const selectedValue = document.getElementById('selectCuentaGoogleAds').value;
+            if (selectedValue) {
+                modal.hide();
+                resolve(selectedValue);
+            } else {
+                alert('Por favor selecciona una cuenta');
+            }
+        };
+    });
+}
 </script>
 {% endblock %}
 
@@ -254,29 +393,35 @@ document.getElementById('cambiarEmpresaForm')?.addEventListener('submit', async 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 // Gráfico de estados de anuncios
-const ctxEstados = document.getElementById('chartEstados').getContext('2d');
-new Chart(ctxEstados, {
-    type: 'doughnut',
-    data: {
-        labels: {{ estados_anuncios.keys()|list|tojson }},
-        datasets: [{
-            data: {{ estados_anuncios.values()|list }},
-            backgroundColor: [
-                '#28a745',
-                '#ffc107',
-                '#dc3545',
-                '#6c757d'
-            ]
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom'
+{% if estados_anuncios %}
+const ctxEstados = document.getElementById('chartEstados');
+if (ctxEstados) {
+    new Chart(ctxEstados.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ estados_anuncios.keys()|list|tojson|safe }},
+            datasets: [{
+                data: {{ estados_anuncios.values()|list|tojson|safe }},
+                backgroundColor: [
+                    '#28a745',
+                    '#ffc107',
+                    '#dc3545',
+                    '#6c757d',
+                    '#17a2b8',
+                    '#6f42c1'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
             }
         }
-    }
-});
+    });
+}
+{% endif %}
 </script>
 {% endblock %}

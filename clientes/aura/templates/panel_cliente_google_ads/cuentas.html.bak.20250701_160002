@@ -1,0 +1,479 @@
+<!-- Vista: panel_cliente_google_ads/cuentas.html -->
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h1 class="text-primary mb-1">📊 Cuentas Google Ads del MCC</h1>
+                    <p class="text-muted mb-0">Cliente: {{ nombre_nora }}</p>
+                </div>
+                <div>
+                    <!-- Botón de importación más visible con estilos inline -->
+                    <button id="btnImportarCuentas" class="btn btn-success btn-lg" 
+                            style="padding: 12px 24px; font-size: 16px; font-weight: bold; margin: 10px; display: block !important; visibility: visible !important;">
+                        <i class="fas fa-download me-2"></i>Importar Cuentas desde MCC
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Estado de importación -->
+            <div id="estadoImportacion" class="mb-3"></div>
+        </div>
+    </div>
+
+    {% if mensaje %}
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle me-2"></i>{{ mensaje }}
+    </div>
+    {% endif %}
+
+    <!-- Banner de importación si no hay cuentas -->
+    {% if not cuentas or cuentas|length == 0 %}
+    <div class="alert alert-warning border-0 shadow-sm mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="alert-heading mb-2">
+                    <i class="fas fa-exclamation-circle me-2"></i>No se encontraron cuentas de Google Ads
+                </h5>
+                <p class="mb-0">
+                    Para comenzar a trabajar con Google Ads, necesitas importar las cuentas desde tu MCC (My Client Center).
+                    Este proceso conectará automáticamente con la API de Google Ads y traerá todas las cuentas disponibles.
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <button id="btnImportarCuentasBanner" class="btn btn-warning btn-lg shadow">
+                    <i class="fas fa-cloud-download-alt me-2"></i>Importar Ahora
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="post">
+        <div class="mb-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        Total de cuentas encontradas: <span class="badge bg-primary">{{ cuentas|length }}</span>
+                    </h5>
+                    {% if cuentas|length == 0 %}
+                    <button id="btnImportarCuentas2" class="btn btn-warning">
+                        <i class="fas fa-sync-alt me-1"></i>Cargar Cuentas desde Google Ads
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="px-4 py-3">Customer ID</th>
+                                    <th class="px-4 py-3">Nombre de la Cuenta</th>
+                                    <th class="px-4 py-3">Moneda</th>
+                                    <th class="px-4 py-3">Zona Horaria</th>
+                                    <th class="px-4 py-3">Tipo</th>
+                                    <th class="px-4 py-3">Empresa Asignada</th>
+                                    <th class="px-4 py-3 text-center">Excluir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cuenta in cuentas %}
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <span class="font-monospace fw-bold text-primary">{{ cuenta.id }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <div class="fw-semibold">{{ cuenta.name }}</div>
+                                                <small class="text-muted">Resource: {{ cuenta.resource_name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="badge bg-info">{{ cuenta.moneda }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <small class="text-muted">{{ cuenta.zona_horaria }}</small>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        {% if cuenta.es_test %}
+                                            <span class="badge bg-warning">Test</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Producción</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        {% if cuenta.empresa_asignada %}
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-primary me-2">
+                                                    <i class="fas fa-building me-1"></i>{{ cuenta.empresa_asignada.nombre }}
+                                                </span>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                        onclick="cambiarEmpresa('{{ cuenta.id }}', '{{ cuenta.empresa_asignada.id }}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        {% else %}
+                                            <button type="button" class="btn btn-sm btn-primary" 
+                                                    onclick="asignarEmpresa('{{ cuenta.id }}')">
+                                                <i class="fas fa-plus me-1"></i>Asignar Empresa
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="excluir" value="{{ cuenta.id }}" 
+                                                   {% if cuenta.id in cuentas_excluidas %}checked{% endif %}>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="fas fa-search me-2"></i>No se encontraron cuentas operativas en el MCC
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% if cuentas %}
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Actualizar exclusiones
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    <!-- Cuentas operativas (no excluidas) -->
+    <div class="mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Cuentas Operativas 
+                    <span class="badge bg-success">{{ cuentas_mostradas|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if cuentas_mostradas %}
+                <div class="row">
+                    {% for cuenta in cuentas_mostradas %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card border-success">
+                            <div class="card-body p-3">
+                                <h6 class="card-title text-success">{{ cuenta.name }}</h6>
+                                <p class="card-text font-monospace small">{{ cuenta.id }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">{{ cuenta.moneda }}</small>
+                                    {% if cuenta.es_test %}
+                                        <small class="badge bg-warning">Test</small>
+                                    {% else %}
+                                        <small class="badge bg-success">Prod</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-3 text-muted">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No hay cuentas operativas seleccionadas. Todas las cuentas están excluidas.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="mt-4">
+        <div class="card border-info">
+            <div class="card-body">
+                <h6 class="card-title text-info">
+                    <i class="fas fa-info-circle me-2"></i>Información sobre MCC
+                </h6>
+                <p class="card-text small">
+                    <strong>MCC (My Client Center)</strong> es la cuenta administradora que permite gestionar múltiples cuentas de Google Ads desde un solo lugar. 
+                    Solo se muestran las cuentas operativas y accesibles del MCC.
+                </p>
+                <ul class="small">
+                    <li><strong>Cuentas de Producción:</strong> Cuentas reales con campañas activas</li>
+                    <li><strong>Cuentas de Test:</strong> Cuentas de prueba para desarrollo</li>
+                    <li><strong>Exclusiones:</strong> Puedes excluir cuentas para que no aparezcan en reportes</li>
+                    <li><strong>Filtrado:</strong> Las cuentas con problemas de acceso se ocultan automáticamente</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para asignar empresa -->
+    <div class="modal fade" id="modalAsignarEmpresa" tabindex="-1" aria-labelledby="modalAsignarEmpresaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAsignarEmpresaLabel">
+                        <i class="fas fa-building me-2"></i>Asignar Empresa a Cuenta
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Cuenta de Google Ads:</label>
+                        <div id="cuentaSeleccionada" class="form-control-plaintext fw-bold"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="selectEmpresa" class="form-label">Seleccionar Empresa:</label>
+                        <select class="form-select" id="selectEmpresa">
+                            <option value="">-- Selecciona una empresa --</option>
+                            {% for empresa in empresas_disponibles %}
+                            <option value="{{ empresa.id }}">{{ empresa.nombre_empresa }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmarAsignacion()">
+                        <i class="fas fa-save me-2"></i>Asignar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let cuentaActual = null;
+let empresaActual = null;
+
+function asignarEmpresa(customerId) {
+    cuentaActual = customerId;
+    empresaActual = null;
+    
+    // Buscar información de la cuenta
+    const filas = document.querySelectorAll('tbody tr');
+    let nombreCuenta = 'Cuenta ' + customerId;
+    
+    filas.forEach(fila => {
+        const celdaId = fila.querySelector('td:first-child span');
+        if (celdaId && celdaId.textContent.trim() === customerId) {
+            const celdaNombre = fila.querySelector('td:nth-child(2) .fw-semibold');
+            if (celdaNombre) {
+                nombreCuenta = celdaNombre.textContent.trim();
+            }
+        }
+    });
+    
+    document.getElementById('cuentaSeleccionada').textContent = `${nombreCuenta} (${customerId})`;
+    document.getElementById('selectEmpresa').value = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('modalAsignarEmpresa'));
+    modal.show();
+}
+
+function cambiarEmpresa(customerId, empresaIdActual) {
+    cuentaActual = customerId;
+    empresaActual = empresaIdActual;
+    
+    // Buscar información de la cuenta
+    const filas = document.querySelectorAll('tbody tr');
+    let nombreCuenta = 'Cuenta ' + customerId;
+    
+    filas.forEach(fila => {
+        const celdaId = fila.querySelector('td:first-child span');
+        if (celdaId && celdaId.textContent.trim() === customerId) {
+            const celdaNombre = fila.querySelector('td:nth-child(2) .fw-semibold');
+            if (celdaNombre) {
+                nombreCuenta = celdaNombre.textContent.trim();
+            }
+        }
+    });
+    
+    document.getElementById('cuentaSeleccionada').textContent = `${nombreCuenta} (${customerId})`;
+    document.getElementById('selectEmpresa').value = empresaIdActual;
+    
+    const modal = new bootstrap.Modal(document.getElementById('modalAsignarEmpresa'));
+    modal.show();
+}
+
+function confirmarAsignacion() {
+    const empresaId = document.getElementById('selectEmpresa').value;
+    
+    if (!empresaId) {
+        alert('Por favor selecciona una empresa');
+        return;
+    }
+    
+    if (!cuentaActual) {
+        alert('Error: No hay cuenta seleccionada');
+        return;
+    }
+    
+    // Hacer petición AJAX para asignar empresa
+    fetch(window.location.pathname, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `accion=asignar_empresa&customer_id=${cuentaActual}&empresa_id=${empresaId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Recargar la página para mostrar cambios
+            window.location.reload();
+        } else {
+            alert('Error al asignar empresa: ' + (data.error || 'Error desconocido'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al comunicarse con el servidor');
+    });
+}
+
+function filtrarEmpresas() {
+    const filtro = document.getElementById('buscarEmpresa').value.toLowerCase();
+    const select = document.getElementById('selectEmpresa');
+    const opciones = select.querySelectorAll('option');
+    
+    opciones.forEach(opcion => {
+        if (opcion.value === '') {
+            // Mantener siempre visible la opción por defecto
+            opcion.style.display = '';
+            return;
+        }
+        
+        const nombre = opcion.getAttribute('data-nombre') || opcion.textContent.toLowerCase();
+        if (nombre.includes(filtro)) {
+            opcion.style.display = '';
+        } else {
+            opcion.style.display = 'none';
+        }
+    });
+    
+    // Limpiar selección si la opción seleccionada se oculta
+    const opcionSeleccionada = select.options[select.selectedIndex];
+    if (opcionSeleccionada && opcionSeleccionada.style.display === 'none') {
+        select.value = '';
+    }
+}
+
+// Manejar importación de cuentas
+document.addEventListener('DOMContentLoaded', function() {
+    const btnImportar = document.getElementById('btnImportarCuentas');
+    const btnImportar2 = document.getElementById('btnImportarCuentas2');
+    const btnImportarBanner = document.getElementById('btnImportarCuentasBanner');
+    const estadoImportacion = document.getElementById('estadoImportacion');
+    
+    // Función para manejar la importación
+    async function manejarImportacion(boton) {
+        // Cambiar estado de todos los botones
+        const botones = [btnImportar, btnImportar2, btnImportarBanner].filter(b => b);
+        botones.forEach(btn => {
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Importando cuentas...';
+            }
+        });
+        
+        if (estadoImportacion) {
+            estadoImportacion.innerHTML = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>🔄 Conectando con Google Ads API...</div>';
+        }
+        
+        try {
+            const response = await fetch(`${window.location.pathname.replace('/cuentas', '')}/importar_cuentas_automatico`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.ok) {
+                botones.forEach(btn => {
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-check me-2"></i>¡Importación completada!';
+                        btn.classList.remove('btn-success', 'btn-warning', 'btn-danger');
+                        btn.classList.add('btn-success');
+                    }
+                });
+                
+                if (estadoImportacion) {
+                    estadoImportacion.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>✅ ${data.mensaje}</div>`;
+                }
+                
+                // Si se importaron cuentas nuevas, recargar la página
+                if (data.cuentas_importadas > 0) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                }
+            } else {
+                throw new Error(data.error || 'Error desconocido');
+            }
+            
+        } catch (error) {
+            console.error('Error:', error);
+            botones.forEach(btn => {
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error en importación';
+                    btn.classList.remove('btn-success', 'btn-warning');
+                    btn.classList.add('btn-danger');
+                }
+            });
+            
+            if (estadoImportacion) {
+                estadoImportacion.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>❌ Error: ${error.message}</div>`;
+            }
+        } finally {
+            // Restaurar botones después de 4 segundos
+            setTimeout(() => {
+                if (btnImportar) {
+                    btnImportar.disabled = false;
+                    btnImportar.innerHTML = '<i class="fas fa-download me-2"></i>Importar Cuentas desde MCC';
+                    btnImportar.classList.remove('btn-danger');
+                    btnImportar.classList.add('btn-success');
+                }
+                if (btnImportar2) {
+                    btnImportar2.disabled = false;
+                    btnImportar2.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Cargar Cuentas desde Google Ads';
+                    btnImportar2.classList.remove('btn-danger');
+                    btnImportar2.classList.add('btn-warning');
+                }
+                if (btnImportarBanner) {
+                    btnImportarBanner.disabled = false;
+                    btnImportarBanner.innerHTML = '<i class="fas fa-cloud-download-alt me-2"></i>Importar Ahora';
+                    btnImportarBanner.classList.remove('btn-danger');
+                    btnImportarBanner.classList.add('btn-warning');
+                }
+            }, 4000);
+        }
+    }
+    
+    // Asignar evento a todos los botones
+    if (btnImportar) {
+        btnImportar.addEventListener('click', () => manejarImportacion(btnImportar));
+    }
+    
+    if (btnImportar2) {
+        btnImportar2.addEventListener('click', () => manejarImportacion(btnImportar2));
+    }
+    
+    if (btnImportarBanner) {
+        btnImportarBanner.addEventListener('click', () => manejarImportacion(btnImportarBanner));
+    }
+});
+</script>
+
+{% endblock %}

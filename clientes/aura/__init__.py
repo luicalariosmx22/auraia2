@@ -243,9 +243,21 @@ def create_app(config_class=Config):
     # --- Registrar Blueprints de reportes y campañas Meta Ads ---
     safe_register_blueprint(app, reportes_meta_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/meta_ads")
     safe_register_blueprint(app, campanas_meta_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/meta_ads/campanas")
-    # Registrar blueprint de Google Ads panel cliente (OAuth, etc.)
-    from clientes.aura.routes.panel_cliente_google_ads.panel_cliente_google_ads import panel_cliente_google_ads_bp
-    safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/google_ads")
+    
+    # Google Ads se registra dinámicamente en registro_dinamico.py por módulo
+    # # Registrar blueprint de Google Ads panel cliente (nuevo panel similar a Meta Ads)
+    # from clientes.aura.routes.panel_cliente_google_ads import panel_cliente_google_ads_bp
+    # safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/google_ads")
+    
+    # Registrar blueprint para la API de Google Ads
+    try:
+        from routes.google_ads import google_ads_bp
+        safe_register_blueprint(app, google_ads_bp)
+        print("✅ Blueprint de Google Ads API (google_ads_bp) registrado correctamente")
+    except ImportError as e:
+        print(f"❌ Error al importar el blueprint de Google Ads API: {e}")
+    except Exception as e:
+        print(f"❌ Error al registrar el blueprint de Google Ads API: {e}")
 
     # --- Registrar Blueprint Cliente Nora (Panel de Entrenamiento) ---
     safe_register_blueprint(app, cliente_nora_bp, url_prefix="")
@@ -266,16 +278,16 @@ def create_app(config_class=Config):
     @app.route('/debug_info', methods=['GET'])
     def debug_info():
         return jsonify({
-            "blueprints_registrados": list(app.blueprints.keys()),  # Added registered blueprints
-            "rutas_registradas": [str(rule) for rule in app.url_map.iter_rules()],
-            "estado": "OK",
+            "session_data": dict(session),
+            "app_config": {k: str(v) for k, v in app.config.items() if k not in ['SECRET_KEY']},
+            "request_info": {
+                "path": request.path,
+                "method": request.method,
+                "headers": dict(request.headers),
+                "cookies": request.cookies
+            }
         })
-
-    @app.route('/healthz')
-    def health_check():
-        return "OK", 200
-    print("Rutas de nivel de aplicación definidas.")
-
+    
     # --- before_request handler ---
     print("Definiendo handler before_request...")
     @app.before_request

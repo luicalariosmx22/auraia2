@@ -1,0 +1,415 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_cursos/estudiantes.html -->
+<!-- 👉 Lista de estudiantes registrados en los cursos -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Estudiantes - Cursos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.0/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container-fluid mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="/panel_cliente/{{ nombre_nora }}/cursos">
+                                <i class="fas fa-graduation-cap"></i> Cursos
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active">Estudiantes</li>
+                    </ol>
+                </nav>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2><i class="fas fa-users text-primary"></i> Gestión de Estudiantes</h2>
+                        <p class="text-muted mb-0">Administra todos los estudiantes registrados en tus cursos</p>
+                    </div>
+                    <div>
+                        <a href="/panel_cliente/{{ nombre_nora }}/cursos" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver a Cursos
+                        </a>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-plus"></i> Inscribir Estudiante
+                            </button>
+                            <ul class="dropdown-menu" id="cursos-dropdown">
+                                <li><h6 class="dropdown-header">Selecciona un curso:</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-muted" href="#" onclick="cargarCursos()">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando cursos...
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'warning' if category == 'warning' else 'info' if category == 'info' else 'success' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Estadísticas Rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Total Estudiantes</h5>
+                                <h3 class="mb-0">{{ estudiantes|length }}</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Estudiantes Activos</h5>
+                                <h3 class="mb-0">{{ estudiantes|selectattr('activo')|list|length }}</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-user-check fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Total Inscripciones</h5>
+                                <h3 class="mb-0">{{ estudiantes|sum(attribute='inscripciones')|length if estudiantes else 0 }}</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clipboard-list fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>                                <h5 class="card-title">Registros Recientes</h5>
+                                <h3 class="mb-0">
+                                    {{ estudiantes|selectattr('fecha_registro')|list|length }}
+                                </h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-calendar-day fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+        <!-- Lista de Estudiantes -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-list"></i> Lista de Estudiantes</h5>
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm" onclick="exportarEstudiantes()">
+                            <i class="fas fa-download"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                    </div>
+                {% elif not estudiantes %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay estudiantes registrados</h5>
+                        <p class="text-muted">Los estudiantes aparecerán aquí cuando se inscriban a los cursos.</p>
+                        
+                        <div class="alert alert-info text-start mt-4">
+                            <h6><i class="fas fa-info-circle"></i> ¿Cómo agregar estudiantes?</h6>
+                            <ol class="mb-0">
+                                <li>Ve a la <a href="/panel_cliente/{{ nombre_nora }}/cursos" class="alert-link">lista de cursos</a></li>
+                                <li>Haz clic en cualquier curso para ver sus detalles</li>
+                                <li>Usa el botón <strong>"Inscribir Estudiante"</strong> en el curso</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <a href="/panel_cliente/{{ nombre_nora }}/cursos" class="btn btn-primary me-2">
+                                <i class="fas fa-graduation-cap"></i> Ver Cursos
+                            </a>
+                            <a href="/panel_cliente/{{ nombre_nora }}/cursos/nuevo" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Crear Primer Curso
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table id="tablaEstudiantes" class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Nivel Educativo</th>
+                                    <th>Cursos Inscritos</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for estudiante in estudiantes %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-primary text-white me-2">
+                                                {{ (estudiante.nombre[0] + estudiante.apellido[0])|upper }}
+                                            </div>                                        <div>
+                                            <strong>{{ estudiante.nombre }} {{ estudiante.apellido }}</strong>
+                                            {% if estudiante.fecha_nacimiento %}
+                                            <br><small class="text-muted">
+                                                Fecha nac: {{ estudiante.fecha_nacimiento[:10] if estudiante.fecha_nacimiento else 'N/A' }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:{{ estudiante.email }}" class="text-decoration-none">
+                                            {{ estudiante.email }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if estudiante.telefono %}
+                                            <a href="tel:{{ estudiante.telefono }}" class="text-decoration-none">
+                                                {{ estudiante.telefono }}
+                                            </a>
+                                        {% else %}
+                                            <small class="text-muted">No especificado</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if estudiante.nivel_educativo %}
+                                            <span class="badge bg-secondary">{{ estudiante.nivel_educativo }}</span>
+                                        {% else %}
+                                            <small class="text-muted">No especificado</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for inscripcion in estudiante.inscripciones %}
+                                                {% if inscripcion.estado == 'inscrito' %}
+                                                    <span class="badge bg-success" title="{{ inscripcion.curso.titulo }}">
+                                                        {{ inscripcion.curso.titulo[:15] }}{% if inscripcion.curso.titulo|length > 15 %}...{% endif %}
+                                                    </span>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if not estudiante.inscripciones or estudiante.inscripciones|selectattr('estado', 'equalto', 'inscrito')|list|length == 0 %}
+                                                <small class="text-muted">Sin cursos activos</small>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted">
+                                            Total: {{ estudiante.inscripciones|length }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {% if estudiante.fecha_registro %}
+                                                {{ estudiante.fecha_registro[:10] }}
+                                            {% else %}
+                                                No especificado
+                                            {% endif %}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% if estudiante.activo %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> Activo
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times"></i> Inactivo
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="/panel_cliente/{{ nombre_nora }}/estudiante/{{ estudiante.id }}" 
+                                               class="btn btn-outline-primary" title="Ver detalle">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button class="btn btn-outline-warning" 
+                                                    onclick="editarEstudiante('{{ estudiante.id }}')" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-info" 
+                                                    onclick="contactarEstudiante('{{ estudiante.email }}', '{{ estudiante.telefono }}')" 
+                                                    title="Contactar">
+                                                <i class="fas fa-envelope"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.0/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.0/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Inicializar DataTable
+            $('#tablaEstudiantes').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.0/i18n/es-ES.json'
+                },
+                pageLength: 25,
+                order: [[5, 'desc']], // Ordenar por fecha de registro
+                columnDefs: [
+                    { orderable: false, targets: [7] } // Deshabilitar ordenamiento en columna de acciones
+                ]
+            });
+        });
+
+        function editarEstudiante(estudianteId) {
+            // Por ahora mostrar alert, se puede implementar modal de edición
+            alert('Función de edición en desarrollo. ID: ' + estudianteId);
+        }
+
+        function contactarEstudiante(email, telefono) {
+            let opciones = [];
+            if (email) opciones.push(`Email: ${email}`);
+            if (telefono) opciones.push(`Teléfono: ${telefono}`);
+            
+            if (opciones.length > 0) {
+                const mensaje = 'Información de contacto:\n' + opciones.join('\n');
+                if (confirm(mensaje + '\n\n¿Abrir cliente de email?') && email) {
+                    window.open(`mailto:${email}`, '_blank');
+                }
+            } else {
+                alert('No hay información de contacto disponible');
+            }
+        }
+
+        function exportarEstudiantes() {
+            // Implementar exportación (CSV, Excel, etc.)
+            alert('Función de exportación en desarrollo');
+        }
+
+        // Cargar cursos para inscripción rápida
+        function cargarCursos() {
+            fetch('/panel_cliente/{{ nombre_nora }}/cursos/api/estadisticas')
+                .then(response => response.json())
+                .then(data => {
+                    // Obtener lista de cursos
+                    fetch('/panel_cliente/{{ nombre_nora }}/cursos')
+                        .then(response => response.text())
+                        .then(html => {
+                            // Aquí cargaríamos los cursos, por simplicidad redirigimos
+                            window.location.href = '/panel_cliente/{{ nombre_nora }}/cursos';
+                        });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar cursos');
+                });
+        }
+
+        // Cargar cursos al cargar la página
+        $(document).ready(function() {
+            // ...existing code...
+            
+            // Cargar cursos en el dropdown
+            setTimeout(() => {
+                fetch('/panel_cliente/{{ nombre_nora }}/cursos/api/estadisticas')
+                    .then(response => response.json())
+                    .then(data => {
+                        const cursosDropdown = document.getElementById('cursos-dropdown');
+                        
+                        // Limpiar dropdown
+                        cursosDropdown.innerHTML = `
+                            <li><h6 class="dropdown-header">Selecciona un curso:</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                        `;
+                        
+                        // Agregar enlace para ver todos los cursos
+                        cursosDropdown.innerHTML += `
+                            <li><a class="dropdown-item" href="/panel_cliente/{{ nombre_nora }}/cursos">
+                                <i class="fas fa-graduation-cap"></i> Ver todos los cursos
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-success" href="/panel_cliente/{{ nombre_nora }}/cursos/nuevo">
+                                <i class="fas fa-plus"></i> Crear nuevo curso
+                            </a></li>
+                        `;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }, 1000);
+        });
+    </script>
+
+    <style>
+        .avatar-circle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .table td {
+            vertical-align: middle;
+        }
+        
+        .badge {
+            font-size: 0.75em;
+        }
+        
+        .btn-group-sm > .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</body>
+</html>

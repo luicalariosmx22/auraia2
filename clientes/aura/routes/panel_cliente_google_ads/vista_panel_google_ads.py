@@ -11,6 +11,7 @@ from .listar_cuentas import listar_cuentas_publicitarias
 from google_auth_oauthlib.flow import Flow
 from clientes.aura.routes.panel_cliente_google_ads.panel_cliente_google_ads import panel_cliente_google_ads_bp
 from clientes.aura.utils.supabase_google_ads_client import SupabaseGoogleAdsClient
+from clientes.aura.services.google_ads_service import google_ads_service
 
 # Cargar variables de entorno desde .env.local si existe
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), '.env.local'))
@@ -55,26 +56,35 @@ def index_google_ads(nombre_nora):
 @panel_cliente_google_ads_bp.route("/sincronizar", methods=["GET", "POST"], strict_slashes=False)
 def sincronizar_google_ads(nombre_nora):
     mensaje = None
+    cuentas = []
+    
     try:
-        total, cuentas = listar_cuentas_publicitarias()
-        cuentas = cuentas or []
+        # Usar el nuevo servicio de Google Ads
+        total, cuentas_ads = google_ads_service.listar_cuentas_accesibles()
+        cuentas = cuentas_ads or []
+        
         if os.getenv("MODO_DEV", "False").lower() == "true":
             logging.basicConfig(level=logging.DEBUG)
             logging.debug(f"[DEV] Total cuentas encontradas (sincronizar): {total}")
-            logging.debug(f"[DEV] Resource names (sincronizar): {cuentas}")
+            logging.debug(f"[DEV] Cuentas encontradas: {[c['nombre'] for c in cuentas]}")
+            
     except Exception as e:
         cuentas = []
-        mensaje = f"Error al obtener cuentas: {e}"
-        if os.getenv("MODO_DEV", "False").lower() == "true":
-            logging.exception("[DEV] Error buscando cuentas Google Ads en sincronizar")
+        mensaje = f"Error al obtener cuentas de Google Ads: {str(e)}"
+        logging.exception("[DEV] Error buscando cuentas Google Ads en sincronizar")
+    
     if request.method == "POST":
         customer_id = request.form.get("customer_id")
-        # Obtener el token de entorno
-        oauth_token = os.getenv("GOOGLE_CLIENT_SECRET")
-        if customer_id and oauth_token:
-            mensaje = f"Cuenta {customer_id} sincronizada correctamente usando token de entorno (demo)."
+        if customer_id and cuentas:
+            # Encontrar la cuenta seleccionada
+            cuenta_seleccionada = next((c for c in cuentas if c['id'] == customer_id), None)
+            if cuenta_seleccionada:
+                mensaje = f"✅ Cuenta '{cuenta_seleccionada['nombre']}' ({customer_id}) lista para usar con datos reales de Google Ads."
+            else:
+                mensaje = "❌ Cuenta no encontrada en la lista de cuentas accesibles."
         else:
-            mensaje = "Faltan datos para sincronizar o token no disponible."
+            mensaje = "❌ Faltan datos para sincronizar o no hay cuentas disponibles."
+    
     return render_template(
         "panel_cliente_google_ads/sincronizar.html",
         nombre_nora=nombre_nora,
@@ -201,79 +211,121 @@ def reporte_google_ads(nombre_nora):
                 stats=None,
                 top_campanas=[],
                 estados_anuncios={},
-                top_keywords=[]
+                top_keywords=[],
+                mensaje_info="Seleccione una empresa para ver el reporte de Google Ads"
             )
 
-        # Inicializar cliente de Supabase y logging
-        supabase_client = SupabaseGoogleAdsClient()
-        logging.debug(f"Generando reporte para {nombre_nora} y empresa {empresa_id}")
-        
-        # Obtener estadísticas generales
-        stats = supabase_client.calcular_estadisticas(nombre_nora, empresa_id)
-        logging.debug(f"Estadísticas: {stats}")
-        
-        # Obtener datos de las campañas
-        campanas = supabase_client.obtener_campanas(nombre_nora, empresa_id)
-        logging.debug(f"Total campañas encontradas: {len(campanas)}")
-        
-        # Obtener datos de los anuncios
-        anuncios = supabase_client.obtener_anuncios(nombre_nora, empresa_id)
-        logging.debug(f"Total anuncios encontrados: {len(anuncios)}")
-        
-        # Obtener datos de las palabras clave
-        keywords = supabase_client.obtener_palabras_clave(nombre_nora, empresa_id)
-        logging.debug(f"Total keywords encontradas: {len(keywords)}")
-        
-        # Verificar si hay datos
-        if not campanas and not anuncios and not keywords:
-            flash("No se encontraron datos para mostrar. Asegúrate de haber sincronizado tu cuenta de Google Ads.", "warning")
-        
-        # Obtener top 5 campañas
-        top_campanas = []
-        if campanas:
-            top_campanas = sorted(campanas, 
-                                key=lambda x: float(x.get('impresiones', 0)), 
-                                reverse=True)[:5]
-        
-        # Procesar estados de anuncios
-        estados_anuncios = {}
-        for anuncio in anuncios:
-            estado = anuncio.get('estado', 'Desconocido')
-            estados_anuncios[estado] = estados_anuncios.get(estado, 0) + 1
+        # Obtener información de la empresa desde la base de datos
+        try:
+            response = supabase.table('cliente_empresas') \
+                .select('*, google_ads_customer_id') \
+                .eq('id', empresa_id) \
+                .eq('nombre_nora', nombre_nora) \
+                .single() \
+                .execute()
             
-        if not estados_anuncios:
-            estados_anuncios = {'Sin datos': 1}                # Obtener top 10 keywords
-        top_keywords = []
-        for kw in sorted(keywords, 
-                        key=lambda x: float(x.get('impresiones', 0)), 
-                        reverse=True)[:10]:
-            impresiones = float(kw.get('impresiones', 0))
-            clics = float(kw.get('clics', 0))
-            ctr = (clics / impresiones) * 100 if impresiones > 0 else 0
-            top_keywords.append({
-                'keyword': kw.get('palabra_clave', ''),
-                'ctr': round(ctr, 2),
-                'impresiones': float(kw.get('impresiones', 0))
-            })
+            empresa_data = response.data if response else None
+            customer_id = empresa_data.get('google_ads_customer_id') if empresa_data else None
+            
+        except Exception as e:
+            logging.error(f"Error obteniendo datos de empresa: {e}")
+            empresa_data = {"nombre": "Empresa no encontrada"}
+            customer_id = None
+
+        # Si no hay customer_id configurado, mostrar mensaje
+        if not customer_id:
+            return render_template(
+                "panel_cliente_google_ads/reporte.html",
+                nombre_nora=nombre_nora,
+                empresas=empresas,
+                empresa_id=empresa_id,
+                empresa_actual=empresa_data,
+                stats=None,
+                top_campanas=[],
+                estados_anuncios={},
+                top_keywords=[],
+                mensaje_warning="Esta empresa no tiene configurado un Customer ID de Google Ads. Configure uno en la sección de sincronización."
+            )
+
+        # Obtener datos reales de Google Ads
+        logging.info(f"🔍 Obteniendo reporte real de Google Ads para customer_id: {customer_id}")
         
-        # Obtener la empresa actual
-        empresa_actual = next((e for e in empresas if e['id'] == empresa_id), None)
-        
-        logging.debug("Renderizando template con datos procesados")
+        try:
+            # Usar el servicio integrado para obtener datos reales
+            reporte_completo = google_ads_service.obtener_reporte_completo(customer_id, dias=30)
+            
+            # Extraer datos del reporte
+            stats = reporte_completo["estadisticas_generales"]
+            top_campanas = reporte_completo["top_campanas"]
+            top_keywords = reporte_completo["top_keywords"]
+            estados_anuncios = reporte_completo["distribucion_estados_anuncios"]
+            
+            # Procesar keywords para el formato esperado por la plantilla
+            keywords_formateados = []
+            for kw in top_keywords[:10]:  # Top 10
+                keywords_formateados.append({
+                    'keyword': kw['texto'],
+                    'ctr': kw['ctr'],
+                    'impresiones': kw['impresiones'],
+                    'clics': kw['clics'],
+                    'costo': kw['costo']
+                })
+
+            mensaje_exito = f"✅ Datos reales obtenidos de Google Ads para el período de {stats['periodo_dias']} días ({stats['fecha_inicio']} a {stats['fecha_fin']})"
+            
+            logging.info("✅ Reporte de Google Ads generado exitosamente con datos reales")
+            
+        except Exception as e:
+            logging.exception(f"❌ Error obteniendo datos reales de Google Ads: {e}")
+            
+            # Fallback a datos de Supabase si falla la API
+            supabase_client = SupabaseGoogleAdsClient()
+            stats = supabase_client.calcular_estadisticas(nombre_nora, empresa_id)
+            campanas = supabase_client.obtener_campanas(nombre_nora, empresa_id)
+            anuncios = supabase_client.obtener_anuncios(nombre_nora, empresa_id)
+            keywords = supabase_client.obtener_palabras_clave(nombre_nora, empresa_id)
+            
+            # Procesar datos de fallback
+            top_campanas = sorted(campanas, key=lambda x: float(x.get('impresiones', 0)), reverse=True)[:5] if campanas else []
+            
+            estados_anuncios = {}
+            for anuncio in anuncios:
+                estado = anuncio.get('estado', 'Desconocido')
+                estados_anuncios[estado] = estados_anuncios.get(estado, 0) + 1
+            if not estados_anuncios:
+                estados_anuncios = {'Sin datos': 1}
+            
+            keywords_formateados = []
+            for kw in sorted(keywords, key=lambda x: float(x.get('impresiones', 0)), reverse=True)[:10]:
+                impresiones = float(kw.get('impresiones', 0))
+                clics = float(kw.get('clics', 0))
+                ctr = (clics / impresiones) * 100 if impresiones > 0 else 0
+                keywords_formateados.append({
+                    'keyword': kw.get('palabra_clave', ''),
+                    'ctr': round(ctr, 2),
+                    'impresiones': impresiones,
+                    'clics': clics,
+                    'costo': float(kw.get('costo', 0))
+                })
+            
+            mensaje_warning = f"⚠️ Error conectando con Google Ads API: {str(e)}. Mostrando datos almacenados localmente."
+
         return render_template(
             "panel_cliente_google_ads/reporte.html",
             nombre_nora=nombre_nora,
             empresas=empresas,
             empresa_id=empresa_id,
-            empresa_actual=empresa_actual,
+            empresa_actual=empresa_data,
             stats=stats,
             top_campanas=top_campanas,
             estados_anuncios=estados_anuncios,
-            top_keywords=top_keywords
+            top_keywords=keywords_formateados,
+            mensaje_exito=locals().get('mensaje_exito'),
+            mensaje_warning=locals().get('mensaje_warning')
         )
         
     except Exception as e:
-        logging.exception("Error al generar reporte de Google Ads")
+        logging.exception("Error general al generar reporte de Google Ads")
         return f"Error al generar reporte: {str(e)}", 500
 
 @panel_cliente_google_ads_bp.route("/actualizar_empresa", methods=["POST"], strict_slashes=False)
@@ -293,4 +345,70 @@ def actualizar_empresa(nombre_nora):
         
     except Exception as e:
         logging.error(f"Error al actualizar empresa: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@panel_cliente_google_ads_bp.route("/vincular_cuenta", methods=["POST"], strict_slashes=False)
+def vincular_cuenta_google_ads(nombre_nora):
+    """
+    Vincula una cuenta de Google Ads (customer_id) con una empresa específica
+    """
+    try:
+        data = request.get_json()
+        empresa_id = data.get('empresa_id')
+        customer_id = data.get('customer_id')
+        
+        if not empresa_id or not customer_id:
+            return jsonify({"error": "empresa_id y customer_id son requeridos"}), 400
+        
+        # Validar que la cuenta de Google Ads existe y es accesible
+        try:
+            total, cuentas = google_ads_service.listar_cuentas_accesibles()
+            account_exists = any(cuenta['id'] == customer_id for cuenta in cuentas)
+            
+            if not account_exists:
+                return jsonify({"error": "La cuenta de Google Ads no existe o no es accesible"}), 400
+                
+        except Exception as e:
+            return jsonify({"error": f"Error validando cuenta de Google Ads: {str(e)}"}), 500
+        
+        # Actualizar la empresa con el customer_id
+        try:
+            response = supabase.table('cliente_empresas') \
+                .update({'google_ads_customer_id': customer_id}) \
+                .eq('id', empresa_id) \
+                .eq('nombre_nora', nombre_nora) \
+                .execute()
+            
+            if response.data:
+                return jsonify({
+                    "message": "Cuenta de Google Ads vinculada exitosamente",
+                    "customer_id": customer_id,
+                    "empresa_id": empresa_id
+                }), 200
+            else:
+                return jsonify({"error": "No se pudo actualizar la empresa"}), 500
+                
+        except Exception as e:
+            logging.error(f"Error actualizando empresa: {str(e)}")
+            return jsonify({"error": f"Error de base de datos: {str(e)}"}), 500
+        
+    except Exception as e:
+        logging.error(f"Error vinculando cuenta: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@panel_cliente_google_ads_bp.route("/cuentas_disponibles", methods=["GET"], strict_slashes=False)
+def obtener_cuentas_disponibles(nombre_nora):
+    """
+    Obtiene la lista de cuentas de Google Ads disponibles para vincular
+    """
+    try:
+        total, cuentas = google_ads_service.listar_cuentas_accesibles()
+        
+        return jsonify({
+            "total": total,
+            "cuentas": cuentas
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"Error obteniendo cuentas disponibles: {str(e)}")
         return jsonify({"error": str(e)}), 500

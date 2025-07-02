@@ -1,0 +1,187 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_cursos/auto_registro_resultado.html -->
+<!-- 👉 Página de resultado después del auto-registro -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado de Registro - {{ curso.titulo }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-primary">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header text-center py-4 
+                        {% if resultado == 'success' %}bg-success text-white
+                        {% elif resultado == 'warning' %}bg-warning text-dark
+                        {% else %}bg-danger text-white{% endif %}">
+                        
+                        {% if resultado == 'success' %}
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <h2 class="h4 mb-0">¡Registro Exitoso!</h2>
+                        {% elif resultado == 'warning' %}
+                            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                            <h2 class="h4 mb-0">Atención</h2>
+                        {% else %}
+                            <i class="fas fa-times-circle fa-3x mb-3"></i>
+                            <h2 class="h4 mb-0">Error en el Registro</h2>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body p-4 text-center">
+                        <h5 class="mb-3">{{ curso.titulo }}</h5>
+                        
+                        <div class="alert alert-{{ 'success' if resultado == 'success' else 'warning' if resultado == 'warning' else 'danger' }} mb-4">
+                            {{ mensaje }}
+                        </div>
+                        
+                        {% if resultado == 'success' %}
+                            <div class="bg-light p-3 rounded mb-4">
+                                <h6><i class="fas fa-info-circle text-primary"></i> Próximos Pasos:</h6>
+                                <ul class="list-unstyled mb-0 text-start">
+                                    <li>✅ Tu registro ha sido confirmado</li>
+                                    <li>📧 Recibirás un email de confirmación</li>
+                                    <li>💳 Te contactaremos para completar el pago</li>
+                                    <li>📚 Te enviaremos los detalles del curso</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="row text-start">
+                                <div class="col-6">
+                                    <h6>📅 Información del Curso:</h6>
+                                    <p><strong>Duración:</strong> {{ curso.duracion_horas or 'No especificada' }} horas</p>
+                                    <p><strong>Modalidad:</strong> {{ curso.modalidad or 'No especificada' }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <h6>💰 Información de Pago:</h6>
+                                    <p><strong>Precio:</strong> ${{ "%.2f"|format(curso.precio or 0) }}</p>
+                                    <p><strong>Estado:</strong> <span class="badge bg-warning">Pendiente</span></p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-4">
+                            {% if resultado == 'success' %}
+                                <p class="text-muted mb-3">
+                                    <small>Si tienes preguntas, contacta al administrador del curso.</small>
+                                </p>
+                                <a href="/info-curso-publico/{{ nombre_nora }}/curso/{{ curso.id }}" class="btn btn-primary me-2">
+                                    <i class="fas fa-info-circle"></i> Ver Información del Curso
+                                </a>
+                            {% elif resultado == 'warning' %}
+                                <a href="/info-curso-publico/{{ nombre_nora }}/curso/{{ curso.id }}" class="btn btn-warning me-2">
+                                    <i class="fas fa-info-circle"></i> Ver Información del Curso
+                                </a>
+                            {% else %}
+                                <a href="/registro-publico/{{ nombre_nora }}/curso/{{ curso.id }}" class="btn btn-primary me-2">
+                                    <i class="fas fa-redo"></i> Intentar Nuevamente
+                                </a>
+                            {% endif %}
+                            
+                            <button onclick="cerrarVentana()" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Información Adicional del Curso -->
+                <div class="card shadow-lg border-0 mt-4">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="fas fa-graduation-cap text-primary"></i> Acerca del Curso</h6>
+                        
+                        {% if curso.descripcion %}
+                            <p class="card-text">{{ curso.descripcion }}</p>
+                        {% endif %}
+                        
+                        {% if curso.objetivos %}
+                            <h6 class="mt-3"><i class="fas fa-target text-success"></i> Objetivos:</h6>
+                            <p class="text-muted">{{ curso.objetivos }}</p>
+                        {% endif %}
+                        
+                        {% if curso.requisitos %}
+                            <h6 class="mt-3"><i class="fas fa-list-check text-warning"></i> Requisitos:</h6>
+                            <p class="text-muted">{{ curso.requisitos }}</p>
+                        {% endif %}
+                        
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <strong>Instructor:</strong><br>
+                                    {{ curso.instructor or 'Por asignar' }}
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <strong>Categoría:</strong><br>
+                                    {{ curso.categoria or 'General' }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% if resultado == 'success' %}
+    <script>
+        function cerrarVentana() {
+            if (window.opener) {
+                window.close();
+            } else {
+                history.back();
+            }
+        }
+        
+        // Auto-cerrar después de 30 segundos si fue exitoso
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const cerrarBtn = document.querySelector('.btn-secondary');
+                if (cerrarBtn) {
+                    cerrarBtn.innerHTML = '<i class="fas fa-times"></i> Cerrar (Auto-cierre en 10s)';
+                    
+                    let countdown = 10;
+                    const interval = setInterval(function() {
+                        countdown--;
+                        cerrarBtn.innerHTML = '<i class="fas fa-times"></i> Cerrar (' + countdown + 's)';
+                        
+                        if (countdown <= 0) {
+                            clearInterval(interval);
+                            cerrarVentana();
+                        }
+                    }, 1000);
+                }
+            }, 20000);
+        });
+    </script>
+    {% else %}
+    <script>
+        function cerrarVentana() {
+            if (window.opener) {
+                window.close();
+            } else {
+                history.back();
+            }
+        }
+    </script>
+    {% endif %}
+    
+    <style>
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .card {
+            border-radius: 15px;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!-- 
+    Ejemplo de integración del botón de actualización de Google Ads
+    Este código debe ser insertado en la página donde se desea mostrar el botón
+-->
+
+<!-- 1. Añadir un contenedor para el botón -->
+<div class="card mt-4">
+    <div class="card-header bg-primary text-white">
+        <i class="fas fa-chart-line me-2"></i>
+        Datos de Google Ads
+    </div>
+    <div class="card-body">
+        <p class="card-text">
+            Los datos se actualizan automáticamente cada semana, pero puedes actualizarlos manualmente 
+            usando el botón a continuación. Esto obtendrá las métricas de los últimos 7 días.
+        </p>
+        
+        <!-- Contenedor para el botón de actualización -->
+        <div id="google-ads-update-container" class="mb-3">
+            <!-- El botón se generará aquí mediante JavaScript -->
+        </div>
+        
+        <!-- Aquí iría el resto del contenido del panel de Google Ads -->
+    </div>
+</div>
+
+<!-- 2. Cargar el script del componente -->
+<script src="/static/js/components/google_ads_update_button.js"></script>
+
+<!-- 3. Inicializar el componente -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar el botón de actualización
+        const updateButton = new GoogleAdsUpdateButton('google-ads-update-container');
+    });
+</script>

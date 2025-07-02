@@ -1,0 +1,411 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_cursos/detalle_estudiante.html -->
+<!-- 👉 Vista detallada de un estudiante específico -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ estudiante.nombre }} {{ estudiante.apellido }} - Detalle del Estudiante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="/panel_cliente/{{ nombre_nora }}/cursos">
+                                <i class="fas fa-graduation-cap"></i> Cursos
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="/panel_cliente/{{ nombre_nora }}/estudiantes">
+                                <i class="fas fa-users"></i> Estudiantes
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active">{{ estudiante.nombre }} {{ estudiante.apellido }}</li>
+                    </ol>
+                </nav>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-circle bg-primary text-white me-3">
+                            {{ (estudiante.nombre[0] + estudiante.apellido[0])|upper }}
+                        </div>
+                        <div>
+                            <h2 class="mb-0">{{ estudiante.nombre }} {{ estudiante.apellido }}</h2>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-envelope"></i> {{ estudiante.email }}
+                                {% if estudiante.telefono %}
+                                    | <i class="fas fa-phone"></i> {{ estudiante.telefono }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="/panel_cliente/{{ nombre_nora }}/estudiantes" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver a Estudiantes
+                        </a>
+                        <button class="btn btn-primary" onclick="editarEstudiante()">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'warning' if category == 'warning' else 'info' if category == 'info' else 'success' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <!-- Información Personal -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-user text-primary"></i> Información Personal</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Estado:</strong></label>
+                            <div>
+                                {% if estudiante.activo %}
+                                    <span class="badge bg-success fs-6">
+                                        <i class="fas fa-check"></i> Activo
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger fs-6">
+                                        <i class="fas fa-times"></i> Inactivo
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Email:</strong></label>
+                            <div>
+                                <a href="mailto:{{ estudiante.email }}" class="text-decoration-none">
+                                    {{ estudiante.email }}
+                                </a>
+                            </div>
+                        </div>
+
+                        {% if estudiante.telefono %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Teléfono:</strong></label>
+                            <div>
+                                <a href="tel:{{ estudiante.telefono }}" class="text-decoration-none">
+                                    {{ estudiante.telefono }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if estudiante.fecha_nacimiento %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Fecha de Nacimiento:</strong></label>
+                            <div>
+                                {{ estudiante.fecha_nacimiento[:10] }}
+                                <small class="text-muted">(Ver edad en perfil completo)</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if estudiante.nivel_educativo %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Nivel Educativo:</strong></label>
+                            <div>
+                                <span class="badge bg-secondary">{{ estudiante.nivel_educativo }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Fecha de Registro:</strong></label>
+                            <div>
+                                {% if estudiante.fecha_registro %}
+                                    {{ estudiante.fecha_registro[:16].replace('T', ' ') }}
+                                    <small class="text-muted">
+                                        (hace algunos días)
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if estudiante.experiencia_previa %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Experiencia Previa:</strong></label>
+                            <div class="bg-light p-2 rounded">
+                                {{ estudiante.experiencia_previa }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Acciones Rápidas -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-bolt text-warning"></i> Acciones Rápidas</h5>
+                    </div>
+                    <div class="card-body d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="contactarEstudiante()">
+                            <i class="fas fa-envelope"></i> Enviar Email
+                        </button>
+                        {% if estudiante.telefono %}
+                        <button class="btn btn-outline-success" onclick="llamarEstudiante()">
+                            <i class="fas fa-phone"></i> Llamar
+                        </button>
+                        {% endif %}
+                        <button class="btn btn-outline-info" onclick="generarReporte()">
+                            <i class="fas fa-file-pdf"></i> Generar Reporte
+                        </button>
+                        <hr>
+                        {% if estudiante.activo %}
+                        <button class="btn btn-outline-warning" onclick="desactivarEstudiante()">
+                            <i class="fas fa-user-times"></i> Desactivar
+                        </button>
+                        {% else %}
+                        <button class="btn btn-outline-success" onclick="activarEstudiante()">
+                            <i class="fas fa-user-check"></i> Activar
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inscripciones y Cursos -->
+            <div class="col-md-8">
+                <!-- Estadísticas de Inscripciones -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h4>{{ inscripciones|length }}</h4>
+                                <small>Total Inscripciones</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h4>{{ inscripciones|selectattr('estado', 'equalto', 'inscrito')|list|length }}</h4>
+                                <small>Cursos Activos</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h4>{{ inscripciones|selectattr('estado', 'equalto', 'completado')|list|length }}</h4>
+                                <small>Completados</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <h4>${{ "%.2f"|format(inscripciones|sum(attribute='monto_pagado') or 0) }}</h4>
+                                <small>Total Pagado</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Inscripciones -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-graduation-cap text-success"></i> Inscripciones en Cursos</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if not inscripciones %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                <h6 class="text-muted">No hay inscripciones registradas</h6>
+                                <p class="text-muted">Este estudiante aún no se ha inscrito en ningún curso.</p>
+                            </div>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Curso</th>
+                                            <th>Fecha Inscripción</th>
+                                            <th>Estado</th>
+                                            <th>Monto Pagado</th>
+                                            <th>Método Pago</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for inscripcion in inscripciones %}
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>{{ inscripcion.curso.titulo }}</strong><br>
+                                                    <small class="text-muted">
+                                                        {{ inscripcion.curso.categoria }} | {{ inscripcion.curso.modalidad }}
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small>{{ inscripcion.fecha_inscripcion[:10] if inscripcion.fecha_inscripcion else 'N/A' }}</small>
+                                            </td>
+                                            <td>
+                                                {% if inscripcion.estado == 'inscrito' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check"></i> Inscrito
+                                                    </span>
+                                                {% elif inscripcion.estado == 'completado' %}
+                                                    <span class="badge bg-primary">
+                                                        <i class="fas fa-trophy"></i> Completado
+                                                    </span>
+                                                {% elif inscripcion.estado == 'cancelado' %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-times"></i> Cancelado
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ inscripcion.estado|title }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <strong>${{ "%.2f"|format(inscripcion.monto_pagado or 0) }}</strong>
+                                                {% if inscripcion.fecha_pago %}
+                                                    <br><small class="text-muted">
+                                                        {{ inscripcion.fecha_pago[:10] }}
+                                                    </small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if inscripcion.metodo_pago %}
+                                                    <span class="badge bg-info">{{ inscripcion.metodo_pago }}</span>
+                                                {% else %}
+                                                    <small class="text-muted">No especificado</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="/panel_cliente/{{ nombre_nora }}/cursos/{{ inscripcion.curso_id }}" 
+                                                       class="btn btn-outline-primary" title="Ver curso">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    {% if inscripcion.estado == 'inscrito' %}
+                                                    <button class="btn btn-outline-warning" 
+                                                            onclick="cambiarEstadoInscripcion('{{ inscripcion.id }}', 'completado')" 
+                                                            title="Marcar como completado">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" 
+                                                            onclick="cancelarInscripcion('{{ inscripcion.id }}')" title="Cancelar">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% if inscripcion.notas %}
+                                        <tr>
+                                            <td colspan="6" class="bg-light">
+                                                <small><strong>Notas:</strong> {{ inscripcion.notas }}</small>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script>
+        function editarEstudiante() {
+            alert('Función de edición en desarrollo');
+        }
+
+        function contactarEstudiante() {
+            const email = '{{ estudiante.email }}';
+            window.open(`mailto:${email}?subject=Contacto desde el sistema de cursos`, '_blank');
+        }
+
+        {% if estudiante.telefono %}
+        function llamarEstudiante() {
+            const telefono = '{{ estudiante.telefono }}';
+            window.open(`tel:${telefono}`, '_blank');
+        }
+        {% endif %}
+
+        function generarReporte() {
+            alert('Función de reporte en desarrollo');
+        }
+
+        function desactivarEstudiante() {
+            if (confirm('¿Está seguro de desactivar este estudiante?')) {
+                alert('Función de desactivación en desarrollo');
+            }
+        }
+
+        function activarEstudiante() {
+            if (confirm('¿Está seguro de activar este estudiante?')) {
+                alert('Función de activación en desarrollo');
+            }
+        }
+
+        function cambiarEstadoInscripcion(inscripcionId, nuevoEstado) {
+            if (confirm(`¿Marcar inscripción como ${nuevoEstado}?`)) {
+                alert('Función en desarrollo: ' + inscripcionId + ' -> ' + nuevoEstado);
+            }
+        }
+
+        function cancelarInscripcion(inscripcionId) {
+            if (confirm('¿Está seguro de cancelar esta inscripción?')) {
+                // Hacer petición POST para cancelar
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/panel_cliente/{{ nombre_nora }}/cursos/{{ inscripciones[0].curso_id if inscripciones else '' }}/estudiante/${inscripcionId}/cancelar`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+
+    <style>
+        .avatar-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .table td {
+            vertical-align: middle;
+        }
+        
+        .btn-group-sm > .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</body>
+</html>

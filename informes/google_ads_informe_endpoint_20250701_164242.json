@@ -1,0 +1,11 @@
+{
+  "fecha_inicio": "2025-07-01 16:42:42",
+  "cuentas_procesadas": 0,
+  "keywords_totales": 0,
+  "anuncios_totales": 0,
+  "cuentas": [],
+  "errores_generales": [
+    "Error general: ('invalid_grant: Token has been expired or revoked.', {'error': 'invalid_grant', 'error_description': 'Token has been expired or revoked.'})"
+  ],
+  "fecha_fin": "2025-07-01 16:42:42"
+}

@@ -1,0 +1,334 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="max-w-4xl mx-auto px-4 py-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
+        ➕ Crear Nuevo Curso
+      </h1>
+      <p class="text-gray-600 mt-1">Registra un nuevo programa educativo</p>
+    </div>
+    <a href="{{ url_for('panel_cliente_cursos.index_cursos', nombre_nora=nombre_nora) }}" 
+       class="text-gray-600 hover:text-blue-600 transition duration-150">
+      ← Volver a cursos
+    </a>
+  </div>
+
+  <!-- Formulario -->
+  <div class="bg-white rounded-xl shadow-lg border border-gray-100">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-900">Información del Curso</h2>
+    </div>
+    
+    <form method="POST" class="p-6 space-y-6">
+      <!-- Información básica -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Título del Curso *
+          </label>
+          <input type="text" name="titulo" required 
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                 placeholder="Ej: Curso de Marketing Digital">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Instructor
+          </label>
+          <input type="text" name="instructor"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                 placeholder="Nombre del instructor">
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Descripción *
+        </label>
+        <textarea name="descripcion" required rows="4"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                  placeholder="Describe el curso, sus beneficios y a quién está dirigido"></textarea>
+      </div>
+
+      <!-- Clasificación -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Categoría
+          </label>
+          <select name="categoria"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150">
+            <option value="">Seleccionar categoría</option>
+            <option value="tecnologia">Tecnología</option>
+            <option value="marketing">Marketing</option>
+            <option value="negocios">Negocios</option>
+            <option value="diseno">Diseño</option>
+            <option value="idiomas">Idiomas</option>
+            <option value="salud">Salud y Bienestar</option>
+            <option value="arte">Arte y Creatividad</option>
+            <option value="ciencias">Ciencias</option>
+            <option value="otros">Otros</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Nivel
+          </label>
+          <select name="nivel"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150">
+            <option value="">Seleccionar nivel</option>
+            <option value="principiante">Principiante</option>
+            <option value="intermedio">Intermedio</option>
+            <option value="avanzado">Avanzado</option>
+            <option value="todos">Todos los niveles</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Modalidad
+          </label>
+          <select name="modalidad"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150">
+            <option value="">Seleccionar modalidad</option>
+            <option value="presencial">Presencial</option>
+            <option value="online">Online</option>
+            <option value="hibrido">Híbrido</option>
+            <option value="autodirigido">Autodirigido</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Detalles del curso -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Duración (horas)
+          </label>
+          <input type="number" name="duracion_horas" min="0" step="0.5"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                 placeholder="0">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Precio
+          </label>
+          <input type="number" name="precio" min="0" step="0.01"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                 placeholder="0.00">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            💰 Precio Pronto Pago
+          </label>
+          <input type="number" name="precio_pronto_pago" min="0" step="0.01"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                 placeholder="0.00">
+          <p class="text-sm text-gray-500 mt-1">Precio especial para pagos realizados en las primeras 48 horas</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Máximo Estudiantes
+          </label>
+          <input type="number" name="max_estudiantes" min="1"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                 placeholder="Sin límite">
+        </div>
+      </div>
+
+      <!-- Fechas y Ubicación -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Fecha de Inicio
+          </label>
+          <input type="date" name="fecha_inicio"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Fecha de Finalización
+          </label>
+          <input type="date" name="fecha_fin"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150">
+        </div>
+      </div>
+
+      <!-- Ubicación (para cursos presenciales) -->
+      <div id="ubicacion-section" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            📍 Dirección del Curso
+          </label>
+          <input type="text" name="direccion"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                 placeholder="Ej: Av. Principal 123, Col. Centro, Ciudad, Estado">
+          <p class="text-sm text-gray-500 mt-1">Dirección completa donde se impartirá el curso presencial</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            🗺️ Link de Google Maps
+          </label>
+          <input type="url" name="google_maps_link"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                 placeholder="https://maps.google.com/...">
+          <p class="text-sm text-gray-500 mt-1">Link directo a Google Maps para facilitar la ubicación</p>
+        </div>
+      </div>
+
+      <!-- Horarios por día -->
+      <div class="space-y-6">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          🕐 Horarios del Curso
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Lunes -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Lunes</label>
+            <input type="text" name="horario_lunes"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                   placeholder="Ej: 9:00 - 12:00">
+          </div>
+          
+          <!-- Martes -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Martes</label>
+            <input type="text" name="horario_martes"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                   placeholder="Ej: 9:00 - 12:00">
+          </div>
+          
+          <!-- Miércoles -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Miércoles</label>
+            <input type="text" name="horario_miercoles"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                   placeholder="Ej: 9:00 - 12:00">
+          </div>
+          
+          <!-- Jueves -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Jueves</label>
+            <input type="text" name="horario_jueves"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                   placeholder="Ej: 9:00 - 12:00">
+          </div>
+          
+          <!-- Viernes -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Viernes</label>
+            <input type="text" name="horario_viernes"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                   placeholder="Ej: 9:00 - 12:00">
+          </div>
+          
+          <!-- Sábado -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Sábado</label>
+            <input type="text" name="horario_sabado"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                   placeholder="Ej: 9:00 - 12:00">
+          </div>
+          
+          <!-- Domingo -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Domingo</label>
+            <input type="text" name="horario_domingo"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                   placeholder="Ej: 9:00 - 12:00">
+          </div>
+        </div>
+        
+        <p class="text-sm text-gray-500">
+          💡 Ingresa los horarios en formato "HH:MM - HH:MM" o deja vacío si no hay clases ese día
+        </p>
+      </div>
+
+      <!-- Contenido detallado -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Contenido Detallado
+        </label>
+        <textarea name="contenido_detalle" rows="6"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                  placeholder="Describe los módulos, temas y actividades del curso"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Requisitos
+          </label>
+          <textarea name="requisitos" rows="4"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                    placeholder="Conocimientos previos, materiales necesarios, etc."></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Objetivos de Aprendizaje
+          </label>
+          <textarea name="objetivos" rows="4"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
+                    placeholder="¿Qué aprenderán los estudiantes?"></textarea>
+        </div>
+      </div>
+
+      <!-- Estado -->
+      <div class="flex items-center">
+        <input type="checkbox" name="activo" id="activo" checked
+               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+        <label for="activo" class="ml-2 block text-sm text-gray-900">
+          Curso activo (visible para inscripciones)
+        </label>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+        <a href="{{ url_for('panel_cliente_cursos.index_cursos', nombre_nora=nombre_nora) }}" 
+           class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-150">
+          Cancelar
+        </a>
+        <button type="submit" 
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow transition duration-200">
+          Crear Curso
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modalidadSelect = document.querySelector('select[name="modalidad"]');
+    const ubicacionSection = document.getElementById('ubicacion-section');
+    
+    function toggleUbicacion() {
+        const modalidad = modalidadSelect.value;
+        if (modalidad === 'presencial' || modalidad === 'hibrido') {
+            ubicacionSection.style.display = 'block';
+            ubicacionSection.classList.remove('hidden');
+        } else {
+            ubicacionSection.style.display = 'none';
+            ubicacionSection.classList.add('hidden');
+        }
+    }
+    
+    // Ejecutar al cargar la página
+    toggleUbicacion();
+    
+    // Ejecutar cuando cambie la modalidad
+    modalidadSelect.addEventListener('change', toggleUbicacion);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,383 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="max-w-4xl mx-auto px-4 py-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
+        👁️ Detalle del Curso
+      </h1>
+      <p class="text-gray-600 mt-1">{{ curso.titulo }}</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="{{ url_for('panel_cliente_cursos.editar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow transition duration-200">
+        ✏️ Editar
+      </a>
+      <a href="{{ url_for('panel_cliente_cursos.index_cursos', nombre_nora=nombre_nora) }}" 
+         class="text-gray-600 hover:text-blue-600 transition duration-150">
+        ← Volver a cursos
+      </a>
+    </div>
+  </div>
+
+  <!-- Estado del curso -->
+  <div class="bg-white rounded-xl shadow-lg border border-gray-100 mb-6 p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">Estado del Curso</h2>
+        <div class="flex items-center gap-4">
+          {% if curso.activo %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+              ✅ Activo
+            </span>
+          {% else %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+              ❌ Inactivo
+            </span>
+          {% endif %}
+          
+          <span class="text-gray-600">|</span>
+          
+          <span class="text-sm text-gray-600">
+            👥 {{ curso.estudiantes_inscritos or 0 }}/{{ curso.max_estudiantes or '∞' }} estudiantes
+          </span>
+          
+          <span class="text-gray-600">|</span>
+          
+          <span class="text-sm text-gray-600">
+            💰 ${{ "%.2f"|format(curso.precio or 0) }}
+            {% if curso.precio_pronto_pago and curso.precio_pronto_pago > 0 and curso.precio_pronto_pago != curso.precio %}
+              | ⚡ ${{ "%.2f"|format(curso.precio_pronto_pago) }} (pronto pago)
+            {% endif %}
+          </span>
+        </div>
+      </div>
+      
+      <div class="text-right">
+        <div class="text-sm text-gray-500">Ingresos estimados</div>
+        <div class="text-2xl font-bold text-green-600">
+          ${{ "%.2f"|format((curso.estudiantes_inscritos or 0) * (curso.precio or 0)) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid de información -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Información básica -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        📋 Información Básica
+      </h3>
+      
+      <div class="space-y-3">
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-medium">Categoría:</span>
+          <span class="text-gray-900">{{ curso.categoria or 'Sin categoría' }}</span>
+        </div>
+        
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-medium">Nivel:</span>
+          <span class="text-gray-900">{{ curso.nivel or 'No definido' }}</span>
+        </div>
+        
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-medium">Modalidad:</span>
+          <span class="text-gray-900">{{ curso.modalidad or 'No definida' }}</span>
+        </div>
+        
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-medium">Duración:</span>
+          <span class="text-gray-900">{{ curso.duracion_horas or 0 }} horas</span>
+        </div>
+        
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-medium">Instructor:</span>
+          <span class="text-gray-900">{{ curso.instructor or 'Sin asignar' }}</span>
+        </div>
+        
+        {% if curso.modalidad and ('presencial' in curso.modalidad.lower() or 'hibrido' in curso.modalidad.lower()) %}
+          {% if curso.direccion %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 font-medium">📍 Ubicación:</span>
+            <span class="text-gray-900">{{ curso.direccion }}</span>
+          </div>
+          {% endif %}
+          
+          {% if curso.google_maps_link %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 font-medium">🗺️ Google Maps:</span>
+            <a href="{{ curso.google_maps_link }}" target="_blank" 
+               class="text-blue-600 hover:text-blue-800 underline">Ver ubicación</a>
+          </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Horarios -->
+    {% set horarios_activos = [] %}
+    {% set dias = [
+      ('Lunes', curso.horario_lunes),
+      ('Martes', curso.horario_martes),
+      ('Miércoles', curso.horario_miercoles),
+      ('Jueves', curso.horario_jueves),
+      ('Viernes', curso.horario_viernes),
+      ('Sábado', curso.horario_sabado),
+      ('Domingo', curso.horario_domingo)
+    ] %}
+    
+    {% for dia, horario in dias %}
+      {% if horario and horario.strip() %}
+        {% set _ = horarios_activos.append((dia, horario)) %}
+      {% endif %}
+    {% endfor %}
+    
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        🕐 Horarios de Clases
+      </h3>
+      
+      {% if horarios_activos %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {% for dia, horario in horarios_activos %}
+            <div class="flex justify-between items-center p-2 rounded-lg bg-blue-50 border border-blue-200">
+              <span class="font-medium text-gray-700">{{ dia }}:</span>
+              <span class="text-sm text-blue-700 font-medium">{{ horario }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-8">
+          <div class="text-gray-400 text-4xl mb-2">📅</div>
+          <p class="text-gray-500 font-medium">No hay horarios definidos</p>
+          <p class="text-gray-400 text-sm">Los horarios se mostrarán una vez configurados</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Grid de fechas en una sola columna -->
+  <div class="grid grid-cols-1 gap-6 mb-6">
+    <!-- Fechas -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        📅 Fechas
+      </h3>
+      
+      <div class="space-y-3">
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-medium">Fecha de inicio:</span>
+          <span class="text-gray-900">{{ curso.fecha_inicio or 'Sin definir' }}</span>
+        </div>
+        
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-medium">Fecha de fin:</span>
+          <span class="text-gray-900">{{ curso.fecha_fin or 'Sin definir' }}</span>
+        </div>
+        
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-medium">Creado:</span>
+          <span class="text-gray-900">
+            {% if curso.fecha_creacion %}
+              {% if curso.fecha_creacion is string %}
+                {{ curso.fecha_creacion[:10] if curso.fecha_creacion|length > 10 else curso.fecha_creacion }}
+              {% else %}
+                {{ curso.fecha_creacion.strftime('%d/%m/%Y') }}
+              {% endif %}
+            {% else %}
+              N/A
+            {% endif %}
+          </span>
+        </div>
+        
+        {% if curso.fecha_actualizacion %}
+        <div class="flex justify-between">
+          <span class="text-gray-600 font-medium">Última actualización:</span>
+          <span class="text-gray-900">
+            {% if curso.fecha_actualizacion is string %}
+              {{ curso.fecha_actualizacion[:10] if curso.fecha_actualizacion|length > 10 else curso.fecha_actualizacion }}
+            {% else %}
+              {{ curso.fecha_actualizacion.strftime('%d/%m/%Y') }}
+            {% endif %}
+          </span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Descripción -->
+  {% if curso.descripcion %}
+  <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+      📝 Descripción
+    </h3>
+    <p class="text-gray-700 leading-relaxed">{{ curso.descripcion }}</p>
+  </div>
+  {% endif %}
+
+  <!-- Contenido detallado -->
+  {% if curso.contenido_detalle %}
+  <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+      📚 Contenido del Curso
+    </h3>
+    <div class="text-gray-700 leading-relaxed whitespace-pre-line">{{ curso.contenido_detalle }}</div>
+  </div>
+  {% endif %}
+
+  <!-- Objetivos y Requisitos -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    {% if curso.objetivos %}
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        🎯 Objetivos de Aprendizaje
+      </h3>
+      <div class="text-gray-700 leading-relaxed whitespace-pre-line">{{ curso.objetivos }}</div>
+    </div>
+    {% endif %}
+    
+    {% if curso.requisitos %}
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        📋 Requisitos
+      </h3>
+      <div class="text-gray-700 leading-relaxed whitespace-pre-line">{{ curso.requisitos }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Estudiantes inscritos -->
+  <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        👥 Estudiantes Inscritos
+      </h3>
+      <button onclick="window.location.href='/panel_cliente/{{ nombre_nora }}/cursos/{{ curso.id }}/inscribir'" 
+              class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow transition duration-200">
+        ➕ Inscribir Estudiante
+      </button>
+    </div>
+    
+    {% if estudiantes %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estudiante</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Inscripción</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for inscripcion in estudiantes %}
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">{{ inscripcion.estudiante.nombre_completo }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">{{ inscripcion.estudiante.email }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">
+                    {% if inscripcion.fecha_inscripcion %}
+                      {% if inscripcion.fecha_inscripcion is string %}
+                        {{ inscripcion.fecha_inscripcion[:10] if inscripcion.fecha_inscripcion|length > 10 else inscripcion.fecha_inscripcion }}
+                      {% else %}
+                        {{ inscripcion.fecha_inscripcion.strftime('%d/%m/%Y') }}
+                      {% endif %}
+                    {% else %}
+                      N/A
+                    {% endif %}
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                               {% if inscripcion.estado_inscripcion == 'activa' %}bg-green-100 text-green-800
+                               {% elif inscripcion.estado_inscripcion == 'completada' %}bg-blue-100 text-blue-800
+                               {% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ inscripcion.estado_inscripcion|title }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <a href="/panel_cliente/{{ nombre_nora }}/estudiante/{{ inscripcion.estudiante.id }}" 
+                     class="text-blue-600 hover:text-blue-900 mr-3" title="Ver perfil">👁️</a>
+                  <form method="POST" action="/panel_cliente/{{ nombre_nora }}/cursos/{{ curso.id }}/estudiante/{{ inscripcion.id }}/cancelar" 
+                        style="display: inline;" onsubmit="return confirm('¿Cancelar inscripción?')">
+                    <button type="submit" class="text-red-600 hover:text-red-900" title="Cancelar inscripción">❌</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-8">
+        <div class="mx-auto h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <span class="text-2xl text-gray-400">👥</span>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No hay estudiantes inscritos</h3>
+        <p class="text-gray-500 mb-4">Comienza inscribiendo el primer estudiante</p>
+        <button onclick="window.location.href='/panel_cliente/{{ nombre_nora }}/cursos/{{ curso.id }}/inscribir'" 
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition duration-200">
+          Inscribir primer estudiante
+        </button>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Acciones -->
+  <div class="mt-8 flex items-center justify-between">
+    <form method="POST" action="{{ url_for('panel_cliente_cursos.eliminar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
+          onsubmit="return confirm('¿Estás seguro de eliminar este curso? Esta acción no se puede deshacer.')">
+      <button type="submit" 
+              class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition duration-200">
+        🗑️ Eliminar Curso
+      </button>
+    </form>
+    
+    <div class="flex items-center gap-3">
+      <a href="{{ url_for('panel_cliente_cursos.editar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition duration-200">
+        ✏️ Editar Curso
+      </a>
+      <a href="{{ url_for('panel_cliente_cursos.index_cursos', nombre_nora=nombre_nora) }}" 
+         class="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition duration-200">
+        ← Volver a Lista
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Funciones adicionales si se necesitan
+function duplicarCurso() {
+  if (confirm('¿Duplicar este curso?')) {
+    fetch('/panel_cliente/{{ nombre_nora }}/cursos/api/duplicar/{{ curso.id }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Curso duplicado exitosamente');
+        location.reload();
+      } else {
+        alert('Error al duplicar curso: ' + data.error);
+      }
+    })
+    .catch(error => {
+      alert('Error de conexión');
+    });
+  }
+}
+</script>
+{% endblock %}

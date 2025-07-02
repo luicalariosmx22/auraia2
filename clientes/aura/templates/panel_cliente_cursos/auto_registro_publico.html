@@ -1,0 +1,558 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_cursos/auto_registro_publico.html -->
+<!-- 👉 Formulario público para auto-registro de estudiantes -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regístrate en {{ curso.titulo }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="main-container">
+                    <!-- Header del Curso -->
+                    <div class="course-header">
+                        <h1 class="h3 mb-2">🎓 Registro al Curso</h1>
+                        <h2 class="h4 font-weight-light">{{ curso.titulo }}</h2>
+                    </div>
+                    
+                    <!-- Información del Curso -->
+                    <div class="course-info-card">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-label">
+                                    <i class="fas fa-clock"></i> Duración
+                                </div>
+                                <div class="info-value">{{ curso.duracion_horas or 'No especificada' }} horas</div>
+                                
+                                <div class="info-label">
+                                    <i class="fas fa-laptop"></i> Modalidad
+                                </div>
+                                <div class="info-value">{{ curso.modalidad or 'No especificada' }}</div>
+                                
+                                {% if curso.modalidad and 'presencial' in curso.modalidad.lower() %}
+                                <div class="info-label">
+                                    <i class="fas fa-map-marker-alt"></i> Ubicación
+                                </div>
+                                <div class="info-value">{{ curso.direccion or 'Dirección por confirmar' }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-label">
+                                    <i class="fas fa-chalkboard-teacher"></i> Instructor
+                                </div>
+                                <div class="info-value">{{ curso.instructor or 'Por asignar' }}</div>
+                                
+                                <div class="info-label">
+                                    <i class="fas fa-calendar"></i> Fecha de Inicio
+                                </div>
+                                <div class="info-value">{{ curso.fecha_inicio or 'Por confirmar' }}</div>
+                                
+                                <div class="info-label">
+                                    <i class="fas fa-users"></i> Participantes
+                                </div>
+                                <div class="info-value">{{ curso.estudiantes_inscritos or 0 }} registrados</div>
+                                
+                                {% if curso.modalidad and ('presencial' in curso.modalidad.lower() or 'hibrido' in curso.modalidad.lower()) %}
+                                    {% set horarios_activos = [] %}
+                                    {% set dias = [
+                                        ('Lun', curso.horario_lunes),
+                                        ('Mar', curso.horario_martes),
+                                        ('Mié', curso.horario_miercoles),
+                                        ('Jue', curso.horario_jueves),
+                                        ('Vie', curso.horario_viernes),
+                                        ('Sáb', curso.horario_sabado),
+                                        ('Dom', curso.horario_domingo)
+                                    ] %}
+                                    
+                                    {% for dia, horario in dias %}
+                                        {% if horario and horario.strip() %}
+                                            {% set _ = horarios_activos.append((dia, horario)) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if horarios_activos %}
+                                    <div class="info-label">
+                                        <i class="fas fa-clock"></i> Horarios
+                                    </div>
+                                    <div class="info-value">
+                                        {% for dia, horario in horarios_activos %}
+                                            <span class="horario-badge">{{ dia }}: {{ horario }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if curso.descripcion %}
+                        <div class="mt-3">
+                            <div class="info-label">
+                                <i class="fas fa-info-circle"></i> Descripción
+                            </div>
+                            <div class="info-value">{{ curso.descripcion }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Formulario de Registro -->
+                    <div class="form-section">
+                        <div class="form-header">
+                            <h5 class="mb-0"><i class="fas fa-user-plus"></i> Completa tu Registro</h5>
+                        </div>
+                        <div class="form-body">
+                        <form method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="nombre" class="form-label">Nombre <span class="text-required">*</span></label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="apellido" class="form-label">Apellido <span class="text-required">*</span></label>
+                                        <input type="text" class="form-control" id="apellido" name="apellido" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="email" class="form-label">Email <span class="text-required">*</span></label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                        <small class="form-text">Te enviaremos la confirmación de registro a este email</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="telefono" class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" id="telefono" name="telefono">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="profesion" class="form-label">Profesión/Ocupación <span class="text-required">*</span></label>
+                                        <input type="text" class="form-control" id="profesion" name="profesion" required
+                                               placeholder="Ej: Desarrollador, Diseñador, Emprendedor, Estudiante...">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="proyecto_empresa" class="form-label">Nombre del Proyecto/Empresa <span class="text-required">*</span></label>
+                                        <input type="text" class="form-control" id="proyecto_empresa" name="proyecto_empresa" required
+                                               placeholder="Ej: Mi Startup, Empresa ABC, Proyecto Personal...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="red_social" class="form-label">Red Social (Personal o del Proyecto) <span class="text-required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-share-alt"></i></span>
+                                    <input type="url" class="form-control" id="red_social" name="red_social" required
+                                           placeholder="https://instagram.com/tu-perfil, https://linkedin.com/in/tu-perfil, etc.">
+                                </div>
+                                <small class="form-text">Comparte tu Instagram, LinkedIn, Facebook, TikTok, sitio web, etc.</small>
+                            </div>
+
+                            <!-- Términos y Condiciones -->
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="terminos" required>
+                                <label class="form-check-label" for="terminos">
+                                    Acepto los términos y condiciones del curso <span class="text-required">*</span>
+                                </label>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success btn-lg btn-register">
+                                    <i class="fas fa-check"></i> Registrarme en el Curso
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Informativo -->
+        <div class="footer-text">
+            <small>¿Tienes preguntas? Contacta al instructor o administrador del curso.</small>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(14, 165, 233, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(147, 197, 253, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .course-header {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #1e293b 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .course-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs><pattern id="hexagons" width="60" height="60" patternUnits="userSpaceOnUse"><polygon points="30,5 45,15 45,35 30,45 15,35 15,15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23hexagons)"/></svg>');
+            animation: headerFloat 6s ease-in-out infinite;
+        }
+        
+        @keyframes headerFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .course-header h1, .course-header h2 {
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .course-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .course-info-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem;
+            border: 1px solid rgba(14, 165, 233, 0.1);
+            box-shadow: 
+                0 10px 30px rgba(14, 165, 233, 0.1),
+                0 1px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .course-info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0ea5e9 0%, #3b82f6 50%, #6366f1 100%);
+        }
+        
+        .course-info-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(14, 165, 233, 0.15),
+                0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-label {
+            color: #1e40af;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-label i {
+            background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.1rem;
+        }
+        
+        .info-value {
+            color: #334155;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        
+        .form-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 2rem;
+            border: 1px solid rgba(14, 165, 233, 0.1);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.08);
+        }
+        
+        .form-header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .form-header h5 {
+            position: relative;
+            z-index: 2;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        
+        .form-body {
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .form-control {
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            padding: 1rem 1.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .form-control:focus {
+            border-color: #0ea5e9;
+            box-shadow: 
+                0 0 0 4px rgba(14, 165, 233, 0.1),
+                0 8px 25px rgba(14, 165, 233, 0.15);
+            outline: none;
+            transform: translateY(-2px);
+            background: #ffffff;
+        }
+        
+        .form-label {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .input-group-text {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border: 2px solid #e2e8f0;
+            border-right: none;
+            border-radius: 16px 0 0 16px;
+            color: #0ea5e9;
+            font-weight: 600;
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 16px 16px 0;
+        }
+        
+        .btn-register {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem 2.5rem;
+            font-weight: 700;
+            font-size: 1.15rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 25px rgba(14, 165, 233, 0.3),
+                0 3px 10px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-register::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 
+                0 15px 35px rgba(14, 165, 233, 0.4),
+                0 8px 25px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #075985 100%);
+        }
+        
+        .btn-register:hover::before {
+            left: 100%;
+        }
+        
+        .form-check-input:checked {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            border-color: #0ea5e9;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+        }
+        
+        .text-required {
+            color: #ef4444;
+            font-weight: 700;
+        }
+        
+        .form-text {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .horario-badge {
+            background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0.25rem;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .horario-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+        }
+        
+        .footer-text {
+            color: rgba(255, 255, 255, 0.95);
+            text-align: center;
+            margin-top: 2rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        /* Animaciones de entrada */
+        .main-container {
+            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-control {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                border-radius: 20px;
+            }
+            
+            .course-header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .course-header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-body {
+                padding: 2rem 1.5rem;
+            }
+            
+            .course-info-card {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .form-section {
+                margin: 1rem;
+            }
+        }
+    </style>
+</body>
+</html>

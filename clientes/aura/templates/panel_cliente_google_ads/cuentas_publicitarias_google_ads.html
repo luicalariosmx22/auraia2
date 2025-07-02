@@ -1,0 +1,321 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="max-w-4xl mx-auto py-10">
+  <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">Cuentas de Google Ads</h1>
+  <div class="flex justify-between items-center mb-4">
+    <div class="text-lg font-semibold text-blue-800">
+      Total de cuentas de Google Ads: {{ cuentas_ads|length }}
+    </div>
+    <div>
+      <button id="btn-actualizar-cuentas" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow transition">Actualizar cuentas</button>
+      <button id="btn-importar-google-ads" class="bg-green-600 hover:bg-green-800 text-white font-semibold px-6 py-2 rounded shadow transition ml-2">Importar desde Google Ads</button>
+    </div>
+  </div>
+  <div class="flex flex-wrap gap-4 mb-6 items-end">
+    <div class="flex flex-col">
+      <label for="filtro-empresa" class="text-xs font-semibold text-gray-600 mb-1">Buscar empresa</label>
+      <input id="filtro-empresa" type="text" placeholder="Buscar empresa..." class="border px-3 py-2 rounded w-56" />
+    </div>
+    <div class="flex flex-col">
+      <label for="filtro-estado" class="text-xs font-semibold text-gray-600 mb-1">Estado</label>
+      <select id="filtro-estado" class="border px-3 py-2 rounded">
+        <option value="">Todas</option>
+        <option value="1">Solo activas</option>
+        <option value="0">Solo inactivas</option>
+      </select>
+    </div>
+    <div class="flex flex-col">
+      <label for="filtro-vinculo" class="text-xs font-semibold text-gray-600 mb-1">Vínculo empresa</label>
+      <select id="filtro-vinculo" class="border px-3 py-2 rounded">
+        <option value="">Todas</option>
+        <option value="con_empresa">Con empresa vinculada</option>
+        <option value="sin_empresa">Sin empresa vinculada</option>
+      </select>
+    </div>
+    <div class="flex flex-col">
+      <label for="filtro-accesibilidad" class="text-xs font-semibold text-gray-600 mb-1">Accesibilidad</label>
+      <select id="filtro-accesibilidad" class="border px-3 py-2 rounded">
+        <option value="">Todas</option>
+        <option value="accesible">Solo accesibles</option>
+        <option value="problema">Con problemas</option>
+      </select>
+    </div>
+  </div>
+  {% if cuentas_ads %}
+    <table class="min-w-full bg-white rounded-xl shadow border" id="tabla-cuentas">
+      <thead class="bg-blue-100">
+        <tr>
+          <th class="px-4 py-2">Empresa</th>
+          <th class="px-4 py-2">Cuenta de Google Ads</th>
+          <th class="px-4 py-2">Estado</th>
+          <th class="px-4 py-2">Customer ID</th>
+          <th class="px-4 py-2">Accesibilidad</th>
+          <th class="px-4 py-2">Moneda</th>
+          <th class="px-4 py-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cuenta in cuentas_ads %}
+        <tr class="cuenta-row border-b hover:bg-gray-50" 
+            data-empresa-id="{{ cuenta.empresa_id or '' }}"
+            data-estado="{{ cuenta.account_status }}"
+            data-accesible="{{ cuenta.accesible|lower }}">
+          <td class="px-4 py-3">
+            {% if cuenta.empresa_nombre %}
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                <span class="font-medium text-green-800">{{ cuenta.empresa_nombre }}</span>
+              </div>
+            {% else %}
+              <div class="flex items-center">
+                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                <span class="text-yellow-700 italic">Sin empresa asignada</span>
+              </div>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <div class="font-semibold text-blue-900">{{ cuenta.nombre_cliente }}</div>
+            {% if cuenta.problema %}
+              <div class="text-xs text-red-600 mt-1">
+                <i class="fas fa-exclamation-triangle mr-1"></i>{{ cuenta.problema }}
+              </div>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            {% if cuenta.account_status == 1 %}
+              <span class="inline-block px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded">Activa</span>
+            {% else %}
+              <span class="inline-block px-2 py-1 text-xs font-semibold text-red-800 bg-red-200 rounded">Inactiva</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <code class="text-xs bg-gray-100 px-2 py-1 rounded">{{ cuenta.customer_id }}</code>
+          </td>
+          <td class="px-4 py-3">
+            {% if cuenta.accesible %}
+              <span class="inline-block px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded">
+                <i class="fas fa-check mr-1"></i>Accesible
+              </span>
+            {% else %}
+              <span class="inline-block px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded">
+                <i class="fas fa-times mr-1"></i>Con problemas
+              </span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <span class="text-sm">{{ cuenta.moneda or 'MXN' }}</span>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex space-x-2">
+              {% if not cuenta.empresa_id %}
+                <a href="{{ url_for('panel_cliente_google_ads.vincular_empresa_a_cuenta_google_ads', nombre_nora=nombre_nora, customer_id=cuenta.customer_id) }}" 
+                   class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded transition">
+                  <i class="fas fa-link mr-1"></i>Vincular empresa
+                </a>
+              {% else %}
+                <a href="{{ url_for('panel_cliente_google_ads.vincular_empresa_a_cuenta_google_ads', nombre_nora=nombre_nora, customer_id=cuenta.customer_id) }}" 
+                   class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded transition">
+                  <i class="fas fa-edit mr-1"></i>Cambiar empresa
+                </a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="text-center py-12">
+      <div class="text-gray-500 text-lg mb-4">
+        <i class="fas fa-search text-4xl mb-4"></i>
+        <p>No hay cuentas de Google Ads registradas</p>
+      </div>
+      <button id="btn-importar-google-ads-inicial" class="bg-green-600 hover:bg-green-800 text-white font-semibold px-6 py-3 rounded shadow transition">
+        <i class="fas fa-download mr-2"></i>Importar cuentas desde Google Ads
+      </button>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Modal de carga -->
+<div id="modal-carga" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-8 max-w-md mx-4">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <h3 class="text-lg font-semibold mb-2">Procesando...</h3>
+      <p class="text-gray-600" id="mensaje-carga">Actualizando cuentas de Google Ads...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Variables globales
+let tablaCuentas = null;
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    tablaCuentas = document.getElementById('tabla-cuentas');
+    configurarFiltros();
+    configurarBotones();
+});
+
+// Configurar filtros
+function configurarFiltros() {
+    const filtroEmpresa = document.getElementById('filtro-empresa');
+    const filtroEstado = document.getElementById('filtro-estado');
+    const filtroVinculo = document.getElementById('filtro-vinculo');
+    const filtroAccesibilidad = document.getElementById('filtro-accesibilidad');
+    
+    if (filtroEmpresa) filtroEmpresa.addEventListener('input', aplicarFiltros);
+    if (filtroEstado) filtroEstado.addEventListener('change', aplicarFiltros);
+    if (filtroVinculo) filtroVinculo.addEventListener('change', aplicarFiltros);
+    if (filtroAccesibilidad) filtroAccesibilidad.addEventListener('change', aplicarFiltros);
+}
+
+// Configurar botones
+function configurarBotones() {
+    const btnActualizar = document.getElementById('btn-actualizar-cuentas');
+    const btnImportar = document.getElementById('btn-importar-google-ads');
+    const btnImportarInicial = document.getElementById('btn-importar-google-ads-inicial');
+    
+    if (btnActualizar) {
+        btnActualizar.addEventListener('click', actualizarCuentas);
+    }
+    
+    if (btnImportar) {
+        btnImportar.addEventListener('click', importarCuentas);
+    }
+    
+    if (btnImportarInicial) {
+        btnImportarInicial.addEventListener('click', importarCuentas);
+    }
+}
+
+// Aplicar filtros a la tabla
+function aplicarFiltros() {
+    if (!tablaCuentas) return;
+    
+    const filtroEmpresa = document.getElementById('filtro-empresa').value.toLowerCase();
+    const filtroEstado = document.getElementById('filtro-estado').value;
+    const filtroVinculo = document.getElementById('filtro-vinculo').value;
+    const filtroAccesibilidad = document.getElementById('filtro-accesibilidad').value;
+    
+    const filas = tablaCuentas.querySelectorAll('.cuenta-row');
+    
+    filas.forEach(fila => {
+        let mostrar = true;
+        
+        // Filtro por empresa
+        if (filtroEmpresa) {
+            const textoEmpresa = fila.querySelector('td:first-child').textContent.toLowerCase();
+            if (!textoEmpresa.includes(filtroEmpresa)) {
+                mostrar = false;
+            }
+        }
+        
+        // Filtro por estado
+        if (filtroEstado) {
+            const estado = fila.getAttribute('data-estado');
+            if (estado !== filtroEstado) {
+                mostrar = false;
+            }
+        }
+        
+        // Filtro por vínculo empresa
+        if (filtroVinculo) {
+            const empresaId = fila.getAttribute('data-empresa-id');
+            if (filtroVinculo === 'con_empresa' && !empresaId) {
+                mostrar = false;
+            } else if (filtroVinculo === 'sin_empresa' && empresaId) {
+                mostrar = false;
+            }
+        }
+        
+        // Filtro por accesibilidad
+        if (filtroAccesibilidad) {
+            const accesible = fila.getAttribute('data-accesible');
+            if (filtroAccesibilidad === 'accesible' && accesible !== 'true') {
+                mostrar = false;
+            } else if (filtroAccesibilidad === 'problema' && accesible === 'true') {
+                mostrar = false;
+            }
+        }
+        
+        fila.style.display = mostrar ? '' : 'none';
+    });
+}
+
+// Actualizar cuentas
+function actualizarCuentas() {
+    mostrarModal('Actualizando información de cuentas...');
+    
+    fetch(`/panel_cliente/{{ nombre_nora }}/google_ads/cuentas_publicitarias/actualizar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        ocultarModal();
+        if (data.ok) {
+            alert(`Cuentas actualizadas correctamente. ${data.cuentas.length} cuentas procesadas.`);
+            location.reload();
+        } else {
+            alert(`Error actualizando cuentas: ${data.errores ? data.errores.length + ' errores encontrados' : 'Error desconocido'}`);
+        }
+    })
+    .catch(error => {
+        ocultarModal();
+        console.error('Error:', error);
+        alert('Error al comunicarse con el servidor');
+    });
+}
+
+// Importar cuentas
+function importarCuentas() {
+    mostrarModal('Importando cuentas desde Google Ads...');
+    
+    fetch(`/panel_cliente/{{ nombre_nora }}/google_ads/cuentas_publicitarias/importar_desde_google_ads`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        ocultarModal();
+        if (data.ok) {
+            alert(`Importación completada. ${data.agregadas} cuentas nuevas agregadas de ${data.total} total.`);
+            location.reload();
+        } else {
+            alert(`Error importando cuentas: ${data.msg || 'Error desconocido'}`);
+        }
+    })
+    .catch(error => {
+        ocultarModal();
+        console.error('Error:', error);
+        alert('Error al comunicarse con el servidor');
+    });
+}
+
+// Mostrar modal de carga
+function mostrarModal(mensaje) {
+    const modal = document.getElementById('modal-carga');
+    const mensajeCarga = document.getElementById('mensaje-carga');
+    if (modal && mensajeCarga) {
+        mensajeCarga.textContent = mensaje;
+        modal.classList.remove('hidden');
+    }
+}
+
+// Ocultar modal de carga
+function ocultarModal() {
+    const modal = document.getElementById('modal-carga');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+</script>
+
+{% endblock %}

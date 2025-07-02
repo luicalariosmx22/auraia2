@@ -1,0 +1,307 @@
+<!-- ✅ Archivo: clientes/aura/templates/panel_cliente_cursos/inscribir_estudiante.html -->
+<!-- 👉 Formulario para inscribir nuevo estudiante a un curso -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscribir Estudiante - {{ curso.titulo }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="/panel_cliente/{{ nombre_nora }}/cursos">
+                                <i class="fas fa-graduation-cap"></i> Cursos
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="/panel_cliente/{{ nombre_nora }}/cursos/{{ curso.id }}">
+                                {{ curso.titulo }}
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active">Inscribir Estudiante</li>
+                    </ol>
+                </nav>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2><i class="fas fa-user-plus text-primary"></i> Inscribir Estudiante</h2>
+                        <p class="text-muted mb-0">Curso: <strong>{{ curso.titulo }}</strong></p>
+                    </div>
+                    <div>
+                        <a href="/panel_cliente/{{ nombre_nora }}/cursos/{{ curso.id }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver al Curso
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensajes Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'warning' if category == 'warning' else 'info' if category == 'info' else 'success' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <!-- Información del Curso -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle text-info"></i> Información del Curso</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Título:</strong> {{ curso.titulo }}</p>
+                        <p><strong>Categoría:</strong> {{ curso.categoria }}</p>
+                        <p><strong>Modalidad:</strong> {{ curso.modalidad }}</p>
+                        <p><strong>Duración:</strong> {{ curso.duracion_horas }} horas</p>
+                        <p><strong>Precio:</strong> ${{ "%.2f"|format(curso.precio) }}</p>
+                        <p><strong>Instructor:</strong> {{ curso.instructor }}</p>
+                        <p><strong>Inscritos:</strong> {{ curso.estudiantes_inscritos }}/{{ curso.max_estudiantes }}</p>
+                        
+                        {% if curso.estudiantes_inscritos >= curso.max_estudiantes %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                El curso ha alcanzado su capacidad máxima
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Inscripción -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-user-plus text-success"></i> Datos del Estudiante</h5>
+                        <small class="text-muted">Complete los datos del estudiante para inscribirlo al curso</small>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            <!-- Búsqueda de Estudiante Existente -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-search"></i> Buscar Estudiante Existente (Opcional)
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" id="buscar_estudiante" class="form-control" 
+                                           placeholder="Escriba email o nombre para buscar...">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="limpiarBusqueda()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div id="resultados_busqueda" class="mt-2"></div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Datos Personales -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="apellido" name="apellido" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="telefono" class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" id="telefono" name="telefono">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                        <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="nivel_educativo" class="form-label">Nivel Educativo</label>
+                                        <select class="form-select" id="nivel_educativo" name="nivel_educativo">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="Primaria">Primaria</option>
+                                            <option value="Secundaria">Secundaria</option>
+                                            <option value="Bachillerato">Bachillerato</option>
+                                            <option value="Técnico">Técnico</option>
+                                            <option value="Universitario">Universitario</option>
+                                            <option value="Posgrado">Posgrado</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="experiencia_previa" class="form-label">Experiencia Previa</label>
+                                <textarea class="form-control" id="experiencia_previa" name="experiencia_previa" rows="3" 
+                                          placeholder="Describe cualquier experiencia previa relacionada con el curso..."></textarea>
+                            </div>
+
+                            <!-- Información de Pago -->
+                            <h6 class="mt-4 mb-3"><i class="fas fa-credit-card text-warning"></i> Información de Pago</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="monto_pagado" class="form-label">Monto Pagado</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" id="monto_pagado" name="monto_pagado" 
+                                                   step="0.01" value="{{ curso.precio }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="metodo_pago" class="form-label">Método de Pago</label>
+                                        <select class="form-select" id="metodo_pago" name="metodo_pago">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="Efectivo">Efectivo</option>
+                                            <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
+                                            <option value="Transferencia">Transferencia Bancaria</option>
+                                            <option value="PayPal">PayPal</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="fecha_pago" class="form-label">Fecha de Pago</label>
+                                        <input type="date" class="form-control" id="fecha_pago" name="fecha_pago" 
+                                               value="{{ moment().format('YYYY-MM-DD') }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="notas" class="form-label">Notas Adicionales</label>
+                                <textarea class="form-control" id="notas" name="notas" rows="2" 
+                                          placeholder="Notas adicionales sobre la inscripción..."></textarea>
+                            </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/panel_cliente/{{ nombre_nora }}/cursos/{{ curso.id }}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-success" 
+                                        {% if curso.estudiantes_inscritos >= curso.max_estudiantes %}disabled{% endif %}>
+                                    <i class="fas fa-user-plus"></i> Inscribir Estudiante
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Búsqueda de estudiantes existentes
+        let timeoutId;
+        document.getElementById('buscar_estudiante').addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                document.getElementById('resultados_busqueda').innerHTML = '';
+                return;
+            }
+            
+            timeoutId = setTimeout(() => {
+                fetch(`/panel_cliente/{{ nombre_nora }}/cursos/api/buscar_estudiante?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(estudiantes => {
+                        let html = '';
+                        if (estudiantes.length > 0) {
+                            html = '<div class="list-group">';
+                            estudiantes.forEach(est => {
+                                html += `
+                                    <button type="button" class="list-group-item list-group-item-action" 
+                                            onclick="seleccionarEstudiante('${est.id}', '${est.nombre}', '${est.email}', '${est.telefono}')">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <strong>${est.nombre}</strong><br>
+                                                <small class="text-muted">${est.email}</small>
+                                            </div>
+                                            <small class="text-muted">${est.telefono}</small>
+                                        </div>
+                                    </button>
+                                `;
+                            });
+                            html += '</div>';
+                        } else {
+                            html = '<div class="alert alert-info"><i class="fas fa-info-circle"></i> No se encontraron estudiantes</div>';
+                        }
+                        document.getElementById('resultados_busqueda').innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('resultados_busqueda').innerHTML = 
+                            '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Error al buscar estudiantes</div>';
+                    });
+            }, 300);
+        });
+
+        function seleccionarEstudiante(id, nombre, email, telefono) {
+            const nombres = nombre.split(' ');
+            document.getElementById('nombre').value = nombres[0] || '';
+            document.getElementById('apellido').value = nombres.slice(1).join(' ') || '';
+            document.getElementById('email').value = email;
+            document.getElementById('telefono').value = telefono;
+            
+            // Limpiar búsqueda
+            document.getElementById('buscar_estudiante').value = `Seleccionado: ${nombre}`;
+            document.getElementById('resultados_busqueda').innerHTML = 
+                '<div class="alert alert-success"><i class="fas fa-check"></i> Estudiante seleccionado. Complete los datos faltantes si es necesario.</div>';
+        }
+
+        function limpiarBusqueda() {
+            document.getElementById('buscar_estudiante').value = '';
+            document.getElementById('resultados_busqueda').innerHTML = '';
+            
+            // Limpiar formulario
+            document.getElementById('nombre').value = '';
+            document.getElementById('apellido').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('telefono').value = '';
+        }
+
+        // Establecer fecha actual por defecto
+        document.getElementById('fecha_pago').value = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>

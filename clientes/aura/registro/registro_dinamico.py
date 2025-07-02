@@ -13,6 +13,7 @@ from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_b
 from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import panel_cliente_whatsapp_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
+from clientes.aura.routes.panel_cliente_cursos import panel_cliente_cursos_bp
 
 
 from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
@@ -20,7 +21,7 @@ from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp
 from clientes.aura.routes.panel_cliente_tareas.recurrentes import panel_tareas_recurrentes_bp
 from clientes.aura.routes.reportes_meta_ads import reportes_meta_ads_bp
 from clientes.aura.routes.reportes_meta_ads import estadisticas_ads_bp
-from clientes.aura.routes.panel_cliente_google_ads.panel_cliente_google_ads import panel_cliente_google_ads_bp
+from clientes.aura.routes.panel_cliente_google_ads import panel_cliente_google_ads_bp
 
 
 # Configurar Supabase
@@ -153,11 +154,10 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 from clientes.aura.routes.reportes_meta_ads.vista_sincronizacion import panel_cliente_meta_ads_sincronizacion_bp
                 safe_register_blueprint(app, panel_cliente_meta_ads_sincronizacion_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
 
-            # Si tienes un blueprint para Google Ads, registra aquí:
-            print("🧠 Verificando si 'google_ads' está en modulos:", modulos)
-            # if "google_ads" in modulos:
-            #     safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/google_ads")
-            #     print(f"✅ Blueprint 'panel_cliente_google_ads' registrado para {nombre_nora}")
+            # ✅ Registro de Google Ads siguiendo el patrón de Meta Ads
+            if "google_ads" in modulos:
+                print(f"Registrando blueprint GOOGLE ADS para {nombre_nora}")
+                safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/google_ads")
 
             if "contactos" in modulos:
                 safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
@@ -174,6 +174,10 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
             if "clientes" in modulos:
                 safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")
 
+            if "cursos" in modulos:
+                print(f"Registrando blueprint CURSOS para {nombre_nora}")
+                safe_register_blueprint(app, panel_cliente_cursos_bp, url_prefix="")
+
             if "qr_whatsapp_web" in modulos:
                 safe_register_blueprint(app, panel_cliente_whatsapp_bp, url_prefix=f"/panel_cliente/{nombre_nora}/whatsapp")
 
@@ -189,7 +193,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 pass  # Registro deshabilitado por error de import
 
             if "login" in modulos:
-                safe_register_blueprint(app, login_bp, url_prefix=f"/login")
+                # login_bp se registra en otro lugar - comentado para evitar error
+                # safe_register_blueprint(app, login_bp, url_prefix=f"/login")
+                pass
 
             # ✅ Diagnóstico detallado de módulos y rutas registradas
 
@@ -200,9 +206,11 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 "conocimiento": f"/panel_cliente/{nombre_nora}/conocimiento",
                 "panel_chat": f"/panel_cliente/{nombre_nora}/panel_chat",
                 "meta_ads": f"/panel_cliente/{nombre_nora}/meta_ads",
+                "google_ads": f"/panel_cliente/{nombre_nora}/google_ads",
                 "ads": f"/panel_cliente/{nombre_nora}/ads",
                 "qr_whatsapp_web": f"/panel_cliente/{nombre_nora}/whatsapp",
-                "clientes": f"/panel_cliente/{nombre_nora}/clientes"
+                "clientes": f"/panel_cliente/{nombre_nora}/clientes",
+                "cursos": f"/panel_cliente/{nombre_nora}/cursos"
             }
 
             # Obtener rutas reales registradas

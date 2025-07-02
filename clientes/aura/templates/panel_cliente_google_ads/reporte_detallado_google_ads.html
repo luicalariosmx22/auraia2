@@ -1,0 +1,176 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="text-primary">📊 Reporte Detallado Google Ads</h2>
+            <p class="text-muted">Cliente: {{ nombre_nora }}</p>
+            <p class="text-muted">Cuenta: {{ cuenta.nombre_cliente }} (ID: {{ cuenta.customer_id }})</p>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% else %}
+    <!-- KPIs principales -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Impresiones</h5>
+                    <h2 class="mb-0">{{ "{:,}".format(stats.impresiones) if stats else '0' }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Clics</h5>
+                    <h2 class="mb-0">{{ "{:,}".format(stats.clics) if stats else '0' }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">CTR</h5>
+                    <h2 class="mb-0">{{ stats.ctr if stats else '0.0' }}%</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Costo Total</h5>
+                    <h2 class="mb-0">${{ "{:,.2f}".format(stats.costo_total) if stats else '0.00' }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Campañas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Top 5 Campañas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Campaña</th>
+                                    <th>Impresiones</th>
+                                    <th>Clics</th>
+                                    <th>CTR</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for campaña in top_campanas %}
+                                <tr>
+                                    <td><strong>{{ campaña.nombre }}</strong></td>
+                                    <td>{{ "{:,}".format(campaña.impresiones) }}</td>
+                                    <td>{{ "{:,}".format(campaña.clics) }}</td>
+                                    <td><strong>{{ campaña.ctr }}%</strong></td>
+                                    <td>
+                                        <span class="badge {% if campaña.estado == 'ENABLED' %}bg-success{% else %}bg-warning{% endif %}">
+                                            {{ campaña.estado }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Anuncios -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Top 10 Anuncios por Rendimiento</h5>
+                    <!-- Debug info -->
+                    <small class="text-muted">DEBUG: {{ top_anuncios|length if top_anuncios else 0 }} anuncios encontrados</small>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Descripción</th>
+                                    <th>Campaña</th>
+                                    <th>CTR</th>
+                                    <th>Clics</th>
+                                    <th>Impresiones</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if top_anuncios %}
+                                    {% for anuncio in top_anuncios %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ anuncio.titulo_1[:50] }}{% if anuncio.titulo_1|length > 50 %}...{% endif %}</strong>
+                                        </td>
+                                        <td>{{ anuncio.descripcion_1[:40] if anuncio.descripcion_1 else 'Sin descripción' }}{% if anuncio.descripcion_1 and anuncio.descripcion_1|length > 40 %}...{% endif %}</td>
+                                        <td>{{ anuncio.campaña }}</td>
+                                        <td><strong>{{ anuncio.ctr }}%</strong></td>
+                                        <td>{{ "{:,}".format(anuncio.clics) }}</td>
+                                        <td>{{ "{:,}".format(anuncio.impresiones) }}</td>
+                                        <td>
+                                            <span class="badge {% if anuncio.estado == 'ENABLED' %}bg-success{% else %}bg-warning{% endif %}">
+                                                {{ anuncio.estado }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No hay datos de anuncios disponibles (DEBUG: top_anuncios = {{ top_anuncios }})</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen adicional -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📊 Resumen de Anuncios</h5>
+                    <p><strong>Total de anuncios:</strong> {{ total_anuncios if total_anuncios else '0' }}</p>
+                    <p><strong>Conversiones totales:</strong> {{ stats.conversiones if stats else '0' }}</p>
+                    <p><strong>Moneda:</strong> {{ cuenta.moneda if cuenta.moneda else 'MXN' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🔗 Acciones</h5>
+                    <a href="{{ url_for('panel_cliente_google_ads.vista_cuentas_publicitarias_google_ads') }}" class="btn btn-secondary mb-2">
+                        ← Volver a Cuentas
+                    </a>
+                    <br>
+                    <a href="/panel_cliente/{{ nombre_nora }}/google_ads/{{ nombre_nora }}/sincronizar_anuncios_mcc" class="btn btn-primary mb-2">
+                        🔄 Sincronizar Anuncios
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

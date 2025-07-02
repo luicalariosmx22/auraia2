@@ -1,0 +1,4 @@
+Registro de ejecución del script test_google_ads_metricas.py
+Fecha y hora: 2025-07-01 14:35:45
+
+Si estás viendo este archivo, el script se ejecutó hasta el final.
