@@ -1,71 +1,138 @@
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
-<div class="max-w-4xl mx-auto px-4 py-6">
+<div class="max-w-7xl mx-auto px-4 py-6">
   <!-- Header -->
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
-        👁️ Detalle del Curso
-      </h1>
-      <p class="text-gray-600 mt-1">{{ curso.titulo }}</p>
+  <div class="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-2xl shadow-2xl mb-8 overflow-hidden">
+    <!-- Patrón de fondo -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grid\" width=\"10\" height=\"10\" patternUnits=\"userSpaceOnUse\"><path d=\"M 10 0 L 0 0 0 10\" fill=\"none\" stroke=\"white\" stroke-width=\"0.5\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grid)\"/></svg>');"></div>
     </div>
-    <div class="flex items-center gap-3">
-      <a href="{{ url_for('panel_cliente_cursos.editar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
-         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow transition duration-200">
-        ✏️ Editar
-      </a>
-      <a href="{{ url_for('panel_cliente_cursos.index_cursos', nombre_nora=nombre_nora) }}" 
-         class="text-gray-600 hover:text-blue-600 transition duration-150">
-        ← Volver a cursos
-      </a>
-    </div>
-  </div>
-
-  <!-- Estado del curso -->
-  <div class="bg-white rounded-xl shadow-lg border border-gray-100 mb-6 p-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">Estado del Curso</h2>
-        <div class="flex items-center gap-4">
-          {% if curso.activo %}
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-              ✅ Activo
+    
+    <!-- Contenido -->
+    <div class="relative z-10 px-8 py-10">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <!-- Badge del curso -->
+          <div class="flex items-center gap-3 mb-4">
+            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-white/20 text-white backdrop-blur-sm border border-white/30">
+              <span class="text-xl mr-2">🎓</span>
+              Curso Detallado
             </span>
-          {% else %}
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-              ❌ Inactivo
-            </span>
-          {% endif %}
-          
-          <span class="text-gray-600">|</span>
-          
-          <span class="text-sm text-gray-600">
-            👥 {{ curso.estudiantes_inscritos or 0 }}/{{ curso.max_estudiantes or '∞' }} estudiantes
-          </span>
-          
-          <span class="text-gray-600">|</span>
-          
-          <span class="text-sm text-gray-600">
-            💰 ${{ "%.2f"|format(curso.precio or 0) }}
-            {% if curso.precio_pronto_pago and curso.precio_pronto_pago > 0 and curso.precio_pronto_pago != curso.precio %}
-              | ⚡ ${{ "%.2f"|format(curso.precio_pronto_pago) }} (pronto pago)
+            {% if curso.activo %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-500 text-white shadow-lg">
+                <span class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+                ACTIVO
+              </span>
+            {% else %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white shadow-lg">
+                <span class="w-2 h-2 bg-white rounded-full mr-2"></span>
+                INACTIVO
+              </span>
             {% endif %}
-          </span>
+          </div>
+          
+          <!-- Título principal -->
+          <h1 class="text-xl md:text-2xl font-bold text-white mb-3 leading-tight">
+            {{ curso.titulo }}
+          </h1>
+          
+          <!-- Información complementaria -->
+          <div class="flex flex-wrap items-center gap-6 text-blue-100">
+            {% if curso.categoria %}
+            <div class="flex items-center gap-2">
+              <span class="text-blue-200">📚</span>
+              <span class="font-medium">{{ curso.categoria }}</span>
+            </div>
+            {% endif %}
+            
+            {% if curso.nivel %}
+            <div class="flex items-center gap-2">
+              <span class="text-blue-200">📊</span>
+              <span class="font-medium">{{ curso.nivel }}</span>
+            </div>
+            {% endif %}
+            
+            {% if curso.duracion_horas %}
+            <div class="flex items-center gap-2">
+              <span class="text-blue-200">⏱️</span>
+              <span class="font-medium">{{ curso.duracion_horas }} horas</span>
+            </div>
+            {% endif %}
+            
+            {% if curso.instructor %}
+            <div class="flex items-center gap-2">
+              <span class="text-blue-200">👨‍🏫</span>
+              <span class="font-medium">{{ curso.instructor }}</span>
+            </div>
+            {% endif %}
+            
+            <!-- Fechas de inicio y fin -->
+            {% if curso.fecha_inicio or curso.fecha_fin %}
+            <div class="flex items-center gap-2">
+              <span class="text-blue-200">📅</span>
+              <span class="font-medium">
+                {% if curso.fecha_inicio and curso.fecha_fin %}
+                  {{ curso.fecha_inicio }} - {{ curso.fecha_fin }}
+                {% elif curso.fecha_inicio %}
+                  Inicia: {{ curso.fecha_inicio }}
+                {% elif curso.fecha_fin %}
+                  Termina: {{ curso.fecha_fin }}
+                {% endif %}
+              </span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <!-- Acciones -->
+        <div class="flex flex-col gap-3 ml-8">
+          <a href="{{ url_for('panel_cliente_cursos.editar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
+             class="group relative bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-300 backdrop-blur-sm border border-white/30 hover:border-white/50 hover:shadow-xl hover:scale-105">
+            <span class="flex items-center gap-2">
+              <span class="text-lg">✏️</span>
+              Editar Curso
+            </span>
+          </a>
+          
+          <a href="{{ url_for('panel_cliente_cursos.index_cursos', nombre_nora=nombre_nora) }}" 
+             class="group relative bg-white/10 hover:bg-white/20 text-blue-100 hover:text-white font-medium px-6 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20 hover:border-white/40">
+            <span class="flex items-center gap-2">
+              <span>←</span>
+              Volver a cursos
+            </span>
+          </a>
         </div>
       </div>
       
-      <div class="text-right">
-        <div class="text-sm text-gray-500">Ingresos estimados</div>
-        <div class="text-2xl font-bold text-green-600">
-          ${{ "%.2f"|format((curso.estudiantes_inscritos or 0) * (curso.precio or 0)) }}
+      <!-- Estadísticas rápidas -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-white/20">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-white">{{ curso.estudiantes_inscritos or 0 }}</div>
+          <div class="text-sm text-blue-200">Estudiantes</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-white">${{ "%.0f"|format(curso.precio or 0) }}</div>
+          <div class="text-sm text-blue-200">Precio</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-white">${{ "%.0f"|format((curso.estudiantes_inscritos or 0) * (curso.precio or 0)) }}</div>
+          <div class="text-sm text-blue-200">Ingresos</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-white">{{ curso.modalidad or 'N/A' }}</div>
+          <div class="text-sm text-blue-200">Modalidad</div>
         </div>
       </div>
     </div>
+    
+    <!-- Efectos decorativos -->
+    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
   </div>
 
   <!-- Grid de información -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
     <!-- Información básica -->
     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -136,75 +203,121 @@
     {% endfor %}
     
     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        🕐 Horarios de Clases
+      <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+        <span class="text-blue-600">🕐</span>
+        Horarios de Clases
       </h3>
       
       {% if horarios_activos %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {% for dia, horario in horarios_activos %}
-            <div class="flex justify-between items-center p-2 rounded-lg bg-blue-50 border border-blue-200">
-              <span class="font-medium text-gray-700">{{ dia }}:</span>
-              <span class="text-sm text-blue-700 font-medium">{{ horario }}</span>
+        <div class="space-y-4">
+          <!-- Header informativo -->
+          <div class="flex items-center justify-between mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div class="flex items-center gap-2">
+              <span class="text-blue-600 text-sm font-medium">📊</span>
+              <span class="text-sm font-medium text-gray-700">{{ horarios_activos|length }} día{{ 's' if horarios_activos|length != 1 else '' }} programado{{ 's' if horarios_activos|length != 1 else '' }}</span>
             </div>
-          {% endfor %}
+            <span class="text-xs text-blue-600 font-medium px-2 py-1 bg-blue-100 rounded-full">ACTIVO</span>
+          </div>
+          
+          <!-- Lista de horarios simplificada -->
+          <div class="space-y-3">
+            {% for dia, horario in horarios_activos %}
+              <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors duration-200">
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                  <span class="font-semibold text-gray-800 text-base">{{ dia }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-blue-600">🕒</span>
+                  <span class="font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded-md">{{ horario }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          
+          <!-- Información adicional -->
+          <div class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
+            <div class="flex items-start gap-2">
+              <span class="text-amber-600 text-sm mt-0.5">💡</span>
+              <div class="text-xs text-amber-700">
+                <span class="font-medium">Nota:</span> Los horarios pueden estar sujetos a cambios. Se notificará a los estudiantes con anticipación.
+              </div>
+            </div>
+          </div>
         </div>
       {% else %}
-        <div class="text-center py-8">
-          <div class="text-gray-400 text-4xl mb-2">📅</div>
-          <p class="text-gray-500 font-medium">No hay horarios definidos</p>
-          <p class="text-gray-400 text-sm">Los horarios se mostrarán una vez configurados</p>
+        <div class="text-center py-12">
+          <div class="mx-auto w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4">
+            <span class="text-3xl text-gray-400">📅</span>
+          </div>
+          <h4 class="text-lg font-medium text-gray-900 mb-2">No hay horarios definidos</h4>
+          <p class="text-gray-500 text-sm mb-4">Configure los horarios de clase para que los estudiantes puedan ver cuándo se realizarán las sesiones</p>
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
+            <span class="text-sm">✏️</span>
+            <span class="text-sm font-medium">Editar curso para agregar horarios</span>
+          </div>
         </div>
       {% endif %}
     </div>
-  </div>
-
-  <!-- Grid de fechas en una sola columna -->
-  <div class="grid grid-cols-1 gap-6 mb-6">
-    <!-- Fechas -->
+    
+    <!-- Estadísticas del Curso -->
     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        📅 Fechas
+      <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+        <span class="text-green-600">📊</span>
+        Estadísticas del Curso
       </h3>
       
-      <div class="space-y-3">
-        <div class="flex justify-between">
-          <span class="text-gray-600 font-medium">Fecha de inicio:</span>
-          <span class="text-gray-900">{{ curso.fecha_inicio or 'Sin definir' }}</span>
+      <div class="space-y-4">
+        <!-- Progreso de inscripciones -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-green-800">Estudiantes Inscritos</span>
+            <span class="text-lg font-bold text-green-700">{{ curso.estudiantes_inscritos or 0 }}</span>
+          </div>
+          <div class="w-full bg-green-200 rounded-full h-2">
+            <div class="bg-green-600 h-2 rounded-full" style="width: {{ ((curso.estudiantes_inscritos or 0) / 50 * 100) if (curso.estudiantes_inscritos or 0) < 50 else 100 }}%"></div>
+          </div>
+          <span class="text-xs text-green-600 mt-1 block">Capacidad estimada: 50 estudiantes</span>
         </div>
         
-        <div class="flex justify-between">
-          <span class="text-gray-600 font-medium">Fecha de fin:</span>
-          <span class="text-gray-900">{{ curso.fecha_fin or 'Sin definir' }}</span>
+        <!-- Información financiera -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-blue-800">Ingresos Totales</span>
+            <span class="text-lg font-bold text-blue-700">${{ "%.0f"|format((curso.estudiantes_inscritos or 0) * (curso.precio or 0)) }}</span>
+          </div>
+          <div class="text-xs text-blue-600">
+            <span>Precio por estudiante: ${{ "%.0f"|format(curso.precio or 0) }}</span>
+          </div>
         </div>
         
-        <div class="flex justify-between">
-          <span class="text-gray-600 font-medium">Creado:</span>
-          <span class="text-gray-900">
-            {% if curso.fecha_creacion %}
-              {% if curso.fecha_creacion is string %}
-                {{ curso.fecha_creacion[:10] if curso.fecha_creacion|length > 10 else curso.fecha_creacion }}
-              {% else %}
-                {{ curso.fecha_creacion.strftime('%d/%m/%Y') }}
-              {% endif %}
+        <!-- Estado del curso -->
+        <div class="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-purple-800">Estado</span>
+            <span class="text-sm font-bold {{ 'text-green-700' if curso.activo else 'text-red-700' }}">
+              {{ 'ACTIVO' if curso.activo else 'INACTIVO' }}
+            </span>
+          </div>
+          <div class="text-xs text-purple-600">
+            {% if curso.fecha_inicio and curso.fecha_fin %}
+              Duración: {{ curso.fecha_inicio }} al {{ curso.fecha_fin }}
             {% else %}
-              N/A
+              Fechas por definir
             {% endif %}
-          </span>
+          </div>
         </div>
         
-        {% if curso.fecha_actualizacion %}
-        <div class="flex justify-between">
-          <span class="text-gray-600 font-medium">Última actualización:</span>
-          <span class="text-gray-900">
-            {% if curso.fecha_actualizacion is string %}
-              {{ curso.fecha_actualizacion[:10] if curso.fecha_actualizacion|length > 10 else curso.fecha_actualizacion }}
-            {% else %}
-              {{ curso.fecha_actualizacion.strftime('%d/%m/%Y') }}
-            {% endif %}
-          </span>
+        <!-- Información adicional -->
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-200">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-amber-800">Modalidad</span>
+            <span class="text-sm font-bold text-amber-700">{{ curso.modalidad or 'No definida' }}</span>
+          </div>
+          <div class="text-xs text-amber-600">
+            {{ curso.duracion_horas or 0 }} horas de duración total
+          </div>
         </div>
-        {% endif %}
       </div>
     </div>
   </div>
@@ -230,7 +343,7 @@
   {% endif %}
 
   <!-- Objetivos y Requisitos -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
     {% if curso.objetivos %}
     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
