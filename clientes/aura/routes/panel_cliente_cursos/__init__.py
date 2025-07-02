@@ -113,7 +113,7 @@ def detalle_curso(nombre_nora, curso_id):
         curso = curso_response.data[0]
         
         # Obtener estudiantes inscritos (si existe tabla de inscripciones)
-        estudiantes_response = supabase.table('curso_inscripciones').select('*, estudiante:estudiantes(*)').eq('curso_id', curso_id).execute()
+        estudiantes_response = supabase.table('inscripciones_cursos').select('*, estudiante:estudiantes_cursos(*)').eq('curso_id', curso_id).execute()
         estudiantes = estudiantes_response.data if estudiantes_response.data else []
         
         return render_template(
@@ -209,9 +209,9 @@ def gestionar_estudiantes(nombre_nora):
     """Gestionar estudiantes de todos los cursos"""
     try:
         # Obtener todos los estudiantes inscritos en cursos de esta nora
-        estudiantes_response = supabase.table('curso_inscripciones')\
-            .select('*, curso:cursos(*), estudiante:estudiantes(*)')\
-            .eq('cursos.nombre_nora', nombre_nora)\
+        estudiantes_response = supabase.table('inscripciones_cursos')\
+            .select('*, curso:cursos(*), estudiante:estudiantes_cursos(*)')\
+            .eq('nombre_nora', nombre_nora)\
             .execute()
         
         estudiantes = estudiantes_response.data if estudiantes_response.data else []
@@ -289,35 +289,33 @@ def inscribir_estudiante(nombre_nora, curso_id):
         if request.method == 'POST':
             # Datos del estudiante
             datos_estudiante = {
-                'id': str(uuid.uuid4()),
                 'nombre_nora': nombre_nora,
-                'nombre': request.form.get('nombre'),
-                'apellido': request.form.get('apellido'),
+                'nombre_completo': f"{request.form.get('nombre', '')} {request.form.get('apellido', '')}".strip(),
                 'email': request.form.get('email'),
                 'telefono': request.form.get('telefono', ''),
-                'fecha_nacimiento': request.form.get('fecha_nacimiento', ''),
-                'nivel_educativo': request.form.get('nivel_educativo', ''),
-                'experiencia_previa': request.form.get('experiencia_previa', ''),
-                'fecha_registro': datetime.now().isoformat(),
+                'profesion_ocupacion': request.form.get('nivel_educativo', ''),
+                'edad': None,
+                'direccion': '',
+                'fecha_nacimiento': request.form.get('fecha_nacimiento') if request.form.get('fecha_nacimiento') else None,
                 'activo': True
             }
             
             # Verificar si el estudiante ya existe por email
-            estudiante_existente = supabase.table('estudiantes').select('*').eq('email', datos_estudiante['email']).eq('nombre_nora', nombre_nora).execute()
+            estudiante_existente = supabase.table('estudiantes_cursos').select('*').eq('email', datos_estudiante['email']).eq('nombre_nora', nombre_nora).execute()
             
             if estudiante_existente.data:
                 estudiante_id = estudiante_existente.data[0]['id']
                 flash('Estudiante ya registrado, procediendo con la inscripción', 'info')
             else:
                 # Crear nuevo estudiante
-                response_estudiante = supabase.table('estudiantes').insert(datos_estudiante).execute()
+                response_estudiante = supabase.table('estudiantes_cursos').insert(datos_estudiante).execute()
                 if not response_estudiante.data:
                     flash('Error al registrar estudiante', 'error')
                     return render_template('panel_cliente_cursos/inscribir_estudiante.html', nombre_nora=nombre_nora, curso=curso)
                 estudiante_id = response_estudiante.data[0]['id']
             
             # Verificar si ya está inscrito en este curso
-            inscripcion_existente = supabase.table('curso_inscripciones').select('*').eq('curso_id', curso_id).eq('estudiante_id', estudiante_id).execute()
+            inscripcion_existente = supabase.table('inscripciones_cursos').select('*').eq('curso_id', curso_id).eq('estudiante_id', estudiante_id).execute()
             
             if inscripcion_existente.data:
                 flash('El estudiante ya está inscrito en este curso', 'warning')
@@ -330,18 +328,17 @@ def inscribir_estudiante(nombre_nora, curso_id):
             
             # Crear inscripción
             datos_inscripcion = {
-                'id': str(uuid.uuid4()),
                 'curso_id': curso_id,
                 'estudiante_id': estudiante_id,
-                'fecha_inscripcion': datetime.now().isoformat(),
-                'estado': 'inscrito',
-                'fecha_pago': request.form.get('fecha_pago', ''),
+                'estado_inscripcion': 'activa',
+                'fecha_pago': request.form.get('fecha_pago') if request.form.get('fecha_pago') else None,
                 'monto_pagado': float(request.form.get('monto_pagado', curso['precio'])),
                 'metodo_pago': request.form.get('metodo_pago', ''),
-                'notas': request.form.get('notas', '')
+                'comentarios': request.form.get('notas', ''),
+                'nombre_nora': nombre_nora
             }
             
-            response_inscripcion = supabase.table('curso_inscripciones').insert(datos_inscripcion).execute()
+            response_inscripcion = supabase.table('inscripciones_cursos').insert(datos_inscripcion).execute()
             
             if response_inscripcion.data:
                 # Actualizar contador de estudiantes en el curso
@@ -365,14 +362,14 @@ def cancelar_inscripcion(nombre_nora, curso_id, inscripcion_id):
     """Cancelar inscripción de un estudiante"""
     try:
         # Verificar que la inscripción existe
-        inscripcion_response = supabase.table('curso_inscripciones').select('*').eq('id', inscripcion_id).execute()
+        inscripcion_response = supabase.table('inscripciones_cursos').select('*').eq('id', inscripcion_id).execute()
         
         if not inscripcion_response.data:
             flash('Inscripción no encontrada', 'error')
         else:
             # Actualizar estado de la inscripción
-            response = supabase.table('curso_inscripciones').update({
-                'estado': 'cancelado',
+            response = supabase.table('inscripciones_cursos').update({
+                'estado_inscripcion': 'cancelada',
                 'fecha_cancelacion': datetime.now().isoformat()
             }).eq('id', inscripcion_id).execute()
             
@@ -397,12 +394,12 @@ def cancelar_inscripcion(nombre_nora, curso_id, inscripcion_id):
 def listar_estudiantes(nombre_nora):
     """Listar todos los estudiantes registrados"""
     try:
-        estudiantes_response = supabase.table('estudiantes').select('*').eq('nombre_nora', nombre_nora).execute()
+        estudiantes_response = supabase.table('estudiantes_cursos').select('*').eq('nombre_nora', nombre_nora).execute()
         estudiantes = estudiantes_response.data if estudiantes_response.data else []
         
         # Obtener inscripciones para cada estudiante
         for estudiante in estudiantes:
-            inscripciones_response = supabase.table('curso_inscripciones')\
+            inscripciones_response = supabase.table('inscripciones_cursos')\
                 .select('*, curso:cursos(titulo)')\
                 .eq('estudiante_id', estudiante['id'])\
                 .execute()
@@ -428,7 +425,7 @@ def detalle_estudiante(nombre_nora, estudiante_id):
     """Ver detalle de un estudiante específico"""
     try:
         # Obtener estudiante
-        estudiante_response = supabase.table('estudiantes').select('*').eq('id', estudiante_id).eq('nombre_nora', nombre_nora).execute()
+        estudiante_response = supabase.table('estudiantes_cursos').select('*').eq('id', estudiante_id).eq('nombre_nora', nombre_nora).execute()
         
         if not estudiante_response.data:
             flash('Estudiante no encontrado', 'error')
@@ -437,7 +434,7 @@ def detalle_estudiante(nombre_nora, estudiante_id):
         estudiante = estudiante_response.data[0]
         
         # Obtener inscripciones del estudiante
-        inscripciones_response = supabase.table('curso_inscripciones')\
+        inscripciones_response = supabase.table('inscripciones_cursos')\
             .select('*, curso:cursos(*)')\
             .eq('estudiante_id', estudiante_id)\
             .execute()
@@ -465,11 +462,11 @@ def api_buscar_estudiante(nombre_nora):
         if not query:
             return jsonify([])
         
-        # Buscar por email o nombre
-        estudiantes_response = supabase.table('estudiantes')\
+        # Buscar por email o nombre completo
+        estudiantes_response = supabase.table('estudiantes_cursos')\
             .select('*')\
             .eq('nombre_nora', nombre_nora)\
-            .or_(f'email.ilike.%{query}%,nombre.ilike.%{query}%,apellido.ilike.%{query}%')\
+            .or_(f'email.ilike.%{query}%,nombre_completo.ilike.%{query}%')\
             .limit(10)\
             .execute()
         
@@ -477,7 +474,7 @@ def api_buscar_estudiante(nombre_nora):
         
         return jsonify([{
             'id': est['id'],
-            'nombre': f"{est['nombre']} {est['apellido']}",
+            'nombre': est['nombre_completo'],
             'email': est['email'],
             'telefono': est.get('telefono', '')
         } for est in estudiantes])
@@ -557,29 +554,25 @@ def auto_registro_publico(nombre_nora, curso_id):
             try:
                 # Datos del estudiante
                 datos_estudiante = {
-                    'id': str(uuid.uuid4()),
                     'nombre_nora': nombre_nora,
-                    'nombre': request.form.get('nombre'),
-                    'apellido': request.form.get('apellido'),
+                    'nombre_completo': f"{request.form.get('nombre', '')} {request.form.get('apellido', '')}".strip(),
                     'email': request.form.get('email'),
                     'telefono': request.form.get('telefono', ''),
-                    'fecha_nacimiento': request.form.get('fecha_nacimiento', ''),
-                    'nivel_educativo': request.form.get('nivel_educativo', ''),
-                    'experiencia_previa': request.form.get('experiencia_previa', ''),
-                    'proyecto_empresa': request.form.get('proyecto_empresa', ''),
-                    'red_social': request.form.get('red_social', ''),
-                    'fecha_registro': datetime.now().isoformat(),
+                    'profesion_ocupacion': request.form.get('nivel_educativo', ''),
+                    'edad': None,  # Podemos calcularlo después si es necesario
+                    'direccion': '',
+                    'fecha_nacimiento': request.form.get('fecha_nacimiento') if request.form.get('fecha_nacimiento') else None,
                     'activo': True
                 }
                 
                 # Verificar si el estudiante ya existe por email
-                estudiante_existente = supabase.table('estudiantes').select('*').eq('email', datos_estudiante['email']).eq('nombre_nora', nombre_nora).execute()
+                estudiante_existente = supabase.table('estudiantes_cursos').select('*').eq('email', datos_estudiante['email']).eq('nombre_nora', nombre_nora).execute()
                 
                 if estudiante_existente.data:
                     estudiante_id = estudiante_existente.data[0]['id']
                     
                     # Verificar si ya está registrado en este curso
-                    inscripcion_existente = supabase.table('curso_inscripciones').select('*').eq('curso_id', curso_id).eq('estudiante_id', estudiante_id).execute()
+                    inscripcion_existente = supabase.table('inscripciones_cursos').select('*').eq('curso_id', curso_id).eq('estudiante_id', estudiante_id).execute()
                     
                     if inscripcion_existente.data:
                         return render_template('panel_cliente_cursos/auto_registro_resultado.html', 
@@ -588,7 +581,7 @@ def auto_registro_publico(nombre_nora, curso_id):
                                              mensaje="Ya estás registrado en este curso")
                 else:
                     # Crear nuevo estudiante
-                    response_estudiante = supabase.table('estudiantes').insert(datos_estudiante).execute()
+                    response_estudiante = supabase.table('estudiantes_cursos').insert(datos_estudiante).execute()
                     if not response_estudiante.data:
                         return render_template('panel_cliente_cursos/auto_registro_resultado.html', 
                                              curso=curso, 
@@ -615,17 +608,16 @@ def auto_registro_publico(nombre_nora, curso_id):
                 
                 # Crear inscripción
                 datos_inscripcion = {
-                    'id': str(uuid.uuid4()),
                     'curso_id': curso_id,
                     'estudiante_id': estudiante_id,
-                    'fecha_inscripcion': datetime.now().isoformat(),
-                    'estado': 'inscrito',
+                    'estado_inscripcion': 'activa',
                     'monto_pagado': precio_aplicado,
                     'metodo_pago': f'Pronto Pago' if tipo_pago == 'pronto_pago' else 'Regular',
-                    'notas': f'Registro realizado por auto-registro público - {notas_pago}'
+                    'comentarios': f'Registro realizado por auto-registro público - {notas_pago}',
+                    'nombre_nora': nombre_nora
                 }
                 
-                response_inscripcion = supabase.table('curso_inscripciones').insert(datos_inscripcion).execute()
+                response_inscripcion = supabase.table('inscripciones_cursos').insert(datos_inscripcion).execute()
                 
                 if response_inscripcion.data:
                     # Actualizar contador de estudiantes en el curso
