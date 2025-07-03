@@ -1,6 +1,9 @@
 // Archivo: clientes/aura/static/js/estadisticas_ads.js
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Cargar estadísticas automáticamente
+  cargarEstadisticas();
+  
   const btn = document.getElementById('btn-generar-reporte');
   const status = document.getElementById('reporte-status');
   if (btn) {
@@ -14,6 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.ok) {
           status.textContent = `✅ Reporte generado. Registros insertados: ${data.insertados}`;
           status.className = 'mt-4 text-center text-lg text-green-700';
+          // Recargar estadísticas después de generar reporte
+          cargarEstadisticas();
         } else {
           status.textContent = 'Ocurrió un error al generar el reporte.';
           status.className = 'mt-4 text-center text-lg text-red-700';
@@ -61,12 +66,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function cargarEstadisticas() {
+  console.log('[DEBUG] Iniciando carga de estadísticas...');
   const cont = document.getElementById('estadisticas-contenido');
   cont.innerHTML = '<div class="text-center text-blue-600">Cargando estadísticas...</div>';
   const nombreNora = document.body.dataset.nora;
+  console.log('[DEBUG] Nombre Nora:', nombreNora);
   try {
     const resp = await fetch(`/panel_cliente/${nombreNora}/meta_ads/estadisticas/data`);
     const data = await resp.json();
+    console.log('[DEBUG] Datos recibidos:', data);
     if (!data.ok || !Array.isArray(data.reportes)) {
       cont.innerHTML = '<div class="text-red-600">No se pudieron cargar los reportes.</div>';
       return;
@@ -75,8 +83,13 @@ async function cargarEstadisticas() {
       cont.innerHTML = '<div class="text-gray-500">No hay reportes semanales generados aún.</div>';
       return;
     }
+    console.log('[DEBUG] Reportes encontrados:', data.reportes.length);
+    if (data.reportes.length > 0) {
+      console.log('[DEBUG] Primer reporte:', data.reportes[0]);
+    }
     renderTablaYGraficas(data.reportes, cont, nombreNora);
   } catch (e) {
+    console.error('[ERROR] Error al cargar estadísticas:', e);
     cont.innerHTML = '<div class="text-red-600">Error de red al cargar estadísticas.</div>';
   }
 }
@@ -97,7 +110,7 @@ function renderTablaYGraficas(reportes, cont, nombreNora) {
     <tbody>`;
   for (const rep of reportes) {
     html += `<tr class="border-b hover:bg-indigo-50 transition">
-      <td class="px-4 py-2">${rep.empresa_nombre || '-'}</td>
+      <td class="px-4 py-2">${rep.empresa_nombre || 'Sin empresa'}</td>
       <td class="px-4 py-2">${rep.id_cuenta_publicitaria || '-'}</td>
       <td class="px-4 py-2">${rep.fecha_inicio || ''} a ${rep.fecha_fin || ''}</td>
       <td class="px-4 py-2 font-mono text-green-700 font-semibold">$${(rep.importe_gastado_anuncios||0).toFixed(2)}</td>
@@ -109,11 +122,11 @@ function renderTablaYGraficas(reportes, cont, nombreNora) {
              class="text-blue-700 hover:underline font-semibold text-xs px-2 py-1 bg-blue-50 rounded">
              👁️ Ver
           </a>
-          <button onclick="compartirReporte('${rep.id}', '${rep.empresa_nombre}', '${rep.fecha_inicio}', '${rep.fecha_fin}')" 
+          <button onclick="compartirReporte('${rep.id}', '${rep.empresa_nombre || 'Sin empresa'}', '${rep.fecha_inicio}', '${rep.fecha_fin}')" 
                   class="text-green-700 hover:underline font-semibold text-xs px-2 py-1 bg-green-50 rounded border-0 cursor-pointer">
                   🔗 Compartir
           </button>
-          <button onclick="descargarReporte('${rep.id}', '${rep.empresa_nombre}', '${rep.fecha_inicio}', '${rep.fecha_fin}')" 
+          <button onclick="descargarReporte('${rep.id}', '${rep.empresa_nombre || 'Sin empresa'}', '${rep.fecha_inicio}', '${rep.fecha_fin}')" 
                   class="text-orange-700 hover:underline font-semibold text-xs px-2 py-1 bg-orange-50 rounded border-0 cursor-pointer">
                   📊 Descargar
           </button>
@@ -392,6 +405,3 @@ function compartirTelegram(url) {
   const mensaje = `📊 Tu reporte de Meta Ads: ${url}`;
   window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(mensaje)}`, '_blank');
 }
-
-// Cargar estadísticas al iniciar
-cargarEstadisticas();

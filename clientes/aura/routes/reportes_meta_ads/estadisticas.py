@@ -29,6 +29,9 @@ def obtener_estadisticas_data(nombre_nora):
     Devuelve los reportes semanales agregados para mostrar en el frontend.
     """
     reportes = supabase.table('meta_ads_reportes_semanales').select('*').order('fecha_fin', desc=True).limit(52).execute().data or []
+    print(f"[DEBUG] Reportes obtenidos: {len(reportes)}")
+    if reportes:
+        print(f"[DEBUG] Primer reporte: empresa_nombre='{reportes[0].get('empresa_nombre')}', empresa_id='{reportes[0].get('empresa_id')}'")
     return jsonify({'ok': True, 'reportes': reportes})
 
 @estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/sync', methods=['POST'])
@@ -186,17 +189,29 @@ def generar_reporte_meta_ads(fecha_inicio, fecha_fin):
 
     # 1b. Traer mapeo de cuentas → empresa_id y nombre
     cuentas_map = {}
+    empresas_map = {}  # Nuevo: mapeo de empresa_id → nombre_empresa real
     try:
         cuentas_rows = supabase.table('meta_ads_cuentas').select('id_cuenta_publicitaria,empresa_id,nombre_cliente').execute().data or []
         print(f"[INFO] Cuentas recuperadas: {len(cuentas_rows)}")
+        
+        # Obtener nombres reales de empresas
+        empresas_rows = supabase.table('cliente_empresas').select('id,nombre_empresa').execute().data or []
+        print(f"[INFO] Empresas recuperadas: {len(empresas_rows)}")
+        for emp in empresas_rows:
+            if emp.get('id'):
+                empresas_map[emp['id']] = emp.get('nombre_empresa', 'Sin nombre')
+        
     except Exception as e:
-        print(f"[ERROR] Error al recuperar cuentas: {e}")
+        print(f"[ERROR] Error al recuperar cuentas/empresas: {e}")
         cuentas_rows = []
+        
     for row in cuentas_rows:
         if row.get('id_cuenta_publicitaria'):
+            empresa_id = row.get('empresa_id')
+            nombre_empresa_real = empresas_map.get(empresa_id, row.get('nombre_cliente', 'Sin empresa'))
             cuentas_map[row['id_cuenta_publicitaria']] = {
-                'empresa_id': row.get('empresa_id'),
-                'empresa_nombre': row.get('nombre_cliente')
+                'empresa_id': empresa_id,
+                'empresa_nombre': nombre_empresa_real  # Ahora usa el nombre real de la empresa
             }
 
     # 2. Agrupar por (empresa_id, id_cuenta_publicitaria)
@@ -569,7 +584,7 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
         # Optimización avanzada: Usar batch requests para obtener nombres
         print(f"[SYNC] Recopilando IDs únicos para optimización...")
         adset_ids = set()
-        campaign_ids = set()
+        campaign_ids = set();
         for ad in datos_a:
             if ad.get('adset_id'):
                 adset_ids.add(ad.get('adset_id'))
@@ -1101,4 +1116,77 @@ def descargar_reporte(nombre_nora):
             
     except Exception as e:
         print(f"[ERROR] Error al descargar reporte: {e}")
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/actualizar_nombres_empresas', methods=['POST'])
+def actualizar_nombres_empresas(nombre_nora):
+    """
+    Actualiza todos los reportes existentes para que tengan el nombre real de la empresa
+    en lugar del nombre_cliente de la cuenta publicitaria.
+    """
+    try:
+        print("🔄 Iniciando actualización de nombres de empresas en reportes...")
+        
+        # 1. Obtener todos los reportes
+        reportes = supabase.table('meta_ads_reportes_semanales').select('*').execute().data or []
+        print(f"📊 Reportes encontrados: {len(reportes)}")
+        
+        if not reportes:
+            return jsonify({'ok': True, 'message': 'No hay reportes para actualizar', 'actualizados': 0})
+        
+        # 2. Obtener mapeo de empresas
+        empresas = supabase.table('cliente_empresas').select('id,nombre_empresa').execute().data or []
+        empresas_map = {emp['id']: emp['nombre_empresa'] for emp in empresas}
+        print(f"🏢 Empresas encontradas: {len(empresas)}")
+        
+        # 3. Actualizar cada reporte
+        actualizados = 0
+        errores = 0
+        
+        for reporte in reportes:
+            reporte_id = reporte.get('id')
+            empresa_id = reporte.get('empresa_id')
+            empresa_nombre_actual = reporte.get('empresa_nombre', '')
+            
+            if not empresa_id:
+                print(f"⚠️ Reporte {reporte_id}: Sin empresa_id")
+                continue
+                
+            nombre_empresa_real = empresas_map.get(empresa_id)
+            if not nombre_empresa_real:
+                print(f"⚠️ Reporte {reporte_id}: Empresa ID {empresa_id} no encontrada")
+                continue
+                
+            # Solo actualizar si el nombre es diferente
+            if empresa_nombre_actual != nombre_empresa_real:
+                try:
+                    supabase.table('meta_ads_reportes_semanales').update({
+                        'empresa_nombre': nombre_empresa_real
+                    }).eq('id', reporte_id).execute()
+                    
+                    print(f"✅ Reporte {reporte_id}: '{empresa_nombre_actual}' → '{nombre_empresa_real}'")
+                    actualizados += 1
+                except Exception as e:
+                    print(f"❌ Error al actualizar reporte {reporte_id}: {e}")
+                    errores += 1
+        
+        print(f"📈 Resumen: Reportes actualizados: {actualizados}, Errores: {errores}")
+        
+        if actualizados > 0:
+            return jsonify({
+                'ok': True, 
+                'message': f'Actualización completada. {actualizados} reportes actualizados.',
+                'actualizados': actualizados,
+                'errores': errores
+            })
+        else:
+            return jsonify({
+                'ok': True, 
+                'message': 'No se requirieron actualizaciones. Los reportes ya tienen los nombres correctos.',
+                'actualizados': 0,
+                'errores': errores
+            })
+            
+    except Exception as e:
+        print(f"❌ Error en actualización: {e}")
         return jsonify({'ok': False, 'error': str(e)}), 500

@@ -314,23 +314,35 @@ def create_app(config_class=Config):
             if not reporte:
                 return "Reporte no encontrado", 404
             
-            # Opcional: Verificar token en tabla de reportes compartidos
-            # Por simplicidad, mostramos el reporte si existe
+            print(f"[DEBUG PUBLICO] Reporte encontrado: {reporte.get('empresa_nombre')} - empresa_id: {reporte.get('empresa_id')}")
             
-            # Obtener anuncios detallados
+            # Obtener anuncios detallados (usar la misma lógica que el template original)
             anuncios = supabase.table('meta_ads_anuncios_detalle') \
                 .select('*') \
                 .eq('id_cuenta_publicitaria', reporte['id_cuenta_publicitaria']) \
-                .eq('fecha_inicio', reporte['fecha_inicio']) \
-                .eq('fecha_fin', reporte['fecha_fin']) \
-                .execute().data or []
+                .order('importe_gastado', desc=True) \
+                .limit(1000).execute().data or []
+            
+            print(f"[DEBUG PUBLICO] Anuncios encontrados: {len(anuncios)}")
+            
+            # Obtener información de la empresa
+            empresa = None
+            if reporte.get('empresa_id'):
+                try:
+                    empresa = supabase.table('cliente_empresas').select('*').eq('id', reporte['empresa_id']).single().execute().data
+                    print(f"[DEBUG PUBLICO] Empresa encontrada: {empresa.get('nombre_empresa') if empresa else 'None'}")
+                except Exception as e:
+                    print(f"[WARN] No se pudo obtener información de la empresa: {e}")
+                    empresa = None
+            else:
+                print(f"[DEBUG PUBLICO] No hay empresa_id en el reporte")
             
             # Template profesional igual al detalle_reporte_ads.html
             template = """
             <!DOCTYPE html>
             <html>
             <head>
-                <title>Reporte Meta Ads - {{ empresa_nombre }}</title>
+                <title>Reporte Meta Ads - {{ empresa_nombre_completo }}</title>
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 <script src="https://cdn.tailwindcss.com"></script>
@@ -376,9 +388,13 @@ def create_app(config_class=Config):
                   <!-- ENCABEZADO -->
                   <div class="flex items-center justify-between mb-8 avoid-break">
                     <div class="flex items-center gap-4">
-                      <div class="h-14 w-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">🏢</div>
+                      {% if empresa and empresa.logo_url %}
+                        <img src="{{ empresa.logo_url }}" alt="Logo {{ empresa_nombre }}" class="h-14 w-14 rounded-full border object-cover">
+                      {% else %}
+                        <div class="h-14 w-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">🏢</div>
+                      {% endif %}
                       <div>
-                        <h1 class="text-2xl font-extrabold text-gray-800">{{ empresa_nombre }}</h1>
+                        <h1 class="text-2xl font-extrabold text-gray-800">{{ empresa_nombre_completo }}</h1>
                         <p class="text-sm text-gray-500">Cuenta publicitaria: <span class="font-mono text-blue-600">{{ id_cuenta_publicitaria }}</span></p>
                       </div>
                     </div>
@@ -624,6 +640,8 @@ def create_app(config_class=Config):
             return render_template_string(
                 template,
                 empresa_nombre=reporte.get('empresa_nombre', 'Cliente'),
+                empresa_nombre_completo=empresa.get('nombre_empresa', reporte.get('empresa_nombre', 'Cliente')) if empresa else reporte.get('empresa_nombre', 'Cliente'),
+                empresa=empresa,
                 fecha_inicio=reporte.get('fecha_inicio'),
                 fecha_fin=reporte.get('fecha_fin'),
                 id_cuenta_publicitaria=reporte.get('id_cuenta_publicitaria', ''),
