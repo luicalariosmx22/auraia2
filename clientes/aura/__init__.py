@@ -325,7 +325,7 @@ def create_app(config_class=Config):
                 .eq('fecha_fin', reporte['fecha_fin']) \
                 .execute().data or []
             
-            # Template simple para vista pública
+            # Template profesional igual al detalle_reporte_ads.html
             template = """
             <!DOCTYPE html>
             <html>
@@ -335,96 +335,288 @@ def create_app(config_class=Config):
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 <script src="https://cdn.tailwindcss.com"></script>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+                <style>
+                /* Evita cortes incómodos entre tarjetas o tablas */
+                .avoid-break {
+                  break-inside: avoid;
+                  page-break-inside: avoid;
+                }
+                .page-break {
+                  page-break-before: always;
+                  break-before: always;
+                }
+                </style>
+                <script>
+                // Función para formatear números como en redes sociales (K para miles, M para millones)
+                function formatNumber(num) {
+                    if (num >= 1000000) {
+                        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+                    }
+                    if (num >= 1000) {
+                        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+                    }
+                    return num.toString();
+                }
+                
+                // Aplicar formateo después de cargar la página
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Formatear números en las cards de KPIs
+                    document.querySelectorAll('.format-number').forEach(function(el) {
+                        const num = parseInt(el.textContent.replace(/[^0-9]/g, ''));
+                        if (!isNaN(num)) {
+                            el.textContent = formatNumber(num);
+                        }
+                    });
+                });
+                </script>
             </head>
             <body class="bg-gray-50">
-                <div class="max-w-6xl mx-auto py-10 px-4">
-                    <div class="text-center mb-8">
-                        <h1 class="text-3xl font-bold text-gray-800">📊 Reporte Meta Ads</h1>
-                        <p class="text-gray-600 mt-2">{{ empresa_nombre }}</p>
-                        <p class="text-sm text-gray-500">Período: {{ fecha_inicio }} a {{ fecha_fin }}</p>
+                <div id="detalle-reporte-pdf" class="mx-auto py-8 px-6 max-w-4xl bg-white">
+                  
+                  <!-- ENCABEZADO -->
+                  <div class="flex items-center justify-between mb-8 avoid-break">
+                    <div class="flex items-center gap-4">
+                      <div class="h-14 w-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">🏢</div>
+                      <div>
+                        <h1 class="text-2xl font-extrabold text-gray-800">{{ empresa_nombre }}</h1>
+                        <p class="text-sm text-gray-500">Cuenta publicitaria: <span class="font-mono text-blue-600">{{ id_cuenta_publicitaria }}</span></p>
+                      </div>
                     </div>
-                    
-                    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                        <h2 class="text-xl font-semibold mb-4">📈 Resumen Ejecutivo</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div class="text-center p-4 bg-blue-50 rounded">
-                                <div class="text-2xl font-bold text-blue-600">${{ "%.2f"|format(importe_gastado_anuncios or 0) }}</div>
-                                <div class="text-sm text-gray-600">Gasto Total</div>
-                            </div>
-                            <div class="text-center p-4 bg-green-50 rounded">
-                                <div class="text-2xl font-bold text-green-600">{{ "{:,}"|format(impresiones or 0) }}</div>
-                                <div class="text-sm text-gray-600">Impresiones</div>
-                            </div>
-                            <div class="text-center p-4 bg-purple-50 rounded">
-                                <div class="text-2xl font-bold text-purple-600">{{ "{:,}"|format(alcance or 0) }}</div>
-                                <div class="text-sm text-gray-600">Alcance</div>
-                            </div>
-                            <div class="text-center p-4 bg-orange-50 rounded">
-                                <div class="text-2xl font-bold text-orange-600">{{ "{:,}"|format(clicks or 0) }}</div>
-                                <div class="text-sm text-gray-600">Clicks</div>
-                            </div>
-                        </div>
+                    <div class="text-right text-sm text-gray-500">
+                      Periodo: {{ fecha_inicio }} → {{ fecha_fin }}
                     </div>
-                    
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h2 class="text-xl font-semibold mb-4">📱 Por Plataforma</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="p-4 border-l-4 border-blue-500">
-                                <h3 class="font-semibold text-blue-700">📘 Facebook</h3>
-                                <p class="text-lg font-bold">${{ "%.2f"|format(facebook_importe_gastado or 0) }}</p>
-                                <p class="text-sm text-gray-600">{{ "{:,}"|format(facebook_impresiones or 0) }} impresiones</p>
-                            </div>
-                            <div class="p-4 border-l-4 border-pink-500">
-                                <h3 class="font-semibold text-pink-700">📷 Instagram</h3>
-                                <p class="text-lg font-bold">${{ "%.2f"|format(instagram_importe_gastado or 0) }}</p>
-                                <p class="text-sm text-gray-600">{{ "{:,}"|format(instagram_impresiones or 0) }} impresiones</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {% if anuncios %}
-                    <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
-                        <h2 class="text-xl font-semibold mb-4">🎯 Top Anuncios</h2>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-sm">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left">Anuncio</th>
-                                        <th class="px-4 py-2 text-left">Plataforma</th>
-                                        <th class="px-4 py-2 text-left">Gasto</th>
-                                        <th class="px-4 py-2 text-left">Impresiones</th>
-                                        <th class="px-4 py-2 text-left">Clicks</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for anuncio in anuncios[:10] %}
-                                    <tr class="border-b">
-                                        <td class="px-4 py-2">{{ anuncio.ad_name or anuncio.ad_id }}</td>
-                                        <td class="px-4 py-2">
-                                            {% if anuncio.publisher_platform == 'facebook' %}
-                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">📘 FB</span>
-                                            {% elif anuncio.publisher_platform == 'instagram' %}
-                                                <span class="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs">📷 IG</span>
-                                            {% else %}
-                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">{{ anuncio.publisher_platform }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="px-4 py-2 font-mono">${{ "%.2f"|format(anuncio.importe_gastado or 0) }}</td>
-                                        <td class="px-4 py-2">{{ "{:,}"|format(anuncio.impresiones or 0) }}</td>
-                                        <td class="px-4 py-2">{{ anuncio.clicks or 0 }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                  </div>
+
+                  <!-- CARDS DE KPIS -->
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+                    {% if importe_gastado_campañas %}
+                    <div class="bg-white p-4 rounded-xl border shadow text-center avoid-break">
+                      <div class="text-xs uppercase text-gray-500 mb-1">Gasto Total</div>
+                      <div class="text-2xl font-bold text-green-600">${{ (importe_gastado_campañas|round(2)) }}</div>
                     </div>
                     {% endif %}
-                    
-                    <div class="text-center text-gray-500 text-sm mt-8">
-                        <p>🔗 Reporte generado por AuraAI</p>
-                        <p>{{ reporte_id }}</p>
+
+                    {% if mensajes %}
+                    <div class="bg-white p-4 rounded-xl border shadow text-center avoid-break">
+                      <div class="text-xs uppercase text-gray-500 mb-1">Mensajes</div>
+                      <div class="text-2xl font-bold text-indigo-600 format-number">{{ mensajes|int }}</div>
                     </div>
+                    {% endif %}
+
+                    {% if clicks %}
+                    <div class="bg-white p-4 rounded-xl border shadow text-center avoid-break">
+                      <div class="text-xs uppercase text-gray-500 mb-1">Clicks</div>
+                      <div class="text-2xl font-bold text-indigo-600 format-number">{{ clicks|int }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if impresiones %}
+                    <div class="bg-white p-4 rounded-xl border shadow text-center avoid-break">
+                      <div class="text-xs uppercase text-gray-500 mb-1">Impresiones</div>
+                      <div class="text-2xl font-bold text-indigo-600 format-number">{{ impresiones|int }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if alcance %}
+                    <div class="bg-white p-4 rounded-xl border shadow text-center avoid-break">
+                      <div class="text-xs uppercase text-gray-500 mb-1">Alcance</div>
+                      <div class="text-2xl font-bold text-indigo-600 format-number">{{ alcance|int }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if mensajes and importe_gastado_campañas %}
+                    <div class="bg-white p-4 rounded-xl border shadow text-center avoid-break">
+                      <div class="text-xs uppercase text-gray-500 mb-1">Costo por Mensaje</div>
+                      <div class="text-2xl font-bold text-indigo-600">
+                        ${{ ((importe_gastado_campañas / mensajes) if mensajes else 0)|round(2) }}
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+
+                  <!-- DESEMPEÑO POR PLATAFORMA -->
+                  <div class="mb-10">
+                    <h2 class="text-lg font-bold text-gray-800 mb-3">Desempeño por Plataforma</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="bg-blue-50 rounded-xl p-6 shadow border border-blue-100 avoid-break">
+                        <div class="text-lg font-bold text-blue-800 mb-2">📘 Facebook</div>
+                        <table class="min-w-full text-sm avoid-break">
+                          <tbody>
+                            <tr><td class="font-semibold text-gray-700 py-1">Gasto</td><td>${{ (facebook_importe_gastado|round(2)) }}</td></tr>
+                            <tr><td class="font-semibold text-gray-700 py-1">Impresiones</td><td class="format-number">{{ facebook_impresiones|int }}</td></tr>
+                            <tr><td class="font-semibold text-gray-700 py-1">Alcance</td><td class="format-number">{{ facebook_alcance|int }}</td></tr>
+                            <tr><td class="font-semibold text-gray-700 py-1">Clicks</td><td class="format-number">{{ facebook_clicks|int }}</td></tr>
+                            <tr><td class="font-semibold text-gray-700 py-1">Mensajes</td><td class="format-number">{{ facebook_mensajes|int }}</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div class="bg-pink-50 rounded-xl p-6 shadow border border-pink-100 avoid-break">
+                        <div class="text-lg font-bold text-pink-800 mb-2">📷 Instagram</div>
+                        <table class="min-w-full text-sm avoid-break">
+                          <tbody>
+                            <tr><td class="font-semibold text-gray-700 py-1">Gasto</td><td>${{ (instagram_importe_gastado|round(2)) }}</td></tr>
+                            <tr><td class="font-semibold text-gray-700 py-1">Impresiones</td><td class="format-number">{{ instagram_impresiones|int }}</td></tr>
+                            <tr><td class="font-semibold text-gray-700 py-1">Alcance</td><td class="format-number">{{ instagram_alcance|int }}</td></tr>
+                            <tr><td class="font-semibold text-gray-700 py-1">Clicks</td><td class="format-number">{{ instagram_clicks|int }}</td></tr>
+                            <tr><td class="font-semibold text-gray-700 py-1">Mensajes</td><td class="format-number">{{ instagram_mensajes|int }}</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- TABS DE PLATAFORMA -->
+                  <div class="mb-6">
+                    <div class="flex gap-2">
+                      <button id="tab-facebook" class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-blue-800 bg-blue-100 border-b-2 border-blue-500 focus:outline-none">Facebook</button>
+                      <button id="tab-instagram" class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-pink-800 bg-pink-100 border-b-2 border-pink-500 focus:outline-none">Instagram</button>
+                    </div>
+                  </div>
+
+                  <!-- TABLA DE ANUNCIOS POR PLATAFORMA -->
+                  <div id="tabla-facebook">
+                    <h3 class="text-lg font-bold text-blue-800 mb-3">Detalle de Anuncios en Facebook</h3>
+                    <div class="overflow-x-auto border rounded-xl shadow avoid-break">
+                      <table class="min-w-full text-sm text-gray-700 avoid-break">
+                        <thead class="bg-blue-50">
+                          <tr>
+                            <th class="px-4 py-2 text-left">Anuncio</th>
+                            <th class="px-4 py-2 text-right">Impresiones</th>
+                            <th class="px-4 py-2 text-right">Clicks</th>
+                            <th class="px-4 py-2 text-right">Mensajes</th>
+                            <th class="px-4 py-2 text-right">Gasto</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for anuncio in anuncios if anuncio.publisher_platform == 'facebook' %}
+                          <tr class="border-b hover:bg-blue-50">
+                            <td class="px-4 py-2">
+                              <div class="font-semibold text-gray-800">{{ (anuncio.nombre_anuncio or anuncio.ad_name or anuncio.ad_id or 'Sin nombre')[:50] }}</div>
+                              <div class="text-xs text-gray-500 mt-1">
+                                <span class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                  Campaña: {{ anuncio.nombre_campana or 'N/D' }}
+                                </span>
+                              </div>
+                            </td>
+                            <td class="px-4 py-2 text-right format-number">{{ (anuncio.impresiones|int) if anuncio.impresiones else 0 }}</td>
+                            <td class="px-4 py-2 text-right format-number">{{ (anuncio.clicks|int) if anuncio.clicks else 0 }}</td>
+                            <td class="px-4 py-2 text-right format-number">{{ (anuncio.mensajes|int) if anuncio.mensajes else 0 }}</td>
+                            <td class="px-4 py-2 text-right font-bold text-green-700">${{ (anuncio.importe_gastado|round(2)) if anuncio.importe_gastado else 0 }}</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div id="tabla-instagram" style="display:none;">
+                    <h3 class="text-lg font-bold text-pink-700 mb-3">Detalle de Anuncios en Instagram</h3>
+                    <div class="overflow-x-auto border rounded-xl shadow avoid-break">
+                      <table class="min-w-full text-sm text-gray-700 avoid-break">
+                        <thead class="bg-pink-50">
+                          <tr>
+                            <th class="px-4 py-2 text-left">Anuncio</th>
+                            <th class="px-4 py-2 text-right">Impresiones</th>
+                            <th class="px-4 py-2 text-right">Clicks</th>
+                            <th class="px-4 py-2 text-right">Mensajes</th>
+                            <th class="px-4 py-2 text-right">Gasto</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for anuncio in anuncios if anuncio.publisher_platform == 'instagram' %}
+                          <tr class="border-b hover:bg-pink-50">
+                            <td class="px-4 py-2">
+                              <div class="font-semibold text-gray-800">{{ (anuncio.nombre_anuncio or anuncio.ad_name or anuncio.ad_id or 'Sin nombre')[:50] }}</div>
+                              <div class="text-xs text-gray-500 mt-1">
+                                <span class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                  Campaña: {{ anuncio.nombre_campana or 'N/D' }}
+                                </span>
+                              </div>
+                            </td>
+                            <td class="px-4 py-2 text-right format-number">{{ (anuncio.impresiones|int) if anuncio.impresiones else 0 }}</td>
+                            <td class="px-4 py-2 text-right format-number">{{ (anuncio.clicks|int) if anuncio.clicks else 0 }}</td>
+                            <td class="px-4 py-2 text-right format-number">{{ (anuncio.mensajes|int) if anuncio.mensajes else 0 }}</td>
+                            <td class="px-4 py-2 text-right font-bold text-green-700">${{ (anuncio.importe_gastado|round(2)) if anuncio.importe_gastado else 0 }}</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <!-- TOP 3 FINAL -->
+                  <div class="page-break mb-12">
+                    <h3 class="text-lg font-semibold text-indigo-800 mb-3">Top 3 Anuncios por Mensajes</h3>
+                    {% set top_anuncios = anuncios | sort(attribute='mensajes', reverse=True) %}
+                    {% set top_anuncios = top_anuncios[:3] %}
+                    <div class="overflow-x-auto border rounded-xl shadow avoid-break">
+                      <table class="min-w-full text-sm text-gray-700 avoid-break">
+                        <thead class="bg-indigo-50">
+                          <tr>
+                            <th class="px-4 py-2 text-left">Anuncio</th>
+                            <th class="px-4 py-2 text-left">Plataforma</th>
+                            <th class="px-4 py-2 text-left">Campaña</th>
+                            <th class="px-4 py-2 text-right">Mensajes</th>
+                            <th class="px-4 py-2 text-right">Gasto</th>
+                            <th class="px-4 py-2 text-right">Clicks</th>
+                            <th class="px-4 py-2 text-right">Impresiones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for anuncio in top_anuncios %}
+                          <tr class="border-b hover:bg-indigo-50">
+                            <td class="px-4 py-2 font-mono text-indigo-700">{{ (anuncio.nombre_anuncio or anuncio.ad_name or anuncio.ad_id or 'Sin nombre')[:50] }}</td>
+                            <td class="px-4 py-2">
+                              <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium {% if anuncio.publisher_platform == 'facebook' %}bg-blue-100 text-blue-800{% elif anuncio.publisher_platform == 'instagram' %}bg-pink-100 text-pink-800{% else %}bg-gray-100 text-gray-600{% endif %}">
+                                {% if anuncio.publisher_platform == 'facebook' %}📘 Facebook{% elif anuncio.publisher_platform == 'instagram' %}📷 Instagram{% else %}—{% endif %}
+                              </span>
+                            </td>
+                            <td class="px-4 py-2">
+                              <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                {{ anuncio.nombre_campana or 'N/D' }}
+                              </span>
+                            </td>
+                            <td class="px-4 py-2 text-right font-semibold text-indigo-700 format-number">{{ (anuncio.mensajes|int) }}</td>
+                            <td class="px-4 py-2 text-right font-semibold text-green-700">${{ (anuncio.importe_gastado|round(2)) }}</td>
+                            <td class="px-4 py-2 text-right font-semibold text-indigo-600 format-number">{{ (anuncio.clicks|int) }}</td>
+                            <td class="px-4 py-2 text-right font-semibold text-indigo-600 format-number">{{ (anuncio.impresiones|int) }}</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div class="text-center text-gray-500 text-sm mt-8">
+                    <p>🔗 Reporte generado por AuraAI</p>
+                    <p class="text-xs">{{ reporte_id }}</p>
+                  </div>
                 </div>
+
+                <!-- JavaScript para tabs -->
+                <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                    const tabFacebook = document.getElementById('tab-facebook');
+                    const tabInstagram = document.getElementById('tab-instagram');
+                    const tablaFacebook = document.getElementById('tabla-facebook');
+                    const tablaInstagram = document.getElementById('tabla-instagram');
+                    
+                    tabFacebook.addEventListener('click', function() {
+                      tabFacebook.classList.add('bg-blue-100', 'text-blue-800', 'border-b-2', 'border-blue-500');
+                      tabInstagram.classList.remove('bg-pink-100', 'text-pink-800', 'border-b-2', 'border-pink-500');
+                      tablaFacebook.style.display = '';
+                      tablaInstagram.style.display = 'none';
+                    });
+                    
+                    tabInstagram.addEventListener('click', function() {
+                      tabInstagram.classList.add('bg-pink-100', 'text-pink-800', 'border-b-2', 'border-pink-500');
+                      tabFacebook.classList.remove('bg-blue-100', 'text-blue-800', 'border-b-2', 'border-blue-500');
+                      tablaInstagram.style.display = '';
+                      tablaFacebook.style.display = 'none';
+                    });
+                  });
+                </script>
             </body>
             </html>
             """
@@ -434,14 +626,31 @@ def create_app(config_class=Config):
                 empresa_nombre=reporte.get('empresa_nombre', 'Cliente'),
                 fecha_inicio=reporte.get('fecha_inicio'),
                 fecha_fin=reporte.get('fecha_fin'),
+                id_cuenta_publicitaria=reporte.get('id_cuenta_publicitaria', ''),
+                
+                # KPIs principales
+                importe_gastado_campañas=reporte.get('importe_gastado_campañas', 0),
                 importe_gastado_anuncios=reporte.get('importe_gastado_anuncios', 0),
                 impresiones=reporte.get('impresiones', 0),
                 alcance=reporte.get('alcance', 0),
                 clicks=reporte.get('clicks', 0),
+                mensajes=reporte.get('mensajes', 0),
+                
+                # Facebook específicos
                 facebook_importe_gastado=reporte.get('facebook_importe_gastado', 0),
                 facebook_impresiones=reporte.get('facebook_impresiones', 0),
+                facebook_alcance=reporte.get('facebook_alcance', 0),
+                facebook_clicks=reporte.get('facebook_clicks', 0),
+                facebook_mensajes=reporte.get('facebook_mensajes', 0),
+                
+                # Instagram específicos
                 instagram_importe_gastado=reporte.get('instagram_importe_gastado', 0),
                 instagram_impresiones=reporte.get('instagram_impresiones', 0),
+                instagram_alcance=reporte.get('instagram_alcance', 0),
+                instagram_clicks=reporte.get('instagram_clicks', 0),
+                instagram_mensajes=reporte.get('instagram_mensajes', 0),
+                
+                # Datos adicionales
                 anuncios=anuncios,
                 reporte_id=reporte_id
             )
