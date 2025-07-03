@@ -408,7 +408,6 @@ def actualizar_cuentas_publicitarias_google_ads():
                     'accesible': info_cuenta.get('accesible', True),
                     'problema': info_cuenta.get('problema'),
                     'ads_activos': info_cuenta.get('ads_activos', cuenta.get('ads_activos', 0)),
-                    'anuncios_activos': info_cuenta.get('ads_activos', cuenta.get('ads_activos', 0)),
                     'moneda': info_cuenta.get('moneda', 'MXN'),
                     'zona_horaria': info_cuenta.get('zona_horaria', 'America/Mexico_City'),
                 }
@@ -489,7 +488,6 @@ def importar_cuentas_desde_google_ads():
                 'account_status': 1 if cuenta.get('activa', True) else 0,
                 'accesible': cuenta.get('accesible', True),
                 'ads_activos': int(cuenta.get('ads_activos', 0)),
-                'anuncios_activos': int(cuenta.get('ads_activos', 0)),
                 'moneda': cuenta.get('moneda') or 'MXN',
                 'zona_horaria': cuenta.get('zona_horaria') or 'America/Mexico_City',
             }
@@ -615,8 +613,7 @@ def obtener_ads_activos_endpoint_google_ads():
         
         # Actualizar el campo en Supabase
         supabase.table('google_ads_cuentas').update({
-            'ads_activos': ads_activos,
-            'anuncios_activos': ads_activos
+            'ads_activos': ads_activos
         }).eq('customer_id', customer_id).execute()
         
         return jsonify({'ok': True, 'ads_activos': ads_activos})
@@ -694,7 +691,6 @@ def agregar_cuenta_google_ads():
         'nombre_visible': nombre_nora,
         'accesible': True,
         'ads_activos': 0,
-        'anuncios_activos': 0,
         'moneda': 'MXN',
         'zona_horaria': 'America/Mexico_City'
     }
@@ -1014,7 +1010,7 @@ def importar_cuentas_automatico(nombre_nora=None):
                 'accesible': bool(cuenta.get('accesible', True)),
                 'problema': str(cuenta.get('problema'))[:255] if cuenta.get('problema') else None,
                 'ads_activos': int(cuenta.get('ads_activos', 0) or 0),
-                'anuncios_activos': int(cuenta.get('ads_activos', 0) or 0)
+                'ads_activos': int(cuenta.get('ads_activos', 0) or 0)
             }
             
             # Validar que los campos críticos no sean vacíos después del procesamiento
@@ -1059,8 +1055,7 @@ def importar_cuentas_automatico(nombre_nora=None):
                             'zona_horaria': data.get('zona_horaria', 'America/Mexico_City'),
                             'es_test': data.get('es_test', False),
                             'accesible': data.get('accesible', True),
-                            'ads_activos': data.get('ads_activos', 0),
-                            'anuncios_activos': data.get('anuncios_activos', 0)
+                            'ads_activos': data.get('ads_activos', 0)
                         }
                         
                         # Solo agregar campos opcionales que no sean None

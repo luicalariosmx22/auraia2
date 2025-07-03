@@ -35,16 +35,25 @@ from .routes.panel_cliente_envios import panel_cliente_envios_bp
 from .routes.admin_nora import admin_nora_bp
 from .routes.admin_noras import admin_noras_bp # Lo tenías en app.py original
 from .routes.cliente_nora import cliente_nora_bp
+print("✅ cliente_nora_bp importado correctamente")
 # ✅ panel_cliente_conocimiento removido - ahora está integrado en admin_nora
 from .routes.panel_cliente_ads import panel_cliente_ads_bp
+print("✅ panel_cliente_ads_bp importado correctamente")
 from .routes.cobranza import cobranza_bp
+print("✅ cobranza_bp importado correctamente")
 # ✅ panel_cliente_etiquetas_conocimiento removido - ahora está integrado en admin_nora
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp # Nueva importación
+print("✅ panel_team_bp importado correctamente")
 from clientes.aura.routes.panel_cliente_pagos.vista_presupuestos import panel_cliente_pagos_presupuestos_bp # Nueva importación
+print("✅ panel_cliente_pagos_presupuestos_bp importado correctamente")
 from clientes.aura.routes.panel_cliente_pagos.vista_presupuesto_nuevo import panel_cliente_pagos_presupuesto_nuevo_bp # Nueva importación
+print("✅ panel_cliente_pagos_presupuesto_nuevo_bp importado correctamente")
 from clientes.aura.routes.panel_cliente_tareas.tareas_completadas import panel_tareas_completadas_bp # Nueva importación
-from clientes.aura.routes.reportes_meta_ads import reportes_meta_ads_bp # Nueva importación
+print("✅ panel_tareas_completadas_bp importado correctamente")
+from clientes.aura.routes.reportes_meta_ads import reportes_meta_ads_bp # Nueva importación (con lazy loading)
+print("✅ reportes_meta_ads_bp importado correctamente (optimizado)")
 from clientes.aura.routes.campanas_meta_ads import campanas_meta_ads_bp # Nueva importación
+print("✅ campanas_meta_ads_bp importado correctamente")
 
 # Para la lógica de blueprints dinámicos
 from .utils.supabase_client import supabase
@@ -242,6 +251,7 @@ def create_app(config_class=Config):
     safe_register_blueprint(app, panel_tareas_completadas_bp, url_prefix="/panel_cliente")
     # --- Registrar Blueprints de reportes y campañas Meta Ads ---
     safe_register_blueprint(app, reportes_meta_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/meta_ads")
+    print("✅ reportes_meta_ads_bp registrado correctamente (optimizado)")
     safe_register_blueprint(app, campanas_meta_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/meta_ads/campanas")
     
     # Google Ads se registra dinámicamente en registro_dinamico.py por módulo
@@ -249,21 +259,27 @@ def create_app(config_class=Config):
     # from clientes.aura.routes.panel_cliente_google_ads import panel_cliente_google_ads_bp
     # safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix="/panel_cliente/<nombre_nora>/google_ads")
     
-    # Registrar blueprint para la API de Google Ads
-    try:
-        from routes.google_ads import google_ads_bp
-        safe_register_blueprint(app, google_ads_bp)
-        print("✅ Blueprint de Google Ads API (google_ads_bp) registrado correctamente")
-    except ImportError as e:
-        print(f"❌ Error al importar el blueprint de Google Ads API: {e}")
-    except Exception as e:
-        print(f"❌ Error al registrar el blueprint de Google Ads API: {e}")
+    # Registrar blueprint para la API de Google Ads (temporalmente deshabilitado para diagnóstico)
+    print("⚠️  Saltando carga de blueprint de Google Ads para diagnóstico...")
+    # try:
+    #     from routes.google_ads import google_ads_bp
+    #     print("✅ Blueprint de Google Ads importado correctamente")
+    #     safe_register_blueprint(app, google_ads_bp)
+    #     print("✅ Blueprint de Google Ads API (google_ads_bp) registrado correctamente")
+    # except ImportError as e:
+    #     print(f"❌ Error al importar el blueprint de Google Ads API: {e}")
+    # except Exception as e:
+    #     print(f"❌ Error al registrar el blueprint de Google Ads API: {e}")
 
     # --- Registrar Blueprint Cliente Nora (Panel de Entrenamiento) ---
+    print("Registrando blueprint cliente_nora_bp...")
     safe_register_blueprint(app, cliente_nora_bp, url_prefix="")
+    print("✅ Blueprint cliente_nora_bp registrado correctamente")
 
     # --- Rutas de Nivel de Aplicación ---
     print("Definiendo rutas de nivel de aplicación...")
+    
+    print("Definiendo ruta raíz (/)")
     @app.route("/")
     def index():
         from flask import redirect, url_for, session
@@ -273,149 +289,43 @@ def create_app(config_class=Config):
         print(f"🧹 Sesión limpiada, redirigiendo a login")
         return redirect("/login/simple")
 
+    print("Definiendo ruta logout (/logout)")
     @app.route("/logout")
     def logout():
-        session.clear()  # ✅ Corregido: usar session.clear() en vez de flask_session.clear()
+        session.clear()
         return redirect("/login/simple")
-
-    @app.route('/debug_info', methods=['GET'])
-    def debug_info():
-        from clientes.aura.utils.auth_supabase import es_localhost, es_desarrollo
-        return jsonify({
-            "session_data": dict(session),
-            "app_config": {k: str(v) for k, v in app.config.items() if k not in ['SECRET_KEY']},
-            "request_info": {
-                "path": request.path,
-                "method": request.method,
-                "headers": dict(request.headers),
-                "cookies": request.cookies
-            },
-            "auth_debug": {
-                "es_localhost": es_localhost(),
-                "es_desarrollo": es_desarrollo(),
-                "AURA_DEV_MODE": os.getenv('AURA_DEV_MODE'),
-                "FLASK_ENV": os.getenv('FLASK_ENV'),
-                "DEBUG": app.debug
-            }
-        })
     
-    # Nueva ruta para debug de usuario
-    @app.route("/debug_user")
-    def debug_user():
-        """Debug: Mostrar datos del usuario - SOLO en localhost"""
-        # Solo permitir en localhost
-        if not request.host.lower().startswith(('localhost:', '127.0.0.1:', '0.0.0.0:')):
-            return jsonify({"error": "Acceso denegado"}), 403
-        
-        try:
-            from clientes.aura.utils.supabase_client import supabase
-            
-            response = supabase.table("usuarios_clientes") \
-                .select("*") \
-                .eq("correo", "bluetiemx@gmail.com") \
-                .execute()
-            
-            if response.data:
-                usuario = response.data[0]
-                # Ocultar contraseña por seguridad
-                usuario_safe = {k: v for k, v in usuario.items() if k != 'password'}
-                usuario_safe['tiene_password'] = bool(usuario.get('password'))
-                return f"<pre>{usuario_safe}</pre>"
-            else:
-                return "Usuario no encontrado"
-        except Exception as e:
-            return f"Error: {e}"
-
-    # Nueva ruta para verificar el hash de contraseña
-    @app.route("/debug_password", methods=["GET", "POST"])
-    def debug_password():
-        """Debug: Verificar hash de contraseña - SOLO en localhost"""
-        # Solo permitir en localhost
-        if not request.host.lower().startswith(('localhost:', '127.0.0.1:', '0.0.0.0:')):
-            return jsonify({"error": "Acceso denegado"}), 403
-        
-        if request.method == "POST":
-            password_input = request.form.get("password", "")
-            
-            try:
-                from clientes.aura.utils.supabase_client import supabase
-                import hashlib
-                
-                # Obtener usuario
-                response = supabase.table("usuarios_clientes") \
-                    .select("*") \
-                    .eq("correo", "bluetiemx@gmail.com") \
-                    .execute()
-                
-                if response.data:
-                    usuario = response.data[0]
-                    password_bd = usuario.get("password")
-                    
-                    # Calcular hash de la contraseña ingresada
-                    password_hash = hashlib.sha256(password_input.encode()).hexdigest()
-                    
-                    return f"""
-                    <h3>Debug de Contraseña</h3>
-                    <p><strong>Usuario:</strong> {usuario.get('nombre')}</p>
-                    <p><strong>Email:</strong> {usuario.get('correo')}</p>
-                    <p><strong>Contraseña en BD:</strong> {password_bd[:20] if password_bd else 'None'}...</p>
-                    <p><strong>Contraseña ingresada:</strong> {password_input}</p>
-                    <p><strong>Hash calculado:</strong> {password_hash[:20]}...</p>
-                    <p><strong>¿Coinciden?:</strong> {'SÍ' if password_hash == password_bd else 'NO'}</p>
-                    <p><strong>Tiene contraseña:</strong> {'SÍ' if password_bd else 'NO'}</p>
-                    """
-                else:
-                    return "Usuario no encontrado"
-            except Exception as e:
-                return f"Error: {e}"
-        
-        return '''
-        <form method="post">
-            <h3>Debug de Contraseña</h3>
-            <p>Ingresa tu contraseña para verificar el hash:</p>
-            <input type="password" name="password" placeholder="Tu contraseña">
-            <button type="submit">Verificar</button>
-        </form>
-        '''
-
+    print("Definiendo before_request handler...")
     # --- before_request handler ---
-    print("Definiendo handler before_request...")
     @app.before_request
     def proteger_rutas_admin():
         ruta = request.path
         if ruta.startswith("/admin") and not session.get("is_admin", False):
-            print(f"❌ Bloqueado acceso no autorizado a {ruta}")
             return redirect("/login/simple")
         if request.path.startswith('/socket.io') and request.args.get('transport') == 'polling':
             socketio_polling_logger = logging.getLogger('socketio_polling_custom')
             socketio_polling_logger.info(f"{request.remote_addr} - {request.method} {request.full_path}")
-    print("Handler before_request definido.")
 
-    print(f"📋 Total de rutas registradas: {len(list(app.url_map.iter_rules()))}")
-    print("Función create_app completada.")
+    print("✅ Rutas de nivel de aplicación definidas")
 
-    # Iniciar cron de tareas recurrentes
+    # Iniciar cron de tareas recurrentes de forma asíncrona
+    print("Iniciando cron de tareas recurrentes...")
     try:
-        from clientes.aura.cron.tareas_recurrentes import iniciar_cron_recurrentes
-        iniciar_cron_recurrentes()
-        print("🕒 Cron de tareas recurrentes iniciado.")
+        import threading
+        def iniciar_cron_async():
+            try:
+                from clientes.aura.cron.tareas_recurrentes import iniciar_cron_recurrentes
+                iniciar_cron_recurrentes()
+                print("✅ Cron de tareas recurrentes iniciado correctamente")
+            except Exception as e:
+                print(f"❌ Error al iniciar el cron de tareas recurrentes: {e}")
+        
+        # Ejecutar en un hilo separado para no bloquear la aplicación
+        cron_thread = threading.Thread(target=iniciar_cron_async, daemon=True)
+        cron_thread.start()
+        print("🔄 Cron iniciado en hilo separado")
     except Exception as e:
-        print(f"❌ Error al iniciar el cron de tareas recurrentes: {e}")
+        print(f"❌ Error al configurar el cron de tareas recurrentes: {e}")
 
-    # Nueva ruta para limpiar completamente la sesión
-    @app.route("/clear-session")
-    def clear_session_force():
-        """Limpia completamente la sesión y redirige al login - SOLO en localhost"""
-        from flask import session
-        
-        # Solo permitir en localhost
-        if not request.host.lower().startswith(('localhost:', '127.0.0.1:', '0.0.0.0:')):
-            return jsonify({"error": "Acceso denegado"}), 403
-        
-        print("🧹 FORZANDO LIMPIEZA COMPLETA DE SESIÓN")
-        session.clear()
-        session.permanent = False
-        print("🧹 Sesión completamente limpiada")
-        return redirect("/login/simple")
-
+    print("✅ Aplicación Flask configurada completamente")
     return app

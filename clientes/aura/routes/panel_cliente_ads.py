@@ -168,7 +168,6 @@ def actualizar_cuentas_publicitarias(nombre_nora):
                 'nombre_cliente': info.get('nombre_cliente', cuenta['nombre_cliente']),
                 'account_status': info.get('account_status', cuenta['account_status']),
                 'ads_activos': info.get('ads_activos', cuenta.get('ads_activos')),
-                'anuncios_activos': info.get('anuncios_activos', cuenta.get('anuncios_activos')),
             }
             # Fallback si nombre_cliente viene vacío
             if not update_data['nombre_cliente']:

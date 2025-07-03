@@ -64,7 +64,6 @@ def actualizar_cuentas_publicitarias_google_ads(nombre_nora):
                 'nombre_cliente': cuenta.get('nombre_cliente', f'Cuenta {customer_id}'),
                 'account_status': 1,  # Activa por defecto
                 'ads_activos': 0,
-                'anuncios_activos': 0,
                 'accesible': True,
                 'problema': None
             }
@@ -75,7 +74,6 @@ def actualizar_cuentas_publicitarias_google_ads(nombre_nora):
                 'nombre_cliente': info.get('nombre_cliente', cuenta['nombre_cliente']),
                 'account_status': info.get('account_status', cuenta['account_status']),
                 'ads_activos': info.get('ads_activos', cuenta.get('ads_activos', 0)),
-                'anuncios_activos': info.get('anuncios_activos', cuenta.get('anuncios_activos', 0)),
                 'accesible': info.get('accesible', cuenta.get('accesible', True)),
                 'problema': info.get('problema', cuenta.get('problema'))
             }

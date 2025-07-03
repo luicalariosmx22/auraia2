@@ -73,8 +73,16 @@ def verificar_tareas_recurrentes():
         logger.error(f"❌ Error general en verificación de tareas recurrentes: {e}")
 
 def iniciar_cron_recurrentes():
-    scheduler = BackgroundScheduler()
-    # Ejecutar dos veces al día: 8:00 AM y 8:00 PM UTC
-    scheduler.add_job(verificar_tareas_recurrentes, "cron", hour=8, minute=0)
-    scheduler.add_job(verificar_tareas_recurrentes, "cron", hour=20, minute=0)
-    scheduler.start()
+    try:
+        print("[CRON] Inicializando BackgroundScheduler...")
+        scheduler = BackgroundScheduler()
+        print("[CRON] Scheduler creado, añadiendo jobs...")
+        # Ejecutar dos veces al día: 8:00 AM y 8:00 PM UTC
+        scheduler.add_job(verificar_tareas_recurrentes, "cron", hour=8, minute=0)
+        scheduler.add_job(verificar_tareas_recurrentes, "cron", hour=20, minute=0)
+        print("[CRON] Jobs añadidos, iniciando scheduler...")
+        scheduler.start()
+        print("[CRON] ✅ BackgroundScheduler iniciado correctamente")
+    except Exception as e:
+        print(f"[CRON] ❌ Error al iniciar BackgroundScheduler: {e}")
+        raise e

@@ -20,7 +20,7 @@ from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp
 from clientes.aura.routes.panel_cliente_tareas.recurrentes import panel_tareas_recurrentes_bp
 from clientes.aura.routes.reportes_meta_ads import reportes_meta_ads_bp
-from clientes.aura.routes.reportes_meta_ads import estadisticas_ads_bp
+from clientes.aura.routes.reportes_meta_ads import get_estadisticas_bp
 from clientes.aura.routes.panel_cliente_google_ads import panel_cliente_google_ads_bp
 
 
@@ -141,7 +141,10 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 # Registrar reportes avanzados de Meta Ads
                 safe_register_blueprint(app, reportes_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
                 # Registrar estadísticas de Meta Ads SOLO con url_prefix=''
-                safe_register_blueprint(app, estadisticas_ads_bp)
+                # Cargar estadísticas de forma lazy
+                estadisticas_bp = get_estadisticas_bp()
+                if estadisticas_bp:
+                    safe_register_blueprint(app, estadisticas_bp)
                 # Registrar campañas avanzadas de Meta Ads
                 from clientes.aura.routes.campanas_meta_ads import campanas_meta_ads_bp
                 safe_register_blueprint(app, campanas_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")

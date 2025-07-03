@@ -29,14 +29,11 @@ def verificar_usuario_bd(email):
         
         if response.data:
             usuario = response.data[0]
-            print(f"✅ Usuario encontrado en BD: {usuario['nombre']}")
             return usuario
         else:
-            print(f"❌ Usuario no encontrado en BD: {email}")
             return None
             
     except Exception as e:
-        print(f"❌ Error verificando usuario: {e}")
         return None
 
 def es_administrador(usuario):
@@ -91,9 +88,16 @@ def auth_simple():
     # Verificar contraseña (si existe en BD)
     password_bd = usuario.get("password")
     if password_bd:
-        # Hash simple para comparar (en producción usar bcrypt)
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
-        if password_hash != password_bd:
+        # Verificar si la contraseña en BD es un hash o texto plano
+        if len(password_bd) == 64 and all(c in '0123456789abcdef' for c in password_bd.lower()):
+            # Es un hash SHA256, comparar con hash
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            password_match = password_hash == password_bd
+        else:
+            # Es texto plano, comparar directamente
+            password_match = password == password_bd
+        
+        if not password_match:
             flash("Contraseña incorrecta", "error")
             return redirect(url_for("simple_login.login_simple"))
     else:
@@ -157,9 +161,6 @@ def establecer_sesion_usuario(usuario):
         "es_supervisor": usuario.get("es_supervisor", False)
     }
     session.modified = True
-    
-    print(f"🔐 Sesión establecida para {usuario['correo']}")
-    print(f"📊 Permisos: Admin={es_administrador(usuario)}, Rol={usuario.get('rol')}")
 
 @simple_login_bp.route("/logout")
 def logout_simple():
@@ -223,22 +224,6 @@ def admin_redirect():
         flash("Acceso de administrador requerido", "error")
         return redirect(url_for("simple_login.login_simple"))
 
-@simple_login_bp.route("/test-session")
-def test_session():
-    """Endpoint para debug de sesión - SOLO en localhost"""
-    from clientes.aura.utils.auth_supabase import es_localhost
-    
-    # Solo permitir en localhost
-    if not es_localhost():
-        return jsonify({"error": "Acceso denegado"}), 403
-    
-    return jsonify({
-        "session_data": dict(session),
-        "logged_in": bool(session.get("email")),
-        "is_admin": session.get("is_admin", False),
-        "nombre_nora": session.get("nombre_nora")
-    })
-
 @simple_login_bp.route("/login_supabase")
 def login_supabase():
     """Redirigir a la nueva página de login con Supabase"""
@@ -252,35 +237,3 @@ def login_supabase():
     
     # Mostrar página de login
     return render_template("login_supabase.html")
-
-@simple_login_bp.route("/dev/activate")
-def activate_dev_mode():
-    """Activar modo desarrollo solo en localhost"""
-    from clientes.aura.utils.auth_supabase import es_localhost
-    
-    # SOLO permitir en localhost
-    if not es_localhost():
-        flash("Acceso denegado", "error")
-        return redirect(url_for("simple_login.login_simple"))
-    
-    # Verificar que sea realmente localhost
-    if request.host.lower() not in ['localhost:5000', '127.0.0.1:5000', '0.0.0.0:5000']:
-        flash("Acceso denegado", "error") 
-        return redirect(url_for("simple_login.login_simple"))
-    
-    # Establecer sesión de desarrollo SOLO en localhost
-    session["email"] = "dev@localhost.com"
-    session["name"] = "Desarrollador Local"
-    session["nombre_nora"] = "aura"
-    session["is_admin"] = True
-    session["user"] = {
-        "id": "dev-id",
-        "email": "dev@localhost.com",
-        "nombre": "Desarrollador Local",
-        "nombre_nora": "aura",
-        "rol": "admin"
-    }
-    session.permanent = True
-    
-    flash("✅ Modo desarrollo activado", "success")
-    return redirect("/admin")

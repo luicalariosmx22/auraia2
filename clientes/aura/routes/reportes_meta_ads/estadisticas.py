@@ -398,7 +398,7 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
     total_procesados = 0
     cuentas_sin_anuncios = []
 
-    for cuenta in cuentas:
+    for idx_cuenta, cuenta in enumerate(cuentas):
         if sync_stop_flag.is_set():
             print('[SYNC] Sincronización detenida por el usuario.')
             break
@@ -410,7 +410,7 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
             print(f"[WARN] Cuenta sin id o empresa_id: {cuenta}")
             continue
 
-        print(f"[SYNC] Procesando cuenta: {cuenta_id}")
+        print(f"[SYNC] Procesando cuenta {idx_cuenta + 1}/{len(cuentas)}: {cuenta_id} ({nombre_cliente})")
 
         # --- Obtener columnas válidas y fields finales ---
         columnas_validas = limpiar_columnas_solicitadas(columnas)
@@ -425,7 +425,7 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
                 'since': fecha_inicio.isoformat(),
                 'until': fecha_fin.isoformat()
             }),
-            'limit': 100,
+            'limit': 1000,  # Aumentar el límite para menos requests
             'access_token': access_token
         }
 
@@ -435,16 +435,60 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
             results = []
             next_url = url
             next_params = params.copy()
-            while next_url:
-                r = requests.get(next_url, params=next_params)
-                if r.status_code != 200:
-                    print(f"[ERROR] Meta API error {r.status_code}: {r.text}")
-                    raise Exception(f"Meta API error {r.status_code}: {r.text}")
-                data = r.json()
-                results.extend(data.get('data', []))
-                paging = data.get('paging', {})
-                next_url = paging.get('next')
-                next_params = {}
+            request_count = 0
+            max_requests = 20  # Límite máximo de requests por cuenta
+            timeout_retries = 0
+            max_timeout_retries = 3
+            
+            while next_url and request_count < max_requests:
+                request_count += 1
+                if request_count % 5 == 0:
+                    print(f"[SYNC] Petición {request_count}/{max_requests} para cuenta {cuenta_id}...")
+                
+                try:
+                    r = requests.get(next_url, params=next_params, timeout=15)  # Timeout reducido
+                    if r.status_code != 200:
+                        print(f"[ERROR] Meta API error {r.status_code}: {r.text}")
+                        if r.status_code == 429:  # Rate limit
+                            print(f"[WARN] Rate limit alcanzado, esperando 30 segundos...")
+                            import time
+                            time.sleep(30)
+                            continue
+                        raise Exception(f"Meta API error {r.status_code}: {r.text}")
+                    data = r.json()
+                    batch_data = data.get('data', [])
+                    results.extend(batch_data)
+                    print(f"[SYNC] Obtenidos {len(batch_data)} registros en esta petición (total: {len(results)})")
+                    
+                    paging = data.get('paging', {})
+                    next_url = paging.get('next')
+                    next_params = {}
+                    
+                    # Reset timeout retries on success
+                    timeout_retries = 0
+                    
+                    # Pequeña pausa para ser respetuosos con la API
+                    if next_url:
+                        import time
+                        time.sleep(0.5)  # Pausa aumentada
+                        
+                except requests.exceptions.Timeout:
+                    timeout_retries += 1
+                    if timeout_retries > max_timeout_retries:
+                        print(f"[ERROR] Demasiados timeouts ({timeout_retries}), saltando cuenta {cuenta_id}")
+                        break
+                    print(f"[WARN] Timeout en petición {request_count} (intento {timeout_retries}/{max_timeout_retries}), reintentando...")
+                    import time
+                    time.sleep(5)
+                    continue
+                except Exception as e:
+                    print(f"[ERROR] Error en petición {request_count}: {e}")
+                    # En caso de error, saltar a la siguiente cuenta
+                    break
+                    
+            if request_count >= max_requests:
+                print(f"[WARN] Límite de requests alcanzado para cuenta {cuenta_id}")
+                    
             return results
 
         datos_a = fetch_all(url_base, params_a)
@@ -455,7 +499,14 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
                 "empresa_id": empresa_id,
                 "nombre_cliente": nombre_cliente
             })
+            continue
 
+        # Optimización: si hay demasiados anuncios, procesar solo los primeros para evitar cuelgues
+        if len(datos_a) > 100:
+            print(f"[WARN] Cuenta {cuenta_id} tiene {len(datos_a)} anuncios, limitando a 100 para evitar timeout")
+            datos_a = datos_a[:100]
+
+        print(f"[SYNC] Preparando segunda consulta para actions...")
         # 2do request para actions
         params_b = {
             'level': 'ad',
@@ -465,11 +516,19 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
                 'since': fecha_inicio.isoformat(),
                 'until': fecha_fin.isoformat()
             }),
-            'limit': 100,
+            'limit': 1000,  # Aumentar el límite para menos requests
             'access_token': access_token
         }
-        datos_b = fetch_all(url_base, params_b)
+        print(f"[SYNC] Iniciando segunda consulta para actions...")
+        try:
+            datos_b = fetch_all(url_base, params_b)
+            print(f"[SYNC] Actions encontradas (B): {len(datos_b)}")
+        except Exception as e:
+            print(f"[WARN] Error en segunda consulta para cuenta {cuenta_id}: {e}")
+            print(f"[WARN] Continuando sin actions para esta cuenta...")
+            datos_b = []
 
+        print(f"[SYNC] Inicializando campos de actions...")
         # Inicializar campos de actions en datos_a
         for ad in datos_a:
             ad_id = ad.get('ad_id')
@@ -488,6 +547,7 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
             'share': 'shares'
         }
         
+        print(f"[SYNC] Enlazando actions de datos_b sobre datos_a...")
         # Enlazar actions de datos_b sobre datos_a
         for b in datos_b:
             ad_id = b.get('ad_id')
@@ -506,7 +566,47 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
                         valor = 0
                     ad_match[campo_local] += valor
 
+        # Optimización avanzada: Usar batch requests para obtener nombres
+        print(f"[SYNC] Recopilando IDs únicos para optimización...")
+        adset_ids = set()
+        campaign_ids = set()
         for ad in datos_a:
+            if ad.get('adset_id'):
+                adset_ids.add(ad.get('adset_id'))
+            if ad.get('campaign_id'):
+                campaign_ids.add(ad.get('campaign_id'))
+        
+        # Cache para nombres para evitar llamadas duplicadas
+        nombres_cache = {}
+        
+        # Obtener nombres usando batch requests más eficientes
+        if campaign_ids:
+            print(f"[SYNC] Obteniendo nombres de {len(campaign_ids)} campañas...")
+            nombres_campanas = obtener_nombres_batch(list(campaign_ids), access_token, tipo='campaign')
+            for campaign_id, nombre in nombres_campanas.items():
+                nombres_cache[f"campaign_{campaign_id}"] = nombre
+        
+        if adset_ids:
+            print(f"[SYNC] Obteniendo nombres de {len(adset_ids)} conjuntos...")
+            nombres_conjuntos = obtener_nombres_batch(list(adset_ids), access_token, tipo='adset')
+            for adset_id, nombre in nombres_conjuntos.items():
+                nombres_cache[f"adset_{adset_id}"] = nombre
+
+        print(f"[SYNC] Procesando {len(datos_a)} anuncios para inserción...")
+        
+        # Procesar anuncios en lotes para mejor rendimiento
+        batch_size = 100
+        batch_inserts = []
+        
+        for idx, ad in enumerate(datos_a):
+            if sync_stop_flag.is_set():
+                print('[SYNC] Sincronización detenida por el usuario.')
+                break
+                
+            # Mostrar progreso cada 50 anuncios
+            if idx % 50 == 0 and idx > 0:
+                print(f"[SYNC] Progreso: {idx}/{len(datos_a)} anuncios procesados")
+            
             try:
                 registro = {}
 
@@ -524,23 +624,77 @@ def sincronizar_anuncios_meta_ads(fecha_inicio, fecha_fin, columnas=None):
                 registro['post_reactions'] = ad.get('post_reactions') or 0
                 registro['comments'] = ad.get('comments') or 0
                 registro['shares'] = ad.get('shares') or 0
-                # Enriquecimiento de nombres
+                # Enriquecimiento de nombres usando cache
                 adset_id = ad.get('adset_id')
                 campaign_id = ad.get('campaign_id')
-                registro['nombre_conjunto'] = obtener_nombre_de_id(adset_id, access_token, tipo='adset')
-                registro['nombre_campana'] = obtener_nombre_de_id(campaign_id, access_token, tipo='campaign')
+                registro['nombre_conjunto'] = nombres_cache.get(f"adset_{adset_id}", f"Conjunto {adset_id}")
+                registro['nombre_campana'] = nombres_cache.get(f"campaign_{campaign_id}", f"Campaña {campaign_id}")
 
+                batch_inserts.append(registro)
+                
+                # Insertar en lotes para mejor rendimiento
+                if len(batch_inserts) >= batch_size:
+                    try:
+                        supabase.table('meta_ads_anuncios_detalle') \
+                            .upsert(
+                                batch_inserts,
+                                on_conflict="ad_id,fecha_inicio,fecha_fin,publisher_platform"
+                            ) \
+                            .execute()
+                        total_procesados += len(batch_inserts)
+                        print(f"[SYNC] Lote de {len(batch_inserts)} anuncios insertado exitosamente")
+                        batch_inserts = []
+                    except Exception as e:
+                        print(f"[ERROR] Error al insertar lote de anuncios: {e}")
+                        # Fallback: insertar uno por uno
+                        for reg in batch_inserts:
+                            try:
+                                supabase.table('meta_ads_anuncios_detalle') \
+                                    .upsert(
+                                        reg,
+                                        on_conflict="ad_id,fecha_inicio,fecha_fin,publisher_platform"
+                                    ) \
+                                    .execute()
+                                total_procesados += 1
+                            except Exception as e2:
+                                print(f"[ERROR] Error al insertar anuncio individual {reg.get('ad_id')}: {e2}")
+                        batch_inserts = []
+
+            except Exception as e:
+                print(f"[ERROR] Error al procesar anuncio {ad.get('ad_id')}: {e}")
+
+        # Insertar el último lote si queda algo
+        if batch_inserts:
+            try:
                 supabase.table('meta_ads_anuncios_detalle') \
                     .upsert(
-                        registro,
+                        batch_inserts,
                         on_conflict="ad_id,fecha_inicio,fecha_fin,publisher_platform"
                     ) \
                     .execute()
-                total_procesados += 1
-
+                total_procesados += len(batch_inserts)
+                print(f"[SYNC] Último lote de {len(batch_inserts)} anuncios insertado exitosamente")
             except Exception as e:
-                print(f"[ERROR] Error al insertar/actualizar anuncio {ad.get('ad_id')}: {e}")
-                print(f"[ERROR] Registro problemático: {registro}")
+                print(f"[ERROR] Error al insertar último lote: {e}")
+                # Fallback: insertar uno por uno
+                for reg in batch_inserts:
+                    try:
+                        supabase.table('meta_ads_anuncios_detalle') \
+                            .upsert(
+                                reg,
+                                on_conflict="ad_id,fecha_inicio,fecha_fin,publisher_platform"
+                            ) \
+                            .execute()
+                        total_procesados += 1
+                    except Exception as e2:
+                        print(f"[ERROR] Error al insertar anuncio individual {reg.get('ad_id')}: {e2}")
+        
+        print(f"[SYNC] Cuenta {cuenta_id} completada: {total_procesados} anuncios procesados")
+        
+        # Limpieza de memoria para cuentas grandes
+        del datos_a, datos_b, nombres_cache
+        import gc
+        gc.collect()
 
     print(f"[SYNC] Total anuncios procesados: {total_procesados}")
     return {"procesados": total_procesados, "sin_anuncios": cuentas_sin_anuncios}
@@ -670,17 +824,166 @@ def safe_float(value):
     except:
         return 0.0
 
+def obtener_nombres_batch(object_ids, access_token, tipo='campaign', batch_size=50):
+    """
+    Obtiene nombres de múltiples objetos (campañas/conjuntos) usando batch requests
+    para mejorar significativamente el rendimiento.
+    """
+    if not object_ids:
+        return {}
+    
+    nombres = {}
+    
+    # Procesar en lotes para evitar límites de la API
+    for i in range(0, len(object_ids), batch_size):
+        batch = object_ids[i:i + batch_size]
+        print(f"[SYNC] Procesando lote {i//batch_size + 1} de {tipo}s: {len(batch)} elementos")
+        
+        try:
+            # Preparar requests para el batch
+            batch_requests = []
+            for idx, object_id in enumerate(batch):
+                batch_requests.append({
+                    "method": "GET",
+                    "relative_url": f"{object_id}?fields=name"
+                })
+            
+            # Hacer el batch request
+            batch_url = "https://graph.facebook.com/v19.0/"
+            batch_params = {
+                "access_token": access_token,
+                "batch": json.dumps(batch_requests)
+            }
+            
+            import time
+            max_retries = 3
+            
+            for attempt in range(max_retries + 1):
+                try:
+                    response = requests.post(batch_url, data=batch_params, timeout=10)  # Timeout reducido
+                    
+                    if response.status_code == 200:
+                        batch_response = response.json()
+                        
+                        # Procesar respuestas del batch
+                        for idx, resp in enumerate(batch_response):
+                            object_id = batch[idx]
+                            if resp.get('code') == 200:
+                                try:
+                                    body_data = json.loads(resp.get('body', '{}'))
+                                    nombre = body_data.get('name', f"{tipo.title()} {object_id}")
+                                    nombres[object_id] = nombre
+                                except:
+                                    nombres[object_id] = f"{tipo.title()} {object_id}"
+                            else:
+                                # Error individual en el objeto
+                                nombres[object_id] = f"{tipo.title()} {object_id}"
+                        break
+                        
+                    elif response.status_code == 429:  # Rate limit
+                        if attempt < max_retries:
+                            wait_time = min(5, 2 ** attempt)  # Máximo 5 segundos de espera
+                            print(f"[WARN] Rate limit en batch {tipo}, esperando {wait_time}s...")
+                            time.sleep(wait_time)
+                            continue
+                        else:
+                            print(f"[WARN] Rate limit persistente en batch {tipo}, usando nombres genéricos")
+                            # Usar nombres genéricos para todo el batch
+                            for object_id in batch:
+                                nombres[object_id] = f"{tipo.title()} {object_id}"
+                            break
+                    else:
+                        print(f"[WARN] Error {response.status_code} en batch {tipo}: {response.text}")
+                        # Fallback: nombres por defecto
+                        for object_id in batch:
+                            nombres[object_id] = f"{tipo.title()} {object_id}"
+                        break
+                        
+                except requests.exceptions.Timeout:
+                    if attempt < max_retries:
+                        print(f"[WARN] Timeout en batch {tipo}, reintentando...")
+                        time.sleep(1)
+                        continue
+                    else:
+                        print(f"[WARN] Timeout persistente en batch {tipo}, usando nombres genéricos")
+                        for object_id in batch:
+                            nombres[object_id] = f"{tipo.title()} {object_id}"
+                        break
+                        
+                except Exception as e:
+                    if attempt < max_retries:
+                        print(f"[WARN] Error en batch {tipo}: {e}, reintentando...")
+                        time.sleep(1)
+                        continue
+                    else:
+                        print(f"[ERROR] Error persistente en batch {tipo}: {e}")
+                        for object_id in batch:
+                            nombres[object_id] = f"{tipo.title()} {object_id}"
+                        break
+        
+        except Exception as e:
+            print(f"[ERROR] Error crítico en batch {tipo}: {e}")
+            # Fallback para todo el lote
+            for object_id in batch:
+                nombres[object_id] = f"{tipo.title()} {object_id}"
+        
+        # Pequeña pausa entre lotes para ser respetuosos con la API
+        if i + batch_size < len(object_ids):
+            time.sleep(0.5)
+    
+    print(f"[SYNC] Obtenidos {len(nombres)} nombres de {tipo}s exitosamente")
+    return nombres
+
 def obtener_nombre_de_id(object_id, access_token, tipo='campaign'):
     if not object_id:
         return None
-    base_url = f"https://graph.facebook.com/v19.0/{object_id}"
-    params = {
-        'fields': 'name',
-        'access_token': access_token
-    }
-    r = requests.get(base_url, params=params)
-    if r.status_code != 200:
-        print(f"[WARN] No se pudo obtener nombre de {tipo}: {object_id}")
-        return None
-    data = r.json()
-    return data.get('name')
+    
+    try:
+        base_url = f"https://graph.facebook.com/v19.0/{object_id}"
+        params = {
+            'fields': 'name',
+            'access_token': access_token
+        }
+        
+        # Agregar timeout y reintentos
+        import time
+        max_retries = 2
+        for attempt in range(max_retries + 1):
+            try:
+                r = requests.get(base_url, params=params, timeout=10)  # Timeout de 10 segundos
+                if r.status_code == 200:
+                    data = r.json()
+                    return data.get('name')
+                elif r.status_code == 429:  # Rate limit
+                    if attempt < max_retries:
+                        print(f"[WARN] Rate limit alcanzado para {tipo} {object_id}, reintentando en 2s...")
+                        time.sleep(2)
+                        continue
+                    else:
+                        print(f"[WARN] Rate limit persistente para {tipo} {object_id}")
+                        return f"{tipo.title()} {object_id}"
+                else:
+                    print(f"[WARN] Error {r.status_code} obteniendo nombre de {tipo}: {object_id}")
+                    return f"{tipo.title()} {object_id}"
+            except requests.exceptions.Timeout:
+                if attempt < max_retries:
+                    print(f"[WARN] Timeout obteniendo {tipo} {object_id}, reintentando...")
+                    time.sleep(1)
+                    continue
+                else:
+                    print(f"[WARN] Timeout persistente para {tipo} {object_id}")
+                    return f"{tipo.title()} {object_id}"
+            except Exception as e:
+                if attempt < max_retries:
+                    print(f"[WARN] Error {e} obteniendo {tipo} {object_id}, reintentando...")
+                    time.sleep(1)
+                    continue
+                else:
+                    print(f"[WARN] Error persistente obteniendo {tipo} {object_id}: {e}")
+                    return f"{tipo.title()} {object_id}"
+        
+        return f"{tipo.title()} {object_id}"
+        
+    except Exception as e:
+        print(f"[ERROR] Error crítico obteniendo nombre de {tipo} {object_id}: {e}")
+        return f"{tipo.title()} {object_id}"
