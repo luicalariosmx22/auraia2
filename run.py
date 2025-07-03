@@ -19,10 +19,16 @@ def test_simple_insert():
     return send_file('test_simple_insert.html')
 
 # =====================================
-# 🔍 DEBUG: Ruta temporal para verificar el problema
+# 🔍 DEBUG: Ruta temporal para verificar el problema - SOLO localhost
 # =====================================
 @app.route('/debug_rutas')
 def debug_rutas():
+    from flask import request, jsonify
+    
+    # Solo permitir en localhost
+    if not request.host.lower().startswith(('localhost:', '127.0.0.1:', '0.0.0.0:')):
+        return jsonify({"error": "Acceso denegado"}), 403
+    
     rutas = []
     for rule in app.url_map.iter_rules():
         if rule.rule == '/':

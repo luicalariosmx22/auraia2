@@ -299,6 +299,85 @@ def create_app(config_class=Config):
             }
         })
     
+    # Nueva ruta para debug de usuario
+    @app.route("/debug_user")
+    def debug_user():
+        """Debug: Mostrar datos del usuario - SOLO en localhost"""
+        # Solo permitir en localhost
+        if not request.host.lower().startswith(('localhost:', '127.0.0.1:', '0.0.0.0:')):
+            return jsonify({"error": "Acceso denegado"}), 403
+        
+        try:
+            from clientes.aura.utils.supabase_client import supabase
+            
+            response = supabase.table("usuarios_clientes") \
+                .select("*") \
+                .eq("correo", "bluetiemx@gmail.com") \
+                .execute()
+            
+            if response.data:
+                usuario = response.data[0]
+                # Ocultar contraseña por seguridad
+                usuario_safe = {k: v for k, v in usuario.items() if k != 'password'}
+                usuario_safe['tiene_password'] = bool(usuario.get('password'))
+                return f"<pre>{usuario_safe}</pre>"
+            else:
+                return "Usuario no encontrado"
+        except Exception as e:
+            return f"Error: {e}"
+
+    # Nueva ruta para verificar el hash de contraseña
+    @app.route("/debug_password", methods=["GET", "POST"])
+    def debug_password():
+        """Debug: Verificar hash de contraseña - SOLO en localhost"""
+        # Solo permitir en localhost
+        if not request.host.lower().startswith(('localhost:', '127.0.0.1:', '0.0.0.0:')):
+            return jsonify({"error": "Acceso denegado"}), 403
+        
+        if request.method == "POST":
+            password_input = request.form.get("password", "")
+            
+            try:
+                from clientes.aura.utils.supabase_client import supabase
+                import hashlib
+                
+                # Obtener usuario
+                response = supabase.table("usuarios_clientes") \
+                    .select("*") \
+                    .eq("correo", "bluetiemx@gmail.com") \
+                    .execute()
+                
+                if response.data:
+                    usuario = response.data[0]
+                    password_bd = usuario.get("password")
+                    
+                    # Calcular hash de la contraseña ingresada
+                    password_hash = hashlib.sha256(password_input.encode()).hexdigest()
+                    
+                    return f"""
+                    <h3>Debug de Contraseña</h3>
+                    <p><strong>Usuario:</strong> {usuario.get('nombre')}</p>
+                    <p><strong>Email:</strong> {usuario.get('correo')}</p>
+                    <p><strong>Contraseña en BD:</strong> {password_bd[:20] if password_bd else 'None'}...</p>
+                    <p><strong>Contraseña ingresada:</strong> {password_input}</p>
+                    <p><strong>Hash calculado:</strong> {password_hash[:20]}...</p>
+                    <p><strong>¿Coinciden?:</strong> {'SÍ' if password_hash == password_bd else 'NO'}</p>
+                    <p><strong>Tiene contraseña:</strong> {'SÍ' if password_bd else 'NO'}</p>
+                    """
+                else:
+                    return "Usuario no encontrado"
+            except Exception as e:
+                return f"Error: {e}"
+        
+        return '''
+        <form method="post">
+            <h3>Debug de Contraseña</h3>
+            <p>Ingresa tu contraseña para verificar el hash:</p>
+            <input type="password" name="password" placeholder="Tu contraseña">
+            <button type="submit">Verificar</button>
+        </form>
+        '''
+
     # --- before_request handler ---
     print("Definiendo handler before_request...")
     @app.before_request
@@ -326,8 +405,13 @@ def create_app(config_class=Config):
     # Nueva ruta para limpiar completamente la sesión
     @app.route("/clear-session")
     def clear_session_force():
-        """Limpia completamente la sesión y redirige al login"""
+        """Limpia completamente la sesión y redirige al login - SOLO en localhost"""
         from flask import session
+        
+        # Solo permitir en localhost
+        if not request.host.lower().startswith(('localhost:', '127.0.0.1:', '0.0.0.0:')):
+            return jsonify({"error": "Acceso denegado"}), 403
+        
         print("🧹 FORZANDO LIMPIEZA COMPLETA DE SESIÓN")
         session.clear()
         session.permanent = False
