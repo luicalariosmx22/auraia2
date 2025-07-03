@@ -295,6 +295,161 @@ def create_app(config_class=Config):
         session.clear()
         return redirect("/login/simple")
     
+    print("Definiendo ruta pública para reportes compartidos...")
+    @app.route("/reporte_publico/<reporte_id>")
+    def vista_reporte_publico(reporte_id):
+        """
+        Vista pública para reportes compartidos de Meta Ads.
+        No requiere autenticación.
+        """
+        from flask import request as flask_request, render_template_string
+        
+        token = flask_request.args.get('token')
+        if not token:
+            return "Token requerido", 403
+        
+        try:
+            # Verificar que el reporte existe
+            reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).single().execute().data
+            if not reporte:
+                return "Reporte no encontrado", 404
+            
+            # Opcional: Verificar token en tabla de reportes compartidos
+            # Por simplicidad, mostramos el reporte si existe
+            
+            # Obtener anuncios detallados
+            anuncios = supabase.table('meta_ads_anuncios_detalle') \
+                .select('*') \
+                .eq('id_cuenta_publicitaria', reporte['id_cuenta_publicitaria']) \
+                .eq('fecha_inicio', reporte['fecha_inicio']) \
+                .eq('fecha_fin', reporte['fecha_fin']) \
+                .execute().data or []
+            
+            # Template simple para vista pública
+            template = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Reporte Meta Ads - {{ empresa_nombre }}</title>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <script src="https://cdn.tailwindcss.com"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            </head>
+            <body class="bg-gray-50">
+                <div class="max-w-6xl mx-auto py-10 px-4">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800">📊 Reporte Meta Ads</h1>
+                        <p class="text-gray-600 mt-2">{{ empresa_nombre }}</p>
+                        <p class="text-sm text-gray-500">Período: {{ fecha_inicio }} a {{ fecha_fin }}</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                        <h2 class="text-xl font-semibold mb-4">📈 Resumen Ejecutivo</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center p-4 bg-blue-50 rounded">
+                                <div class="text-2xl font-bold text-blue-600">${{ "%.2f"|format(importe_gastado_anuncios or 0) }}</div>
+                                <div class="text-sm text-gray-600">Gasto Total</div>
+                            </div>
+                            <div class="text-center p-4 bg-green-50 rounded">
+                                <div class="text-2xl font-bold text-green-600">{{ "{:,}"|format(impresiones or 0) }}</div>
+                                <div class="text-sm text-gray-600">Impresiones</div>
+                            </div>
+                            <div class="text-center p-4 bg-purple-50 rounded">
+                                <div class="text-2xl font-bold text-purple-600">{{ "{:,}"|format(alcance or 0) }}</div>
+                                <div class="text-sm text-gray-600">Alcance</div>
+                            </div>
+                            <div class="text-center p-4 bg-orange-50 rounded">
+                                <div class="text-2xl font-bold text-orange-600">{{ "{:,}"|format(clicks or 0) }}</div>
+                                <div class="text-sm text-gray-600">Clicks</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold mb-4">📱 Por Plataforma</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="p-4 border-l-4 border-blue-500">
+                                <h3 class="font-semibold text-blue-700">📘 Facebook</h3>
+                                <p class="text-lg font-bold">${{ "%.2f"|format(facebook_importe_gastado or 0) }}</p>
+                                <p class="text-sm text-gray-600">{{ "{:,}"|format(facebook_impresiones or 0) }} impresiones</p>
+                            </div>
+                            <div class="p-4 border-l-4 border-pink-500">
+                                <h3 class="font-semibold text-pink-700">📷 Instagram</h3>
+                                <p class="text-lg font-bold">${{ "%.2f"|format(instagram_importe_gastado or 0) }}</p>
+                                <p class="text-sm text-gray-600">{{ "{:,}"|format(instagram_impresiones or 0) }} impresiones</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if anuncios %}
+                    <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+                        <h2 class="text-xl font-semibold mb-4">🎯 Top Anuncios</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Anuncio</th>
+                                        <th class="px-4 py-2 text-left">Plataforma</th>
+                                        <th class="px-4 py-2 text-left">Gasto</th>
+                                        <th class="px-4 py-2 text-left">Impresiones</th>
+                                        <th class="px-4 py-2 text-left">Clicks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for anuncio in anuncios[:10] %}
+                                    <tr class="border-b">
+                                        <td class="px-4 py-2">{{ anuncio.ad_name or anuncio.ad_id }}</td>
+                                        <td class="px-4 py-2">
+                                            {% if anuncio.publisher_platform == 'facebook' %}
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">📘 FB</span>
+                                            {% elif anuncio.publisher_platform == 'instagram' %}
+                                                <span class="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs">📷 IG</span>
+                                            {% else %}
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">{{ anuncio.publisher_platform }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 py-2 font-mono">${{ "%.2f"|format(anuncio.importe_gastado or 0) }}</td>
+                                        <td class="px-4 py-2">{{ "{:,}"|format(anuncio.impresiones or 0) }}</td>
+                                        <td class="px-4 py-2">{{ anuncio.clicks or 0 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-center text-gray-500 text-sm mt-8">
+                        <p>🔗 Reporte generado por AuraAI</p>
+                        <p>{{ reporte_id }}</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            return render_template_string(
+                template,
+                empresa_nombre=reporte.get('empresa_nombre', 'Cliente'),
+                fecha_inicio=reporte.get('fecha_inicio'),
+                fecha_fin=reporte.get('fecha_fin'),
+                importe_gastado_anuncios=reporte.get('importe_gastado_anuncios', 0),
+                impresiones=reporte.get('impresiones', 0),
+                alcance=reporte.get('alcance', 0),
+                clicks=reporte.get('clicks', 0),
+                facebook_importe_gastado=reporte.get('facebook_importe_gastado', 0),
+                facebook_impresiones=reporte.get('facebook_impresiones', 0),
+                instagram_importe_gastado=reporte.get('instagram_importe_gastado', 0),
+                instagram_impresiones=reporte.get('instagram_impresiones', 0),
+                anuncios=anuncios,
+                reporte_id=reporte_id
+            )
+            
+        except Exception as e:
+            print(f"[ERROR] Error en vista pública: {e}")
+            return f"Error al cargar reporte: {e}", 500
+    
     print("Definiendo before_request handler...")
     # --- before_request handler ---
     @app.before_request

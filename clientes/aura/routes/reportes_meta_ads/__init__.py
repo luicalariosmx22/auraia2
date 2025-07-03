@@ -3,26 +3,18 @@ from flask import Blueprint
 # Blueprint de reportes_meta_ads
 reportes_meta_ads_bp = Blueprint('reportes_meta_ads', __name__)
 
-# Importa rutas después de definir el blueprint para evitar ciclos
-# OPTIMIZACIÓN: Importaciones lazy para evitar cuelgues al arrancar
-def lazy_import_routes():
-    """Importa las rutas solo cuando sean necesarias para evitar cuelgues de inicialización"""
-    try:
-        from .vistas import *
-        from .carga_manual import *
-        from .automatizaciones import *
-        from .diseno import *
-        print("✅ Rutas básicas de reportes_meta_ads cargadas")
-    except Exception as e:
-        print(f"❌ Error cargando rutas básicas de reportes_meta_ads: {e}")
+# Importar rutas básicas de forma segura
+try:
+    print("🔄 Cargando rutas básicas de reportes_meta_ads...")
+    from . import vistas
+    from . import carga_manual  
+    from . import automatizaciones
+    from . import diseno
+    print("✅ Rutas básicas de reportes_meta_ads cargadas")
+except Exception as e:
+    print(f"❌ Error cargando rutas básicas de reportes_meta_ads: {e}")
 
-# Importar rutas básicas inmediatamente
-lazy_import_routes()
-
-# Importar rutas lazy para estadísticas
-from .lazy_estadisticas import lazy_estadisticas_bp
-
-# Estadísticas se carga bajo demanda para evitar cuelgues
+# Variable global para estadísticas_ads_bp
 estadisticas_ads_bp = None
 
 def get_estadisticas_bp():
@@ -30,9 +22,11 @@ def get_estadisticas_bp():
     global estadisticas_ads_bp
     if estadisticas_ads_bp is None:
         try:
-            print("[LAZY] Cargando módulo de estadísticas...")
-            from .estadisticas import estadisticas_ads_bp
-            print("✅ Módulo de estadísticas cargado correctamente")
+            print("🔄 Cargando estadísticas_ads_bp bajo demanda...")
+            from .estadisticas import estadisticas_ads_bp as stats_bp
+            estadisticas_ads_bp = stats_bp
+            print("✅ estadisticas_ads_bp cargado exitosamente")
         except Exception as e:
-            print(f"❌ Error cargando módulo de estadísticas: {e}")
+            print(f"❌ Error cargando estadisticas_ads_bp: {e}")
+            return None
     return estadisticas_ads_bp

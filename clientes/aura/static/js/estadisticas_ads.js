@@ -104,7 +104,20 @@ function renderTablaYGraficas(reportes, cont, nombreNora) {
       <td class="px-4 py-2 text-blue-700 font-semibold">$${(rep.facebook_importe_gastado||0).toFixed(2)}</td>
       <td class="px-4 py-2 text-pink-700 font-semibold">$${(rep.instagram_importe_gastado||0).toFixed(2)}</td>
       <td class="px-4 py-2">
-        <a href="/panel_cliente/${nombreNora}/meta_ads/estadisticas/reporte/${rep.id}" class="text-blue-700 hover:underline font-semibold">Ver</a>
+        <div class="flex gap-2">
+          <a href="/panel_cliente/${nombreNora}/meta_ads/estadisticas/reporte/${rep.id}" 
+             class="text-blue-700 hover:underline font-semibold text-xs px-2 py-1 bg-blue-50 rounded">
+             👁️ Ver
+          </a>
+          <button onclick="compartirReporte('${rep.id}', '${rep.empresa_nombre}', '${rep.fecha_inicio}', '${rep.fecha_fin}')" 
+                  class="text-green-700 hover:underline font-semibold text-xs px-2 py-1 bg-green-50 rounded border-0 cursor-pointer">
+                  🔗 Compartir
+          </button>
+          <button onclick="descargarReporte('${rep.id}', '${rep.empresa_nombre}', '${rep.fecha_inicio}', '${rep.fecha_fin}')" 
+                  class="text-orange-700 hover:underline font-semibold text-xs px-2 py-1 bg-orange-50 rounded border-0 cursor-pointer">
+                  📊 Descargar
+          </button>
+        </div>
       </td>
     </tr>`;
   }
@@ -198,6 +211,186 @@ async function cargarColumnas() {
     columnasError.textContent = 'Error de red al cargar columnas';
     columnasError.classList.remove('hidden');
   }
+}
+
+// Funciones para acciones específicas de reportes
+async function compartirReporte(reporteId, empresaNombre, fechaInicio, fechaFin) {
+  const statusDiv = document.getElementById('reporte-status');
+  const nombreNora = document.body.dataset.nora;
+  
+  statusDiv.textContent = 'Generando link para compartir...';
+  statusDiv.className = 'mt-4 text-center text-lg text-blue-600';
+  
+  try {
+    const resp = await fetch(`/panel_cliente/${nombreNora}/meta_ads/estadisticas/compartir_reporte`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        reporte_id: reporteId,
+        empresa_nombre: empresaNombre,
+        periodo: `${fechaInicio} a ${fechaFin}`
+      })
+    });
+    
+    const data = await resp.json();
+    if (data.ok) {
+      // Copiar al portapapeles
+      await navigator.clipboard.writeText(data.url_publico);
+      
+      // Mostrar modal o mensaje con el link
+      mostrarModalCompartir(data.url_publico, empresaNombre, fechaInicio, fechaFin);
+      
+      statusDiv.innerHTML = `✅ Link público generado y copiado al portapapeles`;
+      statusDiv.className = 'mt-4 text-center text-lg text-green-600';
+    } else {
+      statusDiv.textContent = 'Error al generar link: ' + (data.error || 'Error desconocido');
+      statusDiv.className = 'mt-4 text-center text-lg text-red-600';
+    }
+  } catch (e) {
+    statusDiv.textContent = 'Error al generar link: ' + e.message;
+    statusDiv.className = 'mt-4 text-center text-lg text-red-600';
+  }
+}
+
+async function descargarReporte(reporteId, empresaNombre, fechaInicio, fechaFin) {
+  const statusDiv = document.getElementById('reporte-status');
+  const nombreNora = document.body.dataset.nora;
+  
+  statusDiv.textContent = 'Preparando descarga...';
+  statusDiv.className = 'mt-4 text-center text-lg text-blue-600';
+  
+  try {
+    const resp = await fetch(`/panel_cliente/${nombreNora}/meta_ads/estadisticas/descargar_reporte`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        reporte_id: reporteId,
+        formato: 'excel' // o 'pdf'
+      })
+    });
+    
+    if (resp.ok) {
+      const blob = await resp.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Meta_Ads_${empresaNombre}_${fechaInicio}_${fechaFin}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      statusDiv.textContent = '✅ Reporte descargado exitosamente';
+      statusDiv.className = 'mt-4 text-center text-lg text-green-600';
+    } else {
+      const data = await resp.json();
+      statusDiv.textContent = 'Error al descargar: ' + (data.error || 'Error desconocido');
+      statusDiv.className = 'mt-4 text-center text-lg text-red-600';
+    }
+  } catch (e) {
+    statusDiv.textContent = 'Error al descargar: ' + e.message;
+    statusDiv.className = 'mt-4 text-center text-lg text-red-600';
+  }
+}
+
+function mostrarModalCompartir(urlPublico, empresaNombre, fechaInicio, fechaFin) {
+  // Crear modal dinámicamente
+  const modal = document.createElement('div');
+  modal.id = 'modal-compartir';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 mx-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-gray-800">🔗 Compartir Reporte</h3>
+        <button onclick="cerrarModalCompartir()" class="text-gray-500 hover:text-gray-700 text-xl">×</button>
+      </div>
+      
+      <div class="mb-4">
+        <p class="text-sm text-gray-600 mb-2">
+          <strong>Empresa:</strong> ${empresaNombre}<br>
+          <strong>Período:</strong> ${fechaInicio} a ${fechaFin}
+        </p>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Link público:</label>
+        <div class="flex">
+          <input type="text" id="link-compartir" value="${urlPublico}" 
+                 class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm" readonly>
+          <button onclick="copiarLink()" 
+                  class="px-4 py-2 bg-blue-600 text-white rounded-r-md text-sm hover:bg-blue-700">
+                  📋 Copiar
+          </button>
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Compartir por:</label>
+        <div class="flex gap-2">
+          <button onclick="compartirWhatsApp('${urlPublico}')" 
+                  class="px-3 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700">
+                  📱 WhatsApp
+          </button>
+          <button onclick="compartirEmail('${urlPublico}', '${empresaNombre}')" 
+                  class="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                  📧 Email
+          </button>
+          <button onclick="compartirTelegram('${urlPublico}')" 
+                  class="px-3 py-2 bg-sky-600 text-white rounded text-sm hover:bg-sky-700">
+                  ✈️ Telegram
+          </button>
+        </div>
+      </div>
+      
+      <div class="flex justify-end">
+        <button onclick="cerrarModalCompartir()" 
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                Cerrar
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+}
+
+function cerrarModalCompartir() {
+  const modal = document.getElementById('modal-compartir');
+  if (modal) {
+    document.body.removeChild(modal);
+  }
+}
+
+async function copiarLink() {
+  const linkInput = document.getElementById('link-compartir');
+  await navigator.clipboard.writeText(linkInput.value);
+  
+  // Feedback visual
+  const button = event.target;
+  const originalText = button.textContent;
+  button.textContent = '✅ Copiado';
+  button.className = button.className.replace('bg-blue-600', 'bg-green-600');
+  
+  setTimeout(() => {
+    button.textContent = originalText;
+    button.className = button.className.replace('bg-green-600', 'bg-blue-600');
+  }, 2000);
+}
+
+function compartirWhatsApp(url) {
+  const mensaje = `📊 Aquí tienes tu reporte de Meta Ads: ${url}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
+}
+
+function compartirEmail(url, empresaNombre) {
+  const asunto = `Reporte Meta Ads - ${empresaNombre}`;
+  const mensaje = `Hola,\n\nAquí tienes tu reporte detallado de Meta Ads:\n\n${url}\n\nSaludos!`;
+  window.open(`mailto:?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(mensaje)}`, '_blank');
+}
+
+function compartirTelegram(url) {
+  const mensaje = `📊 Tu reporte de Meta Ads: ${url}`;
+  window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
 // Cargar estadísticas al iniciar

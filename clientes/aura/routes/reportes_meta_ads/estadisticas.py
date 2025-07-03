@@ -987,3 +987,118 @@ def obtener_nombre_de_id(object_id, access_token, tipo='campaign'):
     except Exception as e:
         print(f"[ERROR] Error crítico obteniendo nombre de {tipo} {object_id}: {e}")
         return f"{tipo.title()} {object_id}"
+
+@estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/compartir_reporte', methods=['POST'])
+def compartir_reporte(nombre_nora):
+    """
+    Genera un link público para compartir un reporte específico con clientes.
+    """
+    try:
+        data = request.get_json()
+        reporte_id = data.get('reporte_id')
+        empresa_nombre = data.get('empresa_nombre', '')
+        periodo = data.get('periodo', '')
+        
+        if not reporte_id:
+            return jsonify({'ok': False, 'error': 'ID de reporte requerido'}), 400
+        
+        # Verificar que el reporte existe
+        reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).single().execute().data
+        if not reporte:
+            return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
+        
+        # Generar token único para compartir
+        import uuid
+        import hashlib
+        token = hashlib.sha256(f"{reporte_id}_{uuid.uuid4()}".encode()).hexdigest()[:32]
+        
+        # Guardar el token en una tabla de links compartidos (o usar el ID directamente por simplicidad)
+        # Por ahora, usaremos el reporte_id directamente en la URL
+        
+        # Construir URL pública
+        from flask import request as flask_request
+        base_url = f"{flask_request.scheme}://{flask_request.host}"
+        url_publico = f"{base_url}/reporte_publico/{reporte_id}?token={token}"
+        
+        # Opcional: Guardar el registro del share en base de datos
+        try:
+            supabase.table('meta_ads_reportes_compartidos').insert({
+                'reporte_id': reporte_id,
+                'token': token,
+                'empresa_nombre': empresa_nombre,
+                'periodo': periodo,
+                'compartido_por': nombre_nora,
+                'created_at': datetime.utcnow().isoformat()
+            }).execute()
+        except Exception as e:
+            print(f"[WARN] No se pudo guardar registro de compartir: {e}")
+        
+        return jsonify({
+            'ok': True, 
+            'url_publico': url_publico,
+            'token': token,
+            'reporte_id': reporte_id
+        })
+        
+    except Exception as e:
+        print(f"[ERROR] Error al compartir reporte: {e}")
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@estadisticas_ads_bp.route('/panel_cliente/<nombre_nora>/meta_ads/estadisticas/descargar_reporte', methods=['POST'])
+def descargar_reporte(nombre_nora):
+    """
+    Genera y descarga un reporte específico en formato Excel.
+    """
+    try:
+        data = request.get_json()
+        reporte_id = data.get('reporte_id')
+        formato = data.get('formato', 'excel')
+        
+        if not reporte_id:
+            return jsonify({'ok': False, 'error': 'ID de reporte requerido'}), 400
+        
+        # Obtener datos del reporte
+        reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).single().execute().data
+        if not reporte:
+            return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
+        
+        # Obtener anuncios detallados del mismo período y cuenta
+        anuncios = supabase.table('meta_ads_anuncios_detalle') \
+            .select('*') \
+            .eq('id_cuenta_publicitaria', reporte['id_cuenta_publicitaria']) \
+            .eq('fecha_inicio', reporte['fecha_inicio']) \
+            .eq('fecha_fin', reporte['fecha_fin']) \
+            .execute().data or []
+        
+        if formato == 'excel':
+            # Generar archivo Excel
+            import io
+            import pandas as pd
+            
+            # Crear DataFrames
+            df_resumen = pd.DataFrame([reporte])
+            df_anuncios = pd.DataFrame(anuncios) if anuncios else pd.DataFrame()
+            
+            # Crear archivo Excel en memoria
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df_resumen.to_excel(writer, sheet_name='Resumen', index=False)
+                if not df_anuncios.empty:
+                    df_anuncios.to_excel(writer, sheet_name='Anuncios Detalle', index=False)
+            
+            output.seek(0)
+            
+            from flask import Response
+            return Response(
+                output.getvalue(),
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                headers={
+                    'Content-Disposition': f'attachment; filename=Meta_Ads_Reporte_{reporte_id}.xlsx'
+                }
+            )
+        else:
+            return jsonify({'ok': False, 'error': 'Formato no soportado'}), 400
+            
+    except Exception as e:
+        print(f"[ERROR] Error al descargar reporte: {e}")
+        return jsonify({'ok': False, 'error': str(e)}), 500
