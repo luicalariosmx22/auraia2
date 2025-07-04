@@ -1,1 +1,1 @@
-web: python start_real_whatsapp.py
+web: python start_railway.py

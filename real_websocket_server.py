@@ -125,6 +125,13 @@ class RealWhatsAppWebManager:
             chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
             chrome_options.add_experimental_option('useAutomationExtension', False)
             
+            # Configurar headless para Railway
+            if os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('PORT'):
+                chrome_options.add_argument("--headless=new")
+                chrome_options.add_argument("--disable-gpu")
+                chrome_options.add_argument("--virtual-time-budget=10000")
+                logger.info("🌐 Modo headless activado para Railway")
+            
             # User agent personalizado
             chrome_options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
             
