@@ -143,29 +143,44 @@ class RealWhatsAppWebManager:
             if os.getenv('HEADLESS', 'False').lower() == 'true':
                 chrome_options.add_argument("--headless")
             
-            # Intentar usar Chromium directamente primero
+            # Intentar usar Chrome/Chromium directamente primero
             try:
-                # Buscar ejecutable de Chromium
-                chromium_paths = [
+                # Buscar ejecutable de Chrome/Chromium
+                chrome_paths = [
+                    '/usr/bin/google-chrome',
                     '/usr/bin/chromium-browser',
                     '/usr/bin/chromium',
+                    '/usr/bin/chrome',
                     '/snap/bin/chromium',
                     '/opt/google/chrome/chrome'
                 ]
                 
-                chromium_path = None
-                for path in chromium_paths:
+                chrome_path = None
+                for path in chrome_paths:
                     if os.path.exists(path):
-                        chromium_path = path
+                        chrome_path = path
                         break
                 
-                if chromium_path:
-                    chrome_options.binary_location = chromium_path
-                    logger.info(f"Usando Chromium en: {chromium_path}")
+                if chrome_path:
+                    chrome_options.binary_location = chrome_path
+                    logger.info(f"Usando Chrome en: {chrome_path}")
                 
-                # Configurar servicio con ChromeDriver del sistema
-                service = Service('/usr/bin/chromedriver')
-                logger.info("Usando ChromeDriver del sistema")
+                # Configurar servicio con ChromeDriver
+                service_paths = [
+                    '/usr/bin/chromedriver',
+                    '/usr/local/bin/chromedriver'
+                ]
+                
+                service = None
+                for path in service_paths:
+                    if os.path.exists(path):
+                        service = Service(path)
+                        logger.info(f"Usando ChromeDriver en: {path}")
+                        break
+                
+                if not service:
+                    logger.info("ChromeDriver no encontrado en rutas del sistema")
+                    return None
                 
             except Exception as e:
                 logger.error(f"Error configurando Chromium: {e}")

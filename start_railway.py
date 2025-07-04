@@ -24,16 +24,24 @@ def setup_railway_environment():
 
 def check_chrome_railway():
     """Verificar Chrome en Railway"""
-    try:
-        result = subprocess.run(['chromium-browser', '--version'], 
-                              capture_output=True, text=True)
-        if result.returncode == 0:
-            print(f"✅ Chromium encontrado: {result.stdout.strip()}")
-            return True
-    except FileNotFoundError:
-        pass
+    chrome_paths = [
+        '/usr/bin/google-chrome',
+        '/usr/bin/chromium-browser', 
+        '/usr/bin/chromium',
+        '/usr/bin/chrome'
+    ]
     
-    print("❌ Chrome/Chromium no encontrado en Railway")
+    for path in chrome_paths:
+        try:
+            result = subprocess.run([path, '--version'], 
+                                  capture_output=True, text=True)
+            if result.returncode == 0:
+                print(f"✅ Chrome encontrado en {path}: {result.stdout.strip()}")
+                return True
+        except FileNotFoundError:
+            continue
+    
+    print("❌ Chrome no encontrado en Railway")
     return False
 
 def main():
