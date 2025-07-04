@@ -208,13 +208,63 @@ def eliminar_curso(nombre_nora, curso_id):
 def gestionar_estudiantes(nombre_nora):
     """Gestionar estudiantes de todos los cursos"""
     try:
-        # Obtener todos los estudiantes inscritos en cursos de esta nora
-        estudiantes_response = supabase.table('inscripciones_cursos')\
+        # Obtener todas las inscripciones con datos del curso y estudiante
+        inscripciones_response = supabase.table('inscripciones_cursos')\
             .select('*, curso:cursos(*), estudiante:estudiantes_cursos(*)')\
             .eq('nombre_nora', nombre_nora)\
             .execute()
         
-        estudiantes = estudiantes_response.data if estudiantes_response.data else []
+        inscripciones = inscripciones_response.data if inscripciones_response.data else []
+        
+        # Debug: imprimir datos para diagnóstico
+        print(f"Debug - Total inscripciones encontradas: {len(inscripciones)}")
+        if inscripciones:
+            print(f"Debug - Primera inscripción: {inscripciones[0]}")
+        
+        # Agrupar por estudiante
+        estudiantes_dict = {}
+        for inscripcion in inscripciones:
+            if inscripcion.get('estudiante'):
+                estudiante_id = inscripcion['estudiante']['id']
+                if estudiante_id not in estudiantes_dict:
+                    # Crear objeto estudiante con validaciones adicionales
+                    nombre = inscripcion['estudiante'].get('nombre', '') or 'Sin nombre'
+                    apellido = inscripcion['estudiante'].get('apellido', '') or 'Sin apellido'
+                    
+                    estudiantes_dict[estudiante_id] = {
+                        'id': inscripcion['estudiante']['id'],
+                        'nombre': nombre,
+                        'apellido': apellido,
+                        'email': inscripcion['estudiante'].get('email', ''),
+                        'telefono': inscripcion['estudiante'].get('telefono', ''),
+                        'nivel_educativo': inscripcion['estudiante'].get('nivel_educativo', ''),
+                        'fecha_registro': inscripcion['estudiante'].get('fecha_registro', ''),
+                        'fecha_nacimiento': inscripcion['estudiante'].get('fecha_nacimiento', ''),
+                        'activo': inscripcion['estudiante'].get('activo', True),
+                        'inscripciones': []
+                    }
+                
+                # Agregar la inscripción
+                estudiantes_dict[estudiante_id]['inscripciones'].append({
+                    'id': inscripcion['id'],
+                    'estado': inscripcion.get('estado', 'inscrito'),
+                    'fecha_inscripcion': inscripcion.get('fecha_inscripcion', ''),
+                    'curso': {
+                        'id': inscripcion['curso']['id'] if inscripcion.get('curso') else None,
+                        'titulo': inscripcion['curso']['titulo'] if inscripcion.get('curso') else 'Curso sin título'
+                    }
+                })
+        
+        # Convertir dict a lista
+        estudiantes = list(estudiantes_dict.values())
+        
+        # Debug: Verificar datos de estudiantes
+        print(f"DEBUG - Total estudiantes encontrados: {len(estudiantes)}")
+        if estudiantes:
+            print(f"DEBUG - Primer estudiante completo: {estudiantes[0]}")
+            print(f"DEBUG - Llaves del primer estudiante: {list(estudiantes[0].keys())}")
+            print(f"DEBUG - Nombre: '{estudiantes[0].get('nombre', 'NO_ENCONTRADO')}'")
+            print(f"DEBUG - Apellido: '{estudiantes[0].get('apellido', 'NO_ENCONTRADO')}'")
         
         return render_template(
             'panel_cliente_cursos/estudiantes.html',
@@ -224,6 +274,8 @@ def gestionar_estudiantes(nombre_nora):
         
     except Exception as e:
         print(f"Error en gestionar_estudiantes: {e}")
+        import traceback
+        traceback.print_exc()
         return render_template(
             'panel_cliente_cursos/estudiantes.html',
             nombre_nora=nombre_nora,

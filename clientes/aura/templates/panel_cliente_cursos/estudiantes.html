@@ -88,7 +88,15 @@
                         <div class="d-flex justify-content-between">
                             <div>
                                 <h5 class="card-title">Estudiantes Activos</h5>
-                                <h3 class="mb-0">{{ estudiantes|selectattr('activo')|list|length }}</h3>
+                                <h3 class="mb-0">
+                                    {% set activos = 0 %}
+                                    {% for estudiante in estudiantes %}
+                                        {% if estudiante['activo'] %}
+                                            {% set activos = activos + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ activos }}
+                                </h3>
                             </div>
                             <div class="align-self-center">
                                 <i class="fas fa-user-check fa-2x"></i>
@@ -103,7 +111,13 @@
                         <div class="d-flex justify-content-between">
                             <div>
                                 <h5 class="card-title">Total Inscripciones</h5>
-                                <h3 class="mb-0">{{ estudiantes|sum(attribute='inscripciones')|length if estudiantes else 0 }}</h3>
+                                <h3 class="mb-0">
+                                    {% set total_inscripciones = 0 %}
+                                    {% for estudiante in estudiantes %}
+                                        {% set total_inscripciones = total_inscripciones + (estudiante['inscripciones']|length if estudiante['inscripciones'] else 0) %}
+                                    {% endfor %}
+                                    {{ total_inscripciones }}
+                                </h3>
                             </div>
                             <div class="align-self-center">
                                 <i class="fas fa-clipboard-list fa-2x"></i>
@@ -112,20 +126,28 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">                    <div class="card bg-warning text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>                                <h5 class="card-title">Registros Recientes</h5>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Registros Recientes</h5>
                                 <h3 class="mb-0">
-                                    {{ estudiantes|selectattr('fecha_registro')|list|length }}
+                                    {% set recientes = 0 %}
+                                    {% for estudiante in estudiantes %}
+                                        {% if estudiante['fecha_registro'] %}
+                                            {% set recientes = recientes + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ recientes }}
                                 </h3>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-calendar-day fa-2x"></i>
-                                </div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-day fa-2x"></i>
                             </div>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
 
@@ -191,66 +213,81 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="avatar-circle bg-primary text-white me-2">
-                                                {{ (estudiante.nombre[0] + estudiante.apellido[0])|upper }}
-                                            </div>                                        <div>
-                                            <strong>{{ estudiante.nombre }} {{ estudiante.apellido }}</strong>
-                                            {% if estudiante.fecha_nacimiento %}
-                                            <br><small class="text-muted">
-                                                Fecha nac: {{ estudiante.fecha_nacimiento[:10] if estudiante.fecha_nacimiento else 'N/A' }}
-                                            </small>
-                                            {% endif %}
-                                        </div>
+                                                {% if estudiante['nombre'] and estudiante['apellido'] %}
+                                                    {{ (estudiante['nombre'][:1] + estudiante['apellido'][:1])|upper }}
+                                                {% elif estudiante['nombre'] %}
+                                                    {{ estudiante['nombre'][:1]|upper }}
+                                                {% elif estudiante['apellido'] %}
+                                                    {{ estudiante['apellido'][:1]|upper }}
+                                                {% else %}
+                                                    ?
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <strong>{{ estudiante['nombre'] or 'Sin nombre' }} {{ estudiante['apellido'] or 'Sin apellido' }}</strong>
+                                                {% if estudiante['fecha_nacimiento'] %}
+                                                <br><small class="text-muted">
+                                                    Fecha nac: {{ estudiante['fecha_nacimiento'][:10] if estudiante['fecha_nacimiento'] else 'N/A' }}
+                                                </small>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="mailto:{{ estudiante.email }}" class="text-decoration-none">
-                                            {{ estudiante.email }}
+                                        <a href="mailto:{{ estudiante['email'] }}" class="text-decoration-none">
+                                            {{ estudiante['email'] }}
                                         </a>
                                     </td>
                                     <td>
-                                        {% if estudiante.telefono %}
-                                            <a href="tel:{{ estudiante.telefono }}" class="text-decoration-none">
-                                                {{ estudiante.telefono }}
+                                        {% if estudiante['telefono'] %}
+                                            <a href="tel:{{ estudiante['telefono'] }}" class="text-decoration-none">
+                                                {{ estudiante['telefono'] }}
                                             </a>
                                         {% else %}
                                             <small class="text-muted">No especificado</small>
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if estudiante.nivel_educativo %}
-                                            <span class="badge bg-secondary">{{ estudiante.nivel_educativo }}</span>
+                                        {% if estudiante['nivel_educativo'] %}
+                                            <span class="badge bg-secondary">{{ estudiante['nivel_educativo'] }}</span>
                                         {% else %}
                                             <small class="text-muted">No especificado</small>
                                         {% endif %}
                                     </td>
                                     <td>
                                         <div class="d-flex flex-wrap gap-1">
-                                            {% for inscripcion in estudiante.inscripciones %}
-                                                {% if inscripcion.estado == 'inscrito' %}
-                                                    <span class="badge bg-success" title="{{ inscripcion.curso.titulo }}">
-                                                        {{ inscripcion.curso.titulo[:15] }}{% if inscripcion.curso.titulo|length > 15 %}...{% endif %}
+                                            {% for inscripcion in estudiante['inscripciones'] %}
+                                                {% if inscripcion['estado'] == 'inscrito' %}
+                                                    <span class="badge bg-success" title="{{ inscripcion['curso']['titulo'] }}">
+                                                        {{ inscripcion['curso']['titulo'][:15] }}{% if inscripcion['curso']['titulo']|length > 15 %}...{% endif %}
                                                     </span>
                                                 {% endif %}
                                             {% endfor %}
-                                            {% if not estudiante.inscripciones or estudiante.inscripciones|selectattr('estado', 'equalto', 'inscrito')|list|length == 0 %}
+                                            {% set activos = [] %}
+                                            {% for inscripcion in estudiante['inscripciones'] %}
+                                                {% if inscripcion['estado'] == 'inscrito' %}
+                                                    {% set _ = activos.append(inscripcion) %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if not estudiante['inscripciones'] or activos|length == 0 %}
                                                 <small class="text-muted">Sin cursos activos</small>
                                             {% endif %}
                                         </div>
                                         <small class="text-muted">
-                                            Total: {{ estudiante.inscripciones|length }}
+                                            Total: {{ estudiante['inscripciones']|length }}
                                         </small>
                                     </td>
                                     <td>
                                         <small class="text-muted">
-                                            {% if estudiante.fecha_registro %}
-                                                {{ estudiante.fecha_registro[:10] }}
+                                            {% if estudiante['fecha_registro'] %}
+                                                {{ estudiante['fecha_registro'][:10] }}
                                             {% else %}
                                                 No especificado
                                             {% endif %}
                                         </small>
                                     </td>
                                     <td>
-                                        {% if estudiante.activo %}
+                                        {% if estudiante['activo'] %}
                                             <span class="badge bg-success">
                                                 <i class="fas fa-check"></i> Activo
                                             </span>
@@ -262,16 +299,16 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="/panel_cliente/{{ nombre_nora }}/estudiante/{{ estudiante.id }}" 
+                                            <a href="/panel_cliente/{{ nombre_nora }}/estudiante/{{ estudiante['id'] }}" 
                                                class="btn btn-outline-primary" title="Ver detalle">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <button class="btn btn-outline-warning" 
-                                                    onclick="editarEstudiante('{{ estudiante.id }}')" title="Editar">
+                                                    onclick="editarEstudiante('{{ estudiante['id'] }}')" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button class="btn btn-outline-info" 
-                                                    onclick="contactarEstudiante('{{ estudiante.email }}', '{{ estudiante.telefono }}')" 
+                                                    onclick="contactarEstudiante('{{ estudiante['email'] }}', '{{ estudiante['telefono'] }}')" 
                                                     title="Contactar">
                                                 <i class="fas fa-envelope"></i>
                                             </button>

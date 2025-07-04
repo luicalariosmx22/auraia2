@@ -7,9 +7,48 @@
 
 <section class="stats">
   <div class="card"><h2>{{ total_noras }}</h2><p>Noras activas</p></div>
-  <div class="card"><h2>{{ total_errores }}</h2><p>Errores registrados</p></div>
-  <div class="card"><h2>{{ ultimo_deployment }}</h2><p>Último deployment</p></div>
   <div class="card"><h2>{{ total_modulos }}</h2><p>Módulos</p></div>
+  
+  <!-- Información de Twilio -->
+  <div class="card twilio-card 
+    {% if twilio_info.estado == 'BUENO' %}twilio-bueno
+    {% elif twilio_info.estado == 'ADVERTENCIA' %}twilio-advertencia
+    {% elif twilio_info.estado == 'BAJO' %}twilio-bajo
+    {% elif twilio_info.estado == 'CRITICO' %}twilio-critico
+    {% else %}twilio-error{% endif %}" id="twilio-card">
+    <div class="twilio-header">
+      <h2 id="twilio-saldo">${{ "%.2f"|format(twilio_info.saldo) }}</h2>
+      <button class="btn-refresh" onclick="refreshTwilioStatus()" id="refresh-btn">
+        <i class="refresh-icon">↻</i>
+      </button>
+    </div>
+    <p>Saldo Twilio (<span id="twilio-moneda">{{ twilio_info.moneda }}</span>)</p>
+    <small class="twilio-estado" id="twilio-estado">{{ twilio_info.estado }}</small>
+    {% if twilio_info.error %}
+    <small class="twilio-error" id="twilio-error">Error: {{ twilio_info.error }}</small>
+    {% endif %}
+  </div>
+  
+  <!-- Información de OpenAI -->
+  <div class="card openai-card 
+    {% if openai_info.estado == 'BUENO' %}openai-bueno
+    {% elif openai_info.estado == 'ADVERTENCIA' %}openai-advertencia
+    {% elif openai_info.estado == 'BAJO' %}openai-bajo
+    {% elif openai_info.estado == 'CRITICO' %}openai-critico
+    {% else %}openai-error{% endif %}" id="openai-card">
+    <div class="openai-header">
+      <h2 id="openai-uso">{{ "%.1f"|format(openai_info.porcentaje_usado or 0) }}%</h2>
+      <button class="btn-refresh" onclick="refreshOpenAIStatus()" id="openai-refresh-btn">
+        <i class="refresh-icon">↻</i>
+      </button>
+    </div>
+    <p>Uso OpenAI (<span id="openai-periodo">{{ openai_info.periodo or 'N/A' }}</span>)</p>
+    <small class="openai-detalle">${{ "%.2f"|format(openai_info.uso_actual or 0) }} / ${{ openai_info.limite or 0 }}</small>
+    <small class="openai-estado" id="openai-estado">{{ openai_info.estado }}</small>
+    {% if openai_info.error %}
+    <small class="openai-error" id="openai-error">Error: {{ openai_info.error }}</small>
+    {% endif %}
+  </div>
 </section>
 
 <section class="acciones">
@@ -27,7 +66,6 @@
         <th>Nombre</th>
         <th>IA</th>
         <th>Módulos</th>
-        <th>Última actualización</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -37,11 +75,9 @@
         <td>{{ nora["nombre"] }}</td>
         <td>{% if nora["ia_activada"] %}✅{% else %}—{% endif %}</td>
         <td>{{ nora["modulos"] | join(", ") }}</td>
-        <td>{{ nora["ultima_actualizacion"][:19] }}</td>
         <td>
           <a href="/panel_cliente/{{ nora['nombre'] }}">Panel</a> |
-          <a href="/panel_cliente/{{ nora['nombre'] }}/contactos">Contactos</a> |
-          <a href="/panel_cliente/{{ nora['nombre'] }}/ads">Ads</a> |
+          <a href="/admin/estadisticas/{{ nora['nombre'] }}">Estadísticas</a> |
           <a href="/admin/nora/editar?nombre={{ nora['nombre'] }}">Editar</a> |
           <form action="/admin/noras/borrar_nora" method="post" style="display:inline;">
             <input type="hidden" name="nombre" value="{{ nora['nombre'] }}">
@@ -56,4 +92,177 @@
     <p class="sin-noras">No hay Noras registradas aún.</p>
   {% endif %}
 </section>
+
+<script>
+async function refreshTwilioStatus() {
+  const refreshBtn = document.getElementById('refresh-btn');
+  const twilioCard = document.getElementById('twilio-card');
+  
+  // Mostrar loading
+  refreshBtn.classList.add('loading');
+  
+  try {
+    const response = await fetch('/admin/twilio/refresh');
+    const result = await response.json();
+    
+    if (result.success && result.data) {
+      const data = result.data;
+      
+      // Actualizar valores
+      document.getElementById('twilio-saldo').textContent = `$${data.saldo.toFixed(2)}`;
+      document.getElementById('twilio-moneda').textContent = data.moneda || 'USD';
+      document.getElementById('twilio-estado').textContent = data.estado || 'ERROR';
+      
+      // Actualizar clases CSS
+      twilioCard.className = 'card twilio-card';
+      
+      if (data.estado === 'BUENO') {
+        twilioCard.classList.add('twilio-bueno');
+      } else if (data.estado === 'ADVERTENCIA') {
+        twilioCard.classList.add('twilio-advertencia');
+      } else if (data.estado === 'BAJO') {
+        twilioCard.classList.add('twilio-bajo');
+      } else if (data.estado === 'CRITICO') {
+        twilioCard.classList.add('twilio-critico');
+      } else {
+        twilioCard.classList.add('twilio-error');
+      }
+      
+      // Manejar errores
+      const errorElement = document.getElementById('twilio-error');
+      if (data.error) {
+        if (errorElement) {
+          errorElement.textContent = `Error: ${data.error}`;
+        } else {
+          const newError = document.createElement('small');
+          newError.className = 'twilio-error';
+          newError.id = 'twilio-error';
+          newError.textContent = `Error: ${data.error}`;
+          twilioCard.appendChild(newError);
+        }
+      } else if (errorElement) {
+        errorElement.remove();
+      }
+      
+      console.log('✅ Estado de Twilio actualizado:', data);
+    }
+  } catch (error) {
+    console.error('❌ Error al actualizar estado de Twilio:', error);
+  } finally {
+    // Quitar loading
+    refreshBtn.classList.remove('loading');
+  }
+}
+
+async function refreshOpenAIStatus() {
+  const refreshBtn = document.getElementById('openai-refresh-btn');
+  const openaiCard = document.getElementById('openai-card');
+  
+  // Mostrar loading
+  refreshBtn.classList.add('loading');
+  
+  try {
+    const response = await fetch('/admin/openai/refresh');
+    const result = await response.json();
+    
+    if (result.success && result.data) {
+      const data = result.data;
+      
+      // Actualizar valores
+      document.getElementById('openai-uso').textContent = `${(data.porcentaje_usado || 0).toFixed(1)}%`;
+      document.getElementById('openai-periodo').textContent = data.periodo || 'N/A';
+      document.getElementById('openai-estado').textContent = data.estado || 'ERROR';
+      
+      // Actualizar detalle de uso
+      const detalleElement = openaiCard.querySelector('.openai-detalle');
+      if (detalleElement) {
+        detalleElement.textContent = `$${(data.uso_actual || 0).toFixed(2)} / $${data.limite || 0}`;
+      }
+      
+      // Actualizar clases CSS
+      openaiCard.className = 'card openai-card';
+      
+      if (data.estado === 'BUENO') {
+        openaiCard.classList.add('openai-bueno');
+      } else if (data.estado === 'ADVERTENCIA') {
+        openaiCard.classList.add('openai-advertencia');
+      } else if (data.estado === 'BAJO') {
+        openaiCard.classList.add('openai-bajo');
+      } else if (data.estado === 'CRITICO') {
+        openaiCard.classList.add('openai-critico');
+      } else {
+        openaiCard.classList.add('openai-error');
+      }
+      
+      // Manejar errores
+      const errorElement = document.getElementById('openai-error');
+      if (data.error) {
+        if (errorElement) {
+          errorElement.textContent = `Error: ${data.error}`;
+        } else {
+          const newError = document.createElement('small');
+          newError.className = 'openai-error';
+          newError.id = 'openai-error';
+          newError.textContent = `Error: ${data.error}`;
+          openaiCard.appendChild(newError);
+        }
+      } else if (errorElement) {
+        errorElement.remove();
+      }
+      
+      console.log('✅ Estado de OpenAI actualizado:', data);
+    }
+  } catch (error) {
+    console.error('❌ Error al actualizar estado de OpenAI:', error);
+  } finally {
+    // Quitar loading
+    refreshBtn.classList.remove('loading');
+  }
+}
+
+// Auto-refresh cada 5 minutos
+setInterval(() => {
+  refreshTwilioStatus();
+  refreshOpenAIStatus();
+}, 300000);
+</script>
+
+<style>
+.twilio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.btn-refresh {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 1.2rem;
+}
+
+.btn-refresh:hover {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.btn-refresh.loading {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.refresh-icon {
+  display: inline-block;
+  font-style: normal;
+}
+</style>
 {% endblock %}

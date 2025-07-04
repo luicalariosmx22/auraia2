@@ -26,3 +26,4 @@ flask_session/
 clientes/aura/templates/panel_cliente_tareas/dominio brenda Ibarra.pdf
 *.sql
 *.md
+/venv_linux
