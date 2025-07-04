@@ -2,6 +2,9 @@
 command = "pip install -r requirements_whatsapp.txt"
 
 [deploy]
+startCommand = "python start_railway.py"mand = "pip install -r requirements_whatsapp.txt"
+
+[deploy]
 startCommand = "python start_railway.py": 2
 build:
   commands:
