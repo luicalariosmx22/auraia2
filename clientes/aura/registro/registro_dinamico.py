@@ -10,7 +10,6 @@ from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
-from clientes.aura.routes.panel_cliente_whatsapp.panel_cliente_whatsapp import panel_cliente_whatsapp_bp
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
 from clientes.aura.routes.panel_cliente_cursos import panel_cliente_cursos_bp
