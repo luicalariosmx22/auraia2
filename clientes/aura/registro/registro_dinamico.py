@@ -15,14 +15,12 @@ from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
 from clientes.aura.routes.panel_cliente_cursos import panel_cliente_cursos_bp
 
-
 from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp
 from clientes.aura.routes.panel_cliente_tareas.recurrentes import panel_tareas_recurrentes_bp
 from clientes.aura.routes.reportes_meta_ads import reportes_meta_ads_bp
 from clientes.aura.routes.reportes_meta_ads import get_estadisticas_bp
 from clientes.aura.routes.panel_cliente_google_ads import panel_cliente_google_ads_bp
-from clientes.aura.routes.panel_cliente_qr_whatsapp_web import panel_cliente_qr_whatsapp_web_bp
 
 
 # Configurar Supabase
@@ -182,10 +180,6 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 print(f"Registrando blueprint CURSOS para {nombre_nora}")
                 safe_register_blueprint(app, panel_cliente_cursos_bp, url_prefix="")
 
-            if "qr_whatsapp_web" in modulos:
-                print(f"Registrando blueprint QR WHATSAPP WEB para {nombre_nora}")
-                safe_register_blueprint(app, panel_cliente_qr_whatsapp_web_bp, url_prefix=f"/panel_cliente/{nombre_nora}/qr_whatsapp_web")
-
             # ✅ Conocimiento ahora está integrado en el panel de entrenamiento de admin_nora
             # if "conocimiento" in modulos:
             #     safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
@@ -213,7 +207,6 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 "meta_ads": f"/panel_cliente/{nombre_nora}/meta_ads",
                 "google_ads": f"/panel_cliente/{nombre_nora}/google_ads",
                 "ads": f"/panel_cliente/{nombre_nora}/ads",
-                "qr_whatsapp_web": f"/panel_cliente/{nombre_nora}/qr_whatsapp_web",
                 "clientes": f"/panel_cliente/{nombre_nora}/clientes",
                 "cursos": f"/panel_cliente/{nombre_nora}/cursos"
             }

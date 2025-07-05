@@ -1,0 +1,1 @@
+2025-06-03 02:22:59,670 - clientes.aura - ERROR - [Meta Ads] Error en obtener_reporte_campanas: 400 Client Error: Bad Request for url: https://graph.facebook.com/v19.0/act_16626756/campaigns?fields=id%2Cname%2Cstatus%2Ceffective_status%2Cdaily_budget%2Cinsights%7Bimpressions%2Cclicks%2Creach%2Cspend%2Cobjective%7D&access_token=TU_ACCESS_TOKEN_GLOBAL

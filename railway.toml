@@ -1,0 +1,5 @@
+[build]
+command = "pip install -r requirements_whatsapp.txt"
+
+[deploy]
+startCommand = "python start_railway.py"

@@ -1,0 +1,18 @@
+-- Sentencias SQL generadas automáticamente para Google Ads (anuncios)
+-- Tabla destino: public.google_ads_reporte_anuncios
+-- Fecha de generación: 2025-06-25 19:38:13.674344
+
+-- Registro 1
+INSERT INTO public.google_ads_reporte_anuncios (
+    estado_anuncio, url_final, titulo_1, pos_titulo_1, titulo_2, pos_titulo_2, titulo_3, pos_titulo_3, titulo_4, pos_titulo_4, titulo_5, pos_titulo_5, titulo_6, pos_titulo_6, titulo_7, pos_titulo_7, titulo_8, pos_titulo_8, titulo_9, pos_titulo_9, titulo_10, pos_titulo_10, titulo_11, pos_titulo_11, titulo_12, pos_titulo_12, titulo_13, pos_titulo_13, titulo_14, pos_titulo_14, titulo_15, pos_titulo_15, descripcion_1, pos_desc_1, descripcion_2, pos_desc_2, descripcion_3, pos_desc_3, descripcion_4, pos_desc_4, ruta_1, ruta_2, url_final_movil, plantilla_seguimiento, sufijo_url_final, param_personalizado, campaña, grupo_anuncios, estado, motivos_estado, calidad_anuncio, mejoras_efectividad, tipo_anuncio, clics, impresiones, ctr, codigo_moneda, cpc_promedio, costo, porcentaje_conversion, conversiones, costo_por_conversion, id_campaña, id_grupo_anuncios, id_anuncio
+) VALUES (
+    'Habilitado', 'https://saldejade.mx/mixologia/', 'Conoce nuestra mixologia', NULL, 'Sal de Jade', NULL, NULL, NULL, 'Restaurante con mixologia', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Ambiente perfecto con mixología premium y mocktails.', NULL, NULL, NULL, NULL, NULL, NULL, '--', '--', NULL, 'SaldeJade  - Busqueda', 'Mixologia', 'Limitado', 'etiquetado como aprobado', 'Deficiente', 'Agregue más títulos para aumentar sus probabilidades de tener un mejor rendimiento;Incluya más palabras clave en sus títulos;Incluya más palabras clave en sus descripciones;Agregue más títulos originales o deje algunos elementos sin fijar', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', '1', NULL
+);
+
+-- Registro 2
+INSERT INTO public.google_ads_reporte_anuncios (
+    estado_anuncio, url_final, titulo_1, pos_titulo_1, titulo_2, pos_titulo_2, titulo_3, pos_titulo_3, titulo_4, pos_titulo_4, titulo_5, pos_titulo_5, titulo_6, pos_titulo_6, titulo_7, pos_titulo_7, titulo_8, pos_titulo_8, titulo_9, pos_titulo_9, titulo_10, pos_titulo_10, titulo_11, pos_titulo_11, titulo_12, pos_titulo_12, titulo_13, pos_titulo_13, titulo_14, pos_titulo_14, titulo_15, pos_titulo_15, descripcion_1, pos_desc_1, descripcion_2, pos_desc_2, descripcion_3, pos_desc_3, descripcion_4, pos_desc_4, ruta_1, ruta_2, url_final_movil, plantilla_seguimiento, sufijo_url_final, param_personalizado, campaña, grupo_anuncios, estado, motivos_estado, calidad_anuncio, mejoras_efectividad, tipo_anuncio, clics, impresiones, ctr, codigo_moneda, cpc_promedio, costo, porcentaje_conversion, conversiones, costo_por_conversion, id_campaña, id_grupo_anuncios, id_anuncio
+) VALUES (
+    'Detenido', 'https://saldejade.mx/', 'Sal De Jade', NULL, 'Celebra San Valentin', NULL, NULL, NULL, 'Cafe - Bistro', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Vive un San Valentín inolvidable con una cena gourmet. ¡Reserva ya!', NULL, NULL, NULL, NULL, NULL, NULL, '--', '--', NULL, 'SaldeJade  - Busqueda', 'Reservaciones', 'Detenido', 'detenido', 'Deficiente', 'Agregue más títulos para aumentar sus probabilidades de tener un mejor rendimiento;Incluya más palabras clave en sus títulos;Incluya más palabras clave en sus descripciones;Agregue más títulos originales o deje algunos elementos sin fijar', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1', '2', NULL
+);
+
