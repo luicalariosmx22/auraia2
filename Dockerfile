@@ -67,9 +67,8 @@ USER pptruser
 # Exponer puerto
 EXPOSE 3000
 
-# Copiar el script de inicio
-COPY start.sh ./
-RUN chmod +x start.sh
+# Copiar el script de inicio y hacerlo ejecutable
+COPY --chmod=755 start.sh ./
 
 # Variables de entorno para Chrome
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
