@@ -72,6 +72,10 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 ENV CHROME_PATH=/usr/bin/google-chrome-stable
 ENV NODE_ENV=production
+ENV DISABLE_EXTENSIONS=true
+ENV DISABLE_DEV_SHM_USAGE=true
+ENV WHATSAPP_SESSION_PATH=/home/pptruser/.wwebjs_auth
+ENV WHATSAPP_CACHE_PATH=/home/pptruser/.wwebjs_cache
 
 # Comando para iniciar la aplicación
 CMD ["npm", "start"]
