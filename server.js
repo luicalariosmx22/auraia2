@@ -48,6 +48,27 @@ function initializeWhatsAppClient() {
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
                 '--disable-renderer-backgrounding',
+                '--disable-extensions',
+                '--disable-plugins',
+                '--disable-default-apps',
+                '--no-default-browser-check',
+                '--disable-hang-monitor',
+                '--disable-popup-blocking',
+                '--disable-prompt-on-repost',
+                '--disable-sync',
+                '--disable-translate',
+                '--disable-web-security',
+                '--disable-features=TranslateUI',
+                '--disable-ipc-flooding-protection',
+                '--disable-background-networking',
+                '--disable-client-side-phishing-detection',
+                '--disable-component-update',
+                '--disable-default-apps',
+                '--disable-domain-reliability',
+                '--disable-features=AudioServiceOutOfProcess',
+                '--disable-features=VizDisplayCompositor',
+                '--disable-logging',
+                '--disable-notifications',
                 '--disable-default-apps',
                 '--disable-extensions',
                 '--disable-sync',
@@ -83,8 +104,23 @@ function initializeWhatsAppClient() {
                 '--password-store=basic',
                 '--use-mock-keychain'
             ],
-            executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome-stable'
-        }
+            executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome-stable',
+            timeout: 60000,
+            handleSIGINT: false,
+            handleSIGTERM: false,
+            handleSIGHUP: false,
+            ignoreHTTPSErrors: true,
+            defaultViewport: {
+                width: 1366,
+                height: 768
+            }
+        },
+        webVersionCache: {
+            type: 'remote',
+            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+        },
+        takeoverOnConflict: true,
+        takeoverTimeoutMs: 10000
     };
 
     whatsappClient = new Client(clientOptions);
