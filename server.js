@@ -47,7 +47,29 @@ function initializeWhatsAppClient() {
                 '--disable-gpu',
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
-                '--disable-renderer-backgrounding'
+                '--disable-renderer-backgrounding',
+                '--disable-web-security',
+                '--disable-features=TranslateUI',
+                '--disable-ipc-flooding-protection',
+                '--disable-hang-monitor',
+                '--disable-client-side-phishing-detection',
+                '--disable-component-update',
+                '--disable-default-apps',
+                '--disable-domain-reliability',
+                '--disable-extensions',
+                '--disable-features=VizDisplayCompositor',
+                '--disable-ipc-flooding-protection',
+                '--disable-popup-blocking',
+                '--disable-prompt-on-repost',
+                '--disable-sync',
+                '--disable-translate',
+                '--metrics-recording-only',
+                '--no-default-browser-check',
+                '--no-first-run',
+                '--safebrowsing-disable-auto-update',
+                '--enable-automation',
+                '--password-store=basic',
+                '--use-mock-keychain'
             ],
             executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome-stable'
         }
@@ -129,6 +151,13 @@ function initializeWhatsAppClient() {
             reason: reason,
             timestamp: new Date().toISOString()
         });
+        
+        // Reintentar conexión después de 10 segundos
+        console.log('🔄 Reintentando conexión en 10 segundos...');
+        setTimeout(() => {
+            console.log('🔄 Reintentando conexión por desconexión...');
+            initializeWhatsAppClient();
+        }, 10000);
     });
 
     // Inicializar cliente
@@ -141,7 +170,30 @@ function initializeWhatsAppClient() {
             details: err.message,
             timestamp: new Date().toISOString()
         });
+        
+        // Reintentar después de 5 segundos si hay error de protocolo
+        if (err.message.includes('Session closed') || err.message.includes('Protocol error')) {
+            console.log('🔄 Reintentando inicialización debido a error de protocolo...');
+            setTimeout(() => {
+                console.log('🔄 Ejecutando reintento...');
+                initializeWhatsAppClient();
+            }, 5000);
+        }
     });
+
+    // Agregar timeout para detectar inicialización colgada
+    setTimeout(() => {
+        if (!isClientReady && !currentQR) {
+            console.log('⚠️ Inicialización tardando mucho, reintentando...');
+            if (whatsappClient) {
+                whatsappClient.destroy().catch(console.error);
+            }
+            setTimeout(() => {
+                console.log('🔄 Reintentando por timeout...');
+                initializeWhatsAppClient();
+            }, 2000);
+        }
+    }, 30000); // 30 segundos timeout
 }
 
 // Función para generar session ID
