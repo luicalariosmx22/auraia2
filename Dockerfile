@@ -67,9 +67,6 @@ USER pptruser
 # Exponer puerto
 EXPOSE 3000
 
-# Copiar el script de inicio y hacerlo ejecutable
-COPY --chmod=755 start.sh ./
-
 # Variables de entorno para Chrome
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
@@ -77,4 +74,4 @@ ENV CHROME_PATH=/usr/bin/google-chrome-stable
 ENV NODE_ENV=production
 
 # Comando para iniciar la aplicación
-CMD ["./start.sh"]
+CMD ["npm", "start"]
