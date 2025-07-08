@@ -50,7 +50,7 @@ echo "-----------------------------------"
 
 # Push a GitHub
 echo "📤 Enviando cambios a GitHub..."
-git push origin main
+git push origin master
 
 if [ $? -eq 0 ]; then
     echo "✅ Push exitoso a GitHub"
