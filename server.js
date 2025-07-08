@@ -48,6 +48,18 @@ function initializeWhatsAppClient() {
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
                 '--disable-renderer-backgrounding',
+                '--disable-default-apps',
+                '--disable-extensions',
+                '--disable-sync',
+                '--disable-translate',
+                '--hide-scrollbars',
+                '--mute-audio',
+                '--no-default-browser-check',
+                '--no-first-run',
+                '--disable-logging',
+                '--disable-permissions-api',
+                '--disable-web-security',
+                '--disable-features=TranslateUI',
                 '--disable-web-security',
                 '--disable-features=TranslateUI',
                 '--disable-ipc-flooding-protection',
@@ -160,7 +172,7 @@ function initializeWhatsAppClient() {
         }, 10000);
     });
 
-    // Inicializar cliente
+    // Inicializar cliente con manejo de errores mejorado
     whatsappClient.initialize().catch(err => {
         console.error('❌ Error inicializando WhatsApp Client:', err);
         
@@ -171,11 +183,26 @@ function initializeWhatsAppClient() {
             timestamp: new Date().toISOString()
         });
         
-        // Reintentar después de 5 segundos si hay error de protocolo
-        if (err.message.includes('Session closed') || err.message.includes('Protocol error')) {
+        // Reintentar después de 5 segundos con diferentes estrategias
+        if (err.message.includes('Session closed') || 
+            err.message.includes('Protocol error') || 
+            err.message.includes('Connection closed') ||
+            err.message.includes('Target closed')) {
+            
             console.log('🔄 Reintentando inicialización debido a error de protocolo...');
             setTimeout(() => {
-                console.log('🔄 Ejecutando reintento...');
+                console.log('🔄 Ejecutando reintento con nueva instancia...');
+                
+                // Destruir cliente anterior si existe
+                if (whatsappClient) {
+                    try {
+                        whatsappClient.destroy();
+                    } catch (destroyErr) {
+                        console.log('⚠️ Error al destruir cliente anterior:', destroyErr.message);
+                    }
+                }
+                
+                // Reinicializar completamente
                 initializeWhatsAppClient();
             }, 5000);
         }
