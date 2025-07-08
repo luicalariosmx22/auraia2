@@ -1,0 +1,476 @@
+/mnt/c/Users/PC/PYTHON/Auraai2/clientes/aura/routes/debug_verificar.py:7: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+🔁 REDIRECT_URI en uso: http://localhost:5000/login/google/callback
+✅ supabase_client.py cargado correctamente y cliente listo
+✅ Tipo de supabase: <class 'supabase.client.Client'>
+✅ Métodos de supabase: ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_get_auth_headers', '_init_postgrest_client', '_init_storage_client', '_init_supabase_auth_client', 'auth', 'auth_url', 'from_', 'functions', 'functions_url', 'postgrest', 'realtime', 'realtime_url', 'rest_url', 'rpc', 'schema', 'storage', 'storage_url', 'supabase_key', 'supabase_url', 'table']
+✅ registro_base.py cargado correctamente
+🔄 Cargando rutas básicas de reportes_meta_ads...
+✅ Rutas básicas de reportes_meta_ads cargadas
+✅ process_message.py cargado correctamente al chile y ajustado para actualización real
+✅ registro_admin.py cargado correctamente
+✅ admin_noras.py cargado correctamente
+✅ admin_nora.py cargado correctamente
+✅ admin_nora_dashboard.py cargado correctamente
+✅ debug_verificar.py cargado correctamente
+✅ Módulo debug_oauthlib.py cargado correctamente.
+✅ admin_actualizar_contactos.py cargado correctamente
+✅ panel_cliente.py cargado correctamente
+✅ panel_cliente_contactos.py cargado correctamente
+✅ Blueprint de contactos cargado como '/contactos'
+✅ panel_cliente_envios.py cargado correctamente
+✅ panel_cliente_ia.py cargado correctamente
+✅ panel_cliente_respuestas.py cargado correctamente
+✅ __init__.py del panel_chat cargado correctamente
+✅ vista_enviar_mensaje.py cargado correctamente (supabase actualizado)
+🧩 cargando tareas_crud.py...
+🚀 Cliente WhatsApp Web inicializado para https://whatsapp-server-production-7e82.up.railway.app
+✅ admin_verificador_rutas.py cargado correctamente
+✅ cliente_nora.py cargado correctamente
+✅ cliente_nora_bp importado correctamente
+✅ panel_cliente_ads_bp importado correctamente
+✅ cobranza_bp importado correctamente
+✅ panel_team_bp importado correctamente
+⚠️ No se pudo importar 'fpdf2': No module named 'fpdf2'
+>>> vista_presupuesto_nuevo.py importado
+✅ panel_cliente_pagos_presupuestos_bp importado correctamente
+✅ panel_cliente_pagos_presupuesto_nuevo_bp importado correctamente
+✅ panel_tareas_completadas_bp importado correctamente
+✅ reportes_meta_ads_bp importado correctamente (optimizado)
+✅ campanas_meta_ads_bp importado correctamente
+DEBUG: Objeto config_class ANTES de from_object: <class 'clientes.aura.app_config.Config'>
+DEBUG: config_class TIENE SESSION_COOKIE_NAME: aura_multinora_cookie
+DEBUG: SESSION_COOKIE_NAME configurado como: aura_multinora_cookie
+DEBUG: SECRET_KEY DESPUÉS de from_object: 1002ivimyH!
+DEBUG: SESSION_TYPE DESPUÉS de from_object: filesystem
+🍪 Configuración de cookies optimizada para navegador
+🚀 Aplicación Flask creada y configuración inicial cargada por la factory.
+ProxyFix y PREFERRED_URL_SCHEME configurados para https.
+Extensiones Flask-Session y Flask-SocketIO inicializadas.
+Handler de logging para errores de app configurado (error.log).
+Filtro de logging para Werkzeug añadido.
+Handler de logging para socketio_polling configurado (logs/socketio_polling.log).
+Nivel de logging para twilio.http_client establecido a WARNING.
+🕒 Inicializando cron jobs...
+✅ Cron jobs registrados.
+APScheduler iniciado y cron jobs registrados correctamente.
+Iniciando registro de Blueprints...
+✅ Blueprint 'login' registrado con nombre 'login' y prefijo '/login'
+✅ Blueprint 'simple_login' registrado con nombre 'simple_login' y prefijo '/login'
+✅ Blueprint 'webhook' registrado con nombre 'webhook' y prefijo ''
+✅ Blueprint 'admin_noras' registrado con nombre 'admin_noras' y prefijo ''
+✅ Blueprint 'admin_dashboard' registrado con nombre 'admin_dashboard' y prefijo '/admin'
+✅ Blueprint 'admin_nora' registrado con nombre 'admin_nora' y prefijo '/admin/nora'
+✅ Blueprint 'admin_nora_dashboard' registrado con nombre 'admin_nora_dashboard' y prefijo '/admin/nora/dashboard'
+✅ Blueprint 'admin_debug_master' registrado con nombre 'admin_debug_master' y prefijo '/admin/debug'
+✅ Blueprint 'admin_modulos' registrado con nombre 'admin_modulos' y prefijo '/admin/modulos'
+✅ Blueprint 'admin_actualizar_contactos' registrado con nombre 'admin_actualizar_contactos' y prefijo '/admin/actualizar_contactos'
+✅ Blueprint 'debug_session_bp' registrado con nombre 'debug_session_bp' y prefijo '/debug'
+✅ Blueprint 'debug_verificador' registrado con nombre 'debug_verificador' y prefijo ''
+✅ Invitado blueprints registrados (no hay rutas por ahora)
+Registro de Blueprints completado.
+Nora(s) encontradas en Supabase para registro dinámico: ['aura']
+🔍 Registrando blueprints dinámicos para aura...
+🧪 Registrando panel_cliente para aura
+✅ Blueprint 'panel_cliente_aura' registrado con nombre 'panel_cliente_aura' y prefijo '/panel_cliente/aura'
+✅ Blueprint 'panel_cliente_entrenamiento' registrado con nombre 'panel_cliente_entrenamiento' y prefijo '/panel_cliente/aura/entrenamiento'
+✅ Blueprint 'panel_cliente_contactos' registrado con nombre 'panel_cliente_contactos' y prefijo '/panel_cliente/aura/contactos'
+✅ Blueprint 'webhook_contactos' registrado con nombre 'webhook_contactos' y prefijo '/'
+🧪 Módulos activos normalizados para aura: ['contactos', 'entrenamiento', 'pagos', 'chat', 'google_ads', 'meta_ads', 'clientes', 'qr_whatsapp_web', 'tareas', 'cursos']
+✅ Blueprint 'panel_cliente_pagos' registrado con nombre 'panel_cliente_pagos' y prefijo '/panel_cliente/aura/pagos'
+✅ Blueprint 'panel_cliente_pagos_servicios' registrado con nombre 'panel_cliente_pagos_servicios' y prefijo '/panel_cliente/aura/pagos/servicios'
+✅ Blueprint 'panel_cliente_pagos_nuevo' registrado con nombre 'panel_cliente_pagos_nuevo' y prefijo '/panel_cliente/aura/pagos'
+✅ Blueprint 'panel_cliente_pagos_recibo' registrado con nombre 'panel_cliente_pagos_recibo' y prefijo ''
+✅ Blueprint 'panel_cliente_tareas' registrado con nombre 'panel_cliente_tareas' y prefijo '/panel_cliente/aura/tareas'
+⚠️ Blueprint 'panel_tareas_gestionar_bp' ya estaba registrado.
+⚠️ Blueprint 'panel_tareas_recurrentes_bp' ya estaba registrado.
+⚠️ Blueprint 'panel_tareas_crud' ya estaba registrado.
+Registrando blueprint META ADS para aura
+✅ Blueprint 'panel_cliente_ads' registrado con nombre 'panel_cliente_ads' y prefijo '/panel_cliente/aura/meta_ads'
+✅ Blueprint 'reportes_meta_ads' registrado con nombre 'reportes_meta_ads' y prefijo '/panel_cliente/aura/meta_ads'
+🔄 Cargando estadísticas_ads_bp bajo demanda...
+✅ estadisticas_ads_bp cargado exitosamente
+✅ Blueprint 'estadisticas_ads_bp' registrado con nombre 'estadisticas_ads_bp' y prefijo ''
+✅ Blueprint 'campanas_meta_ads' registrado con nombre 'campanas_meta_ads' y prefijo '/panel_cliente/aura/meta_ads'
+✅ Blueprint 'panel_cliente_meta_ads' registrado con nombre 'panel_cliente_meta_ads' y prefijo '/panel_cliente/aura/meta_ads'
+✅ Blueprint 'panel_cliente_meta_ads_sincronizacion' registrado con nombre 'panel_cliente_meta_ads_sincronizacion' y prefijo '/panel_cliente/aura/meta_ads'
+Registrando blueprint GOOGLE ADS para aura
+✅ Blueprint 'panel_cliente_google_ads' registrado con nombre 'panel_cliente_google_ads' y prefijo '/panel_cliente/aura/google_ads'
+⚠️ Blueprint 'panel_cliente_contactos' ya estaba registrado.
+✅ Blueprint 'panel_cliente_clientes_bp' registrado con nombre 'panel_cliente_clientes_bp' y prefijo '/panel_cliente/aura/clientes'
+Registrando blueprint CURSOS para aura
+✅ Blueprint 'panel_cliente_cursos' registrado con nombre 'panel_cliente_cursos' y prefijo ''
+Registrando blueprint QR WHATSAPP WEB WEBSOCKET para aura
+✅ Blueprint 'panel_cliente_whatsapp_web' registrado con nombre 'panel_cliente_whatsapp_web' y prefijo '/panel_cliente/aura/whatsapp'
+✅ Blueprint WhatsApp Web WebSocket registrado exitosamente
+
+🧪 Resultado del registro de módulos para: aura
+⚠️ contactos              → No definida en verificador
+⚠️ entrenamiento          → No definida en verificador
+❌ pagos                  → NO registrado ⛔ (/panel_cliente/aura/pagos)
+⚠️ chat                   → No definida en verificador
+❌ google_ads             → NO registrado ⛔ (/panel_cliente/aura/google_ads)
+❌ meta_ads               → NO registrado ⛔ (/panel_cliente/aura/meta_ads)
+❌ clientes               → NO registrado ⛔ (/panel_cliente/aura/clientes)
+❌ qr_whatsapp_web        → NO registrado ⛔ (/panel_cliente/aura/whatsapp)
+❌ tareas                 → NO registrado ⛔ (/panel_cliente/aura/tareas)
+❌ cursos                 → NO registrado ⛔ (/panel_cliente/aura/cursos)
+
+🧪 Rutas registradas relacionadas con google_ads:
+  - /panel_cliente/aura/google_ads/<nombre_nora>/actualizar_empresa → panel_cliente_google_ads.actualizar_empresa
+  - /panel_cliente/aura/google_ads/actualizar_empresa → panel_cliente_google_ads.actualizar_empresa
+  - /panel_cliente/aura/google_ads/<nombre_nora>/ → panel_cliente_google_ads.panel_google_ads
+  - /panel_cliente/aura/google_ads/ → panel_cliente_google_ads.panel_google_ads
+  - /panel_cliente/aura/google_ads/cuentas → panel_cliente_google_ads.vista_cuentas_publicitarias_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias → panel_cliente_google_ads.vista_cuentas_publicitarias_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias/actualizar → panel_cliente_google_ads.actualizar_cuentas_publicitarias_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias/importar_desde_google_ads → panel_cliente_google_ads.importar_cuentas_desde_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias/vincular_empresa → panel_cliente_google_ads.vincular_empresa_a_cuenta_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias/ads_activos → panel_cliente_google_ads.obtener_ads_activos_endpoint_google_ads
+  - /panel_cliente/aura/google_ads/cuenta → panel_cliente_google_ads.ficha_cuenta_publicitaria_google_ads
+  - /panel_cliente/aura/google_ads/agregar_cuenta → panel_cliente_google_ads.agregar_cuenta_google_ads
+  - /panel_cliente/aura/google_ads/google_ads/anuncios_activos_json → panel_cliente_google_ads.anuncios_activos_json
+  - /panel_cliente/aura/google_ads/reportes → panel_cliente_google_ads.vista_reportes_google_ads
+  - /panel_cliente/aura/google_ads/campanas → panel_cliente_google_ads.vista_campanas_google_ads
+  - /panel_cliente/aura/google_ads/campanas_activas_google_ads → panel_cliente_google_ads.campanas_activas_google_ads
+  - /panel_cliente/aura/google_ads/panel_cliente/google_ads/campañas_activas → panel_cliente_google_ads.campañas_activas_api
+  - /panel_cliente/aura/google_ads/reporte_google_ads → panel_cliente_google_ads.reporte_google_ads
+  - /panel_cliente/aura/google_ads/ver_cuentas_google_ads → panel_cliente_google_ads.ver_cuentas_google_ads
+  - /panel_cliente/aura/google_ads/<nombre_nora>/importar_cuentas_automatico → panel_cliente_google_ads.importar_cuentas_automatico
+  - /panel_cliente/aura/google_ads/importar_cuentas_automatico → panel_cliente_google_ads.importar_cuentas_automatico
+  - /panel_cliente/aura/google_ads/<nombre_nora>/test_simple_insert → panel_cliente_google_ads.test_simple_insert
+  - /panel_cliente/aura/google_ads/test_simple_insert → panel_cliente_google_ads.test_simple_insert
+  - /panel_cliente/aura/google_ads/<nombre_nora>/reporte/<customer_id> → panel_cliente_google_ads.reporte_detallado_google_ads
+  - /panel_cliente/aura/clientes/empresa/<empresa_id>/agregar_cuenta_google_ads → panel_cliente_clientes_bp.agregar_cuenta_google_ads_empresa
+Registro de Blueprints completado.
+✅ Blueprint 'panel_team' registrado con nombre 'panel_team' y prefijo '/panel_team'
+✅ Blueprint 'panel_cliente_pagos_presupuestos' registrado con nombre 'panel_cliente_pagos_presupuestos' y prefijo '/panel_cliente'
+✅ Blueprint 'panel_cliente_pagos_presupuesto_nuevo' registrado con nombre 'panel_cliente_pagos_presupuesto_nuevo' y prefijo '/panel_cliente'
+✅ Blueprint 'panel_tareas_completadas_bp' registrado con nombre 'panel_tareas_completadas_bp' y prefijo '/panel_cliente'
+⚠️ Blueprint 'reportes_meta_ads' ya estaba registrado.
+✅ reportes_meta_ads_bp registrado correctamente (optimizado)
+⚠️ Blueprint 'campanas_meta_ads' ya estaba registrado.
+⚠️  Saltando carga de blueprint de Google Ads para diagnóstico...
+Registrando blueprint cliente_nora_bp...
+✅ Blueprint 'cliente_nora' registrado con nombre 'cliente_nora' y prefijo ''
+✅ Blueprint cliente_nora_bp registrado correctamente
+Definiendo rutas de nivel de aplicación...
+Definiendo ruta raíz (/)
+Definiendo ruta logout (/logout)
+Definiendo ruta pública para reportes compartidos...
+Definiendo before_request handler...
+✅ Rutas de nivel de aplicación definidas
+Iniciando cron de tareas recurrentes...
+[CRON] Inicializando BackgroundScheduler...
+[CRON] Scheduler creado, añadiendo jobs...
+[CRON] Jobs añadidos, iniciando scheduler...
+🔄 Cron iniciado en hilo separado
+✅ Aplicación Flask configurada completamente
+ * Serving Flask app 'clientes.aura'
+ * Debug mode: on
+/mnt/c/Users/PC/PYTHON/Auraai2/clientes/aura/routes/debug_verificar.py:7: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+🔁 REDIRECT_URI en uso: http://localhost:5000/login/google/callback
+✅ supabase_client.py cargado correctamente y cliente listo
+✅ Tipo de supabase: <class 'supabase.client.Client'>
+✅ Métodos de supabase: ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_get_auth_headers', '_init_postgrest_client', '_init_storage_client', '_init_supabase_auth_client', 'auth', 'auth_url', 'from_', 'functions', 'functions_url', 'postgrest', 'realtime', 'realtime_url', 'rest_url', 'rpc', 'schema', 'storage', 'storage_url', 'supabase_key', 'supabase_url', 'table']
+✅ registro_base.py cargado correctamente
+🔄 Cargando rutas básicas de reportes_meta_ads...
+✅ Rutas básicas de reportes_meta_ads cargadas
+✅ process_message.py cargado correctamente al chile y ajustado para actualización real
+✅ registro_admin.py cargado correctamente
+✅ admin_noras.py cargado correctamente
+✅ admin_nora.py cargado correctamente
+✅ admin_nora_dashboard.py cargado correctamente
+✅ debug_verificar.py cargado correctamente
+✅ Módulo debug_oauthlib.py cargado correctamente.
+✅ admin_actualizar_contactos.py cargado correctamente
+✅ panel_cliente.py cargado correctamente
+✅ panel_cliente_contactos.py cargado correctamente
+✅ Blueprint de contactos cargado como '/contactos'
+✅ panel_cliente_envios.py cargado correctamente
+✅ panel_cliente_ia.py cargado correctamente
+✅ panel_cliente_respuestas.py cargado correctamente
+✅ __init__.py del panel_chat cargado correctamente
+✅ vista_enviar_mensaje.py cargado correctamente (supabase actualizado)
+🧩 cargando tareas_crud.py...
+🚀 Cliente WhatsApp Web inicializado para https://whatsapp-server-production-7e82.up.railway.app
+✅ admin_verificador_rutas.py cargado correctamente
+✅ cliente_nora.py cargado correctamente
+✅ cliente_nora_bp importado correctamente
+✅ panel_cliente_ads_bp importado correctamente
+✅ cobranza_bp importado correctamente
+✅ panel_team_bp importado correctamente
+⚠️ No se pudo importar 'fpdf2': No module named 'fpdf2'
+>>> vista_presupuesto_nuevo.py importado
+✅ panel_cliente_pagos_presupuestos_bp importado correctamente
+✅ panel_cliente_pagos_presupuesto_nuevo_bp importado correctamente
+✅ panel_tareas_completadas_bp importado correctamente
+✅ reportes_meta_ads_bp importado correctamente (optimizado)
+✅ campanas_meta_ads_bp importado correctamente
+DEBUG: Objeto config_class ANTES de from_object: <class 'clientes.aura.app_config.Config'>
+DEBUG: config_class TIENE SESSION_COOKIE_NAME: aura_multinora_cookie
+DEBUG: SESSION_COOKIE_NAME configurado como: aura_multinora_cookie
+DEBUG: SECRET_KEY DESPUÉS de from_object: 1002ivimyH!
+DEBUG: SESSION_TYPE DESPUÉS de from_object: filesystem
+🍪 Configuración de cookies optimizada para navegador
+🚀 Aplicación Flask creada y configuración inicial cargada por la factory.
+ProxyFix y PREFERRED_URL_SCHEME configurados para https.
+Extensiones Flask-Session y Flask-SocketIO inicializadas.
+Handler de logging para errores de app configurado (error.log).
+Filtro de logging para Werkzeug añadido.
+Handler de logging para socketio_polling configurado (logs/socketio_polling.log).
+Nivel de logging para twilio.http_client establecido a WARNING.
+🕒 Inicializando cron jobs...
+✅ Cron jobs registrados.
+APScheduler iniciado y cron jobs registrados correctamente.
+Iniciando registro de Blueprints...
+✅ Blueprint 'login' registrado con nombre 'login' y prefijo '/login'
+✅ Blueprint 'simple_login' registrado con nombre 'simple_login' y prefijo '/login'
+✅ Blueprint 'webhook' registrado con nombre 'webhook' y prefijo ''
+✅ Blueprint 'admin_noras' registrado con nombre 'admin_noras' y prefijo ''
+✅ Blueprint 'admin_dashboard' registrado con nombre 'admin_dashboard' y prefijo '/admin'
+✅ Blueprint 'admin_nora' registrado con nombre 'admin_nora' y prefijo '/admin/nora'
+✅ Blueprint 'admin_nora_dashboard' registrado con nombre 'admin_nora_dashboard' y prefijo '/admin/nora/dashboard'
+✅ Blueprint 'admin_debug_master' registrado con nombre 'admin_debug_master' y prefijo '/admin/debug'
+✅ Blueprint 'admin_modulos' registrado con nombre 'admin_modulos' y prefijo '/admin/modulos'
+✅ Blueprint 'admin_actualizar_contactos' registrado con nombre 'admin_actualizar_contactos' y prefijo '/admin/actualizar_contactos'
+✅ Blueprint 'debug_session_bp' registrado con nombre 'debug_session_bp' y prefijo '/debug'
+✅ Blueprint 'debug_verificador' registrado con nombre 'debug_verificador' y prefijo ''
+✅ Invitado blueprints registrados (no hay rutas por ahora)
+Registro de Blueprints completado.
+Nora(s) encontradas en Supabase para registro dinámico: ['aura']
+🔍 Registrando blueprints dinámicos para aura...
+🧪 Registrando panel_cliente para aura
+✅ Blueprint 'panel_cliente_aura' registrado con nombre 'panel_cliente_aura' y prefijo '/panel_cliente/aura'
+✅ Blueprint 'panel_cliente_entrenamiento' registrado con nombre 'panel_cliente_entrenamiento' y prefijo '/panel_cliente/aura/entrenamiento'
+✅ Blueprint 'panel_cliente_contactos' registrado con nombre 'panel_cliente_contactos' y prefijo '/panel_cliente/aura/contactos'
+✅ Blueprint 'webhook_contactos' registrado con nombre 'webhook_contactos' y prefijo '/'
+🧪 Módulos activos normalizados para aura: ['contactos', 'entrenamiento', 'pagos', 'chat', 'google_ads', 'meta_ads', 'clientes', 'qr_whatsapp_web', 'tareas', 'cursos']
+✅ Blueprint 'panel_cliente_pagos' registrado con nombre 'panel_cliente_pagos' y prefijo '/panel_cliente/aura/pagos'
+✅ Blueprint 'panel_cliente_pagos_servicios' registrado con nombre 'panel_cliente_pagos_servicios' y prefijo '/panel_cliente/aura/pagos/servicios'
+✅ Blueprint 'panel_cliente_pagos_nuevo' registrado con nombre 'panel_cliente_pagos_nuevo' y prefijo '/panel_cliente/aura/pagos'
+✅ Blueprint 'panel_cliente_pagos_recibo' registrado con nombre 'panel_cliente_pagos_recibo' y prefijo ''
+✅ Blueprint 'panel_cliente_tareas' registrado con nombre 'panel_cliente_tareas' y prefijo '/panel_cliente/aura/tareas'
+⚠️ Blueprint 'panel_tareas_gestionar_bp' ya estaba registrado.
+⚠️ Blueprint 'panel_tareas_recurrentes_bp' ya estaba registrado.
+⚠️ Blueprint 'panel_tareas_crud' ya estaba registrado.
+Registrando blueprint META ADS para aura
+✅ Blueprint 'panel_cliente_ads' registrado con nombre 'panel_cliente_ads' y prefijo '/panel_cliente/aura/meta_ads'
+✅ Blueprint 'reportes_meta_ads' registrado con nombre 'reportes_meta_ads' y prefijo '/panel_cliente/aura/meta_ads'
+🔄 Cargando estadísticas_ads_bp bajo demanda...
+✅ estadisticas_ads_bp cargado exitosamente
+✅ Blueprint 'estadisticas_ads_bp' registrado con nombre 'estadisticas_ads_bp' y prefijo ''
+✅ Blueprint 'campanas_meta_ads' registrado con nombre 'campanas_meta_ads' y prefijo '/panel_cliente/aura/meta_ads'
+✅ Blueprint 'panel_cliente_meta_ads' registrado con nombre 'panel_cliente_meta_ads' y prefijo '/panel_cliente/aura/meta_ads'
+✅ Blueprint 'panel_cliente_meta_ads_sincronizacion' registrado con nombre 'panel_cliente_meta_ads_sincronizacion' y prefijo '/panel_cliente/aura/meta_ads'
+Registrando blueprint GOOGLE ADS para aura
+✅ Blueprint 'panel_cliente_google_ads' registrado con nombre 'panel_cliente_google_ads' y prefijo '/panel_cliente/aura/google_ads'
+⚠️ Blueprint 'panel_cliente_contactos' ya estaba registrado.
+✅ Blueprint 'panel_cliente_clientes_bp' registrado con nombre 'panel_cliente_clientes_bp' y prefijo '/panel_cliente/aura/clientes'
+Registrando blueprint CURSOS para aura
+✅ Blueprint 'panel_cliente_cursos' registrado con nombre 'panel_cliente_cursos' y prefijo ''
+Registrando blueprint QR WHATSAPP WEB WEBSOCKET para aura
+✅ Blueprint 'panel_cliente_whatsapp_web' registrado con nombre 'panel_cliente_whatsapp_web' y prefijo '/panel_cliente/aura/whatsapp'
+✅ Blueprint WhatsApp Web WebSocket registrado exitosamente
+
+🧪 Resultado del registro de módulos para: aura
+2025-07-06 13:50:10,704 - INFO - 🌐 Accediendo a dashboard WhatsApp Web para: None
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:🌐 Accediendo a dashboard WhatsApp Web para: None
+2025-07-06 13:50:10,705 - INFO - 🔄 Obteniendo cliente WhatsApp...
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:🔄 Obteniendo cliente WhatsApp...
+2025-07-06 13:50:10,720 - INFO - ✅ Cliente WebSocket WhatsApp Web creado exitosamente
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:✅ Cliente WebSocket WhatsApp Web creado exitosamente
+2025-07-06 13:50:10,721 - INFO - ✅ Cliente obtenido: <class 'clientes.aura.utils.whatsapp_websocket_client.WhatsAppWebSocketClient'>
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:✅ Cliente obtenido: <class 'clientes.aura.utils.whatsapp_websocket_client.WhatsAppWebSocketClient'>
+2025-07-06 13:50:10,722 - INFO - 🏥 Obteniendo health status...
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:🏥 Obteniendo health status...
+2025-07-06 13:50:10,967 - INFO - ❤️ Health status: {'status': 'ok', 'timestamp': '2025-07-06T13:50:10.965541', 'message': 'Backend funcionando'}
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:❤️ Health status: {'status': 'ok', 'timestamp': '2025-07-06T13:50:10.965541', 'message': 'Backend funcionando'}
+2025-07-06 13:50:10,968 - INFO - 📊 Obteniendo detailed status...
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:📊 Obteniendo detailed status...
+2025-07-06 13:50:10,968 - INFO - 📋 Detailed status: {'connected': False, 'authenticated': False, 'session_active': False, 'session_id': None, 'has_qr': False, 'backend_type': 'websocket'}
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:📋 Detailed status: {'connected': False, 'authenticated': False, 'session_active': False, 'session_id': None, 'has_qr': False, 'backend_type': 'websocket'}
+2025-07-06 13:50:10,969 - INFO - 🔗 Client status: {'connected': False, 'authenticated': False, 'session_active': False, 'session_id': None, 'has_qr': False, 'backend_type': 'websocket'}
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:🔗 Client status: {'connected': False, 'authenticated': False, 'session_active': False, 'session_id': None, 'has_qr': False, 'backend_type': 'websocket'}
+2025-07-06 13:50:10,969 - INFO - 🎨 Renderizando template...
+INFO:clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket:🎨 Renderizando template...
+⚠️ contactos              → No definida en verificador
+⚠️ entrenamiento          → No definida en verificador
+❌ pagos                  → NO registrado ⛔ (/panel_cliente/aura/pagos)
+⚠️ chat                   → No definida en verificador
+❌ google_ads             → NO registrado ⛔ (/panel_cliente/aura/google_ads)
+❌ meta_ads               → NO registrado ⛔ (/panel_cliente/aura/meta_ads)
+❌ clientes               → NO registrado ⛔ (/panel_cliente/aura/clientes)
+❌ qr_whatsapp_web        → NO registrado ⛔ (/panel_cliente/aura/whatsapp)
+❌ tareas                 → NO registrado ⛔ (/panel_cliente/aura/tareas)
+❌ cursos                 → NO registrado ⛔ (/panel_cliente/aura/cursos)
+
+🧪 Rutas registradas relacionadas con google_ads:
+  - /panel_cliente/aura/google_ads/<nombre_nora>/actualizar_empresa → panel_cliente_google_ads.actualizar_empresa
+  - /panel_cliente/aura/google_ads/actualizar_empresa → panel_cliente_google_ads.actualizar_empresa
+  - /panel_cliente/aura/google_ads/<nombre_nora>/ → panel_cliente_google_ads.panel_google_ads
+  - /panel_cliente/aura/google_ads/ → panel_cliente_google_ads.panel_google_ads
+  - /panel_cliente/aura/google_ads/cuentas → panel_cliente_google_ads.vista_cuentas_publicitarias_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias → panel_cliente_google_ads.vista_cuentas_publicitarias_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias/actualizar → panel_cliente_google_ads.actualizar_cuentas_publicitarias_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias/importar_desde_google_ads → panel_cliente_google_ads.importar_cuentas_desde_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias/vincular_empresa → panel_cliente_google_ads.vincular_empresa_a_cuenta_google_ads
+  - /panel_cliente/aura/google_ads/cuentas_publicitarias/ads_activos → panel_cliente_google_ads.obtener_ads_activos_endpoint_google_ads
+  - /panel_cliente/aura/google_ads/cuenta → panel_cliente_google_ads.ficha_cuenta_publicitaria_google_ads
+  - /panel_cliente/aura/google_ads/agregar_cuenta → panel_cliente_google_ads.agregar_cuenta_google_ads
+  - /panel_cliente/aura/google_ads/google_ads/anuncios_activos_json → panel_cliente_google_ads.anuncios_activos_json
+  - /panel_cliente/aura/google_ads/reportes → panel_cliente_google_ads.vista_reportes_google_ads
+  - /panel_cliente/aura/google_ads/campanas → panel_cliente_google_ads.vista_campanas_google_ads
+  - /panel_cliente/aura/google_ads/campanas_activas_google_ads → panel_cliente_google_ads.campanas_activas_google_ads
+  - /panel_cliente/aura/google_ads/panel_cliente/google_ads/campañas_activas → panel_cliente_google_ads.campañas_activas_api
+  - /panel_cliente/aura/google_ads/reporte_google_ads → panel_cliente_google_ads.reporte_google_ads
+  - /panel_cliente/aura/google_ads/ver_cuentas_google_ads → panel_cliente_google_ads.ver_cuentas_google_ads
+  - /panel_cliente/aura/google_ads/<nombre_nora>/importar_cuentas_automatico → panel_cliente_google_ads.importar_cuentas_automatico
+  - /panel_cliente/aura/google_ads/importar_cuentas_automatico → panel_cliente_google_ads.importar_cuentas_automatico
+  - /panel_cliente/aura/google_ads/<nombre_nora>/test_simple_insert → panel_cliente_google_ads.test_simple_insert
+  - /panel_cliente/aura/google_ads/test_simple_insert → panel_cliente_google_ads.test_simple_insert
+  - /panel_cliente/aura/google_ads/<nombre_nora>/reporte/<customer_id> → panel_cliente_google_ads.reporte_detallado_google_ads
+  - /panel_cliente/aura/clientes/empresa/<empresa_id>/agregar_cuenta_google_ads → panel_cliente_clientes_bp.agregar_cuenta_google_ads_empresa
+Registro de Blueprints completado.
+✅ Blueprint 'panel_team' registrado con nombre 'panel_team' y prefijo '/panel_team'
+✅ Blueprint 'panel_cliente_pagos_presupuestos' registrado con nombre 'panel_cliente_pagos_presupuestos' y prefijo '/panel_cliente'
+✅ Blueprint 'panel_cliente_pagos_presupuesto_nuevo' registrado con nombre 'panel_cliente_pagos_presupuesto_nuevo' y prefijo '/panel_cliente'
+✅ Blueprint 'panel_tareas_completadas_bp' registrado con nombre 'panel_tareas_completadas_bp' y prefijo '/panel_cliente'
+⚠️ Blueprint 'reportes_meta_ads' ya estaba registrado.
+✅ reportes_meta_ads_bp registrado correctamente (optimizado)
+⚠️ Blueprint 'campanas_meta_ads' ya estaba registrado.
+⚠️  Saltando carga de blueprint de Google Ads para diagnóstico...
+Registrando blueprint cliente_nora_bp...
+✅ Blueprint 'cliente_nora' registrado con nombre 'cliente_nora' y prefijo ''
+✅ Blueprint cliente_nora_bp registrado correctamente
+Definiendo rutas de nivel de aplicación...
+Definiendo ruta raíz (/)
+Definiendo ruta logout (/logout)
+Definiendo ruta pública para reportes compartidos...
+Definiendo before_request handler...
+✅ Rutas de nivel de aplicación definidas
+Iniciando cron de tareas recurrentes...
+[CRON] Inicializando BackgroundScheduler...
+[CRON] Scheduler creado, añadiendo jobs...
+[CRON] Jobs añadidos, iniciando scheduler...
+🔄 Cron iniciado en hilo separado
+✅ Aplicación Flask configurada completamente
+[CRON] ✅ BackgroundScheduler iniciado correctamente
+✅ Cron de tareas recurrentes iniciado correctamente
+🔗 WhatsApp WebSocket Client: https://whatsapp-server-production-8f61.up.railway.app
+🏥 Health check: https://whatsapp-server-production-8f61.up.railway.app/health
+✅ Backend OK (HTML)
+Exception ignored in: <function _removeHandlerRef at 0x787386924c20>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/logging/__init__.py", line 884, in _removeHandlerRef
+  File "/usr/lib/python3.12/logging/__init__.py", line 241, in _acquireLock
+  File "/usr/lib/python3.12/threading.py", line 198, in acquire
+TypeError: 'NoneType' object is not callable
+/mnt/c/Users/PC/PYTHON/Auraai2/clientes/aura/routes/debug_verificar.py:7: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+🔁 REDIRECT_URI en uso: http://localhost:5000/login/google/callback
+✅ supabase_client.py cargado correctamente y cliente listo
+✅ Tipo de supabase: <class 'supabase.client.Client'>
+✅ Métodos de supabase: ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_get_auth_headers', '_init_postgrest_client', '_init_storage_client', '_init_supabase_auth_client', 'auth', 'auth_url', 'from_', 'functions', 'functions_url', 'postgrest', 'realtime', 'realtime_url', 'rest_url', 'rpc', 'schema', 'storage', 'storage_url', 'supabase_key', 'supabase_url', 'table']
+✅ registro_base.py cargado correctamente
+🔄 Cargando rutas básicas de reportes_meta_ads...
+✅ Rutas básicas de reportes_meta_ads cargadas
+✅ process_message.py cargado correctamente al chile y ajustado para actualización real
+✅ registro_admin.py cargado correctamente
+✅ admin_noras.py cargado correctamente
+✅ admin_nora.py cargado correctamente
+✅ admin_nora_dashboard.py cargado correctamente
+✅ debug_verificar.py cargado correctamente
+✅ Módulo debug_oauthlib.py cargado correctamente.
+✅ admin_actualizar_contactos.py cargado correctamente
+✅ panel_cliente.py cargado correctamente
+✅ panel_cliente_contactos.py cargado correctamente
+✅ Blueprint de contactos cargado como '/contactos'
+✅ panel_cliente_envios.py cargado correctamente
+✅ panel_cliente_ia.py cargado correctamente
+✅ panel_cliente_respuestas.py cargado correctamente
+✅ __init__.py del panel_chat cargado correctamente
+✅ vista_enviar_mensaje.py cargado correctamente (supabase actualizado)
+🧩 cargando tareas_crud.py...
+🚀 Cliente WhatsApp Web inicializado para https://whatsapp-server-production-7e82.up.railway.app
+✅ admin_verificador_rutas.py cargado correctamente
+✅ cliente_nora.py cargado correctamente
+✅ cliente_nora_bp importado correctamente
+✅ panel_cliente_ads_bp importado correctamente
+✅ cobranza_bp importado correctamente
+✅ panel_team_bp importado correctamente
+⚠️ No se pudo importar 'fpdf2': No module named 'fpdf2'
+>>> vista_presupuesto_nuevo.py importado
+✅ panel_cliente_pagos_presupuestos_bp importado correctamente
+✅ panel_cliente_pagos_presupuesto_nuevo_bp importado correctamente
+✅ panel_tareas_completadas_bp importado correctamente
+✅ reportes_meta_ads_bp importado correctamente (optimizado)
+✅ campanas_meta_ads_bp importado correctamente
+DEBUG: Objeto config_class ANTES de from_object: <class 'clientes.aura.app_config.Config'>
+DEBUG: config_class TIENE SESSION_COOKIE_NAME: aura_multinora_cookie
+DEBUG: SESSION_COOKIE_NAME configurado como: aura_multinora_cookie
+DEBUG: SECRET_KEY DESPUÉS de from_object: 1002ivimyH!
+DEBUG: SESSION_TYPE DESPUÉS de from_object: filesystem
+🍪 Configuración de cookies optimizada para navegador
+🚀 Aplicación Flask creada y configuración inicial cargada por la factory.
+ProxyFix y PREFERRED_URL_SCHEME configurados para https.
+Extensiones Flask-Session y Flask-SocketIO inicializadas.
+Handler de logging para errores de app configurado (error.log).
+Filtro de logging para Werkzeug añadido.
+Handler de logging para socketio_polling configurado (logs/socketio_polling.log).
+Nivel de logging para twilio.http_client establecido a WARNING.
+🕒 Inicializando cron jobs...
+✅ Cron jobs registrados.
+APScheduler iniciado y cron jobs registrados correctamente.
+Iniciando registro de Blueprints...
+✅ Blueprint 'login' registrado con nombre 'login' y prefijo '/login'
+✅ Blueprint 'simple_login' registrado con nombre 'simple_login' y prefijo '/login'
+✅ Blueprint 'webhook' registrado con nombre 'webhook' y prefijo ''
+✅ Blueprint 'admin_noras' registrado con nombre 'admin_noras' y prefijo ''
+✅ Blueprint 'admin_dashboard' registrado con nombre 'admin_dashboard' y prefijo '/admin'
+✅ Blueprint 'admin_nora' registrado con nombre 'admin_nora' y prefijo '/admin/nora'
+✅ Blueprint 'admin_nora_dashboard' registrado con nombre 'admin_nora_dashboard' y prefijo '/admin/nora/dashboard'
+✅ Blueprint 'admin_debug_master' registrado con nombre 'admin_debug_master' y prefijo '/admin/debug'
+✅ Blueprint 'admin_modulos' registrado con nombre 'admin_modulos' y prefijo '/admin/modulos'
+✅ Blueprint 'admin_actualizar_contactos' registrado con nombre 'admin_actualizar_contactos' y prefijo '/admin/actualizar_contactos'
+✅ Blueprint 'debug_session_bp' registrado con nombre 'debug_session_bp' y prefijo '/debug'
+✅ Blueprint 'debug_verificador' registrado con nombre 'debug_verificador' y prefijo ''
+✅ Invitado blueprints registrados (no hay rutas por ahora)
+Registro de Blueprints completado.
+Nora(s) encontradas en Supabase para registro dinámico: ['aura']
+🔍 Registrando blueprints dinámicos para aura...
+🧪 Registrando panel_cliente para aura
+✅ Blueprint 'panel_cliente_aura' registrado con nombre 'panel_cliente_aura' y prefijo '/panel_cliente/aura'
+✅ Blueprint 'panel_cliente_entrenamiento' registrado con nombre 'panel_cliente_entrenamiento' y prefijo '/panel_cliente/aura/entrenamiento'
+✅ Blueprint 'panel_cliente_contactos' registrado con nombre 'panel_cliente_contactos' y prefijo '/panel_cliente/aura/contactos'
+✅ Blueprint 'webhook_contactos' registrado con nombre 'webhook_contactos' y prefijo '/'
+🧪 Módulos activos normalizados para aura: ['contactos', 'entrenamiento', 'pagos', 'chat', 'google_ads', 'meta_ads', 'clientes', 'qr_whatsapp_web', 'tareas', 'cursos']
+✅ Blueprint 'panel_cliente_pagos' registrado con nombre 'panel_cliente_pagos' y prefijo '/panel_cliente/aura/pagos'
+✅ Blueprint 'panel_cliente_pagos_servicios' registrado con nombre 'panel_cliente_pagos_servicios' y prefijo '/panel_cliente/aura/pagos/servicios'
+✅ Blueprint 'panel_cliente_pagos_nuevo' registrado con nombre 'panel_cliente_pagos_nuevo' y prefijo '/panel_cliente/aura/pagos'
+✅ Blueprint 'panel_cliente_pagos_recibo' registrado con nombre 'panel_cliente_pagos_recibo' y prefijo ''
+✅ Blueprint 'panel_cliente_tareas' registrado con nombre 'panel_cliente_tareas' y prefijo '/panel_cliente/aura/tareas'
+⚠️ Blueprint 'panel_tareas_gestionar_bp' ya estaba registrado.
+⚠️ Blueprint 'panel_tareas_recurrentes_bp' ya estaba registrado.
+⚠️ Blueprint 'panel_tareas_crud' ya estaba registrado.
+Registrando blueprint META ADS para aura
+✅ Blueprint 'panel_cliente_ads' registrado con nombre 'panel_cliente_ads' y prefijo '/panel_cliente/aura/meta_ads'
+✅ Blueprint 'reportes_meta_ads' registrado con nombre 'reportes_meta_ads' y prefijo '/panel_cliente/aura/meta_ads'
+🔄 Cargando estadísticas_ads_bp bajo demanda...
+✅ estadisticas_ads_bp cargado exitosamente
+✅ Blueprint 'estadisticas_ads_bp' registrado con nombre 'estadisticas_ads_bp' y prefijo ''
+✅ Blueprint 'campanas_meta_ads' registrado con nombre 'campanas_meta_ads' y prefijo '/panel_cliente/aura/meta_ads'
+✅ Blueprint 'panel_cliente_meta_ads' registrado con nombre 'panel_cliente_meta_ads' y prefijo '/panel_cliente/aura/meta_ads'
+✅ Blueprint 'panel_cliente_meta_ads_sincronizacion' registrado con nombre 'panel_cliente_meta_ads_sincronizacion' y prefijo '/panel_cliente/aura/meta_ads'
+Registrando blueprint GOOGLE ADS para aura
+✅ Blueprint 'panel_cliente_google_ads' registrado con nombre 'panel_cliente_google_ads' y prefijo '/panel_cliente/aura/google_ads'
+⚠️ Blueprint 'panel_cliente_contactos' ya estaba registrado.
+✅ Blueprint 'panel_cliente_clientes_bp' registrado con nombre 'panel_cliente_clientes_bp' y prefijo '/panel_cliente/aura/clientes'
+Registrando blueprint CURSOS para aura
+✅ Blueprint 'panel_cliente_cursos' registrado con nombre 'panel_cliente_cursos' y prefijo ''
+Registrando blueprint QR WHATSAPP WEB WEBSOCKET para aura
+✅ Blueprint 'panel_cliente_whatsapp_web' registrado con nombre 'panel_cliente_whatsapp_web' y prefijo '/panel_cliente/aura/whatsapp'
+✅ Blueprint WhatsApp Web WebSocket registrado exitosamente
+
+🧪 Resultado del registro de módulos para: aura

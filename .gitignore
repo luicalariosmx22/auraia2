@@ -11,3 +11,4 @@ __pycache__/actualizar_google_ads_cuentas.cpython-311.pyc
 .env.local.backup
 .env.local.new
 .env.railway
+/node_modules

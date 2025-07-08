@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test QR WhatsApp</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+</head>
+<body>
+    <h1>🧪 Test QR WhatsApp Web</h1>
+    
+    <h2>1. QR desde Base64 (directo)</h2>
+    <img id="qr-base64" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYYAAAGGAQAAAABX+xtIAAACf0lEQVR4nO2cTW6kMBCF3xsjZWluwFHgBnOknGlugI+SA0Qyy5ZAbxZl0yQdKepR+mesqkVL/HyirKLguVw0hets+3UlADjhhBNOOOGEE0448bMEJEmaz5s5CGMGMErCqLUeipKk9TnH4cQVVmJeAmoxl3I9Osf10ynPOQ4n/oHYSPYAUr+RE0JJ8TEDSCQf45UT9yPiicDSAam/2TWceBDRfbVTQBDTIHDM2wO8cuKWxB7zIAAbgPjeIf3OEBbCqnTjsVj3nONw4npiIUmes34j0rDas50kyekBXjlxC6JE+ZDJy4vqEz2o/tzZKyfuQKR+s2zGqBOR+iBgIWGC3nV7i8TS2dScEwDNC8lXSSbeEaVdwT/3OJz43g66nQCo1L+X7dRnADHDcnzM9/PKiVsSe+01qFjeC7BaawHWNr0O1wZxKKxi1AorwM6xlODKzZDreR7zhoilA4AgJHbgaw5CGiSYhhv8fd4Qcc7fuiPqaLbGkj3PGySWF3tj2wwt9RvPpXZOUSbo7+2VE7cgcEjnc07PsaypH3Wd53kjxKFnokQ66tAzcbgZfP28FeKDbs+AiffZjgXZrA1744THvDkiFHleJuQnW2jRjODv8waJjUjDiZoBkEPtmcBCcsJB0j35OJz43vTJ5jpXsyo7qprzHshmiMu+1xpu64Y0+QbX7Q0SsRZmEknNtWeCE4LdAtYheWevnLgpUfteiwVhfCNtVXXCxv1R8OTjcOJb+6IHMqwc89Zh/BNWImaYmvO11IaJjVaKTcOp9sn0AKfHeuXEjxGX37HsNZlSnQm+ft4YcaHb5w/7Dl8xuW5vhaD/z4QTTjjhhBNOOOHEf0f8BaQWHz/qyyvtAAAAAElFTkSuQmCC" style="border: 1px solid #ccc;">
+    
+    <h2>2. QR desde QRCode.js</h2>
+    <canvas id="qr-canvas" style="border: 1px solid #ccc;"></canvas>
+    
+    <h2>3. QR desde texto</h2>
+    <div id="qr-text-container"></div>
+    
+    <script>
+        console.log('🔧 Iniciando test QR...');
+        
+        // Test 1: Base64 directo
+        const base64Img = document.getElementById('qr-base64');
+        if (base64Img.src) {
+            console.log('✅ QR Base64 cargado');
+        } else {
+            console.log('❌ QR Base64 no cargado');
+        }
+        
+        // Test 2: QRCode.js
+        if (typeof QRCode !== 'undefined') {
+            console.log('✅ QRCode.js disponible');
+            
+            const canvas = document.getElementById('qr-canvas');
+            QRCode.toCanvas(canvas, 'https://wa.me/qr/TEST123456789', function (error) {
+                if (error) {
+                    console.log('❌ Error QRCode.js:', error);
+                } else {
+                    console.log('✅ QR generado con QRCode.js');
+                }
+            });
+        } else {
+            console.log('❌ QRCode.js no disponible');
+        }
+        
+        // Test 3: QR desde texto
+        const textContainer = document.getElementById('qr-text-container');
+        if (typeof QRCode !== 'undefined') {
+            QRCode.toCanvas(textContainer, 'https://wa.me/qr/TEST123456789', {
+                width: 200,
+                height: 200
+            }, function (error) {
+                if (error) {
+                    console.log('❌ Error QR texto:', error);
+                } else {
+                    console.log('✅ QR texto generado');
+                }
+            });
+        }
+        
+        // Test del QR real (simulado)
+        const realQR = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYYAAAGGAQAAAABX+xtIAAACf0lEQVR4nO2cTW6kMBCF3xsjZWluwFHgBnOknGlugI+SA0Qyy5ZAbxZl0yQdKepR+mesqkVL/HyirKLguVw0hets+3UlADjhhBNOOOGEE0448bMEJEmaz5s5CGMGMErCqLUeipKk9TnH4cQVVmJeAmoxl3I9Osf10ynPOQ4n/oHYSPYAUr+RE0JJ8TEDSCQf45UT9yPiicDSAam/2TWceBDRfbVTQBDTIHDM2wO8cuKWxB7zIAAbgPjeIf3OEBbCqnTjsVj3nONw4npiIUmes34j0rDas50kyekBXjlxC6JE+ZDJy4vqEz2o/tzZKyfuQKR+s2zGqBOR+iBgIWGC3nV7i8TS2dScEwDNC8lXSSbeEaVdwT/3OJz43g66nQCo1L+X7dRnADHDcnzM9/PKiVsSe+01qFjeC7BaawHWNr0O1wZxKKxi1AorwM6xlODKzZDreR7zhoilA4AgJHbgaw5CGiSYhhv8fd4Qcc7fuiPqaLbGkj3PGySWF3tj2wwt9RvPpXZOUSbo7+2VE7cgcEjnc07PsaypH3Wd53kjxKFnokQ66tAzcbgZfP28FeKDbs+AiffZjgXZrA1744THvDkiFHleJuQnW2jRjODv8waJjUjDiZoBkEPtmcBCcsJB0j35OJz43vTJ5jpXsyo7qprzHshmiMu+1xpu64Y0+QbX7Q0SsRZmEknNtWeCE4LdAtYheWevnLgpUfteiwVhfCNtVXXCxv1R8OTjcOJb+6IHMqwc89Zh/BNWImaYmvO11IaJjVaKTcOp9sn0AKfHeuXEjxGX37HsNZlSnQm+ft4YcaHb5w/7Dl8xuW5vhaD/z4QTTjjhhBNOOOHEf0f8BaQWHz/qyyvtAAAAAElFTkSuQmCC';
+        console.log('📱 QR real disponible:', realQR.length, 'caracteres');
+        
+        // Simular función displayQR
+        function testDisplayQR(qrData) {
+            console.log('🔧 testDisplayQR llamada');
+            
+            if (!qrData) {
+                console.log('❌ No hay datos QR');
+                return;
+            }
+            
+            // Crear elemento para mostrar QR
+            const testDiv = document.createElement('div');
+            testDiv.innerHTML = '<h2>4. Test displayQR</h2>';
+            
+            if (qrData.startsWith('data:image/')) {
+                // Es Base64
+                const img = document.createElement('img');
+                img.src = qrData;
+                img.style.border = '1px solid #ccc';
+                testDiv.appendChild(img);
+                console.log('✅ QR Base64 mostrado');
+            } else {
+                // Es texto, usar QRCode.js
+                const canvas = document.createElement('canvas');
+                canvas.style.border = '1px solid #ccc';
+                testDiv.appendChild(canvas);
+                
+                QRCode.toCanvas(canvas, qrData, function (error) {
+                    if (error) {
+                        console.log('❌ Error QR texto:', error);
+                    } else {
+                        console.log('✅ QR texto mostrado');
+                    }
+                });
+            }
+            
+            document.body.appendChild(testDiv);
+        }
+        
+        // Ejecutar test
+        testDisplayQR(realQR);
+        
+        console.log('🎉 Test QR completado');
+    </script>
+</body>
+</html>

@@ -13,6 +13,7 @@ from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_b
 from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
 from clientes.aura.routes.panel_cliente_cursos import panel_cliente_cursos_bp
+from clientes.aura.routes.panel_cliente_whatsapp_web import panel_cliente_whatsapp_web_bp
 
 from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp
@@ -20,6 +21,7 @@ from clientes.aura.routes.panel_cliente_tareas.recurrentes import panel_tareas_r
 from clientes.aura.routes.reportes_meta_ads import reportes_meta_ads_bp
 from clientes.aura.routes.reportes_meta_ads import get_estadisticas_bp
 from clientes.aura.routes.panel_cliente_google_ads import panel_cliente_google_ads_bp
+from clientes.aura.routes.whatsapp_integration import whatsapp_integration_bp
 
 
 # Configurar Supabase
@@ -27,6 +29,53 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def obtener_modulos_activos(nombre_nora):
+    """
+    Obtener los módulos activos para una Nora específica desde la base de datos.
+    
+    Args:
+        nombre_nora (str): Nombre de la Nora para obtener los módulos
+        
+    Returns:
+        list: Lista de módulos activos normalizados
+    """
+    try:
+        # Obtener los módulos activos de la tabla configuracion_bot
+        modulos_activados = supabase.table('configuracion_bot').select('modulos').eq('nombre_nora', nombre_nora).single().execute()
+
+        if modulos_activados.data:
+            modulos_raw = modulos_activados.data.get('modulos', [])
+            if modulos_raw and isinstance(modulos_raw[0], dict):
+                modulos = [
+                    m["nombre"]
+                    .strip()
+                    .lower()
+                    .replace(" ", "_")
+                    .replace("panel_conocimiento", "conocimiento")
+                    .replace("panel_chat", "chat")
+                    for m in modulos_raw
+                ]
+            else:
+                modulos_raw = [{"nombre": m} for m in modulos_raw]
+                modulos = [
+                    m["nombre"]
+                    .strip()
+                    .lower()
+                    .replace(" ", "_")
+                    .replace("panel_conocimiento", "conocimiento")
+                    .replace("panel_chat", "chat")
+                    for m in modulos_raw
+                ]
+            print(f"🧪 Módulos activos obtenidos para {nombre_nora}: {modulos}")
+            return modulos
+        else:
+            print(f"⚠️ No se encontraron módulos activados para {nombre_nora} en la tabla configuracion_bot.")
+            return []
+
+    except Exception as e:
+        print(f"❌ Error al obtener módulos activos para {nombre_nora}: {e}")
+        return []
 
 def safe_register_blueprint(app, blueprint, **kwargs):
     if blueprint.name not in app.blueprints:
@@ -179,6 +228,25 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 print(f"Registrando blueprint CURSOS para {nombre_nora}")
                 safe_register_blueprint(app, panel_cliente_cursos_bp, url_prefix="")
 
+            # ✅ Registro del módulo WhatsApp Web integrado (WebSocket)
+            if "qr_whatsapp_web" in modulos:
+                print(f"Registrando blueprint QR WHATSAPP WEB WEBSOCKET para {nombre_nora}")
+                try:
+                    from clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket import panel_cliente_whatsapp_web_bp
+                    safe_register_blueprint(app, panel_cliente_whatsapp_web_bp, url_prefix=f'/panel_cliente/{nombre_nora}/whatsapp')
+                    print(f"✅ Blueprint WhatsApp Web WebSocket registrado exitosamente")
+                except Exception as e:
+                    print(f"❌ Error registrando blueprint WhatsApp Web WebSocket: {e}")
+                    # Fallback al blueprint original si el WebSocket falla
+                    try:
+                        from clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web_fixed import panel_cliente_whatsapp_web_bp
+                        safe_register_blueprint(app, panel_cliente_whatsapp_web_bp, url_prefix=f'/panel_cliente/{nombre_nora}/whatsapp')
+                        print(f"✅ Blueprint WhatsApp Web original registrado como fallback")
+                    except Exception as e2:
+                        print(f"❌ Error también con blueprint original: {e2}")
+                        import traceback
+                        traceback.print_exc()
+
             # ✅ Conocimiento ahora está integrado en el panel de entrenamiento de admin_nora
             # if "conocimiento" in modulos:
             #     safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
@@ -207,7 +275,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 "google_ads": f"/panel_cliente/{nombre_nora}/google_ads",
                 "ads": f"/panel_cliente/{nombre_nora}/ads",
                 "clientes": f"/panel_cliente/{nombre_nora}/clientes",
-                "cursos": f"/panel_cliente/{nombre_nora}/cursos"
+                "cursos": f"/panel_cliente/{nombre_nora}/cursos",
+                "whatsapp": f"/panel_cliente/{nombre_nora}/whatsapp",
+                "qr_whatsapp_web": f"/panel_cliente/{nombre_nora}/whatsapp"
             }
 
             # Obtener rutas reales registradas
