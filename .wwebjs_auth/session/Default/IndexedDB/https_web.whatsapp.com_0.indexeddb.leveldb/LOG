@@ -1,0 +1,33 @@
+2025/07/08-16:48:07.384 17f41d Creating DB /mnt/c/Users/PC/PYTHON/Auraai2/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb since it was missing.
+2025/07/08-16:48:07.402 17f41d Reusing MANIFEST /mnt/c/Users/PC/PYTHON/Auraai2/.wwebjs_auth/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/07/08-16:48:07.781 17f427 Manual compaction at level-0 from '\x00\x02\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x03\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.796 17f428 Manual compaction at level-0 from '\x00\x03\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x04\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.803 17f41d Manual compaction at level-0 from '\x00\x04\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.814 17f427 Level-0 table #5: started
+2025/07/08-16:48:07.825 17f427 Level-0 table #5: 7940 bytes OK
+2025/07/08-16:48:07.845 17f427 Delete type=0 #3
+2025/07/08-16:48:07.849 17f41d Manual compaction at level-0 from '\x00\x05\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x06\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.855 17f427 Level-0 table #7: started
+2025/07/08-16:48:07.863 17f427 Level-0 table #7: 972 bytes OK
+2025/07/08-16:48:07.883 17f427 Delete type=0 #4
+2025/07/08-16:48:07.886 17f427 Manual compaction at level-0 from '\x00\x06\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.887 17f427 Manual compaction at level-1 from '\x00\x06\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at '\x00\x06\x00\x00\x05' @ 664 : 0
+2025/07/08-16:48:07.887 17f427 Compacting 1@1 + 1@2 files
+2025/07/08-16:48:07.898 17f427 Generated table #8@1: 191 keys, 3225 bytes
+2025/07/08-16:48:07.899 17f427 Compacted 1@1 + 1@2 files => 3225 bytes
+2025/07/08-16:48:07.905 17f427 compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/07/08-16:48:07.919 17f427 Delete type=2 #7
+2025/07/08-16:48:07.922 17f427 Manual compaction at level-1 from '\x00\x06\x00\x00\x05' @ 664 : 0 .. '\x00\x07\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.925 17f427 Manual compaction at level-0 from '\x00\x07\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.925 17f427 Manual compaction at level-1 from '\x00\x07\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x08\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.927 17f427 Manual compaction at level-0 from '\x00\x08\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x09\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.928 17f41d Manual compaction at level-1 from '\x00\x08\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x09\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.931 17f41d Manual compaction at level-0 from '\x00\x09\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0a\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.932 17f41d Manual compaction at level-1 from '\x00\x09\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0a\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.934 17f41d Manual compaction at level-0 from '\x00\x0a\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0b\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.934 17f41d Manual compaction at level-1 from '\x00\x0a\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0b\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.937 17f426 Manual compaction at level-0 from '\x00\x0b\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0c\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.938 17f41d Manual compaction at level-1 from '\x00\x0b\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0c\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.940 17f426 Manual compaction at level-0 from '\x00\x0c\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0d\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:07.941 17f427 Manual compaction at level-1 from '\x00\x0c\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x0d\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/07/08-16:48:08.017 17f41d Manual compaction at level-0 from '\x00\x10\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x11\x00\x00\x00' @ 0 : 0; will stop at (end)

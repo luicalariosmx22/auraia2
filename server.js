@@ -19,8 +19,8 @@ const io = socketIo(server, {
 app.use(cors());
 app.use(express.json());
 
-// Puerto para Railway
-const PORT = process.env.PORT || 3000;
+// Puerto para Railway y local (NORA espera 8080)
+const PORT = process.env.WHATSAPP_PORT || 8080;
 
 // Variables globales
 let whatsappClient = null;
@@ -104,7 +104,7 @@ function initializeWhatsAppClient() {
                 '--password-store=basic',
                 '--use-mock-keychain'
             ],
-            executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome-stable',
+            executablePath: process.env.CHROME_PATH || '/usr/bin/chromium-browser',
             timeout: 60000,
             handleSIGINT: false,
             handleSIGTERM: false,
@@ -371,11 +371,11 @@ io.on('connection', (socket) => {
 // Inicializar WhatsApp al arrancar
 console.log('🎯 Iniciando servidor WhatsApp Web con Chrome...');
 console.log(`🌐 Puerto: ${PORT}`);
-console.log(`🔍 Chrome Path: ${process.env.CHROME_PATH || '/usr/bin/google-chrome-stable'}`);
+console.log(`🔍 Chrome Path: ${process.env.CHROME_PATH || '/usr/bin/chromium-browser'}`);
 
 // Verificar Chrome
 const fs = require('fs');
-const chromePath = process.env.CHROME_PATH || '/usr/bin/google-chrome-stable';
+const chromePath = process.env.CHROME_PATH || '/usr/bin/chromium-browser';
 if (fs.existsSync(chromePath)) {
     console.log('✅ Chrome encontrado, inicializando WhatsApp Web...');
     initializeWhatsAppClient();
