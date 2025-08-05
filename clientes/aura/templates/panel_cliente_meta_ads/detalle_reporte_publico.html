@@ -127,8 +127,29 @@
     <div class="bg-white p-4 rounded-xl border shadow text-center avoid-break">
       <div class="text-xs uppercase text-gray-500 mb-1">Costo por Mensaje</div>
       <div class="text-lg font-bold text-green-600">
-        {% if reporte.mensajes and reporte.mensajes|int > 0 and reporte.importe_gastado_campañas %}
-          ${{ "{:.2f}".format(reporte.importe_gastado_campañas|float / reporte.mensajes|int) }}
+        {% set anuncios_con_mensajes = [] %}
+        {% for anuncio in anuncios %}
+          {% if anuncio.messaging_conversations_started and anuncio.messaging_conversations_started > 0 %}
+            {% set _ = anuncios_con_mensajes.append(anuncio) %}
+          {% endif %}
+        {% endfor %}
+        {% set gasto_mensajes = anuncios_con_mensajes | sum(attribute='importe_gastado') %}
+        {% if gasto_mensajes and reporte.mensajes and reporte.mensajes > 0 %}
+          ${{ "{:,.2f}".format((gasto_mensajes / reporte.mensajes)) }}
+        {% else %}
+          $0.00
+        {% endif %}
+      </div>
+      <div class="text-xs text-gray-500 mt-1">Solo anuncios que generaron mensajes</div>
+    </div>
+    {% endif %}
+
+    {% if reporte.interacciones %}
+    <div class="bg-white p-4 rounded-xl border shadow text-center avoid-break">
+      <div class="text-xs uppercase text-gray-500 mb-1">Costo por Interacción</div>
+      <div class="text-lg font-bold text-purple-600">
+        {% if reporte.interacciones and reporte.interacciones > 0 %}
+          ${{ "{:,.2f}".format((reporte.importe_gastado_campañas / reporte.interacciones)) }}
         {% else %}
           $0.00
         {% endif %}
