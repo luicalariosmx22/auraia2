@@ -1,0 +1,35 @@
+# Railway ignore file
+# Excluir archivos de configuración de WhatsApp/Node.js
+*.backup
+railway-whatsapp-server.js
+railway-package.json
+railway-whatsapp.dockerfile
+railway-chrome-dockerfile
+
+# Excluir archivos de configuración local
+.env
+.env.local
+.env.example
+config_notificaciones.env.example
+
+# Excluir archivos de logs y cache
+*.log
+*.log.*
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Excluir archivos de desarrollo
+*.md
+cookies*.txt
+qr_*.png
+
+# Excluir directorio docker si no es necesario
+docker/
+
+# Excluir archivos de testing
+test_*.html
+*_test.py
+prueba_*.py
+diagnostico_*.py
