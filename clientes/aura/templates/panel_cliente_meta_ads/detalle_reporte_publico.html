@@ -57,20 +57,6 @@
     </button>
   </div>
 
-  <!-- DEBUG DETALLADO -->
-  <div class="bg-yellow-100 p-4 mb-4 rounded text-sm border border-yellow-300">
-    <strong>DEBUG DETALLADO:</strong><br>
-    <strong>empresa object:</strong> {{ empresa }}<br>
-    <strong>empresa type:</strong> {{ empresa.__class__.__name__ if empresa else 'None' }}<br>
-    {% if empresa %}
-      <strong>empresa keys:</strong> {{ empresa.keys() if empresa else 'None' }}<br>
-      {% for key, value in empresa.items() %}
-        <strong>{{ key }}:</strong> {{ value }}<br>
-      {% endfor %}
-    {% endif %}
-    <strong>reporte.empresa_nombre:</strong> {{ reporte.empresa_nombre if reporte else 'None' }}<br>
-  </div>
-
   <!-- ENCABEZADO -->
   <div class="flex items-center justify-between mb-8 avoid-break">
     <div class="flex items-center gap-4">
