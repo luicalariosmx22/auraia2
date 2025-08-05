@@ -1,5 +1,3 @@
-print("✅ panel_cliente_contactos.py cargado correctamente")
-
 from flask import Blueprint, render_template, session, request, redirect, url_for, flash, jsonify
 from supabase import create_client
 from dotenv import load_dotenv
@@ -16,20 +14,11 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 panel_cliente_contactos_bp = Blueprint("panel_cliente_contactos", __name__)
 
-# El parámetro nombre_nora debe ser capturado por el url_prefix del blueprint
-# El blueprint debe ser registrado así:
-# safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/<nombre_nora>/contactos")
-# Y las rutas internas deben ser:
+# El blueprint se registra en registro_dinamico.py con:
+# safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
 @panel_cliente_contactos_bp.route("/", methods=["GET", "POST"], strict_slashes=False)
-def panel_contactos(nombre_nora=None):
-    if nombre_nora is None:
-        # Extraer nombre_nora del request.path si no lo pasa Flask (fallback)
-        import re
-        match = re.search(r"/panel_cliente/([^/]+)/contactos", request.path)
-        if match:
-            nombre_nora = match.group(1)
-        else:
-            return "Error: nombre_nora no encontrado en la ruta", 400
+def panel_contactos():
+    nombre_nora = request.path.split("/")[2]
 
     if not session.get("email"):
         return redirect(url_for("login.login"))
@@ -102,7 +91,7 @@ def panel_contactos(nombre_nora=None):
         contactos = contactos[start:end]
 
         return render_template(
-            "panel_cliente_contactos.html",
+            "panel_cliente_contactos/index.html",
             nombre_nora=nombre_nora,
             contactos=contactos,
             etiquetas=etiquetas,

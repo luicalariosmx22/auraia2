@@ -60,7 +60,7 @@ def login_required_supabase(f):
         # Verificar sesión normal
         if not session.get("email") or not session.get("nombre_nora"):
             print(f"❌ Sesión no válida en {request.host}, redirigiendo a login")
-            return redirect(url_for("simple_login.login_simple"))
+            return redirect(url_for("simple_login_unique.login_simple"))
         
         print(f"✅ Sesión válida para {session.get('email')} en {request.host}")
         return f(*args, **kwargs)
@@ -105,7 +105,7 @@ def login_required_ajax_supabase(f):
                     "error": "authentication_required"
                 }), 401
             else:
-                return redirect(url_for("simple_login.login_supabase"))
+                return redirect(url_for("simple_login_unique.login_supabase"))
         
         return f(*args, **kwargs)
     return decorated_function

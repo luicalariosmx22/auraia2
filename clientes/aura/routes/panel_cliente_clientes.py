@@ -13,7 +13,7 @@ panel_cliente_clientes_bp = Blueprint('panel_cliente_clientes_bp', __name__)
 def vista_clientes():
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
 
     if not modulo_activo_para_nora(nombre_nora, "clientes"):
         return "Módulo no activo", 403
@@ -47,7 +47,7 @@ def vista_clientes():
 def nuevo_cliente():
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
 
     if not modulo_activo_para_nora(nombre_nora, "clientes"):
         return "Módulo no activo", 403
@@ -99,7 +99,7 @@ def nuevo_cliente():
 def editar_empresa(empresa_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for('login.login_screen'))
+        return redirect(url_for('simple_login_unique.login_simple'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
         return "Módulo no activo", 403
@@ -165,7 +165,7 @@ def editar_empresa(empresa_id):
 def nueva_empresa():
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
 
     if request.method == "POST":
         import uuid
@@ -223,7 +223,7 @@ def nueva_empresa():
 def ligar_cliente(empresa_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
 
     # Cargar empresa
     empresa_resp = supabase.table("cliente_empresas").select("*").eq("id", empresa_id).single().execute()
@@ -257,7 +257,7 @@ def ligar_cliente(empresa_id):
 def nueva_cuenta_ads(cliente_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for('login.login_screen'))
+        return redirect(url_for('simple_login_unique.login_simple'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
         return "Módulo no activo", 403
@@ -290,7 +290,7 @@ def nueva_cuenta_ads(cliente_id):
 def ligar_empresa(cliente_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
 
     # Obtener cliente actual
     cliente_resp = supabase.table("clientes").select("*").eq("id", cliente_id).single().execute()
@@ -325,11 +325,15 @@ def ligar_empresa(cliente_id):
                           nombre_nora=nombre_nora,
                           modulo_activo="clientes")
 
-@panel_cliente_clientes_bp.route("/empresas", methods=["GET"])
+@panel_cliente_clientes_bp.route("/", methods=["GET"])
 def vista_empresas():
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
+    
+    # Validar que el módulo esté activo
+    if not modulo_activo_para_nora(nombre_nora, "clientes"):
+        return "Módulo no activo", 403
 
     # Obtener empresas de esta Nora
     empresas = supabase.table("cliente_empresas") \
@@ -358,7 +362,7 @@ def vista_empresas():
 def editar_cliente(cliente_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for('login.login_screen'))
+        return redirect(url_for('simple_login_unique.login_simple'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
         return "Módulo no activo", 403
@@ -401,7 +405,7 @@ def editar_cliente(cliente_id):
 def ficha_empresa(empresa_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
 
     empresa_resp = supabase.table("cliente_empresas").select("*").eq("id", empresa_id).single().execute()
     empresa = empresa_resp.data
@@ -527,7 +531,7 @@ def ficha_empresa(empresa_id):
 def registrar_reunion(empresa_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
 
     # Obtener empresa y cliente ligado
     empresa_resp = supabase.table("cliente_empresas").select("*", "cliente_id").eq("id", empresa_id).single().execute()
@@ -560,7 +564,7 @@ def editar_accesos_empresa(empresa_id):
     import uuid
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
 
     # Obtener empresa
     empresa_resp = supabase.table("cliente_empresas").select("*").eq("id", empresa_id).single().execute()
@@ -624,7 +628,7 @@ def editar_accesos_empresa(empresa_id):
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/agregar_documento", methods=["POST"])
 def agregar_documento(empresa_id):
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
     nombre = request.form.get("nombre", "").strip()
     url_doc = request.form.get("url", "").strip()
     if not nombre or not url_doc:
@@ -644,7 +648,7 @@ def agregar_documento(empresa_id):
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/eliminar_documento/<doc_id>", methods=["POST"])
 def eliminar_documento(empresa_id, doc_id):
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
     try:
         supabase.table("empresa_documentos").delete().eq("id", doc_id).execute()
         flash("Documento eliminado", "success")
@@ -656,7 +660,7 @@ def eliminar_documento(empresa_id, doc_id):
 def nueva_cuenta_ads_empresa(empresa_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for('login.login_screen'))
+        return redirect(url_for('simple_login_unique.login_simple'))
 
     if not modulo_activo_para_nora(nombre_nora, 'clientes'):
         return "Módulo no activo", 403
@@ -686,7 +690,7 @@ def nueva_cuenta_ads_empresa(empresa_id):
 def editar_reunion(empresa_id, reunion_id):
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
     # Obtener datos del formulario
     fecha_hora = request.form.get("fecha_hora")
     participantes = request.form.get("participantes")
@@ -704,7 +708,7 @@ def editar_reunion(empresa_id, reunion_id):
 def eliminar_reunion(empresa_id, reunion_id):
     # Importaciones ya están al inicio del archivo
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
     try:
         supabase.table("reuniones_clientes").delete().eq("id", reunion_id).execute()
         flash("✅ Reunión eliminada correctamente", "success")
@@ -716,7 +720,7 @@ def eliminar_reunion(empresa_id, reunion_id):
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/editar_brief", methods=["POST"])
 def editar_brief_empresa(empresa_id):
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
     brief = request.form.get("brief", "").strip()
     try:
         supabase.table("cliente_empresas").update({"brief": brief}).eq("id", empresa_id).execute()
@@ -730,7 +734,7 @@ def editar_brief_empresa(empresa_id):
 def agregar_cuenta_google_ads_empresa(empresa_id):
     import uuid
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
     nombre_nora = request.path.split("/")[2]
     correo = request.form.get("correo", "").strip()
     ad_account_id = request.form.get("ad_account_id", "").strip() or request.form.get("id_cuenta_publicitaria", "").strip()
@@ -755,7 +759,7 @@ def agregar_cuenta_google_ads_empresa(empresa_id):
 @panel_cliente_clientes_bp.route("/empresa/<empresa_id>/tarea/<tarea_id>/editar_inline", methods=["POST"])
 def editar_tarea_inline(empresa_id, tarea_id):
     if not session.get("email"):
-        return redirect(url_for("login.login_screen"))
+        return redirect(url_for("simple_login_unique.login_simple"))
     # Recoge los datos del formulario
     prioridad = request.form.get("prioridad")
     titulo = request.form.get("titulo")

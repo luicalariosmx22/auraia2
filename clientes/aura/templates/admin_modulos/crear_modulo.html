@@ -1,0 +1,63 @@
+{% extends "base_admin_horizontal.html" %}
+{% block titulo %}Crear nuevo módulo{% endblock %}
+
+{% block contenido %}
+<div class="container mx-auto px-6 py-8 max-w-2xl">
+
+
+  <h1 class="text-2xl font-bold mb-6">➕ Crear nuevo módulo para Nora</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="space-y-2">
+        {% for category, message in messages %}
+          <div class="px-4 py-2 rounded text-sm
+                      {% if category == 'success' %} bg-green-100 text-green-800
+                      {% elif category == 'error' %} bg-red-100 text-red-800
+                      {% else %} bg-gray-100 text-gray-800 {% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" class="space-y-6">
+
+    <!-- Nombre interno del módulo -->
+    <div>
+      <label class="block font-semibold text-sm">Nombre del módulo (sin espacios)</label>
+      <input name="nombre" required class="w-full border px-3 py-2 rounded text-sm" placeholder="ej. rutinas" />
+    </div>
+
+    <!-- Descripción -->
+    <div>
+      <label class="block font-semibold text-sm">Descripción</label>
+      <textarea name="descripcion" required class="w-full border px-3 py-2 rounded text-sm" placeholder="¿Qué hace este módulo?"></textarea>
+    </div>
+
+    <!-- Icono -->
+    <div>
+      <label class="block font-semibold text-sm">Icono (emoji)</label>
+      <input name="icono" class="w-full border px-3 py-2 rounded text-sm" placeholder="🧩" />
+    </div>
+
+    <!-- Activación opcional -->
+    <div>
+      <label class="block font-semibold text-sm">Activar para Nora (opcional)</label>
+      <input name="nombre_nora" class="w-full border px-3 py-2 rounded text-sm" placeholder="ej. aura, brenda, etc." />
+    </div>
+
+    <!-- Botón -->
+    <div class="pt-4">
+      <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm">
+        Crear módulo
+      </button>
+    </div>
+
+  </form>
+
+  <a href="/admin/modulos" class="block mt-6 text-blue-600 text-sm hover:underline">← Volver a módulos</a>
+
+</div>
+{% endblock %}

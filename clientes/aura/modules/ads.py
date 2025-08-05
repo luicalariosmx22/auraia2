@@ -60,7 +60,7 @@ def panel_cliente_ads(nombre_nora):
         flash("⚠️ Hubo un error al cargar los datos. Por favor, revisa los logs.", "warning")
 
     return render_template(
-        'panel_cliente_ads.html',
+        'panel_cliente_meta_ads.html',
         nombre_nora=nombre_nora,
         cuentas=cuentas,
         campañas_por_cuenta=campañas_por_cuenta,

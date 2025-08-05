@@ -1,22 +1,200 @@
-{% extends "base_admin.html" %}
+
+{% extends "base_admin_horizontal.html" %}
+
+{% block titulo %}Panel Administrador | Módulos del Sistema{% endblock %}
+
 {% block contenido %}
-<div class="p-6 space-y-8">
-  <h2 class="text-3xl font-bold">🛠️ Creador & Verificador de Módulos</h2>
+<div class="container mx-auto px-6 py-8">
 
-  <!-- Crear -->
-  <form action="{{ url_for('admin_modulos.generar') }}" method="post" class="space-y-4">
-    <h3 class="text-xl font-semibold">Crear nuevo módulo con IA</h3>
-    <input name="nombre_modulo" placeholder="Nombre interno (ej: crm)" class="border p-2 w-full rounded" required>
-    <textarea name="descripcion" placeholder="Descripción breve" class="border p-2 w-full rounded" rows="3"></textarea>
-    <input name="icono" placeholder="Emoji/icono (ej: 🛠️)" class="border p-2 w-full rounded">
-    <button class="bg-blue-600 text-white py-2 px-4 rounded">Generar módulo</button>
-  </form>
+  <div class="flex justify-between items-center mb-8 flex-wrap gap-2">
+    <h1>📦 Módulos del Sistema</h1>
+    <!-- Lista dinámica de Noras -->
+    <div class="mt-4 w-full">
+      <label class="block text-sm font-semibold text-gray-700 mb-2">⚙️ Ver configuración por Nora</label>
+      <div class="flex flex-wrap gap-3 text-sm">
+        {% for nora in noras %}
+          <a href="/admin/modulos/nora/{{ nora.nombre_nora }}"
+             class="px-3 py-1 bg-gray-100 text-blue-700 rounded hover:underline">
+            {{ nora.nombre_visible or nora.nombre_nora }}
+          </a>
+        {% else %}
+          <span class="text-gray-500">No hay Noras registradas.</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 
-  <!-- Verificar -->
-  <form action="{{ url_for('admin_modulos.verificar_existente') }}" method="post" class="space-y-4">
-    <h3 class="text-xl font-semibold">Verificar módulo existente</h3>
-    <input name="nombre_modulo_verificar" placeholder="Nombre interno (ej: chat)" class="border p-2 w-full rounded" required>
-    <button class="bg-green-600 text-white py-2 px-4 rounded">Verificar</button>
-  </form>
+  <!-- Filtros y estadísticas -->
+  <div class="flex items-center mb-6 gap-4">
+    <!-- Filtros -->
+    <div class="flex items-center space-x-2">
+      <span class="text-sm font-medium">Filtrar por:</span>
+      <select id="filtro-estado" class="text-sm rounded border px-2 py-1">
+        <option value="todos">Todos los estados</option>
+        <option value="ok">✅ Funcionando</option>
+        <option value="warnings">⚠️ Con advertencias</option>
+        <option value="errores">❌ Con errores</option>
+      </select>
+      
+      <select id="filtro-tipo" class="text-sm rounded border px-2 py-1">
+        <option value="todos">Todos los tipos</option>
+        <option value="carpeta">Organizado en carpeta</option>
+        <option value="archivo">Archivo único</option>
+      </select>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="flex items-center gap-4 ml-auto text-sm">
+      <div class="flex items-center gap-1">
+        <span class="font-medium">Total:</span>
+<span id="total-modulos">{{ modulos|length }}</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <span class="text-green-600">✅</span>
+        <span id="total-ok">0</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <span class="text-yellow-600">⚠️</span>
+        <span id="total-warnings">0</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <span class="text-red-600">❌</span>
+        <span id="total-errors">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de módulos -->
+  <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 text-left">
+            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for modulo in modulos %}
+          <tr class="hover:bg-gray-50 modulo-card {% if modulo.tipo == 'carpeta' %}tipo-carpeta{% else %}tipo-archivo{% endif %}">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <a href="{{ url_for('verificador_modulos.ver_modulo', nombre_modulo=modulo.nombre) }}" class="text-blue-600 hover:underline font-semibold">
+                {{ modulo.icono or '📦' }} {{ modulo.nombre }}
+              </a>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm text-gray-500">{{ modulo.descripcion or '—' }}</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Archivo principal - MODIFICADO: solo mostrar si existe modulo_seleccionado -->
+  {% if modulo_seleccionado is defined %}
+  <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Archivo principal
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Define el archivo principal para este módulo
+        </p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+        {% if modulo_seleccionado.archivos_candidatos %}
+            <form method="POST" action="{{ url_for('verificador_modulos.definir_archivo_principal', nombre_modulo=modulo_seleccionado.nombre) }}">
+                <div class="mb-4">
+                    <label for="archivo_principal" class="block text-sm font-medium text-gray-700">Seleccionar archivo principal</label>
+                    <select id="archivo_principal" name="archivo_principal" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        {% for archivo in modulo_seleccionado.archivos_candidatos %}
+                            <option value="{{ archivo }}" {% if archivo == modulo_seleccionado.path_archivo %}selected{% endif %}>{{ archivo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Definir archivo principal
+                    </button>
+                </div>
+            </form>
+        {% else %}
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            No se encontraron archivos candidatos para este módulo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+  </div>
+  {% endif %}
 </div>
+
+<!-- Código JavaScript para filtros y estadísticas -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elementos de filtros
+    const filtroEstado = document.getElementById('filtro-estado');
+    const filtroTipo = document.getElementById('filtro-tipo');
+    const modulos = document.querySelectorAll('.modulo-card');
+    
+    // Contadores
+    let totalOk = 0;
+    let totalWarnings = 0;
+    let totalErrors = 0;
+    
+    // Contar estados iniciales
+    modulos.forEach(modulo => {
+      if (modulo.querySelector('.estado-ok')) totalOk++;
+      else if (modulo.querySelector('.estado-warning')) totalWarnings++;
+      else if (modulo.querySelector('.estado-error')) totalErrors++;
+    });
+    
+    // Actualizar contadores
+    document.getElementById('total-ok').textContent = totalOk;
+    document.getElementById('total-warnings').textContent = totalWarnings;
+    document.getElementById('total-errors').textContent = totalErrors;
+    
+    // Función de filtrado
+    function aplicarFiltros() {
+      const estadoSeleccionado = filtroEstado.value;
+      const tipoSeleccionado = filtroTipo.value;
+      
+      modulos.forEach(modulo => {
+        let mostrar = true;
+        
+        // Filtrar por estado
+        if (estadoSeleccionado !== 'todos') {
+          if (estadoSeleccionado === 'ok' && !modulo.querySelector('.estado-ok')) mostrar = false;
+          if (estadoSeleccionado === 'warnings' && !modulo.querySelector('.estado-warning')) mostrar = false;
+          if (estadoSeleccionado === 'errores' && !modulo.querySelector('.estado-error')) mostrar = false;
+        }
+        
+        // Filtrar por tipo
+        if (tipoSeleccionado !== 'todos') {
+          if (tipoSeleccionado === 'carpeta' && !modulo.classList.contains('tipo-carpeta')) mostrar = false;
+          if (tipoSeleccionado === 'archivo' && !modulo.classList.contains('tipo-archivo')) mostrar = false;
+        }
+        
+        // Mostrar u ocultar
+        modulo.style.display = mostrar ? 'block' : 'none';
+      });
+    }
+    
+    // Eventos de cambio
+    filtroEstado.addEventListener('change', aplicarFiltros);
+    filtroTipo.addEventListener('change', aplicarFiltros);
+  });
+</script>
 {% endblock %}

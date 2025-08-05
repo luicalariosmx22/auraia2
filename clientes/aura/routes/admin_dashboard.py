@@ -245,13 +245,24 @@ def dashboard_admin():
     #     'periodo': '30 días'
     # }
 
+    # Añadir el enlace a registro dinámico en el contexto
+    menu_items = [
+        {
+            "title": "Registro Dinámico",
+            "icon": "fa-cogs",
+            "url": url_for('registro_dinamico_frontend.index'),
+            "description": "Visualiza el estado del registro dinámico de módulos"
+        },
+    ]
+
     print("✅ Mostrando admin_dashboard.html con datos")
     return render_template("admin_dashboard.html",
         total_noras=total_noras,
         total_modulos=total_modulos,
         noras=lista_noras,
         twilio_info=twilio_info,
-        openai_info=openai_info
+        openai_info=openai_info,
+        menu_items=menu_items
     )
 
 @admin_dashboard_bp.route("/twilio/refresh")

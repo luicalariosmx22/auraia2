@@ -1,0 +1,211 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="container-xl my-5">
+  <h2 class="text-center fw-bold mb-4" style="color:#2d2d8f;">Sincronización Manual de Meta Ads</h2>
+  <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+    <button class="btn btn-primary btn-lg px-5 py-2 fw-bold" id="btnSyncMetaAdsNuevo">Sincronizar</button>
+    <button class="btn btn-danger btn-lg px-5 py-2 fw-bold">Parar Sincronización</button>
+    <button class="btn btn-warning btn-lg px-5 py-2 fw-bold text-white">Eliminar Anuncios Detalle</button>
+  </div>
+  <div class="card shadow-lg border-0 rounded-4 p-4 mx-auto" style="max-width: 1100px;">
+    <form id="formSyncMetaAds" method="POST">
+      <div class="row mb-4 align-items-end gy-4">
+        <div class="col-md-4 mb-2">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <label class="form-label fw-bold">Rango de fechas</label>
+            <div class="btn-group w-100 mb-2" role="group">
+              <button type="button" class="btn btn-outline-secondary btn-sm">Hoy</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm">Últimos 7 días</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm">Mes actual</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm">Mes pasado</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm">Últimos 30 días</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm">Personalizado</button>
+            </div>
+            <div class="row g-2">
+              <div class="col">
+                <label class="form-label small">Fecha de inicio</label>
+                <input type="date" class="form-control" id="sync_fecha_inicio" name="fecha_inicio" placeholder="Fecha de inicio">
+              </div>
+              <div class="col">
+                <label class="form-label small">Fecha de fin</label>
+                <input type="date" class="form-control" id="sync_fecha_fin" name="fecha_fin" placeholder="Fecha de fin">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8 mb-2">
+          <div class="p-3 bg-light rounded-3 h-100">
+            <label class="form-label fw-bold">Cuentas publicitarias:</label>
+            <div class="d-flex gap-2 mb-2">
+              <button type="button" class="btn btn-outline-primary btn-sm" id="btnSelectAllCuentas">Seleccionar todas</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDeselectAllCuentas">Quitar todas</button>
+            </div>
+            <div class="row row-cols-1 row-cols-md-3 g-1" style="max-height:180px;overflow-y:auto;">
+              {% for cuenta in cuentas_ads %}
+              <div class="col">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="cuentas" id="cuenta_{{ cuenta.id_cuenta_publicitaria }}" value="{{ cuenta.id_cuenta_publicitaria }}">
+                  <label class="form-check-label" for="cuenta_{{ cuenta.id_cuenta_publicitaria }}">{{ cuenta.nombre_cliente }}</label>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr class="my-4">
+      <div class="row gy-4">
+        <div class="col-md-6">
+          <div class="card p-3 bg-light border-0 h-100">
+            <label class="form-label text-danger fw-bold">Excluir siempre (Cuentas publicitarias que NO se deben sincronizar):</label>
+            <div class="row row-cols-1 row-cols-md-2 g-1" style="max-height:120px;overflow-y:auto;">
+              {% for excluida in cuentas_excluidas %}
+              <div class="col">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="excluir_cuentas" id="excluida_{{ loop.index }}" value="{{ excluida }}" {% if excluida in excluidas_seleccionadas %}checked{% endif %}>
+                  <label class="form-check-label text-danger" for="excluida_{{ loop.index }}">{{ excluida }}</label>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="small text-muted mt-2">Selecciona las cuentas que nunca deben sincronizarse. Se recomienda guardar esta preferencia en la tabla <b>meta_ads_cuentas</b>.</div>
+            <button type="button" class="btn btn-outline-danger btn-sm mt-2">Guardar exclusión</button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-3 bg-light border-0 h-100">
+            <label class="form-label fw-bold">Selecciona columnas a sincronizar:</label>
+            <div class="d-flex gap-2 mb-2">
+              <button type="button" class="btn btn-outline-primary btn-sm" id="btnSelectAllCols">Seleccionar todas</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDeselectAllCols">Quitar todas</button>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 g-1">
+              {% for col in columnas_sync %}
+              <div class="col">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="columnas" id="col_{{ col }}" value="{{ col }}" {% if col in columnas_seleccionadas %}checked{% endif %}>
+                  <label class="form-check-label" for="col_{{ col }}">{{ col }}</label>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr class="my-4">
+      <div class="card mb-3 p-3 bg-white border-0">
+        <label class="form-label text-danger fw-bold">Excluidas:</label>
+        <div class="row">
+          {% for excluida in excluidas_destacadas %}
+          <div class="col-md-3 col-6 mb-1">
+            <span class="text-danger fw-bold">{{ excluida }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="d-flex justify-content-end mt-4">
+        <button type="submit" class="btn btn-primary px-4">Sincronizar (legacy)</button>
+        <button type="button" class="btn btn-secondary ms-2 px-4">Cancelar</button>
+      </div>
+      <div id="syncMetaAdsStatus" class="text-center text-secondary small mt-2"></div>
+    </form>
+  </div>
+</div>
+      <div class="d-flex justify-content-end mt-4">
+        <button type="submit" class="btn btn-primary px-4">Sincronizar (legacy)</button>
+        <button type="button" class="btn btn-secondary ms-2 px-4">Cancelar</button>
+      </div>
+      <div id="syncMetaAdsStatus" class="text-center text-secondary small mt-2"></div>
+    </form>
+  </div>
+</div>
+
+document.getElementById('formSyncMetaAds').onsubmit = async function(e) {
+  e.preventDefault();
+  const status = document.getElementById('syncMetaAdsStatus');
+  status.textContent = 'Sincronizando...';
+  const form = e.target;
+  const data = new FormData(form);
+  try {
+    const resp = await fetch('/sincronizar-meta-ads', {
+      method: 'POST',
+      body: data
+    });
+    if (resp.ok) {
+      status.textContent = 'Sincronización lanzada correctamente.';
+      setTimeout(() => location.reload(), 1200);
+    } else {
+{% endblock contenido %}
+
+{% block scripts %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ENjdO4Dr2bkBIFxQpeoA6DQD1P1QnYh6cY9Ck3s1lAqUOmGnyl8nN0j0g5Q1Q5i3" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+AMvyTG2Fd3jDof6IhP1y5Pp6MbBT" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/reportes_meta_ads.js') }}?v=20250723-{{ range(1000000) | random }}"></script>
+<script>
+// Obtener el nombre_nora desde Jinja (debe ser pasado por el backend)
+const nombreNora = "{{ nombre_nora|e }}";
+
+// Sincronización legacy
+document.getElementById('formSyncMetaAds').onsubmit = async function(e) {
+  e.preventDefault();
+  const status = document.getElementById('syncMetaAdsStatus');
+  status.textContent = 'Sincronizando...';
+  const form = e.target;
+  const data = new FormData(form);
+  try {
+    const resp = await fetch('/sincronizar-meta-ads', {
+      method: 'POST',
+      body: data
+    });
+    if (resp.ok) {
+      status.textContent = 'Sincronización lanzada correctamente.';
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      const res = await resp.text();
+      status.textContent = 'Error: ' + res;
+    }
+  } catch (err) {
+    status.textContent = 'Error de red: ' + err;
+  }
+};
+
+// Sincronización nuevo endpoint
+if (document.getElementById('btnSyncMetaAdsNuevo')) {
+  document.getElementById('btnSyncMetaAdsNuevo').onclick = async function() {
+    const status = document.getElementById('syncMetaAdsStatus');
+    status.textContent = 'Sincronizando (nuevo endpoint)...';
+    const form = document.getElementById('formSyncMetaAds');
+    const data = new FormData(form);
+    const payload = {};
+    data.forEach((value, key) => { payload[key] = value; });
+    let url = '/panel_cliente/' + nombreNora + '/meta_ads/sincronizar';
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(payload)
+      });
+      if (resp.ok) {
+        status.textContent = 'Sincronización lanzada correctamente (nuevo endpoint).';
+        setTimeout(() => location.reload(), 1200);
+      } else {
+        const res = await resp.text();
+        status.textContent = 'Error: ' + res;
+      }
+    } catch (err) {
+      status.textContent = 'Error de red: ' + err;
+    }
+  };
+}
+
+// Seleccionar/Quitar todas las cuentas
+document.getElementById('btnSelectAllCuentas')?.addEventListener('click', function() {
+  document.querySelectorAll('input[name="cuentas"]').forEach(cb => cb.checked = true);
+});
+document.getElementById('btnDeselectAllCuentas')?.addEventListener('click', function() {
+  document.querySelectorAll('input[name="cuentas"]').forEach(cb => cb.checked = false);
+});
+</script>
+{% endblock scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

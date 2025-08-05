@@ -1,9 +1,11 @@
-// Archivo: clientes/aura/static/js/estadisticas_ads.js
+// Archivo: panel_cliente_meta_ads/static/js/estadisticas_ads.js
 
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('[DEBUG] DOM Cargado, inicializando estadísticas_ads.js');
+  console.log('[DEBUG] nombre_nora:', document.body.dataset.nora);
   // Cargar estadísticas automáticamente
   cargarEstadisticas();
-  
+
   const btn = document.getElementById('btn-generar-reporte');
   const status = document.getElementById('reporte-status');
   if (btn) {
@@ -61,8 +63,43 @@ document.addEventListener('DOMContentLoaded', function() {
       cargarColumnasDisponibles();
     });
   }
+});
+        status.className = 'mt-4 text-center text-lg text-red-700';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Generar/Actualizar Reporte Meta Ads';
+    };
+  }
 
-  // --- ELIMINADO BLOQUE DE REPORTES DISPONIBLES ---
+  // Botón de eliminar reportes
+  const btnEliminar = document.getElementById('btn-eliminar-reportes');
+  if(btnEliminar) {
+    btnEliminar.addEventListener('click', async () => {
+      if(!confirm('¿Estás seguro de que deseas eliminar TODOS los reportes de Meta Ads? Esta acción no se puede deshacer.')) return;
+      btnEliminar.disabled = true;
+      statusDiv.textContent = 'Eliminando todos los reportes...';
+      const nombreNora = document.body.dataset.nora;
+      try {
+        const resp = await fetch(`/panel_cliente/${nombreNora}/meta_ads/estadisticas/eliminar_reportes`, {method: 'POST'});
+        const data = await resp.json();
+        if(data.ok) {
+          statusDiv.textContent = `Reportes eliminados: ${data.eliminados}`;
+        } else {
+          statusDiv.textContent = 'Error al eliminar reportes: ' + (data.error || 'Error desconocido');
+        }
+      } catch(e) {
+        statusDiv.textContent = 'Error al eliminar reportes: ' + e;
+      }
+      btnEliminar.disabled = false;
+    });
+  }
+
+  const btnAbrirModalSync = document.getElementById("btn-abrir-modal-sync");
+  if (btnAbrirModalSync) {
+    btnAbrirModalSync.addEventListener("click", function() {
+      cargarColumnasDisponibles();
+    });
+  }
 });
 
 async function cargarEstadisticas() {
@@ -118,8 +155,9 @@ function renderTablaYGraficas(reportes, cont, nombreNora) {
       <td class="px-4 py-2 text-pink-700 font-semibold">$${(rep.instagram_importe_gastado||0).toFixed(2)}</td>
       <td class="px-4 py-2">
         <div class="flex gap-2">
-          <a href="/panel_cliente/${nombreNora}/meta_ads/estadisticas/reporte/${rep.id}" 
-             class="text-blue-700 hover:underline font-semibold text-xs px-2 py-1 bg-blue-50 rounded">
+          <a href="/panel_cliente/${nombreNora}/meta_ads/reportes/reporte/${rep.uuid || rep.id}" 
+             class="text-blue-700 hover:underline font-semibold text-xs px-2 py-1 bg-blue-50 rounded"
+             onclick="console.log('Debug - UUID del reporte:', rep.uuid || rep.id)">
              👁️ Ver
           </a>
           <button onclick="compartirReporte('${rep.id}', '${rep.empresa_nombre || 'Sin empresa'}', '${rep.fecha_inicio}', '${rep.fecha_fin}')" 
@@ -199,7 +237,6 @@ async function cargarColumnasDisponibles() {
   }
 }
 
-// Limpieza del bloque de carga de columnas dinámicas (dentro de la función abrirModalSync o donde cargues columnas)
 async function cargarColumnas() {
   const columnasSelect = document.getElementById("modal-columnas");
   const columnasError = document.getElementById("columnas-error");
@@ -226,7 +263,6 @@ async function cargarColumnas() {
   }
 }
 
-// Funciones para acciones específicas de reportes
 async function compartirReporte(reporteId, empresaNombre, fechaInicio, fechaFin) {
   const statusDiv = document.getElementById('reporte-status');
   const nombreNora = document.body.dataset.nora;

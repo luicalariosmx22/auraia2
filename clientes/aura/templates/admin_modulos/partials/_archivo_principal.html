@@ -1,0 +1,114 @@
+<div class="bg-white border rounded-xl shadow-sm p-6 space-y-4 mt-6">
+  <div class="flex items-center gap-2">
+    <span class="text-lg">📄</span>
+    <h2 class="text-lg font-medium text-gray-900">Archivo Principal</h2>
+  </div>
+  
+  {% if modulo.existe_archivo %}
+    <div class="text-sm text-green-600 font-medium flex items-center gap-1">
+      <span>✅</span>
+      <span>{{ modulo.path_archivo }}</span>
+    </div>
+  {% else %}
+    <div class="text-sm text-red-600 font-medium flex items-center gap-1">
+      <span>❌</span>
+      <span>No se encontró el archivo principal</span>
+    </div>
+  {% endif %}
+
+  <!-- Formulario para seleccionar archivo principal -->
+  {% if modulo.archivos_candidatos %}
+    <form action="{{ url_for('verificador_modulos.definir_archivo_principal', nombre_modulo=modulo.nombre) }}" method="POST" class="space-y-4">
+      <div>
+        <label for="archivo_principal" class="block text-sm font-medium text-gray-700">Seleccionar archivo principal</label>
+        <select id="archivo_principal" name="archivo_principal" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+          <option value="">Seleccione un archivo...</option>
+          {% for archivo in modulo.archivos_candidatos %}
+            <option value="{{ archivo }}" {% if archivo == modulo.path_archivo %}selected{% endif %}>{{ archivo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Añadir estos campos adicionales al formulario -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción del módulo</label>
+          <input type="text" id="descripcion" name="descripcion" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" 
+            value="{{ modulo.descripcion|default('Módulo ' + modulo.nombre|capitalize) }}">
+        </div>
+        
+        <div>
+          <label for="icono" class="block text-sm font-medium text-gray-700">Icono (Font Awesome)</label>
+          <input type="text" id="icono" name="icono" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" 
+            value="{{ modulo.icono|default('fa-cube') }}">
+        </div>
+        
+        <div class="md:col-span-2">
+          <label for="ruta" class="block text-sm font-medium text-gray-700">Ruta base</label>
+          <input type="text" id="ruta" name="ruta" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" 
+            value="{{ modulo.ruta_base|default('/panel_cliente/' + modulo.nombre) }}">
+        </div>
+      </div>
+
+      <!-- Botones para guardar localmente y en Supabase -->
+      <div class="flex space-x-3">
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Guardar localmente
+        </button>
+        
+        <button type="button" id="btn-guardar-supabase" class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+          Guardar en Supabase
+        </button>
+      </div>
+    </form>
+
+    <!-- Script para el botón de Supabase -->
+    <script>
+      document.getElementById('btn-guardar-supabase').addEventListener('click', function() {
+          const archivoSeleccionado = document.querySelector('select[name="archivo_principal"]').value;
+          if (!archivoSeleccionado) {
+              alert('Por favor selecciona un archivo principal');
+              return;
+          }
+          
+          fetch('{{ url_for("verificador_modulos.guardar_en_supabase", nombre_modulo=modulo.nombre) }}', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: 'archivo_principal=' + encodeURIComponent(archivoSeleccionado)
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  // Mostrar notificación de éxito
+                  const notification = document.createElement('div');
+                  notification.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded';
+                  notification.innerHTML = `
+                      <div class="flex items-center">
+                          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                          </svg>
+                          <p>${data.message}</p>
+                      </div>
+                  `;
+                  document.body.appendChild(notification);
+                  
+                  // Eliminar la notificación después de 3 segundos
+                  setTimeout(() => {
+                      notification.remove();
+                      window.location.reload();
+                  }, 2000);
+              } else {
+                  alert('Error: ' + data.message);
+              }
+          })
+          .catch(error => {
+              alert('Error al procesar la solicitud: ' + error);
+          });
+      });
+    </script>
+  {% else %}
+    <div class="text-sm text-gray-500">No se encontraron archivos candidatos</div>
+  {% endif %}
+</div>

@@ -33,8 +33,7 @@ def crear_blueprint_panel_cliente(nombre_nora):
         print(f"🧪 Entrando a configuracion_cliente de {nombre_nora}")
 
         if not session.get("email"):
-            # Ajuste: endpoint correcto es 'login.login'
-            return redirect(url_for("login.login"))
+            return redirect(url_for("simple_login_unique.login_simple"))
 
         try:
             # 1. Configuración de la Nora
@@ -63,7 +62,7 @@ def crear_blueprint_panel_cliente(nombre_nora):
             }
 
             # 4. Filtrar solo los módulos activos y definidos
-            modulos_disponibles = [
+            modulos_disponibles = sorted([
                 {
                     "nombre": modulos_dict[nombre.lower()]["nombre"].replace("_", " ").capitalize(),
                     "ruta": f"/panel_cliente/{nombre_nora}/{nombre.lower()}",
@@ -72,7 +71,7 @@ def crear_blueprint_panel_cliente(nombre_nora):
                 }
                 for nombre in modulos_activos
                 if nombre.lower() in modulos_dict
-            ]
+            ], key=lambda x: x["nombre"].lower())
 
             print("✅ Módulos visibles para panel:", modulos_disponibles)
 

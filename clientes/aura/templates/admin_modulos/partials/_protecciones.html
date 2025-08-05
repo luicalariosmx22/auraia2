@@ -1,0 +1,19 @@
+<div class="bg-white border rounded-xl shadow-md p-6 space-y-3">
+  <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">🔐 Protección con login_required</h2>
+  {% if modulo.rutas_con_login %}
+    <ul class="text-sm text-gray-700 space-y-1">
+      {% for ruta in modulo.rutas_con_login %}
+        <li class="flex justify-between items-center">
+          <code class="font-mono">{{ ruta.ruta }}</code>
+          {% if ruta.login_required %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">✅ Protegida</span>
+          {% else %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">❌ Sin login</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-gray-500">No se encontraron rutas o decoradores.</p>
+  {% endif %}
+</div>

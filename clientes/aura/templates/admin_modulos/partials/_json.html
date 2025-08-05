@@ -1,0 +1,8 @@
+<details class="bg-white border rounded-xl shadow-sm">
+  <summary class="px-6 py-4 border-b cursor-pointer hover:bg-gray-50">
+    <h2 class="text-lg font-medium text-gray-900 flex items-center gap-2">🔍 Ver JSON completo</h2>
+  </summary>
+  <div class="px-6 py-4">
+    <pre class="bg-gray-50 rounded p-4 overflow-auto text-xs font-mono text-gray-700">{{ modulo | tojson(indent=2) }}</pre>
+  </div>
+</details>

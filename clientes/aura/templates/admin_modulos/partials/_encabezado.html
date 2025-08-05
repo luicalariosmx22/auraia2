@@ -1,0 +1,8 @@
+<div class="mb-6 border-b pb-4">
+  <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
+    <span>{{ modulo.icono or '📦' }}</span> {{ modulo.nombre }}
+  </h1>
+  {% if modulo.descripcion %}
+    <p class="mt-2 text-sm text-gray-600">{{ modulo.descripcion }}</p>
+  {% endif %}
+</div>

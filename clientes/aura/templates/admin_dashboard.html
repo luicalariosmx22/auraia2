@@ -3,103 +3,165 @@
 {% block titulo %}Panel Administrador{% endblock %}
 
 {% block contenido %}
-<h1>Panel de Administración</h1>
+<div class="space-y-8">
+  <h1 class="text-2xl font-bold text-gray-800">Panel de Administración</h1>
 
-<section class="stats">
-  <div class="card"><h2>{{ total_noras }}</h2><p>Noras activas</p></div>
-  <div class="card"><h2>{{ total_modulos }}</h2><p>Módulos</p></div>
-  
-  <!-- Información de Twilio -->
-  <div class="card twilio-card 
-    {% if twilio_info.estado == 'BUENO' %}twilio-bueno
-    {% elif twilio_info.estado == 'ADVERTENCIA' %}twilio-advertencia
-    {% elif twilio_info.estado == 'BAJO' %}twilio-bajo
-    {% elif twilio_info.estado == 'CRITICO' %}twilio-critico
-    {% else %}twilio-error{% endif %}" id="twilio-card">
-    <div class="twilio-header">
-      <h2 id="twilio-saldo">${{ "%.2f"|format(twilio_info.saldo) }}</h2>
-      <button class="btn-refresh" onclick="refreshTwilioStatus()" id="refresh-btn">
-        <i class="refresh-icon">↻</i>
-      </button>
+  <!-- Sección de estadísticas -->
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Noras activas -->
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+      <h2 class="text-3xl font-bold text-gray-800">{{ total_noras }}</h2>
+      <p class="text-gray-600 text-sm">Noras activas</p>
     </div>
-    <p>Saldo Twilio (<span id="twilio-moneda">{{ twilio_info.moneda }}</span>)</p>
-    <small class="twilio-estado" id="twilio-estado">{{ twilio_info.estado }}</small>
-    {% if twilio_info.error %}
-    <small class="twilio-error" id="twilio-error">Error: {{ twilio_info.error }}</small>
-    {% endif %}
-  </div>
-  
-  <!-- Información de OpenAI -->
-  <div class="card openai-card 
-    {% if openai_info.estado == 'BUENO' %}openai-bueno
-    {% elif openai_info.estado == 'ADVERTENCIA' %}openai-advertencia
-    {% elif openai_info.estado == 'BAJO' %}openai-bajo
-    {% elif openai_info.estado == 'CRITICO' %}openai-critico
-    {% else %}openai-error{% endif %}" id="openai-card">
-    <div class="openai-header">
-      <h2 id="openai-uso">{{ "%.1f"|format(openai_info.porcentaje_usado or 0) }}%</h2>
-      <button class="btn-refresh" onclick="refreshOpenAIStatus()" id="openai-refresh-btn">
-        <i class="refresh-icon">↻</i>
-      </button>
+    
+    <!-- Módulos -->
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+      <h2 class="text-3xl font-bold text-gray-800">{{ total_modulos }}</h2>
+      <p class="text-gray-600 text-sm">Módulos</p>
     </div>
-    <p>Uso OpenAI (<span id="openai-periodo">{{ openai_info.periodo or 'N/A' }}</span>)</p>
-    <small class="openai-detalle">${{ "%.2f"|format(openai_info.uso_actual or 0) }} / ${{ openai_info.limite or 0 }}</small>
-    <small class="openai-estado" id="openai-estado">{{ openai_info.estado }}</small>
-    {% if openai_info.error %}
-    <small class="openai-error" id="openai-error">Error: {{ openai_info.error }}</small>
+    
+    <!-- Información de Twilio -->
+    <div id="twilio-card" class="bg-white rounded-lg shadow p-4 border-l-4 
+      {% if twilio_info.estado == 'BUENO' %}border-green-500
+      {% elif twilio_info.estado == 'ADVERTENCIA' %}border-yellow-500
+      {% elif twilio_info.estado == 'BAJO' %}border-orange-500
+      {% elif twilio_info.estado == 'CRITICO' %}border-red-500
+      {% else %}border-gray-500{% endif %}">
+      <div class="flex justify-between items-start">
+        <h2 id="twilio-saldo" class="text-3xl font-bold text-gray-800">${{ "%.2f"|format(twilio_info.saldo) }}</h2>
+        <button class="text-gray-500 hover:bg-gray-100 rounded p-1 transition-colors duration-200" 
+                onclick="refreshTwilioStatus()" 
+                id="refresh-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <p class="text-gray-600 text-sm">Saldo Twilio (<span id="twilio-moneda">{{ twilio_info.moneda }}</span>)</p>
+      <span id="twilio-estado" class="inline-block mt-2 text-xs px-2 py-1 rounded-full font-medium
+        {% if twilio_info.estado == 'BUENO' %}bg-green-100 text-green-800
+        {% elif twilio_info.estado == 'ADVERTENCIA' %}bg-yellow-100 text-yellow-800
+        {% elif twilio_info.estado == 'BAJO' %}bg-orange-100 text-orange-800
+        {% elif twilio_info.estado == 'CRITICO' %}bg-red-100 text-red-800
+        {% else %}bg-gray-100 text-gray-800{% endif %}">
+        {{ twilio_info.estado }}
+      </span>
+      {% if twilio_info.error %}
+      <p id="twilio-error" class="mt-2 text-xs text-red-600">Error: {{ twilio_info.error }}</p>
+      {% endif %}
+    </div>
+    
+    <!-- Información de OpenAI -->
+    <div id="openai-card" class="bg-white rounded-lg shadow p-4 border-l-4 
+      {% if openai_info.estado == 'BUENO' %}border-green-500
+      {% elif openai_info.estado == 'ADVERTENCIA' %}border-yellow-500
+      {% elif openai_info.estado == 'BAJO' %}border-orange-500
+      {% elif openai_info.estado == 'CRITICO' %}border-red-500
+      {% else %}border-gray-500{% endif %}">
+      <div class="flex justify-between items-start">
+        <h2 id="openai-uso" class="text-3xl font-bold text-gray-800">{{ "%.1f"|format(openai_info.porcentaje_usado or 0) }}%</h2>
+        <button class="text-gray-500 hover:bg-gray-100 rounded p-1 transition-colors duration-200" 
+                onclick="refreshOpenAIStatus()" 
+                id="openai-refresh-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <p class="text-gray-600 text-sm">Uso OpenAI (<span id="openai-periodo">{{ openai_info.periodo or 'N/A' }}</span>)</p>
+      <p class="text-xs text-gray-500 mt-1">${{ "%.2f"|format(openai_info.uso_actual or 0) }} / ${{ openai_info.limite or 0 }}</p>
+      <span id="openai-estado" class="inline-block mt-2 text-xs px-2 py-1 rounded-full font-medium
+        {% if openai_info.estado == 'BUENO' %}bg-green-100 text-green-800
+        {% elif openai_info.estado == 'ADVERTENCIA' %}bg-yellow-100 text-yellow-800
+        {% elif openai_info.estado == 'BAJO' %}bg-orange-100 text-orange-800
+        {% elif openai_info.estado == 'CRITICO' %}bg-red-100 text-red-800
+        {% else %}bg-gray-100 text-gray-800{% endif %}">
+        {{ openai_info.estado }}
+      </span>
+      {% if openai_info.error %}
+      <p id="openai-error" class="mt-2 text-xs text-red-600">Error: {{ openai_info.error }}</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Sección de acciones -->
+  <section class="flex flex-wrap gap-4">
+    <a href="/admin/nora/nueva" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      + Crear nueva Nora
+    </a>
+    <a href="/admin/creador_modulos/crear" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm font-semibold">
+      <span>➕</span> Crear nuevo módulo
+    </a>
+
+    <a href="/admin/creador_modulos/gestionar" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm font-semibold">
+      <span>🛠️</span> Gestor avanzado de módulos
+    </a>
+
+    <a href="/admin/verificador_modulos" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      🔍 Verificador de módulos
+    </a>
+  </section>
+
+  <!-- Lista de Noras -->
+  <section class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6">
+      <h2 class="text-lg leading-6 font-medium text-gray-900">Lista de Noras</h2>
+    </div>
+    
+    {% if noras %}
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IA</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Módulos</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for nora in noras %}
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ nora["nombre"] }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {% if nora["ia_activada"] %}
+                <span class="text-green-500">✅</span>
+              {% else %}
+                <span class="text-gray-400">—</span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ nora["modulos"] | join(", ") }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex gap-2">
+              <a href="/panel_cliente/{{ nora['nombre'] }}" class="text-blue-600 hover:text-blue-900">Panel</a>
+              <span class="text-gray-300">|</span>
+              <a href="/admin/estadisticas/{{ nora['nombre'] }}" class="text-blue-600 hover:text-blue-900">Estadísticas</a>
+              <span class="text-gray-300">|</span>
+              <a href="/admin/nora/editar?nombre={{ nora['nombre'] }}" class="text-blue-600 hover:text-blue-900">Editar</a>
+              <span class="text-gray-300">|</span>
+              <form action="/admin/noras/borrar_nora" method="post" class="inline">
+                <input type="hidden" name="nombre" value="{{ nora['nombre'] }}">
+                <button type="submit" class="text-red-600 hover:text-red-900 bg-transparent border-none p-0">Borrar</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="px-6 py-4 text-sm text-gray-500">No hay Noras registradas aún.</p>
     {% endif %}
-  </div>
-</section>
-
-<section class="acciones">
-  <a href="/admin/nora/nueva" class="btn-primary">+ Crear nueva Nora</a>
-  <a href="/admin/debug/rutas" class="btn-secondary">🧪 Verificador de rutas</a>
-  <a href="/admin/modulos" class="btn-secondary">📦 Gestión de módulos</a>
-</section>
-
-<section class="lista-noras">
-  <h2>Lista de Noras</h2>
-  {% if noras %}
-  <table class="noras-table">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>IA</th>
-        <th>Módulos</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for nora in noras %}
-      <tr>
-        <td>{{ nora["nombre"] }}</td>
-        <td>{% if nora["ia_activada"] %}✅{% else %}—{% endif %}</td>
-        <td>{{ nora["modulos"] | join(", ") }}</td>
-        <td>
-          <a href="/panel_cliente/{{ nora['nombre'] }}">Panel</a> |
-          <a href="/admin/estadisticas/{{ nora['nombre'] }}">Estadísticas</a> |
-          <a href="/admin/nora/editar?nombre={{ nora['nombre'] }}">Editar</a> |
-          <form action="/admin/noras/borrar_nora" method="post" style="display:inline;">
-            <input type="hidden" name="nombre" value="{{ nora['nombre'] }}">
-            <button type="submit">Borrar</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-    <p class="sin-noras">No hay Noras registradas aún.</p>
-  {% endif %}
-</section>
+  </section>
+</div>
 
 <script>
 async function refreshTwilioStatus() {
   const refreshBtn = document.getElementById('refresh-btn');
   const twilioCard = document.getElementById('twilio-card');
+  const twilioEstado = document.getElementById('twilio-estado');
   
   // Mostrar loading
-  refreshBtn.classList.add('loading');
+  refreshBtn.classList.add('animate-spin');
   
   try {
     const response = await fetch('/admin/twilio/refresh');
@@ -114,18 +176,24 @@ async function refreshTwilioStatus() {
       document.getElementById('twilio-estado').textContent = data.estado || 'ERROR';
       
       // Actualizar clases CSS
-      twilioCard.className = 'card twilio-card';
+      twilioCard.className = 'bg-white rounded-lg shadow p-4 border-l-4';
+      twilioEstado.className = 'inline-block mt-2 text-xs px-2 py-1 rounded-full font-medium';
       
       if (data.estado === 'BUENO') {
-        twilioCard.classList.add('twilio-bueno');
+        twilioCard.classList.add('border-green-500');
+        twilioEstado.classList.add('bg-green-100', 'text-green-800');
       } else if (data.estado === 'ADVERTENCIA') {
-        twilioCard.classList.add('twilio-advertencia');
+        twilioCard.classList.add('border-yellow-500');
+        twilioEstado.classList.add('bg-yellow-100', 'text-yellow-800');
       } else if (data.estado === 'BAJO') {
-        twilioCard.classList.add('twilio-bajo');
+        twilioCard.classList.add('border-orange-500');
+        twilioEstado.classList.add('bg-orange-100', 'text-orange-800');
       } else if (data.estado === 'CRITICO') {
-        twilioCard.classList.add('twilio-critico');
+        twilioCard.classList.add('border-red-500');
+        twilioEstado.classList.add('bg-red-100', 'text-red-800');
       } else {
-        twilioCard.classList.add('twilio-error');
+        twilioCard.classList.add('border-gray-500');
+        twilioEstado.classList.add('bg-gray-100', 'text-gray-800');
       }
       
       // Manejar errores
@@ -134,8 +202,8 @@ async function refreshTwilioStatus() {
         if (errorElement) {
           errorElement.textContent = `Error: ${data.error}`;
         } else {
-          const newError = document.createElement('small');
-          newError.className = 'twilio-error';
+          const newError = document.createElement('p');
+          newError.className = 'mt-2 text-xs text-red-600';
           newError.id = 'twilio-error';
           newError.textContent = `Error: ${data.error}`;
           twilioCard.appendChild(newError);
@@ -150,16 +218,17 @@ async function refreshTwilioStatus() {
     console.error('❌ Error al actualizar estado de Twilio:', error);
   } finally {
     // Quitar loading
-    refreshBtn.classList.remove('loading');
+    refreshBtn.classList.remove('animate-spin');
   }
 }
 
 async function refreshOpenAIStatus() {
   const refreshBtn = document.getElementById('openai-refresh-btn');
   const openaiCard = document.getElementById('openai-card');
+  const openaiEstado = document.getElementById('openai-estado');
   
   // Mostrar loading
-  refreshBtn.classList.add('loading');
+  refreshBtn.classList.add('animate-spin');
   
   try {
     const response = await fetch('/admin/openai/refresh');
@@ -173,25 +242,31 @@ async function refreshOpenAIStatus() {
       document.getElementById('openai-periodo').textContent = data.periodo || 'N/A';
       document.getElementById('openai-estado').textContent = data.estado || 'ERROR';
       
-      // Actualizar detalle de uso
-      const detalleElement = openaiCard.querySelector('.openai-detalle');
-      if (detalleElement) {
-        detalleElement.textContent = `$${(data.uso_actual || 0).toFixed(2)} / $${data.limite || 0}`;
-      }
-      
       // Actualizar clases CSS
-      openaiCard.className = 'card openai-card';
+      openaiCard.className = 'bg-white rounded-lg shadow p-4 border-l-4';
+      openaiEstado.className = 'inline-block mt-2 text-xs px-2 py-1 rounded-full font-medium';
       
       if (data.estado === 'BUENO') {
-        openaiCard.classList.add('openai-bueno');
+        openaiCard.classList.add('border-green-500');
+        openaiEstado.classList.add('bg-green-100', 'text-green-800');
       } else if (data.estado === 'ADVERTENCIA') {
-        openaiCard.classList.add('openai-advertencia');
+        openaiCard.classList.add('border-yellow-500');
+        openaiEstado.classList.add('bg-yellow-100', 'text-yellow-800');
       } else if (data.estado === 'BAJO') {
-        openaiCard.classList.add('openai-bajo');
+        openaiCard.classList.add('border-orange-500');
+        openaiEstado.classList.add('bg-orange-100', 'text-orange-800');
       } else if (data.estado === 'CRITICO') {
-        openaiCard.classList.add('openai-critico');
+        openaiCard.classList.add('border-red-500');
+        openaiEstado.classList.add('bg-red-100', 'text-red-800');
       } else {
-        openaiCard.classList.add('openai-error');
+        openaiCard.classList.add('border-gray-500');
+        openaiEstado.classList.add('bg-gray-100', 'text-gray-800');
+      }
+      
+      // Actualizar detalle de uso
+      const detalleElement = openaiCard.querySelector('.text-xs.text-gray-500');
+      if (detalleElement) {
+        detalleElement.textContent = `$${(data.uso_actual || 0).toFixed(2)} / $${data.limite || 0}`;
       }
       
       // Manejar errores
@@ -200,8 +275,8 @@ async function refreshOpenAIStatus() {
         if (errorElement) {
           errorElement.textContent = `Error: ${data.error}`;
         } else {
-          const newError = document.createElement('small');
-          newError.className = 'openai-error';
+          const newError = document.createElement('p');
+          newError.className = 'mt-2 text-xs text-red-600';
           newError.id = 'openai-error';
           newError.textContent = `Error: ${data.error}`;
           openaiCard.appendChild(newError);
@@ -216,7 +291,7 @@ async function refreshOpenAIStatus() {
     console.error('❌ Error al actualizar estado de OpenAI:', error);
   } finally {
     // Quitar loading
-    refreshBtn.classList.remove('loading');
+    refreshBtn.classList.remove('animate-spin');
   }
 }
 
@@ -226,43 +301,4 @@ setInterval(() => {
   refreshOpenAIStatus();
 }, 300000);
 </script>
-
-<style>
-.twilio-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-}
-
-.btn-refresh {
-  background: none;
-  border: none;
-  color: #6c757d;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  font-size: 1.2rem;
-}
-
-.btn-refresh:hover {
-  background-color: #f8f9fa;
-  color: #495057;
-}
-
-.btn-refresh.loading {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.refresh-icon {
-  display: inline-block;
-  font-style: normal;
-}
-</style>
 {% endblock %}

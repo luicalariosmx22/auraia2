@@ -1,0 +1,81 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <!-- Encabezado -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">
+                Configurar módulos para: <span class="text-blue-600">{{ nora.nombre_nora }}</span>
+            </h1>
+            <a href="{{ url_for('gestor_modulos.index') }}" class="text-gray-500 hover:text-gray-700">
+                ← Volver al listado
+            </a>
+        </div>
+        
+        <!-- Información general de la Nora -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6 flex items-center">
+            <div class="mr-4">
+                <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-blue-500">
+                    <span class="text-lg font-medium leading-none text-white">{{ nora.numero_nora }}</span>
+                </span>
+            </div>
+            <div>
+                <h2 class="text-lg font-medium text-gray-900">{{ nora.nombre_nora }}</h2>
+                <p class="text-sm text-gray-500">
+                    {% if nora.nombre_visible %}Cliente: {{ nora.nombre_visible }}{% else %}Sin nombre visible configurado{% endif %}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Formulario de selección de módulos -->
+        <form action="{{ url_for('gestor_modulos.actualizar_modulos', nombre_nora=nora.nombre_nora) }}" method="POST">
+            <div class="mb-5">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Seleccionar módulos activos</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for modulo in modulos_disponibles %}
+                        <div class="bg-white border rounded-lg p-4 hover:shadow-sm transition-shadow">
+                            <div class="flex items-center">
+                                <input id="modulo-{{ modulo.id }}" name="modulos" value="{{ modulo.id }}" type="checkbox" 
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded"
+                                       {% if modulo.id in modulos_activos and modulos_activos[modulo.id] != False %}checked{% endif %}>
+                                <label for="modulo-{{ modulo.id }}" class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">{{ modulo.nombre }}</div>
+                                    <p class="text-xs text-gray-500">{{ modulo.descripcion }}</p>
+                                </label>
+                            </div>
+                            
+                            <!-- Estado actual del módulo -->
+                            <div class="mt-2 pt-2 border-t border-gray-100">
+                                <div class="flex items-center text-xs">
+                                    <span class="w-2 h-2 rounded-full mr-2 
+                                        {% if modulo.id in modulos_activos and modulos_activos[modulo.id] != False %}
+                                            bg-green-500
+                                        {% else %}
+                                            bg-red-500
+                                        {% endif %}">
+                                    </span>
+                                    {% if modulo.id in modulos_activos and modulos_activos[modulo.id] != False %}
+                                        <span class="text-green-800">Activo</span>
+                                    {% else %}
+                                        <span class="text-red-800">Inactivo</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-5 mt-6">
+                <div class="flex justify-end">
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Guardar cambios
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

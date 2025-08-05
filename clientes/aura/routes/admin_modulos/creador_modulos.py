@@ -1,89 +1,142 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
-from clientes.aura.utils.login_required import login_required
-from clientes.aura.utils.ai_modulos import sugerir_modulo, validar_modulo
+
+
+import os
+import uuid
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from clientes.aura.utils.supabase_client import supabase
-from pathlib import Path
-import textwrap
 
-admin_modulos_bp = Blueprint(
-    "admin_modulos",
-    __name__,
-    template_folder="../../../templates/admin_modulos",
-)
+# Definir blueprint antes de los decoradores
+admin_creador_modulos_bp = Blueprint("admin_creador_modulos", __name__)
 
-# Directorio donde se crean los nuevos módulos
-MODULOS_PATH = Path("clientes/aura/routes")
+# Endpoint para edición de módulo vía AJAX
+@admin_creador_modulos_bp.route("/editar_modulo", methods=["POST"])
+def editar_modulo():
+    try:
+        data = request.get_json()
+        id_modulo = data.get("id")
+        nombre = data.get("nombre", "").strip()
+        descripcion = data.get("descripcion", "").strip()
+        icono = data.get("icono", "🧩").strip() or "🧩"
+        if not id_modulo or not nombre:
+            return jsonify({"success": False, "error": "Faltan datos obligatorios"}), 400
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Rutas
-# ──────────────────────────────────────────────────────────────────────────────
+        # Actualizar en Supabase
+        res = supabase.table("modulos_disponibles").update({
+            "nombre": nombre,
+            "descripcion": descripcion,
+            "icono": icono
+        }).eq("id", id_modulo).execute()
+        if hasattr(res, 'error') and res.error:
+            return jsonify({"success": False, "error": str(res.error)}), 500
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
-@admin_modulos_bp.route("/", methods=["GET"], strict_slashes=False)
-@admin_modulos_bp.route("", methods=["GET"], strict_slashes=False)
-@login_required
-def index():
-    """Dashboard de módulos disponibles."""
-    modulos = supabase.table("modulos_disponibles").select("*").execute().data
-    return render_template("admin_modulos/index.html", modulos=modulos)
+@admin_creador_modulos_bp.route("/gestionar", methods=["GET"])
+def gestionar_modulos():
+    """Vista para gestionar todos los módulos (submodulos, botones, vistas extra)"""
 
-@admin_modulos_bp.route("/generar", methods=["POST"])
-@login_required
-def generar():
-    nombre_modulo = request.form.get("nombre_modulo", "").strip().lower()
-    descripcion = request.form.get("descripcion", "").strip()
-    icono = request.form.get("icono", "").strip() or "🧩"
+    # Cargar módulos registrados
+    modulos_response = supabase.table("modulos_disponibles").select("*").execute()
+    modulos = modulos_response.data if modulos_response.data else []
 
-    if not nombre_modulo:
-        flash("Nombre de módulo vacío", "error")
-        return redirect(url_for("admin_modulos.index"))
+    # Cargar configuración de todas las Noras
+    noras_response = supabase.table("configuracion_bot").select("nombre_nora, modulos").execute()
+    configuraciones = noras_response.data if noras_response.data else []
 
-    # 1️⃣ Solicitar scaffold a la IA
-    propuesta = sugerir_modulo(nombre_modulo, descripcion)
-    if not propuesta.get("ok"):
-        flash("IA no pudo generar módulo", "error")
-        return redirect(url_for("admin_modulos.index"))
-
-    codigo = propuesta["sugerencias"][0]
-
-    # 2️⃣ Validar código sugerido
-    validacion = validar_modulo(codigo)
-    if not validacion.get("ok"):
-        flash(f"Errores IA: {', '.join(validacion['errores'])}", "error")
-        return redirect(url_for("admin_modulos.index"))
-
-    # 3️⃣ Guardar archivo si la carpeta no existe
-    carpeta = MODULOS_PATH / f"cliente_{nombre_modulo}"
-    archivo_py = carpeta / f"panel_cliente_{nombre_modulo}.py"
-    if not carpeta.exists():
-        carpeta.mkdir(parents=True)
-        archivo_py.write_text(textwrap.dedent(codigo))
-
-    # 4️⃣ Upsert en modulos_disponibles
-    supabase.table("modulos_disponibles").upsert({
-        "nombre": nombre_modulo,
-        "descripcion": descripcion or f"Módulo {nombre_modulo}",
-        "icono": icono,
-        "ruta": f"panel_cliente_{nombre_modulo}.panel_cliente_{nombre_modulo}",
-    }).execute()
-
-    flash("Módulo creado y validado por IA ✅", "success")
-    return redirect(url_for("admin_modulos.index"))
-
-@admin_modulos_bp.route("/verificar", methods=["POST"])
-@login_required
-def verificar_existente():
-    nombre_modulo = request.form.get("nombre_modulo_verificar", "").strip().lower()
-    archivo = (
-        MODULOS_PATH / f"panel_cliente_{nombre_modulo}" / f"vista_panel_cliente_{nombre_modulo}.py"
+    return render_template(
+        "admin_modulos/gestionar_modulos.html",
+        modulos=modulos,
+        configuraciones=configuraciones
     )
 
-    if not archivo.exists():
-        flash("Módulo no encontrado", "error")
-        return redirect(url_for("admin_modulos.index"))
 
-    resultado = validar_modulo(archivo.read_text())
-    if resultado.get("ok"):
-        flash("Sin errores detectados por IA 🎉", "success")
-    else:
-        flash(f"Errores: {', '.join(resultado['errores'])}", "error")
-    return redirect(url_for("admin_modulos.index"))
+@admin_creador_modulos_bp.route("/crear", methods=["GET", "POST"])
+def crear_modulo():
+    """Crea un nuevo módulo manualmente y lo registra en Supabase."""
+
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip().lower().replace(" ", "_")
+        descripcion = request.form.get("descripcion", "").strip()
+        icono = request.form.get("icono", "").strip() or "🧩"
+        nombre_nora = request.form.get("nombre_nora", "").strip()
+
+        if not nombre:
+            flash("Nombre inválido", "error")
+            return render_template("admin_modulos/crear_modulo.html")
+
+        nombre_archivo = f"panel_cliente_{nombre}"
+        carpeta_backend = f"clientes/aura/routes/{nombre_archivo}"
+        archivo_py = f"{carpeta_backend}/{nombre_archivo}.py"
+        ruta_templates = f"clientes/aura/templates/{nombre_archivo}"
+
+        # Validar si ya existe en Supabase
+        existe = supabase.table("modulos_disponibles").select("id").eq("nombre", nombre).execute()
+        if existe.data:
+            flash("Ya existe un módulo con ese nombre.", "error")
+            return render_template("admin_modulos/crear_modulo.html")
+
+        # Crear carpetas necesarias
+        os.makedirs(carpeta_backend, exist_ok=True)
+        os.makedirs(ruta_templates, exist_ok=True)
+
+        # __init__.py con import del blueprint
+        contenido_init = f"from .{nombre_archivo} import {nombre_archivo}_bp\n"
+        with open(os.path.join(carpeta_backend, "__init__.py"), "w", encoding="utf-8") as f:
+            f.write(contenido_init)
+
+        # Código Python del módulo
+        contenido_py = f"""from flask import Blueprint, render_template, request
+
+{nombre_archivo}_bp = Blueprint("{nombre_archivo}_bp", __name__, url_prefix="/panel_cliente/<nombre_nora>/{nombre}")
+
+@{nombre_archivo}_bp.route("/")
+def panel_cliente_{nombre}():
+    # ✅ Extraer nombre_nora de la URL de forma robusta
+    nombre_nora = request.path.split("/")[2]
+    return render_template("{nombre_archivo}/index.html", nombre_nora=nombre_nora)
+"""
+        with open(archivo_py, "w", encoding="utf-8") as f:
+            f.write(contenido_py)
+
+        # HTML base
+        contenido_html = f"""{{% extends "base_cliente.html" %}}
+
+{{% block contenido %}}
+<div class="max-w-4xl mx-auto py-8">
+  <h1 class="text-3xl font-bold mb-4">{icono} Módulo: {nombre.capitalize()}</h1>
+  <p class="text-gray-700">Este es el módulo inicial para {nombre}.</p>
+</div>
+{{% endblock %}}
+"""
+        with open(os.path.join(ruta_templates, "index.html"), "w", encoding="utf-8") as f:
+            f.write(contenido_html)
+
+        # Registrar en Supabase
+        supabase.table("modulos_disponibles").insert({
+            "id": str(uuid.uuid4()),
+            "nombre": nombre,
+            "descripcion": descripcion,
+            "icono": icono,
+            "ruta": f"{nombre_archivo}.{nombre_archivo}_bp"
+        }).execute()
+
+        # Activar para Nora si se indicó
+
+        if nombre_nora:
+            resultado = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
+            if not resultado.data:
+                flash(f"No se encontró configuración para la Nora: {nombre_nora}", "error")
+                return render_template("admin_modulos/crear_modulo.html")
+
+            mod_actuales = resultado.data[0].get("modulos", {})
+            if isinstance(mod_actuales, list):
+                mod_actuales = {m: True for m in mod_actuales}
+            if nombre not in mod_actuales:
+                mod_actuales[nombre] = True
+                supabase.table("configuracion_bot").update({"modulos": mod_actuales}).eq("nombre_nora", nombre_nora).execute()
+
+        flash("Módulo creado correctamente", "success")
+        return render_template("admin_modulos/crear_modulo.html")
+
+    return render_template("admin_modulos/crear_modulo.html")

@@ -3,24 +3,38 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block titulo %}Panel Admin{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+  
+  <!-- CSS local primero -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/style.css') }}">
+  
+  <!-- Cambiar a script para mejor compatibilidad -->
+  <script src="https://cdn.tailwindcss.com?v={{ range(1000, 9999) | random }}"></script>
+  
+  <!-- Bloque para scripts adicionales en el head -->
+  {% block head_scripts %}{% endblock %}
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-left">
-      <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Nora Logo" class="logo-img">
-      <span class="logo-text">Nora AI</span>
+  <header class="flex justify-between items-center px-6 py-4 bg-white shadow-sm">
+    <div class="flex items-center gap-3">
+      <img src="{{ url_for('static', filename='images/logo_nora.png') }}" alt="Nora Logo" class="h-10 w-auto">
+      <span class="text-xl font-bold text-gray-800">Nora AI</span>
     </div>
-    <nav class="topnav">
-      <a href="/admin">Panel</a>
-      <a href="/admin/nora/nueva">Crear Nora</a>
-      <a href="/logout">Cerrar sesión</a>
+    <nav class="flex items-center gap-4 text-sm text-gray-600">
+      <a href="/admin" class="hover:text-blue-600">Panel</a>
+      <a href="/admin/nora/nueva" class="hover:text-blue-600">Crear Nora</a>
+      <a href="/logout" class="hover:text-red-500">Cerrar sesión</a>
     </nav>
   </header>
 
-  <main class="admin-main">
-    {% block contenido %}{% endblock %}
+  <main class="bg-gray-100 min-h-screen px-6 py-10">
+    <div class="max-w-6xl mx-auto space-y-10">
+      {% block contenido %}{% endblock %}
+    </div>
   </main>
+  
+  <!-- Scripts al final -->
+  {% block scripts %}{% endblock %}
 </body>
 </html>

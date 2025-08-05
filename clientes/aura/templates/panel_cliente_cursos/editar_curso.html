@@ -10,7 +10,7 @@
       </h1>
       <p class="text-gray-600 mt-1">{{ curso.titulo }}</p>
     </div>
-    <a href="{{ url_for('panel_cliente_cursos.detalle_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
+    <a href="{{ url_for('panel_cliente_cursos_bp.detalle_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
        class="text-gray-600 hover:text-blue-600 transition duration-150">
       ← Volver al detalle
     </a>
@@ -295,7 +295,7 @@
 
       <!-- Botones -->
       <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-        <a href="{{ url_for('panel_cliente_cursos.detalle_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
+        <a href="{{ url_for('panel_cliente_cursos_bp.detalle_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-150">
           Cancelar
         </a>

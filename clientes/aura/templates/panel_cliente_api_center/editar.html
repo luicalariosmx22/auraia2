@@ -1,0 +1,56 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="max-w-3xl mx-auto py-8">
+  <h1 class="text-2xl font-bold text-nora-primary mb-6">✏️ Editar API: {{ api.nombre }}</h1>
+
+  <form method="POST" action="/panel_cliente/{{ nombre_nora }}/api_center/editar/{{ api.id }}">
+    <div class="grid grid-cols-1 gap-4 mb-4">
+      <!-- Nombre -->
+      <div>
+        <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre de la API</label>
+        <input type="text" id="nombre" name="nombre" value="{{ api.nombre }}" required
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+      </div>
+
+      <!-- URL base -->
+      <div>
+        <label for="url_base" class="block text-sm font-medium text-gray-700">URL base</label>
+        <input type="text" id="url_base" name="url_base" value="{{ api.url_base }}" required
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+      </div>
+
+      <!-- Clave -->
+      <div>
+        <label for="clave_api" class="block text-sm font-medium text-gray-700">Clave API / Token</label>
+        <input type="text" id="clave_api" name="clave_api" value="{{ api.clave_api or '' }}"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+      </div>
+
+      <!-- Descripción -->
+      <div>
+        <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+        <textarea id="descripcion" name="descripcion" rows="2"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">{{ api.descripcion or '' }}</textarea>
+      </div>
+
+      <!-- Documentación -->
+      <div>
+        <label for="documentacion" class="block text-sm font-medium text-gray-700">Documentación (JSON o texto)</label>
+        <textarea id="documentacion" name="documentacion" rows="4"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+{{ api.documentacion | tojson(indent=2) if api.documentacion is mapping else api.documentacion or '' }}
+        </textarea>
+      </div>
+    </div>
+
+    <div class="flex justify-between mt-6">
+      <a href="/panel_cliente/{{ nombre_nora }}/api_center" class="text-sm text-gray-600 hover:underline">← Cancelar</a>
+      <button type="submit"
+              class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-white text-sm hover:bg-indigo-700">
+        Guardar cambios
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

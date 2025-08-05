@@ -7,9 +7,11 @@ from flask import send_file
 
 # Create the Flask application
 app = create_app()
+print(f"App Flask creada: {app}")
 
 # This makes the app available for Gunicorn and other WSGI servers
 application = app  # For WSGI servers that expect 'application' variable
+print(f"App Flask expuesta como 'application': {application}")
 
 # Ruta de prueba para servir el archivo de test
 @app.route('/test_importacion_google_ads.html')
@@ -26,6 +28,7 @@ def test_simple_insert():
 # =====================================
 @app.route('/debug_rutas')
 def debug_rutas():
+    print("Entrando a /debug_rutas")
     from flask import request, jsonify
     
     # Solo permitir en localhost

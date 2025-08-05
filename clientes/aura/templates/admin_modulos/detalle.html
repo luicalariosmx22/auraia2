@@ -1,0 +1,127 @@
+{% extends "base_admin_horizontal.html" %}
+{% block titulo %}Detalle del módulo {{ modulo.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        {{ modulo.icono or '📦' }} {{ modulo.nombre }}
+      </h1>
+      <div class="mt-1 space-y-2">
+        <p class="text-sm text-gray-500">{{ modulo.descripcion or 'Sin descripción' }}</p>
+        <!-- Nuevo badge de estado -->
+        <div class="text-sm font-medium">
+          {% if modulo.validacion and modulo.validacion.ok %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-100 text-green-800">✅ Estructura válida</span>
+          {% elif modulo.validacion and modulo.validacion.errores %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-red-100 text-red-700">❌ Errores detectados</span>
+          {% else %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800">⚠️ Sin validación</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="{{ url_for('verificador_modulos.index') }}" class="text-blue-600 hover:underline text-sm">← Volver</a>
+      {% if modulo.ruta_disponible %}
+        <a href="{{ modulo.ruta_esperada.replace('<nombre_nora>', 'aura') }}" target="_blank"
+           class="inline-block text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+           🚀 Abrir módulo
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Sección 1: Validaciones + Submódulos -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="w-full">{% include "admin_modulos/partials/_validaciones.html" %}</div>
+    <div class="w-full">
+      {% include "admin_modulos/partials/_submodulos.html" %}
+      {% include "admin_modulos/partials/_archivo_principal.html" %}
+    </div>
+  </div>
+
+  <!-- Sección 2: Rutas y Templates -->
+  {% include "admin_modulos/partials/_rutas_y_templates.html" %}
+
+  <!-- Sección 3: Activación y Dependencias -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="w-full">{% include "admin_modulos/partials/_activacion.html" %}</div>
+    <div class="w-full">{% include "admin_modulos/partials/_dependencias.html" %}</div>
+  </div>
+
+  <!-- Sección 4: Protecciones y Limpieza -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="w-full">{% include "admin_modulos/partials/_protecciones.html" %}</div>
+    <div class="w-full">{% include "admin_modulos/partials/_limpieza.html" %}</div>
+  </div>
+
+  <!-- ERRORES -->
+  {% include "admin_modulos/partials/_errores.html" %}
+
+  <!-- Sección de estado HTTP -->
+  <div class="mt-2">
+    {% if modulo.respuesta_http == 302 %}
+      <div class="text-yellow-700 text-sm flex items-center gap-1">
+        <span>⚠️</span>
+        <span>La ruta existe pero redirige (HTTP 302) - Probablemente está protegida por login</span>
+      </div>
+    {% elif modulo.respuesta_http == 200 %}
+      <div class="text-green-700 text-sm flex items-center gap-1">
+        <span>✅</span>
+        <span>Ruta activa y respondiendo correctamente (200 OK)</span>
+      </div>
+    {% elif modulo.respuesta_http %}
+      <div class="text-red-700 text-sm flex items-center gap-1">
+        <span>❌</span>
+        <span>Error en la respuesta HTTP: {{ modulo.respuesta_http }}</span>
+      </div>
+    {% else %}
+      <div class="text-gray-500 text-sm flex items-center gap-1">
+        <span>ℹ️</span>
+        <span>No se pudo verificar el estado HTTP de la ruta</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Sección de diagnóstico IA -->
+  {% if modulo.diagnostico_ia %}
+  <div class="bg-white border rounded-xl shadow-sm p-6 space-y-4">
+    <div class="flex items-center gap-2">
+      <span class="text-lg">🧠</span>
+      <h2 class="text-lg font-medium text-gray-900">Diagnóstico IA</h2>
+    </div>
+
+    <!-- Causa del problema -->
+    {% if modulo.diagnostico_ia.causa %}
+    <div class="space-y-2">
+      <h4 class="text-sm font-semibold text-red-800">Problema detectado:</h4>
+      <p class="text-sm text-gray-800">{{ modulo.diagnostico_ia.causa }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Solución propuesta -->
+    {% if modulo.diagnostico_ia.solucion %}
+    <div class="space-y-2">
+      <h4 class="text-sm font-semibold text-green-800">Solución propuesta:</h4>
+      <pre class="bg-gray-50 p-3 rounded-lg text-sm font-mono text-gray-700 whitespace-pre-wrap">{{ modulo.diagnostico_ia.solucion }}</pre>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- JSON Collapsible -->
+  <details class="bg-white border rounded-xl shadow-md group">
+    <summary class="px-6 py-4 border-b cursor-pointer hover:bg-gray-50 flex items-center justify-between">
+      <h2 class="text-lg font-medium text-gray-900 flex items-center gap-2">🧾 Ver JSON completo</h2>
+      <span class="text-sm text-blue-500 group-open:hidden">Mostrar</span>
+      <span class="text-sm text-blue-500 hidden group-open:inline">Ocultar</span>
+    </summary>
+    <div class="px-6 py-4">
+      <pre class="bg-gray-50 rounded p-4 overflow-auto text-xs font-mono text-gray-700">{{ modulo | tojson(indent=2) }}</pre>
+    </div>
+  </details>
+</div>
+{% endblock %}

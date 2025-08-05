@@ -1,0 +1,4 @@
+{
+  "pagos": "clientes/aura/routes/panel_cliente_pagos/vista_panel_cliente_pagos.py",
+  "clientes": "clientes/aura/routes/panel_cliente_clientes.py"
+}

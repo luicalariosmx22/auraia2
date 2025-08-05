@@ -87,7 +87,7 @@
         
         <!-- Acciones -->
         <div class="flex flex-col gap-3 ml-8">
-          <a href="{{ url_for('panel_cliente_cursos.editar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
+          <a href="{{ url_for('panel_cliente_cursos_bp.editar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
              class="group relative bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-300 backdrop-blur-sm border border-white/30 hover:border-white/50 hover:shadow-xl hover:scale-105">
             <span class="flex items-center gap-2">
               <span class="text-lg">✏️</span>
@@ -95,7 +95,7 @@
             </span>
           </a>
           
-          <a href="{{ url_for('panel_cliente_cursos.index_cursos', nombre_nora=nombre_nora) }}" 
+          <a href="{{ url_for('panel_cliente_cursos_bp.index_cursos', nombre_nora=nombre_nora) }}" 
              class="group relative bg-white/10 hover:bg-white/20 text-blue-100 hover:text-white font-medium px-6 py-2 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20 hover:border-white/40">
             <span class="flex items-center gap-2">
               <span>←</span>
@@ -447,7 +447,7 @@
 
   <!-- Acciones -->
   <div class="mt-8 flex items-center justify-between">
-    <form method="POST" action="{{ url_for('panel_cliente_cursos.eliminar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
+    <form method="POST" action="{{ url_for('panel_cliente_cursos_bp.eliminar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
           onsubmit="return confirm('¿Estás seguro de eliminar este curso? Esta acción no se puede deshacer.')">
       <button type="submit" 
               class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition duration-200">
@@ -456,11 +456,11 @@
     </form>
     
     <div class="flex items-center gap-3">
-      <a href="{{ url_for('panel_cliente_cursos.editar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
+      <a href="{{ url_for('panel_cliente_cursos_bp.editar_curso', nombre_nora=nombre_nora, curso_id=curso.id) }}" 
          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition duration-200">
         ✏️ Editar Curso
       </a>
-      <a href="{{ url_for('panel_cliente_cursos.index_cursos', nombre_nora=nombre_nora) }}" 
+      <a href="{{ url_for('panel_cliente_cursos_bp.index_cursos', nombre_nora=nombre_nora) }}" 
          class="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition duration-200">
         ← Volver a Lista
       </a>

@@ -1,8 +1,11 @@
+
+import importlib
 from supabase import create_client
 from dotenv import load_dotenv
 import os
 import json
 
+# Importaciones base de blueprints
 from clientes.aura.routes.panel_cliente import crear_blueprint_panel_cliente
 from clientes.aura.routes.panel_cliente_contactos import panel_cliente_contactos_bp
 from clientes.aura.routes.panel_cliente_envios import panel_cliente_envios_bp
@@ -10,19 +13,22 @@ from clientes.aura.routes.panel_cliente_ia import panel_cliente_ia_bp
 from clientes.aura.routes.panel_cliente_respuestas import panel_cliente_respuestas_bp
 from clientes.aura.routes.panel_chat import panel_chat_bp
 from clientes.aura.routes.panel_cliente_clientes import panel_cliente_clientes_bp
-from clientes.aura.routes.panel_cliente_ads import panel_cliente_ads_bp
 from clientes.aura.routes.panel_cliente_tareas import panel_cliente_tareas_bp
 from clientes.aura.routes.panel_cliente_cursos import panel_cliente_cursos_bp
 from clientes.aura.routes.panel_cliente_whatsapp_web import panel_cliente_whatsapp_web_bp
-
 from clientes.aura.routes.webhook_contactos import webhook_contactos_bp
 from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp
 from clientes.aura.routes.panel_cliente_tareas.recurrentes import panel_tareas_recurrentes_bp
-from clientes.aura.routes.reportes_meta_ads import reportes_meta_ads_bp
-from clientes.aura.routes.reportes_meta_ads import get_estadisticas_bp
 from clientes.aura.routes.panel_cliente_google_ads import panel_cliente_google_ads_bp
 from clientes.aura.routes.whatsapp_integration import whatsapp_integration_bp
-
+from clientes.aura.routes.panel_cliente_meta_ads.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
+# Imports adicionales (movidos desde los bloques condicionales)
+from clientes.aura.routes.panel_cliente_entrenamiento.vista_panel_cliente_entrenamiento import panel_cliente_entrenamiento_bp
+from clientes.aura.routes.panel_cliente_tareas.gestionar import panel_tareas_gestionar_bp
+from clientes.aura.routes.panel_cliente_tareas.tareas_crud import panel_tareas_crud_bp
+from clientes.aura.routes.campanas_meta_ads import campanas_meta_ads_bp
+# El módulo de WhatsApp Web Websocket requiere importación dinámica debido a conflictos de nombre
+# from clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket import panel_cliente_whatsapp_web_bp
 
 # Configurar Supabase
 load_dotenv()
@@ -31,48 +37,9 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def obtener_modulos_activos(nombre_nora):
-    """
-    Obtener los módulos activos para una Nora específica desde la base de datos.
-    
-    Args:
-        nombre_nora (str): Nombre de la Nora para obtener los módulos
-        
-    Returns:
-        list: Lista de módulos activos normalizados
-    """
     try:
-        # Obtener los módulos activos de la tabla configuracion_bot
         modulos_activados = supabase.table('configuracion_bot').select('modulos').eq('nombre_nora', nombre_nora).single().execute()
-
-        if modulos_activados.data:
-            modulos_raw = modulos_activados.data.get('modulos', [])
-            if modulos_raw and isinstance(modulos_raw[0], dict):
-                modulos = [
-                    m["nombre"]
-                    .strip()
-                    .lower()
-                    .replace(" ", "_")
-                    .replace("panel_conocimiento", "conocimiento")
-                    .replace("panel_chat", "chat")
-                    for m in modulos_raw
-                ]
-            else:
-                modulos_raw = [{"nombre": m} for m in modulos_raw]
-                modulos = [
-                    m["nombre"]
-                    .strip()
-                    .lower()
-                    .replace(" ", "_")
-                    .replace("panel_conocimiento", "conocimiento")
-                    .replace("panel_chat", "chat")
-                    for m in modulos_raw
-                ]
-            print(f"🧪 Módulos activos obtenidos para {nombre_nora}: {modulos}")
-            return modulos
-        else:
-            print(f"⚠️ No se encontraron módulos activados para {nombre_nora} en la tabla configuracion_bot.")
-            return []
-
+        return modulos_activados.data["modulos"] if modulos_activados.data else []
     except Exception as e:
         print(f"❌ Error al obtener módulos activos para {nombre_nora}: {e}")
         return []
@@ -84,72 +51,66 @@ def safe_register_blueprint(app, blueprint, **kwargs):
     else:
         print(f"⚠️ Blueprint '{blueprint.name}' ya estaba registrado.")
 
-def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
-    # Obtener configuración de módulos
+def registrar_modulo(app, nombre_modulo, blueprint, ruta, modulos_registrados):
+    """
+    Registra un módulo (blueprint) con manejo de errores.
+    
+    Args:
+        app: La aplicación Flask
+        nombre_modulo (str): Nombre del módulo a registrar
+        blueprint: Blueprint de Flask a registrar
+        ruta (str): Prefijo URL para el blueprint
+        modulos_registrados (set): Conjunto donde registrar módulos exitosos
+        
+    Returns:
+        bool: True si se registró correctamente, False en caso de error
+    """
     try:
-        config = supabase.table("configuracion_bot") \
-            .select("modulos") \
-            .eq("nombre_nora", nombre_nora) \
-            .single() \
-            .execute()
-
-        modulos_activados = config.data.get("modulos", [])
-
+        safe_register_blueprint(app, blueprint, url_prefix=ruta)
+        print(f"✅ Módulo de {nombre_modulo} registrado")
+        modulos_registrados.add(nombre_modulo)
     except Exception as e:
-        print(f"❌ Error al obtener configuración de módulos para {nombre_nora}: {e}")
-        modulos_activados = []
+        print(f"❌ Error al registrar módulo de {nombre_modulo}: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+    return True
 
-    print(f"🔍 Registrando blueprints dinámicos para {nombre_nora}...")
-
+def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
+    """
+    Registra los blueprints específicos para una Nora.
+    
+    Args:
+        app: La aplicación Flask
+        nombre_nora: Nombre de la Nora
+        safe_register_blueprint: Función para registrar blueprints de forma segura
+    """
     try:
-        # 🧪 Debug print statement
-        print(f"🧪 Registrando panel_cliente para {nombre_nora}")
-        # Crear y registrar el blueprint dinámico del panel cliente
+        # Obtener los módulos activos
+        modulos = obtener_modulos_activos(nombre_nora)
+        
+        # Guardamos qué módulos fueron registrados exitosamente
+        modulos_registrados = set()
+
+        # 1. MÓDULOS BASE (siempre se registran)
+        # Panel cliente base
         bp = crear_blueprint_panel_cliente(nombre_nora)
         safe_register_blueprint(app, bp, url_prefix=f"/panel_cliente/{nombre_nora}")
 
-        # 👉 Registra el módulo 'entrenamiento' para cada Nora
-        from clientes.aura.routes.panel_cliente_entrenamiento.vista_panel_cliente_entrenamiento import panel_cliente_entrenamiento_bp
+        # Módulo de entrenamiento
         safe_register_blueprint(app, panel_cliente_entrenamiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/entrenamiento")
 
-        # Otros módulos...
-        if "contactos" in modulos_activados:
-            # registrar_blueprint de contactos
-            safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
-
-        # Registrar webhook para mensajes desde Node.js
+        # Webhook base
         safe_register_blueprint(app, webhook_contactos_bp, url_prefix="/")
 
-        # Obtener los módulos activos de la tabla configuracion_bot
-        modulos_activados = supabase.table('configuracion_bot').select('modulos').eq('nombre_nora', nombre_nora).single().execute()
-
-        if modulos_activados.data:
-            modulos_raw = modulos_activados.data.get('modulos', [])
-            if modulos_raw and isinstance(modulos_raw[0], dict):
-                modulos = [
-                    m["nombre"]
-                    .strip()
-                    .lower()
-                    .replace(" ", "_")
-                    .replace("panel_conocimiento", "conocimiento")
-                    .replace("panel_chat", "chat")
-                    for m in modulos_raw
-                ]
-            else:
-                modulos_raw = [{"nombre": m} for m in modulos_raw]
-                modulos = [
-                    m["nombre"]
-                    .strip()
-                    .lower()
-                    .replace(" ", "_")
-                    .replace("panel_conocimiento", "conocimiento")
-                    .replace("panel_chat", "chat")
-                    for m in modulos_raw
-                ]
-            print(f"🧪 Módulos activos normalizados para {nombre_nora}: {modulos}")
-
-            # Ejemplo de comparaciones que ahora sí funcionarán:
-            if "pagos" in modulos:
+        # 2. MÓDULOS CONDICIONALES
+        # Contactos
+        if "contactos" in modulos:
+            registrar_modulo(app, "contactos", panel_cliente_contactos_bp, f"/panel_cliente/{nombre_nora}/contactos", modulos_registrados)
+        
+        # Pagos - requiere importación dinámica
+        if "pagos" in modulos:
+            try:
                 from clientes.aura.routes.panel_cliente_pagos import (
                     panel_cliente_pagos_bp,
                     panel_cliente_pagos_servicios_bp,
@@ -160,149 +121,107 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 safe_register_blueprint(app, panel_cliente_pagos_servicios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos/servicios")
                 safe_register_blueprint(app, panel_cliente_pagos_nuevo_bp, url_prefix=f"/panel_cliente/{nombre_nora}/pagos")
                 safe_register_blueprint(app, panel_cliente_pagos_recibo_bp)
+                print(f"✅ Módulo de pagos registrado")
+                modulos_registrados.add("pagos")
+            except Exception as e:
+                print(f"❌ Error al registrar módulo de pagos: {e}")
+                import traceback
+                traceback.print_exc()
 
-            if "tareas" in modulos:
-                from clientes.aura.routes.panel_cliente_tareas import (
-                    panel_cliente_tareas_bp
-                )
-                from clientes.aura.routes.panel_cliente_tareas.gestionar import panel_tareas_gestionar_bp
-                from clientes.aura.routes.panel_cliente_tareas.tareas_crud import panel_tareas_crud_bp  # ✅ Agrega esta línea
-
+        # Tareas
+        if "tareas" in modulos:
+            try:
                 safe_register_blueprint(app, panel_cliente_tareas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/tareas")
                 safe_register_blueprint(app, panel_tareas_gestionar_bp)
                 safe_register_blueprint(app, panel_tareas_recurrentes_bp)
-                safe_register_blueprint(app, panel_tareas_crud_bp)  # ✅ Registra el blueprint que contiene /tareas/crear
+                safe_register_blueprint(app, panel_tareas_crud_bp)
+                print(f"✅ Módulo de tareas registrado")
+                modulos_registrados.add("tareas")
+            except Exception as e:
+                print(f"❌ Error al registrar módulo de tareas: {e}")
+                import traceback
+                traceback.print_exc()
 
-            if "panel_chat" in modulos:
-                safe_register_blueprint(app, panel_chat_bp, url_prefix=f"/panel_cliente/{nombre_nora}/panel_chat")
-
-            if "meta_ads" in modulos:
-                # from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
-                # safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
-                pass  # Registro deshabilitado por error de import
-
-            # Registrar solo si es meta_ads, no mezclar con ads (Google)
-            if "meta_ads" in modulos:
-                print(f"Registrando blueprint META ADS para {nombre_nora}")
-                safe_register_blueprint(app, panel_cliente_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
-                # Registrar reportes avanzados de Meta Ads
-                safe_register_blueprint(app, reportes_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
-                # Registrar estadísticas de Meta Ads SOLO con url_prefix=''
-                # Cargar estadísticas de forma lazy
-                estadisticas_bp = get_estadisticas_bp()
-                if estadisticas_bp:
-                    safe_register_blueprint(app, estadisticas_bp)
-                # Registrar campañas avanzadas de Meta Ads
-                from clientes.aura.routes.campanas_meta_ads import campanas_meta_ads_bp
-                safe_register_blueprint(app, campanas_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
-
-            if "meta_ads" in modulos:
-                from clientes.aura.routes.sincronizar_meta_ads import panel_cliente_meta_ads_bp
+        # Meta Ads
+        if "meta_ads" in modulos:
+            try:
+                print(f"🔄 Registrando blueprint META ADS para {nombre_nora}")
+                from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
                 safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+                print(f"✅ Módulo de Meta Ads registrado")
+                modulos_registrados.add("meta_ads")
+            except Exception as e:
+                print(f"❌ Error al registrar módulo de Meta Ads: {e}")
+                import traceback
+                traceback.print_exc()
 
-            if "meta_ads" in modulos:
-                from clientes.aura.routes.reportes_meta_ads.vista_sincronizacion import panel_cliente_meta_ads_sincronizacion_bp
-                safe_register_blueprint(app, panel_cliente_meta_ads_sincronizacion_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
+        # Google Ads
+        if "google_ads" in modulos:
+            registrar_modulo(app, "google_ads", panel_cliente_google_ads_bp, f"/panel_cliente/{nombre_nora}/google_ads", modulos_registrados)
 
-            # ✅ Registro de Google Ads siguiendo el patrón de Meta Ads
-            if "google_ads" in modulos:
-                print(f"Registrando blueprint GOOGLE ADS para {nombre_nora}")
-                safe_register_blueprint(app, panel_cliente_google_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/google_ads")
+        # Módulos básicos restantes - usando la nueva función registrar_modulo
+        if "envios" in modulos:
+            registrar_modulo(app, "envios", panel_cliente_envios_bp, f"/panel_cliente/{nombre_nora}/envios", modulos_registrados)
+                
+        if "ia" in modulos:
+            registrar_modulo(app, "ia", panel_cliente_ia_bp, f"/panel_cliente/{nombre_nora}/ia", modulos_registrados)
+                
+        if "respuestas" in modulos:
+            registrar_modulo(app, "respuestas", panel_cliente_respuestas_bp, f"/panel_cliente/{nombre_nora}/respuestas", modulos_registrados)
+                
+        if "clientes" in modulos:
+            registrar_modulo(app, "clientes", panel_cliente_clientes_bp, f"/panel_cliente/{nombre_nora}/clientes", modulos_registrados)
+                
+        if "cursos" in modulos:
+            registrar_modulo(app, "cursos", panel_cliente_cursos_bp, f"/panel_cliente/{nombre_nora}/cursos", modulos_registrados)
 
-            if "contactos" in modulos:
-                safe_register_blueprint(app, panel_cliente_contactos_bp, url_prefix=f"/panel_cliente/{nombre_nora}/contactos")
+        # WhatsApp Web WebSocket - requiere importación dinámica debido a conflicto de nombres
+        if "qr_whatsapp_web" in modulos:
+            try:
+                print(f"🔄 Registrando QR WHATSAPP WEB para {nombre_nora}")
+                from clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket import panel_cliente_whatsapp_web_bp as whatsapp_websocket_bp
+                safe_register_blueprint(app, whatsapp_websocket_bp, url_prefix=f'/panel_cliente/{nombre_nora}/whatsapp')
+                print(f"✅ Blueprint WhatsApp Web registrado exitosamente")
+                modulos_registrados.add("qr_whatsapp_web")
+            except Exception as e:
+                print(f"❌ Error al registrar módulo de WhatsApp Web: {e}")
+                import traceback
+                traceback.print_exc()
 
-            if "envios" in modulos:
-                safe_register_blueprint(app, panel_cliente_envios_bp, url_prefix=f"/panel_cliente/{nombre_nora}/envios")
+        # 3. MÓDULOS DINÁMICOS (generados por el creador)
+        resultado = supabase.table("modulos_disponibles").select("nombre, ruta").execute()
+        modulos_disponibles = resultado.data if resultado.data else []
 
-            if "ia" in modulos:
-                safe_register_blueprint(app, panel_cliente_ia_bp, url_prefix=f"/panel_cliente/{nombre_nora}/ia")
+        for item in modulos_disponibles:
+            nombre_modulo = item["nombre"]
+            ruta_import = item["ruta"]
 
-            if "respuestas" in modulos:
-                safe_register_blueprint(app, panel_cliente_respuestas_bp, url_prefix=f"/panel_cliente/{nombre_nora}/respuestas")
+            # Evita registrar dos veces el mismo módulo
+            if nombre_modulo in modulos_registrados:
+                continue
 
-            if "clientes" in modulos:
-                safe_register_blueprint(app, panel_cliente_clientes_bp, url_prefix=f"/panel_cliente/{nombre_nora}/clientes")
-
-            if "cursos" in modulos:
-                print(f"Registrando blueprint CURSOS para {nombre_nora}")
-                safe_register_blueprint(app, panel_cliente_cursos_bp, url_prefix="")
-
-            # ✅ Registro del módulo WhatsApp Web integrado (WebSocket)
-            if "qr_whatsapp_web" in modulos:
-                print(f"Registrando blueprint QR WHATSAPP WEB WEBSOCKET para {nombre_nora}")
-                try:
-                    from clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket import panel_cliente_whatsapp_web_bp
-                    safe_register_blueprint(app, panel_cliente_whatsapp_web_bp, url_prefix=f'/panel_cliente/{nombre_nora}/whatsapp')
-                    print(f"✅ Blueprint WhatsApp Web WebSocket registrado exitosamente")
-                except Exception as e:
-                    print(f"❌ Error registrando blueprint WhatsApp Web WebSocket: {e}")
-                    # Fallback al blueprint original si el WebSocket falla
-                    try:
-                        from clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web_fixed import panel_cliente_whatsapp_web_bp
-                        safe_register_blueprint(app, panel_cliente_whatsapp_web_bp, url_prefix=f'/panel_cliente/{nombre_nora}/whatsapp')
-                        print(f"✅ Blueprint WhatsApp Web original registrado como fallback")
-                    except Exception as e2:
-                        print(f"❌ Error también con blueprint original: {e2}")
-                        import traceback
-                        traceback.print_exc()
-
-            # ✅ Conocimiento ahora está integrado en el panel de entrenamiento de admin_nora
-            # if "conocimiento" in modulos:
-            #     safe_register_blueprint(app, panel_cliente_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/conocimiento")
-            #     safe_register_blueprint(app, panel_cliente_etiquetas_conocimiento_bp, url_prefix=f"/panel_cliente/{nombre_nora}/etiquetas_conocimiento")
-            
-            # Registrar módulo Meta Ads si está activo
-            if "meta_ads" in modulos:
-                # from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
-                # safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
-                pass  # Registro deshabilitado por error de import
-
-            if "login" in modulos:
-                # login_bp se registra en otro lugar - comentado para evitar error
-                # safe_register_blueprint(app, login_bp, url_prefix=f"/login")
-                pass
-
-            # ✅ Diagnóstico detallado de módulos y rutas registradas
-
-            modulos_url_esperada = {
-                "pagos": f"/panel_cliente/{nombre_nora}/pagos",
-                "tareas": f"/panel_cliente/{nombre_nora}/tareas",
-                "etiquetas": f"/panel_cliente/{nombre_nora}/etiquetas",
-                "conocimiento": f"/panel_cliente/{nombre_nora}/conocimiento",
-                "panel_chat": f"/panel_cliente/{nombre_nora}/panel_chat",
-                "meta_ads": f"/panel_cliente/{nombre_nora}/meta_ads",
-                "google_ads": f"/panel_cliente/{nombre_nora}/google_ads",
-                "ads": f"/panel_cliente/{nombre_nora}/ads",
-                "clientes": f"/panel_cliente/{nombre_nora}/clientes",
-                "cursos": f"/panel_cliente/{nombre_nora}/cursos",
-                "whatsapp": f"/panel_cliente/{nombre_nora}/whatsapp",
-                "qr_whatsapp_web": f"/panel_cliente/{nombre_nora}/whatsapp"
-            }
-
-            # Obtener rutas reales registradas
-            rutas_registradas = [str(rule.rule) for rule in app.url_map.iter_rules()]
-
-            print("\n🧪 Resultado del registro de módulos para:", nombre_nora)
-            for modulo in modulos:
-                ruta_esperada = modulos_url_esperada.get(modulo)
-                if not ruta_esperada:
-                    print(f"⚠️ {modulo.ljust(22)} → No definida en verificador")
+            try:
+                if not ruta_import:
+                    print(f"⚠️ Módulo '{nombre_modulo}' no tiene ruta definida")
                     continue
 
-                if ruta_esperada in rutas_registradas:
-                    print(f"✔ {modulo.ljust(22)} → Registrado ✅   ({ruta_esperada})")
-                else:
-                    print(f"❌ {modulo.ljust(22)} → NO registrado ⛔ ({ruta_esperada})")
+                # Soporta rutas en subcarpetas como 'panel_cliente_alertas.panel_cliente_alertas_bp'
+                ruta_modulo = ruta_import.rsplit(".", 1)[0]  # Ej: 'panel_cliente_alertas'
+                nombre_blueprint = ruta_import.split(".")[-1]  # Ej: 'panel_cliente_alertas_bp'
 
-        else:
-            print(f"⚠️ No se encontraron módulos activados para {nombre_nora} en la tabla configuracion_bot.")
+                # Importa correctamente incluso si está en subcarpeta
+                modulo_importado = importlib.import_module(f"clientes.aura.routes.{ruta_modulo}")
+                blueprint = getattr(modulo_importado, nombre_blueprint)
+
+                ruta_url = f"/panel_cliente/{nombre_nora}/{nombre_modulo}"
+                registrar_modulo(app, nombre_modulo, blueprint, ruta_url, modulos_registrados)
+
+            except Exception as e:
+                print(f"❌ Error al registrar módulo dinámico '{nombre_modulo}': {e}")
+                import traceback
+                traceback.print_exc()
 
     except Exception as e:
         print(f"❌ Error al registrar blueprints dinámicos para {nombre_nora}: {e}")
-
-    # Mostrar rutas y endpoints relacionados con google_ads
-    print("\n🧪 Rutas registradas relacionadas con google_ads:")
-    for rule in app.url_map.iter_rules():
-        if 'google_ads' in rule.rule or 'google_ads' in rule.endpoint:
-            print(f"  - {rule.rule} → {rule.endpoint}")
+        import traceback
+        traceback.print_exc()

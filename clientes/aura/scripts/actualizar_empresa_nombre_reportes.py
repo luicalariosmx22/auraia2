@@ -37,7 +37,7 @@ if __name__ == "__main__":
 # Registro del blueprint si se ejecuta como script
 try:
     from flask import Flask
-    from clientes.aura.routes.reportes_meta_ads.estadisticas import estadisticas_ads_bp
+    from clientes.aura.routes.panel_cliente_meta_ads.estadisticas import estadisticas_ads_bp
     app = Flask(__name__)
     app.register_blueprint(estadisticas_ads_bp)
     print("Blueprint 'estadisticas_ads_bp' registrado para pruebas.")
