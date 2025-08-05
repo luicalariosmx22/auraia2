@@ -49,7 +49,14 @@ def vista_reporte_publico(token_uuid):
         
         # Obtener información de la empresa
         try:
-            empresa = supabase.table('meta_ads_cuentas').select('*').eq('id_cuenta_publicitaria', reporte['id_cuenta_publicitaria']).single().execute().data
+            # Primero obtener la cuenta de Meta Ads para conseguir el empresa_id
+            cuenta_meta = supabase.table('meta_ads_cuentas').select('empresa_id').eq('id_cuenta_publicitaria', reporte['id_cuenta_publicitaria']).single().execute().data
+            
+            if cuenta_meta and cuenta_meta.get('empresa_id'):
+                # Obtener información completa de la empresa desde cliente_empresas
+                empresa = supabase.table('cliente_empresas').select('id,nombre_empresa,logo_url').eq('id', cuenta_meta['empresa_id']).single().execute().data
+            else:
+                empresa = None
         except Exception as e:
             print(f"[ERROR] Error al obtener empresa: {e}")
             empresa = None
@@ -63,7 +70,7 @@ def vista_reporte_publico(token_uuid):
             'es_publico': True
         }
         
-        return render_template('reporte_publico/detalle_reporte_publico.html', **datos_reporte)
+        return render_template('panel_cliente_meta_ads/detalle_reporte_publico.html', **datos_reporte)
         
     except Exception as e:
         print(f"[ERROR] Error en vista_reporte_publico: {e}")
