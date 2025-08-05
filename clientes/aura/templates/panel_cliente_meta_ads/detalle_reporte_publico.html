@@ -57,6 +57,16 @@
     </button>
   </div>
 
+  <!-- DEBUG TEMPORAL -->
+  <div class="bg-red-100 p-4 mb-4 rounded text-sm">
+    <strong>DEBUG:</strong><br>
+    empresa: {{ empresa }}<br>
+    empresa.nombre_empresa: {{ empresa.nombre_empresa if empresa else 'None' }}<br>
+    empresa.logo_url: {{ empresa.logo_url if empresa else 'None' }}<br>
+    empresa.id: {{ empresa.id if empresa else 'None' }}<br>
+    reporte.empresa_nombre: {{ reporte.empresa_nombre if reporte else 'None' }}<br>
+  </div>
+
   <!-- ENCABEZADO -->
   <div class="flex items-center justify-between mb-8 avoid-break">
     <div class="flex items-center gap-4">
