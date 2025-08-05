@@ -33,8 +33,7 @@ def crear_blueprint_panel_cliente(nombre_nora):
         print(f"🧪 Entrando a configuracion_cliente de {nombre_nora}")
 
         if not session.get("email"):
-            # Ajuste: endpoint correcto es 'login.login'
-            return redirect(url_for("login.login"))
+            return redirect(url_for("simple_login_unique.login_simple"))
 
         try:
             # 1. Configuración de la Nora
@@ -63,7 +62,7 @@ def crear_blueprint_panel_cliente(nombre_nora):
             }
 
             # 4. Filtrar solo los módulos activos y definidos
-            modulos_disponibles = [
+            modulos_disponibles = sorted([
                 {
                     "nombre": modulos_dict[nombre.lower()]["nombre"].replace("_", " ").capitalize(),
                     "ruta": f"/panel_cliente/{nombre_nora}/{nombre.lower()}",
@@ -72,7 +71,7 @@ def crear_blueprint_panel_cliente(nombre_nora):
                 }
                 for nombre in modulos_activos
                 if nombre.lower() in modulos_dict
-            ]
+            ], key=lambda x: x["nombre"].lower())
 
             print("✅ Módulos visibles para panel:", modulos_disponibles)
 
@@ -105,5 +104,79 @@ def crear_blueprint_panel_cliente(nombre_nora):
         config = supabase.table("configuracion_bot").select("modulos").eq("nombre_nora", nombre_nora).single().execute().data
         modulos = config.get("modulos", [])
         return render_template("panel_cliente/index.html", nombre_nora=nombre_nora, modulos=modulos)
+
+    # 👉 Nueva ruta para estadísticas de Nora
+    @bp.route("/panel_cliente/<nombre_nora>/estadisticas_nora")
+    def estadisticas_nora(nombre_nora):
+        try:
+            # Obtener estadísticas de mensajes del historial
+            mensajes_response = supabase.table("historial_conversaciones").select("*").eq("nora", nombre_nora).execute()
+            mensajes = mensajes_response.data if mensajes_response.data else []
+            
+            # Calcular estadísticas básicas
+            total_mensajes = len(mensajes)
+            
+            # Contar mensajes enviados vs recibidos
+            mensajes_enviados = len([m for m in mensajes if m.get('tipo') == 'enviado'])
+            mensajes_recibidos = len([m for m in mensajes if m.get('tipo') == 'recibido'])
+            
+            # Usuarios únicos (números de teléfono únicos)
+            usuarios_unicos = len(set([m.get('telefono') for m in mensajes if m.get('telefono')]))
+            
+            # Obtener conversaciones activas (últimas 24h)
+            from datetime import datetime, timedelta
+            hace_24h = datetime.now() - timedelta(hours=24)
+            conversaciones_24h = len([m for m in mensajes if m.get('created_at') and m.get('created_at') > hace_24h.isoformat()])
+            
+            # Mensajes por día (últimos 7 días)
+            estadisticas_diarias = {}
+            for i in range(7):
+                fecha = datetime.now() - timedelta(days=i)
+                fecha_str = fecha.strftime('%Y-%m-%d')
+                estadisticas_diarias[fecha_str] = len([
+                    m for m in mensajes 
+                    if m.get('created_at') and m.get('created_at').startswith(fecha_str)
+                ])
+            
+            # Horarios de mayor actividad
+            horarios_actividad = {}
+            for mensaje in mensajes:
+                if mensaje.get('created_at'):
+                    try:
+                        hora = datetime.fromisoformat(mensaje['created_at'].replace('Z', '+00:00')).hour
+                        horarios_actividad[hora] = horarios_actividad.get(hora, 0) + 1
+                    except:
+                        continue
+            
+            estadisticas = {
+                'total_mensajes': total_mensajes,
+                'mensajes_enviados': mensajes_enviados,
+                'mensajes_recibidos': mensajes_recibidos,
+                'usuarios_unicos': usuarios_unicos,
+                'conversaciones_24h': conversaciones_24h,
+                'estadisticas_diarias': estadisticas_diarias,
+                'horarios_actividad': horarios_actividad
+            }
+            
+            print(f"✅ Estadísticas de {nombre_nora}: {estadisticas}")
+            
+            return render_template("estadisticas_nora.html", 
+                                 nombre_nora=nombre_nora, 
+                                 estadisticas=estadisticas)
+                                 
+        except Exception as e:
+            print(f"❌ Error obteniendo estadísticas de {nombre_nora}: {e}")
+            return render_template("estadisticas_nora.html", 
+                                 nombre_nora=nombre_nora, 
+                                 estadisticas={
+                                     'total_mensajes': 0,
+                                     'mensajes_enviados': 0,
+                                     'mensajes_recibidos': 0,
+                                     'usuarios_unicos': 0,
+                                     'conversaciones_24h': 0,
+                                     'estadisticas_diarias': {},
+                                     'horarios_actividad': {}
+                                 },
+                                 error=str(e))
 
     return bp

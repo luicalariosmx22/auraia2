@@ -1,0 +1,37 @@
+<!-- Grid base con dos columnas iguales -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+  <!-- Rutas registradas -->
+  <div class="bg-white border border-gray-200 rounded-xl shadow p-6 w-full">
+    <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-2">📍 Rutas del módulo</h2>
+    {% if modulo.rutas_registradas %}
+      <ul class="space-y-1 text-sm text-gray-700 font-mono">
+        {% for ruta in modulo.rutas_registradas %}
+          <li class="bg-gray-50 px-3 py-1 rounded border border-gray-100">{{ ruta }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-gray-500">No se encontraron rutas registradas.</p>
+    {% endif %}
+  </div>
+
+  <!-- Templates usados -->
+  <div class="bg-white border border-gray-200 rounded-xl shadow p-6 w-full">
+    <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-2">🖼️ Templates usados</h2>
+    {% if modulo.templates_renderizados %}
+      <ul class="space-y-2 text-sm text-gray-700">
+        {% for tpl in modulo.templates_renderizados %}
+          <li class="flex justify-between items-center border px-3 py-1 rounded {% if tpl.existe %}border-green-200 bg-green-50{% else %}border-red-200 bg-red-50{% endif %}">
+            <code class="font-mono">{{ tpl.nombre }}</code>
+            {% if tpl.existe %}
+              <span class="text-green-700 text-xs font-semibold">✅ Existe</span>
+            {% else %}
+              <span class="text-red-600 text-xs font-semibold">❌ No encontrado</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-gray-500">No se encontraron plantillas renderizadas.</p>
+    {% endif %}
+  </div>
+</div>

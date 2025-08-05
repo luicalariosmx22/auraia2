@@ -1,0 +1,249 @@
+{% extends "base_admin_horizontal.html" %}
+
+{% block titulo %}Estadísticas de {{ nombre_nora }}{% endblock %}
+
+{% block contenido %}
+<div class="estadisticas-header">
+  <h1>📊 Estadísticas de {{ nombre_nora }}</h1>
+  <a href="/admin" class="btn-secondary">← Volver al Dashboard</a>
+</div>
+
+{% if error %}
+<div class="error-message">
+  <h3>⚠️ Error al cargar estadísticas</h3>
+  <p>{{ error }}</p>
+</div>
+{% elif not estadisticas %}
+<div class="error-message">
+  <h3>📭 No hay datos disponibles</h3>
+  <p>No se encontraron estadísticas para esta Nora.</p>
+</div>
+{% else %}
+
+<!-- Estadísticas principales -->
+<section class="stats">
+  <div class="card">
+    <h2>{{ estadisticas.total_mensajes }}</h2>
+    <p>Total de mensajes</p>
+  </div>
+  
+  <div class="card">
+    <h2>{{ estadisticas.mensajes_enviados }}</h2>
+    <p>Mensajes enviados</p>
+  </div>
+  
+  <div class="card">
+    <h2>{{ estadisticas.mensajes_recibidos }}</h2>
+    <p>Mensajes recibidos</p>
+  </div>
+  
+  <div class="card">
+    <h2>{{ estadisticas.usuarios_unicos }}</h2>
+    <p>Usuarios únicos</p>
+  </div>
+  
+  <div class="card">
+    <h2>{{ estadisticas.mensajes_7_dias }}</h2>
+    <p>Mensajes (últimos 7 días)</p>
+  </div>
+  
+  <div class="card {% if estadisticas.total_errores > 0 %}card-warning{% endif %}">
+    <h2>{{ estadisticas.total_errores }}</h2>
+    <p>Errores registrados</p>
+  </div>
+</section>
+
+<!-- Información de configuración -->
+<section class="nora-config">
+  <h2>🔧 Configuración de la Nora</h2>
+  
+  <div class="config-grid">
+    <div class="config-item">
+      <h3>Estado de IA</h3>
+      <p class="status {% if estadisticas.estado_ia %}status-active{% else %}status-inactive{% endif %}">
+        {% if estadisticas.estado_ia %}✅ Activa{% else %}❌ Inactiva{% endif %}
+      </p>
+    </div>
+    
+    <div class="config-item">
+      <h3>Módulos Activos</h3>
+      {% if estadisticas.modulos_activos %}
+        <ul class="modulos-list">
+          {% for modulo in estadisticas.modulos_activos %}
+            <li class="modulo-item">{{ modulo }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="no-data">No hay módulos configurados</p>
+      {% endif %}
+    </div>
+    
+    <div class="config-item">
+      <h3>Información adicional</h3>
+      {% if estadisticas.nora_info %}
+        <p><strong>Creada:</strong> {{ estadisticas.nora_info.get('created_at', 'N/A')[:10] if estadisticas.nora_info.get('created_at') else 'N/A' }}</p>
+        <p><strong>Última actualización:</strong> {{ estadisticas.nora_info.get('updated_at', 'N/A')[:10] if estadisticas.nora_info.get('updated_at') else 'N/A' }}</p>
+      {% else %}
+        <p class="no-data">No hay información adicional</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Acciones rápidas -->
+<section class="acciones">
+  <h2>🚀 Acciones Rápidas</h2>
+  <div class="acciones-grid">
+    <a href="/admin/nora/editar?nombre={{ nombre_nora }}" class="btn-primary">
+      ⚙️ Editar Configuración
+    </a>
+    <a href="/panel_cliente/{{ nombre_nora }}" class="btn-secondary">
+      🎯 Ir al Panel Cliente
+    </a>
+    <a href="/admin/estadisticas/{{ nombre_nora }}" class="btn-secondary" onclick="location.reload()">
+      🔄 Actualizar Estadísticas
+    </a>
+  </div>
+</section>
+
+{% endif %}
+
+<style>
+.estadisticas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.estadisticas-header h1 {
+  margin: 0;
+  color: #2d6cdf;
+}
+
+.error-message {
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 10px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.error-message h3 {
+  color: #e53e3e;
+  margin: 0 0 1rem 0;
+}
+
+.card-warning {
+  border-left: 4px solid #fd7e14;
+}
+
+.card-warning h2 {
+  color: #fd7e14;
+}
+
+.nora-config {
+  margin: 2rem 0;
+}
+
+.nora-config h2 {
+  color: #2d6cdf;
+  margin-bottom: 1.5rem;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.config-item {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.config-item h3 {
+  margin: 0 0 1rem 0;
+  color: #444;
+  font-size: 1.1rem;
+}
+
+.status {
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.status-active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.modulos-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modulo-item {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
+  border-radius: 20px;
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.no-data {
+  color: #666;
+  font-style: italic;
+}
+
+.acciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.acciones-grid a {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.acciones-grid a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+@media (max-width: 768px) {
+  .estadisticas-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .acciones-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+{% endblock %}

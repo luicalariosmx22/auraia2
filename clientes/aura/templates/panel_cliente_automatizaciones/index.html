@@ -1,0 +1,164 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="max-w-7xl mx-auto py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold mb-2">
+                <i class="fas fa-robot text-blue-600"></i>
+                Automatizaciones
+            </h1>
+            <p class="text-gray-600">Gestiona las tareas automatizadas del sistema</p>
+        </div>
+        <div>
+            <a href="{{ url_for('panel_cliente_automatizaciones_bp.crear_automatizacion', nombre_nora=nombre_nora) }}" 
+               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center">
+                <i class="fas fa-plus mr-2"></i>
+                Nueva Automatización
+            </a>
+        </div>
+    </div>
+
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-6">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'red' if category == 'error' else 'green' }}-100 border border-{{ 'red' if category == 'error' else 'green' }}-400 text-{{ 'red' if category == 'error' else 'green' }}-700 px-4 py-3 rounded mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Lista de Automatizaciones -->
+    {% if automatizaciones %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for auto in automatizaciones %}
+            <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+                <!-- Header de la tarjeta -->
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">{{ auto.nombre }}</h3>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ 'bg-green-100 text-green-800' if auto.activo else 'bg-gray-100 text-gray-600' }}">
+                        {{ 'Activa' if auto.activo else 'Inactiva' }}
+                    </span>
+                </div>
+
+                <!-- Contenido de la tarjeta -->
+                <div class="p-6">
+                    {% if auto.descripcion %}
+                        <p class="text-gray-600 text-sm mb-4">{{ auto.descripcion }}</p>
+                    {% endif %}
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-clock w-4 mr-2"></i>
+                            <span>{{ auto.frecuencia.title() }} a las {{ auto.hora_ejecucion }}</span>
+                        </div>
+                        
+                        {% if auto.modulo_relacionado and auto.funcion_objetivo %}
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-code w-4 mr-2"></i>
+                            <span class="font-mono text-xs">{{ auto.modulo_relacionado }}.{{ auto.funcion_objetivo }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if auto.parametros_json %}
+                        <div class="text-sm text-gray-600">
+                            <span class="font-medium">Parámetros:</span>
+                            <div class="bg-gray-100 rounded p-2 mt-1 font-mono text-xs max-h-20 overflow-y-auto">
+                                {{ auto.parametros_formatted }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if auto.ultima_ejecucion_formatted %}
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-history w-4 mr-2"></i>
+                            <span>Última: {{ auto.ultima_ejecucion_formatted }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if auto.proxima_ejecucion_formatted %}
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-calendar-alt w-4 mr-2"></i>
+                            <span>Próxima: {{ auto.proxima_ejecucion_formatted }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    <div class="flex flex-wrap gap-2">
+                        <!-- Ejecutar -->
+                        <form method="POST" action="{{ url_for('panel_cliente_automatizaciones_bp.ejecutar_automatizacion_manual', nombre_nora=nombre_nora, automatizacion_id=auto.id) }}" class="inline">
+                            <button type="submit" 
+                                    class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center transition-colors"
+                                    onclick="return confirm('¿Ejecutar esta automatización ahora?')"
+                                    title="Ejecutar ahora">
+                                <i class="fas fa-play mr-2"></i>
+                                Ejecutar
+                            </button>
+                        </form>
+                        
+                        <!-- Toggle Estado -->
+                        <form method="POST" action="{{ url_for('panel_cliente_automatizaciones_bp.toggle_automatizacion', nombre_nora=nombre_nora, automatizacion_id=auto.id) }}" class="inline">
+                            <button type="submit" 
+                                    class="{{ 'bg-yellow-100 hover:bg-yellow-200 text-yellow-700' if auto.activo else 'bg-green-100 hover:bg-green-200 text-green-700' }} px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center transition-colors"
+                                    onclick="return confirm('¿Cambiar el estado de esta automatización?')"
+                                    title="{{ 'Pausar' if auto.activo else 'Activar' }}">
+                                <i class="fas {{ 'fa-pause' if auto.activo else 'fa-play' }} mr-2"></i>
+                                {{ 'Pausar' if auto.activo else 'Activar' }}
+                            </button>
+                        </form>
+                        
+                        <!-- Editar -->
+                        <a href="{{ url_for('panel_cliente_automatizaciones_bp.editar_automatizacion', nombre_nora=nombre_nora, automatizacion_id=auto.id) }}" 
+                           class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center transition-colors"
+                           title="Editar">
+                            <i class="fas fa-edit mr-2"></i>
+                            Editar
+                        </a>
+                        
+                        <!-- Eliminar -->
+                        <form method="POST" action="{{ url_for('panel_cliente_automatizaciones_bp.eliminar_automatizacion', nombre_nora=nombre_nora, automatizacion_id=auto.id) }}" class="inline">
+                            <button type="submit" 
+                                    class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center transition-colors"
+                                    onclick="return confirm('¿Estás seguro de eliminar esta automatización?')"
+                                    title="Eliminar">
+                                <i class="fas fa-trash mr-2"></i>
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Estado vacío -->
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <i class="fas fa-robot text-gray-300 text-6xl mb-4"></i>
+            <h3 class="text-xl font-medium text-gray-900 mb-2">No hay automatizaciones configuradas</h3>
+            <p class="text-gray-600 mb-6">Crea tu primera automatización para comenzar a automatizar tareas del sistema.</p>
+            <a href="{{ url_for('panel_cliente_automatizaciones_bp.crear_automatizacion', nombre_nora=nombre_nora) }}" 
+               class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg inline-flex items-center">
+                <i class="fas fa-plus mr-2"></i>
+                Crear Primera Automatización
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Establecer variable global para el nombre del nora
+window.nombreNora = '{{ nombre_nora }}';
+</script>
+
+<!-- Cargar el script de automatizaciones -->
+<script src="{{ url_for('static', filename='js/automatizaciones.js') }}"></script>
+
+{% endblock %}

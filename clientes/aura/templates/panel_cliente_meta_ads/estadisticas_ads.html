@@ -1,0 +1,242 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="max-w-7xl mx-auto pt-6 px-4">
+  <!-- Navegación Superior -->
+  <div class="flex items-center justify-between mb-6">
+    <!-- Enlace eliminado: endpoint reportes_meta_ads.vista_reportes_meta_ads ya no existe -->
+       class="text-blue-700 hover:underline font-semibold flex items-center">
+       <i class="fa fa-arrow-left mr-2"></i> Regresar a reportes
+    </a>
+    <div class="flex gap-3">
+      <a href="/panel_cliente/{{ nombre_nora }}/meta_ads/diseno_reporte" 
+         class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center">
+         <i class="fa fa-palette mr-2"></i> Diseño de Reportes
+      </a>
+      <a href="/panel_cliente/{{ nombre_nora }}/meta_ads/cuentas_publicitarias" 
+         class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center">
+         <i class="fa fa-briefcase mr-2"></i> Cuentas Publicitarias
+      </a>
+      <a href="/panel_cliente/{{ nombre_nora }}/meta_ads/meta_ads_lab" 
+         class="bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition flex items-center">
+         <i class="fa fa-flask mr-2"></i> Meta Ads Lab
+      </a>
+    </div>
+  </div>
+
+  <h1 class="text-4xl font-extrabold text-center text-indigo-900 mb-8">Estadísticas de Meta Ads</h1>
+  <div class="bg-white rounded-xl shadow-lg p-8 border border-indigo-100 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-center justify-center mb-4">
+    <button id="btn-generar-reporte" class="btn-tarjeta-meta tarjeta-azul">
+      <span class="icono-btn"><i class="fa-solid fa-chart-line"></i></span>
+      <span>Generar/Actualizar<br>Reporte Meta Ads</span>
+    </button>
+    <button id="btn-eliminar-reportes" class="btn-tarjeta-meta tarjeta-roja">
+      <span class="icono-btn"><i class="fa-solid fa-trash-can"></i></span>
+      <span>Eliminar<br>TODOS los Reportes</span>
+    </button>
+    <!-- BOTÓN VERDE PARA ACTUALIZAR NOMBRES - VERSIÓN 2025-07-03 -->
+    <button id="btn-actualizar-nombres" class="btn-tarjeta-meta tarjeta-verde">
+      <span class="icono-btn"><i class="fa-solid fa-building"></i></span>
+      <span>Actualizar Nombres<br>de Empresas</span>
+    </button>
+    </div>
+    <div id="reporte-status" class="mt-4 text-center text-lg"></div>
+  </div>
+  <div id="estadisticas-contenido" class="bg-white rounded-xl shadow p-8 border border-indigo-100"></div>
+</div>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/estadisticas_ads.js') }}?v=20250703-{{ range(1000000) | random }}"></script>
+<style>
+.btn-tarjeta-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 2px solid #e0e7ef;
+  border-radius: 1.1rem;
+  box-shadow: 0 2px 8px 0 rgba(60,60,120,0.08);
+  padding: 1rem 1.5rem;
+  min-width: 150px;
+  min-height: 100px;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #283046;
+  letter-spacing: 0.01em;
+  transition: box-shadow 0.18s, border-color 0.18s, background 0.18s, color 0.18s, transform 0.18s;
+  cursor: pointer;
+  text-align: center;
+  gap: 0.5rem;
+}
+.btn-tarjeta-meta:hover, .btn-tarjeta-meta:focus {
+  border-color: #6366f1;
+  box-shadow: 0 4px 16px 0 rgba(99,102,241,0.13);
+  color: #3730a3;
+  background: #f1f5fd;
+  transform: translateY(-2px) scale(1.04);
+}
+.icono-btn {
+  font-size: 2.1rem;
+  margin-bottom: 0.2rem;
+  color: #6366f1;
+  transition: color 0.18s;
+}
+.tarjeta-azul {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+.tarjeta-azul .icono-btn { color: #4f46e5; }
+.tarjeta-azul:hover, .tarjeta-azul:focus {
+  background: #e0e7ff;
+  border-color: #6366f1;
+  color: #3730a3;
+}
+.tarjeta-celeste {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+.tarjeta-celeste .icono-btn { color: #0ea5e9; }
+.tarjeta-celeste:hover, .tarjeta-celeste:focus {
+  background: #e0f2fe;
+  border-color: #0ea5e9;
+  color: #0369a1;
+}
+.tarjeta-roja {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+.tarjeta-roja .icono-btn { color: #ef4444; }
+.tarjeta-roja:hover, .tarjeta-roja:focus {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+.tarjeta-verde {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.tarjeta-verde .icono-btn { color: #16a34a; }
+.tarjeta-verde:hover, .tarjeta-verde:focus {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #14532d;
+}
+.btn-tarjeta-meta:active {
+  transform: scale(0.97);
+  box-shadow: 0 1.5px 4px 0 rgba(60,60,120,0.08);
+}
+</style>
+<script>
+console.log('🟢 [DEBUG] Script de estadísticas cargado');
+
+// Botón de sincronización de anuncios
+const btnSync = document.getElementById('btn-sincronizar-anuncios');
+const statusDiv = document.getElementById('reporte-status');
+
+console.log('🔍 [DEBUG] Elementos encontrados:');
+console.log('  - btnSync:', btnSync ? '✅ Encontrado' : '❌ No encontrado');
+console.log('  - statusDiv:', statusDiv ? '✅ Encontrado' : '❌ No encontrado');
+
+// Cargar estadísticas automáticamente al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 [DEBUG] DOMContentLoaded ejecutado');
+  
+  if (typeof cargarEstadisticas === 'function') {
+    console.log('📊 [DEBUG] Ejecutando cargarEstadisticas()');
+    cargarEstadisticas();
+  } else {
+    console.log('⏳ [DEBUG] cargarEstadisticas no disponible, esperando...');
+    setTimeout(() => {
+      if (typeof cargarEstadisticas === 'function') {
+        console.log('📊 [DEBUG] Ejecutando cargarEstadisticas() (delayed)');
+        cargarEstadisticas();
+      } else {
+        console.error('❌ [ERROR] cargarEstadisticas nunca se cargó');
+      }
+    }, 100);
+  }
+});
+
+// El botón ahora redirige a la página de sincronización manual
+// Botón de eliminar reportes
+const btnEliminar = document.getElementById('btn-eliminar-reportes');
+console.log('🗑️ [DEBUG] btnEliminar:', btnEliminar ? '✅ Encontrado' : '❌ No encontrado');
+
+if(btnEliminar) {
+  btnEliminar.addEventListener('click', async () => {
+    console.log('🗑️ [DEBUG] Botón eliminar clickeado');
+    if(!confirm('¿Estás seguro de que deseas eliminar TODOS los reportes semanales? Esta acción no se puede deshacer.')) return;
+    btnEliminar.disabled = true;
+    statusDiv.textContent = 'Eliminando todos los reportes...';
+    try {
+      const resp = await fetch(`/panel_cliente/{{ nombre_nora }}/meta_ads/estadisticas/eliminar_reportes`, {method: 'POST'});
+      const data = await resp.json();
+      if(data.ok) {
+        statusDiv.textContent = `Reportes eliminados: ${data.eliminados}`;
+        // Recargar estadísticas después de eliminar
+        if (typeof cargarEstadisticas === 'function') {
+          cargarEstadisticas();
+        }
+      } else {
+        statusDiv.textContent = 'Error al eliminar reportes: ' + (data.error || 'Error desconocido');
+      }
+    } catch(e) {
+      statusDiv.textContent = 'Error al eliminar reportes: ' + e;
+    }
+    btnEliminar.disabled = false;
+  });
+}
+
+// Botón de actualizar nombres de empresas
+const btnActualizarNombres = document.getElementById('btn-actualizar-nombres');
+console.log('🟢 [DEBUG] btnActualizarNombres:', btnActualizarNombres ? '✅ ENCONTRADO!' : '❌ NO ENCONTRADO!');
+
+if(btnActualizarNombres) {
+  console.log('🟢 [DEBUG] Agregando event listener al botón verde');
+  btnActualizarNombres.addEventListener('click', async () => {
+    console.log('🟢 [DEBUG] ¡BOTÓN VERDE CLICKEADO!');
+    if(!confirm('¿Actualizar los nombres de empresas en todos los reportes existentes? Esto corregirá los nombres que muestran el nombre de la cuenta publicitaria en lugar del nombre real de la empresa.')) return;
+    btnActualizarNombres.disabled = true;
+    statusDiv.textContent = 'Actualizando nombres de empresas...';
+    statusDiv.className = 'mt-4 text-center text-lg text-blue-600';
+    try {
+      const resp = await fetch(`/panel_cliente/{{ nombre_nora }}/meta_ads/estadisticas/actualizar_nombres_empresas`, {method: 'POST'});
+      const data = await resp.json();
+      if(data.ok) {
+        statusDiv.textContent = data.message;
+        statusDiv.className = 'mt-4 text-center text-lg text-green-600';
+        // Recargar estadísticas después de actualizar
+        if (typeof cargarEstadisticas === 'function') {
+          setTimeout(() => cargarEstadisticas(), 1000);
+        }
+      } else {
+        statusDiv.textContent = 'Error al actualizar nombres: ' + (data.error || 'Error desconocido');
+        statusDiv.className = 'mt-4 text-center text-lg text-red-600';
+      }
+    } catch(e) {
+      statusDiv.textContent = 'Error al actualizar nombres: ' + e;
+      statusDiv.className = 'mt-4 text-center text-lg text-red-600';
+    }
+    btnActualizarNombres.disabled = false;
+  });
+} else {
+  console.error('❌ [ERROR CRÍTICO] El botón verde NO SE ENCONTRÓ en el DOM!');
+  console.log('🔍 [DEBUG] Verificando si existe en el HTML...');
+  setTimeout(() => {
+    const btnCheck = document.getElementById('btn-actualizar-nombres');
+    console.log('🔍 [DEBUG] Segunda verificación:', btnCheck ? '✅ Ahora SÍ existe' : '❌ Definitivamente NO existe');
+    
+    // Listar todos los botones para debug
+    const todosLosBotones = document.querySelectorAll('button');
+    console.log('🔍 [DEBUG] Botones encontrados en la página:', todosLosBotones.length);
+    todosLosBotones.forEach((btn, index) => {
+      console.log(`  ${index + 1}. ID: "${btn.id}", Texto: "${btn.textContent.trim().substring(0, 30)}..."`);
+    });
+  }, 500);
+}
+
+console.log('✅ [DEBUG] Fin del script de estadísticas');
+</script>
+{% endblock %}

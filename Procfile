@@ -1,1 +1,1 @@
-web: /opt/venv/bin/gunicorn -w 4 -b 0.0.0.0:$PORT app:app --worker-class gevent
+web: gunicorn run:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --log-level info

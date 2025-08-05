@@ -1,0 +1,668 @@
+2025-07-29 13:31:35,549 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 13:31:41,640 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 13:31:43,689 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 13:31:49,996 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 13:31:52,053 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 13:31:56,835 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 13:31:58,883 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 13:32:03,291 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 13:32:07,490 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 13:32:09,551 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 13:32:13,681 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 13:32:19,459 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 13:32:21,515 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 13:32:27,692 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 13:32:29,752 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 13:32:35,604 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 13:32:41,391 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 13:32:43,450 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 13:32:48,221 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 13:32:50,281 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 13:32:56,361 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 13:33:02,724 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 13:33:08,683 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 13:33:10,746 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 13:33:17,578 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 13:33:19,627 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 13:33:26,205 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 13:33:31,926 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:03:47,283 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 16:03:53,479 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 16:03:55,532 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:04:01,430 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:04:03,485 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:04:08,313 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:04:10,358 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:04:14,889 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 16:04:18,854 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 16:04:20,915 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:04:25,541 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 16:04:31,167 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:04:33,220 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:04:40,214 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:04:42,257 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:04:48,538 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 16:04:54,238 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 16:04:56,290 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:05:00,707 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 16:05:02,804 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:05:08,875 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 16:05:14,669 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 16:05:20,524 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 16:05:22,611 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:05:29,536 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 16:05:31,584 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:05:38,295 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:05:44,120 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:13:42,601 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 16:13:47,854 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 16:13:49,912 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:13:55,306 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:13:57,469 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:14:01,189 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:14:45,445 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 16:14:50,600 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 16:14:52,712 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:14:57,990 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:15:00,132 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:15:04,126 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:15:06,294 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:15:10,317 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 16:15:14,198 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 16:15:16,350 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:15:20,104 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 16:15:25,100 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:15:27,247 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:15:32,631 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:15:34,781 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:15:40,029 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 16:15:45,124 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 16:15:47,173 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:15:51,187 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 16:15:53,436 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:15:58,570 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 16:16:03,760 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 16:16:09,074 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 16:16:11,372 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:16:17,209 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 16:16:19,362 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:16:25,238 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:16:30,226 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:25:46,058 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 16:25:51,876 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 16:25:53,928 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:25:59,793 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:26:01,845 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:26:07,217 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:26:09,267 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:26:13,683 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 16:26:17,908 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 16:26:19,960 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:26:24,202 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 16:26:29,852 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:26:31,901 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:26:37,866 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:26:39,910 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:26:45,976 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 16:26:51,642 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 16:26:53,701 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:26:58,219 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 16:27:00,281 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:27:06,159 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 16:27:11,756 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 16:27:16,882 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 16:27:18,930 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:27:24,967 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 16:27:27,116 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:27:33,085 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:27:38,435 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:32:48,752 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 16:32:54,259 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 16:32:56,311 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:33:02,168 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:33:04,232 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:33:08,432 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:33:10,490 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:33:14,871 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 16:33:18,822 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 16:33:20,875 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:33:25,170 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 16:33:30,781 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:33:32,832 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:33:38,977 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:33:41,031 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:33:47,206 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 16:33:53,015 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 16:33:55,063 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:33:59,761 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 16:34:01,871 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:34:07,711 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 16:34:13,322 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 16:34:18,908 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 16:34:20,961 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:34:27,884 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 16:34:29,932 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:34:36,552 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:34:42,365 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:40:35,507 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 16:40:41,547 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 16:40:43,595 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:40:49,659 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:40:51,712 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:40:56,185 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:40:58,233 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:41:02,895 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 16:41:07,159 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 16:41:09,205 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:41:13,670 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 16:41:19,261 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:41:21,308 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:41:27,471 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:41:29,528 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:41:35,417 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 16:41:41,022 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 16:41:43,073 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:41:47,715 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 16:41:49,749 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:41:55,688 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 16:42:01,459 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 16:42:06,970 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 16:42:09,044 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:42:15,672 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 16:42:17,727 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:42:24,322 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:42:30,222 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:43:43,142 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 16:44:39,364 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 16:44:45,144 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 16:44:47,196 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:44:53,462 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:44:55,514 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:44:59,576 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 16:45:01,628 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:45:05,962 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 16:45:09,881 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 16:45:11,921 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:45:16,313 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 16:45:22,052 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:45:24,106 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:45:30,112 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 16:45:32,169 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:45:38,253 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 16:45:44,081 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 16:45:46,127 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:45:50,764 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 16:45:52,818 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:45:58,914 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 16:46:04,847 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 16:46:10,551 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 16:46:12,642 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:46:19,406 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 16:46:21,442 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:46:28,024 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 16:46:34,000 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 17:02:00,148 - aura - ERROR - [panel_cliente_meta_ads.py:140] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_visible does not exist'}
+2025-07-29 20:34:12,259 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 20:34:17,463 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 20:34:19,650 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 20:34:25,374 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 20:34:27,436 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 20:34:31,110 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 20:34:33,188 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 20:34:36,925 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 20:34:40,741 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 20:34:42,885 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 20:34:46,502 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 20:34:51,444 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 20:34:53,541 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 20:34:58,700 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 20:35:00,910 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 20:35:06,347 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 20:35:12,099 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 20:35:14,517 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 20:35:17,274 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_visible does not exist'}
+2025-07-29 20:35:22,327 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 20:35:24,390 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 20:35:30,968 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 20:35:37,396 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 20:35:42,709 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 20:35:44,758 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 20:35:51,068 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 20:35:53,340 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 20:36:00,760 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 20:36:06,686 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 20:38:33,316 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 20:38:35,362 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:35:26,108 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 21:35:32,171 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 21:35:34,227 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:35:40,193 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:35:42,240 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:35:46,671 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:35:48,712 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:35:53,029 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 21:35:56,972 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 21:35:59,015 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:36:03,332 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 21:36:52,348 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 21:36:57,857 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 21:36:59,903 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:37:05,820 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:37:07,870 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:37:12,347 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:37:14,403 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:37:18,869 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 21:37:22,918 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 21:37:24,953 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:37:29,484 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 21:37:36,264 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 21:37:38,314 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:37:44,229 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 21:37:46,281 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:37:55,256 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 21:38:00,971 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 21:38:03,026 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 21:38:06,054 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_visible does not exist'}
+2025-07-29 21:38:09,327 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 21:38:11,382 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 21:38:18,244 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 21:38:24,750 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 21:38:31,365 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 21:38:33,418 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 21:38:40,483 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 21:38:42,521 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 21:38:49,105 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 21:38:54,801 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 21:42:36,198 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/crear (intento 1/3)
+2025-07-29 21:42:55,658 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/crear (intento 1/3)
+2025-07-29 21:44:36,200 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 21:44:41,463 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 21:44:43,554 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:44:49,178 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:44:51,375 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:44:55,388 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:44:57,547 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:45:01,675 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 21:45:05,419 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 21:45:07,474 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:45:11,248 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 21:45:16,524 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 21:45:18,647 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:45:24,054 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 21:45:26,285 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:45:31,933 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 21:45:37,118 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 21:45:39,218 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 21:45:41,721 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 21:45:44,790 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 21:45:46,841 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 21:45:53,013 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 21:45:58,824 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 21:46:04,849 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 21:46:06,905 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 21:46:13,508 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 21:46:15,560 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 21:46:22,048 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 21:46:27,950 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 21:49:50,254 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 21:49:55,746 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 21:49:57,800 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:50:04,256 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:50:06,316 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:50:53,685 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 21:50:58,494 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 21:51:00,545 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:51:47,442 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 21:51:52,867 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 21:51:54,913 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:52:00,312 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:52:02,517 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:52:06,339 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:52:08,385 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:52:12,307 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 21:52:15,955 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 21:52:18,038 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:52:22,120 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 21:52:27,165 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 21:52:29,321 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:52:35,113 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 21:52:37,218 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:53:25,395 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 21:53:30,968 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 21:53:33,110 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:56:50,197 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ads_backup (intento 1/3)
+2025-07-29 21:56:55,897 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 21:56:57,947 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:57:04,060 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:57:06,099 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:57:12,025 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 21:57:14,085 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:57:20,057 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 21:57:24,226 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 21:57:26,288 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:57:31,095 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 21:57:37,119 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 21:57:39,171 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:57:45,679 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 21:57:47,738 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:57:54,387 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/ia (intento 1/3)
+2025-07-29 21:58:00,543 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 21:58:02,600 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 21:58:05,543 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 21:58:08,858 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 21:58:10,930 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 21:58:17,271 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos_recibo (intento 1/3)
+2025-07-29 21:58:23,832 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/respuestas (intento 1/3)
+2025-07-29 21:58:29,745 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 21:58:31,796 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 21:58:39,505 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp (intento 1/3)
+2025-07-29 21:58:41,559 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 21:58:48,672 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 21:58:54,754 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/whatsapp_web (intento 1/3)
+2025-07-29 22:09:58,646 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:10:00,844 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:10:04,462 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:10:06,518 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:10:10,095 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:10:12,252 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:10:16,505 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 22:10:20,249 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:10:22,467 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:10:26,118 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:10:29,709 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:10:31,744 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:11:17,785 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:11:19,838 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:12:08,286 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:12:10,335 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:12:14,368 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:12:16,436 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:12:20,585 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:12:22,629 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:12:26,636 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 22:12:30,450 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:12:32,491 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:12:36,708 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:12:40,529 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:12:42,579 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:12:47,127 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:12:49,171 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:12:55,112 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 22:12:57,162 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:13:00,144 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:13:01,915 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 22:13:03,950 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:13:11,537 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 22:13:13,603 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:29:31,744 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:29:33,795 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:29:38,240 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:29:40,290 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:29:44,449 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:29:46,508 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:29:50,409 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 22:29:54,260 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:29:56,321 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:30:00,336 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:30:04,103 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:30:06,183 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:30:10,522 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:30:12,571 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:30:18,588 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 22:30:20,644 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:30:23,437 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:30:24,844 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 22:30:27,003 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:30:33,780 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 22:30:35,904 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:34:30,770 - aura - WARNING - [analizador.py:50] - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:34:33,085 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:34:35,134 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:34:39,769 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:34:41,810 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:34:46,855 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:34:48,903 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:34:53,316 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 22:34:57,318 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:34:59,367 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:35:04,418 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:35:08,351 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:35:10,407 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:35:14,682 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:35:16,724 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:35:21,494 - aura - WARNING - [analizador.py:50] - Módulo 'ia' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:23,179 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 22:35:25,235 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:35:28,316 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:35:30,334 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 22:35:32,383 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:35:36,780 - aura - WARNING - [analizador.py:50] - Módulo 'pagos_recibo' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:38,392 - aura - WARNING - [analizador.py:50] - Módulo 'respuestas' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:40,322 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 22:35:42,382 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:35:48,154 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:49,843 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:51,638 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:39:47,201 - aura - WARNING - [analizador.py:50] - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:39:48,980 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:39:51,031 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:39:55,325 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:39:57,372 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:40:01,580 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:40:03,634 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:40:08,182 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 22:40:12,167 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:40:14,218 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:40:18,818 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:40:22,758 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:40:24,805 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:40:29,441 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:40:31,490 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:40:35,936 - aura - WARNING - [analizador.py:50] - Módulo 'ia' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:40:37,462 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 22:40:39,585 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:40:42,460 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:40:44,516 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 22:40:46,557 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:40:51,308 - aura - WARNING - [analizador.py:50] - Módulo 'pagos_recibo' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:40:53,139 - aura - WARNING - [analizador.py:50] - Módulo 'respuestas' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:40:54,825 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 22:40:56,886 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:41:02,711 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:41:04,488 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:41:06,172 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:47:01,912 - aura - WARNING - [analizador.py:50] - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:47:03,794 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:47:05,851 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:47:10,330 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:47:12,396 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:47:16,267 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:47:18,319 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:47:22,442 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 22:47:26,398 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:47:28,454 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:47:32,671 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:47:36,969 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:47:39,162 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:47:43,637 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:47:45,719 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:48:33,082 - aura - WARNING - [analizador.py:50] - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:48:34,754 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:48:36,805 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:49:26,939 - aura - WARNING - [analizador.py:50] - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:49:28,890 - aura - WARNING - [analizador.py:50] - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:49:30,916 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:49:30,951 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:49:32,997 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:49:33,015 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:49:38,592 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:49:38,754 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:49:40,650 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:49:40,819 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:49:46,151 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:49:46,532 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:49:48,206 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:49:48,687 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:49:52,444 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 22:49:53,932 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 22:49:57,413 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:49:57,703 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:49:59,461 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:49:59,822 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:50:04,582 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:50:04,659 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:50:08,157 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:50:09,775 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:50:10,210 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:50:11,819 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:50:15,385 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:50:15,896 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:50:17,444 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:50:17,952 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:50:23,016 - aura - WARNING - [analizador.py:50] - Módulo 'ia' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:24,789 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 22:50:24,801 - aura - WARNING - [analizador.py:50] - Módulo 'ia' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:26,467 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 22:50:26,846 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:50:28,527 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:50:29,741 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:50:31,646 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:50:31,726 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 22:50:33,688 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 22:50:33,779 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:50:35,742 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:50:39,185 - aura - WARNING - [analizador.py:50] - Módulo 'pagos_recibo' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:40,877 - aura - WARNING - [analizador.py:50] - Módulo 'pagos_recibo' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:41,989 - aura - WARNING - [analizador.py:50] - Módulo 'respuestas' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:43,907 - aura - WARNING - [analizador.py:50] - Módulo 'respuestas' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:45,216 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 22:50:45,813 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 22:50:47,267 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:50:47,874 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:50:53,726 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:55,340 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:56,491 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:58,338 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:58,366 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:51:00,316 - aura - WARNING - [analizador.py:50] - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:56:32,743 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:56:34,792 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:56:39,324 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:56:43,378 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:56:45,435 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:56:49,954 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/open_table (intento 1/3)
+2025-07-29 22:56:53,818 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/retos (intento 1/3)
+2025-07-29 22:56:57,838 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/coaching (intento 1/3)
+2025-07-29 22:57:02,086 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/rutinas (intento 1/3)
+2025-07-29 22:57:06,087 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/soporte (intento 1/3)
+2025-07-29 22:57:10,133 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/multi_nora (intento 1/3)
+2025-07-29 22:57:14,716 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/redes_sociales (intento 1/3)
+2025-07-29 22:57:19,044 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-29 22:57:23,100 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-29 22:57:27,158 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 22:57:29,214 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:57:35,795 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 22:57:37,852 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:57:40,515 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:57:42,480 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 22:57:44,527 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:57:49,425 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 22:57:51,483 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:57:56,123 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/encuestas (intento 1/3)
+2025-07-29 22:58:00,323 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)
+2025-07-29 22:58:04,522 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/calendario (intento 1/3)
+2025-07-29 22:58:08,629 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/conocimiento (intento 1/3)
+2025-07-29 22:58:12,787 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 22:58:14,838 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:58:19,645 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 22:59:37,046 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 22:59:39,104 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:59:43,714 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 22:59:48,189 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 22:59:50,234 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:59:54,495 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/open_table (intento 1/3)
+2025-07-29 22:59:58,350 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/retos (intento 1/3)
+2025-07-29 23:00:02,148 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/coaching (intento 1/3)
+2025-07-29 23:00:06,132 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/rutinas (intento 1/3)
+2025-07-29 23:00:10,221 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/soporte (intento 1/3)
+2025-07-29 23:00:14,289 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/multi_nora (intento 1/3)
+2025-07-29 23:00:18,641 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/redes_sociales (intento 1/3)
+2025-07-29 23:00:22,781 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-29 23:00:26,923 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-29 23:00:30,790 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 23:00:32,843 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 23:00:38,568 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 23:00:40,610 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 23:00:43,451 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 23:00:45,281 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 23:00:47,331 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:00:51,690 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 23:00:53,808 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 23:00:57,891 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/encuestas (intento 1/3)
+2025-07-29 23:01:02,053 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)
+2025-07-29 23:01:05,785 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/calendario (intento 1/3)
+2025-07-29 23:01:09,478 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/conocimiento (intento 1/3)
+2025-07-29 23:01:13,047 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 23:01:15,158 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 23:01:19,661 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 23:03:02,055 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 23:03:04,266 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 23:03:08,532 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 23:03:12,222 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 23:03:14,338 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 23:03:18,877 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/open_table (intento 1/3)
+2025-07-29 23:03:22,624 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/retos (intento 1/3)
+2025-07-29 23:03:26,484 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/coaching (intento 1/3)
+2025-07-29 23:03:30,386 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/rutinas (intento 1/3)
+2025-07-29 23:03:34,149 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/soporte (intento 1/3)
+2025-07-29 23:03:38,212 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/multi_nora (intento 1/3)
+2025-07-29 23:03:41,819 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/redes_sociales (intento 1/3)
+2025-07-29 23:03:45,882 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-29 23:03:49,809 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-29 23:03:53,512 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 23:03:55,636 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 23:03:59,865 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 23:04:02,057 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 23:04:04,661 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 23:04:06,470 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 23:04:08,514 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:04:12,907 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 23:04:14,970 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 23:04:19,410 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/encuestas (intento 1/3)
+2025-07-29 23:04:23,161 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)
+2025-07-29 23:04:27,068 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/calendario (intento 1/3)
+2025-07-29 23:04:31,124 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/conocimiento (intento 1/3)
+2025-07-29 23:04:35,065 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-29 23:04:37,125 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 23:04:41,561 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-29 23:04:56,369 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 23:04:58,419 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:05:21,731 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 23:05:23,784 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:05:37,114 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 23:05:39,145 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:07:22,421 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-29 23:07:24,476 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 23:07:28,819 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-29 23:07:32,895 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-29 23:07:34,958 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 23:07:39,663 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/open_table (intento 1/3)
+2025-07-29 23:07:43,652 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/retos (intento 1/3)
+2025-07-29 23:07:47,547 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/coaching (intento 1/3)
+2025-07-29 23:07:51,519 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/rutinas (intento 1/3)
+2025-07-29 23:07:55,521 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/soporte (intento 1/3)
+2025-07-29 23:07:59,469 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/multi_nora (intento 1/3)
+2025-07-29 23:08:03,508 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/redes_sociales (intento 1/3)
+2025-07-29 23:08:07,586 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-29 23:08:11,868 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-29 23:08:15,984 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-29 23:08:18,034 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 23:08:25,157 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-29 23:08:27,204 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 23:08:30,386 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 23:08:32,669 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-29 23:08:34,719 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:08:39,477 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-29 23:08:41,534 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 23:08:46,224 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/encuestas (intento 1/3)
+2025-07-29 23:08:50,278 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)

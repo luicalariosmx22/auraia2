@@ -1,0 +1,73 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+<div class="max-w-5xl mx-auto py-8 space-y-6">
+  <h1 class="text-3xl font-bold text-nora-primary">🔌 API Center </h1>
+  <p class="text-gray-600">Administra y documenta todas las APIs que usa Nora.</p>
+
+  <!-- FORMULARIO -->
+  <form method="POST" action="{{ url_for('panel_cliente_api_center_bp.crear_api', nombre_nora=nombre_nora) }}" class="bg-white shadow p-6 rounded space-y-4 border border-gray-200">
+    <input type="hidden" name="nombre_nora" value="{{ nombre_nora }}">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Nombre de la API</label>
+        <input name="nombre" required class="mt-1 w-full rounded border-gray-300" placeholder="Ej. Meta Ads, Google Ads">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">URL base</label>
+        <input name="url_base" required class="mt-1 w-full rounded border-gray-300" placeholder="https://api.ejemplo.com/v1/">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700">Clave API / Token</label>
+        <input name="clave_api" class="mt-1 w-full rounded border-gray-300" placeholder="Clave o token (opcional)">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700">Descripción</label>
+        <textarea name="descripcion" class="mt-1 w-full rounded border-gray-300" rows="2"></textarea>
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700">Documentación (JSON o texto)</label>
+        <textarea name="documentacion" class="mt-1 w-full rounded border-gray-300" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="text-right pt-4">
+      <button class="bg-nora-primary hover:bg-nora-dark text-white px-4 py-2 rounded">Guardar API</button>
+    </div>
+  </form>
+
+  <!-- LISTADO DE APIS -->
+  <!-- Tabla de APIs registradas -->
+  <div class="mt-10 bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-100 text-gray-700 text-sm">
+        <tr>
+          <th class="px-6 py-3 text-left font-semibold">Nombre</th>
+          <th class="px-6 py-3 text-left font-semibold">URL Base</th>
+          <th class="px-6 py-3 text-left font-semibold">Clave API</th>
+          <th class="px-6 py-3 text-left font-semibold">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200 text-sm text-gray-700">
+        {% for api in apis %}
+        <tr>
+          <td class="px-6 py-4 font-medium">{{ api.nombre }}</td>
+          <td class="px-6 py-4 break-words text-xs text-blue-700">{{ api.url_base }}</td>
+          <td class="px-6 py-4">
+            <div class="max-w-xs overflow-x-auto whitespace-nowrap text-xs bg-gray-100 rounded p-1">{{ api.clave_api }}</div>
+          </td>
+          <td class="px-6 py-4 space-x-2">
+            <!-- Botón Editar (GET) -->
+            <a href="{{ url_for('panel_cliente_api_center_bp.mostrar_edicion', nombre_nora=nombre_nora, api_id=api.id) }}" class="text-indigo-600 hover:underline text-xs">✏️ Editar</a>
+            <!-- Botón Eliminar (GET) -->
+            <a href="{{ url_for('panel_cliente_api_center_bp.confirmar_eliminar', nombre_nora=nombre_nora, api_id=api.id) }}" class="text-red-600 hover:underline text-xs" onclick="return confirm('¿Eliminar esta API?')">🗑️ Eliminar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if not apis %}
+      <div class="p-4 text-gray-500 text-sm">No hay APIs registradas todavía.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

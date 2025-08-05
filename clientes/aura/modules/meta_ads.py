@@ -67,7 +67,7 @@ def panel_ads(nombre_nora):
     reportes = reportes_resp.data if reportes_resp.data else []
 
     return render_template(
-        'panel_cliente_ads.html',
+        'panel_cliente_meta_ads.html',
         nombre_nora=nombre_nora,
         cuenta=cuenta,
         campañas=campañas,

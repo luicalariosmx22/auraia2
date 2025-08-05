@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Web - {{ nombre_nora }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .whatsapp-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .status-card {
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-connected { background-color: #28a745; }
+        .status-disconnected { background-color: #dc3545; }
+        .status-waiting { background-color: #ffc107; }
+        .status-error { background-color: #fd7e14; }
+        
+        .qr-container {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .qr-code {
+            max-width: 300px;
+            height: auto;
+            border: 3px solid #25D366;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);
+        }
+        
+        .logs-container {
+            background: #212529;
+            color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        
+        .log-timestamp {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        .log-info { color: #17a2b8; }
+        .log-success { color: #28a745; }
+        .log-warning { color: #ffc107; }
+        .log-error { color: #dc3545; }
+        
+        .control-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .btn-whatsapp {
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn-whatsapp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+            color: white;
+        }
+        
+        .btn-danger-custom {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn-danger-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+            color: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #25D366;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .integration-header {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #25D366;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+            padding: 15px 20px;
+        }
+        
+        .backend-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="whatsapp-container">
+        <!-- Header -->
+        <div class="integration-header">
+            <h1><i class="fab fa-whatsapp"></i> WhatsApp Web - {{ nombre_nora }}</h1>
+            <p class="mb-0">Integración con backend independiente en Railway</p>
+        </div>
+        
+        <!-- Status Card -->
+        <div class="card status-card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-signal"></i> Estado de la Conexión
+                </h5>
+                <div id="connection-status">
+                    <span class="status-indicator status-disconnected"></span>
+                    <span id="status-text">Desconectado</span>
+                </div>
+                <div class="backend-info">
+                    <strong>Backend URL:</strong> {{ backend_url }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Control Buttons -->
+        <div class="control-buttons">
+            <button class="btn btn-whatsapp" onclick="initializeWhatsApp()">
+                <i class="fas fa-power-off"></i> Inicializar
+            </button>
+            <button class="btn btn-whatsapp" onclick="connectToBackend()">
+                <i class="fas fa-link"></i> Conectar
+            </button>
+            <button class="btn btn-whatsapp" onclick="startSession()">
+                <i class="fas fa-play"></i> Iniciar Sesión
+            </button>
+            <button class="btn btn-danger-custom" onclick="closeSession()">
+                <i class="fas fa-stop"></i> Cerrar Sesión
+            </button>
+            <button class="btn btn-outline-secondary" onclick="checkStatus()">
+                <i class="fas fa-sync"></i> Verificar Estado
+            </button>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Procesando...</p>
+        </div>
+        
+        <!-- QR Code Section -->
+        <div class="qr-container" id="qr-container" style="display: none;">
+            <h4><i class="fas fa-qrcode"></i> Código QR</h4>
+            <p class="text-muted mb-3">Escanea este código con tu WhatsApp</p>
+            <img id="qr-image" class="qr-code" alt="Código QR de WhatsApp">
+            <div class="mt-3">
+                <small class="text-muted">
+                    <i class="fas fa-mobile-alt"></i> 
+                    Abre WhatsApp → Menú → Dispositivos vinculados → Vincular dispositivo
+                </small>
+            </div>
+        </div>
+        
+        <!-- Authenticated Section -->
+        <div class="alert alert-success alert-custom" id="authenticated-section" style="display: none;">
+            <h5><i class="fas fa-check-circle"></i> ¡WhatsApp Web Autenticado!</h5>
+            <p class="mb-0">Conectado como: <span id="user-info">Usuario</span></p>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="connection-time">--</div>
+                <div class="stat-label">Tiempo Conectado</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="session-status">--</div>
+                <div class="stat-label">Estado Sesión</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="last-update">--</div>
+                <div class="stat-label">Última Actualización</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="backend-health">--</div>
+                <div class="stat-label">Salud Backend</div>
+            </div>
+        </div>
+        
+        <!-- Logs Section -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-terminal"></i> Logs del Sistema</h5>
+                <button class="btn btn-sm btn-outline-secondary float-end" onclick="clearLogs()">
+                    Limpiar Logs
+                </button>
+            </div>
+            <div class="logs-container" id="logs-container">
+                <div class="log-entry log-info">
+                    <span class="log-timestamp">[Iniciando...]</span> Sistema de integración WhatsApp Web iniciado
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let isConnected = false;
+        let isAuthenticated = false;
+        let sessionActive = false;
+        let startTime = null;
+        
+        // Función para agregar logs
+        function addLog(message, type = 'info') {
+            const container = document.getElementById('logs-container');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> ${message}`;
+            container.appendChild(logEntry);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Función para limpiar logs
+        function clearLogs() {
+            document.getElementById('logs-container').innerHTML = '';
+            addLog('Logs limpiados', 'info');
+        }
+        
+        // Función para mostrar loading
+        function showLoading(show = true) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        // Función para actualizar estado
+        function updateStatus(status, message = '') {
+            const indicator = document.querySelector('.status-indicator');
+            const statusText = document.getElementById('status-text');
+            
+            indicator.className = `status-indicator status-${status}`;
+            statusText.textContent = message || status;
+            
+            // Actualizar estadísticas
+            document.getElementById('session-status').textContent = status;
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+        }
+        
+        // Función para mostrar QR
+        function showQR(qrData) {
+            const qrContainer = document.getElementById('qr-container');
+            const qrImage = document.getElementById('qr-image');
+            
+            qrImage.src = `data:image/png;base64,${qrData}`;
+            qrContainer.style.display = 'block';
+            
+            document.getElementById('authenticated-section').style.display = 'none';
+            addLog('📱 Código QR recibido y mostrado', 'success');
+        }
+        
+        // Función para mostrar autenticación
+        function showAuthenticated(userInfo) {
+            const authSection = document.getElementById('authenticated-section');
+            const userInfoSpan = document.getElementById('user-info');
+            
+            userInfoSpan.textContent = userInfo;
+            authSection.style.display = 'block';
+            
+            document.getElementById('qr-container').style.display = 'none';
+            isAuthenticated = true;
+            addLog(`✅ WhatsApp Web autenticado como: ${userInfo}`, 'success');
+        }
+        
+        // Funciones de API
+        async function makeApiCall(endpoint, method = 'GET', data = null) {
+            showLoading(true);
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(endpoint, options);
+                const result = await response.json();
+                
+                showLoading(false);
+                return result;
+            } catch (error) {
+                showLoading(false);
+                addLog(`❌ Error en API: ${error.message}`, 'error');
+                return { success: false, message: error.message };
+            }
+        }
+        
+        // Funciones de control
+        async function initializeWhatsApp() {
+            addLog('🚀 Inicializando WhatsApp Web...', 'info');
+            const result = await makeApiCall('/api/whatsapp/init', 'POST');
+            
+            if (result.success) {
+                addLog('✅ WhatsApp Web inicializado correctamente', 'success');
+                updateStatus('waiting', 'Inicializado');
+            } else {
+                addLog(`❌ Error inicializando: ${result.message}`, 'error');
+                updateStatus('error', 'Error en inicialización');
+            }
+        }
+        
+        async function connectToBackend() {
+            addLog('🔗 Conectando al backend...', 'info');
+            const result = await makeApiCall('/api/whatsapp/connect', 'POST');
+            
+            if (result.success) {
+                addLog('✅ Conectado al backend WhatsApp Web', 'success');
+                updateStatus('connected', 'Conectado');
+                isConnected = true;
+                startTime = new Date();
+            } else {
+                addLog(`❌ Error conectando: ${result.message}`, 'error');
+                updateStatus('error', 'Error de conexión');
+            }
+        }
+        
+        async function startSession() {
+            if (!isConnected) {
+                addLog('⚠️ Primero debes conectar al backend', 'warning');
+                return;
+            }
+            
+            addLog('🎯 Iniciando sesión WhatsApp Web...', 'info');
+            const result = await makeApiCall('/api/whatsapp/start_session', 'POST');
+            
+            if (result.success) {
+                addLog('🚀 Sesión iniciada, esperando QR...', 'success');
+                updateStatus('waiting', 'Esperando QR');
+                sessionActive = true;
+                
+                // Simular QR después de un momento (en producción viene del backend)
+                setTimeout(() => {
+                    // Aquí se recibiría el QR real del backend
+                    addLog('📱 Esperando código QR del backend...', 'info');
+                }, 2000);
+            } else {
+                addLog(`❌ Error iniciando sesión: ${result.message}`, 'error');
+                updateStatus('error', 'Error en sesión');
+            }
+        }
+        
+        async function closeSession() {
+            addLog('🔐 Cerrando sesión WhatsApp Web...', 'info');
+            const result = await makeApiCall('/api/whatsapp/close_session', 'POST');
+            
+            if (result.success) {
+                addLog('✅ Sesión cerrada correctamente', 'success');
+                updateStatus('disconnected', 'Sesión cerrada');
+                isConnected = false;
+                isAuthenticated = false;
+                sessionActive = false;
+                
+                // Ocultar elementos
+                document.getElementById('qr-container').style.display = 'none';
+                document.getElementById('authenticated-section').style.display = 'none';
+            } else {
+                addLog(`❌ Error cerrando sesión: ${result.message}`, 'error');
+            }
+        }
+        
+        async function checkStatus() {
+            addLog('🔍 Verificando estado...', 'info');
+            const result = await makeApiCall('/api/whatsapp/status');
+            
+            if (result.success) {
+                const status = result.status;
+                const clientInfo = result.client_info;
+                
+                addLog(`📊 Estado: ${JSON.stringify(status)}`, 'info');
+                
+                // Actualizar UI basado en el estado
+                if (status.authenticated) {
+                    showAuthenticated(status.user_info || 'Usuario autenticado');
+                }
+                
+                updateStatus(
+                    status.connected ? 'connected' : 'disconnected',
+                    status.connected ? 'Conectado y activo' : 'Desconectado'
+                );
+            } else {
+                addLog(`❌ Error verificando estado: ${result.message}`, 'error');
+            }
+        }
+        
+        async function checkBackendHealth() {
+            const result = await makeApiCall('/api/whatsapp/health');
+            
+            if (result.success) {
+                document.getElementById('backend-health').textContent = 'OK';
+                document.getElementById('backend-health').className = 'stat-value text-success';
+            } else {
+                document.getElementById('backend-health').textContent = 'ERROR';
+                document.getElementById('backend-health').className = 'stat-value text-danger';
+            }
+        }
+        
+        // Función para actualizar tiempo conectado
+        function updateConnectionTime() {
+            if (startTime) {
+                const now = new Date();
+                const diff = Math.floor((now - startTime) / 1000);
+                const minutes = Math.floor(diff / 60);
+                const seconds = diff % 60;
+                document.getElementById('connection-time').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+        
+        // Inicialización automática
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('🎉 Interfaz de WhatsApp Web cargada', 'success');
+            addLog('🔧 Backend configurado en: {{ backend_url }}', 'info');
+            
+            // Verificar salud del backend cada 30 segundos
+            setInterval(checkBackendHealth, 30000);
+            checkBackendHealth();
+            
+            // Actualizar tiempo cada segundo
+            setInterval(updateConnectionTime, 1000);
+            
+            // Check inicial del estado
+            setTimeout(checkStatus, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<div class="bg-white border border-yellow-200 rounded-xl shadow-md p-6 space-y-3">
+  <h2 class="text-lg font-semibold text-yellow-700 flex items-center gap-2">🧹 Archivos no registrados en __init__.py</h2>
+
+  {% if modulo.no_importados %}
+    <p class="text-sm text-yellow-600">
+      Estos archivos existen en la carpeta del módulo pero no están siendo importados. Flask no los usará a menos que los registres en <code class="font-mono">__init__.py</code>.
+    </p>
+    <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
+      {% for archivo in modulo.no_importados %}
+        <li><code class="font-mono">{{ archivo }}</code></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-gray-500">✅ No hay archivos huérfanos. Todo está en orden.</p>
+  {% endif %}
+</div>

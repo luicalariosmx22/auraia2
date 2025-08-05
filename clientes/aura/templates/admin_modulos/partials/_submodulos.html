@@ -1,0 +1,12 @@
+<div class="bg-white border rounded-xl shadow-sm p-6">
+  <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">📄 Submódulos</h2>
+  {% if modulo.submodulos %}
+    <ul class="text-sm text-gray-700 space-y-1">
+      {% for archivo in modulo.submodulos %}
+        <li><code class="font-mono">{{ archivo }}</code></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-gray-500">No se encontraron submódulos</p>
+  {% endif %}
+</div>

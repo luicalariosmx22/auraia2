@@ -1,0 +1,53 @@
+-- Sentencias SQL generadas automáticamente para Google Ads (anuncios)
+-- Tabla destino: public.google_ads_reporte_anuncios
+-- Fecha de generación: 2025-06-25 14:21:38.665584
+
+-- Registro 1
+INSERT INTO public.google_ads_reporte_anuncios (
+    estado_anuncio, url_final, titulo_1, pos_titulo_1, titulo_2, pos_titulo_2, titulo_3, pos_titulo_3, titulo_4, pos_titulo_4, titulo_5, pos_titulo_5, titulo_6, pos_titulo_6, titulo_7, pos_titulo_7, titulo_8, pos_titulo_8, titulo_9, pos_titulo_9, titulo_10, pos_titulo_10, titulo_11, pos_titulo_11, titulo_12, pos_titulo_12, titulo_13, pos_titulo_13, titulo_14, pos_titulo_14, titulo_15, pos_titulo_15, descripcion_1, pos_desc_1, descripcion_2, pos_desc_2, descripcion_3, pos_desc_3, descripcion_4, pos_desc_4, ruta_1, ruta_2, url_final_movil, plantilla_seguimiento, sufijo_url_final, param_personalizado, campaña, grupo_anuncios, estado, motivos_estado, calidad_anuncio, mejoras_efectividad, tipo_anuncio, clics, impresiones, ctr, codigo_moneda, cpc_promedio, costo, porcentaje_conversion, conversiones, costo_por_conversion, id_campaña, id_grupo_anuncios, id_anuncio
+) VALUES (
+    NULL, 'https://salde.com/jade-natural', 'Jade Natural Auténtico', NULL, 'Envío Gratis Hoy', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Jade natural certificado con envío gratis', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'SaldeJade - Search Premium', 'Jade Natural', 'Enabled', NULL, NULL, NULL, 'Responsive search ad', '255', '8500', '3.00%', NULL, NULL, '382.5', NULL, '8', '47.81', '1', '1', '1'
+);
+
+-- Registro 2
+INSERT INTO public.google_ads_reporte_anuncios (
+    estado_anuncio, url_final, titulo_1, pos_titulo_1, titulo_2, pos_titulo_2, titulo_3, pos_titulo_3, titulo_4, pos_titulo_4, titulo_5, pos_titulo_5, titulo_6, pos_titulo_6, titulo_7, pos_titulo_7, titulo_8, pos_titulo_8, titulo_9, pos_titulo_9, titulo_10, pos_titulo_10, titulo_11, pos_titulo_11, titulo_12, pos_titulo_12, titulo_13, pos_titulo_13, titulo_14, pos_titulo_14, titulo_15, pos_titulo_15, descripcion_1, pos_desc_1, descripcion_2, pos_desc_2, descripcion_3, pos_desc_3, descripcion_4, pos_desc_4, ruta_1, ruta_2, url_final_movil, plantilla_seguimiento, sufijo_url_final, param_personalizado, campaña, grupo_anuncios, estado, motivos_estado, calidad_anuncio, mejoras_efectividad, tipo_anuncio, clics, impresiones, ctr, codigo_moneda, cpc_promedio, costo, porcentaje_conversion, conversiones, costo_por_conversion, id_campaña, id_grupo_anuncios, id_anuncio
+) VALUES (
+    NULL, 'https://salde.com/jade-premium', 'Jade Premium Collection', NULL, 'Calidad Garantizada', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Colección premium de jade auténtico', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'SaldeJade - Search Premium', 'Jade Premium', 'Enabled', NULL, NULL, NULL, 'Responsive search ad', '210', '7200', '2.92%', NULL, NULL, '315.0', NULL, '7', '45.0', '1', '2', '2'
+);
+
+-- Registro 3
+INSERT INTO public.google_ads_reporte_anuncios (
+    estado_anuncio, url_final, titulo_1, pos_titulo_1, titulo_2, pos_titulo_2, titulo_3, pos_titulo_3, titulo_4, pos_titulo_4, titulo_5, pos_titulo_5, titulo_6, pos_titulo_6, titulo_7, pos_titulo_7, titulo_8, pos_titulo_8, titulo_9, pos_titulo_9, titulo_10, pos_titulo_10, titulo_11, pos_titulo_11, titulo_12, pos_titulo_12, titulo_13, pos_titulo_13, titulo_14, pos_titulo_14, titulo_15, pos_titulo_15, descripcion_1, pos_desc_1, descripcion_2, pos_desc_2, descripcion_3, pos_desc_3, descripcion_4, pos_desc_4, ruta_1, ruta_2, url_final_movil, plantilla_seguimiento, sufijo_url_final, param_personalizado, campaña, grupo_anuncios, estado, motivos_estado, calidad_anuncio, mejoras_efectividad, tipo_anuncio, clics, impresiones, ctr, codigo_moneda, cpc_promedio, costo, porcentaje_conversion, conversiones, costo_por_conversion, id_campaña, id_grupo_anuncios, id_anuncio
+) VALUES (
+    NULL, 'https://salde.com/joyeria-jade', 'Joyería de Jade Exclusiva', NULL, 'Descuento 25%', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Joyería exclusiva de jade, descuento especial', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'SaldeJade - Search Premium', 'Jade Premium', 'Enabled', NULL, NULL, NULL, 'Responsive search ad', '195', '6800', '2.87%', NULL, NULL, '292.5', NULL, '6', '48.75', '1', '2', '3'
+);
+
+-- Registro 4
+INSERT INTO public.google_ads_reporte_anuncios (
+    estado_anuncio, url_final, titulo_1, pos_titulo_1, titulo_2, pos_titulo_2, titulo_3, pos_titulo_3, titulo_4, pos_titulo_4, titulo_5, pos_titulo_5, titulo_6, pos_titulo_6, titulo_7, pos_titulo_7, titulo_8, pos_titulo_8, titulo_9, pos_titulo_9, titulo_10, pos_titulo_10, titulo_11, pos_titulo_11, titulo_12, pos_titulo_12, titulo_13, pos_titulo_13, titulo_14, pos_titulo_14, titulo_15, pos_titulo_15, descripcion_1, pos_desc_1, descripcion_2, pos_desc_2, descripcion_3, pos_desc_3, descripcion_4, pos_desc_4, ruta_1, ruta_2, url_final_movil, plantilla_seguimiento, sufijo_url_final, param_personalizado, campaña, grupo_anuncios, estado, motivos_estado, calidad_anuncio, mejoras_efectividad, tipo_anuncio, clics, impresiones, ctr, codigo_moneda, cpc_promedio, costo, porcentaje_conversion, conversiones, costo_por_conversion, id_campaña, id_grupo_anuncios, id_anuncio
+) VALUES (
+    NULL, 'https://salde.com/remarketing-jade', 'Vuelve por tu Jade', NULL, '20% Descuento', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Regresa y obtén 20% de descuento en jade', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'SaldeJade - Display Retargeting', 'Audience Remarketing', 'Enabled', NULL, NULL, NULL, 'Responsive display ad', '180', '9200', '1.96%', NULL, NULL, '270.0', NULL, '5', '54.0', '2', '3', '4'
+);
+
+-- Registro 5
+INSERT INTO public.google_ads_reporte_anuncios (
+    estado_anuncio, url_final, titulo_1, pos_titulo_1, titulo_2, pos_titulo_2, titulo_3, pos_titulo_3, titulo_4, pos_titulo_4, titulo_5, pos_titulo_5, titulo_6, pos_titulo_6, titulo_7, pos_titulo_7, titulo_8, pos_titulo_8, titulo_9, pos_titulo_9, titulo_10, pos_titulo_10, titulo_11, pos_titulo_11, titulo_12, pos_titulo_12, titulo_13, pos_titulo_13, titulo_14, pos_titulo_14, titulo_15, pos_titulo_15, descripcion_1, pos_desc_1, descripcion_2, pos_desc_2, descripcion_3, pos_desc_3, descripcion_4, pos_desc_4, ruta_1, ruta_2, url_final_movil, plantilla_seguimiento, sufijo_url_final, param_personalizado, campaña, grupo_anuncios, estado, motivos_estado, calidad_anuncio, mejoras_efectividad, tipo_anuncio, clics, impresiones, ctr, codigo_moneda, cpc_promedio, costo, porcentaje_conversion, conversiones, costo_por_conversion, id_campaña, id_grupo_anuncios, id_anuncio
+) VALUES (
+    NULL, 'https://salde.com/oferta-jade', 'Oferta Especial Jade', NULL, 'Últimas Piezas', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Últimas oportunidades en jade premium', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'SaldeJade - Display Retargeting', 'Audience Remarketing', 'Paused', NULL, NULL, NULL, 'Responsive display ad', '75', '4100', '1.83%', NULL, NULL, '112.5', NULL, '2', '56.25', '2', '3', '5'
+);
+
+-- Registro 6
+INSERT INTO public.google_ads_reporte_anuncios (
+    estado_anuncio, url_final, titulo_1, pos_titulo_1, titulo_2, pos_titulo_2, titulo_3, pos_titulo_3, titulo_4, pos_titulo_4, titulo_5, pos_titulo_5, titulo_6, pos_titulo_6, titulo_7, pos_titulo_7, titulo_8, pos_titulo_8, titulo_9, pos_titulo_9, titulo_10, pos_titulo_10, titulo_11, pos_titulo_11, titulo_12, pos_titulo_12, titulo_13, pos_titulo_13, titulo_14, pos_titulo_14, titulo_15, pos_titulo_15, descripcion_1, pos_desc_1, descripcion_2, pos_desc_2, descripcion_3, pos_desc_3, descripcion_4, pos_desc_4, ruta_1, ruta_2, url_final_movil, plantilla_seguimiento, sufijo_url_final, param_personalizado, campaña, grupo_anuncios, estado, motivos_estado, calidad_anuncio, mejoras_efectividad, tipo_anuncio, clics, impresiones, ctr, codigo_moneda, cpc_promedio, costo, porcentaje_conversion, conversiones, costo_por_conversion, id_campaña, id_grupo_anuncios, id_anuncio
+) VALUES (
+    NULL, 'https://salde.com/shopping-jade', 'Compra Jade Online', NULL, 'Mejor Precio', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Compra jade online con la mejor calidad', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'SaldeJade - Shopping', 'Jade Products', 'Enabled', NULL, NULL, NULL, 'Product Shopping ad', '45', '2800', '1.61%', NULL, NULL, '67.5', NULL, '1', '67.5', '3', '4', '6'
+);
+
+-- Registro 7
+INSERT INTO public.google_ads_reporte_anuncios (
+    estado_anuncio, url_final, titulo_1, pos_titulo_1, titulo_2, pos_titulo_2, titulo_3, pos_titulo_3, titulo_4, pos_titulo_4, titulo_5, pos_titulo_5, titulo_6, pos_titulo_6, titulo_7, pos_titulo_7, titulo_8, pos_titulo_8, titulo_9, pos_titulo_9, titulo_10, pos_titulo_10, titulo_11, pos_titulo_11, titulo_12, pos_titulo_12, titulo_13, pos_titulo_13, titulo_14, pos_titulo_14, titulo_15, pos_titulo_15, descripcion_1, pos_desc_1, descripcion_2, pos_desc_2, descripcion_3, pos_desc_3, descripcion_4, pos_desc_4, ruta_1, ruta_2, url_final_movil, plantilla_seguimiento, sufijo_url_final, param_personalizado, campaña, grupo_anuncios, estado, motivos_estado, calidad_anuncio, mejoras_efectividad, tipo_anuncio, clics, impresiones, ctr, codigo_moneda, cpc_promedio, costo, porcentaje_conversion, conversiones, costo_por_conversion, id_campaña, id_grupo_anuncios, id_anuncio
+) VALUES (
+    NULL, 'https://salde.com/jade-calidad', 'Jade de Calidad', NULL, 'Stock Limitado', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Jade auténtico con stock limitado', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'SaldeJade - Shopping', 'Jade Products', 'Enabled', NULL, NULL, NULL, 'Product Shopping ad', '35', '1950', '1.79%', NULL, NULL, '52.5', NULL, '1', '52.5', '3', '4', '7'
+);
+

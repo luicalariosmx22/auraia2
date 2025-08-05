@@ -1,0 +1,585 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="max-w-4xl mx-auto py-8">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex items-center mb-4">
+            <a href="{{ url_for('panel_cliente_automatizaciones_bp.panel_cliente_automatizaciones', nombre_nora=nombre_nora) }}" 
+               class="text-blue-600 hover:text-blue-800 mr-4">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-3xl font-bold">
+                <i class="fas fa-plus-circle text-blue-600"></i>
+                Nueva Automatización
+            </h1>
+        </div>
+        <p class="text-gray-600">Configura una nueva tarea automatizada para el sistema</p>
+    </div>
+
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-6">
+                {% for category, message in messages %}
+                    <div class="alert bg-{{ 'red' if category == 'error' else 'green' }}-100 border border-{{ 'red' if category == 'error' else 'green' }}-400 text-{{ 'red' if category == 'error' else 'green' }}-700 px-4 py-3 rounded mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Formulario -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="POST" class="space-y-6">
+            <!-- Información Básica -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre de la Automatización *
+                    </label>
+                    <input type="text" 
+                           id="nombre" 
+                           name="nombre" 
+                           required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Ej: Reporte Diario de Ventas">
+                </div>
+
+                <div>
+                    <label for="frecuencia" class="block text-sm font-medium text-gray-700 mb-2">
+                        Frecuencia *
+                    </label>
+                    <select id="frecuencia" 
+                            name="frecuencia" 
+                            required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Selecciona una frecuencia</option>
+                        <option value="diaria">Diaria</option>
+                        <option value="semanal">Semanal</option>
+                        <option value="mensual">Mensual</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="hora_ejecucion" class="block text-sm font-medium text-gray-700 mb-2">
+                        Hora de Ejecución *
+                    </label>
+                    <input type="time" 
+                           id="hora_ejecucion" 
+                           name="hora_ejecucion" 
+                           required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="modulo_relacionado" class="block text-sm font-medium text-gray-700 mb-2">
+                        Módulo *
+                    </label>
+                    <select id="modulo_relacionado" 
+                            name="modulo_relacionado" 
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Selecciona un módulo</option>
+                        {% for modulo, funciones in funciones_por_modulo.items() %}
+                            <option value="{{ modulo }}">{{ modulo.title() }} ({{ funciones|length }} funciones)</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <!-- Botones de gestión de funciones -->
+                    <div class="mt-3 flex gap-2">
+                        <button type="button" 
+                                id="btn-descubrir-funciones"
+                                class="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-search mr-1"></i>
+                            Descubrir Funciones
+                        </button>
+                        <button type="button" 
+                                id="btn-refrescar-funciones"
+                                class="px-3 py-1 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors">
+                            <i class="fas fa-sync-alt mr-1"></i>
+                            Refrescar Lista
+                        </button>
+                        <span id="status-funciones" class="text-xs text-gray-500 self-center"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">
+                    Descripción
+                </label>
+                <textarea id="descripcion" 
+                          name="descripcion" 
+                          rows="3" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Describe qué hace esta automatización..."></textarea>
+            </div>
+
+            <!-- Configuración Técnica -->
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Configuración Técnica</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="funcion_objetivo" class="block text-sm font-medium text-gray-700 mb-2">
+                            Función a Ejecutar *
+                        </label>
+                        <select id="funcion_objetivo" 
+                                name="funcion_objetivo" 
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Primero selecciona un módulo</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Función que se ejecutará automáticamente</p>
+                    </div>
+
+                    <div>
+                        <label for="categoria_funcion" class="block text-sm font-medium text-gray-700 mb-2">
+                            Categoría
+                        </label>
+                        <input type="text" 
+                               id="categoria_funcion" 
+                               name="categoria_funcion" 
+                               readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+                               placeholder="Se asigna automáticamente">
+                        <p class="text-xs text-gray-500 mt-1">Categoría de la función seleccionada</p>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label for="descripcion_funcion" class="block text-sm font-medium text-gray-700 mb-2">
+                        Descripción de la Función
+                    </label>
+                    <div id="descripcion_funcion" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 min-h-12">
+                        Selecciona una función para ver su descripción
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label for="parametros_json" class="block text-sm font-medium text-gray-700 mb-2">
+                        Parámetros JSON <span id="parametros_status" class="text-xs text-gray-500">(Opcional)</span>
+                    </label>
+                    <textarea id="parametros_json" 
+                              name="parametros_json" 
+                              rows="4" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                              placeholder='{"parametro1": "valor1", "parametro2": 123}'></textarea>
+                    <div class="flex justify-between items-center mt-1">
+                        <p class="text-xs text-gray-500">Parámetros en formato JSON que se pasarán a la función</p>
+                        <button type="button" 
+                                id="btn_generar_parametros" 
+                                class="text-xs text-blue-600 hover:text-blue-800 hidden">
+                            <i class="fas fa-magic mr-1"></i>Generar ejemplo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Funciones Disponibles (Dinámico) -->
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-list-ul mr-2"></i>
+                    Funciones Disponibles
+                    <span id="contador_funciones" class="text-sm text-gray-500">
+                        ({{ funciones_disponibles|length }} funciones encontradas)
+                    </span>
+                </h3>
+                
+                <div id="funciones_disponibles_container" class="bg-gray-50 rounded-md p-4">
+                    {% if funciones_por_modulo %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {% for modulo, funciones in funciones_por_modulo.items() %}
+                                <div class="bg-white rounded-md p-3 border">
+                                    <h4 class="font-medium text-gray-900 mb-2">
+                                        <i class="fas fa-cube mr-1"></i>{{ modulo.title() }}
+                                    </h4>
+                                    <ul class="text-sm space-y-1">
+                                        {% for func in funciones[:3] %}
+                                            <li class="text-gray-600 flex items-center">
+                                                <i class="fas fa-function text-xs text-blue-500 mr-1"></i>
+                                                {{ func.nombre_funcion }}
+                                                {% if func.envia_notificacion %}
+                                                    <i class="fas fa-bell text-xs text-yellow-500 ml-1" title="Envía notificaciones"></i>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                        {% if funciones|length > 3 %}
+                                            <li class="text-xs text-gray-400">
+                                                +{{ funciones|length - 3 }} más...
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-500 text-center py-4">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            No se encontraron funciones. Ejecuta el descubridor de funciones primero.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-end space-x-4 pt-6 border-t">
+                <a href="{{ url_for('panel_cliente_automatizaciones_bp.panel_cliente_automatizaciones', nombre_nora=nombre_nora) }}" 
+                   class="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+                    <i class="fas fa-save mr-2"></i>
+                    Crear Automatización
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let funcionesData = {};
+let moduloActual = '';
+
+// Elementos del DOM
+const moduloSelect = document.getElementById('modulo_relacionado');
+const funcionSelect = document.getElementById('funcion_objetivo');
+const categoriaInput = document.getElementById('categoria_funcion');
+const descripcionDiv = document.getElementById('descripcion_funcion');
+const parametrosTextarea = document.getElementById('parametros_json');
+const btnGenerarParametros = document.getElementById('btn_generar_parametros');
+const parametrosStatus = document.getElementById('parametros_status');
+
+// Event listeners
+moduloSelect.addEventListener('change', cargarFuncionesPorModulo);
+funcionSelect.addEventListener('change', cargarDetalleFuncion);
+btnGenerarParametros.addEventListener('click', generarParametrosEjemplo);
+
+// Event listeners para botones de gestión de funciones
+const btnDescubrirFunciones = document.getElementById('btn-descubrir-funciones');
+const btnRefrescarFunciones = document.getElementById('btn-refrescar-funciones');
+const statusFunciones = document.getElementById('status-funciones');
+
+btnDescubrirFunciones.addEventListener('click', descubrirFunciones);
+btnRefrescarFunciones.addEventListener('click', refrescarFunciones);
+
+// Cargar funciones cuando cambia el módulo
+async function cargarFuncionesPorModulo() {
+    const modulo = moduloSelect.value;
+    
+    if (!modulo) {
+        funcionSelect.innerHTML = '<option value="">Primero selecciona un módulo</option>';
+        limpiarDetallesFuncion();
+        return;
+    }
+    
+    try {
+        funcionSelect.innerHTML = '<option value="">Cargando funciones...</option>';
+        
+        const response = await fetch(`/panel_cliente/{{ nombre_nora }}/automatizaciones/api/funciones/${modulo}`);
+        const data = await response.json();
+        
+        if (data.success && data.funciones) {
+            funcionesData[modulo] = data.funciones;
+            
+            // Poblar el select de funciones
+            funcionSelect.innerHTML = '<option value="">Selecciona una función</option>';
+            
+            data.funciones.forEach(func => {
+                const option = document.createElement('option');
+                option.value = func.nombre_funcion;
+                option.textContent = `${func.nombre_funcion} (${func.categoria})`;
+                if (func.envia_notificacion) {
+                    option.textContent += ' 📧';
+                }
+                funcionSelect.appendChild(option);
+            });
+            
+            console.log(`✅ ${data.funciones.length} funciones cargadas para ${modulo}`);
+        } else {
+            funcionSelect.innerHTML = '<option value="">Sin funciones disponibles</option>';
+            console.warn(`⚠️ No se encontraron funciones para ${modulo}`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error cargando funciones:', error);
+        funcionSelect.innerHTML = '<option value="">Error al cargar funciones</option>';
+    }
+    
+    limpiarDetallesFuncion();
+}
+
+// Cargar detalles de la función seleccionada
+async function cargarDetalleFuncion() {
+    const modulo = moduloSelect.value;
+    const nombreFuncion = funcionSelect.value;
+    
+    if (!modulo || !nombreFuncion) {
+        limpiarDetallesFuncion();
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/panel_cliente/{{ nombre_nora }}/automatizaciones/api/funcion/${modulo}/${nombreFuncion}`);
+        const data = await response.json();
+        
+        if (data.success && data.funcion) {
+            const func = data.funcion;
+            
+            // Llenar campos con la información de la función
+            categoriaInput.value = func.categoria || 'general';
+            descripcionDiv.innerHTML = `
+                <div class="space-y-2">
+                    <p class="text-gray-700">${func.descripcion || 'Sin descripción disponible'}</p>
+                    ${func.envia_notificacion ? 
+                        '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><i class="fas fa-bell mr-1"></i>Envía notificaciones</span>' : 
+                        ''
+                    }
+                    ${func.docstring && func.docstring !== func.descripcion ? 
+                        `<details class="text-sm text-gray-600"><summary class="cursor-pointer">Ver documentación completa</summary><pre class="mt-2 whitespace-pre-wrap">${func.docstring}</pre></details>` : 
+                        ''
+                    }
+                </div>
+            `;
+            
+            // Manejar parámetros
+            if (func.parametros && Object.keys(func.parametros).length > 0) {
+                parametrosStatus.textContent = '(Requerido - tiene parámetros)';
+                parametrosStatus.className = 'text-xs text-orange-600';
+                btnGenerarParametros.classList.remove('hidden');
+                
+                // Auto-generar ejemplo de parámetros
+                generarParametrosEjemplo(func.parametros);
+            } else {
+                parametrosStatus.textContent = '(Opcional - sin parámetros)';
+                parametrosStatus.className = 'text-xs text-green-600';
+                btnGenerarParametros.classList.add('hidden');
+                parametrosTextarea.value = '';
+            }
+            
+            console.log(`✅ Detalles cargados para ${nombreFuncion}`);
+            
+        } else {
+            console.warn(`⚠️ No se encontraron detalles para ${nombreFuncion}`);
+            limpiarDetallesFuncion();
+        }
+        
+    } catch (error) {
+        console.error('❌ Error cargando detalles de función:', error);
+        limpiarDetallesFuncion();
+    }
+}
+
+// Generar parámetros de ejemplo
+function generarParametrosEjemplo(parametros = null) {
+    const modulo = moduloSelect.value;
+    const nombreFuncion = funcionSelect.value;
+    
+    if (!modulo || !nombreFuncion) return;
+    
+    let params = parametros;
+    
+    // Si no se proporcionan parámetros, buscar en los datos cargados
+    if (!params && funcionesData[modulo]) {
+        const func = funcionesData[modulo].find(f => f.nombre_funcion === nombreFuncion);
+        params = func?.parametros;
+    }
+    
+    if (params && Object.keys(params).length > 0) {
+        const ejemploParametros = {};
+        
+        Object.entries(params).forEach(([nombre, info]) => {
+            if (info.requerido !== false) {  // Incluir requeridos y undefined
+                // Generar valor de ejemplo basado en el tipo
+                const tipo = info.tipo || 'str';
+                
+                if (tipo.includes('str') || tipo === 'Any') {
+                    ejemploParametros[nombre] = `ejemplo_${nombre}`;
+                } else if (tipo.includes('int')) {
+                    ejemploParametros[nombre] = 30;
+                } else if (tipo.includes('bool')) {
+                    ejemploParametros[nombre] = true;
+                } else if (tipo.includes('list')) {
+                    ejemploParametros[nombre] = [`ejemplo_${nombre}`];
+                } else if (tipo.includes('dict')) {
+                    ejemploParametros[nombre] = {[`clave_${nombre}`]: `valor_${nombre}`};
+                } else {
+                    ejemploParametros[nombre] = `valor_${nombre}`;
+                }
+            }
+        });
+        
+        if (Object.keys(ejemploParametros).length > 0) {
+            parametrosTextarea.value = JSON.stringify(ejemploParametros, null, 2);
+        }
+    }
+}
+
+// Limpiar detalles de función
+function limpiarDetallesFuncion() {
+    categoriaInput.value = '';
+    descripcionDiv.innerHTML = 'Selecciona una función para ver su descripción';
+    parametrosTextarea.value = '';
+    parametrosStatus.textContent = '(Opcional)';
+    parametrosStatus.className = 'text-xs text-gray-500';
+    btnGenerarParametros.classList.add('hidden');
+}
+
+// Validación del formulario antes de enviar
+document.querySelector('form').addEventListener('submit', function(e) {
+    const modulo = moduloSelect.value;
+    const funcion = funcionSelect.value;
+    
+    if (!modulo) {
+        alert('Por favor selecciona un módulo');
+        e.preventDefault();
+        return;
+    }
+    
+    if (!funcion) {
+        alert('Por favor selecciona una función');
+        e.preventDefault();
+        return;
+    }
+    
+    // Validar JSON de parámetros si tiene contenido
+    const parametrosJson = parametrosTextarea.value.trim();
+    if (parametrosJson) {
+        try {
+            JSON.parse(parametrosJson);
+        } catch (error) {
+            alert('El formato JSON de parámetros no es válido: ' + error.message);
+            e.preventDefault();
+            return;
+        }
+    }
+});
+
+console.log('🚀 Sistema de automatizaciones inicializado');
+
+// Función para descubrir funciones automáticamente
+async function descubrirFunciones() {
+    try {
+        btnDescubrirFunciones.disabled = true;
+        btnDescubrirFunciones.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Descubriendo...';
+        statusFunciones.textContent = 'Escaneando módulos...';
+        
+        const response = await fetch('/panel_cliente/{{ nombre_nora }}/automatizaciones/api/descubrir-funciones', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            statusFunciones.textContent = `✅ ${data.funciones_encontradas} funciones descubiertas`;
+            statusFunciones.className = 'text-xs text-green-600 self-center';
+            
+            // Refrescar la página para mostrar las nuevas funciones
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            statusFunciones.textContent = `❌ Error: ${data.error}`;
+            statusFunciones.className = 'text-xs text-red-600 self-center';
+        }
+        
+    } catch (error) {
+        console.error('❌ Error descubriendo funciones:', error);
+        statusFunciones.textContent = '❌ Error de conexión';
+        statusFunciones.className = 'text-xs text-red-600 self-center';
+    } finally {
+        btnDescubrirFunciones.disabled = false;
+        btnDescubrirFunciones.innerHTML = '<i class="fas fa-search mr-1"></i> Descubrir Funciones';
+        
+        setTimeout(() => {
+            statusFunciones.textContent = '';
+            statusFunciones.className = 'text-xs text-gray-500 self-center';
+        }, 5000);
+    }
+}
+
+// Función para refrescar la lista de funciones
+async function refrescarFunciones() {
+    try {
+        btnRefrescarFunciones.disabled = true;
+        btnRefrescarFunciones.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Refrescando...';
+        statusFunciones.textContent = 'Actualizando lista...';
+        
+        const response = await fetch('/panel_cliente/{{ nombre_nora }}/automatizaciones/api/refrescar-funciones', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            statusFunciones.textContent = `✅ ${data.funciones_activas} funciones activas`;
+            statusFunciones.className = 'text-xs text-green-600 self-center';
+            
+            // Refrescar selectores de módulo y función
+            await actualizarSelectoresDinamicos();
+        } else {
+            statusFunciones.textContent = `❌ Error: ${data.error}`;
+            statusFunciones.className = 'text-xs text-red-600 self-center';
+        }
+        
+    } catch (error) {
+        console.error('❌ Error refrescando funciones:', error);
+        statusFunciones.textContent = '❌ Error de conexión';
+        statusFunciones.className = 'text-xs text-red-600 self-center';
+    } finally {
+        btnRefrescarFunciones.disabled = false;
+        btnRefrescarFunciones.innerHTML = '<i class="fas fa-sync-alt mr-1"></i> Refrescar Lista';
+        
+        setTimeout(() => {
+            statusFunciones.textContent = '';
+            statusFunciones.className = 'text-xs text-gray-500 self-center';
+        }, 5000);
+    }
+}
+
+// Función para actualizar los selectores dinámicamente
+async function actualizarSelectoresDinamicos() {
+    try {
+        const response = await fetch('/panel_cliente/{{ nombre_nora }}/automatizaciones/api/modulos-disponibles');
+        const data = await response.json();
+        
+        if (data.success && data.modulos) {
+            // Actualizar selector de módulos
+            const moduloActualValue = moduloSelect.value;
+            moduloSelect.innerHTML = '<option value="">Selecciona un módulo</option>';
+            
+            data.modulos.forEach(modulo => {
+                const option = document.createElement('option');
+                option.value = modulo.nombre;
+                option.textContent = `${modulo.nombre.charAt(0).toUpperCase() + modulo.nombre.slice(1)} (${modulo.total_funciones} funciones)`;
+                moduloSelect.appendChild(option);
+            });
+            
+            // Restaurar selección si existe
+            if (moduloActualValue && data.modulos.find(m => m.nombre === moduloActualValue)) {
+                moduloSelect.value = moduloActualValue;
+                await cargarFuncionesPorModulo();
+            }
+            
+            console.log('✅ Selectores actualizados dinámicamente');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error actualizando selectores:', error);
+    }
+}
+</script>
+
+{% endblock %}

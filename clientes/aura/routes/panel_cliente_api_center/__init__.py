@@ -1,0 +1,1 @@
+from .panel_cliente_api_center import panel_cliente_api_center_bp

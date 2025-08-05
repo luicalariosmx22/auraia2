@@ -67,5 +67,75 @@ def enviar_mensaje(destino, mensaje):
         registrar_envio(to_normalizado, mensaje, message.sid, "enviado")
 
     except Exception as e:
-        print(f"❌ Error enviando mensaje a {destino}: {e}")
-        registrar_error("Twilio", f"Error al enviar mensaje a {destino}: {e}")
+        error_message = str(e)
+        print(f"❌ Error enviando mensaje a {destino}: {error_message}")
+        
+        # Detectar errores específicos de Twilio
+        if "insufficient funds" in error_message.lower() or "balance" in error_message.lower():
+            error_tipo = "TWILIO_SALDO_INSUFICIENTE"
+            error_detalle = f"⚠️ SALDO INSUFICIENTE EN TWILIO - No se pudo enviar mensaje a {destino}"
+            print(f"🚨 {error_detalle}")
+            
+            # Registrar error crítico
+            registrar_error(error_tipo, error_detalle)
+            
+            # Intentar registrar el problema en una tabla específica si existe
+            try:
+                supabase.table("alertas_sistema").insert({
+                    "tipo": "TWILIO_SALDO_BAJO",
+                    "mensaje": error_detalle,
+                    "urgencia": "CRITICA",
+                    "fecha": "now()"
+                }).execute()
+            except:
+                pass  # Si no existe la tabla, continuar
+        
+        elif "authentication" in error_message.lower() or "credentials" in error_message.lower():
+            error_tipo = "TWILIO_CREDENCIALES"
+            error_detalle = f"🔐 ERROR DE CREDENCIALES TWILIO - Verificar ACCOUNT_SID y AUTH_TOKEN"
+            print(f"🚨 {error_detalle}")
+            registrar_error(error_tipo, error_detalle)
+        
+        elif "invalid" in error_message.lower() and "number" in error_message.lower():
+            error_tipo = "TWILIO_NUMERO_INVALIDO"
+            error_detalle = f"📞 NÚMERO INVÁLIDO - No se pudo enviar a {destino}"
+            print(f"⚠️ {error_detalle}")
+            registrar_error(error_tipo, error_detalle)
+        
+        else:
+            # Error genérico
+            registrar_error("Twilio", f"Error al enviar mensaje a {destino}: {error_message}")
+
+def verificar_estado_twilio():
+    """
+    Verifica el estado y saldo de Twilio
+    """
+    try:
+        # Verificar que las credenciales estén configuradas
+        if not TWILIO_SID or not TWILIO_TOKEN:
+            return {"error": "Credenciales no configuradas", "estado": "ERROR"}
+        
+        # Obtener información de la cuenta
+        account = client.api.accounts(TWILIO_SID).fetch()
+        balance = client.api.accounts(TWILIO_SID).balance.fetch()
+        
+        saldo = float(balance.balance)
+        
+        estado = "BUENO"
+        if saldo < 1:
+            estado = "CRITICO"
+        elif saldo < 5:
+            estado = "BAJO"
+        elif saldo < 10:
+            estado = "ADVERTENCIA"
+        
+        return {
+            "saldo": saldo,
+            "moneda": balance.currency,
+            "estado": estado,
+            "cuenta_estado": account.status
+        }
+    
+    except Exception as e:
+        print(f"❌ Error verificando estado de Twilio: {e}")
+        return {"error": str(e), "estado": "ERROR"}

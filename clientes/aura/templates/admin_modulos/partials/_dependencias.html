@@ -1,0 +1,12 @@
+<div class="bg-white border rounded-xl shadow-sm p-6">
+  <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">📦 Dependencias</h2>
+  {% if modulo.dependencias %}
+    <ul class="text-sm text-gray-700 space-y-1">
+      {% for dep in modulo.dependencias %}
+        <li><code class="font-mono">{{ dep }}</code></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-gray-500">No se detectaron dependencias externas</p>
+  {% endif %}
+</div>

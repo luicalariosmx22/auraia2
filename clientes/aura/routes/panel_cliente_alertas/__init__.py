@@ -1,0 +1,1 @@
+from .panel_cliente_alertas import panel_cliente_alertas_bp

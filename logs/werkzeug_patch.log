@@ -1,0 +1,2105 @@
+2025-07-28 18:48:50,564 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 18:49:09,830 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 18:49:26,201 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 18:50:49,925 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 18:51:08,080 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 18:51:24,454 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 18:55:07,102 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 18:55:25,136 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 18:55:41,438 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 18:56:23,738 - root - ERROR - Error al aplicar parches: module 'werkzeug.http' has no attribute '_cookie_no_quote_re'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 156, in <module>
+    apply_patches()
+  File "C:\Users\PC\PYTHON\AuraAi2\patches\werkzeug_patches.py", line 24, in apply_patches
+    patch_werkzeug_cookie_quote_check()
+  File "C:\Users\PC\PYTHON\AuraAi2\patches\werkzeug_patches.py", line 67, in patch_werkzeug_cookie_quote_check
+    original_cookie_no_quote_re = werkzeug.http._cookie_no_quote_re
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'werkzeug.http' has no attribute '_cookie_no_quote_re'
+2025-07-28 18:56:49,368 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 18:57:07,770 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 18:57:23,851 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 18:57:23,854 - root - ERROR - Error al aplicar parches: module 'werkzeug.http' has no attribute '_cookie_no_quote_re'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 156, in <module>
+    apply_patches()
+  File "C:\Users\PC\PYTHON\AuraAi2\patches\werkzeug_patches.py", line 24, in apply_patches
+    patch_werkzeug_cookie_quote_check()
+  File "C:\Users\PC\PYTHON\AuraAi2\patches\werkzeug_patches.py", line 67, in patch_werkzeug_cookie_quote_check
+    original_cookie_no_quote_re = werkzeug.http._cookie_no_quote_re
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'werkzeug.http' has no attribute '_cookie_no_quote_re'
+2025-07-28 18:57:49,703 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 18:58:07,674 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 18:59:02,636 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 18:59:20,538 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 18:59:47,406 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:01:48,731 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:01:48,742 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: No module named 'clientes.aura.routes.login'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 19, in registrar_blueprints_login
+    from ..routes.login.simple_login import simple_login_bp
+ModuleNotFoundError: No module named 'clientes.aura.routes.login'
+2025-07-28 19:02:07,631 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:02:23,321 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: No module named 'clientes.aura.routes.login'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 19, in registrar_blueprints_login
+    from ..routes.login.simple_login import simple_login_bp
+ModuleNotFoundError: No module named 'clientes.aura.routes.login'
+2025-07-28 19:02:34,732 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:03:19,959 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:03:19,966 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: No module named 'clientes.aura.routes.login'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 19, in registrar_blueprints_login
+    from ..routes.login.simple_login import simple_login_bp
+ModuleNotFoundError: No module named 'clientes.aura.routes.login'
+2025-07-28 19:03:37,477 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:03:53,360 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: No module named 'clientes.aura.routes.login'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 19, in registrar_blueprints_login
+    from ..routes.login.simple_login import simple_login_bp
+ModuleNotFoundError: No module named 'clientes.aura.routes.login'
+2025-07-28 19:04:05,196 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:07:20,846 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:07:20,853 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: No module named 'clientes.aura.routes.login'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 19, in registrar_blueprints_login
+    from ..routes.login.simple_login import simple_login_bp
+ModuleNotFoundError: No module named 'clientes.aura.routes.login'
+2025-07-28 19:07:38,438 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:07:54,066 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: No module named 'clientes.aura.routes.login'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 19, in registrar_blueprints_login
+    from ..routes.login.simple_login import simple_login_bp
+ModuleNotFoundError: No module named 'clientes.aura.routes.login'
+2025-07-28 19:08:05,407 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:10:11,617 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:10:11,624 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: No module named 'clientes.aura.routes.login'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 19, in registrar_blueprints_login
+    from ..routes.login.simple_login import simple_login_bp
+ModuleNotFoundError: No module named 'clientes.aura.routes.login'
+2025-07-28 19:10:28,794 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: No module named 'clientes.aura.routes.login'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 19, in registrar_blueprints_login
+    from ..routes.login.simple_login import simple_login_bp
+ModuleNotFoundError: No module named 'clientes.aura.routes.login'
+2025-07-28 19:10:40,020 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:10:40,027 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:14:15,796 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:14:15,817 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 22, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:14:34,014 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:14:49,725 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 22, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:15:01,260 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:16:42,278 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:16:42,290 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:17:00,405 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:17:16,324 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:17:27,735 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:18:23,109 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:18:23,121 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:18:41,027 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:18:52,982 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:18:53,004 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:21:16,971 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:21:16,998 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:21:40,499 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:21:52,517 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:21:52,568 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:24:25,105 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:24:25,120 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:24:44,065 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:24:56,706 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:24:56,758 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:25:59,266 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-28 19:25:59,278 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:26:19,545 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-28 19:26:35,493 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 18, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 34, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1028, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 370, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 421, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 103, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 57, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1090, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: simple_login_unique.google_login
+2025-07-28 19:26:48,182 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-28 19:49:53,298 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 19:50:46,301 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 19:52:24,923 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 19:52:24,942 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado (error de endpoint duplicado), omitiendo registro
+2025-07-28 19:52:58,568 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado (error de endpoint duplicado), omitiendo registro
+2025-07-28 19:54:17,885 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 19:54:17,896 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado (error de endpoint duplicado), omitiendo registro
+2025-07-28 19:54:51,432 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado (error de endpoint duplicado), omitiendo registro
+2025-07-28 19:56:00,316 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 19:56:00,334 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-28 19:56:33,924 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-28 19:57:51,573 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 19:57:51,591 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unterminated triple-quoted string literal (detected at line 301) (simple_login.py, line 296)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 296
+    """
+    ^
+SyntaxError: unterminated triple-quoted string literal (detected at line 301)
+2025-07-28 19:58:24,922 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unterminated triple-quoted string literal (detected at line 301) (simple_login.py, line 296)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 296
+    """
+    ^
+SyntaxError: unterminated triple-quoted string literal (detected at line 301)
+2025-07-28 19:58:58,861 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 19:58:58,875 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unterminated triple-quoted string literal (detected at line 301) (simple_login.py, line 296)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 296
+    """
+    ^
+SyntaxError: unterminated triple-quoted string literal (detected at line 301)
+2025-07-28 19:59:32,238 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unterminated triple-quoted string literal (detected at line 301) (simple_login.py, line 296)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 296
+    """
+    ^
+SyntaxError: unterminated triple-quoted string literal (detected at line 301)
+2025-07-28 20:01:38,797 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 20:01:38,816 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-28 20:02:11,795 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-28 20:03:24,182 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 20:03:24,201 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-28 20:03:58,084 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-28 20:04:29,073 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 20:04:29,088 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unterminated string literal (detected at line 266) (simple_login.py, line 266)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 266
+    @simple_login_bp.route('/google')login.html', next_url=next_url)
+                                               ^
+SyntaxError: unterminated string literal (detected at line 266)
+2025-07-28 20:05:02,441 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unterminated string literal (detected at line 266) (simple_login.py, line 266)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 266
+    @simple_login_bp.route('/google')login.html', next_url=next_url)
+                                               ^
+SyntaxError: unterminated string literal (detected at line 266)
+2025-07-28 20:05:30,654 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 20:05:30,667 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unterminated string literal (detected at line 266) (simple_login.py, line 266)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 266
+    @simple_login_bp.route('/google')login.html', next_url=next_url)
+                                               ^
+SyntaxError: unterminated string literal (detected at line 266)
+2025-07-28 20:06:04,531 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unterminated string literal (detected at line 266) (simple_login.py, line 266)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 266
+    @simple_login_bp.route('/google')login.html', next_url=next_url)
+                                               ^
+SyntaxError: unterminated string literal (detected at line 266)
+2025-07-28 20:08:01,487 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 20:08:01,506 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-28 20:08:35,318 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-28 20:10:31,610 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 20:10:31,624 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-28 20:11:05,566 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-28 20:15:06,733 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 20:15:06,749 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-28 20:15:42,083 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-28 20:16:28,679 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 20:16:28,689 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-28 20:17:03,361 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-28 20:22:42,684 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.93.0
+2025-07-28 20:22:42,694 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-28 20:23:16,829 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-29 10:48:20,100 - root - ERROR - Error al iniciar la aplicación: unexpected indent (session_fix.py, line 41)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 447, in <module>
+    from .config.session_fix import configurar_session_fix
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 41
+    value = value.decode('utf-8', errors='replace')
+IndentationError: unexpected indent
+2025-07-29 10:48:55,542 - root - ERROR - Error al iniciar la aplicación: unexpected indent (session_fix.py, line 41)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 447, in <module>
+    from .config.session_fix import configurar_session_fix
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 41
+    value = value.decode('utf-8', errors='replace')
+IndentationError: unexpected indent
+2025-07-29 10:50:16,466 - root - ERROR - Error al iniciar la aplicación: unexpected indent (session_fix.py, line 61)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 447, in <module>
+    from .config.session_fix import configurar_session_fix
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 61
+    except Exception as e:
+IndentationError: unexpected indent
+2025-07-29 10:51:33,110 - root - ERROR - Error al iniciar la aplicación: unexpected indent (session_fix.py, line 61)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 447, in <module>
+    from .config.session_fix import configurar_session_fix
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 61
+    except Exception as e:
+IndentationError: unexpected indent
+2025-07-29 10:52:56,705 - clientes.aura.config.session_fix - INFO - Configuración de sesiones actualizada correctamente
+2025-07-29 10:53:03,683 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 10:53:03,693 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-29 10:53:20,798 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 10:53:52,988 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-29 10:54:04,073 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 10:54:51,678 - clientes.aura.config.session_fix - INFO - Configuración de sesiones actualizada correctamente
+2025-07-29 10:54:59,943 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 10:54:59,955 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-29 10:55:24,538 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 10:55:57,007 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-29 10:56:10,991 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 10:56:52,093 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'mode'
+2025-07-29 10:56:52,095 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'mode'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 41, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'mode'
+2025-07-29 10:58:20,665 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 10:58:20,666 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 10:58:37,616 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 10:58:56,445 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 10:58:56,445 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 10:59:48,313 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:00:12,296 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:00:12,297 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:01:04,643 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:01:30,552 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:01:30,553 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:02:36,049 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:03:01,791 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:03:01,791 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:03:53,072 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:04:18,921 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:04:18,921 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:05:20,781 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:05:45,499 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:05:45,500 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:06:41,348 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:07:07,738 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:07:07,738 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:07:56,783 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:08:20,958 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:08:20,961 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:09:21,759 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:09:47,968 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:09:47,968 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:10:41,656 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:11:07,596 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:11:07,597 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:12:07,129 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:12:32,526 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:12:32,527 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:13:34,143 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:13:59,223 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:13:59,224 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:14:53,226 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:15:18,150 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:15:18,151 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:16:19,040 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:16:47,120 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:16:47,121 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:17:42,159 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:18:09,098 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:18:09,100 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:19:02,522 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:19:27,209 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:19:27,209 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:20:18,094 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:20:42,923 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:20:42,923 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:21:37,258 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:22:02,188 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:22:02,188 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:23:03,876 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:23:28,350 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:23:28,351 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:24:25,512 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:24:51,694 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:24:51,695 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:25:48,707 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:26:13,573 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:26:13,574 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:27:09,968 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:27:36,142 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:27:36,143 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:28:24,148 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:28:47,320 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:28:47,320 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:29:38,948 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:30:06,271 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:30:06,272 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 44, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() missing 1 required positional argument: 'threshold'
+2025-07-29 11:31:05,089 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() got an unexpected keyword argument 'dir'
+2025-07-29 11:31:05,090 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() got an unexpected keyword argument 'dir'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 43, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() got an unexpected keyword argument 'dir'
+2025-07-29 11:31:21,986 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() got an unexpected keyword argument 'dir'
+2025-07-29 11:31:41,499 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() got an unexpected keyword argument 'dir'
+2025-07-29 11:31:41,499 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() got an unexpected keyword argument 'dir'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 43, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() got an unexpected keyword argument 'dir'
+2025-07-29 11:32:34,798 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() got an unexpected keyword argument 'dir'
+2025-07-29 11:32:58,821 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:32:58,822 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 43, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:33:50,099 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:34:16,046 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:34:16,047 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 43, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:35:10,099 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:35:35,701 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:35:35,702 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 43, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:36:31,326 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:36:57,226 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:36:57,226 - root - ERROR - Error al iniciar la aplicación: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 450, in <module>
+    app = configurar_session_fix(app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\config\session_fix.py", line 43, in configurar_session_fix
+    app.session_interface = CustomSessionInterface(
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:37:56,602 - clientes.aura.config.session_fix - ERROR - Error configurando sesiones: FileSystemSessionInterface.__init__() takes from 5 to 7 positional arguments but 8 were given
+2025-07-29 11:38:37,540 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:38:37,564 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-29 11:39:07,545 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:39:22,963 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-29 11:39:37,617 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 11:41:11,834 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:41:11,850 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-29 11:41:34,026 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:41:48,968 - clientes.aura.registro.registro_login - ERROR - Error al registrar blueprints de login: unexpected indent (simple_login.py, line 297)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 36, in registrar_blueprints_login
+    from ..auth.simple_login import simple_login_bp
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\auth\simple_login.py", line 297
+    try:
+IndentationError: unexpected indent
+2025-07-29 11:42:04,228 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 11:43:44,918 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:43:44,943 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:44:08,321 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:44:57,891 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:44:57,904 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:45:18,089 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:45:33,580 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:45:34,324 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 11:46:00,980 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:46:00,993 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:46:20,585 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:46:36,072 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:46:48,544 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 11:48:12,501 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:48:40,625 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:48:49,203 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:49:04,134 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:49:05,248 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 11:49:32,764 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:50:01,259 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:50:10,168 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:50:10,170 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 11:50:25,122 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:50:37,652 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 11:53:22,780 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:53:52,465 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:54:00,470 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:54:16,038 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:54:16,040 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 11:54:16,097 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 11:55:29,430 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:55:56,674 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:56:06,050 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:56:06,052 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 11:56:21,553 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:56:35,422 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 11:58:46,734 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 11:59:16,233 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:59:25,324 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 11:59:25,325 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 11:59:40,600 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 11:59:56,975 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:01:19,511 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 12:01:46,462 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:01:55,495 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:01:55,499 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:02:11,160 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:02:24,967 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:03:21,615 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 12:03:44,992 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:03:52,121 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:03:52,122 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:04:07,523 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:04:08,089 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:04:35,787 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 12:05:03,404 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:05:11,562 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:05:11,563 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:05:26,579 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:05:47,361 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:08:22,916 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 12:08:39,807 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:08:48,702 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:08:48,703 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:09:05,242 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:09:06,305 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:09:41,800 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 12:09:57,412 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:10:04,800 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:10:04,801 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:10:21,407 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:10:22,340 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:13:14,448 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 12:13:42,680 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:13:51,212 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:13:51,214 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:14:07,142 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:14:19,154 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:15:13,941 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 12:15:39,218 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:15:45,943 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:15:45,945 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:16:02,189 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:16:13,888 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:19:02,270 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 12:19:20,885 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:19:29,520 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:19:29,523 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:19:46,092 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:19:47,924 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:22:11,534 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 0.28.1
+2025-07-29 12:22:30,227 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:22:38,923 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:22:38,925 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:22:55,438 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:22:55,529 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:29:25,561 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 12:29:43,166 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:29:50,445 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:29:50,446 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:30:06,975 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:30:07,093 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:32:24,965 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 12:32:41,216 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:32:48,052 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:32:48,054 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:33:04,580 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:33:04,656 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:37:40,804 - root - ERROR - Error al iniciar la aplicación: cannot import name 'APIError' from 'postgrest' (unknown location)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 416, in create_app
+    from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_dinamico.py", line 1, in <module>
+    from supabase import create_client
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\supabase\__init__.py", line 1, in <module>
+    from postgrest import APIError as PostgrestAPIError
+ImportError: cannot import name 'APIError' from 'postgrest' (unknown location)
+2025-07-29 12:38:15,674 - root - ERROR - Error al iniciar la aplicación: cannot import name 'APIError' from 'postgrest' (unknown location)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 416, in create_app
+    from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_dinamico.py", line 1, in <module>
+    from supabase import create_client
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\supabase\__init__.py", line 1, in <module>
+    from postgrest import APIError as PostgrestAPIError
+ImportError: cannot import name 'APIError' from 'postgrest' (unknown location)
+2025-07-29 12:39:01,827 - root - ERROR - Error al iniciar la aplicación: cannot import name 'APIError' from 'postgrest' (unknown location)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 416, in create_app
+    from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_dinamico.py", line 1, in <module>
+    from supabase import create_client
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\supabase\__init__.py", line 1, in <module>
+    from postgrest import APIError as PostgrestAPIError
+ImportError: cannot import name 'APIError' from 'postgrest' (unknown location)
+2025-07-29 12:40:13,564 - root - ERROR - Error al iniciar la aplicación: cannot import name 'APIError' from 'postgrest' (unknown location)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 416, in create_app
+    from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_dinamico.py", line 1, in <module>
+    from supabase import create_client
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\supabase\__init__.py", line 1, in <module>
+    from postgrest import APIError as PostgrestAPIError
+ImportError: cannot import name 'APIError' from 'postgrest' (unknown location)
+2025-07-29 12:40:48,275 - root - ERROR - Error al iniciar la aplicación: cannot import name 'APIError' from 'postgrest' (unknown location)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 416, in create_app
+    from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_dinamico.py", line 1, in <module>
+    from supabase import create_client
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\supabase\__init__.py", line 1, in <module>
+    from postgrest import APIError as PostgrestAPIError
+ImportError: cannot import name 'APIError' from 'postgrest' (unknown location)
+2025-07-29 12:42:50,853 - root - ERROR - Error al iniciar la aplicación: cannot import name 'APIError' from 'postgrest' (unknown location)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 416, in create_app
+    from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_dinamico.py", line 1, in <module>
+    from supabase import create_client
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\supabase\__init__.py", line 1, in <module>
+    from postgrest import APIError as PostgrestAPIError
+ImportError: cannot import name 'APIError' from 'postgrest' (unknown location)
+2025-07-29 12:43:27,351 - root - ERROR - Error al iniciar la aplicación: cannot import name 'APIError' from 'postgrest' (unknown location)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 416, in create_app
+    from clientes.aura.registro.registro_dinamico import registrar_blueprints_por_nora
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_dinamico.py", line 1, in <module>
+    from supabase import create_client
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\supabase\__init__.py", line 1, in <module>
+    from postgrest import APIError as PostgrestAPIError
+ImportError: cannot import name 'APIError' from 'postgrest' (unknown location)
+2025-07-29 12:49:14,196 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 12:49:44,140 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:49:50,980 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:49:50,982 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:50:07,530 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:50:07,595 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:50:33,768 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 12:51:21,675 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 12:51:48,200 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:51:55,967 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:51:55,968 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:52:12,498 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:52:12,588 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:52:38,048 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 12:53:32,257 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 12:53:49,866 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:53:57,508 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:53:57,511 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:54:14,040 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:54:14,136 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:54:50,421 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 12:55:07,816 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:55:14,368 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:55:14,370 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:55:30,879 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:55:30,943 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 12:56:16,186 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 12:56:33,685 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:56:41,469 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 12:56:41,472 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 12:56:58,019 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 12:56:58,615 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 13:01:25,612 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 13:01:42,856 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:01:51,243 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 13:01:51,246 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 13:02:07,749 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:02:09,099 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 13:08:07,359 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 13:08:24,599 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:08:32,104 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 13:08:32,107 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 13:08:48,764 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:08:49,847 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 13:09:41,574 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 13:09:58,149 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:10:05,919 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 13:10:05,921 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 13:10:22,438 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:10:23,865 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 13:12:52,953 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 13:13:09,671 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:13:17,395 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 13:13:17,396 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 13:13:33,955 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:13:34,877 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 13:29:35,422 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 13:29:51,487 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:29:59,253 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 13:29:59,255 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 13:30:15,904 - clientes.aura.registro.registro_login - INFO - [OK] Blueprints de login registrados correctamente
+2025-07-29 13:30:16,783 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 13:30:37,200 - clientes.aura.auth.simple_login - INFO - Sesión establecida para: hola@gottalent.com.mx
+2025-07-29 13:31:43,689 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 13:31:52,053 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 13:31:58,883 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 13:32:09,551 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 13:32:21,515 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 13:32:29,752 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 13:32:43,450 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 13:32:50,281 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 13:33:10,746 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 13:33:19,627 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 13:37:45,801 - root - ERROR - Error al iniciar la aplicación: unexpected indent (registro_login.py, line 49)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 221, in create_app
+    from .registro.registro_login import registrar_blueprints_login
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 49
+    logger.info(f"[OK] Blueprint de login ya registrado (error de endpoint duplicado), omitiendo registro")
+IndentationError: unexpected indent
+2025-07-29 13:41:41,954 - root - ERROR - Error al iniciar la aplicación: unexpected indent (registro_login.py, line 49)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 221, in create_app
+    from .registro.registro_login import registrar_blueprints_login
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 49
+    logger.info(f"[OK] Blueprint de login ya registrado (error de endpoint duplicado), omitiendo registro")
+IndentationError: unexpected indent
+2025-07-29 13:45:02,959 - root - ERROR - Error al iniciar la aplicación: unexpected indent (registro_login.py, line 24)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 221, in create_app
+    from .registro.registro_login import registrar_blueprints_login
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 24
+    return
+IndentationError: unexpected indent
+2025-07-29 13:46:30,172 - root - ERROR - Error al iniciar la aplicación: unexpected indent (registro_login.py, line 24)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 221, in create_app
+    from .registro.registro_login import registrar_blueprints_login
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 24
+    return
+IndentationError: unexpected indent
+2025-07-29 13:47:28,241 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 13:47:51,561 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 13:47:59,245 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 13:47:59,247 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 13:48:15,800 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 13:48:16,689 - root - ERROR - Error al iniciar la aplicación: View function mapping is overwriting an existing endpoint function: redirect_a_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 439, in create_app
+    @app.route("/")
+     ^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 449, in decorator
+    self.add_url_rule(rule, endpoint, f, **options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1361, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: redirect_a_login
+2025-07-29 13:48:17,171 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 14:00:11,847 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 14:00:39,900 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 14:00:47,514 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 14:00:47,515 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 14:01:04,086 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 14:01:04,992 - root - ERROR - Error al iniciar la aplicación: View function mapping is overwriting an existing endpoint function: redirect_a_login
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 439, in create_app
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 449, in decorator
+    self.add_url_rule(rule, endpoint, f, **options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1361, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: redirect_a_login
+2025-07-29 14:01:05,016 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 14:33:49,890 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 14:34:20,361 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 14:34:29,726 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 14:34:29,728 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 14:34:46,159 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 14:34:47,655 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 14:54:43,127 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 14:55:16,058 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 14:55:25,390 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 14:55:25,398 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 14:55:42,081 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 14:55:43,164 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 15:01:02,716 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 15:01:33,770 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:01:43,111 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 15:01:43,112 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 15:01:59,665 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:02:00,205 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 15:04:16,639 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 15:04:44,712 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:04:52,987 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 15:04:52,989 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 15:05:09,499 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:05:10,090 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 15:07:26,983 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 15:07:53,697 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:08:02,322 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 15:08:02,324 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 15:08:18,863 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:08:19,328 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 15:12:31,534 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 15:13:03,164 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:13:13,123 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 15:13:13,125 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 15:13:29,671 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:13:30,723 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 15:15:40,422 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 15:16:12,244 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:16:22,501 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 15:16:22,512 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 15:16:39,105 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:16:40,015 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 15:17:54,343 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 15:18:23,957 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:18:33,182 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 15:18:33,186 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 15:18:49,698 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:18:50,622 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 15:19:24,278 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 15:19:54,434 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:20:04,034 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 15:20:04,035 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 15:20:20,589 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:20:21,520 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 15:22:08,055 - clientes.aura.utils.openai_client - INFO - Versión de OpenAI detectada: 1.3.7
+2025-07-29 15:22:33,576 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:22:41,253 - clientes.aura.scheduler_jobs - INFO - Inicializando cron jobs...
+2025-07-29 15:22:41,254 - clientes.aura.scheduler_jobs - INFO - Cron jobs inicializados correctamente
+2025-07-29 15:22:57,722 - clientes.aura.registro.registro_login - INFO - [OK] Blueprint de login ya registrado, omitiendo registro.
+2025-07-29 15:22:58,360 - clientes.aura.scheduler_jobs - INFO - Los cron jobs ya fueron inicializados, omitiendo...
+2025-07-29 15:26:24,865 - root - ERROR - Error al iniciar la aplicación: cannot access local variable 'registrar_blueprints_login' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 152, in create_app
+    registrar_blueprints_login(app, safe_register_blueprint)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'registrar_blueprints_login' where it is not associated with a value
+2025-07-29 15:31:39,516 - root - ERROR - Error al iniciar la aplicación: unexpected indent (__init__.py, line 211)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 12, in <module>
+    from clientes.aura import create_app  # Importa la función factory
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 211
+    try:
+IndentationError: unexpected indent
+2025-07-29 16:03:55,532 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:04:03,485 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:04:10,358 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:04:20,915 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:04:33,220 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:04:42,257 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:04:56,290 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:05:02,804 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:05:22,611 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:05:31,584 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:13:49,912 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:13:57,469 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:14:52,712 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:15:00,132 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:15:06,294 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:15:16,350 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:15:27,247 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:15:34,781 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:15:47,173 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:15:53,436 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:16:11,372 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:16:19,362 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:25:53,928 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:26:01,845 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:26:09,267 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:26:19,960 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:26:31,901 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:26:39,910 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:26:53,701 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:27:00,281 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:27:18,930 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:27:27,116 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:32:56,311 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:33:04,232 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:33:10,490 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:33:20,875 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:33:32,832 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:33:41,031 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:33:55,063 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:34:01,871 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:34:20,961 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:34:29,932 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:40:43,595 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:40:51,712 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:40:58,233 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:41:09,205 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:41:21,308 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:41:29,528 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:41:43,073 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:41:49,749 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:42:09,044 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:42:17,727 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 16:44:47,196 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 16:44:55,514 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:45:01,628 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 16:45:11,921 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 16:45:24,106 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:45:32,169 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 16:45:46,127 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 16:45:52,818 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 16:46:12,642 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 16:46:21,442 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 17:02:00,148 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_visible does not exist'}
+2025-07-29 20:34:19,650 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 20:34:27,436 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 20:34:33,188 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 20:34:42,885 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 20:34:53,541 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 20:35:00,910 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 20:35:14,517 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 20:35:17,274 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_visible does not exist'}
+2025-07-29 20:35:24,390 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 20:35:44,758 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 20:35:53,340 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 20:38:35,362 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 20:48:14,987 - clientes.aura.routes.admin_modulos.gestor_modulos.blueprint - ERROR - Error al cargar configuración de crear: {'code': 'PGRST116', 'details': 'The result contains 0 rows', 'hint': None, 'message': 'JSON object requested, multiple (or no) rows returned'}
+2025-07-29 20:48:34,414 - clientes.aura.routes.admin_modulos.gestor_modulos.blueprint - ERROR - Error al cargar configuración de crear: {'code': 'PGRST116', 'details': 'The result contains 0 rows', 'hint': None, 'message': 'JSON object requested, multiple (or no) rows returned'}
+2025-07-29 20:51:47,587 - clientes.aura.routes.admin_modulos.gestor_modulos.blueprint - ERROR - Error al cargar configuración de crear: {'code': 'PGRST116', 'details': 'The result contains 0 rows', 'hint': None, 'message': 'JSON object requested, multiple (or no) rows returned'}
+2025-07-29 20:51:52,638 - clientes.aura.routes.admin_modulos.gestor_modulos.blueprint - ERROR - Error al cargar configuración de crear: {'code': 'PGRST116', 'details': 'The result contains 0 rows', 'hint': None, 'message': 'JSON object requested, multiple (or no) rows returned'}
+2025-07-29 21:03:38,618 - clientes.aura.routes.admin_modulos.gestor_modulos.blueprint - ERROR - Error al cargar configuración de crear: {'code': 'PGRST116', 'details': 'The result contains 0 rows', 'hint': None, 'message': 'JSON object requested, multiple (or no) rows returned'}
+2025-07-29 21:35:34,227 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:35:42,240 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:35:48,712 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:35:59,015 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:36:59,903 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:37:07,870 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:37:14,403 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:37:24,953 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:37:38,314 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:37:46,281 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:38:03,026 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 21:38:06,054 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_visible does not exist'}
+2025-07-29 21:38:11,382 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 21:38:33,418 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 21:38:42,521 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 21:44:43,554 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:44:51,375 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:44:57,547 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:45:07,474 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:45:18,647 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:45:26,285 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:45:39,218 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 21:45:41,721 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 21:45:46,841 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 21:46:06,905 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 21:46:15,560 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 21:49:57,800 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:50:06,316 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:51:00,545 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:51:54,913 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:52:02,517 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:52:08,385 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:52:18,038 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:52:29,321 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:52:37,218 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:53:33,110 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:56:57,947 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 21:57:06,099 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:57:14,085 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 21:57:26,288 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 21:57:39,171 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:57:47,738 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 21:58:02,600 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 21:58:05,543 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 21:58:10,930 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 21:58:31,796 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 21:58:41,559 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/whatsapp/
+2025-07-29 22:10:00,844 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:10:06,518 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:10:12,252 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:10:22,467 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:10:31,744 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:11:19,838 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:12:10,335 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:12:16,436 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:12:22,629 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:12:32,491 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:12:42,579 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:12:49,171 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:12:57,162 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:13:00,144 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:13:03,950 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:13:13,603 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:29:33,795 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:29:40,290 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:29:46,508 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:29:56,321 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:30:06,183 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:30:12,571 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:30:20,644 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:30:23,437 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:30:27,003 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:30:35,904 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:34:30,770 - aura - WARNING - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:34:35,134 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:34:41,810 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:34:48,903 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:34:59,367 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:35:10,407 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:35:16,724 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:35:21,494 - aura - WARNING - Módulo 'ia' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:25,235 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:35:28,316 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:35:32,383 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:35:36,780 - aura - WARNING - Módulo 'pagos_recibo' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:38,392 - aura - WARNING - Módulo 'respuestas' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:42,382 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:35:48,154 - aura - WARNING - Módulo 'whatsapp' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:49,843 - aura - WARNING - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:35:51,638 - aura - WARNING - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:39:47,201 - aura - WARNING - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:39:51,031 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:39:57,372 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:40:03,634 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:40:14,218 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:40:24,805 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:40:31,490 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:40:35,936 - aura - WARNING - Módulo 'ia' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:40:39,585 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:40:42,460 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:40:46,557 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:40:51,308 - aura - WARNING - Módulo 'pagos_recibo' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:40:53,139 - aura - WARNING - Módulo 'respuestas' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:40:56,886 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:41:02,711 - aura - WARNING - Módulo 'whatsapp' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:41:04,488 - aura - WARNING - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:41:06,172 - aura - WARNING - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:47:01,912 - aura - WARNING - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:47:05,851 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:47:12,396 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:47:18,319 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:47:28,454 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:47:39,162 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:47:45,719 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:48:33,082 - aura - WARNING - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:48:36,805 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:49:26,939 - aura - WARNING - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:49:28,890 - aura - WARNING - Módulo 'ads_backup' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:49:32,997 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:49:33,015 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:49:40,650 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:49:40,819 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:49:48,206 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:49:48,687 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:49:59,461 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:49:59,822 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:50:10,210 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:50:11,819 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:50:17,444 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:50:17,952 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:50:23,016 - aura - WARNING - Módulo 'ia' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:24,801 - aura - WARNING - Módulo 'ia' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:26,846 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:50:28,527 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:50:29,741 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:50:31,646 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:50:33,779 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:50:35,742 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:50:39,185 - aura - WARNING - Módulo 'pagos_recibo' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:40,877 - aura - WARNING - Módulo 'pagos_recibo' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:41,989 - aura - WARNING - Módulo 'respuestas' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:43,907 - aura - WARNING - Módulo 'respuestas' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:47,267 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:50:47,874 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:50:53,726 - aura - WARNING - Módulo 'whatsapp' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:55,340 - aura - WARNING - Módulo 'whatsapp' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:56,491 - aura - WARNING - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:58,338 - aura - WARNING - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:50:58,366 - aura - WARNING - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:51:00,316 - aura - WARNING - Módulo 'whatsapp_web' no está en modulos_disponibles de Supabase pero fue solicitado para análisis.
+2025-07-29 22:56:34,792 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:56:45,435 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 22:57:29,214 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 22:57:37,852 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 22:57:40,515 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 22:57:44,527 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 22:57:51,483 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 22:58:14,838 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 22:59:39,104 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 22:59:50,234 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 23:00:32,843 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 23:00:40,610 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 23:00:43,451 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 23:00:47,331 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:00:53,808 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 23:01:15,158 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 23:03:04,266 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 23:03:14,338 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 23:03:55,636 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 23:04:02,057 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 23:04:04,661 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 23:04:08,514 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:04:14,970 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-29 23:04:37,125 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-29 23:04:58,419 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:05:23,784 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:05:39,145 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:07:24,476 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-29 23:07:34,958 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-29 23:08:18,034 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-29 23:08:27,204 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-29 23:08:30,386 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-29 23:08:34,719 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-29 23:08:41,534 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:14:19,915 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:14:29,688 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:14:43,644 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:14:50,767 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:14:53,467 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:14:57,400 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:15:03,995 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:15:14,018 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:15:24,512 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:20:19,235 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:20:28,599 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:20:41,796 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:20:48,370 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:20:50,938 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:20:54,718 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:21:00,571 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:21:10,372 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:21:16,489 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:21:26,273 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:22:22,179 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:22:31,612 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:22:44,970 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:22:51,678 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:22:54,192 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:22:58,060 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:23:03,966 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:23:13,947 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:23:20,293 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:23:25,964 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-07-30 00:23:31,963 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:24:54,767 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:25:04,038 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:25:18,294 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:25:25,609 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:25:28,489 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:25:32,487 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:25:38,788 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:25:48,636 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:25:55,135 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:26:01,477 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-07-30 00:26:07,568 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:29:19,221 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:29:29,216 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:29:43,437 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:29:50,419 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:29:53,141 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:29:57,045 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:30:03,393 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:30:14,383 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:30:21,345 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:30:27,574 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-07-30 00:30:33,979 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:32:50,039 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:33:00,411 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:33:15,385 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:33:22,858 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:33:25,791 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:33:30,099 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:33:36,985 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:33:47,467 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:33:54,144 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:34:00,500 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-07-30 00:34:06,629 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 11:40:24,214 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 12:48:27,174 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 13:03:19,913 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:01:39,871 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:01:58,500 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:04:06,835 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:08:41,987 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:16:01,568 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:16:46,743 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:17:51,088 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:18:47,597 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:22:54,994 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:38:28,252 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:38:50,254 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:43:59,212 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:44:50,398 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:45:06,458 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:49:47,800 - aura - ERROR - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:58:52,326 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:02:24,188 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:05:18,707 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:08:06,304 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:11:23,397 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:18:03,900 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:22:22,834 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:39:15,680 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:42:33,039 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:48:31,283 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:51:36,425 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:56:01,370 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:58:20,779 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 19:08:00,667 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 20:53:17,319 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:01:19,936 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:02:16,707 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:03:32,112 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:05:20,732 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:09:13,096 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:11:37,132 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:13:02,244 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:16:15,231 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:21:38,742 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:23:33,055 - aura - ERROR - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-31 16:00:52,339 - root - ERROR - Error al iniciar la aplicación: No module named 'flask_wtf'
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\dev_start.py", line 188, in <module>
+    from gunicorn_patch import app, socketio
+  File "C:\Users\PC\PYTHON\AuraAi2\gunicorn_patch.py", line 18, in <module>
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 214, in create_app
+    from flask_wtf.csrf import CSRFProtect
+ModuleNotFoundError: No module named 'flask_wtf'
+2025-07-31 16:43:52,231 - werkzeug - ERROR - Error on request:
+Traceback (most recent call last):
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\werkzeug\serving.py", line 364, in run_wsgi
+    execute(self.server.app)
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\werkzeug\serving.py", line 325, in execute
+    application_iter = app(environ, start_response)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 2552, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 2532, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 2529, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1825, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1823, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\routes\panel_cliente_meta_ads\panel_cliente_meta_ads.py", line 55, in detalle_reporte_ads
+    return render_template("panel_cliente_meta_ads/detalle_reporte_ads.html", reporte=reporte, nombre_nora=nombre_nora)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\templating.py", line 147, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\templating.py", line 130, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\jinja2\environment.py", line 1291, in render
+    self.environment.handle_exception()
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\jinja2\environment.py", line 925, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\templates\panel_cliente_meta_ads\detalle_reporte_ads.html", line 1, in top-level template code
+    {% extends "base_cliente.html" %}
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\templates\base_cliente.html", line 35, in top-level template code
+    {% block contenido %}{% endblock %}
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\templates\panel_cliente_meta_ads\detalle_reporte_ads.html", line 105, in block 'contenido'
+    <tr><td class="font-semibold text-gray-700 py-1">Gasto</td><td>${{ "{:,.2f}".format(reporte.facebook_importe_gastado|float) }}</td></tr>
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\jinja2\filters.py", line 995, in do_float
+    return float(value)
+           ^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'dict object' has no attribute 'facebook_importe_gastado'
+2025-07-31 16:43:52,236 - werkzeug - ERROR - Error on request:
+Traceback (most recent call last):
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\werkzeug\serving.py", line 364, in run_wsgi
+    execute(self.server.app)
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\werkzeug\serving.py", line 325, in execute
+    application_iter = app(environ, start_response)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 2552, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 2532, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 2529, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1825, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1823, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\routes\panel_cliente_meta_ads\panel_cliente_meta_ads.py", line 55, in detalle_reporte_ads
+    return render_template("panel_cliente_meta_ads/detalle_reporte_ads.html", reporte=reporte, nombre_nora=nombre_nora)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\templating.py", line 147, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\templating.py", line 130, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\jinja2\environment.py", line 1291, in render
+    self.environment.handle_exception()
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\jinja2\environment.py", line 925, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\templates\panel_cliente_meta_ads\detalle_reporte_ads.html", line 1, in top-level template code
+    {% extends "base_cliente.html" %}
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\templates\base_cliente.html", line 35, in top-level template code
+    {% block contenido %}{% endblock %}
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\templates\panel_cliente_meta_ads\detalle_reporte_ads.html", line 105, in block 'contenido'
+    <tr><td class="font-semibold text-gray-700 py-1">Gasto</td><td>${{ "{:,.2f}".format(reporte.facebook_importe_gastado|float) }}</td></tr>
+  File "c:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\jinja2\filters.py", line 995, in do_float
+    return float(value)
+           ^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'dict object' has no attribute 'facebook_importe_gastado'
+2025-08-04 19:10:36,664 - werkzeug - ERROR - 127.0.0.1 - - [04/Aug/2025 19:10:36] code 400, message Bad request version ('Ê\x87ëø')
+2025-08-04 19:10:36,929 - werkzeug - ERROR - 127.0.0.1 - - [04/Aug/2025 19:10:36] code 400, message Bad request version ('C')
+2025-08-04 19:10:36,975 - werkzeug - ERROR - 127.0.0.1 - - [04/Aug/2025 19:10:36] code 400, message Bad request version ('\x90Ìë0·tÅ,\x11\x84')
+2025-08-04 19:10:37,240 - werkzeug - ERROR - 127.0.0.1 - - [04/Aug/2025 19:10:37] code 400, message Bad request version ('ÉÀlÔ\x80\x92\x84:M·\x97\x0e\x18bEç:V6i%q\x99\x1ba@2?©$Ù¶·\x84Â\x071ÃJl´»P')

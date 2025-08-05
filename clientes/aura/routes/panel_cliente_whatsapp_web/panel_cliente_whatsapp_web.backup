@@ -1,0 +1,298 @@
+"""
+Blueprint para la integración de WhatsApp Web con Railway
+Conecta NORA con el backend WhatsApp Web desplegado en Railway
+"""
+
+import os
+import json
+import logging
+from flask import Blueprint, render_template, request, jsonify
+from clientes.aura.utils.whatsapp_web_client_simple import get_whatsapp_client
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Crear blueprint
+panel_cliente_whatsapp_web_bp = Blueprint(
+    'panel_cliente_whatsapp_web',
+    __name__,
+    template_folder='../../templates',
+    static_folder='../../static'
+)
+
+# Configuración URLs Railway
+WHATSAPP_BACKEND_URL_INTERNAL = os.getenv('WHATSAPP_BACKEND_URL_INTERNAL', 'https://whatsapp-server.railway.internal')
+WHATSAPP_BACKEND_URL_PUBLIC = os.getenv('WHATSAPP_BACKEND_URL_PUBLIC', 'https://whatsapp-server-production-8f61.up.railway.app')
+
+# Cliente global para WhatsApp Web
+def get_whatsapp_client_instance():
+    """Obtener cliente WhatsApp Web"""
+    return get_whatsapp_client_instance()
+
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp')
+def whatsapp_dashboard(nombre_nora):
+    """Página principal del dashboard WhatsApp Web"""
+    try:
+        client = get_whatsapp_client_instance()
+        
+        # Obtener estado del backend
+        health_status = client.get_health_status()
+        detailed_status = client.get_detailed_status()
+        client_status = {
+            'connected': client.is_connected,
+            'authenticated': client.is_authenticated,
+            'session_active': client.session_active
+        }
+        
+        return render_template(
+            'panel_cliente_whatsapp_web.html',
+            nombre_nora=nombre_nora,
+            backend_url=WHATSAPP_BACKEND_URL_PUBLIC,  # URL pública para el frontend
+            health_status=health_status,
+            detailed_status=detailed_status,
+            client_status=client_status
+        )
+        
+    except Exception as e:
+        logger.error(f"Error cargando dashboard WhatsApp Web: {e}")
+        return render_template(
+            'panel_cliente_whatsapp_web.html',
+            nombre_nora=nombre_nora,
+            backend_url=WHATSAPP_BACKEND_URL_PUBLIC,
+            health_status=None,
+            detailed_status=None,
+            client_status={'connected': False, 'authenticated': False, 'session_active': False},
+            error=str(e)
+        )
+
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp/status')
+def get_status(nombre_nora):
+    """Obtener estado actual del sistema WhatsApp Web"""
+    try:
+        client = get_whatsapp_client_instance()
+        
+        # Obtener todos los estados
+        health_status = client.get_health_status()
+        detailed_status = client.get_detailed_status()
+        client_status = {
+            'connected': client.is_connected,
+            'authenticated': client.is_authenticated,
+            'session_active': client.session_active
+        }
+        
+        return jsonify({
+            'success': True,
+            'health_status': health_status,
+            'detailed_status': detailed_status,
+            'client_status': client_status,
+            'backend_url': WHATSAPP_BACKEND_URL_PUBLIC
+        })
+        
+    except Exception as e:
+        logger.error(f"Error obteniendo estado: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Error obteniendo estado del sistema'
+        }), 500
+
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp/connect', methods=['POST'])
+def connect_backend(nombre_nora):
+    """Conectar con el backend WhatsApp Web"""
+    try:
+        client = get_whatsapp_client_instance()
+        success = client.connect()
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Conectado exitosamente al backend WhatsApp Web'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Error conectando con el backend'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error conectando: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp/disconnect', methods=['POST'])
+def disconnect_backend(nombre_nora):
+    """Desconectar del backend WhatsApp Web"""
+    try:
+        client = get_whatsapp_client_instance()
+        client.disconnect()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Desconectado del backend WhatsApp Web'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error desconectando: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp/init_session', methods=['POST'])
+def init_whatsapp_session(nombre_nora):
+    """Iniciar sesión de WhatsApp Web"""
+    try:
+        client = get_whatsapp_client_instance()
+        
+        # Primero conectar si no está conectado
+        if not client.is_connected:
+            client.connect()
+        
+        # Iniciar sesión
+        success = client.init_session()
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Sesión WhatsApp Web iniciada - Revisa el QR en el backend'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Error iniciando sesión de WhatsApp Web'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error iniciando sesión: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp/close_session', methods=['POST'])
+def close_whatsapp_session(nombre_nora):
+    """Cerrar sesión de WhatsApp Web"""
+    try:
+        client = get_whatsapp_client_instance()
+        success = client.close_session()
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Sesión WhatsApp Web cerrada exitosamente'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Error cerrando sesión de WhatsApp Web'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error cerrando sesión: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp/check_status', methods=['POST'])
+def check_whatsapp_status(nombre_nora):
+    """Verificar estado de la sesión WhatsApp Web"""
+    try:
+        client = get_whatsapp_client_instance()
+        
+        # Primero conectar si no está conectado
+        if not client.is_connected:
+            client.connect()
+        
+        # Verificar estado
+        success = client.check_status()
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Estado verificado exitosamente'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Error verificando estado de WhatsApp Web'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error verificando estado: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp/qr')
+def get_qr_code(nombre_nora):
+    """Obtener código QR actual"""
+    try:
+        client = get_whatsapp_client_instance()
+        
+        # Obtener QR del backend
+        qr_data = client.get_qr_code()
+        
+        if qr_data:
+            return jsonify({
+                'success': True,
+                'qr_data': qr_data,
+                'message': 'Código QR obtenido exitosamente'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'No hay código QR disponible'
+            }), 404
+            
+    except Exception as e:
+        logger.error(f"Error obteniendo QR: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+# Eventos de WebSocket (si se implementan en el futuro)
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp/events')
+def whatsapp_events(nombre_nora):
+    """Endpoint para eventos de WhatsApp Web (futuro)"""
+    return jsonify({
+        'success': True,
+        'message': 'Eventos WhatsApp Web - En desarrollo',
+        'events': []
+    })
+
+# Health check específico para este módulo
+@panel_cliente_whatsapp_web_bp.route('/panel_cliente/<nombre_nora>/whatsapp/health')
+def module_health(nombre_nora):
+    """Health check del módulo WhatsApp Web"""
+    try:
+        client = get_whatsapp_client_instance()
+        health_status = client.get_health_status()
+        
+        return jsonify({
+            'success': True,
+            'module': 'whatsapp_web',
+            'nora': nombre_nora,
+            'backend_status': health_status,
+            'internal_url': WHATSAPP_BACKEND_URL_INTERNAL,
+            'public_url': WHATSAPP_BACKEND_URL_PUBLIC,
+            'client_connected': client.is_connected if client else False
+        })
+        
+    except Exception as e:
+        logger.error(f"Error en health check: {e}")
+        return jsonify({
+            'success': False,
+            'module': 'whatsapp_web',
+            'nora': nombre_nora,
+            'error': str(e)
+        }), 500

@@ -4,5 +4,17 @@
 from gevent import monkey
 monkey.patch_all()  # ⚠️ Esto debe ir antes que cualquier otra importación
 
-from clientes.aura import create_app  # Importa tu app Flask correctamente
-app = create_app()  # Gunicorn espera una variable global `app`
+"""
+Parche para permitir que Gunicorn use la aplicación Flask aunque parte de la inicialización sea asíncrona.
+"""
+import os
+import sys
+from clientes.aura import create_app  # Importa la función factory
+
+# Inicializar la aplicación
+print("🚀 Inicializando aplicación AuraAI para Gunicorn")
+
+# Desempaquetar la tupla
+app, socketio = create_app()
+
+print("✅ Aplicación AuraAI lista para ser servida por Gunicorn")

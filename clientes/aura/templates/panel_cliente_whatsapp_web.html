@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Web - {{ nombre_nora }}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <style>
+    .qr-container {
+        border: 2px dashed #ddd;
+        padding: 20px;
+        border-radius: 10px;
+        min-height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #qr-canvas {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+    
+    .info-box {
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+        border-radius: .25rem;
+        background: #fff;
+        display: flex;
+        margin-bottom: 1rem;
+        min-height: 80px;
+        padding: .5rem;
+        position: relative;
+        width: 100%;
+    }
+</style>
+</head>
+<body>
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">
+                        <i class="fab fa-whatsapp text-success"></i>
+                        WhatsApp Web - {{ nombre_nora }}
+                    </h3>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="refreshStatus()">
+                            <i class="fas fa-sync"></i> Actualizar
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="openBackendInNewTab()">
+                            <i class="fas fa-external-link-alt"></i> Abrir Backend
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Estado del Backend -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-info">
+                                    <i class="fas fa-server"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Backend Status</span>
+                                    <span class="info-box-number" id="backend-status">
+                                        {% if health_status %}
+                                            <span class="badge badge-success">Online</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Offline</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning">
+                                    <i class="fas fa-link"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Conexión</span>
+                                    <span class="info-box-number" id="connection-status">
+                                        {% if client_status and client_status.connected %}
+                                            <span class="badge badge-success">Conectado</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">Desconectado</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success">
+                                    <i class="fab fa-whatsapp"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">WhatsApp</span>
+                                    <span class="info-box-number" id="whatsapp-status">
+                                        {% if detailed_status and detailed_status.authenticated %}
+                                            <span class="badge badge-success">Autenticado</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">No autenticado</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controles -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <!-- Botón principal para flujo completo -->
+                            <div class="text-center mb-3">
+                                <button class="btn btn-success btn-lg" onclick="startWhatsAppFlow()">
+                                    <i class="fab fa-whatsapp"></i> Flujo Automático
+                                </button>
+                                <p class="text-muted mt-2">Conecta, inicia sesión y genera el QR automáticamente</p>
+                            </div>
+                            
+                            <!-- Controles individuales -->
+                            <div class="btn-group btn-group-toggle btn-group-sm" data-toggle="buttons">
+                                <button class="btn btn-outline-primary" onclick="connectToBackend()">
+                                    <i class="fas fa-plug"></i> Conectar
+                                </button>
+                                <button class="btn btn-outline-success" onclick="initWhatsAppSession()">
+                                    <i class="fas fa-play"></i> Iniciar Sesión
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="refreshQR()">
+                                    <i class="fas fa-qrcode"></i> Generar QR
+                                </button>
+                                <button class="btn btn-outline-info" onclick="checkWhatsAppStatus()">
+                                    <i class="fas fa-search"></i> Verificar Estado
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="sendTestMessage()">
+                                    <i class="fas fa-paper-plane"></i> Mensaje Prueba
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="closeWhatsAppSession()">
+                                    <i class="fas fa-stop"></i> Cerrar Sesión
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="disconnectFromBackend()">
+                                    <i class="fas fa-times"></i> Desconectar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información Detallada -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Información del Backend</h5>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row">
+                                        <dt class="col-sm-4">URL:</dt>
+                                        <dd class="col-sm-8">
+                                            <small>{{ backend_url }}</small>
+                                        </dd>
+                                        <dt class="col-sm-4">Estado:</dt>
+                                        <dd class="col-sm-8" id="backend-detailed-status">
+                                            {% if health_status %}
+                                                <span class="badge badge-success">{{ health_status.status }}</span>
+                                                <small class="text-muted">{{ health_status.timestamp }}</small>
+                                            {% else %}
+                                                <span class="badge badge-danger">Sin respuesta</span>
+                                            {% endif %}
+                                        </dd>
+                                        <dt class="col-sm-4">Sesión Activa:</dt>
+                                        <dd class="col-sm-8" id="session-active">
+                                            {% if detailed_status %}
+                                                {{ "Sí" if detailed_status.session_active else "No" }}
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Código QR WhatsApp</h5>
+                                    <div class="card-tools">
+                                        <button class="btn btn-tool" onclick="refreshQR()">
+                                            <i class="fas fa-sync"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div id="qr-container">
+                                        <div id="qr-placeholder" class="text-muted">
+                                            <i class="fas fa-qrcode fa-3x mb-2"></i>
+                                            <p>Inicia sesión para generar el QR</p>
+                                        </div>
+                                        <div id="qr-code" style="display: none;">
+                                            <canvas id="qr-canvas"></canvas>
+                                            <p class="text-muted mt-2">Escanea este código con tu WhatsApp</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logs de Actividad -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Logs de Actividad</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="activity-logs" style="height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                                        <small class="text-muted">Los logs aparecerán aquí...</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Iframe del Backend (opcional) -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Interfaz del Backend WhatsApp Web</h5>
+                                    <div class="card-tools">
+                                        <button class="btn btn-tool" onclick="toggleIframe()">
+                                            <i class="fas fa-eye" id="iframe-toggle-icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body" id="iframe-container" style="display: none;">
+                                    <iframe 
+                                        src="{{ backend_url }}" 
+                                        style="width: 100%; height: 600px; border: 1px solid #dee2e6; border-radius: 4px;"
+                                        id="whatsapp-iframe">
+                                    </iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                <p id="loading-message">Procesando...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let refreshInterval;
+const backendUrl = "{{ backend_url }}";
+const nombreNora = "{{ nombre_nora }}";
+
+// Variables para WebSocket directo
+let whatsappSocket = null;
+let isConnectedToBackend = false;
+let currentQR = null;
+let isAuthenticated = false;
+
+// Función para agregar logs
+function addLog(message, type = 'info') {
+    const logsContainer = document.getElementById('activity-logs');
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = document.createElement('div');
+    logEntry.className = `alert alert-${type} alert-sm mb-1`;
+    logEntry.style.padding = '5px';
+    logEntry.innerHTML = `<small><strong>${timestamp}</strong> - ${message}</small>`;
+    logsContainer.appendChild(logEntry);
+    logsContainer.scrollTop = logsContainer.scrollHeight;
+}
+
+// Función para mostrar loading
+function showLoading(message) {
+    document.getElementById('loading-message').textContent = message;
+    $('#loadingModal').modal('show');
+}
+
+// Función para ocultar loading
+function hideLoading() {
+    $('#loadingModal').modal('hide');
+}
+
+// Función para mostrar toast
+function showToast(message, type = 'success') {
+    toastr[type](message);
+}
+
+// Función para actualizar estado visual
+function updateStatusDisplay() {
+    // Backend status
+    document.getElementById('backend-status').innerHTML = 
+        isConnectedToBackend ? 
+        '<span class="badge badge-success">Online</span>' : 
+        '<span class="badge badge-danger">Offline</span>';
+    
+    // Connection status
+    document.getElementById('connection-status').innerHTML = 
+        isConnectedToBackend ? 
+        '<span class="badge badge-success">Conectado</span>' : 
+        '<span class="badge badge-secondary">Desconectado</span>';
+    
+    // WhatsApp status
+    document.getElementById('whatsapp-status').innerHTML = 
+        isAuthenticated ? 
+        '<span class="badge badge-success">Autenticado</span>' : 
+        '<span class="badge badge-warning">No autenticado</span>';
+        
+    // Session active
+    document.getElementById('session-active').textContent = 
+        isConnectedToBackend ? 'Sí' : 'No';
+}
+
+// IMPLEMENTACIÓN WEBSOCKET DIRECTO COMO EN LA DOCUMENTACIÓN
+function connectToBackend() {
+    if (isConnectedToBackend) {
+        addLog('Ya está conectado al backend', 'info');
+        showToast('Ya conectado', 'info');
+        return;
+    }
+    
+    showLoading('Conectando al backend WhatsApp Web...');
+    addLog('🔗 Conectando directamente al backend via WebSocket...', 'info');
+    
+    try {
+        // Conectar al servidor WebSocket como indica la documentación
+        whatsappSocket = io(backendUrl);
+        
+        // Eventos del cliente como en la documentación
+        whatsappSocket.on('connect', () => {
+            console.log('✅ Conectado al servidor WhatsApp');
+            console.log('🔗 Backend URL:', backendUrl);
+            isConnectedToBackend = true;
+            updateStatusDisplay();
+            hideLoading();
+            addLog('✅ Conectado al backend WhatsApp Web via WebSocket', 'success');
+            addLog(`🌐 Backend URL: ${backendUrl}`, 'info');
+            showToast('WebSocket conectado exitosamente', 'success');
+        });
+        
+        whatsappSocket.on('qr_code', (data) => {
+            console.log('📱 QR Code recibido:', data);
+            addLog('📱 QR Code recibido del backend', 'success');
+            
+            // Mostrar QR en el DOM como indica la documentación
+            if (data.qr_data) {
+                currentQR = data.qr_data;
+                displayQR(data.qr_data);
+                showToast('QR generado - Escanea con WhatsApp', 'success');
+                
+                // Si es imagen, mostrarla directamente
+                if (data.qr_data.startsWith('data:image/')) {
+                    addLog('✅ QR real recibido como imagen PNG', 'success');
+                } else {
+                    addLog('📱 QR recibido como texto de WhatsApp Web', 'info');
+                }
+            }
+            
+            // Actualizar estado si viene en la respuesta
+            if (data.session_id) {
+                addLog(`🆔 Session ID: ${data.session_id}`, 'info');
+            }
+        });
+        
+        // Evento 'connected' del backend
+        whatsappSocket.on('connected', (data) => {
+            console.log('📡 Backend confirmó conexión:', data);
+            addLog('📡 Backend confirmó conexión exitosa', 'success');
+            if (data.client_id) {
+                addLog(`🆔 Client ID: ${data.client_id}`, 'info');
+            }
+            if (data.message) {
+                addLog(`💬 ${data.message}`, 'info');
+            }
+        });
+        
+        whatsappSocket.on('whatsapp_status', (data) => {
+            console.log('📊 Estado WhatsApp:', data);
+            addLog(`📊 Estado WhatsApp: ${JSON.stringify(data)}`, 'info');
+            
+            if (data.status === 'authenticated') {
+                console.log('🎉 WhatsApp autenticado exitosamente');
+                isAuthenticated = true;
+                updateStatusDisplay();
+                hideQR();
+                addLog('🎉 WhatsApp autenticado exitosamente', 'success');
+                showToast('¡WhatsApp autenticado!', 'success');
+            }
+        });
+        
+        whatsappSocket.on('authenticated', (data) => {
+            console.log('🎉 Evento authenticated recibido:', data);
+            isAuthenticated = true;
+            updateStatusDisplay();
+            hideQR();
+            addLog('🎉 WhatsApp Web autenticado exitosamente', 'success');
+            showToast('¡Autenticación exitosa!', 'success');
+        });
+        
+        whatsappSocket.on('error', (error) => {
+            console.error('❌ Error:', error);
+            
+            // Extraer mensaje del error
+            const errorMessage = error.message || error.toString();
+            
+            // Distinguir entre errores de conexión y errores de aplicación
+            if (errorMessage.includes('Chrome') || errorMessage.includes('browser')) {
+                addLog('⚠️ Backend necesita Chrome para generar QR real', 'warning');
+                showToast('Backend necesita Chrome - conexión WebSocket OK', 'warning');
+            } else if (errorMessage.includes('iniciando sesión') || errorMessage.includes('WhatsApp Web')) {
+                addLog('⚠️ Error generando QR real - conexión WebSocket funciona', 'warning');
+                showToast('Error generando QR real - WebSocket conectado', 'warning');
+                // NO desconectar - el WebSocket funciona, solo falta Chrome
+            } else if (errorMessage.includes('conexión') || errorMessage.includes('connection')) {
+                addLog('❌ Error de conexión WebSocket', 'danger');
+                showToast('Error de conexión WebSocket', 'error');
+                isConnectedToBackend = false;
+                updateStatusDisplay();
+            } else {
+                addLog(`❌ Error del backend: ${errorMessage}`, 'danger');
+                showToast('Error en el backend - WebSocket OK', 'warning');
+                // NO desconectar - podría ser un error temporal
+            }
+        });
+        
+        whatsappSocket.on('disconnect', () => {
+            console.log('🔌 Desconectado del backend');
+            isConnectedToBackend = false;
+            isAuthenticated = false;
+            updateStatusDisplay();
+            addLog('🔌 Desconectado del backend', 'warning');
+        });
+        
+        whatsappSocket.on('connect_error', (error) => {
+            console.error('❌ Error de conexión:', error);
+            hideLoading();
+            addLog(`❌ Error conectando: ${error.message || error}`, 'danger');
+            showToast('Error conectando al backend', 'error');
+        });
+        
+    } catch (error) {
+        hideLoading();
+        addLog(`❌ Error: ${error.message}`, 'danger');
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function disconnectFromBackend() {
+    if (!isConnectedToBackend) {
+        addLog('No está conectado', 'info');
+        return;
+    }
+    
+    showLoading('Desconectando...');
+    
+    if (whatsappSocket) {
+        whatsappSocket.disconnect();
+        whatsappSocket = null;
+    }
+    
+    isConnectedToBackend = false;
+    isAuthenticated = false;
+    currentQR = null;
+    updateStatusDisplay();
+    hideQR();
+    hideLoading();
+    
+    addLog('🔌 Desconectado del backend', 'warning');
+    showToast('Desconectado', 'success');
+}
+
+function initWhatsAppSession() {
+    if (!isConnectedToBackend) {
+        addLog('❌ No conectado al backend - Conecta primero', 'danger');
+        showToast('Conecta al backend primero', 'error');
+        return;
+    }
+    
+    showLoading('Iniciando sesión WhatsApp Web...');
+    addLog('🚀 Solicitando código QR...', 'info');
+    
+    // Solicitar código QR como indica la documentación
+    whatsappSocket.emit('get_qr', {});
+}
+
+function refreshQR() {
+    if (!isConnectedToBackend) {
+        addLog('❌ No conectado al backend', 'danger');
+        showToast('Conecta al backend primero', 'error');
+        return;
+    }
+    
+    showLoading('Obteniendo código QR...');
+    addLog('🔄 Solicitando QR fresco...', 'info');
+    
+    // Solicitar QR fresco
+    whatsappSocket.emit('get_qr', {
+        force_refresh: true,
+        timestamp: new Date().toISOString()
+    });
+}
+
+function checkWhatsAppStatus() {
+    if (!isConnectedToBackend) {
+        addLog('❌ No conectado al backend', 'danger');
+        showToast('Conecta al backend primero', 'error');
+        return;
+    }
+    
+    showLoading('Verificando estado...');
+    addLog('📊 Verificando estado de WhatsApp Web...', 'info');
+    
+    // Probar funcionalidad como indica la documentación
+    whatsappSocket.emit('get_status', {
+        action: 'check_connection'
+    });
+    
+    setTimeout(() => {
+        hideLoading();
+        addLog('✅ Verificación completada', 'success');
+        showToast('Estado verificado', 'success');
+    }, 2000);
+}
+
+function sendTestMessage() {
+    if (!isConnectedToBackend) {
+        addLog('❌ No conectado al backend', 'danger');
+        showToast('Conecta al backend primero', 'error');
+        return;
+    }
+    
+    if (!isAuthenticated) {
+        addLog('❌ WhatsApp no está autenticado', 'danger');
+        showToast('Autentica WhatsApp primero', 'error');
+        return;
+    }
+    
+    showLoading('Enviando mensaje de prueba...');
+    addLog('📤 Enviando mensaje de prueba...', 'info');
+    
+    // Enviar mensaje de prueba
+    whatsappSocket.emit('test_whatsapp', {
+        action: 'send_test_message',
+        phone_number: '123456789',
+        message: 'Mensaje de prueba desde NORA'
+    });
+    
+    setTimeout(() => {
+        hideLoading();
+        addLog('✅ Mensaje de prueba enviado', 'success');
+        showToast('Mensaje enviado', 'success');
+    }, 2000);
+}
+
+function closeWhatsAppSession() {
+    if (!isConnectedToBackend) {
+        addLog('❌ No conectado al backend', 'danger');
+        return;
+    }
+    
+    showLoading('Cerrando sesión...');
+    addLog('🔒 Cerrando sesión WhatsApp Web...', 'info');
+    
+    // Cerrar sesión
+    whatsappSocket.emit('close_session', {});
+    
+    isAuthenticated = false;
+    currentQR = null;
+    updateStatusDisplay();
+    hideQR();
+    hideLoading();
+    
+    addLog('🔒 Sesión cerrada', 'warning');
+    showToast('Sesión cerrada', 'success');
+}
+
+// Función de estado simplificada (no hace requests HTTP)
+function refreshStatus() {
+    updateStatusDisplay();
+    addLog('📊 Estado actualizado', 'info');
+}
+
+// Flujo automático usando WebSocket directo
+function startWhatsAppFlow() {
+    addLog('🚀 Iniciando flujo automático de WhatsApp Web...', 'info');
+    showLoading('Ejecutando flujo automático...');
+    
+    // Paso 1: Conectar si no está conectado
+    if (!isConnectedToBackend) {
+        connectToBackend();
+        
+        // Esperar conexión y luego solicitar QR
+        setTimeout(() => {
+            if (isConnectedToBackend) {
+                addLog('✅ Conectado, solicitando QR...', 'success');
+                whatsappSocket.emit('get_qr', {});
+                hideLoading();
+            } else {
+                hideLoading();
+                addLog('❌ No se pudo conectar automáticamente', 'danger');
+                showToast('Error en flujo automático', 'error');
+            }
+        }, 3000);
+    } else {
+        // Ya conectado, solicitar QR directamente
+        whatsappSocket.emit('get_qr', {});
+        hideLoading();
+        addLog('📱 Solicitando QR (ya conectado)...', 'info');
+    }
+}
+
+// Función para abrir backend en nueva pestaña
+function openBackendInNewTab() {
+    window.open(backendUrl, '_blank');
+    addLog('Backend abierto en nueva pestaña', 'info');
+}
+
+// Función para mostrar/ocultar iframe
+function toggleIframe() {
+    const container = document.getElementById('iframe-container');
+    const icon = document.getElementById('iframe-toggle-icon');
+    
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        container.style.display = 'none';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+// Función para mostrar QR
+function displayQR(qrData) {
+    console.log('🔧 displayQR llamada con:', qrData ? `${qrData.substring(0, 50)}...` : 'null');
+    
+    const qrPlaceholder = document.getElementById('qr-placeholder');
+    const qrCodeDiv = document.getElementById('qr-code');
+    const canvas = document.getElementById('qr-canvas');
+    
+    if (!qrData) {
+        console.warn('⚠️ No hay datos de QR para mostrar');
+        addLog('No hay datos de QR', 'warning');
+        return;
+    }
+    
+    if (!canvas) {
+        console.error('❌ No se encontró el canvas para QR');
+        addLog('Error: Canvas QR no encontrado', 'danger');
+        return;
+    }
+    
+    console.log('📱 Procesando QR...');
+    addLog('Procesando código QR...', 'info');
+    
+    // Verificar si es un QR en formato base64 (imagen)
+    if (qrData.startsWith('data:image/')) {
+        console.log('📱 QR es una imagen base64, mostrando directamente');
+        addLog('QR recibido como imagen - Mostrando directamente', 'success');
+        
+        // Mostrar imagen directamente
+        qrCodeDiv.innerHTML = `
+            <div class="text-center">
+                <img src="${qrData}" alt="QR Code WhatsApp" style="max-width: 256px; max-height: 256px; border: 1px solid #ddd; border-radius: 8px;">
+                <p class="mt-2 text-success">
+                    <i class="fas fa-qrcode"></i> 
+                    <strong>¡Escanea este QR con tu WhatsApp!</strong>
+                </p>
+                <small class="text-muted">Código QR generado por el backend</small>
+            </div>
+        `;
+        qrPlaceholder.style.display = 'none';
+        qrCodeDiv.style.display = 'block';
+        
+        addLog('✅ QR mostrado exitosamente', 'success');
+        return;
+    }
+    
+    // Verificar si QRCode.js está disponible para QR de texto
+    if (typeof QRCode === 'undefined') {
+        console.error('❌ QRCode.js no está disponible');
+        addLog('QRCode.js no disponible, usando API alternativa...', 'warning');
+        
+        // Fallback: usar API de QR online
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(qrData)}`;
+        
+        qrCodeDiv.innerHTML = `
+            <div class="text-center">
+                <img src="${qrApiUrl}" alt="QR Code WhatsApp" 
+                     style="max-width: 256px; max-height: 256px; border: 1px solid #ddd; border-radius: 8px;"
+                     onload="console.log('✅ QR cargado desde API externa')"
+                     onerror="this.style.display='none'; document.getElementById('qr-fallback-text').style.display='block'">
+                <p class="mt-2 text-success">
+                    <i class="fas fa-qrcode"></i> 
+                    <strong>¡Escanea este QR con tu WhatsApp!</strong>
+                </p>
+                <small class="text-muted">QR generado via API externa</small>
+                
+                <!-- Fallback si la imagen tampoco carga -->
+                <div id="qr-fallback-text" style="display: none;" class="alert alert-info mt-2">
+                    <strong>QR como texto:</strong><br>
+                    <code style="word-break: break-all; font-size: 10px;">${qrData}</code>
+                    <hr>
+                    <a href="${backendUrl}" target="_blank" class="btn btn-sm btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Ver en Backend
+                    </a>
+                </div>
+            </div>
+        `;
+        qrPlaceholder.style.display = 'none';
+        qrCodeDiv.style.display = 'block';
+        
+        addLog('✅ QR mostrado con API externa', 'success');
+        return;
+    }
+    
+    try {
+        // Limpiar canvas anterior
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        canvas.width = 256;
+        canvas.height = 256;
+        
+        // Crear QR usando biblioteca QRCode.js
+        QRCode.toCanvas(canvas, qrData, {
+            width: 256,
+            height: 256,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, function (error) {
+            if (error) {
+                console.error('❌ Error generando QR:', error);
+                addLog(`Error generando QR: ${error.message}`, 'danger');
+                
+                // Fallback en caso de error
+                qrCodeDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error generando QR visual</strong><br>
+                        <p>Error: ${error.message}</p>
+                        <a href="${backendUrl}" target="_blank" class="btn btn-primary btn-sm">
+                            Ver en Backend
+                        </a>
+                    </div>
+                `;
+            } else {
+                console.log('✅ QR generado exitosamente');
+                addLog('Código QR generado exitosamente', 'success');
+                qrPlaceholder.style.display = 'none';
+                qrCodeDiv.style.display = 'block';
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error con QRCode.js:', error);
+        addLog(`Error con biblioteca QR: ${error.message}`, 'danger');
+        
+        // Fallback: mostrar información y enlace al backend
+        qrCodeDiv.innerHTML = `
+            <div class="alert alert-info">
+                <h5><i class="fas fa-qrcode"></i> Código QR Generado</h5>
+                <p>No se pudo generar la imagen QR, pero puedes verlo en el backend.</p>
+                <a href="${backendUrl}" target="_blank" class="btn btn-success">
+                    <i class="fas fa-external-link-alt"></i> Ver QR en Backend
+                </a>
+                <hr>
+                <details>
+                    <summary>Datos técnicos del QR</summary>
+                    <small style="word-break: break-all;">${qrData}</small>
+                </details>
+            </div>
+        `;
+        qrPlaceholder.style.display = 'none';
+        qrCodeDiv.style.display = 'block';
+    }
+}
+
+// Función para ocultar QR
+function hideQR() {
+    const qrPlaceholder = document.getElementById('qr-placeholder');
+    const qrCodeDiv = document.getElementById('qr-code');
+    
+    qrPlaceholder.style.display = 'block';
+    qrCodeDiv.style.display = 'none';
+}
+
+// Función para monitorear QR automáticamente
+function startQRMonitoring() {
+    setInterval(() => {
+        // Solo refrescar QR si no está autenticado y tenemos WebSocket
+        if (isConnectedToBackend && !isAuthenticated) {
+            // Solicitar estado actual via WebSocket
+            whatsappSocket.emit('get_status', {});
+        }
+    }, 5000); // Cada 5 segundos
+}
+
+// Inicializar página
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar dependencias críticas
+    console.log('🔧 Verificando dependencias...');
+    console.log('jQuery:', typeof $ !== 'undefined');
+    console.log('Bootstrap:', typeof $.fn.modal !== 'undefined');
+    console.log('Toastr:', typeof toastr !== 'undefined');
+    console.log('QRCode:', typeof QRCode !== 'undefined');
+    
+    // Configurar toastr si está disponible
+    if (typeof toastr !== 'undefined') {
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "timeOut": "3000"
+        };
+    }
+    
+    // Agregar log inicial
+    addLog('Panel WhatsApp Web iniciado', 'info');
+    
+    if (typeof QRCode === 'undefined') {
+        addLog('⚠️ QRCode.js no disponible - usando fallback con API externa', 'warning');
+    } else {
+        addLog('✅ QRCode.js cargado correctamente', 'success');
+    }
+    
+    // Refrescar estado inicial
+    refreshStatus();
+    
+    // NO configurar auto-refresh automático - solo manual
+    // refreshInterval = setInterval(refreshStatus, 30000);
+    
+    addLog('✅ Panel iniciado - Auto-refresh deshabilitado', 'info');
+});
+
+// Limpiar interval al salir
+window.addEventListener('beforeunload', function() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+});
+
+// Inicialización automática al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎯 Inicializando panel WhatsApp Web...');
+    addLog('🎯 Panel WhatsApp Web cargado', 'info');
+    
+    // Conectar automáticamente al backend
+    setTimeout(() => {
+        console.log('🔄 Conectando automáticamente al backend...');
+        connectToBackend();
+    }, 1000);
+});
+</script>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- QRCode.js - Usando CDNJS que funciona -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+
+<!-- Socket.IO Cliente -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+</body>
+</html>
+
+{% endblock %}

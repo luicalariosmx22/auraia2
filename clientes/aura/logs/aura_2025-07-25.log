@@ -1,0 +1,14 @@
+2025-07-25 00:01:27,918 - aura - INFO - [http_checker.py:69] - Detectada redirección 308, intentando con: /panel_cliente/aura/pagos/
+2025-07-25 00:07:18,550 - aura - INFO - [http_checker.py:69] - Detectada redirección 308, intentando con: /panel_cliente/aura/pagos/
+2025-07-25 00:08:35,288 - aura - INFO - [http_checker.py:69] - Detectada redirección 308, intentando con: /panel_cliente/aura/pagos/
+2025-07-25 00:13:58,226 - aura - INFO - [http_checker.py:69] - Detectada redirección 308, intentando con: /panel_cliente/aura/pagos/
+2025-07-25 00:19:40,389 - aura - DEBUG - [http_checker.py:149] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-25 00:19:42,500 - aura - INFO - [http_checker.py:259] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-25 00:23:22,965 - aura - WARNING - [http_checker.py:13] - No se pudo importar get_openai_client, el diagnóstico con IA no estará disponible
+2025-07-25 00:24:44,213 - aura - WARNING - [http_checker.py:13] - No se pudo importar get_openai_client, el diagnóstico con IA no estará disponible
+2025-07-25 00:29:49,259 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-25 00:29:51,315 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-25 00:30:46,368 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-25 00:30:48,541 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-25 00:35:47,918 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-25 00:35:49,980 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/

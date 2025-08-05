@@ -149,3 +149,206 @@ body {
 .noras-table button:hover {
   background: #c9302c;
 }
+
+/* Estilos para tarjetas de Twilio */
+.twilio-card {
+  position: relative;
+  border-left: 4px solid #ccc;
+}
+
+.twilio-bueno {
+  border-left-color: #28a745;
+}
+
+.twilio-bueno h2 {
+  color: #28a745;
+}
+
+.twilio-advertencia {
+  border-left-color: #ffc107;
+}
+
+.twilio-advertencia h2 {
+  color: #ffc107;
+}
+
+.twilio-bajo {
+  border-left-color: #fd7e14;
+}
+
+.twilio-bajo h2 {
+  color: #fd7e14;
+}
+
+.twilio-critico {
+  border-left-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.twilio-critico h2 {
+  color: #dc3545;
+}
+
+.twilio-error {
+  border-left-color: #6c757d;
+}
+
+.twilio-error h2 {
+  color: #6c757d;
+}
+
+.twilio-estado {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.twilio-bueno .twilio-estado {
+  color: #28a745;
+}
+
+.twilio-advertencia .twilio-estado {
+  color: #ffc107;
+}
+
+.twilio-bajo .twilio-estado {
+  color: #fd7e14;
+}
+
+.twilio-critico .twilio-estado {
+  color: #dc3545;
+}
+
+.twilio-error .twilio-estado {
+  color: #6c757d;
+}
+
+.twilio-error {
+  display: block;
+  font-size: 0.75rem;
+  color: #dc3545;
+  margin-top: 0.25rem;
+}
+
+/* Animación para saldo crítico */
+.twilio-critico {
+  animation: pulso-critico 2s infinite;
+}
+
+@keyframes pulso-critico {
+  0% { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  50% { box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3); }
+  100% { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+}
+
+/* Estilos para tarjetas de OpenAI */
+.openai-card {
+  position: relative;
+  border-left: 4px solid #ccc;
+}
+
+.openai-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.openai-bueno {
+  border-left-color: #28a745;
+}
+
+.openai-bueno h2 {
+  color: #28a745;
+}
+
+.openai-advertencia {
+  border-left-color: #ffc107;
+}
+
+.openai-advertencia h2 {
+  color: #ffc107;
+}
+
+.openai-bajo {
+  border-left-color: #fd7e14;
+}
+
+.openai-bajo h2 {
+  color: #fd7e14;
+}
+
+.openai-critico {
+  border-left-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.openai-critico h2 {
+  color: #dc3545;
+}
+
+.openai-error {
+  border-left-color: #6c757d;
+}
+
+.openai-error h2 {
+  color: #6c757d;
+}
+
+.openai-estado {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.openai-bueno .openai-estado {
+  color: #28a745;
+}
+
+.openai-advertencia .openai-estado {
+  color: #ffc107;
+}
+
+.openai-bajo .openai-estado {
+  color: #fd7e14;
+}
+
+.openai-critico .openai-estado {
+  color: #dc3545;
+}
+
+.openai-error .openai-estado {
+  color: #6c757d;
+}
+
+.openai-detalle {
+  display: block;
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.openai-error {
+  display: block;
+  font-size: 0.75rem;
+  color: #dc3545;
+  margin-top: 0.25rem;
+}
+
+/* Animación para uso crítico de OpenAI */
+.openai-critico {
+  animation: pulso-critico-openai 2s infinite;
+}
+
+@keyframes pulso-critico-openai {
+  0% { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  50% { box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3); }
+  100% { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+}

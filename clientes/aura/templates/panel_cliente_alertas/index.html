@@ -1,0 +1,203 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="max-w-6xl mx-auto py-8">
+  <h1 class="text-3xl font-bold mb-6">🚨 Panel de Alertas</h1>
+  
+  <!-- Estadísticas generales -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-blue-100 border border-blue-300 rounded-lg p-4">
+      <h3 class="text-lg font-semibold text-blue-800">Total</h3>
+      <p class="text-2xl font-bold text-blue-900">{{ stats.total }}</p>
+    </div>
+    <div class="bg-red-100 border border-red-300 rounded-lg p-4">
+      <h3 class="text-lg font-semibold text-red-800">Nuevas</h3>
+      <p class="text-2xl font-bold text-red-900">{{ stats.nuevas }}</p>
+    </div>
+    <div class="bg-yellow-100 border border-yellow-300 rounded-lg p-4">
+      <h3 class="text-lg font-semibold text-yellow-800">Vistas</h3>
+      <p class="text-2xl font-bold text-yellow-900">{{ stats.vistas }}</p>
+    </div>
+    <div class="bg-green-100 border border-green-300 rounded-lg p-4">
+      <h3 class="text-lg font-semibold text-green-800">Resueltas</h3>
+      <p class="text-2xl font-bold text-green-900">{{ stats.resueltas }}</p>
+    </div>
+  </div>
+
+  <!-- Alertas por tipo - Acordeón -->
+  {% for tipo, datos in alertas_por_tipo.items() %}
+      <div class="mb-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+          <!-- Header del acordeón -->
+          <div class="cursor-pointer bg-gray-50 px-4 py-3 border-b border-gray-200 hover:bg-gray-100 transition-colors" 
+               onclick="toggleAccordion('{{ tipo }}')">
+              <div class="flex items-center justify-between">
+                  <h2 class="text-lg font-medium text-gray-800 flex items-center">
+                      <span id="chevron-{{ tipo }}" class="mr-2 transition-transform">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                          </svg>
+                      </span>
+                      {% if tipo == 'meta_ads' %}
+                          📱 Meta Ads
+                      {% elif tipo == 'google_ads' %}
+                          🟨 Google Ads
+                      {% elif tipo == 'sistema' %}
+                          ⚙️ Sistema
+                      {% elif tipo == 'whatsapp' %}
+                          💬 WhatsApp
+                      {% else %}
+                          📋 {{ tipo|title }}
+                      {% endif %}
+                  </h2>
+                  <div class="flex items-center space-x-4 text-sm">
+                      {% if datos.nuevas %}
+                          <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full">{{ datos.nuevas|length }} nuevas</span>
+                      {% endif %}
+                      {% if datos.vistas %}
+                          <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">{{ datos.vistas|length }} vistas</span>
+                      {% endif %}
+                      {% if datos.resueltas %}
+                          <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full">{{ datos.resueltas|length }} resueltas</span>
+                      {% endif %}
+                      <span class="text-gray-600">Total: {{ datos.total }}</span>
+                  </div>
+              </div>
+          </div>
+          
+          <!-- Contenido colapsable -->
+          <div id="content-{{ tipo }}" class="hidden">
+              <div class="p-4">
+                  {% if datos.nuevas %}
+                      <div class="mb-4">
+                          <h3 class="text-sm font-medium text-red-700 mb-2 flex items-center">
+                              🔴 Nuevas ({{ datos.nuevas|length }})
+                          </h3>
+                          <div class="space-y-2">
+                              {% for alerta in datos.nuevas %}
+                                  <div class="bg-red-50 border-l-4 border-red-400 p-3 rounded-r">
+                                      <div class="flex justify-between items-start">
+                                          <div class="flex-1 min-w-0">
+                                              <h4 class="font-medium text-red-800 text-sm truncate">{{ alerta.nombre }}</h4>
+                                              <p class="text-red-700 text-xs mt-1 line-clamp-2">{{ alerta.descripcion }}</p>
+                                              <div class="flex items-center mt-1 text-xs text-red-600 space-x-3">
+                                                  <span>🔥 {{ alerta.prioridad|default('media')|title }}</span>
+                                                  <span>📅 {{ alerta.creado_en[:16]|replace('T', ' ') }}</span>
+                                                  {% if alerta.datos and alerta.datos.empresa_nombre %}
+                                                      <span class="truncate">🏢 {{ alerta.datos.empresa_nombre }}</span>
+                                                  {% endif %}
+                                              </div>
+                                          </div>
+                                          <div class="flex space-x-1 ml-2">
+                                              <button onclick="notificarAlerta('{{ alerta.id }}')" 
+                                                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs" title="Enviar notificación por email/WhatsApp">
+                                                  📧
+                                              </button>
+                                              <button onclick="marcarVista('{{ alerta.id }}')" 
+                                                      class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-xs" title="Marcar como vista">
+                                                  👁️
+                                              </button>
+                                              <button onclick="resolverAlerta('{{ alerta.id }}')" 
+                                                      class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs" title="Resolver">
+                                                  ✅
+                                              </button>
+                                              <button onclick="ignorarAlerta('{{ alerta.id }}')" 
+                                                      class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs" title="Ignorar (no volverá a aparecer)">
+                                                  🚫
+                                              </button>
+                                          </div>
+                                      </div>
+                                  </div>
+                              {% endfor %}
+                          </div>
+                      </div>
+                  {% endif %}
+                  
+                  {% if datos.vistas %}
+                      <div class="mb-4">
+                          <h3 class="text-sm font-medium text-yellow-700 mb-2 flex items-center">
+                              🟡 Vistas ({{ datos.vistas|length }})
+                          </h3>
+                          <div class="space-y-2">
+                              {% for alerta in datos.vistas %}
+                                  <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r">
+                                      <div class="flex justify-between items-start">
+                                          <div class="flex-1 min-w-0">
+                                              <h4 class="font-medium text-yellow-800 text-sm truncate">{{ alerta.nombre }}</h4>
+                                              <p class="text-yellow-700 text-xs mt-1 line-clamp-2">{{ alerta.descripcion }}</p>
+                                              <div class="flex items-center mt-1 text-xs text-yellow-600 space-x-3">
+                                                  <span>🔥 {{ alerta.prioridad|default('media')|title }}</span>
+                                                  <span>📅 {{ alerta.creado_en[:16]|replace('T', ' ') }}</span>
+                                              </div>
+                                          </div>
+                                          <div class="flex space-x-1 ml-2">
+                                              <button onclick="notificarAlerta('{{ alerta.id }}')" 
+                                                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs" title="Enviar notificación por email/WhatsApp">
+                                                  📧
+                                              </button>
+                                              <button onclick="resolverAlerta('{{ alerta.id }}')" 
+                                                      class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs" title="Resolver">
+                                                  ✅
+                                              </button>
+                                              <button onclick="ignorarAlerta('{{ alerta.id }}')" 
+                                                      class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded text-xs" title="Ignorar (no volverá a aparecer)">
+                                                  🚫
+                                              </button>
+                                              <button onclick="eliminarAlerta('{{ alerta.id }}')" 
+                                                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs" title="Eliminar">
+                                                  🗑️
+                                              </button>
+                                          </div>
+                                      </div>
+                                  </div>
+                              {% endfor %}
+                          </div>
+                      </div>
+                  {% endif %}
+                  
+                  {% if datos.resueltas %}
+                      <div class="mb-2">
+                          <h3 class="text-sm font-medium text-green-700 mb-2 flex items-center">
+                              🟢 Resueltas ({{ datos.resueltas|length }})
+                          </h3>
+                          <div class="space-y-2">
+                              {% for alerta in datos.resueltas %}
+                                  <div class="bg-green-50 border-l-4 border-green-400 p-3 rounded-r opacity-60">
+                                      <div class="flex justify-between items-start">
+                                          <div class="flex-1 min-w-0">
+                                              <h4 class="font-medium text-green-800 text-sm truncate">{{ alerta.nombre }}</h4>
+                                              <div class="flex items-center mt-1 text-xs text-green-600 space-x-3">
+                                                  <span>📅 {{ alerta.creado_en[:16]|replace('T', ' ') }}</span>
+                                                  {% if alerta.resuelta_en %}
+                                                      <span>✅ {{ alerta.resuelta_en[:16]|replace('T', ' ') }}</span>
+                                                  {% endif %}
+                                              </div>
+                                          </div>
+                                          <button onclick="eliminarAlerta('{{ alerta.id }}')" 
+                                                  class="bg-gray-400 hover:bg-gray-500 text-white px-2 py-1 rounded text-xs" title="Eliminar">
+                                              🗑️
+                                          </button>
+                                      </div>
+                                  </div>
+                              {% endfor %}
+                          </div>
+                      </div>
+                  {% endif %}
+                  
+                  {% if not datos.nuevas and not datos.vistas and not datos.resueltas %}
+                      <p class="text-gray-500 text-center py-4 text-sm">No hay alertas de este tipo</p>
+                  {% endif %}
+              </div>
+          </div>
+      </div>
+  {% endfor %}
+  
+  {% if not alertas_por_tipo %}
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+          <p class="text-gray-600 text-lg">📭 No hay alertas disponibles</p>
+          <p class="text-gray-500 mt-2">Las alertas aparecerán aquí cuando se detecten problemas en el sistema</p>
+      </div>
+  {% endif %}
+</div>
+
+<script src="{{ url_for('static', filename='js/panel_alertas.js') }}"></script>
+{% endblock %}

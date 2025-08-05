@@ -1,0 +1,21 @@
+{% extends "base_admin.html" %}
+{% block contenido %}
+
+<h1 class="text-2xl font-bold mb-4">⚙️ Configuración de Nora: <span class="text-indigo-700">{{ configuracion.nombre_nora }}</span></h1>
+
+<div class="bg-white shadow p-6 rounded-lg">
+  <h2 class="text-lg font-semibold mb-2">Módulos activos</h2>
+  <ul class="list-disc list-inside text-gray-800 space-y-1">
+    {% for modulo in configuracion.modulos %}
+      <li>{{ modulo }}</li>
+    {% else %}
+      <li class="text-gray-500">No hay módulos activados aún.</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<a href="/admin/modulos" class="inline-block mt-6 text-blue-600 hover:underline text-sm">
+  ← Volver al panel de módulos
+</a>
+
+{% endblock %}

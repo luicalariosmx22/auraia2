@@ -8,7 +8,7 @@ Envoltura ligera para la Marketing API (Graph v23.0).
 
 from __future__ import annotations
 
-import os, json, requests
+import os, json, requests, time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -19,71 +19,123 @@ BASE_URL  = f"https://graph.facebook.com/{API_VER}"
 class MetaAPIError(RuntimeError):
     """Error simple para envolver las excepciones HTTP."""
 
+def _request_with_retry(url: str, params: dict, max_retries: int = 3, timeout: int = 30) -> dict:
+    """Realiza una petición con reintentos en caso de errores de red."""
+    for intento in range(max_retries + 1):
+        try:
+            res = requests.get(url, params=params, timeout=timeout)
+            res.raise_for_status()
+            return res.json()
+        except requests.exceptions.HTTPError as e:
+            # Error HTTP (400, 401, etc.) - no reintentar
+            raise MetaAPIError(f"{e} → {res.text}") from None
+        except (requests.exceptions.ConnectionError, 
+                requests.exceptions.Timeout,
+                requests.exceptions.RequestException) as e:
+            if intento < max_retries:
+                wait_time = (intento + 1) * 2  # 2, 4, 6 segundos
+                print(f"⚠️ Error de conexión (intento {intento + 1}/{max_retries + 1}): {e}")
+                print(f"⏳ Esperando {wait_time} segundos antes del siguiente intento...")
+                time.sleep(wait_time)
+                continue
+            else:
+                raise MetaAPIError(f"Error de conectividad después de {max_retries + 1} intentos: {e}")
+    
+    # Esto no debería ejecutarse nunca, pero para satisfacer el type checker
+    raise MetaAPIError("Error inesperado en _request_with_retry")
+
 
 def _request(edge: str, params: dict | None = None) -> dict:
     url    = f"{BASE_URL}/{edge.lstrip('/')}"
     params = params or {}
     params["access_token"] = TOKEN
-    try:
-        res = requests.get(url, params=params, timeout=30)
-        res.raise_for_status()
-        return res.json()
-    except requests.exceptions.HTTPError as e:
-        # Adjuntamos el body completo para que sea más fácil depurar.
-        raise MetaAPIError(f"{e} → {res.text}") from None
+    return _request_with_retry(url, params)
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  API pública del helper
 # ─────────────────────────────────────────────────────────────────────────────
 
-def listar_campañas_activas(ad_account_id: str, access_token: str = None, *, limit: int = 25) -> list[dict]:
+def listar_campañas_activas(ad_account_id: str, limit: int = 200) -> list:
     """
-    Devuelve las campañas (todas, no solo ACTIVE) para la cuenta dada.
-    `ad_account_id` se pasa SIN el prefijo 'act_'.
-    Usa el access_token de la cuenta si se provee, si no usa el global del .env.
+    Devuelve campañas activas para la cuenta publicitaria indicada.
+    
+    Args:
+        ad_account_id (str): ID de la cuenta publicitaria (sin prefijo 'act_')
+        limit (int, optional): Límite de resultados a devolver. Por defecto 200.
+        
+    Returns:
+        list: Lista de campañas activas
     """
-    token = access_token if (access_token and access_token.strip()) else TOKEN
-    params = {
-        "fields": "id,name,objective,effective_status,status,daily_budget,insights{impressions,clicks,reach,spend,objective}",
-        "limit": limit,
-        "access_token": token
-    }
-    url = f"{BASE_URL}/act_{ad_account_id}/campaigns"
-    try:
-        res = requests.get(url, params=params, timeout=30)
-        res.raise_for_status()
-        return res.json().get("data", [])
-    except requests.exceptions.HTTPError as e:
-        raise MetaAPIError(f"{e} → {res.text}") from None
-
-def listar_campañas_activas(ad_account_id: str, limit: int = 25) -> list[dict]:
-    """
-    Devuelve campañas con effective_status = ACTIVE.
-    `ad_account_id` va SIN prefijo 'act_' (ej. '16626756').
-    """
+    import os
+    import requests
+    import json
+    from clientes.aura.logger import logger
+    
+    # Obtener token de acceso
+    token = os.getenv('META_ACCESS_TOKEN')
+    if not token:
+        logger.error("No se encontró token de acceso para Meta Ads")
+        return []
+    
+    # Construir filtro para campañas activas
     filtering = json.dumps([{
         "field": "effective_status",
         "operator": "IN",
         "value": ["ACTIVE"]
     }])
+    
+    # Parámetros de la petición
     params = {
-        "fields": "id,name,objective,effective_status",
+        "fields": "id,name,status,objective,start_time,stop_time,daily_budget,lifetime_budget",
         "filtering": filtering,
-        "limit": limit
+        "limit": limit,
+        "access_token": token
     }
-    return _request(f"act_{ad_account_id}/campaigns", params).get("data", [])
+    
+    # URL de la API de Meta para campañas
+    url = f"https://graph.facebook.com/v19.0/act_{ad_account_id}/campaigns"
+    
+    try:
+        # Realizar petición con timeout de 10 segundos
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        
+        # Procesar respuesta
+        data = response.json()
+        campañas = data.get("data", [])
+        
+        # Dar formato a los resultados
+        for campaña in campañas:
+            # Convertir presupuesto de centavos a unidades monetarias
+            if "daily_budget" in campaña:
+                campaña["daily_budget"] = float(campaña["daily_budget"]) / 100
+            if "lifetime_budget" in campaña:
+                campaña["lifetime_budget"] = float(campaña["lifetime_budget"]) / 100
+        
+        logger.info(f"Obtenidas {len(campañas)} campañas activas para cuenta {ad_account_id}")
+        return campañas
+        
+    except requests.Timeout:
+        logger.error(f"Timeout al consultar campañas activas para cuenta {ad_account_id}")
+        return []
+    except Exception as e:
+        logger.error(f"Error al obtener campañas activas para cuenta {ad_account_id}: {str(e)}")
+        return []
 
-def get_token_status(token: str = None) -> dict:
+def get_token_status(token: str | None = None) -> dict:
     """
     Consulta el endpoint /debug_token de Meta para obtener la expiración y días restantes del token.
     Retorna un dict con expires_at (timestamp), expires_date (YYYY-MM-DD), y days_left.
     """
     import time
-    token = token or TOKEN
+    actual_token = token or TOKEN
+    if not actual_token:
+        return {"error": "No se encontró token de acceso"}
+    
     app_token = TOKEN  # El mismo token global sirve como app_token para debug_token
     url = f"https://graph.facebook.com/debug_token"
     params = {
-        "input_token": token,
+        "input_token": actual_token,
         "access_token": app_token
     }
     try:
@@ -123,9 +175,7 @@ def obtener_info_cuenta_ads(ad_account_id: str) -> dict:
         "access_token": TOKEN
     }
     try:
-        res_info = requests.get(url_info, params=params_info, timeout=15)
-        res_info.raise_for_status()
-        data_info = res_info.json()
+        data_info = _request_with_retry(url_info, params_info)
         nombre_cliente = data_info.get("name", "")
         account_status = data_info.get("account_status", None)
     except Exception as e:
@@ -142,9 +192,7 @@ def obtener_info_cuenta_ads(ad_account_id: str) -> dict:
             "access_token": TOKEN
         }
         url_camp = f"{BASE_URL}/act_{ad_account_id}/campaigns"
-        res_camp = requests.get(url_camp, params=params_camp, timeout=15)
-        res_camp.raise_for_status()
-        data_camp = res_camp.json().get("data", [])
+        data_camp = _request_with_retry(url_camp, params_camp).get("data", [])
         anuncios_activos = len(data_camp)
     except Exception:
         anuncios_activos = None
@@ -161,9 +209,7 @@ def obtener_info_cuenta_ads(ad_account_id: str) -> dict:
             "access_token": TOKEN
         }
         url_ads = f"{BASE_URL}/act_{ad_account_id}/ads"
-        res_ads = requests.get(url_ads, params=params_ads, timeout=15)
-        res_ads.raise_for_status()
-        data_ads = res_ads.json().get("data", [])
+        data_ads = _request_with_retry(url_ads, params_ads).get("data", [])
         ads_activos = len(data_ads)
     except Exception:
         ads_activos = None
@@ -175,41 +221,42 @@ def obtener_info_cuenta_ads(ad_account_id: str) -> dict:
         "ads_activos": ads_activos
     }
 
-def listar_anuncios_activos(ad_account_id: str) -> list:
+def listar_anuncios_activos(ad_account_id: str, limit: int = 200) -> list[dict]:
     """
-    Devuelve una lista de anuncios activos para la cuenta dada usando el endpoint /me?fields=adaccounts{ads{adset,name,status,preview_shareable_link,campaign}}.
-    Cada anuncio incluye: ad_id, name, status, adset, preview_shareable_link, campaign.
-    Imprime en consola los adaccounts y la cuenta encontrada para depuración.
+    Devuelve anuncios activos para la cuenta dada.
+    `ad_account_id` va SIN prefijo 'act_'.
     """
     import requests
-    fields = "adaccounts{ads{adset,name,status,preview_shareable_link,campaign}}"
-    params = {
-        "fields": fields,
-        "access_token": TOKEN
-    }
-    url = f"{BASE_URL}/me"
-    res = requests.get(url, params=params, timeout=20)
-    res.raise_for_status()
-    data = res.json()
-    adaccounts = data.get("adaccounts", {}).get("data", [])
-    print("[MetaAds] adaccounts recibidos:", adaccounts)
-    cuenta = next((c for c in adaccounts if c.get("id") == f"act_{ad_account_id}" or c.get("id") == ad_account_id), None)
-    print(f"[MetaAds] Buscando cuenta_id={ad_account_id} → cuenta encontrada:", cuenta)
-    if not cuenta:
+    import json
+    import os
+    from clientes.aura.logger import logger
+    
+    token = os.getenv('META_ACCESS_TOKEN')
+    if not token:
+        logger.error("No se encontró token de acceso para Meta Ads")
         return []
-    ads = cuenta.get("ads", {}).get("data", [])
-    print(f"[MetaAds] Anuncios encontrados para la cuenta:", ads)
-    return [
-        {
-            "ad_id": a.get("id"),
-            "name": a.get("name"),
-            "status": a.get("status"),
-            "adset": a.get("adset"),
-            "preview_shareable_link": a.get("preview_shareable_link"),
-            "campaign": a.get("campaign")
-        }
-        for a in ads
-    ]
+        
+    filtering = json.dumps([{
+        "field": "effective_status",
+        "operator": "IN",
+        "value": ["ACTIVE"]
+    }])
+    
+    params = {
+        "fields": "id,name,status,adset_id,campaign_id,preview_shareable_link",
+        "filtering": filtering,
+        "limit": limit,
+        "access_token": token
+    }
+    
+    url = f"{BASE_URL}/act_{ad_account_id}/ads"
+    try:
+        res = requests.get(url, params=params, timeout=30)
+        res.raise_for_status()
+        return res.json().get("data", [])
+    except Exception as e:
+        logger.error(f"Error al obtener anuncios activos: {str(e)}")
+        return []
 
 from clientes.aura.utils.supabase_client import supabase
 
@@ -234,3 +281,83 @@ def obtener_ads_activos_cuenta(ad_account_id, access_token=None):
     except Exception as e:
         print(f"[MetaAds] Error al obtener ads activos para {ad_account_id}: {e}")
     return activos
+
+def obtener_reporte_campanas(cuenta_id, fecha_inicio=None, fecha_fin=None):
+    """
+    Obtiene un reporte de campañas de Meta Ads para una cuenta específica.
+    
+    Args:
+        cuenta_id (str): ID de la cuenta publicitaria de Meta.
+        fecha_inicio (str, optional): Fecha de inicio del reporte en formato YYYY-MM-DD.
+        fecha_fin (str, optional): Fecha de fin del reporte en formato YYYY-MM-DD.
+        
+    Returns:
+        list: Lista de campañas con sus métricas de rendimiento.
+    """
+    import os
+    import requests
+    from datetime import datetime, timedelta
+    from clientes.aura.logger import logger
+    
+    # Si no se proporcionan fechas, usar últimos 30 días
+    if not fecha_inicio or not fecha_fin:
+        fecha_fin = datetime.now().strftime('%Y-%m-%d')
+        fecha_inicio = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+    
+    # Obtener token de acceso
+    access_token = os.getenv('META_ACCESS_TOKEN')
+    if not access_token:
+        logger.error("No se encontró el token de acceso para Meta Ads")
+        return []
+        
+    # Construir la URL para consultar la API de Meta
+    url = f"https://graph.facebook.com/v19.0/act_{cuenta_id}/insights"
+    params = {
+        'access_token': access_token,
+        'level': 'campaign',
+        'fields': 'campaign_name,spend,impressions,clicks,ctr,cpc,reach,frequency',
+        'time_range': {
+            'since': fecha_inicio,
+            'until': fecha_fin
+        },
+        'time_increment': 1,  # Datos diarios
+        'limit': 1000
+    }
+    
+    try:
+        # Convertir el diccionario time_range a formato JSON
+        import json
+        params['time_range'] = json.dumps(params['time_range'])
+        
+        # Realizar la solicitud a la API
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # Lanza excepción si hay error HTTP
+        
+        data = response.json()
+        if 'data' not in data:
+            logger.warning(f"No se encontraron datos para la cuenta {cuenta_id} en el período especificado")
+            return []
+        
+        # Procesar y formatear los resultados
+        campañas = []
+        for item in data.get('data', []):
+            campaña = {
+                'id': item.get('campaign_id'),
+                'nombre': item.get('campaign_name', 'Sin nombre'),
+                'gasto': float(item.get('spend', 0)),
+                'impresiones': int(item.get('impressions', 0)),
+                'clicks': int(item.get('clicks', 0)),
+                'ctr': float(item.get('ctr', 0)) * 100,  # Convertir a porcentaje
+                'cpc': float(item.get('cpc', 0)),
+                'alcance': int(item.get('reach', 0)),
+                'frecuencia': float(item.get('frequency', 0)),
+                'fecha': item.get('date_start')
+            }
+            campañas.append(campaña)
+            
+        logger.info(f"Reporte generado para cuenta {cuenta_id}: {len(campañas)} resultados")
+        return campañas
+        
+    except Exception as e:
+        logger.error(f"Error al obtener reporte de campañas para cuenta {cuenta_id}: {str(e)}")
+        return []

@@ -1,0 +1,242 @@
+{% extends "base_admin_horizontal.html" %}
+
+{% block titulo %}Análisis IA del Registro Dinámico{% endblock %}
+
+{% block contenido %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Análisis de IA del Registro Dinámico</h1>
+            <p class="mt-1 text-sm text-gray-500">Análisis avanzado generado mediante inteligencia artificial</p>
+        </div>
+        
+        <div class="flex space-x-2">
+            <a href="{{ url_for('registro_dinamico_frontend.index') }}" 
+               class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="-ml-0.5 mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Volver al resumen
+            </a>
+            
+            <button id="btnActualizarAnalisis" 
+                   class="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="-ml-0.5 mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Actualizar análisis
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mensaje de error si lo hay -->
+    {% if analisis_ia.error %}
+    <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Error en el análisis de IA</h3>
+                <div class="mt-2 text-sm text-red-700">
+                    <p>{{ analisis_ia.error }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Evaluación general -->
+    {% if analisis_ia.evaluacion_general %}
+    <div class="bg-white shadow rounded-lg mb-6 overflow-hidden">
+        <div class="border-b border-gray-200 bg-gray-50 px-4 py-3">
+            <h2 class="text-lg font-medium text-gray-900">Evaluación general</h2>
+        </div>
+        <div class="p-4">
+            <div class="prose max-w-none">
+                <p>{{ analisis_ia.evaluacion_general }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Resultados del análisis (layout de 2 columnas) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Patrones identificados -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="border-b border-gray-200 bg-gray-50 px-4 py-3">
+                <h2 class="text-lg font-medium text-gray-900">Patrones de diseño identificados</h2>
+            </div>
+            <div class="p-4">
+                {% if analisis_ia.patrones_identificados %}
+                <ul class="space-y-3">
+                    {% for patron in analisis_ia.patrones_identificados %}
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-blue-500 mr-2 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{{ patron }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-gray-500 italic">No se identificaron patrones específicos</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Problemas de escalabilidad -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="border-b border-gray-200 bg-gray-50 px-4 py-3">
+                <h2 class="text-lg font-medium text-gray-900">Problemas de escalabilidad</h2>
+            </div>
+            <div class="p-4">
+                {% if analisis_ia.problemas_escalabilidad %}
+                <ul class="space-y-3">
+                    {% for problema in analisis_ia.problemas_escalabilidad %}
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-yellow-500 mr-2 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>{{ problema }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-gray-500 italic">No se detectaron problemas de escalabilidad significativos</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Segunda fila de análisis -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Código duplicado -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="border-b border-gray-200 bg-gray-50 px-4 py-3">
+                <h2 class="text-lg font-medium text-gray-900">Código duplicado</h2>
+            </div>
+            <div class="p-4">
+                {% if analisis_ia.codigo_duplicado %}
+                <ul class="space-y-3">
+                    {% for duplicado in analisis_ia.codigo_duplicado %}
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-purple-500 mr-2 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <span>{{ duplicado }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-gray-500 italic">No se detectó código duplicado significativo</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Vulnerabilidades -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="border-b border-gray-200 bg-gray-50 px-4 py-3">
+                <h2 class="text-lg font-medium text-gray-900">Vulnerabilidades de seguridad</h2>
+            </div>
+            <div class="p-4">
+                {% if analisis_ia.vulnerabilidades %}
+                <ul class="space-y-3">
+                    {% for vulnerabilidad in analisis_ia.vulnerabilidades %}
+                    <li class="flex items-start">
+                        <svg class="h-5 w-5 text-red-500 mr-2 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <span>{{ vulnerabilidad }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-gray-500 italic">No se detectaron vulnerabilidades críticas</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recomendaciones de arquitectura -->
+    <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+        <div class="border-b border-gray-200 bg-gray-50 px-4 py-3">
+            <h2 class="text-lg font-medium text-gray-900">Recomendaciones de arquitectura</h2>
+        </div>
+        <div class="p-4">
+            {% if analisis_ia.recomendaciones_arquitectura %}
+            <ul class="space-y-4">
+                {% for recomendacion in analisis_ia.recomendaciones_arquitectura %}
+                <li class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-800">{{ recomendacion }}</p>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-gray-500 italic">No hay recomendaciones de arquitectura disponibles</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Timestamp del análisis -->
+    <div class="text-right text-sm text-gray-500">
+        Análisis generado: {{ analisis_ia.timestamp|default(0)|int|timestamp_to_date }}
+    </div>
+</div>
+
+<!-- JavaScript para actualizar análisis -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnActualizar = document.getElementById('btnActualizarAnalisis');
+    
+    btnActualizar.addEventListener('click', function() {
+        // Mostrar indicador de carga
+        const textoOriginal = btnActualizar.innerHTML;
+        btnActualizar.disabled = true;
+        btnActualizar.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Actualizando...
+        `;
+        
+        // Forzar actualización del caché
+        fetch('/admin/registro_dinamico/api/actualizar_analisis', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error al actualizar: ' + data.error);
+            } else {
+                // Recargar la página para ver el análisis actualizado
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al comunicarse con el servidor');
+        })
+        .finally(() => {
+            // Restaurar botón
+            btnActualizar.innerHTML = textoOriginal;
+            btnActualizar.disabled = false;
+        });
+    });
+});
+</script>
+{% endblock %}

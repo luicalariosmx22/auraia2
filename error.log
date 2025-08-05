@@ -1,0 +1,17 @@
+2025-06-03 02:22:59,670 - clientes.aura - ERROR - [Meta Ads] Error en obtener_reporte_campanas: 400 Client Error: Bad Request for url: https://graph.facebook.com/v19.0/act_16626756/campaigns?fields=id%2Cname%2Cstatus%2Ceffective_status%2Cdaily_budget%2Cinsights%7Bimpressions%2Cclicks%2Creach%2Cspend%2Cobjective%7D&access_token=TU_ACCESS_TOKEN_GLOBAL
+2025-07-04 20:26:18,165 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web - ERROR - Error cargando dashboard WhatsApp Web: maximum recursion depth exceeded
+2025-07-04 20:29:40,555 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web - ERROR - Error cargando dashboard WhatsApp Web: maximum recursion depth exceeded
+2025-07-04 20:31:59,215 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web - ERROR - Error cargando dashboard WhatsApp Web: maximum recursion depth exceeded
+2025-07-04 20:32:21,272 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web - ERROR - Error cargando dashboard WhatsApp Web: maximum recursion depth exceeded
+2025-07-07 17:40:55,799 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:40:55,839 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:40:55,870 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:41:03,896 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:41:13,378 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:41:13,420 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 20:48:33,768 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ No se pudo obtener cliente WebSocket
+2025-07-07 20:48:33,809 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error en dashboard WhatsApp Web: error.html
+2025-07-07 20:48:48,845 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ No se pudo obtener cliente WebSocket
+2025-07-07 20:48:48,885 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error en dashboard WhatsApp Web: error.html
+2025-07-07 20:50:07,104 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ No se pudo obtener cliente WebSocket
+2025-07-07 20:50:31,530 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ No se pudo obtener cliente WebSocket

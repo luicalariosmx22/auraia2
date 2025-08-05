@@ -1,0 +1,133 @@
+🔁 REDIRECT_URI en uso: http://localhost:5000/login/callback
+✅ supabase_client.py cargado correctamente y cliente listo
+✅ Tipo de supabase: <class 'supabase.client.Client'>
+✅ Métodos de supabase: ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_get_auth_headers', '_init_postgrest_client', '_init_storage_client', '_init_supabase_auth_client', 'auth', 'auth_url', 'from_', 'functions', 'functions_url', 'postgrest', 'realtime', 'realtime_url', 'rest_url', 'rpc', 'schema', 'storage', 'storage_url', 'supabase_key', 'supabase_url', 'table']
+✅ registro_base.py cargado correctamente
+✅ process_message.py cargado correctamente al chile y ajustado para actualización real
+✅ registro_admin.py cargado correctamente
+✅ admin_noras.py cargado correctamente
+✅ admin_nora.py cargado correctamente
+✅ admin_nora_dashboard.py cargado correctamente
+✅ debug_verificar.py cargado correctamente
+✅ Módulo debug_oauthlib.py cargado correctamente.
+✅ admin_actualizar_contactos.py cargado correctamente
+✅ panel_cliente.py cargado correctamente
+✅ panel_cliente_contactos.py cargado correctamente
+✅ Blueprint de contactos cargado como '/contactos'
+✅ panel_cliente_envios.py cargado correctamente
+✅ panel_cliente_ia.py cargado correctamente
+✅ panel_cliente_respuestas.py cargado correctamente
+✅ __init__.py del panel_chat cargado correctamente
+✅ vista_enviar_mensaje.py cargado correctamente (supabase actualizado)
+🧩 cargando tareas_crud.py...
+✅ admin_verificador_rutas.py cargado correctamente
+✅ cliente_nora.py cargado correctamente
+⚠️ No se pudo importar 'fpdf2': No module named 'fpdf2'
+>>> vista_presupuesto_nuevo.py importado
+🚀 Iniciando prueba de extracción de anuncios con métricas desde Google Ads
+⚙️ Inicializando Google Ads Service...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): accounts.google.com:443
+DEBUG:urllib3.connectionpool:https://accounts.google.com:443 "POST /o/oauth2/token HTTP/1.1" 200 None
+INFO:clientes.aura.services.google_ads_service_fixed:✅ Cliente de Google Ads configurado correctamente
+📋 Obteniendo listado de cuentas accesibles...
+INFO:clientes.aura.services.google_ads_service_fixed:✅ Found 20 customers in MCC
+INFO:clientes.aura.services.google_ads_service_fixed:✅ Processing 23 total customer IDs (including manual additions)
+DEBUG:clientes.aura.services.google_ads_service_fixed:✅ Cuenta accesible: 1554994188 - Suspiros Pastelerías
+DEBUG:clientes.aura.services.google_ads_service_fixed:✅ Cuenta accesible: 7605115009 - Suspiros Cakes
+Request made: ClientCustomerId: 8536386903, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: 5e7Cv6vbD1K1xQT0uafG-Q, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 8536386903 - Cuenta 8536386903 - Cuenta deshabilitada
+Request made: ClientCustomerId: 5522519778, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: VBIOrq8hq8qEKMEG1cV-gg, IsFault: True, FaultMessage: User doesn't have permission to access customer. Note: If you're accessing a client customer, the manager's customer id must be set in the 'login-customer-id' header. See https://developers.google.com/google-ads/api/docs/concepts/call-structure#cid
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 5522519778 - Cuenta 5522519778 - Sin permisos de acceso
+Request made: ClientCustomerId: 7201912650, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: BKZP8IGeGh2ICewbyOfjUQ, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 7201912650 - Cuenta 7201912650 - Cuenta deshabilitada
+Request made: ClientCustomerId: 9461348123, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: LkBwNrrb3siC9WUvQFaCNA, IsFault: True, FaultMessage: User doesn't have permission to access customer. Note: If you're accessing a client customer, the manager's customer id must be set in the 'login-customer-id' header. See https://developers.google.com/google-ads/api/docs/concepts/call-structure#cid
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 9461348123 - Cuenta 9461348123 - Sin permisos de acceso
+Request made: ClientCustomerId: 2583359121, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: iIyP3-Xm0KUb6zh6dEJDnw, IsFault: True, FaultMessage: User doesn't have permission to access customer. Note: If you're accessing a client customer, the manager's customer id must be set in the 'login-customer-id' header. See https://developers.google.com/google-ads/api/docs/concepts/call-structure#cid
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 2583359121 - Cuenta 2583359121 - Sin permisos de acceso
+Request made: ClientCustomerId: 2916068845, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: zQ0OYh4B7Do0PFtee9onLQ, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 2916068845 - Cuenta 2916068845 - Cuenta deshabilitada
+Request made: ClientCustomerId: 9376258688, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: u4rPNvxc00pWdqEC4ObFTQ, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 9376258688 - Cuenta 9376258688 - Cuenta deshabilitada
+Request made: ClientCustomerId: 3114042733, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: u4LKfaUJ9Wfwth2rzWFi7A, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 3114042733 - Cuenta 3114042733 - Cuenta deshabilitada
+Request made: ClientCustomerId: 3602329652, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: jbQJ6_3dMcna2NHqj52RDA, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 3602329652 - Cuenta 3602329652 - Cuenta deshabilitada
+Request made: ClientCustomerId: 8987033864, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: TOH3eLSrc8uBjQCIu9RxnA, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 8987033864 - Cuenta 8987033864 - Cuenta deshabilitada
+DEBUG:clientes.aura.services.google_ads_service_fixed:✅ Cuenta accesible: 3700518858 - LaReinaPasteleria
+Request made: ClientCustomerId: 5689705298, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: FhONWpVpOJPnOjdlUji9Ew, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 5689705298 - Cuenta 5689705298 - Cuenta deshabilitada
+Request made: ClientCustomerId: 7322707813, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: JDKn-NYppmw0zEeHEEhp6Q, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 7322707813 - Cuenta 7322707813 - Cuenta deshabilitada
+Request made: ClientCustomerId: 4324238564, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: VMr4hbGR0SU8SqHIo6GyfQ, IsFault: True, FaultMessage: User doesn't have permission to access customer. Note: If you're accessing a client customer, the manager's customer id must be set in the 'login-customer-id' header. See https://developers.google.com/google-ads/api/docs/concepts/call-structure#cid
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 4324238564 - Cuenta 4324238564 - Sin permisos de acceso
+Request made: ClientCustomerId: 2447658535, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: A2HUpWRoi-tD38eG_rZahA, IsFault: True, FaultMessage: The customer account can't be accessed because it is not yet enabled or has been deactivated.
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 2447658535 - Cuenta 2447658535 - Cuenta deshabilitada
+Request made: ClientCustomerId: 6759588292, Host: googleads.googleapis.com, Method: /google.ads.googleads.v20.services.GoogleAdsService/Search, RequestId: e0UteLrEHJeDNxGxahfdZA, IsFault: True, FaultMessage: User doesn't have permission to access customer. Note: If you're accessing a client customer, the manager's customer id must be set in the 'login-customer-id' header. See https://developers.google.com/google-ads/api/docs/concepts/call-structure#cid
+INFO:clientes.aura.services.google_ads_service_fixed:⚠️ Cuenta con problemas: 6759588292 - Cuenta 6759588292 - Sin permisos de acceso
+DEBUG:clientes.aura.services.google_ads_service_fixed:✅ Cuenta accesible: 9737121597 - SAL DE JADE
+DEBUG:clientes.aura.services.google_ads_service_fixed:✅ Cuenta accesible: 5119250694 - Aura Marketing LLC
+DEBUG:clientes.aura.services.google_ads_service_fixed:✅ Cuenta accesible: 1785583613 - Musicando
+DEBUG:clientes.aura.services.google_ads_service_fixed:✅ Cuenta accesible: 4890270350 - RIMS 2
+DEBUG:clientes.aura.services.google_ads_service_fixed:✅ Cuenta accesible: 5291123262 - Vetenvan
+INFO:clientes.aura.services.google_ads_service_fixed:✅ Total cuentas MCC procesadas: 23
+INFO:clientes.aura.services.google_ads_service_fixed:   • Accesibles: 8
+INFO:clientes.aura.services.google_ads_service_fixed:   • Con problemas: 15
+✅ Se encontraron 23 cuentas en el MCC
+
+📋 Cuentas disponibles para pruebas:
+  1. Aura Marketing LLC (ID: 5119250694)
+  2. LaReinaPasteleria (ID: 3700518858)
+  3. Musicando (ID: 1785583613)
+  4. RIMS 2 (ID: 4890270350)
+  5. SAL DE JADE (ID: 9737121597)
+  6. Suspiros Cakes (ID: 7605115009)
+  7. Suspiros Pastelerías (ID: 1554994188)
+  8. Vetenvan (ID: 5291123262)
+
+✅ Se encontró una cuenta cliente para prueba
+🔍 Seleccionada cuenta para prueba: LaReinaPasteleria (ID: 3700518858)
+📊 Obteniendo anuncios con métricas para cuenta 3700518858...
+INFO:clientes.aura.services.google_ads_service_fixed:🔍 Consultando anuncios con métricas para cuenta 3700518858 (30 días)
+Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\test_google_ads_metricas.py", line 298, in <module>
+    main()
+  File "C:\Users\PC\PYTHON\AuraAi2\test_google_ads_metricas.py", line 112, in main
+    anuncios = service.obtener_anuncios_con_metricas(customer_id, periodo_dias=30)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\services\google_ads_service_fixed.py", line 745, in obtener_anuncios_con_metricas
+    response = ads_service.search_stream(customer_id=customer_id, query=query)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\.venv\Lib\site-packages\google\ads\googleads\v20\services\services\google_ads_service\client.py", line 4519, in search_stream
+    response = rpc(
+               ^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\.venv\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\.venv\Lib\site-packages\google\api_core\grpc_helpers.py", line 170, in error_remapped_callable
+    return _StreamingResponseIterator(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\.venv\Lib\site-packages\google\api_core\grpc_helpers.py", line 92, in __init__
+    self._stored_first_result = next(self._wrapped)
+                                ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\.venv\Lib\site-packages\google\ads\googleads\interceptors\response_wrappers.py", line 88, in __next__
+    message = next(self._underlay_call)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\.venv\Lib\site-packages\grpc\_channel.py", line 543, in __next__
+    return self._next()
+           ^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\.venv\Lib\site-packages\grpc\_channel.py", line 776, in _next
+    return self._next_response()
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\.venv\Lib\site-packages\grpc\_channel.py", line 738, in _next_response
+    self._consume_next_event()
+  File "C:\Users\PC\PYTHON\AuraAi2\.venv\Lib\site-packages\grpc\_channel.py", line 725, in _consume_next_event
+    event = self._call.next_event()
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 388, in grpc._cython.cygrpc.SegregatedCall.next_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 211, in grpc._cython.cygrpc._next_call_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 205, in grpc._cython.cygrpc._next_call_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/completion_queue.pyx.pxi", line 97, in grpc._cython.cygrpc._latent_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/completion_queue.pyx.pxi", line 80, in grpc._cython.cygrpc._internal_latent_event
+  File "src/python/grpcio/grpc/_cython/_cygrpc/completion_queue.pyx.pxi", line 61, in grpc._cython.cygrpc._next
+KeyboardInterrupt

@@ -36,15 +36,28 @@ class AnalizadorProyecto:
         self.categorias = {}
 
     def analizar_archivos(self):
-        """Recorre todos los archivos con la extensión seleccionada en el proyecto y analiza su contenido."""
-        print("Iniciando análisis de archivos...")
-        for root, _, files in os.walk(self.base_path):
-            for file in files:
-                if file.endswith(self.file_extension):
-                    filepath = os.path.join(root, file)
-                    print(f"Analizando archivo: {filepath}")
-                    self.analizar_archivo(filepath)
-        print("Análisis de archivos completado.")
+        """Analiza únicamente archivos que coinciden exactamente con los módulos de Supabase. No muestra advertencias ni analiza nada fuera de esa lista."""
+        print("Iniciando análisis de módulos desde Supabase...")
+        response = supabase.table("modulos_disponibles").select("nombre").execute()
+        if not response.data:
+            print("No se encontraron módulos en Supabase.")
+            return
+        modulos_supabase = set(m["nombre"] for m in response.data)
+
+        # Buscar solo archivos que coincidan exactamente con los módulos válidos
+        archivos_encontrados = {os.path.splitext(file)[0]: os.path.join(root, file)
+                               for root, _, files in os.walk(self.base_path)
+                               for file in files if file.endswith(self.file_extension)}
+
+        modulos_analizados = 0
+        for modulo in modulos_supabase:
+            if modulo in archivos_encontrados:
+                filepath = archivos_encontrados[modulo]
+                print(f"Analizando módulo: {modulo} (archivo: {filepath})")
+                self.analizar_archivo(filepath)
+                modulos_analizados += 1
+            # No mostrar advertencias ni analizar nada más
+        print(f"Análisis de módulos completado. Se analizaron {modulos_analizados} módulos presentes en Supabase.")
 
     def analizar_archivo(self, filepath: str):
         """Analiza un archivo y extrae la información solicitada."""

@@ -5,6 +5,6 @@ def admin_login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not session.get("email"):
-            return redirect(url_for("simple_login.login_simple"))
+            return redirect(url_for("simple_login_unique.login_simple"))  # Corregido
         return func(*args, **kwargs)
     return wrapper

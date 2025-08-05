@@ -1,0 +1,195 @@
+2025-07-30 00:14:17,858 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-30 00:14:19,915 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:14:23,857 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-30 00:14:27,637 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-30 00:14:29,688 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:14:33,564 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-30 00:14:37,609 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-30 00:14:41,519 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-30 00:14:43,644 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:14:48,697 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-30 00:14:50,767 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:14:53,467 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:14:55,345 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-30 00:14:57,400 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:15:01,847 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)
+2025-07-30 00:15:03,995 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:15:08,005 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/conocimiento (intento 1/3)
+2025-07-30 00:15:11,907 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-30 00:15:14,018 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:15:18,272 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_maps (intento 1/3)
+2025-07-30 00:15:22,465 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-30 00:15:24,512 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:15:29,070 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-30 00:20:17,038 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-30 00:20:19,235 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:20:22,931 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-30 00:20:26,404 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-30 00:20:28,599 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:20:32,219 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-30 00:20:35,824 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-30 00:20:39,526 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-30 00:20:41,796 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:20:46,131 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-30 00:20:48,370 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:20:50,938 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:20:52,503 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-30 00:20:54,718 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:20:58,534 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)
+2025-07-30 00:21:00,571 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:21:04,183 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/conocimiento (intento 1/3)
+2025-07-30 00:21:08,115 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-30 00:21:10,372 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:21:14,270 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_maps (intento 1/3)
+2025-07-30 00:21:16,489 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:21:20,588 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/open_table (intento 1/3)
+2025-07-30 00:21:24,225 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-30 00:21:26,273 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:21:29,972 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-30 00:22:19,922 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-30 00:22:22,179 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:22:25,822 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-30 00:22:29,369 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-30 00:22:31,612 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:22:35,474 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-30 00:22:39,164 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-30 00:22:42,917 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-30 00:22:44,970 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:22:49,404 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-30 00:22:51,678 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:22:54,192 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:22:55,774 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-30 00:22:58,060 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:23:01,910 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)
+2025-07-30 00:23:03,966 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:23:07,918 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/conocimiento (intento 1/3)
+2025-07-30 00:23:11,737 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-30 00:23:13,947 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:23:18,038 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_maps (intento 1/3)
+2025-07-30 00:23:20,293 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:23:23,915 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/open_table (intento 1/3)
+2025-07-30 00:23:25,964 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-07-30 00:23:29,678 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-30 00:23:31,963 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:23:35,895 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-30 00:24:52,523 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-30 00:24:54,767 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:24:58,505 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-30 00:25:01,980 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-30 00:25:04,038 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:25:08,075 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-30 00:25:12,180 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-30 00:25:16,230 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-30 00:25:18,294 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:25:23,477 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-30 00:25:25,609 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:25:28,489 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:25:30,445 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-30 00:25:32,487 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:25:36,693 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)
+2025-07-30 00:25:38,788 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:25:42,686 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/conocimiento (intento 1/3)
+2025-07-30 00:25:46,582 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-30 00:25:48,636 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:25:53,000 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_maps (intento 1/3)
+2025-07-30 00:25:55,135 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:25:59,192 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/open_table (intento 1/3)
+2025-07-30 00:26:01,477 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-07-30 00:26:05,420 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-30 00:26:07,568 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:26:11,924 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-30 00:29:17,055 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-30 00:29:19,221 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:29:23,335 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-30 00:29:27,170 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-30 00:29:29,216 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:29:33,479 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-30 00:29:37,475 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-30 00:29:41,377 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-30 00:29:43,437 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:29:48,359 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-30 00:29:50,419 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:29:53,141 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:29:54,983 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-30 00:29:57,045 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:30:01,211 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)
+2025-07-30 00:30:03,393 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:30:07,909 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/conocimiento (intento 1/3)
+2025-07-30 00:30:12,234 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-30 00:30:14,383 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:30:19,140 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_maps (intento 1/3)
+2025-07-30 00:30:21,345 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:30:25,416 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/open_table (intento 1/3)
+2025-07-30 00:30:27,574 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-07-30 00:30:31,860 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-30 00:30:33,979 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:30:38,318 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-30 00:32:47,804 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/contactos (intento 1/3)
+2025-07-30 00:32:50,039 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-07-30 00:32:54,194 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/envios (intento 1/3)
+2025-07-30 00:32:58,283 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/entrenamiento (intento 1/3)
+2025-07-30 00:33:00,411 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-07-30 00:33:04,490 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/panel_chat (intento 1/3)
+2025-07-30 00:33:08,616 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/qr_whatsapp_web (intento 1/3)
+2025-07-30 00:33:12,901 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/tareas (intento 1/3)
+2025-07-30 00:33:15,385 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-07-30 00:33:20,801 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/meta_ads (intento 1/3)
+2025-07-30 00:33:22,858 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-07-30 00:33:25,791 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 00:33:27,879 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/clientes (intento 1/3)
+2025-07-30 00:33:30,099 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-07-30 00:33:34,450 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/alertas (intento 1/3)
+2025-07-30 00:33:36,985 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-07-30 00:33:41,127 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/conocimiento (intento 1/3)
+2025-07-30 00:33:45,344 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/pagos (intento 1/3)
+2025-07-30 00:33:47,467 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-07-30 00:33:52,035 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_maps (intento 1/3)
+2025-07-30 00:33:54,144 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-07-30 00:33:58,423 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/open_table (intento 1/3)
+2025-07-30 00:34:00,500 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-07-30 00:34:04,574 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/google_ads (intento 1/3)
+2025-07-30 00:34:06,629 - aura - INFO - [http_checker.py:271] - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-07-30 00:34:10,945 - aura - DEBUG - [http_checker.py:161] - Verificando ruta: GET http://localhost:5000/panel_cliente/aura/cursos (intento 1/3)
+2025-07-30 11:40:24,214 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 12:48:27,174 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 13:03:19,913 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:01:39,871 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:01:58,500 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:04:06,835 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:08:41,987 - aura - ERROR - [panel_cliente_meta_ads.py:179] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:16:01,568 - aura - ERROR - [panel_cliente_meta_ads.py:126] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:16:46,743 - aura - ERROR - [panel_cliente_meta_ads.py:126] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:17:51,088 - aura - ERROR - [panel_cliente_meta_ads.py:126] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:18:47,597 - aura - ERROR - [panel_cliente_meta_ads.py:126] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:22:54,994 - aura - ERROR - [panel_cliente_meta_ads.py:127] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:38:28,252 - aura - ERROR - [panel_cliente_meta_ads.py:136] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:38:50,254 - aura - ERROR - [panel_cliente_meta_ads.py:136] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:43:59,212 - aura - ERROR - [panel_cliente_meta_ads.py:131] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:44:50,398 - aura - ERROR - [panel_cliente_meta_ads.py:131] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:45:06,458 - aura - ERROR - [panel_cliente_meta_ads.py:131] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:49:47,800 - aura - ERROR - [panel_cliente_meta_ads.py:131] - Error al obtener reportes semanales: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 17:58:52,326 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:02:24,188 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:05:18,707 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:08:06,304 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:11:23,397 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:18:03,900 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:22:22,834 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:39:15,680 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:42:33,039 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:48:31,283 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:51:36,425 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:56:01,370 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 18:58:20,779 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 19:08:00,667 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 20:53:17,319 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:01:19,936 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:02:16,707 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:03:32,112 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:05:20,732 - aura - ERROR - [panel_cliente_meta_ads.py:24] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': None, 'message': 'column meta_ads_reportes_semanales.nombre_nora does not exist'}
+2025-07-30 21:09:13,096 - aura - ERROR - [panel_cliente_meta_ads.py:28] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:11:37,132 - aura - ERROR - [panel_cliente_meta_ads.py:28] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:13:02,244 - aura - ERROR - [panel_cliente_meta_ads.py:28] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:16:15,231 - aura - ERROR - [panel_cliente_meta_ads.py:28] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:21:38,742 - aura - ERROR - [panel_cliente_meta_ads.py:28] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}
+2025-07-30 21:23:33,055 - aura - ERROR - [panel_cliente_meta_ads.py:28] - Error en panel_cliente_meta_ads: {'code': '42703', 'details': None, 'hint': 'Perhaps you meant to reference the column "meta_ads_reportes_semanales.fecha_inicio".', 'message': 'column meta_ads_reportes_semanales.fecha_envio does not exist'}

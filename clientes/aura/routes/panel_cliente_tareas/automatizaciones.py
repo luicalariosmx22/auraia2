@@ -122,7 +122,7 @@ def guardar_preferencias_automatizaciones():
 def guardar_automatizaciones(nombre_nora):
     data = request.json
     response = supabase.table("configuracion_bot")\
-        .update({ "modulos_config": data })\
+        .update({ "modulos_disponibles": data })\
         .eq("nombre_nora", nombre_nora)\
         .execute()
     return jsonify({"ok": True})

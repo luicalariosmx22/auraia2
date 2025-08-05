@@ -1,0 +1,83 @@
+<div class="bg-white border rounded-xl shadow-sm p-6">
+  <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">⚙️ Activación en Noras</h2>
+  {% if modulo.activado_en %}
+    <p class="text-sm text-green-700 mb-2">Activo en {{ modulo.activado_en | length }} Nora(s)</p>
+    <ul class="list-disc list-inside text-sm text-gray-700">
+      {% for nora in modulo.activado_en %}
+        <li>{{ nora }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-gray-500">❌ No está activo en ninguna Nora</p>
+  {% endif %}
+
+  {# Sección de menciones en __init__.py #}
+  {% if modulo.menciones_en_init %}
+    <div class="text-green-700 text-sm mb-3">
+      ✅ Este módulo está mencionado en <code>__init__.py</code>:
+      <ul class="list-disc pl-4">
+        {% for texto in modulo.menciones_en_init %}
+          <li><code>{{ texto }}</code></li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% else %}
+    <div class="text-red-700 text-sm mb-3">
+      ⚠️ No se detectó este módulo en <code>__init__.py</code>
+    </div>
+  {% endif %}
+
+  {# Advertencia de registro inconsistente #}
+  {% if modulo.registrado_en_init and not modulo.registrado_codigo %}
+    <div class="text-yellow-900 bg-yellow-50 border-l-4 border-yellow-500 p-3 text-sm rounded mb-2">
+      ⚠️ Este módulo fue registrado manualmente en <code>__init__.py</code> pero no aparece en <code>registro_dinamico.py</code>.<br>
+      Esto puede causar que no se active dinámicamente por Nora.
+    </div>
+
+    {# Sugerencia de código para registro dinámico #}
+    {% if modulo.sugerencia_registro_dinamico %}
+      <div class="mt-4">
+        <div class="text-yellow-700 bg-yellow-50 px-3 py-2 rounded text-sm mb-2">
+          💡 Sugerencia: Agrega este código en <code>registro_dinamico.py</code>:
+        </div>
+        <pre class="bg-gray-900 text-green-300 rounded px-4 py-3 overflow-x-auto text-xs"><code>{{ modulo.sugerencia_registro_dinamico }}</code></pre>
+        
+        <div class="mt-2 text-xs text-gray-600">
+          <details>
+            <summary class="cursor-pointer hover:text-gray-800">Ver detalles adicionales</summary>
+            <ul class="list-disc pl-4 mt-1 space-y-1">
+              <li>Blueprint: <code>{{ modulo.nombre_blueprint }}</code></li>
+              <li>Ruta del módulo: <code>{{ modulo.ruta_modulo }}</code></li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {# Estado del registro dinámico #}
+  {% if modulo.registrado_dinamico %}
+    <div class="text-green-700 text-sm mb-3">
+      ✅ Este módulo está registrado dinámicamente en <code>registro_dinamico.py</code>
+      <div class="mt-1 text-xs">
+        📝 Método de registro: <code>{{ modulo.metodo_registro }}</code>
+        {% if modulo.detalles_registro.patron_encontrado %}
+          <div class="mt-1 pl-4">
+            Patrón detectado: <code>{{ modulo.detalles_registro.patron_encontrado }}</code>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="text-red-700 text-sm mb-3">
+      ⚠️ No se detectó registro dinámico del módulo
+    </div>
+  {% endif %}
+
+  {% if modulo.get('detalles_registro', {}).get('sugerencia') %}
+    <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <p class="text-sm text-blue-700 mb-2">💡 Sugerencia de registro:</p>
+      <pre class="text-xs font-mono bg-white p-3 rounded border border-blue-200 overflow-x-auto">{{ modulo.detalles_registro.sugerencia }}</pre>
+    </div>
+  {% endif %}
+</div>

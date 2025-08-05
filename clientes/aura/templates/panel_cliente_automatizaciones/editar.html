@@ -1,0 +1,195 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="max-w-4xl mx-auto py-8">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex items-center mb-4">
+            <a href="{{ url_for('panel_cliente_automatizaciones_bp.panel_cliente_automatizaciones', nombre_nora=nombre_nora) }}" 
+               class="text-blue-600 hover:text-blue-800 mr-4">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-3xl font-bold">
+                <i class="fas fa-edit text-blue-600"></i>
+                Editar Automatización
+            </h1>
+        </div>
+        <p class="text-gray-600">Modifica la configuración de la automatización: <strong>{{ automatizacion.nombre }}</strong></p>
+    </div>
+
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-6">
+                {% for category, message in messages %}
+                    <div class="alert bg-{{ 'red' if category == 'error' else 'green' }}-100 border border-{{ 'red' if category == 'error' else 'green' }}-400 text-{{ 'red' if category == 'error' else 'green' }}-700 px-4 py-3 rounded mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Formulario -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="POST" class="space-y-6">
+            <!-- Estado de la automatización -->
+            <div class="flex items-center justify-between bg-gray-50 p-4 rounded-md">
+                <div>
+                    <h3 class="font-medium text-gray-900">Estado de la Automatización</h3>
+                    <p class="text-sm text-gray-600">Activa/desactiva la ejecución automática</p>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="activo" 
+                           name="activo" 
+                           {{ 'checked' if automatizacion.activo }}
+                           class="mr-2">
+                    <label for="activo" class="text-sm font-medium text-gray-700">
+                        Automatización Activa
+                    </label>
+                </div>
+            </div>
+
+            <!-- Información Básica -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre de la Automatización *
+                    </label>
+                    <input type="text" 
+                           id="nombre" 
+                           name="nombre" 
+                           required 
+                           value="{{ automatizacion.nombre }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="frecuencia" class="block text-sm font-medium text-gray-700 mb-2">
+                        Frecuencia *
+                    </label>
+                    <select id="frecuencia" 
+                            name="frecuencia" 
+                            required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Selecciona una frecuencia</option>
+                        <option value="diaria" {{ 'selected' if automatizacion.frecuencia == 'diaria' }}>Diaria</option>
+                        <option value="semanal" {{ 'selected' if automatizacion.frecuencia == 'semanal' }}>Semanal</option>
+                        <option value="mensual" {{ 'selected' if automatizacion.frecuencia == 'mensual' }}>Mensual</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="hora_ejecucion" class="block text-sm font-medium text-gray-700 mb-2">
+                        Hora de Ejecución *
+                    </label>
+                    <input type="time" 
+                           id="hora_ejecucion" 
+                           name="hora_ejecucion" 
+                           required 
+                           value="{{ automatizacion.hora_ejecucion }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="modulo_relacionado" class="block text-sm font-medium text-gray-700 mb-2">
+                        Módulo
+                    </label>
+                    <select id="modulo_relacionado" 
+                            name="modulo_relacionado" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Selecciona un módulo</option>
+                        <option value="reportes" {{ 'selected' if automatizacion.modulo_relacionado == 'reportes' }}>Reportes</option>
+                        <option value="notificaciones" {{ 'selected' if automatizacion.modulo_relacionado == 'notificaciones' }}>Notificaciones</option>
+                        <option value="google_ads" {{ 'selected' if automatizacion.modulo_relacionado == 'google_ads' }}>Google Ads</option>
+                        <option value="meta_ads" {{ 'selected' if automatizacion.modulo_relacionado == 'meta_ads' }}>Meta Ads</option>
+                        <option value="tareas" {{ 'selected' if automatizacion.modulo_relacionado == 'tareas' }}>Tareas</option>
+                        <option value="backup" {{ 'selected' if automatizacion.modulo_relacionado == 'backup' }}>Backup</option>
+                        <option value="automatizaciones_ejecutor" {{ 'selected' if automatizacion.modulo_relacionado == 'automatizaciones_ejecutor' }}>Ejemplos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">
+                    Descripción
+                </label>
+                <textarea id="descripcion" 
+                          name="descripcion" 
+                          rows="3" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">{{ automatizacion.descripcion or '' }}</textarea>
+            </div>
+
+            <!-- Configuración Técnica -->
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Configuración Técnica</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="funcion_objetivo" class="block text-sm font-medium text-gray-700 mb-2">
+                            Función a Ejecutar
+                        </label>
+                        <input type="text" 
+                               id="funcion_objetivo" 
+                               name="funcion_objetivo" 
+                               value="{{ automatizacion.funcion_objetivo or '' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Nombre de la función que se ejecutará</p>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label for="parametros_json" class="block text-sm font-medium text-gray-700 mb-2">
+                        Parámetros JSON (Opcional)
+                    </label>
+                    <textarea id="parametros_json" 
+                              name="parametros_json" 
+                              rows="4" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm">{{ automatizacion.parametros_formatted or '' }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">Parámetros en formato JSON que se pasarán a la función</p>
+                </div>
+            </div>
+
+            <!-- Información de Ejecución -->
+            {% if automatizacion.ultima_ejecucion or automatizacion.proxima_ejecucion %}
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Información de Ejecución</h3>
+                <div class="bg-gray-50 rounded-md p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% if automatizacion.ultima_ejecucion %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Última Ejecución</label>
+                            <p class="text-sm text-gray-600">{{ automatizacion.ultima_ejecucion_formatted or 'N/A' }}</p>
+                        </div>
+                        {% endif %}
+                        {% if automatizacion.proxima_ejecucion %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Próxima Ejecución</label>
+                            <p class="text-sm text-gray-600">{{ automatizacion.proxima_ejecucion_formatted or 'N/A' }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Botones -->
+            <div class="flex justify-end space-x-4 pt-6 border-t">
+                <a href="{{ url_for('panel_cliente_automatizaciones_bp.panel_cliente_automatizaciones', nombre_nora=nombre_nora) }}" 
+                   class="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+                    <i class="fas fa-save mr-2"></i>
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

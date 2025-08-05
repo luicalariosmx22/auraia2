@@ -1,33 +1,81 @@
-# Usar una imagen base de Python
-FROM python:3.10-slim
+# Dockerfile para WhatsApp Backend con Chrome en Railway
+FROM node:18-bullseye-slim
 
-# Instalar herramientas de compilación y dependencias del sistema
+# Instalar dependencias del sistema y Chrome
 RUN apt-get update && apt-get install -y \
-    build-essential python3-dev libpq-dev libffi-dev libssl-dev \
-    libmariadb-dev gcc g++ make libxml2-dev libxslt-dev
+    wget \
+    gnupg \
+    ca-certificates \
+    procps \
+    libxss1 \
+    libgconf-2-4 \
+    libxtst6 \
+    libxrandr2 \
+    libasound2 \
+    libpangocairo-1.0-0 \
+    libatk1.0-0 \
+    libcairo-gobject2 \
+    libgtk-3-0 \
+    libgdk-pixbuf2.0-0 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxi6 \
+    libxext6 \
+    libxfixes3 \
+    libnss3 \
+    libcups2 \
+    libxrandr2 \
+    libdrm2 \
+    libxss1 \
+    libatspi2.0-0 \
+    fonts-liberation \
+    libappindicator3-1 \
+    lsb-release \
+    xdg-utils \
+    --no-install-recommends
 
-# Establecer el directorio de trabajo
-WORKDIR /app
+# Instalar Google Chrome
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/googlechrome-linux-keyring.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/googlechrome-linux-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copiar archivos del proyecto
-COPY . /app/
+# Crear directorio de la aplicación
+WORKDIR /usr/src/app
 
-# Limpiar caché de pip y actualizar pip
-RUN pip cache purge && pip install --upgrade pip setuptools wheel
+# Copiar package files
+COPY railway-package.json package.json
+COPY package-lock.json* ./
 
-# Crear y activar entorno virtual
-RUN python3 -m venv /opt/venv
-# Usar el PATH del entorno virtual
-ENV PATH="/opt/venv/bin:$PATH"
+# Instalar dependencias de Node.js
+RUN npm ci --only=production
 
-# Instalar dependencias de Python
-RUN /opt/venv/bin/pip install -r requirements.txt
+# Copiar el código fuente
+COPY railway-whatsapp-server.js server.js
 
-# Verificar instalación de Flask (opcional)
-RUN /opt/venv/bin/pip show Flask
+# Crear usuario no-root para ejecutar Chrome
+RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
+    && mkdir -p /home/pptruser/Downloads /home/pptruser/.wwebjs_auth \
+    && chown -R pptruser:pptruser /home/pptruser \
+    && chown -R pptruser:pptruser /usr/src/app
 
-# Exponer el puerto
-EXPOSE $PORT
+# Cambiar al usuario no-root
+USER pptruser
 
-# Ejecutar la aplicación con Gunicorn
-CMD ["/opt/venv/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:$PORT", "app:app", "--worker-class", "gevent"]
+# Exponer puerto
+EXPOSE 3000
+
+# Variables de entorno para Chrome
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+ENV CHROME_PATH=/usr/bin/google-chrome-stable
+ENV NODE_ENV=production
+ENV DISABLE_EXTENSIONS=true
+ENV DISABLE_DEV_SHM_USAGE=true
+ENV WHATSAPP_SESSION_PATH=/home/pptruser/.wwebjs_auth
+ENV WHATSAPP_CACHE_PATH=/home/pptruser/.wwebjs_cache
+
+# Comando para iniciar la aplicación
+CMD ["npm", "start"]

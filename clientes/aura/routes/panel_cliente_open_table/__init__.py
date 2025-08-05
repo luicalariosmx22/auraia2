@@ -1,0 +1,1 @@
+from .panel_cliente_open_table import panel_cliente_open_table_bp

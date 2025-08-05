@@ -1,0 +1,95 @@
+{
+  "notebook.defaultFormatter": "GitHub.copilot",
+
+  // Configuraciones para Python/Flask
+  "python.analysis.typeCheckingMode": "basic",
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+
+  // Manejo de rutas y imports
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}"
+  ],
+
+  // Debugging de Flask
+  "launch": {
+    "configurations": [
+      {
+        "name": "Nora Flask",
+        "type": "python",
+        "request": "launch",
+        "module": "flask",
+        "python": "${workspaceFolder}/venv311/Scripts/python.exe",
+        "env": {
+            "FLASK_APP": "dev_start.py",
+            "FLASK_ENV": "development",
+            "PYTHONPATH": "${workspaceFolder}"
+        },
+        "args": [
+            "run",
+            "--no-debugger",
+            "--no-reload"
+        ],
+        "jinja": true,
+        "killOthers": ["Python: Flask"],
+        "autoRestart": true,
+        "console": "integratedTerminal",
+        "serverReadyAction": {
+            "pattern": "Running on http://([\\d.]+):(\\d+)/",
+            "uriFormat": "http://localhost:%s",
+            "action": "openExternally"
+        }
+      },
+      {
+        "name": "Railway Local",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/railway-whatsapp-server.js",
+        "envFile": "${workspaceFolder}/.env",
+        "console": "integratedTerminal"
+      }
+    ]
+  },
+
+  // Autocompletado y sugerencias más precisas
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.indexing": true,
+  "python.analysis.packageIndexDepths": [
+    {
+      "name": "flask",
+      "depth": 3
+    },
+    {
+      "name": "supabase",
+      "depth": 2
+    }
+  ],
+
+  // Terminal integrado para Railway
+  "terminal.integrated.defaultProfile.windows": "bash.exe",
+  "terminal.integrated.profiles.windows": {
+    "Railway CLI": {
+      "path": "bash.exe",
+      "args": [],
+      "icon": "terminal-debian"
+    }
+  },
+
+  // Autocompletado para comandos Railway
+  "files.associations": {
+    "railway.json": "jsonc",
+    "railway.toml": "toml"
+  },
+
+  // Evitar que ciertos archivos aparezcan en búsquedas/explorador
+  "files.exclude": {
+    "**/.railway": true,
+    "**/railway-debug.log": true
+  },
+
+  // Variables de entorno para Railway local
+  "terminal.integrated.env.windows": {
+    "RAILWAY_CLI_PATH": "${env:USERPROFILE}/.railway/bin",
+    "PATH": "${env:PATH};${env:USERPROFILE}/.railway/bin"
+  }
+}

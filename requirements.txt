@@ -1,26 +1,31 @@
 # ✅ Archivo: requirements.txt
-# 👉 Corrección final: se eliminan conflictos de postgrest y httpx
+# 👉 Versión estable con Supabase 1.0.3 sin conflictos con APIError
 
-Flask==2.3.3
-Flask-Session==0.5.0
-python-dotenv==1.0.1
-openai==0.28.1
-twilio==9.0.4
-oauthlib==3.2.2
-requests==2.31.0
-beautifulsoup4==4.12.3
-requests-oauthlib==1.3.1
-gunicorn==21.2.0
+# --- Núcleo Flask y extensiones ---
+flask==2.2.5
+flask_session==0.4.0
+flask_socketio==5.3.3
+flask-wtf==1.1.1  # Para protección CSRF y manejo de formularios
+eventlet==0.33.3
 
-# Bloque Supabase sin conflictos manuales
-httpx==0.23.3
+# --- Cliente Supabase y dependencias ---
 supabase==1.0.3
+httpx==0.23.3
+postgrest==0.10.7  # Versión moderna sin APIError
+pydantic>=2.1.0,<3.0  # Compatible con postgrest
+python-dotenv==1.0.1
 
-pydantic==1.10.13
-google-api-python-client==2.92.0
-flask_socketio==5.3.6
+# --- Librerías adicionales útiles ---
+pytz==2023.3
+python-dateutil==2.8.2
+requests==2.31.0
+openai==1.3.7
 apscheduler==3.10.4
-dnspython==2.1.0
+
+# --- Compatibilidad con async/await ---
+dnspython==2.3.0
+
+# --- Otros componentes que usas ---
 gevent==24.11.1
 Cython==0.29.23
 cffi>=1.15.1
@@ -31,3 +36,16 @@ pandas==2.2.2
 facebook-business==17.0.0
 google-ads==22.0.0
 google-auth-oauthlib==1.2.0
+qrcode[pil]==8.2
+flask-cors==4.0.0
+python-socketio==5.8.0
+flask-apscheduler==1.12.3
+
+# --- Compatibilidad Flask (evita conflictos con jinja, werkzeug, etc) ---
+werkzeug>=2.2.2,<3.0
+itsdangerous==2.0.1
+jinja2==3.0.3
+markupsafe>=2.1.1,<3.0
+
+# --- Servidor de producción ---
+gunicorn==20.1.0

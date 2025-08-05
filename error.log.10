@@ -1,0 +1,116 @@
+2025-06-03 02:22:59,670 - clientes.aura - ERROR - [Meta Ads] Error en obtener_reporte_campanas: 400 Client Error: Bad Request for url: https://graph.facebook.com/v19.0/act_16626756/campaigns?fields=id%2Cname%2Cstatus%2Ceffective_status%2Cdaily_budget%2Cinsights%7Bimpressions%2Cclicks%2Creach%2Cspend%2Cobjective%7D&access_token=TU_ACCESS_TOKEN_GLOBAL
+2025-07-04 20:26:18,165 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web - ERROR - Error cargando dashboard WhatsApp Web: maximum recursion depth exceeded
+2025-07-04 20:29:40,555 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web - ERROR - Error cargando dashboard WhatsApp Web: maximum recursion depth exceeded
+2025-07-04 20:31:59,215 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web - ERROR - Error cargando dashboard WhatsApp Web: maximum recursion depth exceeded
+2025-07-04 20:32:21,272 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_web - ERROR - Error cargando dashboard WhatsApp Web: maximum recursion depth exceeded
+2025-07-07 17:40:55,799 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:40:55,839 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:40:55,870 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:41:03,896 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:41:13,378 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 17:41:13,420 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error obteniendo QR: / is not a connected namespace.
+2025-07-07 20:48:33,768 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ No se pudo obtener cliente WebSocket
+2025-07-07 20:48:33,809 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error en dashboard WhatsApp Web: error.html
+2025-07-07 20:48:48,845 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ No se pudo obtener cliente WebSocket
+2025-07-07 20:48:48,885 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ Error en dashboard WhatsApp Web: error.html
+2025-07-07 20:50:07,104 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ No se pudo obtener cliente WebSocket
+2025-07-07 20:50:31,530 - clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket - ERROR - ❌ No se pudo obtener cliente WebSocket
+2025-07-24 15:47:16,989 - clientes.aura.utils.nora_config - ERROR - Error al obtener configuraci�n de Nora para m�dulo 'contactos': list indices must be integers or slices, not str
+2025-07-24 15:49:11,473 - clientes.aura.utils.nora_config - ERROR - Error al obtener configuraci�n de Nora para m�dulo 'contactos': list indices must be integers or slices, not str
+2025-07-24 16:19:43,679 - clientes.aura.registro.registro_login - ERROR - Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 26, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 75, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 997, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 365, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 431, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 110, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1059, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: login_blueprint.google_login
+
+2025-07-24 16:20:22,445 - clientes.aura.registro.registro_login - ERROR - Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 26, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 75, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 997, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 365, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 431, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 110, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1059, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: login_blueprint.google_login
+
+2025-07-24 16:22:48,166 - clientes.aura.registro.registro_login - ERROR - Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 26, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 75, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 997, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 365, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 431, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 110, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1059, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: login_blueprint.google_login
+
+2025-07-24 16:25:55,010 - clientes.aura.registro.registro_login - ERROR - Traceback (most recent call last):
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\registro\registro_login.py", line 26, in registrar_blueprints_login
+    safe_register_blueprint(
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\__init__.py", line 75, in safe_register_blueprint
+    app.register_blueprint(blueprint, name=unique_name, **kwargs)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 997, in register_blueprint
+    blueprint.register(self, options)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 365, in register
+    deferred(state)
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 431, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\blueprints.py", line 110, in add_url_rule
+    self.app.add_url_rule(
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\scaffold.py", line 50, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\venv311\Lib\site-packages\flask\app.py", line 1059, in add_url_rule
+    raise AssertionError(
+AssertionError: View function mapping is overwriting an existing endpoint function: login_blueprint.google_login
+
+2025-07-24 16:33:46,257 - clientes.aura.routes.admin_modulos.registro_dinamico_frontend.blueprint - ERROR - Error al cargar an�lisis del registro din�mico: admin_modulos/registro_dinamico/index_global.html

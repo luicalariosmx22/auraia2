@@ -1,12 +1,17 @@
-# run.py
+# app.py
 import os
 from clientes.aura import create_app
-from gunicorn.app.wsgiapp import run
 import sys
 import time
 from flask import send_file
 
+# Create the Flask application
 app = create_app()
+print(f"App Flask creada: {app}")
+
+# This makes the app available for Gunicorn and other WSGI servers
+application = app  # For WSGI servers that expect 'application' variable
+print(f"App Flask expuesta como 'application': {application}")
 
 # Ruta de prueba para servir el archivo de test
 @app.route('/test_importacion_google_ads.html')
@@ -23,6 +28,7 @@ def test_simple_insert():
 # =====================================
 @app.route('/debug_rutas')
 def debug_rutas():
+    print("Entrando a /debug_rutas")
     from flask import request, jsonify
     
     # Solo permitir en localhost
@@ -41,11 +47,11 @@ def debug_rutas():
     return f"<pre>{rutas}</pre>"
 
 if __name__ == '__main__':
-    # Para desarrollo local con el servidor de Flask
+    # For local development with Flask's built-in server
+    print("🚀 Starting NORA application in development mode...")
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
 else:
-    try:
-        run()
-    except Exception as e:
-        sys.exit(str(e))
-        time.sleep(0.1)
+    # For production with WSGI servers like Gunicorn
+    print("🚀 NORA application ready for WSGI server...")
+    # Remove the gunicorn.run() call that was causing issues
+    pass
