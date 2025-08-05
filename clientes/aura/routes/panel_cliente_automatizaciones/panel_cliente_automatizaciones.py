@@ -540,47 +540,7 @@ def api_detalle_funcion(modulo, nombre_funcion):
         print(f"❌ Error API detalle función: {e}")
         return jsonify({"success": False, "error": str(e)})
 
-@panel_cliente_automatizaciones_bp.route("/api/modulos-disponibles")
-def api_modulos_disponibles():
-    """API: Obtener lista de módulos disponibles con conteo de funciones"""
-    try:
-        response = supabase.table("funciones_automatizables") \
-            .select("modulo") \
-            .eq("activa", True) \
-            .eq("es_automatizable", True) \
-            .execute()
-        
-        if response.data:
-            # Contar funciones por módulo
-            modulos_count = {}
-            for func in response.data:
-                modulo = func['modulo']
-                modulos_count[modulo] = modulos_count.get(modulo, 0) + 1
-            
-            # Formatear respuesta
-            modulos = [
-                {
-                    "nombre": modulo,
-                    "total_funciones": count
-                }
-                for modulo, count in sorted(modulos_count.items())
-            ]
-            
-            return jsonify({
-                "success": True, 
-                "modulos": modulos,
-                "total_modulos": len(modulos)
-            })
-        else:
-            return jsonify({
-                "success": True, 
-                "modulos": [],
-                "total_modulos": 0
-            })
-        
-    except Exception as e:
-        print(f"❌ Error API módulos disponibles: {e}")
-        return jsonify({"success": False, "error": str(e)})
+# ✅ Función api_modulos_disponibles eliminada (duplicada) - se usa la de línea 652
 
 @panel_cliente_automatizaciones_bp.route("/api/descubrir-funciones", methods=["POST"])
 def api_descubrir_funciones():
