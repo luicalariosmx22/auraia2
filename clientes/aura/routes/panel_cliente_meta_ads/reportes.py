@@ -323,8 +323,10 @@ def vista_reporte_publico(nombre_nora, token_uuid):
         
         # Obtener el reporte original
         reporte_id = enlace_compartido['reporte_id']
+        print(f"[DEBUG] Buscando reporte con ID: {reporte_id}")
         try:
             reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).single().execute().data
+            print(f"[DEBUG] Reporte encontrado: {reporte}")
         except Exception as e:
             print(f"[ERROR] Error al obtener reporte: {e}")
             abort(404, description="Reporte no encontrado")
@@ -333,8 +335,12 @@ def vista_reporte_publico(nombre_nora, token_uuid):
             abort(404, description="Reporte no encontrado")
         
         # Obtener anuncios detallados del reporte
+        print(f"[DEBUG] Buscando anuncios para cuenta: {reporte['id_cuenta_publicitaria']}, fechas: {reporte['fecha_inicio']} - {reporte['fecha_fin']}")
         try:
             anuncios = supabase.table('meta_ads_anuncios_detalle').select('*').eq('id_cuenta_publicitaria', reporte['id_cuenta_publicitaria']).gte('fecha_inicio', reporte['fecha_inicio']).lte('fecha_fin', reporte['fecha_fin']).execute().data
+            print(f"[DEBUG] Anuncios encontrados: {len(anuncios) if anuncios else 0}")
+            if anuncios:
+                print(f"[DEBUG] Primer anuncio: {anuncios[0]}")
         except Exception as e:
             print(f"[ERROR] Error al obtener anuncios: {e}")
             anuncios = []

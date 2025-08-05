@@ -111,6 +111,29 @@
     </div>
 
     <div class="container">
+        <!-- DEBUG: Información de datos (temporal) -->
+        <div class="alert alert-info" id="debugInfo" style="margin-bottom: 2rem;">
+            <h6><i class="fas fa-bug me-2"></i>Debug Info (temporal):</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Reporte ID:</strong> {{ reporte.id if reporte else 'No disponible' }}<br>
+                    <strong>Gasto Total (importe_gastado_campañas):</strong> {{ reporte.importe_gastado_campañas }}<br>
+                    <strong>Impresiones:</strong> {{ reporte.impresiones }}<br>
+                    <strong>Clics (clicks):</strong> {{ reporte.clicks }}<br>
+                    <strong>Mensajes:</strong> {{ reporte.mensajes }}<br>
+                </div>
+                <div class="col-md-6">
+                    <strong>Empresa:</strong> {{ empresa.nombre_empresa if empresa else 'No disponible' }}<br>
+                    <strong>Anuncios encontrados:</strong> {{ anuncios|length if anuncios else 0 }}<br>
+                    <strong>Fecha inicio:</strong> {{ reporte.fecha_inicio if reporte else 'No disponible' }}<br>
+                    <strong>Fecha fin:</strong> {{ reporte.fecha_fin if reporte else 'No disponible' }}<br>
+                </div>
+            </div>
+            <button onclick="document.getElementById('debugInfo').style.display='none'" class="btn btn-sm btn-outline-secondary mt-2">
+                Ocultar Debug
+            </button>
+        </div>
+
         <!-- KPIs principales -->
         <div class="row mb-4">
             <div class="col-md-3 mb-3">
@@ -119,7 +142,7 @@
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="kpi-value text-primary">
-                        ${{ "{:,.2f}".format(reporte.gasto_total or 0) }}
+                        ${{ "{:,.2f}".format(reporte.importe_gastado_campañas|float or 0) }}
                     </div>
                     <div class="kpi-label">Gasto Total</div>
                 </div>
@@ -130,7 +153,7 @@
                         <i class="fas fa-eye"></i>
                     </div>
                     <div class="kpi-value text-success">
-                        {{ "{:,}".format(reporte.impresiones or 0) }}
+                        {{ "{:,}".format(reporte.impresiones|int or 0) }}
                     </div>
                     <div class="kpi-label">Impresiones</div>
                 </div>
@@ -141,7 +164,7 @@
                         <i class="fas fa-mouse-pointer"></i>
                     </div>
                     <div class="kpi-value text-info">
-                        {{ "{:,}".format(reporte.clics or 0) }}
+                        {{ "{:,}".format(reporte.clicks|int or 0) }}
                     </div>
                     <div class="kpi-label">Clics</div>
                 </div>
@@ -152,7 +175,7 @@
                         <i class="fas fa-comments"></i>
                     </div>
                     <div class="kpi-value text-warning">
-                        {{ "{:,}".format(reporte.messaging_conversations_started or 0) }}
+                        {{ "{:,}".format(reporte.mensajes|int or 0) }}
                     </div>
                     <div class="kpi-label">Mensajes</div>
                 </div>
@@ -166,8 +189,8 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">CTR</h5>
                         <h3 class="text-primary">
-                            {% if reporte.impresiones and reporte.impresiones > 0 %}
-                                {{ "{:.2f}%".format((reporte.clics or 0) * 100 / reporte.impresiones) }}
+                            {% if reporte.impresiones and reporte.impresiones|int > 0 %}
+                                {{ "{:.2f}%".format((reporte.clicks|int or 0) * 100 / (reporte.impresiones|int)) }}
                             {% else %}
                                 0.00%
                             {% endif %}
@@ -180,8 +203,8 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">CPC</h5>
                         <h3 class="text-success">
-                            {% if reporte.clics and reporte.clics > 0 %}
-                                ${{ "{:.2f}".format((reporte.gasto_total or 0) / reporte.clics) }}
+                            {% if reporte.clicks and reporte.clicks|int > 0 %}
+                                ${{ "{:.2f}".format((reporte.importe_gastado_campañas|float or 0) / (reporte.clicks|int)) }}
                             {% else %}
                                 $0.00
                             {% endif %}
@@ -194,8 +217,8 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">CPM</h5>
                         <h3 class="text-info">
-                            {% if reporte.impresiones and reporte.impresiones > 0 %}
-                                ${{ "{:.2f}".format((reporte.gasto_total or 0) * 1000 / reporte.impresiones) }}
+                            {% if reporte.impresiones and reporte.impresiones|int > 0 %}
+                                ${{ "{:.2f}".format((reporte.importe_gastado_campañas|float or 0) * 1000 / (reporte.impresiones|int)) }}
                             {% else %}
                                 $0.00
                             {% endif %}
@@ -207,16 +230,35 @@
 
         <!-- Detalle de anuncios -->
         {% if anuncios %}
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0">
                     <i class="fas fa-ad me-2"></i>
                     Detalle de Anuncios ({{ anuncios|length }})
                 </h5>
+                <!-- Pestañas para Facebook e Instagram -->
+                <div class="mt-3">
+                    <ul class="nav nav-pills nav-fill">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="facebook-tab" onclick="mostrarPlataforma('facebook')">
+                                <i class="fab fa-facebook me-2"></i>Facebook
+                                <span class="badge bg-light text-dark ms-2">{{ (anuncios | selectattr('publisher_platform', 'equalto', 'facebook') | list) | length }}</span>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="instagram-tab" onclick="mostrarPlataforma('instagram')">
+                                <i class="fab fa-instagram me-2"></i>Instagram
+                                <span class="badge bg-light text-dark ms-2">{{ (anuncios | selectattr('publisher_platform', 'equalto', 'instagram') | list) | length }}</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table id="tablaAnuncios" class="table table-hover">
+                <!-- Tabla Facebook -->
+                <div id="tabla-facebook" class="table-responsive">
+                    <h6 class="text-primary mb-3"><i class="fab fa-facebook me-2"></i>Anuncios en Facebook</h6>
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>Anuncio</th>
@@ -230,32 +272,97 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for anuncio in anuncios %}
+                            {% set facebook_anuncios = anuncios | selectattr('publisher_platform', 'equalto', 'facebook') | list %}
+                            {% if facebook_anuncios %}
+                                {% for anuncio in facebook_anuncios %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ anuncio.nombre_anuncio or 'Sin nombre' }}</strong>
+                                    </td>
+                                    <td>{{ anuncio.nombre_campana or 'Sin campaña' }}</td>
+                                    <td>${{ "{:,.2f}".format(anuncio.importe_gastado|float or 0) }}</td>
+                                    <td>{{ "{:,}".format(anuncio.impresiones|int or 0) }}</td>
+                                    <td>{{ "{:,}".format(anuncio.clicks|int or 0) }}</td>
+                                    <td>{{ "{:,}".format(anuncio.messaging_conversations_started|int or 0) }}</td>
+                                    <td>
+                                        {% if anuncio.impresiones and anuncio.impresiones|int > 0 %}
+                                            {{ "{:.2f}%".format((anuncio.clicks|int or 0) * 100 / (anuncio.impresiones|int)) }}
+                                        {% else %}
+                                            0.00%
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if anuncio.clicks and anuncio.clicks|int > 0 %}
+                                            ${{ "{:.2f}".format((anuncio.importe_gastado|float or 0) / (anuncio.clicks|int)) }}
+                                        {% else %}
+                                            $0.00
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        No hay anuncios de Facebook para este período
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tabla Instagram -->
+                <div id="tabla-instagram" class="table-responsive" style="display: none;">
+                    <h6 class="text-danger mb-3"><i class="fab fa-instagram me-2"></i>Anuncios en Instagram</h6>
+                    <table class="table table-hover">
+                        <thead>
                             <tr>
-                                <td>
-                                    <strong>{{ anuncio.nombre_anuncio or 'Sin nombre' }}</strong>
-                                </td>
-                                <td>{{ anuncio.nombre_campana or 'Sin campaña' }}</td>
-                                <td>${{ "{:,.2f}".format(anuncio.gasto or 0) }}</td>
-                                <td>{{ "{:,}".format(anuncio.impresiones or 0) }}</td>
-                                <td>{{ "{:,}".format(anuncio.clics or 0) }}</td>
-                                <td>{{ "{:,}".format(anuncio.messaging_conversations_started or 0) }}</td>
-                                <td>
-                                    {% if anuncio.impresiones and anuncio.impresiones > 0 %}
-                                        {{ "{:.2f}%".format((anuncio.clics or 0) * 100 / anuncio.impresiones) }}
-                                    {% else %}
-                                        0.00%
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if anuncio.clics and anuncio.clics > 0 %}
-                                        ${{ "{:.2f}".format((anuncio.gasto or 0) / anuncio.clics) }}
-                                    {% else %}
-                                        $0.00
-                                    {% endif %}
-                                </td>
+                                <th>Anuncio</th>
+                                <th>Campaña</th>
+                                <th>Gasto</th>
+                                <th>Impresiones</th>
+                                <th>Clics</th>
+                                <th>Mensajes</th>
+                                <th>CTR</th>
+                                <th>CPC</th>
                             </tr>
-                            {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% set instagram_anuncios = anuncios | selectattr('publisher_platform', 'equalto', 'instagram') | list %}
+                            {% if instagram_anuncios %}
+                                {% for anuncio in instagram_anuncios %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ anuncio.nombre_anuncio or 'Sin nombre' }}</strong>
+                                    </td>
+                                    <td>{{ anuncio.nombre_campana or 'Sin campaña' }}</td>
+                                    <td>${{ "{:,.2f}".format(anuncio.importe_gastado|float or 0) }}</td>
+                                    <td>{{ "{:,}".format(anuncio.impresiones|int or 0) }}</td>
+                                    <td>{{ "{:,}".format(anuncio.clicks|int or 0) }}</td>
+                                    <td>{{ "{:,}".format(anuncio.messaging_conversations_started|int or 0) }}</td>
+                                    <td>
+                                        {% if anuncio.impresiones and anuncio.impresiones|int > 0 %}
+                                            {{ "{:.2f}%".format((anuncio.clicks|int or 0) * 100 / (anuncio.impresiones|int)) }}
+                                        {% else %}
+                                            0.00%
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if anuncio.clicks and anuncio.clicks|int > 0 %}
+                                            ${{ "{:.2f}".format((anuncio.importe_gastado|float or 0) / (anuncio.clicks|int)) }}
+                                        {% else %}
+                                            $0.00
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        No hay anuncios de Instagram para este período
+                                    </td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -280,8 +387,38 @@
 
     <script>
         $(document).ready(function() {
-            // Inicializar DataTable
-            $('#tablaAnuncios').DataTable({
+            // Inicializar DataTable para Facebook (activa por defecto)
+            initializeDataTable('#tabla-facebook table');
+        });
+
+        function mostrarPlataforma(plataforma) {
+            // Ocultar todas las tablas
+            $('#tabla-facebook').hide();
+            $('#tabla-instagram').hide();
+            
+            // Remover clase active de todas las pestañas
+            $('.nav-link').removeClass('active');
+            
+            // Mostrar la tabla seleccionada y activar pestaña
+            if (plataforma === 'facebook') {
+                $('#tabla-facebook').show();
+                $('#facebook-tab').addClass('active');
+                // Reinicializar DataTable si es necesario
+                if (!$.fn.DataTable.isDataTable('#tabla-facebook table')) {
+                    initializeDataTable('#tabla-facebook table');
+                }
+            } else if (plataforma === 'instagram') {
+                $('#tabla-instagram').show();
+                $('#instagram-tab').addClass('active');
+                // Reinicializar DataTable si es necesario
+                if (!$.fn.DataTable.isDataTable('#tabla-instagram table')) {
+                    initializeDataTable('#tabla-instagram table');
+                }
+            }
+        }
+
+        function initializeDataTable(selector) {
+            $(selector).DataTable({
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
                 },
@@ -290,14 +427,16 @@
                 columnDefs: [
                     { targets: [2, 7], className: 'text-end' }, // Alinear números a la derecha
                     { targets: [3, 4, 5], className: 'text-center' } // Centrar métricas
-                ]
+                ],
+                destroy: true // Permite reinicializar
             });
-        });
+        }
 
         function exportarPDF() {
             // Ocultar temporalmente elementos que no queremos en el PDF
             $('.watermark').hide();
             $('button').hide();
+            $('#debugInfo').hide(); // Ocultar debug info en PDF
             
             // Configurar html2canvas para mejor calidad
             html2canvas(document.body, {
@@ -336,6 +475,7 @@
                 // Mostrar elementos ocultos
                 $('.watermark').show();
                 $('button').show();
+                $('#debugInfo').show();
             }).catch(error => {
                 console.error('Error al generar PDF:', error);
                 alert('Error al generar el PDF. Por favor, intente nuevamente.');
@@ -343,6 +483,7 @@
                 // Mostrar elementos ocultos en caso de error
                 $('.watermark').show();
                 $('button').show();
+                $('#debugInfo').show();
             });
         }
     </script>
