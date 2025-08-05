@@ -47,29 +47,6 @@
 <body class="bg-gray-50">
 
 <div id="detalle-reporte-pdf" class="mx-auto py-8 px-6 max-w-4xl bg-white">
-  <!-- DEBUG: Información de datos (temporal) -->
-  <div id="debugInfo" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg avoid-break">
-    <h6 class="font-semibold text-blue-800 mb-2"><i class="fas fa-bug mr-2"></i>Debug Info (temporal):</h6>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <div>
-            <strong>Reporte ID:</strong> {{ reporte.id if reporte else 'No disponible' }}<br>
-            <strong>Gasto Total (importe_gastado_campañas):</strong> {{ reporte.importe_gastado_campañas }}<br>
-            <strong>Impresiones:</strong> {{ reporte.impresiones }}<br>
-            <strong>Clics (clicks):</strong> {{ reporte.clicks }}<br>
-            <strong>Mensajes:</strong> {{ reporte.mensajes }}<br>
-        </div>
-        <div>
-            <strong>Empresa:</strong> {{ empresa.nombre_empresa if empresa else 'No disponible' }}<br>
-            <strong>Anuncios encontrados:</strong> {{ anuncios|length if anuncios else 0 }}<br>
-            <strong>Fecha inicio:</strong> {{ reporte.fecha_inicio if reporte else 'No disponible' }}<br>
-            <strong>Fecha fin:</strong> {{ reporte.fecha_fin if reporte else 'No disponible' }}<br>
-        </div>
-    </div>
-    <button onclick="document.getElementById('debugInfo').style.display='none'" class="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700 transition">
-        Ocultar Debug
-    </button>
-  </div>
-
   <!-- Botones de acciones -->
   <div class="flex justify-end mb-4 gap-2">
     <button type="button" onclick="window.print()" class="px-3 py-1 bg-gray-600 text-white rounded text-xs font-semibold shadow-sm hover:bg-gray-700 transition flex items-center gap-1">
@@ -156,6 +133,38 @@
     </div>
     {% endif %}
 
+  </div>
+
+  <!-- DESEMPEÑO POR PLATAFORMA -->
+  <div class="mb-10">
+    <h2 class="text-lg font-bold text-gray-800 mb-3">Desempeño por Plataforma</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-blue-50 rounded-xl p-6 shadow border border-blue-100 avoid-break">
+        <div class="text-lg font-bold text-blue-800 mb-2">📘 Facebook</div>
+        <table class="min-w-full text-sm avoid-break">
+          <tbody>
+            <tr><td class="font-semibold text-gray-700 py-1">Gasto</td><td>${{ "{:,.2f}".format(reporte.facebook_importe_gastado|float) if reporte.facebook_importe_gastado else 0 }}</td></tr>
+            <tr><td class="font-semibold text-gray-700 py-1">Impresiones</td><td>{{ "{:,}".format(reporte.facebook_impresiones|int) if reporte.facebook_impresiones else 0 }}</td></tr>
+            <tr><td class="font-semibold text-gray-700 py-1">Alcance</td><td>{{ "{:,}".format(reporte.facebook_alcance|int) if reporte.facebook_alcance else 0 }}</td></tr>
+            <tr><td class="font-semibold text-gray-700 py-1">Clicks</td><td>{{ "{:,}".format(reporte.facebook_clicks|int) if reporte.facebook_clicks else 0 }}</td></tr>
+            <tr><td class="font-semibold text-gray-700 py-1">Mensajes</td><td>{{ "{:,}".format(reporte.facebook_mensajes|int) if reporte.facebook_mensajes else 0 }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bg-pink-50 rounded-xl p-6 shadow border border-pink-100 avoid-break">
+        <div class="text-lg font-bold text-pink-800 mb-2">📷 Instagram</div>
+        <table class="min-w-full text-sm avoid-break">
+          <tbody>
+            <tr><td class="font-semibold text-gray-700 py-1">Gasto</td><td>${{ "{:,.2f}".format(reporte.instagram_importe_gastado|float) if reporte.instagram_importe_gastado else 0 }}</td></tr>
+            <tr><td class="font-semibold text-gray-700 py-1">Impresiones</td><td>{{ "{:,}".format(reporte.instagram_impresiones|int) if reporte.instagram_impresiones else 0 }}</td></tr>
+            <tr><td class="font-semibold text-gray-700 py-1">Alcance</td><td>{{ "{:,}".format(reporte.instagram_alcance|int) if reporte.instagram_alcance else 0 }}</td></tr>
+            <tr><td class="font-semibold text-gray-700 py-1">Clicks</td><td>{{ "{:,}".format(reporte.instagram_clicks|int) if reporte.instagram_clicks else 0 }}</td></tr>
+            <tr><td class="font-semibold text-gray-700 py-1">Mensajes</td><td>{{ "{:,}".format(reporte.instagram_mensajes|int) if reporte.instagram_mensajes else 0 }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- NAVEGACIÓN POR PESTAÑAS -->
@@ -268,6 +277,51 @@
     </div>
   </div>
 
+  <!-- TOP 3 ANUNCIOS -->
+  <div class="page-break mb-12">
+    <h3 class="text-lg font-semibold text-indigo-800 mb-3">Top 3 Anuncios por Gasto</h3>
+    {% set top_anuncios = anuncios | sort(attribute='importe_gastado', reverse=True) %}
+    {% set top_anuncios = top_anuncios[:3] %}
+    <div class="overflow-x-auto border rounded-xl shadow avoid-break">
+      <table class="min-w-full text-sm text-gray-700 avoid-break">
+        <thead class="bg-indigo-50">
+          <tr>
+            <th class="px-4 py-2 text-left">Anuncio</th>
+            <th class="px-4 py-2 text-left">Plataforma</th>
+            <th class="px-4 py-2 text-left">Campaña</th>
+            <th class="px-4 py-2 text-right">Gasto</th>
+            <th class="px-4 py-2 text-right">Clicks</th>
+            <th class="px-4 py-2 text-right">Link Clicks</th>
+            <th class="px-4 py-2 text-right">Impresiones</th>
+            <th class="px-4 py-2 text-right">Alcance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for anuncio in top_anuncios %}
+          <tr class="border-b hover:bg-indigo-50">
+            <td class="px-4 py-2 font-mono text-indigo-700">{{ (anuncio.nombre_anuncio or anuncio.ad_id or 'Sin nombre')[:50] }}</td>
+            <td class="px-4 py-2">
+              <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium {% if anuncio.publisher_platform == 'facebook' %}bg-blue-100 text-blue-800{% elif anuncio.publisher_platform == 'instagram' %}bg-pink-100 text-pink-800{% else %}bg-gray-100 text-gray-600{% endif %}">
+                {% if anuncio.publisher_platform == 'facebook' %}📘 Facebook{% elif anuncio.publisher_platform == 'instagram' %}📷 Instagram{% else %}—{% endif %}
+              </span>
+            </td>
+            <td class="px-4 py-2">
+              <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                {{ anuncio.nombre_campana or 'N/D' }}
+              </span>
+            </td>
+            <td class="px-4 py-2 text-right font-semibold text-green-700">${{ "{:,.2f}".format(anuncio.importe_gastado|float) if anuncio.importe_gastado else 0 }}</td>
+            <td class="px-4 py-2 text-right font-semibold text-indigo-600">{{ "{:,}".format(anuncio.clicks|int) if anuncio.clicks else 0 }}</td>
+            <td class="px-4 py-2 text-right font-semibold text-blue-600">{{ "{:,}".format(anuncio.link_clicks|int) if anuncio.link_clicks else 0 }}</td>
+            <td class="px-4 py-2 text-right font-semibold text-indigo-600">{{ "{:,}".format(anuncio.impresiones|int) if anuncio.impresiones else 0 }}</td>
+            <td class="px-4 py-2 text-right font-semibold text-purple-600">{{ "{:,}".format(anuncio.alcance|int) if anuncio.alcance else 0 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
     <!-- Watermark -->
@@ -323,7 +377,6 @@
         // Función de exportar PDF
         function exportarPDF() {
             // Ocultar temporalmente elementos que no queremos en el PDF
-            const debugPanel = document.getElementById('debugInfo');
             const buttons = document.querySelectorAll('button');
             const watermark = document.querySelector('.watermark');
             
@@ -332,7 +385,6 @@
             document.getElementById('tabla-instagram').style.display = 'block';
             
             // Ocultar elementos no deseados
-            if (debugPanel) debugPanel.style.display = 'none';
             buttons.forEach(btn => btn.style.display = 'none');
             if (watermark) watermark.style.display = 'none';
             
@@ -372,7 +424,6 @@
                 pdf.save(filename);
                 
                 // Restaurar elementos ocultos
-                if (debugPanel) debugPanel.style.display = 'block';
                 buttons.forEach(btn => btn.style.display = 'flex');
                 if (watermark) watermark.style.display = 'block';
                 
@@ -384,7 +435,6 @@
                 alert('Error al generar el PDF. Por favor, intente nuevamente.');
                 
                 // Restaurar elementos en caso de error
-                if (debugPanel) debugPanel.style.display = 'block';
                 buttons.forEach(btn => btn.style.display = 'flex');
                 if (watermark) watermark.style.display = 'block';
                 mostrarPlataforma('facebook');
@@ -396,21 +446,11 @@
             // Mostrar todas las tablas antes de imprimir
             document.getElementById('tabla-facebook').style.display = 'block';
             document.getElementById('tabla-instagram').style.display = 'block';
-            
-            // Ocultar panel de debug si existe
-            const debugPanel = document.getElementById('debugInfo');
-            if (debugPanel) {
-                debugPanel.style.display = 'none';
-            }
         });
 
         window.addEventListener('afterprint', function() {
-            // Restaurar estado después de imprimir
-            const debugPanel = document.getElementById('debugInfo');
-            if (debugPanel) {
-                debugPanel.style.display = 'block';
-            }
-            mostrarPlataforma('facebook'); // Volver a mostrar solo Facebook por defecto
+            // Volver a mostrar solo Facebook por defecto
+            mostrarPlataforma('facebook');
         });
     </script>
 </body>

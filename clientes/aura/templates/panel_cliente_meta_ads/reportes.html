@@ -96,18 +96,17 @@ function sincronizarCompleto() {
         <span>Sincronizar Datos<br>(7 días)</span>
       </button>
       
-      <!-- Espacio para futuros botones -->
-      <div class="opacity-50">
-        <div class="btn-tarjeta-meta tarjeta-gris">
-          <span class="icono-btn"><i class="fa-solid fa-chart-line"></i></span>
-          <span>Próximamente<br>Analíticas</span>
-        </div>
-      </div>
+      <!-- Botón de Copiar Todos los Reportes -->
+      <button onclick="copiarTodosLosReportes()" class="btn-tarjeta-meta tarjeta-verde">
+        <span class="icono-btn"><i class="fa-solid fa-copy"></i></span>
+        <span>Copiar Todos<br>los Reportes</span>
+      </button>
     </div>
 
     <!-- Área de Estado -->
     <div id="reporte-status" class="mt-4 text-center text-lg"></div>
     <div id="sincronizacion-status" class="mt-4 text-center text-lg"></div>
+    <div id="copia-reportes-status" class="mt-4 text-center text-lg"></div>
   </div>
 
   <!-- Listado de Reportes -->
@@ -456,6 +455,207 @@ function compartirEmail(urlPublico, empresaNombre, periodo) {
 
 function abrirReportePublico(urlPublico) {
   window.open(urlPublico, '_blank');
+}
+
+function copiarTodosLosReportes() {
+  const statusDiv = document.getElementById('copia-reportes-status');
+  if (!statusDiv) {
+    // Crear div de status si no existe
+    const nuevoStatusDiv = document.createElement('div');
+    nuevoStatusDiv.id = 'copia-reportes-status';
+    nuevoStatusDiv.className = 'mt-4 text-center text-lg';
+    document.getElementById('sincronizacion-status').parentNode.appendChild(nuevoStatusDiv);
+  }
+  
+  const statusDivFinal = document.getElementById('copia-reportes-status');
+  statusDivFinal.innerHTML = '<div class="text-blue-600 font-semibold">⏳ Generando enlaces de todos los reportes...</div>';
+  
+  // Obtener todos los reportes de la tabla
+  const botonesCompartir = document.querySelectorAll('button[data-id]');
+  const reportes = Array.from(botonesCompartir).map(btn => ({
+    id: btn.getAttribute('data-id'),
+    empresa: btn.getAttribute('data-empresa'),
+    desde: btn.getAttribute('data-desde'),
+    hasta: btn.getAttribute('data-hasta')
+  }));
+  
+  if (reportes.length === 0) {
+    statusDivFinal.innerHTML = '<div class="text-orange-600 font-semibold">⚠️ No hay reportes disponibles para copiar</div>';
+    return;
+  }
+  
+  // Generar enlaces para todos los reportes
+  Promise.all(reportes.map(reporte => 
+    fetch(`${metaAdsBaseUrl}/compartir_reporte`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        reporte_id: reporte.id,
+        empresa_nombre: reporte.empresa,
+        periodo: `${reporte.desde} - ${reporte.hasta}`,
+        nombre_nora: nombreNora
+      })
+    })
+    .then(response => response.json())
+    .then(data => ({
+      empresa: reporte.empresa,
+      periodo: `${reporte.desde} - ${reporte.hasta}`,
+      url: data.ok ? data.url_publico : 'Error al generar enlace',
+      success: data.ok
+    }))
+    .catch(() => ({
+      empresa: reporte.empresa,
+      periodo: `${reporte.desde} - ${reporte.hasta}`,
+      url: 'Error de conexión',
+      success: false
+    }))
+  ))
+  .then(resultados => {
+    // Crear texto para copiar
+    let textoCopiar = '📊 REPORTES META ADS - ENLACES PÚBLICOS\n';
+    textoCopiar += '═══════════════════════════════════════\n\n';
+    
+    const exitosos = resultados.filter(r => r.success);
+    const fallidos = resultados.filter(r => !r.success);
+    
+    exitosos.forEach((resultado, index) => {
+      textoCopiar += `${index + 1}. 🏢 ${resultado.empresa}\n`;
+      textoCopiar += `   📅 ${resultado.periodo}\n`;
+      textoCopiar += `   🔗 ${resultado.url}\n\n`;
+    });
+    
+    if (fallidos.length > 0) {
+      textoCopiar += '❌ REPORTES CON ERRORES:\n';
+      textoCopiar += '═══════════════════════\n';
+      fallidos.forEach((resultado, index) => {
+        textoCopiar += `${index + 1}. ❌ ${resultado.empresa} (${resultado.periodo})\n`;
+      });
+      textoCopiar += '\n';
+    }
+    
+    textoCopiar += '✨ Generado por NoraAI\n';
+    textoCopiar += `📊 Total de reportes: ${exitosos.length} exitosos, ${fallidos.length} con errores`;
+    
+    // Copiar al portapapeles
+    navigator.clipboard.writeText(textoCopiar).then(() => {
+      statusDivFinal.innerHTML = `
+        <div class="text-green-600 font-semibold">
+          ✅ ¡Enlaces copiados al portapapeles!<br>
+          📊 ${exitosos.length} reportes exitosos
+          ${fallidos.length > 0 ? `<br>⚠️ ${fallidos.length} reportes con errores` : ''}
+        </div>
+      `;
+      
+      // Mostrar modal con preview
+      mostrarModalTodosLosReportes(textoCopiar, exitosos.length, fallidos.length);
+      
+    }).catch(() => {
+      // Fallback para navegadores antiguos
+      statusDivFinal.innerHTML = '<div class="text-orange-600 font-semibold">⚠️ No se pudo copiar automáticamente. Usa el modal para copiar manualmente.</div>';
+      mostrarModalTodosLosReportes(textoCopiar, exitosos.length, fallidos.length);
+    });
+    
+  })
+  .catch(error => {
+    console.error('Error al generar enlaces:', error);
+    statusDivFinal.innerHTML = '<div class="text-red-600 font-semibold">❌ Error al generar enlaces de reportes</div>';
+  });
+}
+
+function mostrarModalTodosLosReportes(textoCopiar, exitosos, fallidos) {
+  const modal = document.createElement('div');
+  modal.className = 'modal fade';
+  modal.id = 'modalTodosLosReportes';
+  modal.setAttribute('tabindex', '-1');
+  modal.innerHTML = `
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-copy me-2"></i>
+            Todos los Enlaces de Reportes (${exitosos} exitosos${fallidos > 0 ? `, ${fallidos} con errores` : ''})
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert ${fallidos > 0 ? 'alert-warning' : 'alert-success'}">
+            <strong><i class="fas fa-info-circle me-2"></i>Enlaces generados</strong><br>
+            <small>✅ ${exitosos} reportes exitosos${fallidos > 0 ? ` | ⚠️ ${fallidos} con errores` : ''}</small>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Texto completo (ya copiado al portapapeles):</label>
+            <textarea id="todosLosEnlaces" class="form-control" rows="15" readonly>${textoCopiar}</textarea>
+          </div>
+          
+          <div class="d-flex gap-2 justify-content-center">
+            <button class="btn btn-outline-primary" onclick="copiarTextoModal()">
+              <i class="fas fa-copy me-1"></i>Copiar de Nuevo
+            </button>
+            <button class="btn btn-success" onclick="compartirTodosWhatsApp()">
+              <i class="fab fa-whatsapp me-1"></i>Compartir por WhatsApp
+            </button>
+            <button class="btn btn-primary" onclick="compartirTodosEmail()">
+              <i class="fas fa-envelope me-1"></i>Enviar por Email
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  const bootstrapModal = new bootstrap.Modal(modal);
+  bootstrapModal.show();
+  
+  modal.addEventListener('hidden.bs.modal', function() {
+    document.body.removeChild(modal);
+  });
+}
+
+function copiarTextoModal() {
+  const textarea = document.getElementById('todosLosEnlaces');
+  textarea.select();
+  textarea.setSelectionRange(0, 99999);
+  
+  navigator.clipboard.writeText(textarea.value).then(() => {
+    const btn = event.target;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check me-1"></i>¡Copiado!';
+    btn.classList.remove('btn-outline-primary');
+    btn.classList.add('btn-success');
+    
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.classList.remove('btn-success');
+      btn.classList.add('btn-outline-primary');
+    }, 2000);
+  }).catch(() => {
+    document.execCommand('copy');
+    alert('Texto copiado al portapapeles');
+  });
+}
+
+function compartirTodosWhatsApp() {
+  const texto = document.getElementById('todosLosEnlaces').value;
+  const mensaje = encodeURIComponent(texto);
+  const urlWhatsApp = `https://wa.me/?text=${mensaje}`;
+  window.open(urlWhatsApp, '_blank');
+}
+
+function compartirTodosEmail() {
+  const texto = document.getElementById('todosLosEnlaces').value;
+  const asunto = 'Reportes Meta Ads - Enlaces Públicos';
+  const cuerpo = encodeURIComponent(texto);
+  
+  const mailtoUrl = `mailto:?subject=${encodeURIComponent(asunto)}&body=${cuerpo}`;
+  window.location.href = mailtoUrl;
 }
 </script>
 {% endblock scripts %}
