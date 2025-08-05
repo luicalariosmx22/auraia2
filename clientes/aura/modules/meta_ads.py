@@ -5,6 +5,11 @@ from clientes.aura.utils.supabase_client import supabase
 import requests
 from datetime import datetime
 
+# 🗄️ CONTEXTO BD PARA GITHUB COPILOT
+from clientes.aura.utils.supabase_schemas import SUPABASE_SCHEMAS
+from clientes.aura.utils.quick_schemas import existe, columnas
+# BD ACTUAL: meta_ads_cuentas(15), meta_ads_anuncios_detalle(96), meta_ads_reportes_semanales(35)
+
 ads_bp = Blueprint('ads_bp', __name__, url_prefix='/panel_cliente')
 
 ACCESS_TOKEN_GLOBAL = 'TU_ACCESS_TOKEN_GLOBAL'  # ✅ Replace or load from .env in the future

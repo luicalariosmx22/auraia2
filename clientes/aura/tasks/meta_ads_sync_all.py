@@ -5,6 +5,11 @@ import requests
 import json
 from datetime import datetime, date, timedelta
 
+# 🗄️ CONTEXTO BD PARA GITHUB COPILOT
+from clientes.aura.utils.supabase_schemas import SUPABASE_SCHEMAS
+from clientes.aura.utils.quick_schemas import existe, columnas
+# BD ACTUAL: meta_ads_cuentas(15), meta_ads_anuncios_detalle(96), meta_ads_reportes_semanales(35)
+
 
 def sincronizar_todas_las_cuentas_meta_ads(nombre_nora=None, fecha_inicio=None, fecha_fin=None):
     hoy = date.today()

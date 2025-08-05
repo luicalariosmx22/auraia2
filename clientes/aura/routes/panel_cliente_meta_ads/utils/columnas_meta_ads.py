@@ -1,3 +1,8 @@
+# 🗄️ CONTEXTO BD PARA GITHUB COPILOT
+from clientes.aura.utils.supabase_schemas import SUPABASE_SCHEMAS
+from clientes.aura.utils.quick_schemas import existe, columnas
+# BD ACTUAL: meta_ads_anuncios_detalle(96), meta_ads_reportes_semanales(35), meta_ads_cuentas(15)
+
 # Mapeo de nombres de columnas a campos de la API de Meta
 MAPEO_COLUMNAS_META_ADS = {
     'importe_gastado': 'spend',

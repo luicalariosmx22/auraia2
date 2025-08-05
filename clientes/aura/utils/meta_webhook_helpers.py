@@ -10,6 +10,15 @@ from datetime import datetime
 from typing import Any, Optional
 from clientes.aura.utils.supabase_client import supabase
 
+# Importar Facebook Business SDK para registrar webhooks
+try:
+    from facebook_business.api import FacebookAdsApi
+    from facebook_business.adobjects.adaccount import AdAccount
+    FACEBOOK_SDK_AVAILABLE = True
+except ImportError:
+    FACEBOOK_SDK_AVAILABLE = False
+    logging.warning("⚠️ Facebook Business SDK no disponible. Instala con: pip install facebook-business")
+
 logger = logging.getLogger(__name__)
 
 def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: Any, hora_evento: str) -> bool:
@@ -347,4 +356,207 @@ def obtener_estadisticas_webhooks() -> dict:
             'eventos_pendientes': 0,
             'tipos_objeto': {},
             'ultima_actualizacion': datetime.utcnow().isoformat()
+        }
+
+def registrar_webhook_en_cuenta(ad_account_id: str, access_token: str) -> dict:
+    """
+    Registra la app actual en una cuenta publicitaria para recibir eventos del webhook.
+    
+    Args:
+        ad_account_id: ID de la cuenta publicitaria (ej: 'act_1234567890' o '1234567890')
+        access_token: Token de acceso con permisos suficientes
+        
+    Returns:
+        dict: Resultado de la operación
+    """
+    if not FACEBOOK_SDK_AVAILABLE:
+        error_msg = "Facebook Business SDK no disponible. Instala con: pip install facebook-business"
+        print(f"❌ {error_msg}")
+        return {'error': error_msg}
+    
+    try:
+        # Asegurar que el ID tenga el formato correcto (sin duplicar act_)
+        if ad_account_id.startswith('act_'):
+            clean_id = ad_account_id[4:]  # Remover 'act_' del inicio
+        else:
+            clean_id = ad_account_id
+        
+        formatted_account_id = f"act_{clean_id}"
+        
+        print(f"🔗 Registrando webhook para cuenta: {formatted_account_id}")
+        
+        # Inicializar la API de Facebook
+        FacebookAdsApi.init(access_token=access_token)
+        
+        # Crear objeto de cuenta publicitaria
+        cuenta = AdAccount(formatted_account_id)
+        
+        # Usar el método correcto del SDK
+        respuesta = cuenta.create_subscribed_app()
+        
+        print(f"✅ Cuenta {formatted_account_id} registrada correctamente.")
+        logger.info(f"Webhook registrado exitosamente para cuenta {formatted_account_id}")
+        
+        return {
+            'success': True,
+            'account_id': formatted_account_id,
+            'response': str(respuesta),
+            'message': f'Webhook registrado exitosamente para {formatted_account_id}'
+        }
+        
+    except Exception as e:
+        formatted_account_id = formatted_account_id if 'formatted_account_id' in locals() else ad_account_id
+        error_msg = f"Error registrando webhook en {formatted_account_id}: {e}"
+        print(f"❌ {error_msg}")
+        logger.error(error_msg)
+        return {
+            'success': False,
+            'account_id': formatted_account_id,
+            'error': str(e)
+        }
+        return {'error': str(e), 'account_id': formatted_account_id, 'success': False}
+
+def registrar_webhooks_en_cuentas_activas(access_token: str) -> list:
+    """
+    Recorre todas las cuentas activas (no excluidas) y suscribe la app al webhook.
+    
+    Args:
+        access_token: Token de acceso con permisos suficientes
+        
+    Returns:
+        list: Lista de resultados para cada cuenta
+    """
+    print("📡 Registrando webhooks en cuentas activas...")
+    logger.info("Iniciando registro masivo de webhooks en cuentas activas")
+    
+    try:
+        # Obtener TODAS las cuentas y filtrar localmente (evitar problemas con NULL)
+        resultado = supabase.table("meta_ads_cuentas") \
+            .select("id_cuenta_publicitaria, estado_actual") \
+            .execute()
+
+        # Filtrar localmente: incluir NULL y todo excepto 'excluida'
+        todas_cuentas = resultado.data or []
+        cuentas = [
+            cuenta for cuenta in todas_cuentas 
+            if cuenta.get('estado_actual') != 'excluida'
+        ]
+        print(f"🔍 Se encontraron {len(cuentas)} cuentas activas")
+        logger.info(f"Encontradas {len(cuentas)} cuentas activas para registrar webhooks")
+
+        resultados = []
+        
+        for cuenta in cuentas:
+            # El id_cuenta_publicitaria de la base de datos ya contiene solo números
+            account_id = cuenta['id_cuenta_publicitaria']  # No agregar act_ aquí
+            resultado = registrar_webhook_en_cuenta(account_id, access_token)
+            
+            # Agregar información adicional al resultado
+            resultado_completo = {
+                'account_id': f"act_{account_id}",  # Formato completo para mostrar
+                'original_id': cuenta['id_cuenta_publicitaria'],
+                'resultado': resultado,
+                'success': resultado.get('success', 'error' not in resultado)
+            }
+            
+            resultados.append(resultado_completo)
+            
+            # Pausa pequeña entre registros para evitar rate limiting
+            import time
+            time.sleep(0.5)
+        
+        exitosos = len([r for r in resultados if r['success']])
+        fallidos = len(resultados) - exitosos
+        
+        print(f"📊 Registro completado: {exitosos} exitosos, {fallidos} fallidos")
+        logger.info(f"Registro masivo completado: {exitosos} exitosos, {fallidos} fallidos")
+        
+        return resultados
+        
+    except Exception as e:
+        error_msg = f"Error en registro masivo de webhooks: {e}"
+        print(f"❌ {error_msg}")
+        logger.error(error_msg)
+        return [{'error': str(e), 'success': False}]
+
+def verificar_webhook_registrado(ad_account_id: str, access_token: str) -> dict:
+    """
+    Verifica si el webhook está registrado en una cuenta publicitaria.
+    
+    Args:
+        ad_account_id: ID de la cuenta publicitaria
+        access_token: Token de acceso
+        
+    Returns:
+        dict: Estado del registro del webhook
+    """
+    if not FACEBOOK_SDK_AVAILABLE:
+        return {'error': 'Facebook Business SDK no disponible', 'registered': False}
+    
+    try:
+        # Asegurar que el ID tenga el formato correcto (sin duplicar act_)
+        if ad_account_id.startswith('act_'):
+            clean_id = ad_account_id[4:]  # Remover 'act_' del inicio
+        else:
+            clean_id = ad_account_id
+        
+        formatted_account_id = f"act_{clean_id}"
+        
+        print(f"🔍 Verificando webhook para cuenta: {formatted_account_id}")
+        
+        # Usar requests directamente para hacer la llamada a la API
+        import requests
+        
+        url = f"https://graph.facebook.com/v19.0/{formatted_account_id}/subscribed_apps"
+        params = {
+            'access_token': access_token
+        }
+        
+        response = requests.get(url, params=params)
+        
+        if response.status_code == 200:
+            response_data = response.json()
+            apps_suscritas = response_data.get('data', [])
+            esta_registrado = len(apps_suscritas) > 0
+            
+            print(f"✅ Cuenta {formatted_account_id}: {'Registrada' if esta_registrado else 'No registrada'}")
+            logger.info(f"Verificación webhook {formatted_account_id}: {'registrado' if esta_registrado else 'no registrado'}")
+            
+            return {
+                'account_id': formatted_account_id,
+                'registered': esta_registrado,
+                'subscribed_apps': apps_suscritas,
+                'success': True
+            }
+        else:
+            try:
+                error_data = response.json()
+                if isinstance(error_data, dict):
+                    error_msg = error_data.get('error', {}).get('message', error_data.get('message', 'Error desconocido'))
+                else:
+                    error_msg = str(error_data)
+            except:
+                error_msg = response.text or 'Error desconocido'
+            
+            print(f"❌ Error HTTP {response.status_code}: {error_msg}")
+            logger.error(f"Error verificando webhook {formatted_account_id}: HTTP {response.status_code} - {error_msg}")
+            
+            return {
+                'account_id': formatted_account_id,
+                'registered': False,
+                'error': error_msg,
+                'success': False,
+                'status_code': response.status_code
+            }
+        
+    except Exception as e:
+        formatted_account_id = formatted_account_id if 'formatted_account_id' in locals() else ad_account_id
+        error_msg = f"Error verificando webhook en {formatted_account_id}: {e}"
+        print(f"❌ {error_msg}")
+        logger.error(error_msg)
+        return {
+            'account_id': formatted_account_id,
+            'registered': False,
+            'error': str(e),
+            'success': False
         }

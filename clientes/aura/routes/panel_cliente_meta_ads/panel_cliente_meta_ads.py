@@ -10,6 +10,11 @@ from clientes.aura.utils.meta_ads import (
 )
 from .webhooks_meta import webhooks_meta_bp
 
+# 🗄️ CONTEXTO BD PARA GITHUB COPILOT
+from clientes.aura.utils.supabase_schemas import SUPABASE_SCHEMAS
+from clientes.aura.utils.quick_schemas import existe, columnas
+# BD ACTUAL: meta_ads_cuentas(15), meta_ads_anuncios_detalle(96), meta_ads_reportes_semanales(35)
+
 panel_cliente_meta_ads_bp = Blueprint(
     "panel_cliente_meta_ads_bp",
     __name__,
@@ -19,6 +24,51 @@ panel_cliente_meta_ads_bp = Blueprint(
 @panel_cliente_meta_ads_bp.route("/")
 def panel_cliente_meta_ads(nombre_nora):
     return render_template("panel_cliente_meta_ads/index.html", nombre_nora=nombre_nora)
+
+@panel_cliente_meta_ads_bp.route("/automatizacion")
+def panel_automatizacion_campanas(nombre_nora):
+    """Panel de automatización de campañas desde publicaciones"""
+    try:
+        from .automatizacion_campanas import (
+            obtener_automatizaciones,
+            obtener_estadisticas_automatizaciones,
+            obtener_historial_anuncios_automatizados
+        )
+        
+        # Obtener automatizaciones
+        automatizaciones = obtener_automatizaciones(nombre_nora)
+        
+        # Obtener estadísticas
+        estadisticas = obtener_estadisticas_automatizaciones(nombre_nora)
+        
+        # Obtener historial reciente
+        historial = obtener_historial_anuncios_automatizados(nombre_nora, limite=10)
+        
+        # Obtener cuentas de Meta Ads disponibles
+        cuentas_meta = supabase.table("meta_ads_cuentas") \
+            .select("id_cuenta_publicitaria, nombre_cliente, empresa_id") \
+            .eq("nombre_nora", nombre_nora) \
+            .execute()
+        
+        return render_template(
+            'panel_cliente_meta_ads/automatizacion.html',
+            automatizaciones=automatizaciones,
+            estadisticas=estadisticas,
+            historial=historial,
+            cuentas_meta=cuentas_meta.data or [],
+            nombre_nora=nombre_nora
+        )
+    except Exception as e:
+        print(f"Error en panel_automatizacion_campanas: {e}")
+        return render_template(
+            'panel_cliente_meta_ads/automatizacion.html',
+            automatizaciones=[],
+            estadisticas={},
+            historial=[],
+            cuentas_meta=[],
+            nombre_nora=nombre_nora,
+            error=str(e)
+        )
 
 @panel_cliente_meta_ads_bp.route("/reportes-interno")
 def vista_reportes_meta_ads_interno(nombre_nora):
@@ -1440,4 +1490,163 @@ def api_sincronizar_anuncio_webhook(nombre_nora):
         return jsonify({
             'success': False,
             'message': f'Error sincronizando anuncio: {str(e)}'
+        }), 500
+
+# ==================== AUTOMATIZACIÓN DE CAMPAÑAS ====================
+
+@panel_cliente_meta_ads_bp.route("/automatizacion/crear", methods=['GET', 'POST'])
+def crear_automatizacion_view(nombre_nora):
+    """Crear nueva automatización"""
+    if request.method == 'POST':
+        try:
+            from .automatizacion_campanas import crear_automatizacion
+            
+            datos = request.get_json()
+            resultado = crear_automatizacion(nombre_nora, datos)
+            
+            if resultado['ok']:
+                return jsonify({
+                    'success': True,
+                    'message': resultado['message'],
+                    'automatizacion_id': resultado['automatizacion_id']
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': resultado['error']
+                }), 400
+                
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'message': f'Error creando automatización: {str(e)}'
+            }), 500
+    
+    # GET - Mostrar formulario
+    try:
+        # Obtener cuentas de Meta Ads
+        cuentas_meta = supabase.table("meta_ads_cuentas") \
+            .select("id_cuenta_publicitaria, nombre_cliente") \
+            .eq("nombre_nora", nombre_nora) \
+            .execute()
+        
+        # Obtener plantillas disponibles
+        plantillas = supabase.table("meta_plantillas_anuncios") \
+            .select("*") \
+            .eq("nombre_nora", nombre_nora) \
+            .eq("activa", True) \
+            .execute()
+        
+        return render_template(
+            'panel_cliente_meta_ads/crear_automatizacion.html',
+            cuentas_meta=cuentas_meta.data or [],
+            plantillas=plantillas.data or [],
+            nombre_nora=nombre_nora
+        )
+    except Exception as e:
+        print(f"Error en crear_automatizacion_view: {e}")
+        return redirect(url_for('panel_cliente_meta_ads_bp.panel_automatizacion_campanas', nombre_nora=nombre_nora))
+
+@panel_cliente_meta_ads_bp.route("/automatizacion/<int:automatizacion_id>/toggle", methods=['POST'])
+def toggle_automatizacion(nombre_nora, automatizacion_id):
+    """Activar/desactivar automatización"""
+    try:
+        from .automatizacion_campanas import actualizar_automatizacion
+        
+        datos = request.get_json()
+        activa = datos.get('activa', False)
+        
+        resultado = actualizar_automatizacion(automatizacion_id, nombre_nora, {'activa': activa})
+        
+        if resultado['ok']:
+            return jsonify({
+                'success': True,
+                'message': f'Automatización {"activada" if activa else "desactivada"} exitosamente'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': resultado['error']
+            }), 400
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error cambiando estado: {str(e)}'
+        }), 500
+
+@panel_cliente_meta_ads_bp.route("/automatizacion/<int:automatizacion_id>/eliminar", methods=['DELETE'])
+def eliminar_automatizacion_view(nombre_nora, automatizacion_id):
+    """Eliminar automatización"""
+    try:
+        from .automatizacion_campanas import eliminar_automatizacion
+        
+        resultado = eliminar_automatizacion(automatizacion_id, nombre_nora)
+        
+        if resultado['ok']:
+            return jsonify({
+                'success': True,
+                'message': resultado['message']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': resultado['error']
+            }), 400
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error eliminando automatización: {str(e)}'
+        }), 500
+
+@panel_cliente_meta_ads_bp.route("/api/automatizacion/probar_webhook", methods=['POST'])
+def probar_webhook_automatizacion(nombre_nora):
+    """API para probar el procesamiento de webhook con datos simulados"""
+    try:
+        from .automatizacion_campanas import procesar_publicacion_webhook
+        from datetime import datetime
+        
+        datos = request.get_json()
+        
+        # Datos de prueba para webhook
+        webhook_test = {
+            "entry": [
+                {
+                    "id": datos.get('page_id', '123456789'),
+                    "changes": [
+                        {
+                            "field": "feed",
+                            "value": {
+                                "from": {
+                                    "id": "user123",
+                                    "name": "Usuario Prueba"
+                                },
+                                "item": "post",
+                                "post_id": f"test_post_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+                                "verb": "add",
+                                "created_time": int(datetime.now().timestamp()),
+                                "message": datos.get('mensaje_prueba', "Esta es una publicación de prueba para automatización #test #promocion"),
+                                "is_hidden": False
+                            }
+                        }
+                    ],
+                    "time": int(datetime.now().timestamp())
+                }
+            ],
+            "object": "page"
+        }
+        
+        # Procesar webhook de prueba
+        resultado = procesar_publicacion_webhook(webhook_test)
+        
+        return jsonify({
+            'success': True,
+            'resultado': resultado,
+            'webhook_test': webhook_test
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error probando webhook: {str(e)}'
         }), 500

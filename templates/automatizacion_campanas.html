@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatización de Campañas - Meta Ads</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen p-6" x-data="automatizacionPanel()">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">🚀 Automatización de Campañas</h1>
+            <p class="text-gray-600">Crea anuncios automáticamente desde publicaciones de Facebook/Instagram</p>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <span class="text-2xl">⚙️</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Total Automatizaciones</p>
+                        <p class="text-2xl font-bold" x-text="estadisticas.total_automatizaciones">0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Activas</p>
+                        <p class="text-2xl font-bold" x-text="estadisticas.automatizaciones_activas">0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-2 bg-purple-100 rounded-lg">
+                        <span class="text-2xl">📢</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Anuncios Creados (30d)</p>
+                        <p class="text-2xl font-bold" x-text="estadisticas.anuncios_creados_30d">0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-2 bg-orange-100 rounded-lg">
+                        <span class="text-2xl">📝</span>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-600">Publicaciones Procesadas</p>
+                        <p class="text-2xl font-bold" x-text="estadisticas.publicaciones_procesadas_30d">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestañas -->
+        <div class="mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button 
+                        @click="activeTab = 'automatizaciones'"
+                        :class="activeTab === 'automatizaciones' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="py-2 px-1 border-b-2 font-medium text-sm">
+                        Automatizaciones
+                    </button>
+                    <button 
+                        @click="activeTab = 'crear'"
+                        :class="activeTab === 'crear' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="py-2 px-1 border-b-2 font-medium text-sm">
+                        Crear Nueva
+                    </button>
+                    <button 
+                        @click="activeTab = 'historial'"
+                        :class="activeTab === 'historial' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="py-2 px-1 border-b-2 font-medium text-sm">
+                        Historial
+                    </button>
+                    <button 
+                        @click="activeTab = 'pruebas'"
+                        :class="activeTab === 'pruebas' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="py-2 px-1 border-b-2 font-medium text-sm">
+                        Pruebas
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Contenido de Automatizaciones -->
+        <div x-show="activeTab === 'automatizaciones'" class="bg-white rounded-lg shadow">
+            <div class="p-6">
+                <h2 class="text-xl font-bold mb-4">Automatizaciones Configuradas</h2>
+                
+                <div x-show="automatizaciones.length === 0" class="text-center py-8">
+                    <span class="text-6xl">🤖</span>
+                    <p class="text-gray-500 mt-4">No hay automatizaciones configuradas</p>
+                    <button @click="activeTab = 'crear'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        Crear Primera Automatización
+                    </button>
+                </div>
+                
+                <div x-show="automatizaciones.length > 0" class="space-y-4">
+                    <template x-for="auto in automatizaciones" :key="auto.id">
+                        <div class="border rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-lg" x-text="auto.nombre"></h3>
+                                    <p class="text-gray-600" x-text="auto.descripcion"></p>
+                                    <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                                        <span>📄 Página: <span x-text="auto.page_id"></span></span>
+                                        <span>💼 Cuenta: <span x-text="auto.ad_account_id"></span></span>
+                                        <span>📅 <span x-text="auto.creada_en_fmt"></span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span x-show="auto.activa" class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Activa</span>
+                                    <span x-show="!auto.activa" class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm">Inactiva</span>
+                                    <button @click="toggleAutomatizacion(auto.id, !auto.activa)" 
+                                            :class="auto.activa ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'"
+                                            class="text-white px-3 py-1 rounded text-sm">
+                                        <span x-text="auto.activa ? 'Pausar' : 'Activar'"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido de Crear Nueva -->
+        <div x-show="activeTab === 'crear'" class="bg-white rounded-lg shadow">
+            <div class="p-6">
+                <h2 class="text-xl font-bold mb-4">Crear Nueva Automatización</h2>
+                
+                <form @submit.prevent="crearAutomatizacion()" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Automatización</label>
+                            <input type="text" x-model="nuevaAutomatizacion.nombre" required
+                                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Ej: Promociones Automáticas">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ID de la Página</label>
+                            <input type="text" x-model="nuevaAutomatizacion.page_id" required
+                                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="ID de página de Facebook/Instagram">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Cuenta Publicitaria</label>
+                            <select x-model="nuevaAutomatizacion.ad_account_id" required
+                                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Seleccionar cuenta</option>
+                                <template x-for="cuenta in cuentasMeta" :key="cuenta.id_cuenta_publicitaria">
+                                    <option :value="cuenta.id_cuenta_publicitaria" 
+                                            x-text="`${cuenta.nombre_cliente} (${cuenta.id_cuenta_publicitaria})`"></option>
+                                </template>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ID de Campaña</label>
+                            <input type="text" x-model="nuevaAutomatizacion.campaign_id" required
+                                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="ID de la campaña objetivo">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ID de Conjunto de Anuncios</label>
+                            <input type="text" x-model="nuevaAutomatizacion.adset_id" required
+                                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="ID del conjunto de anuncios">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                            <textarea x-model="nuevaAutomatizacion.descripcion"
+                                      class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      rows="3" placeholder="Descripción de la automatización"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Filtros de Contenido -->
+                    <div class="border-t pt-6">
+                        <h3 class="text-lg font-medium mb-4">Filtros de Contenido</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Palabras Clave (separadas por coma)</label>
+                                <input type="text" x-model="nuevaAutomatizacion.palabras_clave"
+                                       class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       placeholder="promocion, descuento, oferta">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Hashtags Requeridos</label>
+                                <input type="text" x-model="nuevaAutomatizacion.hashtags_requeridos"
+                                       class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       placeholder="#promocion, #descuento">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Plantilla de Anuncio -->
+                    <div class="border-t pt-6">
+                        <h3 class="text-lg font-medium mb-4">Plantilla de Anuncio</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Headline Personalizado</label>
+                                <input type="text" x-model="nuevaAutomatizacion.headline"
+                                       class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                       placeholder="Deja vacío para usar automático">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Call to Action</label>
+                                <select x-model="nuevaAutomatizacion.call_to_action"
+                                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="LEARN_MORE">Más información</option>
+                                    <option value="SHOP_NOW">Comprar ahora</option>
+                                    <option value="SIGN_UP">Registrarse</option>
+                                    <option value="CONTACT_US">Contáctanos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" @click="resetForm()" 
+                                class="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" :disabled="loading"
+                                class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50">
+                            <span x-show="!loading">Crear Automatización</span>
+                            <span x-show="loading">Creando...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contenido de Historial -->
+        <div x-show="activeTab === 'historial'" class="bg-white rounded-lg shadow">
+            <div class="p-6">
+                <h2 class="text-xl font-bold mb-4">Historial de Anuncios Automatizados</h2>
+                
+                <div x-show="historial.length === 0" class="text-center py-8">
+                    <span class="text-6xl">📊</span>
+                    <p class="text-gray-500 mt-4">No hay anuncios automatizados aún</p>
+                </div>
+                
+                <div x-show="historial.length > 0" class="space-y-4">
+                    <template x-for="anuncio in historial" :key="anuncio.id">
+                        <div class="border rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-medium" x-text="anuncio.nombre_anuncio"></h4>
+                                    <p class="text-sm text-gray-600" x-text="anuncio.mensaje_truncado"></p>
+                                    <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                                        <span>🤖 <span x-text="anuncio.nombre_automatizacion"></span></span>
+                                        <span>📢 <span x-text="anuncio.ad_id"></span></span>
+                                        <span>📅 <span x-text="anuncio.creado_en_fmt"></span></span>
+                                    </div>
+                                </div>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">Automatizado</span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido de Pruebas -->
+        <div x-show="activeTab === 'pruebas'" class="bg-white rounded-lg shadow">
+            <div class="p-6">
+                <h2 class="text-xl font-bold mb-4">Probar Webhook y Automatización</h2>
+                
+                <form @submit.prevent="probarWebhook()" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ID de Página</label>
+                        <input type="text" x-model="pruebaWebhook.page_id" required
+                               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="123456789">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mensaje de Prueba</label>
+                        <textarea x-model="pruebaWebhook.mensaje_prueba" required
+                                  class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  rows="3" placeholder="Esta es una publicación de prueba para automatización #test #promocion"></textarea>
+                    </div>
+                    
+                    <button type="submit" :disabled="loading"
+                            class="w-full px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-50">
+                        <span x-show="!loading">🧪 Probar Webhook</span>
+                        <span x-show="loading">Probando...</span>
+                    </button>
+                </form>
+                
+                <div x-show="resultadoPrueba" class="mt-6 p-4 bg-gray-50 rounded">
+                    <h4 class="font-medium mb-2">Resultado de la Prueba:</h4>
+                    <pre x-text="JSON.stringify(resultadoPrueba, null, 2)" class="text-sm overflow-auto"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notificaciones -->
+        <div x-show="notification.show" 
+             x-transition
+             :class="notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
+             class="fixed bottom-4 right-4 text-white px-6 py-4 rounded-lg shadow-lg">
+            <p x-text="notification.message"></p>
+        </div>
+    </div>
+
+    <script>
+        function automatizacionPanel() {
+            return {
+                activeTab: 'automatizaciones',
+                loading: false,
+                estadisticas: {
+                    total_automatizaciones: 0,
+                    automatizaciones_activas: 0,
+                    anuncios_creados_30d: 0,
+                    publicaciones_procesadas_30d: 0
+                },
+                automatizaciones: [],
+                historial: [],
+                cuentasMeta: [],
+                nuevaAutomatizacion: {
+                    nombre: '',
+                    descripcion: '',
+                    page_id: '',
+                    ad_account_id: '',
+                    campaign_id: '',
+                    adset_id: '',
+                    palabras_clave: '',
+                    hashtags_requeridos: '',
+                    headline: '',
+                    call_to_action: 'LEARN_MORE'
+                },
+                pruebaWebhook: {
+                    page_id: '123456789',
+                    mensaje_prueba: 'Esta es una publicación de prueba para automatización #test #promocion'
+                },
+                resultadoPrueba: null,
+                notification: {
+                    show: false,
+                    message: '',
+                    type: 'success'
+                },
+
+                async init() {
+                    await this.cargarDatos();
+                },
+
+                async cargarDatos() {
+                    this.loading = true;
+                    try {
+                        await Promise.all([
+                            this.cargarEstadisticas(),
+                            this.cargarAutomatizaciones(),
+                            this.cargarHistorial(),
+                            this.cargarCuentasMeta()
+                        ]);
+                    } catch (error) {
+                        this.showNotification('Error cargando datos: ' + error.message, 'error');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async cargarEstadisticas() {
+                    const response = await fetch('/api/automatizacion/estadisticas?nombre_nora=nora_default');
+                    const data = await response.json();
+                    if (data.success) {
+                        this.estadisticas = data.estadisticas;
+                    }
+                },
+
+                async cargarAutomatizaciones() {
+                    const response = await fetch('/api/automatizacion/listar?nombre_nora=nora_default');
+                    const data = await response.json();
+                    if (data.success) {
+                        this.automatizaciones = data.automatizaciones;
+                    }
+                },
+
+                async cargarHistorial() {
+                    const response = await fetch('/api/automatizacion/historial?nombre_nora=nora_default&limite=20');
+                    const data = await response.json();
+                    if (data.success) {
+                        this.historial = data.historial;
+                    }
+                },
+
+                async cargarCuentasMeta() {
+                    const response = await fetch('/api/automatizacion/cuentas_meta?nombre_nora=nora_default');
+                    const data = await response.json();
+                    if (data.success) {
+                        this.cuentasMeta = data.cuentas;
+                    }
+                },
+
+                async crearAutomatizacion() {
+                    this.loading = true;
+                    try {
+                        const datos = {
+                            ...this.nuevaAutomatizacion,
+                            nombre_nora: 'nora_default',
+                            filtros_contenido: {
+                                palabras_clave: this.nuevaAutomatizacion.palabras_clave.split(',').map(p => p.trim()).filter(p => p),
+                                hashtags_requeridos: this.nuevaAutomatizacion.hashtags_requeridos.split(',').map(h => h.trim()).filter(h => h)
+                            },
+                            plantilla_anuncio: {
+                                headline: this.nuevaAutomatizacion.headline,
+                                call_to_action: this.nuevaAutomatizacion.call_to_action
+                            }
+                        };
+
+                        const response = await fetch('/api/automatizacion/crear', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(datos)
+                        });
+
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            this.showNotification(result.message, 'success');
+                            this.resetForm();
+                            this.activeTab = 'automatizaciones';
+                            await this.cargarDatos();
+                        } else {
+                            this.showNotification(result.message, 'error');
+                        }
+                    } catch (error) {
+                        this.showNotification('Error creando automatización: ' + error.message, 'error');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async toggleAutomatizacion(id, activa) {
+                    try {
+                        const response = await fetch(`/api/automatizacion/toggle/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                nombre_nora: 'nora_default',
+                                activa: activa
+                            })
+                        });
+
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            this.showNotification(result.message, 'success');
+                            await this.cargarDatos();
+                        } else {
+                            this.showNotification(result.message, 'error');
+                        }
+                    } catch (error) {
+                        this.showNotification('Error cambiando estado: ' + error.message, 'error');
+                    }
+                },
+
+                async probarWebhook() {
+                    this.loading = true;
+                    try {
+                        const response = await fetch('/api/automatizacion/probar_webhook', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(this.pruebaWebhook)
+                        });
+
+                        const result = await response.json();
+                        this.resultadoPrueba = result;
+                        
+                        if (result.success) {
+                            this.showNotification('Webhook probado exitosamente', 'success');
+                        } else {
+                            this.showNotification('Error en prueba: ' + result.message, 'error');
+                        }
+                    } catch (error) {
+                        this.showNotification('Error probando webhook: ' + error.message, 'error');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                resetForm() {
+                    this.nuevaAutomatizacion = {
+                        nombre: '',
+                        descripcion: '',
+                        page_id: '',
+                        ad_account_id: '',
+                        campaign_id: '',
+                        adset_id: '',
+                        palabras_clave: '',
+                        hashtags_requeridos: '',
+                        headline: '',
+                        call_to_action: 'LEARN_MORE'
+                    };
+                },
+
+                showNotification(message, type = 'success') {
+                    this.notification = {
+                        show: true,
+                        message: message,
+                        type: type
+                    };
+                    
+                    setTimeout(() => {
+                        this.notification.show = false;
+                    }, 5000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

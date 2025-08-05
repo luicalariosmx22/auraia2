@@ -12,6 +12,11 @@ import os, json, requests, time
 from dotenv import load_dotenv
 load_dotenv()
 
+# 🗄️ CONTEXTO BD PARA GITHUB COPILOT
+from clientes.aura.utils.supabase_schemas import SUPABASE_SCHEMAS
+from clientes.aura.utils.quick_schemas import existe, columnas
+# BD ACTUAL: meta_ads_cuentas(15), meta_ads_anuncios_detalle(96), meta_ads_reportes_semanales(35)
+
 API_VER   = "v23.0"
 TOKEN     = os.getenv("META_ACCESS_TOKEN")          # token largo o System-User
 BASE_URL  = f"https://graph.facebook.com/{API_VER}"

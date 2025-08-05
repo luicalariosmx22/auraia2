@@ -1,0 +1,574 @@
+{% extends "base_cliente.html" %}
+
+{% block contenido %}
+<div class="min-h-screen p-6" x-data="automatizacionPanel()">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">🚀 Automatización de Campañas</h1>
+        <p class="text-gray-600">Crea anuncios automáticamente desde publicaciones de Facebook/Instagram</p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-2 bg-blue-100 rounded-lg">
+                    <span class="text-2xl">⚙️</span>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-600">Total Automatizaciones</p>
+                    <p class="text-2xl font-bold">{{ estadisticas.get('total_automatizaciones', 0) }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <span class="text-2xl">✅</span>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-600">Activas</p>
+                    <p class="text-2xl font-bold">{{ estadisticas.get('automatizaciones_activas', 0) }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-2 bg-purple-100 rounded-lg">
+                    <span class="text-2xl">📢</span>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-600">Anuncios Creados (30d)</p>
+                    <p class="text-2xl font-bold">{{ estadisticas.get('anuncios_mes', 0) }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-2 bg-orange-100 rounded-lg">
+                    <span class="text-2xl">📊</span>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-600">Publicaciones Hoy</p>
+                    <p class="text-2xl font-bold">{{ estadisticas.get('publicaciones_hoy', 0) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación por pestañas -->
+    <div class="mb-6">
+        <nav class="flex space-x-4" aria-label="Tabs">
+            <button 
+                @click="pestanaActiva = 'automatizaciones'"
+                :class="pestanaActiva === 'automatizaciones' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'"
+                class="px-3 py-2 font-medium text-sm rounded-md">
+                Automatizaciones
+            </button>
+            <button 
+                @click="pestanaActiva = 'crear'"
+                :class="pestanaActiva === 'crear' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'"
+                class="px-3 py-2 font-medium text-sm rounded-md">
+                Nueva Automatización
+            </button>
+            <button 
+                @click="pestanaActiva = 'historial'"
+                :class="pestanaActiva === 'historial' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'"
+                class="px-3 py-2 font-medium text-sm rounded-md">
+                Historial
+            </button>
+            <button 
+                @click="pestanaActiva = 'pruebas'"
+                :class="pestanaActiva === 'pruebas' ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'"
+                class="px-3 py-2 font-medium text-sm rounded-md">
+                Probar Webhook
+            </button>
+        </nav>
+    </div>
+
+    <!-- Contenido de pestañas -->
+    
+    <!-- Pestaña: Lista de Automatizaciones -->
+    <div x-show="pestanaActiva === 'automatizaciones'" class="space-y-6">
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Automatizaciones Configuradas</h3>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% for auto in automatizaciones %}
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-medium text-gray-900">{{ auto.nombre }}</h4>
+                            <p class="text-sm text-gray-600">{{ auto.descripcion or 'Sin descripción' }}</p>
+                            <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                                <span>📄 Página: {{ auto.pagina_id }}</span>
+                                <span>🎯 Conjunto: {{ auto.conjunto_anuncios_id }}</span>
+                                <span>{% if auto.activa %}✅ Activa{% else %}⏸️ Pausada{% endif %}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button 
+                                @click="toggleAutomatizacion({{ auto.id }}, {{ 'false' if auto.activa else 'true' }})"
+                                class="px-3 py-1 text-sm font-medium rounded-md {{ 'bg-red-100 text-red-700 hover:bg-red-200' if auto.activa else 'bg-green-100 text-green-700 hover:bg-green-200' }}">
+                                {% if auto.activa %}Pausar{% else %}Activar{% endif %}
+                            </button>
+                            <button 
+                                @click="eliminarAutomatizacion({{ auto.id }})"
+                                class="px-3 py-1 text-sm font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="p-6 text-center text-gray-500">
+                    <span class="text-4xl mb-4 block">🤖</span>
+                    <p>No hay automatizaciones configuradas aún.</p>
+                    <button 
+                        @click="pestanaActiva = 'crear'"
+                        class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        Crear Primera Automatización
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña: Crear Nueva Automatización -->
+    <div x-show="pestanaActiva === 'crear'" class="space-y-6">
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Nueva Automatización</h3>
+            </div>
+            <form @submit.prevent="crearAutomatizacion()" class="p-6 space-y-6">
+                <!-- Información básica -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nombre</label>
+                        <input 
+                            type="text" 
+                            x-model="formAutomatizacion.nombre"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Ej: Promociones Automáticas"
+                            required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Cuenta Meta Ads</label>
+                        <select 
+                            x-model="formAutomatizacion.cuenta_publicitaria"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            required>
+                            <option value="">Seleccionar cuenta...</option>
+                            {% for cuenta in cuentas_meta %}
+                            <option value="{{ cuenta.id_cuenta_publicitaria }}">{{ cuenta.nombre_cliente }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Descripción</label>
+                    <textarea 
+                        x-model="formAutomatizacion.descripcion"
+                        rows="3" 
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Describe qué tipo de publicaciones se procesarán..."></textarea>
+                </div>
+
+                <!-- Configuración de página -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">ID de Página Facebook</label>
+                        <input 
+                            type="text" 
+                            x-model="formAutomatizacion.pagina_id"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="123456789012345"
+                            required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">ID Conjunto de Anuncios</label>
+                        <input 
+                            type="text" 
+                            x-model="formAutomatizacion.conjunto_anuncios_id"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="123456789012345"
+                            required>
+                    </div>
+                </div>
+
+                <!-- Filtros de contenido -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Filtros de Contenido</label>
+                    <div class="space-y-4 p-4 border border-gray-200 rounded-md">
+                        <div>
+                            <label class="block text-sm text-gray-600">Palabras clave requeridas (separadas por comas)</label>
+                            <input 
+                                type="text" 
+                                x-model="formAutomatizacion.palabras_clave"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="promoción, oferta, descuento">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600">Hashtags requeridos (separados por comas)</label>
+                            <input 
+                                type="text" 
+                                x-model="formAutomatizacion.hashtags"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="#promocion, #oferta, #descuento">
+                        </div>
+                        <div class="flex items-center space-x-6">
+                            <label class="flex items-center">
+                                <input 
+                                    type="checkbox" 
+                                    x-model="formAutomatizacion.requiere_imagen"
+                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-600">Requiere imagen</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input 
+                                    type="checkbox" 
+                                    x-model="formAutomatizacion.requiere_video"
+                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-600">Requiere video</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button 
+                        type="button"
+                        @click="pestanaActiva = 'automatizaciones'"
+                        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button 
+                        type="submit"
+                        :disabled="creandoAutomatizacion"
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">
+                        <span x-show="!creandoAutomatizacion">Crear Automatización</span>
+                        <span x-show="creandoAutomatizacion">Creando...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pestaña: Historial -->
+    <div x-show="pestanaActiva === 'historial'" class="space-y-6">
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Historial de Anuncios Automatizados</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Automatización</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Publicación</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Anuncio</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for item in historial %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ item.fecha_creacion.strftime('%d/%m/%Y %H:%M') if item.fecha_creacion else 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ item.automatizacion_nombre or 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                <div class="max-w-xs truncate">{{ item.contenido_texto or 'Sin texto' }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if item.estado == 'success' %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    Exitoso
+                                </span>
+                                {% elif item.estado == 'error' %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    Error
+                                </span>
+                                {% else %}
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Pendiente
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ item.anuncio_id or '-' }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                No hay anuncios automatizados aún
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña: Probar Webhook -->
+    <div x-show="pestanaActiva === 'pruebas'" class="space-y-6">
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Probar Procesamiento de Webhook</h3>
+                <p class="text-sm text-gray-600">Simula una publicación de Facebook/Instagram para probar las automatizaciones</p>
+            </div>
+            <form @submit.prevent="probarWebhook()" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">ID de Página</label>
+                        <input 
+                            type="text" 
+                            x-model="formPrueba.page_id"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="123456789012345"
+                            required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tipo de Contenido</label>
+                        <select 
+                            x-model="formPrueba.tipo_contenido"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="text">Solo texto</option>
+                            <option value="photo">Foto</option>
+                            <option value="video">Video</option>
+                            <option value="link">Enlace</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Mensaje de Prueba</label>
+                    <textarea 
+                        x-model="formPrueba.mensaje_prueba"
+                        rows="4" 
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="¡Nueva promoción! 🎉 Aprovecha nuestras ofertas especiales #promocion #descuento"
+                        required></textarea>
+                </div>
+
+                <div class="flex justify-end">
+                    <button 
+                        type="submit"
+                        :disabled="probandoWebhook"
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50">
+                        <span x-show="!probandoWebhook">🧪 Probar Webhook</span>
+                        <span x-show="probandoWebhook">Probando...</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Resultado de la prueba -->
+            <div x-show="resultadoPrueba" class="px-6 pb-6">
+                <div class="border-t border-gray-200 pt-6">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Resultado de la Prueba</h4>
+                    <div class="bg-gray-50 rounded-md p-4">
+                        <pre x-text="JSON.stringify(resultadoPrueba, null, 2)" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones -->
+    <div x-show="mostrarNotificacion" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-y-2"
+         x-transition:enter-end="opacity-100 transform translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-y-0"
+         x-transition:leave-end="opacity-0 transform translate-y-2"
+         class="fixed bottom-4 right-4 z-50">
+        <div :class="tipoNotificacion === 'success' ? 'bg-green-500' : 'bg-red-500'" 
+             class="text-white px-6 py-3 rounded-lg shadow-lg">
+            <p x-text="mensajeNotificacion"></p>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<script>
+    function automatizacionPanel() {
+        return {
+            pestanaActiva: 'automatizaciones',
+            
+            // Formulario nueva automatización
+            formAutomatizacion: {
+                nombre: '',
+                descripcion: '',
+                pagina_id: '',
+                conjunto_anuncios_id: '',
+                cuenta_publicitaria: '',
+                palabras_clave: '',
+                hashtags: '',
+                requiere_imagen: false,
+                requiere_video: false
+            },
+            
+            // Formulario prueba webhook
+            formPrueba: {
+                page_id: '',
+                tipo_contenido: 'text',
+                mensaje_prueba: '¡Nueva promoción! 🎉 Aprovecha nuestras ofertas especiales #promocion #descuento'
+            },
+            
+            creandoAutomatizacion: false,
+            probandoWebhook: false,
+            resultadoPrueba: null,
+            
+            // Notificaciones
+            mostrarNotificacion: false,
+            mensajeNotificacion: '',
+            tipoNotificacion: 'success',
+            
+            async crearAutomatizacion() {
+                this.creandoAutomatizacion = true;
+                
+                try {
+                    const filtros = {
+                        palabras_clave: this.formAutomatizacion.palabras_clave.split(',').map(p => p.trim()).filter(p => p),
+                        hashtags: this.formAutomatizacion.hashtags.split(',').map(h => h.trim()).filter(h => h),
+                        requiere_imagen: this.formAutomatizacion.requiere_imagen,
+                        requiere_video: this.formAutomatizacion.requiere_video
+                    };
+                    
+                    const datos = {
+                        nombre: this.formAutomatizacion.nombre,
+                        descripcion: this.formAutomatizacion.descripcion,
+                        pagina_id: this.formAutomatizacion.pagina_id,
+                        conjunto_anuncios_id: this.formAutomatizacion.conjunto_anuncios_id,
+                        filtros_contenido: filtros
+                    };
+                    
+                    const response = await fetch(`/panel_cliente/{{ nombre_nora }}/automatizacion_campanas/crear`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(datos)
+                    });
+                    
+                    const resultado = await response.json();
+                    
+                    if (resultado.success) {
+                        this.mostrarMensaje('Automatización creada exitosamente', 'success');
+                        this.pestanaActiva = 'automatizaciones';
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        this.mostrarMensaje(resultado.message || 'Error creando automatización', 'error');
+                    }
+                    
+                } catch (error) {
+                    this.mostrarMensaje('Error de conexión: ' + error.message, 'error');
+                } finally {
+                    this.creandoAutomatizacion = false;
+                }
+            },
+            
+            async toggleAutomatizacion(id, activa) {
+                try {
+                    const response = await fetch(`/panel_cliente/{{ nombre_nora }}/automatizacion_campanas/${id}/toggle`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ activa: activa })
+                    });
+                    
+                    const resultado = await response.json();
+                    
+                    if (resultado.success) {
+                        this.mostrarMensaje(resultado.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        this.mostrarMensaje(resultado.message || 'Error cambiando estado', 'error');
+                    }
+                    
+                } catch (error) {
+                    this.mostrarMensaje('Error de conexión: ' + error.message, 'error');
+                }
+            },
+            
+            async eliminarAutomatizacion(id) {
+                if (!confirm('¿Estás seguro de que quieres eliminar esta automatización?')) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/panel_cliente/{{ nombre_nora }}/automatizacion_campanas/${id}/eliminar`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const resultado = await response.json();
+                    
+                    if (resultado.success) {
+                        this.mostrarMensaje(resultado.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        this.mostrarMensaje(resultado.message || 'Error eliminando automatización', 'error');
+                    }
+                    
+                } catch (error) {
+                    this.mostrarMensaje('Error de conexión: ' + error.message, 'error');
+                }
+            },
+            
+            async probarWebhook() {
+                this.probandoWebhook = true;
+                this.resultadoPrueba = null;
+                
+                try {
+                    const response = await fetch(`/panel_cliente/{{ nombre_nora }}/automatizacion_campanas/api/probar_webhook`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(this.formPrueba)
+                    });
+                    
+                    const resultado = await response.json();
+                    
+                    if (resultado.success) {
+                        this.resultadoPrueba = resultado;
+                        this.mostrarMensaje('Webhook probado exitosamente', 'success');
+                    } else {
+                        this.mostrarMensaje(resultado.message || 'Error probando webhook', 'error');
+                    }
+                    
+                } catch (error) {
+                    this.mostrarMensaje('Error de conexión: ' + error.message, 'error');
+                } finally {
+                    this.probandoWebhook = false;
+                }
+            },
+            
+            mostrarMensaje(mensaje, tipo = 'success') {
+                this.mensajeNotificacion = mensaje;
+                this.tipoNotificacion = tipo;
+                this.mostrarNotificacion = true;
+                
+                setTimeout(() => {
+                    this.mostrarNotificacion = false;
+                }, 4000);
+            }
+        }
+    }
+</script>
+{% endblock %}

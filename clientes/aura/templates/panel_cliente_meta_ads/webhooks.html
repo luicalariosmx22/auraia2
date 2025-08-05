@@ -82,6 +82,9 @@
                     <button id="btn-marcar-todos-procesados" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
                         <i class="fas fa-check-double mr-2"></i>Marcar Todos Procesados
                     </button>
+                    <button id="btn-ver-cuentas-registradas" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-list-alt mr-2"></i>Cuentas Registradas
+                    </button>
                 </div>
             </div>
             
@@ -181,6 +184,85 @@
     </div>
 </div>
 
+<!-- Modal de cuentas registradas -->
+<div id="modal-cuentas-registradas" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-gray-900">
+                <i class="fas fa-list-alt text-purple-600 mr-2"></i>Cuentas Registradas en Webhooks
+            </h3>
+            <button id="btn-cerrar-modal-cuentas" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Estadísticas rápidas de cuentas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-green-100">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-green-700">Registradas</p>
+                        <p id="stat-cuentas-registradas" class="text-lg font-bold text-green-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-red-100">
+                        <i class="fas fa-times-circle text-red-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-red-700">No Registradas</p>
+                        <p id="stat-cuentas-no-registradas" class="text-lg font-bold text-red-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-blue-100">
+                        <i class="fas fa-list text-blue-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-blue-700">Total</p>
+                        <p id="stat-cuentas-total" class="text-lg font-bold text-blue-900">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Controles -->
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center space-x-2">
+                <button id="btn-actualizar-cuentas" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm transition">
+                    <i class="fas fa-sync-alt mr-2"></i>Actualizar Estado
+                </button>
+                <button id="btn-registrar-faltantes" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm transition">
+                    <i class="fas fa-plus-circle mr-2"></i>Registrar Faltantes
+                </button>
+            </div>
+            <div class="flex items-center space-x-2">
+                <label class="text-sm text-gray-600">Filtrar:</label>
+                <select id="filtro-estado-cuenta" class="px-3 py-1 border border-gray-300 rounded text-sm">
+                    <option value="">Todas</option>
+                    <option value="registrada">Registradas</option>
+                    <option value="no-registrada">No Registradas</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Tabla de cuentas -->
+        <div id="contenido-cuentas" class="border border-gray-200 rounded-lg overflow-hidden">
+            <div class="text-center py-8 text-gray-500">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <p>Cargando estado de las cuentas...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 // Variables globales
 window.appConfig = {
@@ -202,6 +284,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabPanels = document.querySelectorAll('.tab-panel');
     const btnActualizar = document.getElementById('btn-actualizar');
     const btnAplicarFiltros = document.getElementById('btn-aplicar-filtros');
+    const btnVerCuentasRegistradas = document.getElementById('btn-ver-cuentas-registradas');
+    const modalCuentasRegistradas = document.getElementById('modal-cuentas-registradas');
+    const btnCerrarModalCuentas = document.getElementById('btn-cerrar-modal-cuentas');
+    const btnActualizarCuentas = document.getElementById('btn-actualizar-cuentas');
+    const btnRegistrarFaltantes = document.getElementById('btn-registrar-faltantes');
+    const filtroEstadoCuenta = document.getElementById('filtro-estado-cuenta');
 
     // Manejo de pestañas
     tabButtons.forEach(button => {
@@ -245,6 +333,35 @@ document.addEventListener('DOMContentLoaded', function() {
     btnAplicarFiltros.addEventListener('click', function() {
         paginacionActual.offset = 0;
         cargarEventos();
+    });
+
+    // Event listeners para modal de cuentas registradas
+    btnVerCuentasRegistradas.addEventListener('click', function() {
+        modalCuentasRegistradas.classList.remove('hidden');
+        cargarEstadoCuentas();
+    });
+
+    btnCerrarModalCuentas.addEventListener('click', function() {
+        modalCuentasRegistradas.classList.add('hidden');
+    });
+
+    btnActualizarCuentas.addEventListener('click', function() {
+        cargarEstadoCuentas();
+    });
+
+    btnRegistrarFaltantes.addEventListener('click', function() {
+        registrarCuentasFaltantes();
+    });
+
+    filtroEstadoCuenta.addEventListener('change', function() {
+        aplicarFiltroCuentas();
+    });
+
+    // Cerrar modal al hacer clic fuera
+    modalCuentasRegistradas.addEventListener('click', function(e) {
+        if (e.target === modalCuentasRegistradas) {
+            modalCuentasRegistradas.classList.add('hidden');
+        }
     });
 
     // Funciones principales
@@ -459,6 +576,201 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
+    // Funciones para gestión de cuentas registradas
+    let estadoCuentasGlobal = [];
+
+    async function cargarEstadoCuentas() {
+        const contenedor = document.getElementById('contenido-cuentas');
+        contenedor.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <p>Verificando estado de las cuentas...</p>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/estado_cuentas`);
+            const data = await response.json();
+            
+            if (data.success) {
+                estadoCuentasGlobal = data.cuentas;
+                mostrarEstadoCuentas(data.cuentas);
+                actualizarEstadisticasCuentas(data.cuentas);
+            } else {
+                contenedor.innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-4"></i>
+                        <p>Error: ${data.message}</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error cargando estado de cuentas:', error);
+            contenedor.innerHTML = `
+                <div class="text-center py-8 text-red-500">
+                    <i class="fas fa-exclamation-triangle text-2xl mb-4"></i>
+                    <p>Error de conexión al verificar cuentas</p>
+                </div>
+            `;
+        }
+    }
+
+    function mostrarEstadoCuentas(cuentas) {
+        const contenedor = document.getElementById('contenido-cuentas');
+        
+        if (cuentas.length === 0) {
+            contenedor.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-inbox text-2xl mb-4"></i>
+                    <p>No se encontraron cuentas de Meta Ads</p>
+                </div>
+            `;
+            return;
+        }
+
+        const tablaHTML = `
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Cuenta</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado Cuenta</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado Webhook</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="tbody-cuentas">
+                    ${cuentas.map(cuenta => crearFilaCuenta(cuenta)).join('')}
+                </tbody>
+            </table>
+        `;
+        
+        contenedor.innerHTML = tablaHTML;
+    }
+
+    function crearFilaCuenta(cuenta) {
+        const estadoCuentaBadge = cuenta.estado_actual === 'ACTIVE' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-gray-100 text-gray-800';
+        
+        const estadoWebhookBadge = cuenta.webhook_registrado 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-red-100 text-red-800';
+        
+        const estadoWebhookTexto = cuenta.webhook_registrado ? 'Registrado' : 'No Registrado';
+        const estadoWebhookIcon = cuenta.webhook_registrado ? 'fa-check-circle' : 'fa-times-circle';
+        
+        return `
+            <tr class="hover:bg-gray-50 cuenta-row" data-estado-webhook="${cuenta.webhook_registrado ? 'registrada' : 'no-registrada'}">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <code class="bg-gray-100 px-2 py-1 rounded text-xs">${cuenta.id_cuenta_publicitaria}</code>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div class="max-w-xs truncate" title="${cuenta.nombre_cliente || 'Sin nombre'}">
+                        ${cuenta.nombre_cliente || 'Sin nombre'}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${estadoCuentaBadge}">
+                        ${cuenta.estado_actual}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${estadoWebhookBadge}">
+                        <i class="fas ${estadoWebhookIcon} mr-1"></i>
+                        ${estadoWebhookTexto}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    ${!cuenta.webhook_registrado ? `
+                        <button onclick="registrarWebhookCuenta('${cuenta.id_cuenta_publicitaria}')" 
+                                class="text-green-600 hover:text-green-900 mr-3">
+                            <i class="fas fa-plus-circle mr-1"></i>Registrar
+                        </button>
+                    ` : `
+                        <button onclick="verificarWebhookCuenta('${cuenta.id_cuenta_publicitaria}')" 
+                                class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-sync-alt mr-1"></i>Verificar
+                        </button>
+                    `}
+                    <button onclick="verDetallesCuenta('${cuenta.id_cuenta_publicitaria}')" 
+                            class="text-purple-600 hover:text-purple-900">
+                        <i class="fas fa-info-circle mr-1"></i>Detalles
+                    </button>
+                </td>
+            </tr>
+        `;
+    }
+
+    function actualizarEstadisticasCuentas(cuentas) {
+        const registradas = cuentas.filter(c => c.webhook_registrado).length;
+        const noRegistradas = cuentas.filter(c => !c.webhook_registrado).length;
+        const total = cuentas.length;
+
+        document.getElementById('stat-cuentas-registradas').textContent = registradas;
+        document.getElementById('stat-cuentas-no-registradas').textContent = noRegistradas;
+        document.getElementById('stat-cuentas-total').textContent = total;
+    }
+
+    function aplicarFiltroCuentas() {
+        const filtro = filtroEstadoCuenta.value;
+        const filas = document.querySelectorAll('.cuenta-row');
+        
+        filas.forEach(fila => {
+            const estadoWebhook = fila.getAttribute('data-estado-webhook');
+            
+            if (!filtro || estadoWebhook === filtro) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    }
+
+    async function registrarCuentasFaltantes() {
+        const cuentasNoRegistradas = estadoCuentasGlobal.filter(c => !c.webhook_registrado);
+        
+        if (cuentasNoRegistradas.length === 0) {
+            alert('Todas las cuentas ya tienen webhooks registrados');
+            return;
+        }
+
+        if (!confirm(`¿Registrar webhooks en ${cuentasNoRegistradas.length} cuentas faltantes?`)) {
+            return;
+        }
+
+        try {
+            btnRegistrarFaltantes.innerHTML = `
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline-block mr-2"></div>
+                Registrando...
+            `;
+            btnRegistrarFaltantes.disabled = true;
+
+            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/registrar_masivo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(`Registro completado: ${result.exitosos} exitosos, ${result.fallidos} fallidos`);
+                cargarEstadoCuentas();
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('Error de conexión');
+        } finally {
+            btnRegistrarFaltantes.innerHTML = `
+                <i class="fas fa-plus-circle mr-2"></i>Registrar Faltantes
+            `;
+            btnRegistrarFaltantes.disabled = false;
+        }
+    }
+
     // Funciones globales
     window.cambiarPagina = function(pagina) {
         const totalPaginas = Math.ceil(paginacionActual.total / paginacionActual.limite);
@@ -493,6 +805,70 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             alert('Error de conexión');
+        }
+    };
+
+    window.registrarWebhookCuenta = async function(idCuenta) {
+        if (!confirm(`¿Registrar webhook para la cuenta ${idCuenta}?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/registrar_cuenta`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id_cuenta: idCuenta })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Webhook registrado exitosamente');
+                cargarEstadoCuentas();
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('Error de conexión');
+        }
+    };
+
+    window.verificarWebhookCuenta = async function(idCuenta) {
+        try {
+            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/verificar_cuenta`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id_cuenta: idCuenta })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                const estado = result.registrado ? 'registrado' : 'no registrado';
+                alert(`Estado del webhook: ${estado}`);
+                cargarEstadoCuentas();
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('Error de conexión');
+        }
+    };
+
+    window.verDetallesCuenta = function(idCuenta) {
+        const cuenta = estadoCuentasGlobal.find(c => c.id_cuenta_publicitaria === idCuenta);
+        if (cuenta) {
+            const detalles = `
+                ID: ${cuenta.id_cuenta_publicitaria}
+                Cliente: ${cuenta.nombre_cliente || 'Sin nombre'}
+                Estado: ${cuenta.estado_actual}
+                Webhook: ${cuenta.webhook_registrado ? 'Registrado' : 'No registrado'}
+            `;
+            alert(detalles);
         }
     };
 

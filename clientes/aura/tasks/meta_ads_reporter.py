@@ -12,6 +12,11 @@ from clientes.aura.utils.supabase_client import supabase
 from clientes.aura.utils.whatsapp_utils import enviar_mensaje_whatsapp  # ⚠️ Usa la función que tengas para enviar WhatsApp
 import os
 
+# 🗄️ CONTEXTO BD PARA GITHUB COPILOT
+from clientes.aura.utils.supabase_schemas import SUPABASE_SCHEMAS
+from clientes.aura.utils.quick_schemas import existe, columnas
+# BD ACTUAL: meta_ads_cuentas(15), meta_ads_reportes_semanales(35), meta_ads_anuncios_detalle(96)
+
 ACCESS_TOKEN_GLOBAL = os.getenv("META_ACCESS_TOKEN")  # ✅ Load from environment
 
 print("🚀 [Meta Ads Reporter] Módulo cargado correctamente.")

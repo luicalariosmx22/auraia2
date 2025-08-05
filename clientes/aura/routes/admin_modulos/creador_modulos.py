@@ -2,11 +2,45 @@
 
 import os
 import uuid
+import subprocess
+import sys
+from pathlib import Path
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from clientes.aura.utils.supabase_client import supabase
 
+# 🗄️ CONTEXTO BD PARA GITHUB COPILOT
+from clientes.aura.utils.supabase_schemas import SUPABASE_SCHEMAS
+from clientes.aura.utils.quick_schemas import existe, columnas
+# BD ACTUAL: modulos_disponibles(6), configuracion_bot(18)
+
 # Definir blueprint antes de los decoradores
 admin_creador_modulos_bp = Blueprint("admin_creador_modulos", __name__)
+
+def actualizar_esquemas_supabase():
+    """Actualiza los esquemas de Supabase ejecutando el script generador"""
+    try:
+        root_dir = Path(__file__).parent.parent.parent.parent.parent  # Subir a la raíz del proyecto
+        script_path = root_dir / "clientes" / "aura" / "scripts" / "generar_supabase_schema.py"
+        
+        if not script_path.exists():
+            print(f"⚠️ Script generador no encontrado: {script_path}")
+            return False
+        
+        print("🔄 Actualizando esquemas de Supabase después de crear módulo...")
+        result = subprocess.run([
+            sys.executable, str(script_path)
+        ], capture_output=True, text=True, cwd=str(root_dir))
+        
+        if result.returncode == 0:
+            print("✅ Esquemas actualizados correctamente")
+            return True
+        else:
+            print(f"❌ Error actualizando esquemas: {result.stderr}")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error ejecutando actualización de esquemas: {e}")
+        return False
 
 # Endpoint para edición de módulo vía AJAX
 @admin_creador_modulos_bp.route("/editar_modulo", methods=["POST"])
@@ -85,8 +119,13 @@ def crear_modulo():
         with open(os.path.join(carpeta_backend, "__init__.py"), "w", encoding="utf-8") as f:
             f.write(contenido_init)
 
-        # Código Python del módulo
+        # Código Python del módulo con importaciones de esquemas
         contenido_py = f"""from flask import Blueprint, render_template, request
+
+# 🗄️ CONTEXTO BD PARA GITHUB COPILOT
+from clientes.aura.utils.supabase_schemas import SUPABASE_SCHEMAS
+from clientes.aura.utils.quick_schemas import existe, columnas
+# BD ACTUAL: Esquemas actualizados automáticamente
 
 {nombre_archivo}_bp = Blueprint("{nombre_archivo}_bp", __name__, url_prefix="/panel_cliente/<nombre_nora>/{nombre}")
 
@@ -122,7 +161,6 @@ def panel_cliente_{nombre}():
         }).execute()
 
         # Activar para Nora si se indicó
-
         if nombre_nora:
             resultado = supabase.table("configuracion_bot").select("*").eq("nombre_nora", nombre_nora).execute()
             if not resultado.data:
@@ -136,7 +174,14 @@ def panel_cliente_{nombre}():
                 mod_actuales[nombre] = True
                 supabase.table("configuracion_bot").update({"modulos": mod_actuales}).eq("nombre_nora", nombre_nora).execute()
 
-        flash("Módulo creado correctamente", "success")
+        # 🔄 ACTUALIZAR ESQUEMAS AUTOMÁTICAMENTE
+        print("🔄 Actualizando esquemas de Supabase después de crear módulo...")
+        esquemas_actualizados = actualizar_esquemas_supabase()
+        if esquemas_actualizados:
+            flash("Módulo creado correctamente y esquemas actualizados ✅", "success")
+        else:
+            flash("Módulo creado correctamente (esquemas no actualizados - verificar logs) ⚠️", "warning")
+
         return render_template("admin_modulos/crear_modulo.html")
 
     return render_template("admin_modulos/crear_modulo.html")
