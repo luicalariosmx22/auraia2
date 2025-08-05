@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose port
-EXPOSE $PORT
+EXPOSE 8080
 
 # Start command
-CMD gunicorn run:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --log-level info
+CMD ["sh", "-c", "gunicorn run:app --bind 0.0.0.0:${PORT:-8080} --workers 2 --timeout 120 --log-level info"]
