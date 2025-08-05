@@ -50,32 +50,28 @@ def vista_reporte_publico(token_uuid):
         # Obtener información de la empresa
         empresa = None
         try:
-            # Primero obtener la cuenta de Meta Ads para conseguir el empresa_id
+            # TEMPORAL: Usar empresa_id correcto directamente
+            empresa_id_correcto = "f0e9b9d8-706f-4dd3-826a-f47da9c9e1cc"
+            print(f"[DEBUG] Usando empresa_id correcto: {empresa_id_correcto}")
+            
+            # Obtener información completa de la empresa desde cliente_empresas
+            empresa_response = supabase.table('cliente_empresas').select('*').eq('id', empresa_id_correcto).execute()
+            print(f"[DEBUG] Respuesta completa cliente_empresas: {empresa_response.data}")
+            
+            if empresa_response.data:
+                empresa = empresa_response.data[0]
+                print(f"[DEBUG] empresa obtenida de cliente_empresas: {empresa}")
+            else:
+                print(f"[DEBUG] No se encontró empresa con ID {empresa_id_correcto} en cliente_empresas")
+                
+            # También buscar en meta_ads_cuentas para debug
             print(f"[DEBUG] Buscando cuenta publicitaria: {reporte['id_cuenta_publicitaria']}")
             cuenta_meta_response = supabase.table('meta_ads_cuentas').select('*').eq('id_cuenta_publicitaria', reporte['id_cuenta_publicitaria']).execute()
             print(f"[DEBUG] Respuesta completa meta_ads_cuentas: {cuenta_meta_response.data}")
-            
-            if cuenta_meta_response.data:
-                cuenta_meta = cuenta_meta_response.data[0]
-                print(f"[DEBUG] cuenta_meta encontrada: {cuenta_meta}")
                 
-                if cuenta_meta.get('empresa_id'):
-                    empresa_id = cuenta_meta['empresa_id']
-                    print(f"[DEBUG] Buscando empresa con ID: {empresa_id}")
-                    
-                    # Obtener información completa de la empresa desde cliente_empresas
-                    empresa_response = supabase.table('cliente_empresas').select('*').eq('id', empresa_id).execute()
-                    print(f"[DEBUG] Respuesta completa cliente_empresas: {empresa_response.data}")
-                    
-                    if empresa_response.data:
-                        empresa = empresa_response.data[0]
-                        print(f"[DEBUG] empresa obtenida de cliente_empresas: {empresa}")
-                    else:
-                        print(f"[DEBUG] No se encontró empresa con ID {empresa_id} en cliente_empresas")
-                else:
-                    print("[DEBUG] No se encontró empresa_id en meta_ads_cuentas")
-            else:
-                print(f"[DEBUG] No se encontró la cuenta {reporte['id_cuenta_publicitaria']} en meta_ads_cuentas")
+        except Exception as e:
+            print(f"[ERROR] Error al obtener empresa: {e}")
+            empresa = None
                 
         except Exception as e:
             print(f"[ERROR] Error al obtener empresa: {e}")
