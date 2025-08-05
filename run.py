@@ -6,8 +6,9 @@ import time
 from flask import send_file
 
 # Create the Flask application
-app = create_app()
+app, socketio = create_app()
 print(f"App Flask creada: {app}")
+print(f"SocketIO creado: {socketio}")
 
 # This makes the app available for Gunicorn and other WSGI servers
 application = app  # For WSGI servers that expect 'application' variable
