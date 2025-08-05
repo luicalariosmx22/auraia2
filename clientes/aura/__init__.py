@@ -22,7 +22,9 @@ def initialize_app(app):
 
         # Registrar Blueprint de Meta Ads
         from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
+        from clientes.aura.routes.panel_cliente_meta_ads.webhooks_meta import webhooks_meta_bp
         safe_register_blueprint(app, panel_cliente_meta_ads_bp)
+        safe_register_blueprint(app, webhooks_meta_bp)
 
         # Blueprints específicos adicionales
         from clientes.aura.routes.panel_team.vista_panel_team import panel_team_bp

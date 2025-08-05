@@ -325,7 +325,7 @@ def ligar_empresa(cliente_id):
                           nombre_nora=nombre_nora,
                           modulo_activo="clientes")
 
-@panel_cliente_clientes_bp.route("/", methods=["GET"])
+@panel_cliente_clientes_bp.route("/empresas", methods=["GET"])
 def vista_empresas():
     nombre_nora = request.path.split("/")[2]
     if not session.get("email"):

@@ -36,7 +36,7 @@
             </a>
           {% endfor %}
           {% if modulo_clientes %}
-            <a href="/panel_cliente/{{ nombre_nora }}/clientes" class="modulo-card bg-blue-50 border border-blue-200 hover:bg-blue-100 transition">
+            <a href="{{ url_for('panel_cliente_clientes_bp.vista_empresas', nombre_nora=nombre_nora) }}" class="modulo-card bg-blue-50 border border-blue-200 hover:bg-blue-100 transition">
               <div class="icono">🏢</div>
               <div class="titulo font-bold">Empresas</div>
               <div class="descripcion">Gestiona empresas y sus relaciones con clientes</div>

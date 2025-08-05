@@ -26,7 +26,7 @@ from clientes.aura.routes.panel_cliente_meta_ads.panel_cliente_meta_ads import p
 from clientes.aura.routes.panel_cliente_entrenamiento.vista_panel_cliente_entrenamiento import panel_cliente_entrenamiento_bp
 from clientes.aura.routes.panel_cliente_tareas.gestionar import panel_tareas_gestionar_bp
 from clientes.aura.routes.panel_cliente_tareas.tareas_crud import panel_tareas_crud_bp
-from clientes.aura.routes.campanas_meta_ads import campanas_meta_ads_bp
+from clientes.aura.routes.panel_cliente_meta_ads.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
 # El módulo de WhatsApp Web Websocket requiere importación dinámica debido a conflictos de nombre
 # from clientes.aura.routes.panel_cliente_whatsapp_web.panel_cliente_whatsapp_websocket import panel_cliente_whatsapp_web_bp
 
@@ -146,7 +146,7 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         if "meta_ads" in modulos:
             try:
                 print(f"🔄 Registrando blueprint META ADS para {nombre_nora}")
-                from clientes.aura.routes.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
+                from clientes.aura.routes.panel_cliente_meta_ads.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
                 safe_register_blueprint(app, panel_cliente_meta_ads_bp, url_prefix=f"/panel_cliente/{nombre_nora}/meta_ads")
                 print(f"✅ Módulo de Meta Ads registrado")
                 modulos_registrados.add("meta_ads")

@@ -1,9 +1,9 @@
 
 {% extends "base_cliente.html" %}
 {% block contenido %}
-<div class="max-w-4xl mx-auto py-10">
-  <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">¿Qué quieres crear?</h1>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="max-w-6xl mx-auto py-10">
+  <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">¿Qué quieres hacer?</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
     <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-2 border-blue-100 hover:border-blue-400 transition">
       <div class="bg-blue-100 rounded-full p-4 mb-4">
         <span class="text-4xl text-blue-700">📢</span>
@@ -12,6 +12,14 @@
       <p class="text-gray-600 text-center mb-4">Crea, administra y consulta campañas publicitarias activas en Meta Ads.</p>
       <a href="{{ url_for('panel_cliente_meta_ads_bp.vista_campanas', nombre_nora=nombre_nora) }}" class="mt-auto px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition">Ir a Campañas</a>
     </div>
+    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-2 border-indigo-100 hover:border-indigo-400 transition">
+      <div class="bg-indigo-100 rounded-full p-4 mb-4">
+        <span class="text-4xl text-indigo-700">👥</span>
+      </div>
+      <h2 class="text-xl font-bold text-indigo-800 mb-2">Audiencias</h2>
+      <p class="text-gray-600 text-center mb-4">Gestiona audiencias personalizadas, lookalike y estadísticas de targeting.</p>
+      <a href="{{ url_for('panel_cliente_meta_ads_bp.vista_audiencias', nombre_nora=nombre_nora) }}" class="mt-auto px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold shadow hover:bg-indigo-700 transition">Ir a Audiencias</a>
+    </div>
     <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-2 border-green-100 hover:border-green-400 transition">
       <div class="bg-green-100 rounded-full p-4 mb-4">
         <span class="text-4xl text-green-700">📄</span>
@@ -19,6 +27,59 @@
       <h2 class="text-xl font-bold text-green-800 mb-2">Reportes</h2>
       <p class="text-gray-600 text-center mb-4">Consulta el histórico de reportes automáticos y resultados de tus campañas.</p>
       <a href="{{ url_for('panel_cliente_meta_ads_bp.vista_reportes_meta_ads', nombre_nora=nombre_nora) }}" class="mt-4 block text-center px-6 py-2 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700 transition">Ir a Reportes</a>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-2 border-purple-100 hover:border-purple-400 transition">
+      <div class="bg-purple-100 rounded-full p-4 mb-4">
+        <span class="text-4xl text-purple-700">🔄</span>
+      </div>
+      <h2 class="text-xl font-bold text-purple-800 mb-2">Sincronizador</h2>
+      <p class="text-gray-600 text-center mb-4">Sincroniza cuentas específicas con rangos de fechas personalizados.</p>
+      <a href="{{ url_for('panel_cliente_meta_ads_bp.vista_sincronizador_personalizado', nombre_nora=nombre_nora) }}" class="mt-auto px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold shadow hover:bg-purple-700 transition">Ir a Sincronizador</a>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-2 border-yellow-100 hover:border-yellow-400 transition">
+      <div class="bg-yellow-100 rounded-full p-4 mb-4">
+        <span class="text-4xl text-yellow-700">🔔</span>
+      </div>
+      <h2 class="text-xl font-bold text-yellow-800 mb-2">Webhooks</h2>
+      <p class="text-gray-600 text-center mb-4">Monitorea eventos en tiempo real desde Meta Ads y su procesamiento.</p>
+      <a href="{{ url_for('panel_cliente_meta_ads_bp.vista_webhooks', nombre_nora=nombre_nora) }}" class="mt-auto px-6 py-2 bg-yellow-600 text-white rounded-lg font-semibold shadow hover:bg-yellow-700 transition">Ir a Webhooks</a>
+    </div>
+  </div>
+  
+  <!-- Sección adicional con accesos rápidos -->
+  <div class="mt-12">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Accesos Rápidos</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-400">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          <i class="fas fa-ad text-orange-500 mr-2"></i>Cuentas Publicitarias
+        </h3>
+        <p class="text-gray-600 mb-4">Gestiona y administra todas tus cuentas publicitarias de Meta Ads.</p>
+        <a href="{{ url_for('panel_cliente_meta_ads_bp.vista_cuentas_publicitarias', nombre_nora=nombre_nora) }}" 
+           class="text-orange-600 hover:text-orange-700 font-medium">
+          Ver Cuentas <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+      </div>
+      <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-teal-400">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          <i class="fas fa-chart-line text-teal-500 mr-2"></i>Reportes Internos
+        </h3>
+        <p class="text-gray-600 mb-4">Accede a reportes detallados y métricas internas de rendimiento.</p>
+        <a href="{{ url_for('panel_cliente_meta_ads_bp.vista_reportes_meta_ads_interno', nombre_nora=nombre_nora) }}" 
+           class="text-teal-600 hover:text-teal-700 font-medium">
+          Ver Reportes <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+      </div>
+      <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-400">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          <i class="fas fa-satellite-dish text-indigo-500 mr-2"></i>Webhooks Anuncios
+        </h3>
+        <p class="text-gray-600 mb-4">Monitorea eventos de anuncios, conjuntos y campañas en tiempo real.</p>
+        <a href="{{ url_for('panel_cliente_meta_ads_bp.webhooks_anuncios', nombre_nora=nombre_nora) }}" 
+           class="text-indigo-600 hover:text-indigo-700 font-medium">
+          Ver Webhooks <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+      </div>
     </div>
   </div>
 </div>

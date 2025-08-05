@@ -1,4 +1,3 @@
-
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, abort
 from clientes.aura.utils.supabase_client import supabase
 import os, requests
@@ -9,6 +8,7 @@ from clientes.aura.utils.meta_ads import (
     obtener_ads_activos_cuenta,
     listar_campañas_activas
 )
+from .webhooks_meta import webhooks_meta_bp
 
 panel_cliente_meta_ads_bp = Blueprint(
     "panel_cliente_meta_ads_bp",
@@ -262,7 +262,7 @@ def agregar_cuenta(nombre_nora):
 
 @panel_cliente_meta_ads_bp.route('/campanas', methods=['GET'])
 def vista_campanas(nombre_nora):
-    return render_template('campanas_meta_ads.html', nombre_nora=nombre_nora)
+    return render_template('panel_cliente_meta_ads/campanas_meta_ads.html', nombre_nora=nombre_nora)
 
 
 
@@ -727,3 +727,717 @@ def test_conexion_cuenta(nombre_nora, cuenta_id):
             'paso': 'general',
             'error': f'Error inesperado: {str(e)}'
         })
+
+@panel_cliente_meta_ads_bp.route("/sincronizador-personalizado")
+def vista_sincronizador_personalizado(nombre_nora):
+    """Vista para el sincronizador personalizado con selección de cuentas y fechas"""
+    try:
+        # Obtener todas las cuentas publicitarias para el nombre_nora (igual que en vista_cuentas_publicitarias)
+        print(f"🔍 Buscando cuentas publicitarias para sincronizador: {nombre_nora}")
+        
+        # Consulta con join para obtener información de la empresa
+        resultado = supabase.table("meta_ads_cuentas") \
+            .select("*, empresa:cliente_empresas(id, nombre_empresa)") \
+            .eq("nombre_nora", nombre_nora) \
+            .execute()
+            
+        cuentas = resultado.data or []
+        print(f"✅ Se encontraron {len(cuentas)} cuentas para sincronizador")
+        
+        # Enriquecer datos y validar estructura (igual que en vista_cuentas_publicitarias)
+        for cuenta in cuentas:
+            if not isinstance(cuenta, dict):
+                print(f"⚠️ Estructura inválida en cuenta: {cuenta}")
+                continue
+            
+            # Procesar información de empresa vinculada
+            if empresa_data := cuenta.pop('empresa', None):
+                cuenta['empresa_id'] = empresa_data.get('id')
+                cuenta['empresa_nombre'] = empresa_data.get('nombre_empresa')
+            else:
+                cuenta['empresa_id'] = None
+                cuenta['empresa_nombre'] = None
+        
+        # Filtrar cuentas excluidas
+        cuentas = [cuenta for cuenta in cuentas if cuenta.get('estado_actual') != 'excluida']
+        
+        # Ordenar cuentas: primero las que tienen empresa, luego las que no tienen
+        cuentas = sorted(cuentas, key=lambda x: (
+            0 if x['empresa_nombre'] else 1,
+            (x['empresa_nombre'] or '').lower()
+        ))
+        
+        print(f"📋 Cuentas procesadas para sincronizador: {len(cuentas)}")
+        for cuenta in cuentas[:5]:  # Mostrar primeras 5
+            print(f"   - {cuenta.get('nombre_cliente', 'Sin nombre')} (ID: {cuenta.get('id_cuenta_publicitaria')})")
+        
+        return render_template(
+            "panel_cliente_meta_ads/sincronizador_personalizado.html", 
+            nombre_nora=nombre_nora,
+            cuentas=cuentas
+        )
+        
+    except Exception as e:
+        print(f"❌ Error en vista sincronizador personalizado: {e}")
+        return f"<h1>Error</h1><p>Error: {str(e)}</p>", 500
+
+@panel_cliente_meta_ads_bp.route("/sincronizar-cuentas-seleccionadas", methods=['POST'])
+def sincronizar_cuentas_seleccionadas(nombre_nora):
+    """Endpoint para procesar la sincronización de cuentas seleccionadas"""
+    try:
+        data = request.get_json()
+        cuentas_ids = data.get('cuentas_ids', [])
+        fecha_inicio = data.get('fecha_inicio')
+        fecha_fin = data.get('fecha_fin')
+        
+        if not cuentas_ids:
+            return jsonify({
+                'success': False,
+                'message': 'No se seleccionaron cuentas para sincronizar'
+            })
+        
+        # Importar la función del sincronizador personalizado
+        from .sincronizador_personalizado import sincronizar_cuentas_especificas
+        
+        # Ejecutar sincronización
+        reportes_insertados = sincronizar_cuentas_especificas(
+            cuentas_ids=cuentas_ids,
+            motivo=f"sincronización personalizada para {nombre_nora}",
+            fecha_inicio_custom=fecha_inicio,
+            fecha_fin_custom=fecha_fin
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': f'Sincronización completada. Se insertaron {reportes_insertados} reportes.',
+            'reportes_insertados': reportes_insertados,
+            'cuentas_procesadas': len(cuentas_ids)
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en sincronización personalizada: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error durante la sincronización: {str(e)}'
+        })
+
+@panel_cliente_meta_ads_bp.route("/sincronizar-desde-api", methods=['POST'])
+def sincronizar_desde_api(nombre_nora):
+    """Endpoint para ejecutar primero la sincronización completa desde Meta Ads API"""
+    try:
+        from clientes.aura.tasks.meta_ads_sync_all import sincronizar_todas_las_cuentas_meta_ads
+        from datetime import date, timedelta
+        
+        # Obtener parámetros del request
+        data = request.get_json() or {}
+        dias_atras = int(data.get('dias', 7))
+        
+        # Calcular fechas
+        fecha_fin = date.today()
+        fecha_inicio = fecha_fin - timedelta(days=dias_atras)
+        
+        print(f"🔄 Iniciando sincronización completa desde Meta Ads API")
+        print(f"📅 Rango: {fecha_inicio} a {fecha_fin} ({dias_atras} días)")
+        
+        # Ejecutar sincronización desde Meta Ads API
+        resultado = sincronizar_todas_las_cuentas_meta_ads(
+            nombre_nora=nombre_nora,  # Solo las cuentas de esta nora
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': f'Sincronización desde API completada.',
+            'resultado': resultado
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en sincronización desde API: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error en sincronización desde API: {str(e)}'
+        })
+
+# Nuevas rutas API
+
+@panel_cliente_meta_ads_bp.route('/api/cuentas')
+def api_cuentas(nombre_nora):
+    """Devuelve la lista de cuentas publicitarias para el nombre_nora"""
+    try:
+        cuentas = supabase.table("meta_ads_cuentas") \
+            .select("id_cuenta_publicitaria, nombre_cliente, account_status") \
+            .eq("nombre_nora", nombre_nora) \
+            .execute()
+        
+        return jsonify(cuentas.data or [])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@panel_cliente_meta_ads_bp.route('/api/campanas')
+def api_campanas(nombre_nora):
+    """Devuelve las campañas con filtros aplicados"""
+    try:
+        from .campanas import obtener_campanas_con_filtros
+        
+        filtros = {
+            'cuenta_id': request.args.get('cuenta_id'),
+            'fecha_inicio': request.args.get('fecha_inicio'),
+            'fecha_fin': request.args.get('fecha_fin'),
+            'estado': request.args.get('estado')
+        }
+        
+        # Remover filtros vacíos
+        filtros = {k: v for k, v in filtros.items() if v}
+        
+        campanas = obtener_campanas_con_filtros(nombre_nora, filtros)
+        return jsonify(campanas)
+        
+    except Exception as e:
+        print(f"Error en api_campanas: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@panel_cliente_meta_ads_bp.route('/api/campanas/<campana_id>/detalle')
+def api_detalle_campana(nombre_nora, campana_id):
+    """Devuelve el detalle de una campaña específica"""
+    try:
+        from .campanas import obtener_detalle_campana
+        
+        detalle = obtener_detalle_campana(campana_id, nombre_nora)
+        
+        if not detalle:
+            return jsonify({'error': 'Campaña no encontrada'}), 404
+        
+        return jsonify(detalle)
+        
+    except Exception as e:
+        print(f"Error en api_detalle_campana: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# RUTAS API PARA AUDIENCIAS META ADS
+# ============================================================================
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias')
+def api_audiencias(nombre_nora):
+    """Devuelve las audiencias con filtros aplicados"""
+    try:
+        from .campanas import obtener_audiencias_con_filtros
+        
+        filtros = {
+            'cuenta_id': request.args.get('cuenta_id'),
+            'tipo_audiencia': request.args.get('tipo_audiencia'),
+            'estado': request.args.get('estado'),
+            'origen': request.args.get('origen')
+        }
+        
+        # Remover filtros vacíos
+        filtros = {k: v for k, v in filtros.items() if v}
+        
+        audiencias = obtener_audiencias_con_filtros(nombre_nora, filtros)
+        return jsonify(audiencias)
+        
+    except Exception as e:
+        print(f"Error en api_audiencias: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias/<audience_id>/detalle')
+def api_detalle_audiencia(nombre_nora, audience_id):
+    """Devuelve el detalle de una audiencia específica"""
+    try:
+        from .campanas import obtener_detalle_audiencia
+        
+        detalle = obtener_detalle_audiencia(audience_id, nombre_nora)
+        
+        if not detalle:
+            return jsonify({'error': 'Audiencia no encontrada'}), 404
+        
+        return jsonify(detalle)
+        
+    except Exception as e:
+        print(f"Error en api_detalle_audiencia: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias/estadisticas')
+def api_estadisticas_audiencias(nombre_nora):
+    """Devuelve estadísticas resumidas de audiencias"""
+    try:
+        from .campanas import obtener_estadisticas_audiencias
+        
+        filtros = {
+            'cuenta_id': request.args.get('cuenta_id'),
+            'tipo_audiencia': request.args.get('tipo_audiencia'),
+            'estado': request.args.get('estado')
+        }
+        
+        # Remover filtros vacíos
+        filtros = {k: v for k, v in filtros.items() if v}
+        
+        estadisticas = obtener_estadisticas_audiencias(nombre_nora, filtros)
+        return jsonify(estadisticas)
+        
+    except Exception as e:
+        print(f"Error en api_estadisticas_audiencias: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias/sincronizar', methods=['POST'])
+def api_sincronizar_audiencias(nombre_nora):
+    """Sincroniza audiencias desde Meta Ads API"""
+    try:
+        from .campanas import sincronizar_audiencias_desde_meta
+        
+        data = request.get_json() or {}
+        cuenta_id = data.get('cuenta_id')  # Opcional, None para todas las cuentas
+        
+        print(f"🌐 API sincronizar audiencias llamada:")
+        print(f"   📋 nombre_nora: {nombre_nora}")
+        print(f"   🎯 cuenta_id: {cuenta_id}")
+        print(f"   📄 data recibida: {data}")
+        
+        resultado = sincronizar_audiencias_desde_meta(nombre_nora, cuenta_id)
+        
+        print(f"🔄 Resultado de sincronización: {resultado}")
+        
+        if resultado['ok']:
+            response_data = {
+                'success': True,
+                'message': f"Sincronización completada. {resultado['audiencias_sincronizadas']} audiencias sincronizadas.",
+                'audiencias_sincronizadas': resultado['audiencias_sincronizadas'],
+                'errores': resultado.get('errores', [])
+            }
+            print(f"✅ Enviando respuesta exitosa: {response_data}")
+            return jsonify(response_data)
+        else:
+            error_response = {
+                'success': False,
+                'message': resultado['error']
+            }
+            print(f"❌ Enviando respuesta de error: {error_response}")
+            return jsonify(error_response), 500
+        
+    except Exception as e:
+        error_msg = f'Error en sincronización: {str(e)}'
+        print(f"💥 Error en api_sincronizar_audiencias: {e}")
+        print(f"💥 Enviando error 500: {error_msg}")
+        return jsonify({
+            'success': False,
+            'message': error_msg
+        }), 500
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias/sincronizar/saved', methods=['POST'])
+def api_sincronizar_saved_audiencias(nombre_nora):
+    """Sincroniza audiencias guardadas (saved audiences) desde Meta Ads API"""
+    try:
+        from .campanas import sincronizar_saved_audiences_desde_meta
+        
+        data = request.get_json() or {}
+        cuenta_id = data.get('cuenta_id')  # Opcional, None para todas las cuentas
+        
+        print(f"🌐 API sincronizar saved audiencias llamada:")
+        print(f"   📋 nombre_nora: {nombre_nora}")
+        print(f"   🎯 cuenta_id: {cuenta_id}")
+        print(f"   📄 data recibida: {data}")
+        
+        resultado = sincronizar_saved_audiences_desde_meta(nombre_nora, cuenta_id)
+        
+        print(f"🔄 Resultado de sincronización saved: {resultado}")
+        
+        if resultado['ok']:
+            response_data = {
+                'success': True,
+                'message': f"Sincronización de audiencias guardadas completada. {resultado['audiencias_sincronizadas']} audiencias sincronizadas.",
+                'audiencias_sincronizadas': resultado['audiencias_sincronizadas'],
+                'errores': resultado.get('errores', [])
+            }
+            print(f"✅ Enviando respuesta exitosa saved: {response_data}")
+            return jsonify(response_data)
+        else:
+            error_response = {
+                'success': False,
+                'message': resultado['error']
+            }
+            print(f"❌ Enviando respuesta de error saved: {error_response}")
+            return jsonify(error_response), 500
+        
+    except Exception as e:
+        error_msg = f'Error en sincronización saved: {str(e)}'
+        print(f"💥 Error en api_sincronizar_saved_audiencias: {e}")
+        print(f"💥 Enviando error 500 saved: {error_msg}")
+        return jsonify({
+            'success': False,
+            'message': error_msg
+        }), 500
+
+@panel_cliente_meta_ads_bp.route('/audiencias', methods=['GET'])
+def vista_audiencias(nombre_nora):
+    """Vista principal para gestión de audiencias"""
+    return render_template('panel_cliente_meta_ads/audiencias_meta_ads.html', nombre_nora=nombre_nora)
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias/crear', methods=['POST'])
+def api_crear_audiencia(nombre_nora):
+    """Crear una nueva audiencia personalizada"""
+    try:
+        from .campanas import crear_audiencia_personalizada
+        
+        data = request.get_json() or {}
+        cuenta_id = data.get('cuenta_id')
+        datos_audiencia = data.get('audiencia', {})
+        
+        if not cuenta_id or not datos_audiencia.get('name'):
+            return jsonify({
+                'success': False,
+                'message': 'ID de cuenta y nombre de audiencia son requeridos'
+            }), 400
+        
+        resultado = crear_audiencia_personalizada(nombre_nora, cuenta_id, datos_audiencia)
+        
+        if resultado['ok']:
+            return jsonify({
+                'success': True,
+                'message': resultado['message'],
+                'audience_id': resultado['audience_id']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': resultado['error']
+            }), 500
+        
+    except Exception as e:
+        print(f"Error en api_crear_audiencia: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error creando audiencia: {str(e)}'
+        }), 500
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias/<audience_id>/usuarios', methods=['POST'])
+def api_agregar_usuarios_audiencia(nombre_nora, audience_id):
+    """Agregar usuarios a una audiencia"""
+    try:
+        from .campanas import agregar_usuarios_a_audiencia
+        
+        data = request.get_json() or {}
+        usuarios = data.get('usuarios', [])
+        tipo_schema = data.get('tipo_schema', 'email')
+        
+        if not usuarios:
+            return jsonify({
+                'success': False,
+                'message': 'Lista de usuarios es requerida'
+            }), 400
+        
+        resultado = agregar_usuarios_a_audiencia(audience_id, usuarios, tipo_schema)
+        
+        if resultado['ok']:
+            return jsonify({
+                'success': True,
+                'message': resultado['message'],
+                'usuarios_agregados': resultado['usuarios_agregados']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': resultado['error']
+            }), 500
+        
+    except Exception as e:
+        print(f"Error en api_agregar_usuarios_audiencia: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error agregando usuarios: {str(e)}'
+        }), 500
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias/<audience_id>', methods=['DELETE'])
+def api_eliminar_audiencia(nombre_nora, audience_id):
+    """Eliminar una audiencia"""
+    try:
+        from .campanas import eliminar_audiencia
+        
+        resultado = eliminar_audiencia(audience_id, nombre_nora)
+        
+        if resultado['ok']:
+            return jsonify({
+                'success': True,
+                'message': resultado['message']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': resultado['error']
+            }), 500
+        
+    except Exception as e:
+        print(f"Error en api_eliminar_audiencia: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error eliminando audiencia: {str(e)}'
+        }), 500
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias/<audience_id>', methods=['PUT'])
+def api_actualizar_audiencia(nombre_nora, audience_id):
+    """Actualizar una audiencia"""
+    try:
+        from .campanas import actualizar_audiencia
+        
+        data = request.get_json() or {}
+        datos_actualizacion = data.get('audiencia', {})
+        
+        resultado = actualizar_audiencia(audience_id, nombre_nora, datos_actualizacion)
+        
+        if resultado['ok']:
+            return jsonify({
+                'success': True,
+                'message': resultado['message']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': resultado['error']
+            }), 500
+        
+    except Exception as e:
+        print(f"Error en api_actualizar_audiencia: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error actualizando audiencia: {str(e)}'
+        }), 500
+
+@panel_cliente_meta_ads_bp.route('/api/audiencias/lookalike', methods=['POST'])
+def api_crear_audiencia_lookalike(nombre_nora):
+    """Crear audiencia lookalike"""
+    try:
+        from .campanas import crear_audiencia_lookalike
+        
+        data = request.get_json() or {}
+        cuenta_id = data.get('cuenta_id')
+        origen_audience_id = data.get('origen_audience_id')
+        nombre = data.get('nombre')
+        pais = data.get('pais', 'MX')
+        ratio = data.get('ratio', 0.01)
+        
+        if not all([cuenta_id, origen_audience_id, nombre]):
+            return jsonify({
+                'success': False,
+                'message': 'ID de cuenta, audiencia origen y nombre son requeridos'
+            }), 400
+        
+        resultado = crear_audiencia_lookalike(
+            nombre_nora, cuenta_id, origen_audience_id, nombre, pais, ratio
+        )
+        
+        if resultado['ok']:
+            return jsonify({
+                'success': True,
+                'message': resultado['message'],
+                'audience_id': resultado['audience_id']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': resultado['error']
+            }), 500
+        
+    except Exception as e:
+        print(f"Error en api_crear_audiencia_lookalike: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error creando audiencia lookalike: {str(e)}'
+        }), 500
+
+# ==================== WEBHOOKS MONITORING ====================
+
+@panel_cliente_meta_ads_bp.route("/webhooks")
+def vista_webhooks(nombre_nora):
+    """Vista para monitorear eventos de webhooks de Meta"""
+    return render_template("panel_cliente_meta_ads/webhooks.html", nombre_nora=nombre_nora)
+
+@panel_cliente_meta_ads_bp.route("/api/webhooks/eventos")
+def api_eventos_webhooks(nombre_nora):
+    """API para obtener eventos de webhooks con paginación"""
+    try:
+        # Parámetros de filtrado
+        limite = int(request.args.get('limite', 50))
+        offset = int(request.args.get('offset', 0))
+        objeto_filtro = request.args.get('objeto', '')
+        procesado_filtro = request.args.get('procesado', '')
+        
+        # Construir consulta base
+        query = supabase.table('meta_webhook_eventos').select('*')
+        
+        # Aplicar filtros
+        if objeto_filtro:
+            query = query.eq('objeto', objeto_filtro)
+        if procesado_filtro in ['true', 'false']:
+            query = query.eq('procesado', procesado_filtro == 'true')
+        
+        # Ordenar por fecha más reciente y aplicar paginación
+        response = query.order('creado_en', desc=True).range(offset, offset + limite - 1).execute()
+        
+        # Obtener conteo total para paginación
+        count_response = supabase.table('meta_webhook_eventos').select('id', count='exact')
+        if objeto_filtro:
+            count_response = count_response.eq('objeto', objeto_filtro)
+        if procesado_filtro in ['true', 'false']:
+            count_response = count_response.eq('procesado', procesado_filtro == 'true')
+        count_result = count_response.execute()
+        
+        return jsonify({
+            'success': True,
+            'eventos': response.data or [],
+            'total': count_result.count,
+            'limite': limite,
+            'offset': offset
+        })
+        
+    except Exception as e:
+        print(f"Error en api_eventos_webhooks: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error obteniendo eventos: {str(e)}'
+        }), 500
+
+@panel_cliente_meta_ads_bp.route("/api/webhooks/estadisticas")
+def api_estadisticas_webhooks(nombre_nora):
+    """API para obtener estadísticas de webhooks"""
+    try:
+        # Eventos por tipo de objeto
+        eventos_por_tipo = supabase.table('meta_webhook_eventos')\
+            .select('objeto', count='exact')\
+            .execute()
+        
+        # Eventos procesados vs no procesados
+        procesados = supabase.table('meta_webhook_eventos')\
+            .select('id', count='exact')\
+            .eq('procesado', True)\
+            .execute()
+        
+        no_procesados = supabase.table('meta_webhook_eventos')\
+            .select('id', count='exact')\
+            .eq('procesado', False)\
+            .execute()
+        
+        # Eventos por día (últimos 7 días)
+        desde = (datetime.now() - timedelta(days=7)).isoformat()
+        eventos_recientes = supabase.table('meta_webhook_eventos')\
+            .select('creado_en')\
+            .gte('creado_en', desde)\
+            .execute()
+        
+        return jsonify({
+            'success': True,
+            'estadisticas': {
+                'total_eventos': len(eventos_por_tipo.data or []),
+                'procesados': procesados.count,
+                'no_procesados': no_procesados.count,
+                'eventos_recientes': len(eventos_recientes.data or [])
+            }
+        })
+        
+    except Exception as e:
+        print(f"Error en api_estadisticas_webhooks: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error obteniendo estadísticas: {str(e)}'
+        }), 500
+
+@panel_cliente_meta_ads_bp.route("/api/webhooks/marcar_procesado", methods=['POST'])
+def api_marcar_webhook_procesado(nombre_nora):
+    """API para marcar un evento de webhook como procesado"""
+    try:
+        data = request.get_json()
+        evento_id = data.get('evento_id')
+        
+        if not evento_id:
+            return jsonify({'success': False, 'message': 'ID de evento requerido'}), 400
+        
+        # Actualizar estado
+        response = supabase.table('meta_webhook_eventos')\
+            .update({'procesado': True, 'procesado_en': datetime.utcnow().isoformat()})\
+            .eq('id', evento_id)\
+            .execute()
+        
+        if response.data:
+            return jsonify({'success': True, 'message': 'Evento marcado como procesado'})
+        else:
+            return jsonify({'success': False, 'message': 'Evento no encontrado'}), 404
+            
+    except Exception as e:
+        print(f"Error en api_marcar_webhook_procesado: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error actualizando evento: {str(e)}'
+        }), 500
+
+@panel_cliente_meta_ads_bp.route("/webhooks/anuncios")
+def webhooks_anuncios(nombre_nora):
+    """Página para monitorear webhooks relacionados con anuncios"""
+    try:
+        # Obtener webhooks de anuncios de las últimas 24 horas
+        desde = (datetime.utcnow() - timedelta(days=1)).isoformat()
+        
+        response = supabase.table('logs_webhooks_meta')\
+            .select('*')\
+            .gte('timestamp', desde)\
+            .in_('tipo_objeto', ['ad', 'adset', 'campaign'])\
+            .order('timestamp', desc=True)\
+            .limit(100)\
+            .execute()
+            
+        webhooks = response.data or []
+        
+        # Formatear fechas
+        for webhook in webhooks:
+            if webhook.get('timestamp'):
+                try:
+                    timestamp = datetime.fromisoformat(webhook['timestamp'].replace('Z', '+00:00'))
+                    webhook['timestamp_fmt'] = timestamp.strftime('%d/%m/%Y %H:%M:%S')
+                except:
+                    webhook['timestamp_fmt'] = webhook.get('timestamp', 'N/A')
+            else:
+                webhook['timestamp_fmt'] = 'N/A'
+                
+        return render_template(
+            "panel_cliente_meta_ads/webhooks_anuncios.html", 
+            webhooks=webhooks, 
+            nombre_nora=nombre_nora
+        )
+        
+    except Exception as e:
+        print(f"Error cargando webhooks de anuncios: {e}")
+        return render_template(
+            "panel_cliente_meta_ads/webhooks_anuncios.html", 
+            webhooks=[], 
+            nombre_nora=nombre_nora,
+            error=str(e)
+        )
+
+@panel_cliente_meta_ads_bp.route("/api/anuncios/sincronizar_webhook", methods=['POST'])
+def api_sincronizar_anuncio_webhook(nombre_nora):
+    """API para sincronizar un anuncio específico desde webhook"""
+    try:
+        data = request.get_json()
+        ad_id = data.get('ad_id')
+        
+        if not ad_id:
+            return jsonify({'success': False, 'message': 'ID de anuncio requerido'}), 400
+        
+        # Marcar anuncio para sincronización
+        from clientes.aura.utils.meta_webhook_helpers import marcar_anuncio_para_sync
+        
+        if marcar_anuncio_para_sync(ad_id):
+            return jsonify({
+                'success': True, 
+                'message': f'Anuncio {ad_id} marcado para sincronización'
+            })
+        else:
+            return jsonify({
+                'success': False, 
+                'message': f'Error marcando anuncio {ad_id} para sincronización'
+            }), 500
+            
+    except Exception as e:
+        print(f"Error en api_sincronizar_anuncio_webhook: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error sincronizando anuncio: {str(e)}'
+        }), 500

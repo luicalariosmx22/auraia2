@@ -135,7 +135,7 @@ const handlers = {
         const btn = event.target;
         utils.actualizarUI(btn, {
             disabled: true,
-            textContent: 'Importando...'
+            textContent: 'Buscando cuentas nuevas...'
         });
 
         try {
@@ -143,22 +143,36 @@ const handlers = {
             const data = await resp.json();
             
             if (resp.ok && data.ok) {
-                btn.textContent = `¡Importadas: ${data.agregadas}!`;
-                btn.classList.remove('bg-purple-600', 'hover:bg-purple-800');
-                btn.classList.add('bg-green-600');
-                setTimeout(() => location.reload(), 900);
+                if (data.agregadas > 0) {
+                    btn.textContent = `¡${data.agregadas} nuevas importadas!`;
+                    btn.classList.remove('bg-purple-600', 'hover:bg-purple-800');
+                    btn.classList.add('bg-green-600');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    btn.textContent = 'No hay cuentas nuevas';
+                    btn.classList.remove('bg-purple-600', 'hover:bg-purple-800');
+                    btn.classList.add('bg-gray-500');
+                    setTimeout(() => {
+                        utils.actualizarUI(btn, {
+                            disabled: false,
+                            textContent: 'Importar cuentas nuevas'
+                        });
+                        btn.classList.remove('bg-gray-500');
+                        btn.classList.add('bg-purple-600', 'hover:bg-purple-800');
+                    }, 2000);
+                }
             } else {
                 alert('Error al importar: ' + (data.msg || resp.statusText));
                 utils.actualizarUI(btn, {
                     disabled: false,
-                    textContent: 'Importar desde Meta'
+                    textContent: 'Importar cuentas nuevas'
                 });
             }
         } catch (e) {
             alert('Error de red al importar cuentas');
             utils.actualizarUI(btn, {
                 disabled: false,
-                textContent: 'Importar desde Meta'
+                textContent: 'Importar cuentas nuevas'
             });
         }
     }
@@ -297,7 +311,7 @@ const btnImportarMeta = {
 
     resetearBoton(btn) {
         btn.disabled = false;
-        btn.textContent = 'Importar desde Meta';
+        btn.textContent = 'Importar cuentas nuevas';
     }
 };
 

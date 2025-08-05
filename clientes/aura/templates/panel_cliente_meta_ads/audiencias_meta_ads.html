@@ -1,0 +1,1041 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+
+<div class="w-full px-6 py-10">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">
+            <i class="fas fa-users mr-3"></i>Audiencias Meta Ads
+        </h1>
+        
+        <!-- Navegación de pestañas -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+                    <button id="tab-todas" class="tab-button active border-transparent text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-blue-700 hover:border-blue-300">
+                        <i class="fas fa-list mr-2"></i>Todas las Audiencias
+                    </button>
+                    <button id="tab-activas" class="tab-button border-transparent text-gray-500 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-check-circle mr-2"></i>Activas
+                    </button>
+                    <button id="tab-pausadas" class="tab-button border-transparent text-gray-500 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-pause-circle mr-2"></i>Pausadas
+                    </button>
+                    <button id="tab-estadisticas" class="tab-button border-transparent text-gray-500 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-chart-bar mr-2"></i>Estadísticas
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Controles y filtros -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    <i class="fas fa-filter mr-2"></i>Filtros y Acciones
+                </h3>
+                <div class="flex space-x-2">
+                    <button id="btn-sincronizar-audiencias" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-sync-alt mr-2"></i>Sincronizar Personalizadas
+                    </button>
+                    <button id="btn-sincronizar-saved-audiencias" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-download mr-2"></i>Sincronizar Guardadas
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                    <label for="filtro-cuenta" class="block text-sm font-medium text-gray-700 mb-2">Cuenta Publicitaria</label>
+                    <select id="filtro-cuenta" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Todas las cuentas</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filtro-tipo" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Audiencia</label>
+                    <select id="filtro-tipo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Todos los tipos</option>
+                        <option value="ig_business">Personalizada IG Business</option>
+                        <option value="lookalike">Lookalike</option>
+                        <option value="website">Website/Pixel</option>
+                        <option value="saved">Guardada</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filtro-estado" class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                    <select id="filtro-estado" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Todos los estados</option>
+                        <option value="200">Activa (200)</option>
+                        <option value="300">Pequeña - No usable (300)</option>
+                        <option value="441">Completándose (441)</option>
+                        <option value="450">Desactualizada (450)</option>
+                        <option value="433">Error - No se pudo crear (433)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filtro-origen" class="block text-sm font-medium text-gray-700 mb-2">Origen</label>
+                    <select id="filtro-origen" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Todos los orígenes</option>
+                        <option value="EVENT_BASED">Basada en eventos</option>
+                        <option value="SEED_BASED">Basada en semilla (Lookalike)</option>
+                        <option value="FILE_IMPORTED">Archivo importado</option>
+                        <option value="THIRD_PARTY_IMPORTED">Terceros</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button id="btn-aplicar-filtros" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md transition">
+                        <i class="fas fa-search mr-2"></i>Aplicar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Búsqueda -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center space-x-4">
+                <div class="flex-1">
+                    <input type="text" id="busqueda-audiencias" 
+                           placeholder="Buscar por nombre, ID, empresa, cliente o tipo de audiencia..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <button id="btn-limpiar-busqueda" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
+                    <i class="fas fa-times mr-2"></i>Limpiar
+                </button>
+            </div>
+        </div>
+
+        <!-- Controles de paginación y ordenamiento -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <label for="elementos-por-pagina" class="text-sm font-medium text-gray-700">Mostrar:</label>
+                        <select id="elementos-por-pagina" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="10">10</option>
+                            <option value="20" selected>20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="text-sm text-gray-600">elementos por página</span>
+                    </div>
+                    <div id="info-resultados" class="text-sm text-gray-600">
+                        <!-- Se actualiza dinámicamente -->
+                    </div>
+                </div>
+                <div id="controles-paginacion" class="flex items-center space-x-2">
+                    <!-- Se genera dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="loading-audiencias" class="hidden text-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">Cargando audiencias...</p>
+        </div>
+
+        <!-- Error state -->
+        <div id="error-audiencias" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-2"></i>
+            <h3 class="text-lg font-semibold text-red-700 mb-2">Error al cargar audiencias</h3>
+            <p id="error-message" class="text-red-600 mb-4"></p>
+            <button id="btn-reintentar" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
+                <i class="fas fa-redo mr-2"></i>Reintentar
+            </button>
+        </div>
+
+        <!-- Contenido de audiencias -->
+        <div id="contenido-audiencias">
+            <!-- Tab: Todas las audiencias -->
+            <div id="panel-todas" class="tab-panel">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-list text-blue-500 mr-2"></i>Todas las Audiencias
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Vista completa de todas las audiencias de Meta Ads</p>
+                    </div>
+                    <div id="tabla-todas" class="overflow-x-auto">
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-search text-3xl mb-4"></i>
+                            <p>Haz clic en "Aplicar Filtros" o "Sincronizar desde Meta" para ver las audiencias</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Audiencias activas -->
+            <div id="panel-activas" class="tab-panel hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>Audiencias Activas
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Audiencias disponibles para usar en campañas</p>
+                    </div>
+                    <div id="tabla-activas" class="overflow-x-auto">
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-search text-3xl mb-4"></i>
+                            <p>Aplica filtros para ver las audiencias activas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Audiencias pausadas -->
+            <div id="panel-pausadas" class="tab-panel hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-pause-circle text-yellow-500 mr-2"></i>Audiencias Pausadas
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Audiencias temporalmente inactivas</p>
+                    </div>
+                    <div id="tabla-pausadas" class="overflow-x-auto">
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-search text-3xl mb-4"></i>
+                            <p>Aplica filtros para ver las audiencias pausadas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Estadísticas -->
+            <div id="panel-estadisticas" class="tab-panel hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-chart-bar text-purple-500 mr-2"></i>Estadísticas de Audiencias
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Resumen y métricas de todas las audiencias</p>
+                    </div>
+                    <div id="contenido-estadisticas" class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                            <!-- Tarjetas de estadísticas se cargan dinámicamente -->
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Gráficos se cargan dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de detalle de audiencia -->
+<div id="modal-detalle-audiencia" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modal-titulo" class="text-xl font-bold text-gray-900"></h3>
+            <button id="btn-cerrar-modal" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="modal-contenido" class="space-y-4">
+            <!-- Contenido del modal se carga dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal de sincronización -->
+<div id="modal-sincronizacion" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Sincronizando audiencias...</h3>
+            <p class="text-gray-600">Obteniendo datos desde Meta Ads. Esto puede tomar unos minutos.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+window.appConfig = {
+    nombreNora: "{{ nombre_nora }}",
+    baseUrl: "/panel_cliente/{{ nombre_nora }}/meta_ads"
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del DOM
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    const btnAplicarFiltros = document.getElementById('btn-aplicar-filtros');
+    const btnLimpiarBusqueda = document.getElementById('btn-limpiar-busqueda');
+    const btnReintentar = document.getElementById('btn-reintentar');
+    const btnSincronizar = document.getElementById('btn-sincronizar-audiencias');
+    const btnSincronizarSaved = document.getElementById('btn-sincronizar-saved-audiencias');
+    const busquedaAudiencias = document.getElementById('busqueda-audiencias');
+    const elementosPorPagina = document.getElementById('elementos-por-pagina');
+    
+    // Estado actual
+    let tabActual = 'todas';
+    let audienciasData = {};
+    let paginacionActual = {
+        pagina: 1,
+        porPagina: 20,
+        total: 0
+    };
+    let ordenActual = {
+        campo: 'creada_en',
+        direccion: 'desc'
+    };
+
+    // Manejo de pestañas
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.id.replace('tab-', '');
+            cambiarTab(tabId);
+        });
+    });
+
+    function cambiarTab(nuevoTab) {
+        // Actualizar botones
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+            btn.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        document.getElementById(`tab-${nuevoTab}`).classList.remove('border-transparent', 'text-gray-500');
+        document.getElementById(`tab-${nuevoTab}`).classList.add('active', 'border-blue-500', 'text-blue-600');
+
+        // Actualizar paneles
+        tabPanels.forEach(panel => panel.classList.add('hidden'));
+        document.getElementById(`panel-${nuevoTab}`).classList.remove('hidden');
+        
+        tabActual = nuevoTab;
+        paginacionActual.pagina = 1; // Resetear paginación al cambiar tab
+        
+        // Cargar datos específicos según la pestaña
+        if (nuevoTab === 'estadisticas') {
+            cargarEstadisticas();
+        } else if (audienciasData[nuevoTab]) {
+            mostrarAudiencias(audienciasData[nuevoTab], nuevoTab);
+        }
+    }
+
+    // Aplicar filtros
+    btnAplicarFiltros.addEventListener('click', function() {
+        paginacionActual.pagina = 1; // Resetear paginación al aplicar filtros
+        cargarAudiencias();
+    });
+
+    // Limpiar búsqueda
+    btnLimpiarBusqueda.addEventListener('click', function() {
+        busquedaAudiencias.value = '';
+        if (audienciasData[tabActual]) {
+            mostrarAudiencias(audienciasData[tabActual], tabActual);
+        }
+    });
+
+    // Búsqueda en tiempo real
+    busquedaAudiencias.addEventListener('input', function() {
+        if (audienciasData[tabActual]) {
+            const termino = this.value.toLowerCase();
+            const audienciasFiltradas = audienciasData[tabActual].filter(audiencia => 
+                (audiencia.nombre_audiencia || '').toLowerCase().includes(termino) ||
+                (audiencia.audience_id || '').includes(termino) ||
+                (audiencia.tipo_audiencia || '').toLowerCase().includes(termino) ||
+                (audiencia.nombre_empresa || '').toLowerCase().includes(termino) ||
+                (audiencia.nombre_cliente || '').toLowerCase().includes(termino)
+            );
+            paginacionActual.pagina = 1; // Resetear paginación en búsqueda
+            mostrarAudiencias(audienciasFiltradas, tabActual);
+        }
+    });
+
+    // Reintentar carga
+    btnReintentar.addEventListener('click', function() {
+        cargarAudiencias();
+    });
+
+    // Sincronizar audiencias
+    btnSincronizar.addEventListener('click', function() {
+        sincronizarAudiencias();
+    });
+
+    // Sincronizar audiencias guardadas
+    btnSincronizarSaved.addEventListener('click', function() {
+        sincronizarSavedAudiencias();
+    });
+
+    // Cambiar elementos por página
+    elementosPorPagina.addEventListener('change', function() {
+        paginacionActual.porPagina = parseInt(this.value);
+        paginacionActual.pagina = 1;
+        if (audienciasData[tabActual]) {
+            mostrarAudiencias(audienciasData[tabActual], tabActual);
+        }
+    });
+
+    // Cargar cuentas publicitarias para el filtro
+    cargarCuentasPublicitarias();
+    
+    // Cargar audiencias automáticamente al iniciar
+    cargarAudiencias();
+
+    async function cargarCuentasPublicitarias() {
+        try {
+            const response = await fetch(`${window.appConfig.baseUrl}/api/cuentas`);
+            const cuentas = await response.json();
+            
+            const select = document.getElementById('filtro-cuenta');
+            select.innerHTML = '<option value="">Todas las cuentas</option>';
+            
+            cuentas.forEach(cuenta => {
+                const option = document.createElement('option');
+                option.value = cuenta.id_cuenta_publicitaria;
+                option.textContent = `${cuenta.nombre_cliente} (${cuenta.id_cuenta_publicitaria})`;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error cargando cuentas:', error);
+        }
+    }
+
+    async function cargarAudiencias() {
+        const filtros = {
+            cuenta_id: document.getElementById('filtro-cuenta').value,
+            tipo_audiencia: document.getElementById('filtro-tipo').value,
+            estado: document.getElementById('filtro-estado').value,
+            origen: document.getElementById('filtro-origen').value
+        };
+
+        mostrarLoading(true);
+        ocultarError();
+
+        try {
+            const params = new URLSearchParams();
+            Object.keys(filtros).forEach(key => {
+                if (filtros[key]) params.append(key, filtros[key]);
+            });
+
+            const response = await fetch(`${window.appConfig.baseUrl}/api/audiencias?${params}`);
+            
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            // Clasificar audiencias por estado
+            audienciasData = {
+                todas: data,
+                activas: data.filter(a => {
+                    const estado = a.estado ? a.estado.toString().toUpperCase() : '';
+                    return estado === '200' || estado === 'ACTIVE';
+                }),
+                pausadas: data.filter(a => {
+                    const estado = a.estado ? a.estado.toString().toUpperCase() : '';
+                    return estado === '300' || estado === 'PAUSED' || estado === '450' || estado === '441';
+                })
+            };
+
+            // Mostrar datos de la pestaña actual
+            if (tabActual !== 'estadisticas') {
+                mostrarAudiencias(audienciasData[tabActual], tabActual);
+            }
+            
+        } catch (error) {
+            console.error('Error cargando audiencias:', error);
+            mostrarError(error.message);
+        } finally {
+            mostrarLoading(false);
+        }
+    }
+
+    async function cargarEstadisticas() {
+        try {
+            const filtros = {
+                cuenta_id: document.getElementById('filtro-cuenta').value,
+                tipo_audiencia: document.getElementById('filtro-tipo').value,
+                estado: document.getElementById('filtro-estado').value
+            };
+
+            const params = new URLSearchParams();
+            Object.keys(filtros).forEach(key => {
+                if (filtros[key]) params.append(key, filtros[key]);
+            });
+
+            const response = await fetch(`${window.appConfig.baseUrl}/api/audiencias/estadisticas?${params}`);
+            const estadisticas = await response.json();
+            
+            mostrarEstadisticas(estadisticas);
+            
+        } catch (error) {
+            console.error('Error cargando estadísticas:', error);
+        }
+    }
+
+    async function sincronizarAudiencias() {
+        const cuenta_id = document.getElementById('filtro-cuenta').value;
+        
+        // Mostrar modal de sincronización
+        document.getElementById('modal-sincronizacion').classList.remove('hidden');
+        
+        try {
+            const response = await fetch(`${window.appConfig.baseUrl}/api/audiencias/sincronizar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    cuenta_id: cuenta_id || null
+                })
+            });
+
+            const result = await response.json();
+            
+            // Ocultar modal de sincronización
+            document.getElementById('modal-sincronizacion').classList.add('hidden');
+            
+            if (result.success) {
+                alert(`Sincronización exitosa: ${result.audiencias_sincronizadas} audiencias sincronizadas.`);
+                // Recargar datos
+                cargarAudiencias();
+            } else {
+                alert(`Error en sincronización: ${result.message}`);
+            }
+            
+        } catch (error) {
+            document.getElementById('modal-sincronizacion').classList.add('hidden');
+            alert(`Error de conexión: ${error.message}`);
+        }
+    }
+
+    async function sincronizarSavedAudiencias() {
+        const cuenta_id = document.getElementById('filtro-cuenta').value;
+        
+        // Mostrar modal de sincronización
+        document.getElementById('modal-sincronizacion').classList.remove('hidden');
+        
+        try {
+            const response = await fetch(`${window.appConfig.baseUrl}/api/audiencias/sincronizar/saved`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    cuenta_id: cuenta_id || null
+                })
+            });
+
+            const result = await response.json();
+            
+            // Ocultar modal de sincronización
+            document.getElementById('modal-sincronizacion').classList.add('hidden');
+            
+            if (result.success) {
+                alert(`Sincronización de audiencias guardadas exitosa: ${result.audiencias_sincronizadas} audiencias sincronizadas.`);
+                // Recargar datos
+                cargarAudiencias();
+            } else {
+                alert(`Error en sincronización de audiencias guardadas: ${result.message}`);
+            }
+            
+        } catch (error) {
+            document.getElementById('modal-sincronizacion').classList.add('hidden');
+            alert(`Error de conexión en audiencias guardadas: ${error.message}`);
+        }
+    }
+
+    function mostrarLoading(mostrar) {
+        const loading = document.getElementById('loading-audiencias');
+        const contenido = document.getElementById('contenido-audiencias');
+        
+        if (mostrar) {
+            loading.classList.remove('hidden');
+            contenido.classList.add('hidden');
+        } else {
+            loading.classList.add('hidden');
+            contenido.classList.remove('hidden');
+        }
+    }
+
+    function mostrarError(mensaje) {
+        document.getElementById('error-message').textContent = mensaje;
+        document.getElementById('error-audiencias').classList.remove('hidden');
+        document.getElementById('contenido-audiencias').classList.add('hidden');
+    }
+
+    function ocultarError() {
+        document.getElementById('error-audiencias').classList.add('hidden');
+    }
+
+    function mostrarAudiencias(audiencias, tipo) {
+        const tabla = document.getElementById(`tabla-${tipo}`);
+        
+        if (audiencias.length === 0) {
+            tabla.innerHTML = `
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fas fa-inbox text-3xl mb-4"></i>
+                    <p>No se encontraron audiencias con los filtros seleccionados</p>
+                </div>
+            `;
+            actualizarInfoResultados(0, 0, 0);
+            return;
+        }
+
+        // Ordenar audiencias
+        const audienciasOrdenadas = ordenarAudiencias(audiencias, ordenActual.campo, ordenActual.direccion);
+        
+        // Calcular paginación
+        const total = audienciasOrdenadas.length;
+        const inicio = (paginacionActual.pagina - 1) * paginacionActual.porPagina;
+        const fin = inicio + paginacionActual.porPagina;
+        const audienciasPagina = audienciasOrdenadas.slice(inicio, fin);
+        
+        // Actualizar info de resultados
+        actualizarInfoResultados(inicio + 1, Math.min(fin, total), total);
+        
+        // Crear controles de paginación
+        crearControlesPaginacion(total);
+
+        // Crear tabla
+        const tablaHTML = `
+            <table class="tabla-audiencias min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="cambiarOrden('nombre_audiencia')">
+                            Audiencia
+                            <i class="fas fa-sort ml-1 ${getIconoOrden('nombre_audiencia')}"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="cambiarOrden('nombre_empresa')">
+                            Empresa
+                            <i class="fas fa-sort ml-1 ${getIconoOrden('nombre_empresa')}"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="cambiarOrden('estado')">
+                            Estado
+                            <i class="fas fa-sort ml-1 ${getIconoOrden('estado')}"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="cambiarOrden('tipo_audiencia')">
+                            Tipo
+                            <i class="fas fa-sort ml-1 ${getIconoOrden('tipo_audiencia')}"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="cambiarOrden('tamaño_aproximado')">
+                            Tamaño
+                            <i class="fas fa-sort ml-1 ${getIconoOrden('tamaño_aproximado')}"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="cambiarOrden('origen')">
+                            Origen
+                            <i class="fas fa-sort ml-1 ${getIconoOrden('origen')}"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="cambiarOrden('creada_en')">
+                            Creada
+                            <i class="fas fa-sort ml-1 ${getIconoOrden('creada_en')}"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    ${audienciasPagina.map(audiencia => crearFilaAudiencia(audiencia)).join('')}
+                </tbody>
+            </table>
+        `;
+        
+        tabla.innerHTML = tablaHTML;
+    }
+
+    function crearFilaAudiencia(audiencia) {
+        const estadoBadge = audiencia.estado_badge || {text: 'Desconocido', class: 'bg-gray-100 text-gray-800'};
+        
+        // Función para truncar y agregar saltos de línea en nombres largos
+        function formatearNombreAudiencia(nombre) {
+            if (!nombre) return 'Sin nombre';
+            
+            // Si el nombre es mayor a 50 caracteres, cortarlo en palabras
+            if (nombre.length > 50) {
+                const palabras = nombre.split(' ');
+                let linea1 = '';
+                let linea2 = '';
+                
+                for (let palabra of palabras) {
+                    if ((linea1 + palabra).length <= 50) {
+                        linea1 += (linea1 ? ' ' : '') + palabra;
+                    } else {
+                        linea2 += (linea2 ? ' ' : '') + palabra;
+                    }
+                }
+                
+                return `${linea1}${linea2 ? '<br>' + linea2 : ''}`;
+            }
+            
+            return nombre;
+        }
+        
+        return `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4">
+                    <div class="audiencia-nombre text-sm font-medium text-gray-900 leading-5">${formatearNombreAudiencia(audiencia.nombre_audiencia)}</div>
+                    <div class="text-sm text-gray-500 mt-1">ID: ${audiencia.audience_id || 'N/A'}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${audiencia.nombre_empresa || 'Sin empresa'}</div>
+                    <div class="text-sm text-gray-500">${audiencia.nombre_cliente || 'Sin cliente'}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${estadoBadge.class}">
+                        ${estadoBadge.text}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${audiencia.tipo_audiencia || 'N/A'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${audiencia.tamaño_fmt || '0'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${audiencia.origen || 'N/A'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${audiencia.creada_en_fmt || 'N/A'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick="verDetalleAudiencia('${audiencia.audience_id}')" 
+                            class="text-blue-600 hover:text-blue-900 mr-3">
+                        <i class="fas fa-eye mr-1"></i>Ver Detalle
+                    </button>
+                </td>
+            </tr>
+        `;
+    }
+
+    // Funciones auxiliares para ordenamiento y paginación
+    function ordenarAudiencias(audiencias, campo, direccion) {
+        return [...audiencias].sort((a, b) => {
+            let valorA = a[campo] || '';
+            let valorB = b[campo] || '';
+            
+            // Convertir a string para comparación
+            if (typeof valorA !== 'string') valorA = String(valorA);
+            if (typeof valorB !== 'string') valorB = String(valorB);
+            
+            // Ordenamiento especial para números
+            if (campo === 'tamaño_aproximado') {
+                valorA = parseInt(valorA) || 0;
+                valorB = parseInt(valorB) || 0;
+            }
+            
+            // Ordenamiento especial para fechas
+            if (campo === 'creada_en') {
+                valorA = new Date(valorA || 0);
+                valorB = new Date(valorB || 0);
+            }
+            
+            let resultado = 0;
+            if (valorA < valorB) resultado = -1;
+            if (valorA > valorB) resultado = 1;
+            
+            return direccion === 'desc' ? -resultado : resultado;
+        });
+    }
+
+    function cambiarOrden(campo) {
+        if (ordenActual.campo === campo) {
+            ordenActual.direccion = ordenActual.direccion === 'asc' ? 'desc' : 'asc';
+        } else {
+            ordenActual.campo = campo;
+            ordenActual.direccion = 'asc';
+        }
+        
+        paginacionActual.pagina = 1; // Resetear a primera página
+        if (audienciasData[tabActual]) {
+            mostrarAudiencias(audienciasData[tabActual], tabActual);
+        }
+    }
+
+    function getIconoOrden(campo) {
+        if (ordenActual.campo !== campo) return 'text-gray-300';
+        return ordenActual.direccion === 'asc' ? 'fa-sort-up text-blue-500' : 'fa-sort-down text-blue-500';
+    }
+
+    function actualizarInfoResultados(inicio, fin, total) {
+        const info = document.getElementById('info-resultados');
+        info.textContent = `Mostrando ${inicio} - ${fin} de ${total} audiencias`;
+    }
+
+    function crearControlesPaginacion(total) {
+        const totalPaginas = Math.ceil(total / paginacionActual.porPagina);
+        const paginaActual = paginacionActual.pagina;
+        const controles = document.getElementById('controles-paginacion');
+        
+        if (totalPaginas <= 1) {
+            controles.innerHTML = '';
+            return;
+        }
+        
+        let html = '';
+        
+        // Botón anterior
+        html += `
+            <button onclick="cambiarPagina(${paginaActual - 1})" 
+                    ${paginaActual <= 1 ? 'disabled' : ''} 
+                    class="px-3 py-1 border border-gray-300 rounded-md text-sm ${paginaActual <= 1 ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-50'}">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+        
+        // Números de página
+        const inicio = Math.max(1, paginaActual - 2);
+        const fin = Math.min(totalPaginas, paginaActual + 2);
+        
+        if (inicio > 1) {
+            html += `<button onclick="cambiarPagina(1)" class="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white text-gray-700 hover:bg-gray-50">1</button>`;
+            if (inicio > 2) html += `<span class="px-2 text-gray-500">...</span>`;
+        }
+        
+        for (let i = inicio; i <= fin; i++) {
+            html += `
+                <button onclick="cambiarPagina(${i})" 
+                        class="px-3 py-1 border border-gray-300 rounded-md text-sm ${i === paginaActual ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}">
+                    ${i}
+                </button>
+            `;
+        }
+        
+        if (fin < totalPaginas) {
+            if (fin < totalPaginas - 1) html += `<span class="px-2 text-gray-500">...</span>`;
+            html += `<button onclick="cambiarPagina(${totalPaginas})" class="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white text-gray-700 hover:bg-gray-50">${totalPaginas}</button>`;
+        }
+        
+        // Botón siguiente
+        html += `
+            <button onclick="cambiarPagina(${paginaActual + 1})" 
+                    ${paginaActual >= totalPaginas ? 'disabled' : ''} 
+                    class="px-3 py-1 border border-gray-300 rounded-md text-sm ${paginaActual >= totalPaginas ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-50'}">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+        
+        controles.innerHTML = html;
+    }
+
+    function cambiarPagina(nuevaPagina) {
+        const totalPaginas = Math.ceil(audienciasData[tabActual].length / paginacionActual.porPagina);
+        if (nuevaPagina < 1 || nuevaPagina > totalPaginas) return;
+        
+        paginacionActual.pagina = nuevaPagina;
+        mostrarAudiencias(audienciasData[tabActual], tabActual);
+    }
+
+    // Hacer funciones globales
+    window.cambiarOrden = cambiarOrden;
+    window.cambiarPagina = cambiarPagina;
+
+    function mostrarEstadisticas(estadisticas) {
+        const contenedor = document.getElementById('contenido-estadisticas');
+        
+        // Crear tarjetas de estadísticas
+        const tarjetasHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100">
+                            <i class="fas fa-users text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Audiencias</p>
+                            <p class="text-2xl font-bold text-gray-900">${estadisticas.total_audiencias}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Activas</p>
+                            <p class="text-2xl font-bold text-gray-900">${estadisticas.audiencias_activas}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100">
+                            <i class="fas fa-pause-circle text-yellow-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Pausadas</p>
+                            <p class="text-2xl font-bold text-gray-900">${estadisticas.audiencias_pausadas}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100">
+                            <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Tamaño Total</p>
+                            <p class="text-2xl font-bold text-gray-900">${formatearNumero(estadisticas.tamaño_total)}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Distribución por Tipo</h4>
+                    <div class="space-y-2">
+                        ${Object.entries(estadisticas.tipos_audiencia).map(([tipo, cantidad]) => `
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">${tipo}</span>
+                                <span class="font-semibold">${cantidad}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Distribución por Origen</h4>
+                    <div class="space-y-2">
+                        ${Object.entries(estadisticas.origenes).map(([origen, cantidad]) => `
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">${origen}</span>
+                                <span class="font-semibold">${cantidad}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        contenedor.innerHTML = tarjetasHTML;
+    }
+
+    function formatearNumero(numero) {
+        if (numero >= 1000000) {
+            return (numero / 1000000).toFixed(1) + 'M';
+        } else if (numero >= 1000) {
+            return (numero / 1000).toFixed(1) + 'K';
+        }
+        return numero.toString();
+    }
+
+    // Función global para ver detalle de audiencia
+    window.verDetalleAudiencia = async function(audienceId) {
+        try {
+            const response = await fetch(`${window.appConfig.baseUrl}/api/audiencias/${audienceId}/detalle`);
+            const detalle = await response.json();
+            
+            document.getElementById('modal-titulo').textContent = `Detalle de Audiencia: ${detalle.nombre_audiencia}`;
+            document.getElementById('modal-contenido').innerHTML = crearContenidoDetalle(detalle);
+            document.getElementById('modal-detalle-audiencia').classList.remove('hidden');
+            
+        } catch (error) {
+            console.error('Error cargando detalle:', error);
+            alert('Error al cargar el detalle de la audiencia');
+        }
+    };
+
+    function crearContenidoDetalle(detalle) {
+        return `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Información General</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="grid grid-cols-1 gap-4 text-sm">
+                            <div><strong>ID:</strong> ${detalle.audience_id}</div>
+                            <div><strong>Nombre:</strong> ${detalle.nombre_audiencia}</div>
+                            <div><strong>Empresa:</strong> ${detalle.nombre_empresa || 'Sin empresa'}</div>
+                            <div><strong>Cliente:</strong> ${detalle.nombre_cliente || 'Sin cliente'}</div>
+                            <div><strong>Tipo:</strong> ${detalle.tipo_audiencia || 'N/A'}</div>
+                            <div><strong>Estado:</strong> ${detalle.estado || 'N/A'}</div>
+                            <div><strong>Origen:</strong> ${detalle.origen || 'N/A'}</div>
+                            <div><strong>Cuenta:</strong> ${detalle.ad_account_id || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Métricas y Fechas</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="grid grid-cols-1 gap-4 text-sm">
+                            <div><strong>Tamaño Aproximado:</strong> ${(detalle.tamaño_aproximado || 0).toLocaleString('es-MX')}</div>
+                            <div><strong>Creada:</strong> ${detalle.creada_en_fmt || 'N/A'}</div>
+                            <div><strong>Antigüedad:</strong> ${detalle.antiguedad_dias || 0} días</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Cerrar modal
+    document.getElementById('btn-cerrar-modal').addEventListener('click', function() {
+        document.getElementById('modal-detalle-audiencia').classList.add('hidden');
+    });
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('modal-detalle-audiencia').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+        }
+    });
+});
+</script>
+
+<style>
+.tab-button.active {
+    border-color: #3B82F6 !important;
+    color: #3B82F6 !important;
+}
+
+.tab-panel {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Estilos para controlar el ancho de las columnas de audiencias */
+.audiencia-nombre {
+    max-width: 250px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.tabla-audiencias {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.tabla-audiencias th:first-child,
+.tabla-audiencias td:first-child {
+    width: 250px;
+    max-width: 250px;
+}
+
+.tabla-audiencias th:nth-child(2),
+.tabla-audiencias td:nth-child(2) {
+    width: 180px;
+    max-width: 180px;
+}
+
+/* Estilos para ordenamiento de columnas */
+.tabla-audiencias th.cursor-pointer:hover {
+    background-color: #f9fafb;
+}
+
+.tabla-audiencias th .fas {
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.tabla-audiencias th:hover .fas {
+    opacity: 1;
+}
+
+/* Estilos para controles de paginación */
+#controles-paginacion button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+#controles-paginacion button:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+</style>
+
+{% endblock %}

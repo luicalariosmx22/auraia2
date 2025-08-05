@@ -1,0 +1,556 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+
+<div class="w-full px-6 py-10">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">
+            <i class="fas fa-bullhorn mr-3"></i>Campañas Meta Ads
+        </h1>
+        
+        <!-- Navegación de pestañas -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+                    <button id="tab-activas" class="tab-button active border-transparent text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-blue-700 hover:border-blue-300">
+                        <i class="fas fa-play-circle mr-2"></i>Campañas Activas
+                    </button>
+                    <button id="tab-pausadas" class="tab-button border-transparent text-gray-500 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-pause-circle mr-2"></i>Campañas Pausadas
+                    </button>
+                    <button id="tab-todas" class="tab-button border-transparent text-gray-500 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-list mr-2"></i>Todas las Campañas
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-filter mr-2"></i>Filtros
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="filtro-cuenta" class="block text-sm font-medium text-gray-700 mb-2">Cuenta Publicitaria</label>
+                    <select id="filtro-cuenta" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Todas las cuentas</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filtro-fecha-inicio" class="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
+                    <input type="date" id="filtro-fecha-inicio" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="filtro-fecha-fin" class="block text-sm font-medium text-gray-700 mb-2">Fecha de Fin</label>
+                    <input type="date" id="filtro-fecha-fin" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="flex items-end">
+                    <button id="btn-aplicar-filtros" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md transition">
+                        <i class="fas fa-search mr-2"></i>Aplicar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Búsqueda -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center space-x-4">
+                <div class="flex-1">
+                    <input type="text" id="busqueda-campanas" 
+                           placeholder="Buscar por nombre de campaña, ID o palabras clave..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <button id="btn-limpiar-busqueda" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
+                    <i class="fas fa-times mr-2"></i>Limpiar
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="loading-campanas" class="hidden text-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">Cargando campañas...</p>
+        </div>
+
+        <!-- Error state -->
+        <div id="error-campanas" class="hidden bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-2"></i>
+            <h3 class="text-lg font-semibold text-red-700 mb-2">Error al cargar campañas</h3>
+            <p id="error-message" class="text-red-600 mb-4"></p>
+            <button id="btn-reintentar" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
+                <i class="fas fa-redo mr-2"></i>Reintentar
+            </button>
+        </div>
+
+        <!-- Contenido de campañas -->
+        <div id="contenido-campanas">
+            <!-- Tab: Campañas Activas -->
+            <div id="panel-activas" class="tab-panel">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-play-circle text-green-500 mr-2"></i>Campañas Activas
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Campañas que están ejecutándose actualmente</p>
+                    </div>
+                    <div id="tabla-activas" class="overflow-x-auto">
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-search text-3xl mb-4"></i>
+                            <p>Selecciona filtros y haz clic en "Aplicar Filtros" para ver las campañas activas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Campañas Pausadas -->
+            <div id="panel-pausadas" class="tab-panel hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-pause-circle text-yellow-500 mr-2"></i>Campañas Pausadas
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Campañas que están temporalmente detenidas</p>
+                    </div>
+                    <div id="tabla-pausadas" class="overflow-x-auto">
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-search text-3xl mb-4"></i>
+                            <p>Selecciona filtros y haz clic en "Aplicar Filtros" para ver las campañas pausadas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Todas las Campañas -->
+            <div id="panel-todas" class="tab-panel hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-list text-blue-500 mr-2"></i>Todas las Campañas
+                        </h3>
+                        <p class="text-sm text-gray-600 mt-1">Vista completa de todas las campañas independientemente de su estado</p>
+                    </div>
+                    <div id="tabla-todas" class="overflow-x-auto">
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-search text-3xl mb-4"></i>
+                            <p>Selecciona filtros y haz clic en "Aplicar Filtros" para ver todas las campañas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas resumen -->
+        <div id="estadisticas-resumen" class="hidden mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100">
+                        <i class="fas fa-play-circle text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Activas</p>
+                        <p id="stat-activas" class="text-2xl font-bold text-gray-900">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100">
+                        <i class="fas fa-pause-circle text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Pausadas</p>
+                        <p id="stat-pausadas" class="text-2xl font-bold text-gray-900">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100">
+                        <i class="fas fa-dollar-sign text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Gasto Total</p>
+                        <p id="stat-gasto" class="text-2xl font-bold text-gray-900">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-100">
+                        <i class="fas fa-eye text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Impresiones</p>
+                        <p id="stat-impresiones" class="text-2xl font-bold text-gray-900">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de detalle de campaña -->
+<div id="modal-detalle-campana" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modal-titulo" class="text-xl font-bold text-gray-900"></h3>
+            <button id="btn-cerrar-modal" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="modal-contenido" class="space-y-4">
+            <!-- Contenido del modal se carga dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+window.appConfig = {
+    nombreNora: "{{ nombre_nora }}",
+    baseUrl: "/panel_cliente/{{ nombre_nora }}/meta_ads"
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del DOM
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    const btnAplicarFiltros = document.getElementById('btn-aplicar-filtros');
+    const btnLimpiarBusqueda = document.getElementById('btn-limpiar-busqueda');
+    const btnReintentar = document.getElementById('btn-reintentar');
+    const busquedaCampanas = document.getElementById('busqueda-campanas');
+    
+    // Estado actual
+    let tabActual = 'activas';
+    let campanasData = {};
+
+    // Configurar fechas por defecto (últimos 30 días)
+    const hoy = new Date();
+    const hace30Dias = new Date();
+    hace30Dias.setDate(hoy.getDate() - 30);
+    
+    document.getElementById('filtro-fecha-inicio').value = hace30Dias.toISOString().split('T')[0];
+    document.getElementById('filtro-fecha-fin').value = hoy.toISOString().split('T')[0];
+
+    // Manejo de pestañas
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.id.replace('tab-', '');
+            cambiarTab(tabId);
+        });
+    });
+
+    function cambiarTab(nuevoTab) {
+        // Actualizar botones
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+            btn.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        document.getElementById(`tab-${nuevoTab}`).classList.remove('border-transparent', 'text-gray-500');
+        document.getElementById(`tab-${nuevoTab}`).classList.add('active', 'border-blue-500', 'text-blue-600');
+
+        // Actualizar paneles
+        tabPanels.forEach(panel => panel.classList.add('hidden'));
+        document.getElementById(`panel-${nuevoTab}`).classList.remove('hidden');
+        
+        tabActual = nuevoTab;
+        
+        // Mostrar datos si ya están cargados
+        if (campanasData[nuevoTab]) {
+            mostrarCampanas(campanasData[nuevoTab], nuevoTab);
+        }
+    }
+
+    // Aplicar filtros
+    btnAplicarFiltros.addEventListener('click', function() {
+        cargarCampanas();
+    });
+
+    // Limpiar búsqueda
+    btnLimpiarBusqueda.addEventListener('click', function() {
+        busquedaCampanas.value = '';
+        if (campanasData[tabActual]) {
+            mostrarCampanas(campanasData[tabActual], tabActual);
+        }
+    });
+
+    // Búsqueda en tiempo real
+    busquedaCampanas.addEventListener('input', function() {
+        if (campanasData[tabActual]) {
+            const termino = this.value.toLowerCase();
+            const campanasFiltradas = campanasData[tabActual].filter(campana => 
+                campana.name.toLowerCase().includes(termino) ||
+                campana.id.includes(termino) ||
+                (campana.account_name || '').toLowerCase().includes(termino)
+            );
+            mostrarCampanas(campanasFiltradas, tabActual);
+        }
+    });
+
+    // Reintentar carga
+    btnReintentar.addEventListener('click', function() {
+        cargarCampanas();
+    });
+
+    // Cargar cuentas publicitarias para el filtro
+    cargarCuentasPublicitarias();
+
+    async function cargarCuentasPublicitarias() {
+        try {
+            const response = await fetch(`${window.appConfig.baseUrl}/api/cuentas`);
+            const cuentas = await response.json();
+            
+            const select = document.getElementById('filtro-cuenta');
+            select.innerHTML = '<option value="">Todas las cuentas</option>';
+            
+            cuentas.forEach(cuenta => {
+                const option = document.createElement('option');
+                option.value = cuenta.id_cuenta_publicitaria;
+                option.textContent = `${cuenta.nombre_cliente} (${cuenta.id_cuenta_publicitaria})`;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error cargando cuentas:', error);
+        }
+    }
+
+    async function cargarCampanas() {
+        const filtros = {
+            cuenta_id: document.getElementById('filtro-cuenta').value,
+            fecha_inicio: document.getElementById('filtro-fecha-inicio').value,
+            fecha_fin: document.getElementById('filtro-fecha-fin').value
+        };
+
+        mostrarLoading(true);
+        ocultarError();
+
+        try {
+            const params = new URLSearchParams();
+            Object.keys(filtros).forEach(key => {
+                if (filtros[key]) params.append(key, filtros[key]);
+            });
+
+            const response = await fetch(`${window.appConfig.baseUrl}/api/campanas?${params}`);
+            
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            // Clasificar campañas por estado
+            campanasData = {
+                activas: data.filter(c => c.status === 'ACTIVE'),
+                pausadas: data.filter(c => c.status === 'PAUSED'),
+                todas: data
+            };
+
+            // Mostrar datos de la pestaña actual
+            mostrarCampanas(campanasData[tabActual], tabActual);
+            
+            // Actualizar estadísticas
+            actualizarEstadisticas(data);
+            
+        } catch (error) {
+            console.error('Error cargando campañas:', error);
+            mostrarError(error.message);
+        } finally {
+            mostrarLoading(false);
+        }
+    }
+
+    function mostrarLoading(mostrar) {
+        const loading = document.getElementById('loading-campanas');
+        const contenido = document.getElementById('contenido-campanas');
+        
+        if (mostrar) {
+            loading.classList.remove('hidden');
+            contenido.classList.add('hidden');
+        } else {
+            loading.classList.add('hidden');
+            contenido.classList.remove('hidden');
+        }
+    }
+
+    function mostrarError(mensaje) {
+        document.getElementById('error-message').textContent = mensaje;
+        document.getElementById('error-campanas').classList.remove('hidden');
+        document.getElementById('contenido-campanas').classList.add('hidden');
+    }
+
+    function ocultarError() {
+        document.getElementById('error-campanas').classList.add('hidden');
+    }
+
+    function mostrarCampanas(campanas, tipo) {
+        const tabla = document.getElementById(`tabla-${tipo}`);
+        
+        if (campanas.length === 0) {
+            tabla.innerHTML = `
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fas fa-inbox text-3xl mb-4"></i>
+                    <p>No se encontraron campañas con los filtros seleccionados</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Crear tabla
+        const tablaHTML = `
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaña</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cuenta</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gasto</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Impresiones</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTR</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    ${campanas.map(campana => crearFilaCampana(campana)).join('')}
+                </tbody>
+            </table>
+        `;
+        
+        tabla.innerHTML = tablaHTML;
+    }
+
+    function crearFilaCampana(campana) {
+        const estadoIcon = campana.status === 'ACTIVE' ? 
+            '<i class="fas fa-play-circle text-green-500"></i>' : 
+            '<i class="fas fa-pause-circle text-yellow-500"></i>';
+        
+        const estadoTexto = campana.status === 'ACTIVE' ? 'Activa' : 'Pausada';
+        const estadoClass = campana.status === 'ACTIVE' ? 'text-green-600' : 'text-yellow-600';
+
+        return `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${campana.name}</div>
+                    <div class="text-sm text-gray-500">ID: ${campana.id}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${estadoClass}">
+                        ${estadoIcon} <span class="ml-1">${estadoTexto}</span>
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${campana.account_name || 'N/A'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    $${(campana.spend || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${(campana.impressions || 0).toLocaleString('es-MX')}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${(campana.clicks || 0).toLocaleString('es-MX')}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${(campana.ctr || 0).toFixed(2)}%
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick="verDetalleCampana('${campana.id}')" 
+                            class="text-blue-600 hover:text-blue-900 mr-3">
+                        <i class="fas fa-eye mr-1"></i>Ver Detalle
+                    </button>
+                </td>
+            </tr>
+        `;
+    }
+
+    function actualizarEstadisticas(campanas) {
+        const activas = campanas.filter(c => c.status === 'ACTIVE').length;
+        const pausadas = campanas.filter(c => c.status === 'PAUSED').length;
+        const gastoTotal = campanas.reduce((sum, c) => sum + (c.spend || 0), 0);
+        const impresionesTotales = campanas.reduce((sum, c) => sum + (c.impressions || 0), 0);
+
+        document.getElementById('stat-activas').textContent = activas;
+        document.getElementById('stat-pausadas').textContent = pausadas;
+        document.getElementById('stat-gasto').textContent = '$' + gastoTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+        document.getElementById('stat-impresiones').textContent = impresionesTotales.toLocaleString('es-MX');
+
+        document.getElementById('estadisticas-resumen').classList.remove('hidden');
+    }
+
+    // Función global para ver detalle de campaña
+    window.verDetalleCampana = async function(campanId) {
+        try {
+            const response = await fetch(`${window.appConfig.baseUrl}/api/campanas/${campanId}/detalle`);
+            const detalle = await response.json();
+            
+            document.getElementById('modal-titulo').textContent = `Detalle de Campaña: ${detalle.name}`;
+            document.getElementById('modal-contenido').innerHTML = crearContenidoDetalle(detalle);
+            document.getElementById('modal-detalle-campana').classList.remove('hidden');
+            
+        } catch (error) {
+            console.error('Error cargando detalle:', error);
+            alert('Error al cargar el detalle de la campaña');
+        }
+    };
+
+    function crearContenidoDetalle(detalle) {
+        return `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Información General</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><strong>ID:</strong> ${detalle.id}</div>
+                            <div><strong>Estado:</strong> ${detalle.status}</div>
+                            <div><strong>Objetivo:</strong> ${detalle.objective || 'N/A'}</div>
+                            <div><strong>Fecha de Creación:</strong> ${detalle.created_time || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Métricas de Rendimiento</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><strong>Gasto:</strong> $${(detalle.spend || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</div>
+                            <div><strong>Impresiones:</strong> ${(detalle.impressions || 0).toLocaleString('es-MX')}</div>
+                            <div><strong>Clicks:</strong> ${(detalle.clicks || 0).toLocaleString('es-MX')}</div>
+                            <div><strong>CTR:</strong> ${(detalle.ctr || 0).toFixed(2)}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Cerrar modal
+    document.getElementById('btn-cerrar-modal').addEventListener('click', function() {
+        document.getElementById('modal-detalle-campana').classList.add('hidden');
+    });
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('modal-detalle-campana').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+        }
+    });
+});
+</script>
+
+<style>
+.tab-button.active {
+    border-color: #3B82F6 !important;
+    color: #3B82F6 !important;
+}
+
+.tab-panel {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+
+{% endblock %}

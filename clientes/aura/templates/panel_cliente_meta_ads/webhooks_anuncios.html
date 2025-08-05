@@ -1,0 +1,244 @@
+{% extends "base_cliente.html" %}
+{% block contenido %}
+
+<div class="w-full px-6 py-10">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">
+            <i class="fas fa-satellite-dish mr-3"></i>Webhooks de Anuncios Meta Ads
+        </h1>
+        
+        <!-- Header con estadísticas -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600">{{ webhooks|length }}</div>
+                    <div class="text-sm text-gray-600">Webhooks Recibidos</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-green-600">
+                        {{ webhooks|selectattr("tipo_objeto", "equalto", "ad")|list|length }}
+                    </div>
+                    <div class="text-sm text-gray-600">Anuncios</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-orange-600">
+                        {{ webhooks|selectattr("tipo_objeto", "equalto", "adset")|list|length }}
+                    </div>
+                    <div class="text-sm text-gray-600">Conjuntos</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-purple-600">
+                        {{ webhooks|selectattr("tipo_objeto", "equalto", "campaign")|list|length }}
+                    </div>
+                    <div class="text-sm text-gray-600">Campañas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    <i class="fas fa-filter mr-2"></i>Filtros
+                </h3>
+                <button id="btn-actualizar" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                    <i class="fas fa-sync-alt mr-2"></i>Actualizar
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="filtro-tipo" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Objeto</label>
+                    <select id="filtro-tipo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos</option>
+                        <option value="ad">Anuncios</option>
+                        <option value="adset">Conjuntos</option>
+                        <option value="campaign">Campañas</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filtro-campo" class="block text-sm font-medium text-gray-700 mb-2">Campo</label>
+                    <select id="filtro-campo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos</option>
+                        <option value="status">Estado</option>
+                        <option value="budget">Presupuesto</option>
+                        <option value="name">Nombre</option>
+                        <option value="webhook_update">Actualización Webhook</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="busqueda-objeto" class="block text-sm font-medium text-gray-700 mb-2">Buscar por ID</label>
+                    <input type="text" id="busqueda-objeto" 
+                           placeholder="ID del objeto..." 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de webhooks -->
+        <div class="bg-white rounded-lg shadow-md">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    <i class="fas fa-list text-blue-500 mr-2"></i>Eventos de Webhook (Últimas 24 horas)
+                </h3>
+            </div>
+            
+            {% if error %}
+                <div class="p-6 text-center text-red-600">
+                    <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                    <p>Error cargando webhooks: {{ error }}</p>
+                </div>
+            {% elif not webhooks %}
+                <div class="p-6 text-center text-gray-500">
+                    <i class="fas fa-inbox text-3xl mb-4"></i>
+                    <p>No se han recibido webhooks de anuncios en las últimas 24 horas</p>
+                </div>
+            {% else %}
+                <div class="overflow-x-auto">
+                    <table id="tabla-webhooks" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Objeto ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for webhook in webhooks %}
+                            <tr class="hover:bg-gray-50 webhook-row" 
+                                data-tipo="{{ webhook.tipo_objeto }}" 
+                                data-campo="{{ webhook.campo }}" 
+                                data-objeto-id="{{ webhook.objeto_id }}">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ webhook.timestamp_fmt }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if webhook.tipo_objeto == 'ad' %}bg-blue-100 text-blue-800
+                                        {% elif webhook.tipo_objeto == 'adset' %}bg-orange-100 text-orange-800
+                                        {% elif webhook.tipo_objeto == 'campaign' %}bg-purple-100 text-purple-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {% if webhook.tipo_objeto == 'ad' %}📢 Anuncio
+                                        {% elif webhook.tipo_objeto == 'adset' %}📁 Conjunto
+                                        {% elif webhook.tipo_objeto == 'campaign' %}🎯 Campaña
+                                        {% else %}{{ webhook.tipo_objeto }}{% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                                    {{ webhook.objeto_id }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ webhook.campo }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                                    {{ webhook.valor }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    {% if webhook.tipo_objeto == 'ad' %}
+                                        <button onclick="sincronizarAnuncio('{{ webhook.objeto_id }}')" 
+                                                class="text-blue-600 hover:text-blue-900 mr-3">
+                                            <i class="fas fa-sync mr-1"></i>Sincronizar
+                                        </button>
+                                    {% endif %}
+                                    <button onclick="copiarId('{{ webhook.objeto_id }}')" 
+                                            class="text-gray-600 hover:text-gray-900">
+                                        <i class="fas fa-copy mr-1"></i>Copiar ID
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filtroTipo = document.getElementById('filtro-tipo');
+    const filtroCampo = document.getElementById('filtro-campo');
+    const busquedaObjeto = document.getElementById('busqueda-objeto');
+    const btnActualizar = document.getElementById('btn-actualizar');
+
+    // Filtrado en tiempo real
+    function filtrarWebhooks() {
+        const filas = document.querySelectorAll('.webhook-row');
+        const tipoSeleccionado = filtroTipo.value.toLowerCase();
+        const campoSeleccionado = filtroCampo.value.toLowerCase();
+        const busqueda = busquedaObjeto.value.toLowerCase();
+
+        filas.forEach(fila => {
+            const tipo = fila.dataset.tipo.toLowerCase();
+            const campo = fila.dataset.campo.toLowerCase();
+            const objetoId = fila.dataset.objetoId.toLowerCase();
+
+            const coincideTipo = !tipoSeleccionado || tipo === tipoSeleccionado;
+            const coincideCampo = !campoSeleccionado || campo === campoSeleccionado;
+            const coincideBusqueda = !busqueda || objetoId.includes(busqueda);
+
+            if (coincideTipo && coincideCampo && coincideBusqueda) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    }
+
+    // Event listeners para filtros
+    filtroTipo.addEventListener('change', filtrarWebhooks);
+    filtroCampo.addEventListener('change', filtrarWebhooks);
+    busquedaObjeto.addEventListener('input', filtrarWebhooks);
+
+    // Actualizar página
+    btnActualizar.addEventListener('click', function() {
+        window.location.reload();
+    });
+});
+
+// Función para sincronizar anuncio específico
+async function sincronizarAnuncio(adId) {
+    try {
+        const response = await fetch(`/panel_cliente/{{ nombre_nora }}/meta_ads/api/anuncios/sincronizar_webhook`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ad_id: adId })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`✅ ${result.message}`);
+        } else {
+            alert(`❌ ${result.message}`);
+        }
+    } catch (error) {
+        alert(`❌ Error: ${error.message}`);
+    }
+}
+
+// Función para copiar ID al portapapeles
+function copiarId(id) {
+    navigator.clipboard.writeText(id).then(function() {
+        // Crear notificación temporal
+        const notification = document.createElement('div');
+        notification.textContent = 'ID copiado al portapapeles';
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg z-50';
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 2000);
+    }).catch(function() {
+        alert('Error copiando ID al portapapeles');
+    });
+}
+</script>
+
+{% endblock %}
