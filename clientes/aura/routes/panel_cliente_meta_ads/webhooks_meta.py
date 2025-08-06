@@ -115,6 +115,8 @@ def recibir_webhook():
             print(f"📥 Webhook recibido: {payload}")
 
             for entry in payload.get('entry', []):
+                entry_id = entry.get('id')  # ID de la página
+                
                 for cambio in entry.get('changes', []):
                     objeto = cambio.get('field')  # Ej: 'account', 'audience', 'campaign', 'feed'
                     valor = cambio.get('value', {})
@@ -130,6 +132,16 @@ def recibir_webhook():
                     if not objeto or not objeto_id:
                         print(f"⚠️ Evento incompleto: objeto={objeto}, objeto_id={objeto_id}")
                         continue
+                    
+                    # Guardar page_id como evento adicional
+                    if entry_id and objeto_id:
+                        registrar_evento_supabase(
+                            objeto='feed',
+                            objeto_id=objeto_id,
+                            campo='page_id',
+                            valor=entry_id,
+                            hora_evento=ahora
+                        )
 
                     # Registrar evento base - filtrar campos que no van en logs_webhooks_meta
                     campos_excluidos = {'nombre_nora', 'created_time', 'updated_time'}

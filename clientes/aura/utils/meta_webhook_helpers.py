@@ -46,6 +46,25 @@ def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: An
         logger.debug(f"  - valor: {valor} (type: {type(valor)})")
         logger.debug(f"  - hora_evento: {hora_evento} (type: {type(hora_evento)})")
         
+        # Si es evento de feed con page_id, intentar asociar nombre_nora
+        nombre_nora_encontrado = None
+        id_cuenta_encontrado = None
+        
+        if objeto == "feed" and campo == "page_id":
+            try:
+                cuenta_response = supabase.table("meta_ads_cuentas") \
+                    .select("nombre_nora, id_cuenta_publicitaria") \
+                    .eq("id_pagina", valor) \
+                    .maybe_single() \
+                    .execute()
+                
+                if cuenta_response and cuenta_response.data:
+                    nombre_nora_encontrado = cuenta_response.data.get("nombre_nora")
+                    id_cuenta_encontrado = cuenta_response.data.get("id_cuenta_publicitaria")
+                    logger.info(f"🎯 Evento feed asociado: page_id={valor} -> nora={nombre_nora_encontrado}, cuenta={id_cuenta_encontrado}")
+            except Exception as e:
+                logger.warning(f"⚠️ Error buscando cuenta por page_id {valor}: {e}")
+        
         # Preparar datos para insertar en logs_webhooks_meta
         evento_data = {
             'tipo_objeto': objeto,
@@ -53,8 +72,8 @@ def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: An
             'campo': campo,
             'valor': str(valor) if valor is not None else None,
             'timestamp': hora_evento,
-            'nombre_nora': None,  # Agregar campo nombre_nora
-            'id_cuenta_publicitaria': None,  # Agregar campo id_cuenta_publicitaria
+            'nombre_nora': nombre_nora_encontrado,  # Agregar campo nombre_nora
+            'id_cuenta_publicitaria': id_cuenta_encontrado,  # Agregar campo id_cuenta_publicitaria
             'procesado': False,
             'procesado_en': None
         }
