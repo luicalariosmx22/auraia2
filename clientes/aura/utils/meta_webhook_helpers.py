@@ -62,22 +62,21 @@ def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: An
             'procesado': False,
             'procesado_en': None
         }
-        
-        # Asociar nombre_nora e id_cuenta_publicitaria si aplica
+
+        # Solo agregar si existen en Supabase
         if objeto == "feed" and campo == "page_id":
-            try:
-                cuenta_response = supabase.table("meta_ads_cuentas") \
-                    .select("nombre_nora, id_cuenta_publicitaria") \
-                    .eq("id_pagina", valor) \
-                    .maybe_single() \
-                    .execute()
-                
-                if cuenta_response and cuenta_response.data:
-                    evento_data["nombre_nora"] = cuenta_response.data.get("nombre_nora")
-                    evento_data["id_cuenta_publicitaria"] = cuenta_response.data.get("id_cuenta_publicitaria")
-                    logger.info(f"🎯 Evento feed asociado: page_id={valor} -> nora={evento_data['nombre_nora']}, cuenta={evento_data['id_cuenta_publicitaria']}")
-            except Exception as e:
-                logger.warning(f"⚠️ Error buscando cuenta por page_id {valor}: {e}")
+            cuenta_response = supabase.table("meta_ads_cuentas")\
+                .select("nombre_nora, id_cuenta_publicitaria")\
+                .eq("id_pagina", valor)\
+                .maybe_single()\
+                .execute()
+
+            if cuenta_response and cuenta_response.data:
+                if 'nombre_nora' in cuenta_response.data:
+                    evento_data["nombre_nora"] = cuenta_response.data["nombre_nora"]
+                if 'id_cuenta_publicitaria' in cuenta_response.data:
+                    evento_data["id_cuenta_publicitaria"] = cuenta_response.data["id_cuenta_publicitaria"]
+                logger.info(f"🎯 Evento feed asociado: page_id={valor} -> nora={evento_data.get('nombre_nora')}, cuenta={evento_data.get('id_cuenta_publicitaria')}")
         
         logger.debug(f"🔍 DEBUG evento_data completo: {evento_data}")
         

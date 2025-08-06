@@ -252,6 +252,11 @@ def procesar_publicacion_webhook(webhook_data):
                 print(f"   Mensaje: {message[:100]}...")
                 print(f"   Tipo: {item_type}")
                 
+                # Ignorar publicaciones tipo "reaction", "comment", "share"
+                if item_type in ["reaction", "comment", "share"]:
+                    print(f"⚠️ Ignorando evento {item_type} para post_id {post_id}")
+                    continue  # salir antes de guardar
+                
                 # Guardar publicación en BD
                 publicacion_data = {
                     'page_id': page_id,

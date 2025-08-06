@@ -93,6 +93,7 @@
                     <label for="filtro-objeto" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Objeto</label>
                     <select id="filtro-objeto" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">Todos los tipos</option>
+                        <option value="feed">Publicaciones (Feed)</option>
                         <option value="audience">Audiencias</option>
                         <option value="campaign">Campañas</option>
                         <option value="adset">Conjuntos de Anuncios</option>
@@ -454,14 +455,58 @@ document.addEventListener('DOMContentLoaded', function() {
             : 'bg-yellow-100 text-yellow-800';
         const estadoTexto = evento.procesado ? 'Procesado' : 'Pendiente';
         
+        // Determininar el tipo de objeto con icono
+        let objetoDisplay = evento.objeto || 'N/A';
+        let objetoIcon = 'fa-question-circle';
+        let objetoColor = 'bg-gray-100 text-gray-800';
+        
+        switch(evento.objeto) {
+            case 'feed':
+                objetoIcon = 'fa-rss';
+                objetoColor = 'bg-purple-100 text-purple-800';
+                break;
+            case 'audience':
+                objetoIcon = 'fa-users';
+                objetoColor = 'bg-blue-100 text-blue-800';
+                break;
+            case 'campaign':
+                objetoIcon = 'fa-bullhorn';
+                objetoColor = 'bg-green-100 text-green-800';
+                break;
+            case 'ad':
+                objetoIcon = 'fa-ad';
+                objetoColor = 'bg-orange-100 text-orange-800';
+                break;
+            case 'account':
+                objetoIcon = 'fa-building';
+                objetoColor = 'bg-indigo-100 text-indigo-800';
+                break;
+        }
+        
+        // Mostrar información adicional para publicaciones
+        let valorDisplay = evento.valor || 'N/A';
+        if (evento.tipo_evento === 'publicacion') {
+            if (evento.mensaje) {
+                valorDisplay = `Página: ${evento.valor} | ${evento.mensaje.substring(0, 50)}${evento.mensaje.length > 50 ? '...' : ''}`;
+            }
+            if (evento.tipo_item) {
+                valorDisplay += ` (${evento.tipo_item})`;
+            }
+        }
+        
         return `
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     ${fecha}
+                    ${evento.tipo_evento === 'publicacion' ? 
+                        '<span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">📝 Publicación</span>' : 
+                        '<span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">🔗 Webhook</span>'
+                    }
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        ${evento.objeto || 'N/A'}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${objetoColor}">
+                        <i class="fas ${objetoIcon} mr-1"></i>
+                        ${objetoDisplay}
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -471,8 +516,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${evento.campo || 'N/A'}
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-900">
-                    <div class="max-w-xs truncate" title="${evento.valor || ''}">
-                        ${evento.valor || 'N/A'}
+                    <div class="max-w-xs truncate" title="${valorDisplay}">
+                        ${valorDisplay}
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -481,12 +526,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button onclick="verDetalleEvento(${evento.id})" 
+                    <button onclick="verDetalleEvento('${evento.id}')" 
                             class="text-blue-600 hover:text-blue-900 mr-3">
                         <i class="fas fa-eye mr-1"></i>Ver
                     </button>
                     ${!evento.procesado ? `
-                        <button onclick="marcarProcesado(${evento.id})" 
+                        <button onclick="marcarProcesado('${evento.id}')" 
                                 class="text-green-600 hover:text-green-900">
                             <i class="fas fa-check mr-1"></i>Marcar
                         </button>

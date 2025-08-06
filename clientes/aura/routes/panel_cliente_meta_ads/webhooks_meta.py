@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, Response
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import hashlib
 import hmac
@@ -23,54 +23,6 @@ from clientes.aura.utils.quick_schemas import existe, columnas
 # BD ACTUAL: meta_ads_cuentas(15), meta_webhook_eventos(1), meta_ads_anuncios_detalle(96)
 
 webhooks_meta_bp = Blueprint('webhooks_meta_bp', __name__)
-
-def verificar_firma_webhook(payload_body, signature_header):
-    """Verifica la firma del webhook para mayor seguridad"""
-    try:
-        app_secret = os.getenv('META_WEBHOOK_SECRET')
-        if not app_secret:
-            print("⚠️ META_WEBHOOK_SECRET no configurado - saltando verificación de firma")
-            return True
-            
-        if not signature_header:
-            print("⚠️ No se recibió signature header")
-            return False
-            
-        # Debug: imprimir información de la firma
-        print(f"🔍 Debug firma - Secret length: {len(app_secret)}")
-        print(f"🔍 Debug firma - Signature header: {signature_header}")
-        print(f"🔍 Debug firma - Payload length: {len(payload_body)}")
-        
-        # Meta envía la firma como "sha256=<hash>"
-        if not signature_header.startswith('sha256='):
-            print("⚠️ Formato de firma inválido")
-            return False
-            
-        signature = signature_header[7:]  # Remover "sha256="
-        
-        # Calcular hash esperado
-        expected_signature = hmac.new(
-            app_secret.encode('utf-8'),
-            payload_body,
-            hashlib.sha256
-        ).hexdigest()
-        
-        print(f"🔍 Debug - Firma recibida: {signature}")
-        print(f"🔍 Debug - Firma esperada: {expected_signature}")
-        
-        # Comparación segura
-        if hmac.compare_digest(signature, expected_signature):
-            print("✅ Firma del webhook verificada correctamente")
-            return True
-        else:
-            print("❌ Firma del webhook inválida")
-            print("🚨 TEMPORAL: Permitiendo webhook sin verificación para debug")
-            return True  # TEMPORAL: permitir sin verificación
-            
-    except Exception as e:
-        print(f"❌ Error verificando firma: {e}")
-        print("🚨 TEMPORAL: Permitiendo webhook por error en verificación")
-        return True  # TEMPORAL: permitir en caso de error
 
 @webhooks_meta_bp.route('/meta/webhook', methods=['GET', 'POST'])
 def recibir_webhook():
@@ -99,10 +51,28 @@ def recibir_webhook():
             payload_body = request.get_data()
             signature_header = request.headers.get('X-Hub-Signature-256')
             
-            # Verificar firma del webhook (opcional pero recomendado)
-            if signature_header and not verificar_firma_webhook(payload_body, signature_header):
-                print("❌ Firma del webhook inválida")
-                return jsonify({"status": "error", "message": "Firma inválida"}), 403
+            # Verificación de firma mejorada
+            app_secret = os.getenv("META_WEBHOOK_SECRET")
+            
+            if app_secret and signature_header:
+                print(f"🔍 Debug firma - Secret length: {len(app_secret)}")
+                print(f"🔍 Debug firma - Signature header: {signature_header}")
+                expected_signature = hmac.new(
+                    bytes(app_secret, "utf-8"),
+                    payload_body,
+                    hashlib.sha256
+                ).hexdigest()
+                firma_recibida = signature_header.replace("sha256=", "")
+                print(f"🔍 Debug - Firma recibida: {firma_recibida}")
+                print(f"🔍 Debug - Firma esperada: {expected_signature}")
+
+                if not hmac.compare_digest(firma_recibida, expected_signature):
+                    print("❌ Firma del webhook inválida")
+                    return jsonify({"status": "error", "message": "Firma inválida"}), 403
+                else:
+                    print("✅ Firma del webhook verificada correctamente")
+            else:
+                print("⚠️ META_WEBHOOK_SECRET no configurado o firma ausente - saltando verificación de firma")
             
             # Procesar el JSON
             payload = request.get_json()
@@ -135,6 +105,11 @@ def recibir_webhook():
                         objeto_id = valor.get("ad_id")
                     elif objeto == "feed":
                         objeto_id = valor.get("post_id") or valor.get("parent_id")
+                        # ❌ Ignorar reacciones, comentarios y compartidas
+                        excluir_items = {'reaction', 'comment', 'share'}
+                        if valor.get("item") in excluir_items:
+                            print(f"⏩ Ignorando evento feed tipo '{valor.get('item')}'")
+                            continue
                     else:
                         objeto_id = valor.get("id") or entry_id  # fallback
 
@@ -392,19 +367,37 @@ def registrar_webhooks_masivo():
 def obtener_estadisticas_webhooks():
     """Obtiene estadísticas de eventos de webhook"""
     try:
-        # Obtener estadísticas de eventos
-        response = supabase.table('logs_webhooks_meta').select('procesado').execute()
+        # Estadísticas de logs_webhooks_meta
+        response_logs = supabase.table('logs_webhooks_meta').select('procesado').execute()
+        eventos_logs = response_logs.data if response_logs.data else []
         
-        total_eventos = len(response.data) if response.data else 0
-        procesados = len([e for e in response.data if e.get('procesado', False)]) if response.data else 0
+        total_logs = len(eventos_logs)
+        procesados_logs = len([e for e in eventos_logs if e.get('procesado', False)])
+        
+        # Estadísticas de meta_publicaciones_webhook
+        response_pub = supabase.table('meta_publicaciones_webhook').select('procesada').execute()
+        eventos_pub = response_pub.data if response_pub.data else []
+        
+        total_pub = len(eventos_pub)
+        procesados_pub = len([e for e in eventos_pub if e.get('procesada', False)])
+        
+        # Totales combinados
+        total_eventos = total_logs + total_pub
+        procesados = procesados_logs + procesados_pub
         no_procesados = total_eventos - procesados
         
         # Eventos de los últimos 7 días
-        from datetime import datetime, timedelta
         hace_7_dias = (datetime.utcnow() - timedelta(days=7)).isoformat()
         
-        response_recientes = supabase.table('logs_webhooks_meta').select('id').gte('timestamp', hace_7_dias).execute()
-        eventos_recientes = len(response_recientes.data) if response_recientes.data else 0
+        # Logs recientes
+        response_recientes_logs = supabase.table('logs_webhooks_meta').select('id').gte('timestamp', hace_7_dias).execute()
+        recientes_logs = len(response_recientes_logs.data) if response_recientes_logs.data else 0
+        
+        # Publicaciones recientes
+        response_recientes_pub = supabase.table('meta_publicaciones_webhook').select('id').gte('creada_en', hace_7_dias).execute()
+        recientes_pub = len(response_recientes_pub.data) if response_recientes_pub.data else 0
+        
+        eventos_recientes = recientes_logs + recientes_pub
         
         return jsonify({
             "success": True,
@@ -412,7 +405,20 @@ def obtener_estadisticas_webhooks():
                 "total_eventos": total_eventos,
                 "procesados": procesados,
                 "no_procesados": no_procesados,
-                "eventos_recientes": eventos_recientes
+                "eventos_recientes": eventos_recientes,
+                # Detalle por tipo
+                "detalle": {
+                    "logs_webhooks": {
+                        "total": total_logs,
+                        "procesados": procesados_logs,
+                        "recientes": recientes_logs
+                    },
+                    "publicaciones": {
+                        "total": total_pub,
+                        "procesados": procesados_pub,
+                        "recientes": recientes_pub
+                    }
+                }
             }
         }), 200
             
@@ -434,26 +440,84 @@ def obtener_eventos_webhook():
         limite = int(request.args.get('limite', 50))
         offset = int(request.args.get('offset', 0))
         
-        # Construir consulta
-        query = supabase.table('logs_webhooks_meta').select('*')
+        eventos_combinados = []
         
-        if objeto:
-            query = query.eq('tipo_objeto', objeto)
+        # Obtener eventos de logs_webhooks_meta
+        try:
+            query_logs = supabase.table('logs_webhooks_meta').select('*')
+            
+            if objeto:
+                query_logs = query_logs.eq('tipo_objeto', objeto)
+            
+            if procesado:
+                procesado_bool = procesado.lower() == 'true'
+                query_logs = query_logs.eq('procesado', procesado_bool)
+            
+            response_logs = query_logs.order('timestamp', desc=True).execute()
+            eventos_logs = response_logs.data or []
+            
+            # Formatear eventos de logs_webhooks_meta
+            for evento in eventos_logs:
+                eventos_combinados.append({
+                    'id': evento.get('id'),
+                    'tipo_evento': 'webhook_meta',
+                    'objeto': evento.get('tipo_objeto'),
+                    'objeto_id': evento.get('objeto_id'),
+                    'campo': evento.get('campo'),
+                    'valor': evento.get('valor'),
+                    'procesado': evento.get('procesado', False),
+                    'creado_en': evento.get('timestamp') or evento.get('recibido_en'),
+                    'nombre_nora': evento.get('nombre_nora'),
+                    'id_cuenta_publicitaria': evento.get('id_cuenta_publicitaria')
+                })
+                
+        except Exception as e:
+            print(f"⚠️ Error consultando logs_webhooks_meta: {e}")
         
-        if procesado:
-            procesado_bool = procesado.lower() == 'true'
-            query = query.eq('procesado', procesado_bool)
+        # Obtener eventos de meta_publicaciones_webhook
+        try:
+            query_pub = supabase.table('meta_publicaciones_webhook').select('*')
+            
+            # Filtro simplificado para publicaciones
+            if objeto and objeto != 'feed':
+                # Si filtran por objeto que no es feed, no mostrar publicaciones
+                pass
+            else:
+                if procesado:
+                    procesado_bool = procesado.lower() == 'true'
+                    query_pub = query_pub.eq('procesada', procesado_bool)
+                
+                response_pub = query_pub.order('creada_en', desc=True).execute()
+                eventos_pub = response_pub.data or []
+                
+                # Formatear eventos de meta_publicaciones_webhook
+                for evento in eventos_pub:
+                    eventos_combinados.append({
+                        'id': f"pub_{evento.get('id')}",
+                        'tipo_evento': 'publicacion',
+                        'objeto': 'feed',
+                        'objeto_id': evento.get('post_id'),
+                        'campo': 'page_id',
+                        'valor': evento.get('page_id'),
+                        'procesado': evento.get('procesada', False),
+                        'creado_en': evento.get('creada_en'),
+                        'mensaje': evento.get('mensaje'),
+                        'tipo_item': evento.get('tipo_item')
+                    })
+                    
+        except Exception as e:
+            print(f"⚠️ Error consultando meta_publicaciones_webhook: {e}")
         
-        # Obtener total para paginación
-        total_response = query.execute()
-        total = len(total_response.data) if total_response.data else 0
+        # Ordenar eventos combinados por fecha
+        eventos_combinados.sort(key=lambda x: x.get('creado_en', ''), reverse=True)
         
-        # Aplicar paginación y ordenamiento
-        response = query.order('timestamp', desc=True).range(offset, offset + limite - 1).execute()
+        # Aplicar paginación
+        total = len(eventos_combinados)
+        eventos_paginados = eventos_combinados[offset:offset + limite]
         
         return jsonify({
             "success": True,
-            "eventos": response.data or [],
+            "eventos": eventos_paginados,
             "total": total
         }), 200
             
@@ -478,8 +542,20 @@ def marcar_evento_procesado():
                 "message": "ID de evento requerido"
             }), 400
         
-        # Actualizar evento
-        response = supabase.table('logs_webhooks_meta').update({'procesado': True, 'procesado_en': datetime.utcnow().isoformat()}).eq('id', evento_id).execute()
+        # Verificar si es un evento de publicación (formato: pub_123)
+        if str(evento_id).startswith('pub_'):
+            # Es un evento de publicación
+            pub_id = evento_id.replace('pub_', '')
+            response = supabase.table('meta_publicaciones_webhook')\
+                .update({'procesada': True, 'procesada_en': datetime.utcnow().isoformat()})\
+                .eq('id', pub_id)\
+                .execute()
+        else:
+            # Es un evento de webhook normal
+            response = supabase.table('logs_webhooks_meta')\
+                .update({'procesado': True, 'procesado_en': datetime.utcnow().isoformat()})\
+                .eq('id', evento_id)\
+                .execute()
         
         if response.data:
             return jsonify({
