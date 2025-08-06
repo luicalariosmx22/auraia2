@@ -27,9 +27,9 @@ webhooks_meta_bp = Blueprint('webhooks_meta_bp', __name__)
 def verificar_firma_webhook(payload_body, signature_header):
     """Verifica la firma del webhook para mayor seguridad"""
     try:
-        app_secret = os.getenv('META_APP_SECRET')
+        app_secret = os.getenv('META_WEBHOOK_SECRET')
         if not app_secret:
-            print("⚠️ META_APP_SECRET no configurado - saltando verificación de firma")
+            print("⚠️ META_WEBHOOK_SECRET no configurado - saltando verificación de firma")
             return True
             
         if not signature_header:
@@ -106,9 +106,16 @@ def recibir_webhook():
 
             for entry in payload.get('entry', []):
                 for cambio in entry.get('changes', []):
-                    objeto = cambio.get('field')  # Ej: 'account', 'audience', 'campaign'
+                    objeto = cambio.get('field')  # Ej: 'account', 'audience', 'campaign', 'feed'
                     valor = cambio.get('value', {})
-                    objeto_id = valor.get('ad_account_id') or valor.get('campaign_id') or valor.get('ad_id') or valor.get('id')
+                    objeto_id = (
+                        valor.get('ad_account_id') or 
+                        valor.get('campaign_id') or 
+                        valor.get('ad_id') or 
+                        valor.get('id') or 
+                        valor.get('post_id') or 
+                        valor.get('parent_id')
+                    )
 
                     if not objeto or not objeto_id:
                         print(f"⚠️ Evento incompleto: objeto={objeto}, objeto_id={objeto_id}")
@@ -349,17 +356,17 @@ def obtener_estadisticas_webhooks():
     """Obtiene estadísticas de eventos de webhook"""
     try:
         # Obtener estadísticas de eventos
-        response = supabase.table('meta_webhook_eventos').select('procesado').execute()
+        response = supabase.table('logs_webhooks_meta').select('procesado').execute()
         
         total_eventos = len(response.data) if response.data else 0
-        procesados = len([e for e in response.data if e['procesado']]) if response.data else 0
+        procesados = len([e for e in response.data if e.get('procesado', False)]) if response.data else 0
         no_procesados = total_eventos - procesados
         
         # Eventos de los últimos 7 días
         from datetime import datetime, timedelta
         hace_7_dias = (datetime.utcnow() - timedelta(days=7)).isoformat()
         
-        response_recientes = supabase.table('meta_webhook_eventos').select('id').gte('creado_en', hace_7_dias).execute()
+        response_recientes = supabase.table('logs_webhooks_meta').select('id').gte('timestamp', hace_7_dias).execute()
         eventos_recientes = len(response_recientes.data) if response_recientes.data else 0
         
         return jsonify({
@@ -391,10 +398,10 @@ def obtener_eventos_webhook():
         offset = int(request.args.get('offset', 0))
         
         # Construir consulta
-        query = supabase.table('meta_webhook_eventos').select('*')
+        query = supabase.table('logs_webhooks_meta').select('*')
         
         if objeto:
-            query = query.eq('objeto', objeto)
+            query = query.eq('tipo_objeto', objeto)
         
         if procesado:
             procesado_bool = procesado.lower() == 'true'
@@ -405,7 +412,7 @@ def obtener_eventos_webhook():
         total = len(total_response.data) if total_response.data else 0
         
         # Aplicar paginación y ordenamiento
-        response = query.order('creado_en', desc=True).range(offset, offset + limite - 1).execute()
+        response = query.order('timestamp', desc=True).range(offset, offset + limite - 1).execute()
         
         return jsonify({
             "success": True,
@@ -435,7 +442,7 @@ def marcar_evento_procesado():
             }), 400
         
         # Actualizar evento
-        response = supabase.table('meta_webhook_eventos').update({'procesado': True}).eq('id', evento_id).execute()
+        response = supabase.table('logs_webhooks_meta').update({'procesado': True, 'procesado_en': datetime.utcnow().isoformat()}).eq('id', evento_id).execute()
         
         if response.data:
             return jsonify({

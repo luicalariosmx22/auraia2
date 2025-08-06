@@ -1312,21 +1312,21 @@ def api_eventos_webhooks(nombre_nora):
         procesado_filtro = request.args.get('procesado', '')
         
         # Construir consulta base
-        query = supabase.table('meta_webhook_eventos').select('*')
+        query = supabase.table('logs_webhooks_meta').select('*')
         
         # Aplicar filtros
         if objeto_filtro:
-            query = query.eq('objeto', objeto_filtro)
+            query = query.eq('tipo_objeto', objeto_filtro)
         if procesado_filtro in ['true', 'false']:
             query = query.eq('procesado', procesado_filtro == 'true')
         
         # Ordenar por fecha más reciente y aplicar paginación
-        response = query.order('creado_en', desc=True).range(offset, offset + limite - 1).execute()
+        response = query.order('timestamp', desc=True).range(offset, offset + limite - 1).execute()
         
         # Obtener conteo total para paginación
-        count_response = supabase.table('meta_webhook_eventos').select('id', count='exact')
+        count_response = supabase.table('logs_webhooks_meta').select('id', count='exact')
         if objeto_filtro:
-            count_response = count_response.eq('objeto', objeto_filtro)
+            count_response = count_response.eq('tipo_objeto', objeto_filtro)
         if procesado_filtro in ['true', 'false']:
             count_response = count_response.eq('procesado', procesado_filtro == 'true')
         count_result = count_response.execute()
@@ -1350,36 +1350,39 @@ def api_eventos_webhooks(nombre_nora):
 def api_estadisticas_webhooks(nombre_nora):
     """API para obtener estadísticas de webhooks"""
     try:
+        # Obtener todos los eventos
+        eventos_response = supabase.table('logs_webhooks_meta')\
+            .select('tipo_objeto, procesado')\
+            .execute()
+        
+        eventos = eventos_response.data or []
+        
+        # Calcular estadísticas
+        total_eventos = len(eventos)
+        procesados = len([e for e in eventos if e.get('procesado', False)])
+        no_procesados = total_eventos - procesados
+        
         # Eventos por tipo de objeto
-        eventos_por_tipo = supabase.table('meta_webhook_eventos')\
-            .select('objeto', count='exact')\
-            .execute()
+        tipos_objeto = {}
+        for evento in eventos:
+            tipo = evento.get('tipo_objeto', 'unknown')
+            tipos_objeto[tipo] = tipos_objeto.get(tipo, 0) + 1
         
-        # Eventos procesados vs no procesados
-        procesados = supabase.table('meta_webhook_eventos')\
-            .select('id', count='exact')\
-            .eq('procesado', True)\
-            .execute()
-        
-        no_procesados = supabase.table('meta_webhook_eventos')\
-            .select('id', count='exact')\
-            .eq('procesado', False)\
-            .execute()
-        
-        # Eventos por día (últimos 7 días)
+        # Eventos de los últimos 7 días
         desde = (datetime.now() - timedelta(days=7)).isoformat()
-        eventos_recientes = supabase.table('meta_webhook_eventos')\
-            .select('creado_en')\
-            .gte('creado_en', desde)\
+        eventos_recientes = supabase.table('logs_webhooks_meta')\
+            .select('timestamp')\
+            .gte('timestamp', desde)\
             .execute()
         
         return jsonify({
             'success': True,
             'estadisticas': {
-                'total_eventos': len(eventos_por_tipo.data or []),
-                'procesados': procesados.count,
-                'no_procesados': no_procesados.count,
-                'eventos_recientes': len(eventos_recientes.data or [])
+                'total_eventos': total_eventos,
+                'procesados': procesados,
+                'no_procesados': no_procesados,
+                'eventos_recientes': len(eventos_recientes.data or []),
+                'tipos_objeto': tipos_objeto
             }
         })
         
@@ -1401,7 +1404,7 @@ def api_marcar_webhook_procesado(nombre_nora):
             return jsonify({'success': False, 'message': 'ID de evento requerido'}), 400
         
         # Actualizar estado
-        response = supabase.table('meta_webhook_eventos')\
+        response = supabase.table('logs_webhooks_meta')\
             .update({'procesado': True, 'procesado_en': datetime.utcnow().isoformat()})\
             .eq('id', evento_id)\
             .execute()

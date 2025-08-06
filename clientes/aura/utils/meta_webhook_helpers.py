@@ -53,7 +53,9 @@ def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: An
             'objeto_id': str(objeto_id),
             'campo': campo,
             'valor': str(valor) if valor is not None else None,
-            'timestamp': hora_evento
+            'timestamp': hora_evento,
+            'procesado': False,
+            'procesado_en': None
         }).execute()
         
         if response.data:
@@ -164,10 +166,10 @@ def procesar_eventos_pendientes() -> int:
     """
     try:
         # Obtener eventos no procesados
-        response = supabase.table('meta_webhook_eventos')\
+        response = supabase.table('logs_webhooks_meta')\
             .select('*')\
             .eq('procesado', False)\
-            .order('creado_en', desc=False)\
+            .order('timestamp', desc=False)\
             .limit(100)\
             .execute()
             
@@ -196,7 +198,7 @@ def procesar_evento_individual(evento: dict) -> bool:
         bool: True si se procesó exitosamente
     """
     try:
-        objeto = evento.get('objeto')
+        objeto = evento.get('tipo_objeto')  # Cambiado de 'objeto' a 'tipo_objeto'
         objeto_id = evento.get('objeto_id')
         campo = evento.get('campo')
         
@@ -295,7 +297,7 @@ def marcar_evento_procesado(evento_id: int) -> bool:
         bool: True si se marcó exitosamente
     """
     try:
-        response = supabase.table('meta_webhook_eventos')\
+        response = supabase.table('logs_webhooks_meta')\
             .update({'procesado': True, 'procesado_en': datetime.utcnow().isoformat()})\
             .eq('id', evento_id)\
             .execute()
@@ -314,31 +316,22 @@ def obtener_estadisticas_webhooks() -> dict:
         dict: Estadísticas de webhooks
     """
     try:
-        # Total de eventos
-        response_total = supabase.table('meta_webhook_eventos')\
-            .select('id', count='exact')\
+        # Obtener todos los eventos
+        response_eventos = supabase.table('logs_webhooks_meta')\
+            .select('tipo_objeto, procesado')\
             .execute()
             
-        total_eventos = response_total.count if response_total.count else 0
+        eventos = response_eventos.data if response_eventos.data else []
+        total_eventos = len(eventos)
         
         # Eventos procesados
-        response_procesados = supabase.table('meta_webhook_eventos')\
-            .select('id', count='exact')\
-            .eq('procesado', True)\
-            .execute()
-            
-        eventos_procesados = response_procesados.count if response_procesados.count else 0
+        eventos_procesados = len([e for e in eventos if e.get('procesado', False)])
         
         # Eventos por tipo de objeto
-        response_tipos = supabase.table('meta_webhook_eventos')\
-            .select('objeto')\
-            .execute()
-            
         tipos = {}
-        if response_tipos.data:
-            for evento in response_tipos.data:
-                objeto = evento.get('objeto', 'unknown')
-                tipos[objeto] = tipos.get(objeto, 0) + 1
+        for evento in eventos:
+            objeto = evento.get('tipo_objeto', 'unknown')
+            tipos[objeto] = tipos.get(objeto, 0) + 1
         
         return {
             'total_eventos': total_eventos,
