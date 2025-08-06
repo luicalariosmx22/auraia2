@@ -51,10 +51,19 @@ def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: An
             logger.warning(f"⚠️ objeto_id inválido: {objeto_id} - saltando registro")
             return False
         
-        # Si es evento de feed con page_id, intentar asociar nombre_nora
-        nombre_nora_encontrado = None
-        id_cuenta_encontrado = None
+        # Preparar datos para insertar en logs_webhooks_meta
+        evento_data = {
+            'tipo_objeto': objeto,
+            'objeto_id': str(objeto_id).strip(),  # Asegurar que sea string válido
+            'campo': campo,
+            'valor': str(valor).strip() if valor is not None else None,
+            'timestamp': hora_evento,
+            'recibido_en': datetime.utcnow().isoformat(),
+            'procesado': False,
+            'procesado_en': None
+        }
         
+        # Asociar nombre_nora e id_cuenta_publicitaria si aplica
         if objeto == "feed" and campo == "page_id":
             try:
                 cuenta_response = supabase.table("meta_ads_cuentas") \
@@ -64,29 +73,16 @@ def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: An
                     .execute()
                 
                 if cuenta_response and cuenta_response.data:
-                    nombre_nora_encontrado = cuenta_response.data.get("nombre_nora")
-                    id_cuenta_encontrado = cuenta_response.data.get("id_cuenta_publicitaria")
-                    logger.info(f"🎯 Evento feed asociado: page_id={valor} -> nora={nombre_nora_encontrado}, cuenta={id_cuenta_encontrado}")
+                    evento_data["nombre_nora"] = cuenta_response.data.get("nombre_nora")
+                    evento_data["id_cuenta_publicitaria"] = cuenta_response.data.get("id_cuenta_publicitaria")
+                    logger.info(f"🎯 Evento feed asociado: page_id={valor} -> nora={evento_data['nombre_nora']}, cuenta={evento_data['id_cuenta_publicitaria']}")
             except Exception as e:
                 logger.warning(f"⚠️ Error buscando cuenta por page_id {valor}: {e}")
-        
-        # Preparar datos para insertar en logs_webhooks_meta
-        evento_data = {
-            'tipo_objeto': objeto,
-            'objeto_id': str(objeto_id).strip(),  # Asegurar que sea string válido
-            'campo': campo,
-            'valor': str(valor).strip() if valor is not None else None,
-            'timestamp': hora_evento,
-            'nombre_nora': nombre_nora_encontrado,  # Agregar campo nombre_nora
-            'id_cuenta_publicitaria': id_cuenta_encontrado,  # Agregar campo id_cuenta_publicitaria
-            'procesado': False,
-            'procesado_en': None
-        }
         
         logger.debug(f"🔍 DEBUG evento_data completo: {evento_data}")
         
         # Verificar que no hay campos extra
-        campos_permitidos = {'tipo_objeto', 'objeto_id', 'campo', 'valor', 'timestamp', 'nombre_nora', 'id_cuenta_publicitaria', 'procesado', 'procesado_en'}
+        campos_permitidos = {'tipo_objeto', 'objeto_id', 'campo', 'valor', 'timestamp', 'recibido_en', 'nombre_nora', 'id_cuenta_publicitaria', 'procesado', 'procesado_en'}
         campos_en_data = set(evento_data.keys())
         campos_extra = campos_en_data - campos_permitidos
         
