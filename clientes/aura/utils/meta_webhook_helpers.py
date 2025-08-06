@@ -10,6 +10,10 @@ from datetime import datetime
 from typing import Any, Optional
 from clientes.aura.utils.supabase_client import supabase
 
+# Configurar logging para debug
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 # Importar Facebook Business SDK para registrar webhooks
 try:
     from facebook_business.api import FacebookAdsApi
@@ -18,8 +22,6 @@ try:
 except ImportError:
     FACEBOOK_SDK_AVAILABLE = False
     logging.warning("⚠️ Facebook Business SDK no disponible. Instala con: pip install facebook-business")
-
-logger = logging.getLogger(__name__)
 
 def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: Any, hora_evento: str) -> bool:
     """
@@ -36,27 +38,43 @@ def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: An
         bool: True si se registró exitosamente
     """
     try:
-        # Preparar datos para insertar
-        evento_data = {
-            'objeto': objeto,
-            'objeto_id': str(objeto_id),
-            'campo': campo,
-            'valor': str(valor) if valor is not None else None,
-            'hora_evento': hora_evento,
-            'procesado': False,
-            'creado_en': datetime.utcnow().isoformat()
-        }
+        # Debug detallado de los parámetros recibidos
+        logger.debug(f"🔍 DEBUG registrar_evento_supabase:")
+        logger.debug(f"  - objeto: {objeto} (type: {type(objeto)})")
+        logger.debug(f"  - objeto_id: {objeto_id} (type: {type(objeto_id)})")
+        logger.debug(f"  - campo: {campo} (type: {type(campo)})")
+        logger.debug(f"  - valor: {valor} (type: {type(valor)})")
+        logger.debug(f"  - hora_evento: {hora_evento} (type: {type(hora_evento)})")
         
-        # Insertar en tabla de eventos de webhook
-        response = supabase.table('logs_webhooks_meta').insert({
+        # Preparar datos para insertar en logs_webhooks_meta
+        evento_data = {
             'tipo_objeto': objeto,
             'objeto_id': str(objeto_id),
             'campo': campo,
             'valor': str(valor) if valor is not None else None,
             'timestamp': hora_evento,
+            'nombre_nora': None,  # Agregar campo nombre_nora
+            'id_cuenta_publicitaria': None,  # Agregar campo id_cuenta_publicitaria
             'procesado': False,
             'procesado_en': None
-        }).execute()
+        }
+        
+        logger.debug(f"🔍 DEBUG evento_data completo: {evento_data}")
+        
+        # Verificar que no hay campos extra
+        campos_permitidos = {'tipo_objeto', 'objeto_id', 'campo', 'valor', 'timestamp', 'nombre_nora', 'id_cuenta_publicitaria', 'procesado', 'procesado_en'}
+        campos_en_data = set(evento_data.keys())
+        campos_extra = campos_en_data - campos_permitidos
+        
+        if campos_extra:
+            logger.error(f"❌ CAMPOS EXTRA DETECTADOS: {campos_extra}")
+            logger.error(f"   Campos permitidos: {campos_permitidos}")
+            logger.error(f"   Campos en data: {campos_en_data}")
+        
+        logger.debug(f"Insertando evento webhook: {evento_data}")
+        
+        # Insertar en tabla de eventos de webhook
+        response = supabase.table('logs_webhooks_meta').insert(evento_data).execute()
         
         if response.data:
             logger.info(f"Evento webhook registrado: {objeto} {objeto_id} - {campo}")

@@ -14,6 +14,7 @@ httpx==0.23.3
 postgrest==0.10.7  # Versión moderna sin APIError
 pydantic>=2.1.0,<3.0  # Compatible con postgrest
 python-dotenv==1.0.1
+psycopg2-binary==2.9.9  # Para conexión directa a PostgreSQL/Supabase
 
 # --- Librerías adicionales útiles ---
 pytz==2023.3
