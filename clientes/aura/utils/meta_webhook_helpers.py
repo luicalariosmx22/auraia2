@@ -46,6 +46,11 @@ def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: An
         logger.debug(f"  - valor: {valor} (type: {type(valor)})")
         logger.debug(f"  - hora_evento: {hora_evento} (type: {type(hora_evento)})")
         
+        # Validar que objeto_id no sea None o vacío
+        if not objeto_id or str(objeto_id).strip() in ['', 'None', 'null']:
+            logger.warning(f"⚠️ objeto_id inválido: {objeto_id} - saltando registro")
+            return False
+        
         # Si es evento de feed con page_id, intentar asociar nombre_nora
         nombre_nora_encontrado = None
         id_cuenta_encontrado = None
@@ -68,9 +73,9 @@ def registrar_evento_supabase(objeto: str, objeto_id: str, campo: str, valor: An
         # Preparar datos para insertar en logs_webhooks_meta
         evento_data = {
             'tipo_objeto': objeto,
-            'objeto_id': str(objeto_id),
+            'objeto_id': str(objeto_id).strip(),  # Asegurar que sea string válido
             'campo': campo,
-            'valor': str(valor) if valor is not None else None,
+            'valor': str(valor).strip() if valor is not None else None,
             'timestamp': hora_evento,
             'nombre_nora': nombre_nora_encontrado,  # Agregar campo nombre_nora
             'id_cuenta_publicitaria': id_cuenta_encontrado,  # Agregar campo id_cuenta_publicitaria

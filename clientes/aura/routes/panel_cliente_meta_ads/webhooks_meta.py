@@ -120,14 +120,23 @@ def recibir_webhook():
                 for cambio in entry.get('changes', []):
                     objeto = cambio.get('field')  # Ej: 'account', 'audience', 'campaign', 'feed'
                     valor = cambio.get('value', {})
-                    objeto_id = (
-                        valor.get('ad_account_id') or 
-                        valor.get('campaign_id') or 
-                        valor.get('ad_id') or 
-                        valor.get('id') or 
-                        valor.get('post_id') or 
-                        valor.get('parent_id')
-                    )
+                    
+                    # Extraer objeto_id de forma robusta
+                    objeto_id = None
+
+                    # Intenta encontrar el ID correcto dependiendo del tipo de objeto
+                    if objeto == "account":
+                        objeto_id = valor.get("ad_account_id") or entry_id
+                    elif objeto == "audience":
+                        objeto_id = valor.get("id") or valor.get("audience_id")
+                    elif objeto == "campaign":
+                        objeto_id = valor.get("campaign_id")
+                    elif objeto == "ad":
+                        objeto_id = valor.get("ad_id")
+                    elif objeto == "feed":
+                        objeto_id = valor.get("post_id") or valor.get("parent_id")
+                    else:
+                        objeto_id = valor.get("id") or entry_id  # fallback
 
                     if not objeto or not objeto_id:
                         print(f"⚠️ Evento incompleto: objeto={objeto}, objeto_id={objeto_id}")
