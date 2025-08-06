@@ -1,6 +1,6 @@
 # Archivo generado automáticamente
-# Fecha de generación: 2025-08-05 16:11:39,303
-# Total de tablas encontradas: 93
+# Fecha de generación: 2025-08-05 17:33:30,101
+# Total de tablas encontradas: 94
 SUPABASE_SCHEMAS = {'JulietDesigns': {'estructura': 'tabla_vacia'},
  'JulietImages': {'estructura': 'tabla_vacia'},
  'JulietPrompts': {'estructura': 'tabla_vacia'},
@@ -185,6 +185,7 @@ SUPABASE_SCHEMAS = {'JulietDesigns': {'estructura': 'tabla_vacia'},
                     'id': 'text',
                     'modulo': 'text',
                     'nombre_nora': 'text'},
+ 'facebook_paginas': {'estructura': 'tabla_vacia'},
  'funciones_automatizables': {'activa': 'boolean',
                               'actualizado_en': 'timestamp',
                               'archivo_origen': 'text',
