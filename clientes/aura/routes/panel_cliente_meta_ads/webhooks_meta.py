@@ -90,7 +90,7 @@ def recibir_webhook():
             signature_header = request.headers.get('X-Hub-Signature-256')
             
             # Verificar firma del webhook (opcional pero recomendado)
-            if not verificar_firma_webhook(payload_body, signature_header):
+            if signature_header and not verificar_firma_webhook(payload_body, signature_header):
                 print("❌ Firma del webhook inválida")
                 return jsonify({"status": "error", "message": "Firma inválida"}), 403
             
