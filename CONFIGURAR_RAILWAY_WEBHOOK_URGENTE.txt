@@ -1,0 +1,37 @@
+🚀 CONFIGURACIÓN URGENTE EN RAILWAY DASHBOARD
+================================================
+
+🔴 PROBLEMA IDENTIFICADO:
+Los webhooks de Meta fallan porque falta META_WEBHOOK_SECRET en Railway
+
+🌐 PASOS PARA SOLUCIONARLO:
+
+1. 📱 VE A RAILWAY DASHBOARD:
+   https://railway.app/dashboard
+
+2. 🔍 BUSCA TU PROYECTO "auraia2"
+
+3. ⚙️ VE A: Settings → Variables
+
+4. ➕ AGREGAR ESTAS VARIABLES:
+
+   META_WEBHOOK_SECRET=1002ivimyH!
+   META_WEBHOOK_VERIFY_TOKEN=nora123
+   META_WEBHOOK_URL=https://app.soynoraai.com/meta/webhook
+   META_APP_ID=1002486261198899
+
+5. 💾 GUARDAR los cambios
+
+6. 🔄 REDEPLOY el proyecto (si es necesario)
+
+📊 VARIABLES ACTUALES QUE FALTAN EN RAILWAY:
+- META_WEBHOOK_SECRET ❌ (CRÍTICA - sin esta los webhooks fallan)
+- META_WEBHOOK_VERIFY_TOKEN ❌ 
+- META_WEBHOOK_URL ❌
+- META_APP_ID ❌
+
+✅ RESULTADO ESPERADO:
+Una vez configuradas, los webhooks de Meta empezarán a registrarse correctamente
+en la tabla logs_webhooks_meta de Supabase.
+
+🕐 TIEMPO ESTIMADO: 2-3 minutos
