@@ -1,950 +1,441 @@
 {% extends "base_cliente.html" %}
 {% block contenido %}
+<div class="max-w-7xl mx-auto py-8">
+  <h1 class="text-3xl font-bold mb-4">📡 Monitor de Webhooks Meta Ads</h1>
 
-<div class="w-full px-6 py-10">
-    <div class="max-w-7xl mx-auto">
-        <h1 class="text-3xl font-extrabold text-center text-blue-900 mb-8">
-            <i class="fas fa-bell mr-3"></i>Monitor de Webhooks Meta Ads
-        </h1>
-        
-        <!-- Navegación de pestañas -->
-        <div class="bg-white rounded-lg shadow-md mb-6">
-            <div class="border-b border-gray-200">
-                <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-                    <button id="tab-eventos" class="tab-button active border-transparent text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-blue-700 hover:border-blue-300">
-                        <i class="fas fa-list mr-2"></i>Eventos Recientes
-                    </button>
-                    <button id="tab-estadisticas" class="tab-button border-transparent text-gray-500 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300">
-                        <i class="fas fa-chart-bar mr-2"></i>Estadísticas
-                    </button>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Estadísticas rápidas -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100">
-                        <i class="fas fa-bell text-blue-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Total Eventos</p>
-                        <p id="stat-total" class="text-2xl font-bold text-gray-900">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100">
-                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Procesados</p>
-                        <p id="stat-procesados" class="text-2xl font-bold text-gray-900">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-yellow-100">
-                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Pendientes</p>
-                        <p id="stat-pendientes" class="text-2xl font-bold text-gray-900">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-purple-100">
-                        <i class="fas fa-calendar text-purple-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Últimos 7 días</p>
-                        <p id="stat-recientes" class="text-2xl font-bold text-gray-900">0</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Controles y filtros -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">
-                    <i class="fas fa-filter mr-2"></i>Filtros
-                </h3>
-                <div class="flex space-x-2">
-                    <button id="btn-actualizar" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-                        <i class="fas fa-sync-alt mr-2"></i>Actualizar
-                    </button>
-                    <button id="btn-marcar-todos-procesados" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
-                        <i class="fas fa-check-double mr-2"></i>Marcar Todos Procesados
-                    </button>
-                    <button id="btn-ver-cuentas-registradas" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
-                        <i class="fas fa-list-alt mr-2"></i>Cuentas Registradas
-                    </button>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="filtro-objeto" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Objeto</label>
-                    <select id="filtro-objeto" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Todos los tipos</option>
-                        <option value="feed">Publicaciones (Feed)</option>
-                        <option value="audience">Audiencias</option>
-                        <option value="campaign">Campañas</option>
-                        <option value="adset">Conjuntos de Anuncios</option>
-                        <option value="ad">Anuncios</option>
-                        <option value="account">Cuentas</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="filtro-procesado" class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                    <select id="filtro-procesado" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Todos los estados</option>
-                        <option value="false">No procesados</option>
-                        <option value="true">Procesados</option>
-                    </select>
-                </div>
-                <div class="flex items-end">
-                    <button id="btn-aplicar-filtros" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md transition">
-                        <i class="fas fa-search mr-2"></i>Aplicar Filtros
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contenido principal -->
-        <div id="contenido-webhooks">
-            <!-- Tab: Eventos -->
-            <div id="panel-eventos" class="tab-panel">
-                <div class="bg-white rounded-lg shadow-md">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">
-                            <i class="fas fa-list text-blue-500 mr-2"></i>Eventos de Webhook
-                        </h3>
-                        <p class="text-sm text-gray-600 mt-1">Eventos recibidos desde Meta Ads en tiempo real</p>
-                    </div>
-                    <div id="tabla-eventos" class="overflow-x-auto">
-                        <div class="text-center py-12 text-gray-500">
-                            <i class="fas fa-bell text-3xl mb-4"></i>
-                            <p>Cargando eventos de webhook...</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Controles de paginación -->
-                <div class="bg-white rounded-lg shadow-md p-4 mt-4">
-                    <div class="flex justify-between items-center">
-                        <div id="info-paginacion" class="text-sm text-gray-600">
-                            <!-- Se actualiza dinámicamente -->
-                        </div>
-                        <div id="controles-paginacion" class="flex items-center space-x-2">
-                            <!-- Se genera dinámicamente -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab: Estadísticas -->
-            <div id="panel-estadisticas" class="tab-panel hidden">
-                <div class="bg-white rounded-lg shadow-md">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">
-                            <i class="fas fa-chart-bar text-purple-500 mr-2"></i>Estadísticas de Webhooks
-                        </h3>
-                        <p class="text-sm text-gray-600 mt-1">Análisis detallado de eventos recibidos</p>
-                    </div>
-                    <div id="contenido-estadisticas-detalle" class="p-6">
-                        <div class="text-center py-12 text-gray-500">
-                            <i class="fas fa-chart-bar text-3xl mb-4"></i>
-                            <p>Cargando estadísticas detalladas...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- Filtros -->
+  <div class="bg-white rounded-lg shadow mb-4 p-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">📄 Filtrar por Página:</label>
+        <select id="filtro-pagina" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">Todas las páginas</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">📅 Filtrar por Fecha:</label>
+        <input type="date" id="filtro-fecha" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <div class="flex items-end">
+        <button onclick="aplicarFiltros()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mr-2">🔍 Filtrar</button>
+        <button onclick="limpiarFiltros()" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">🗑️ Limpiar</button>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Modal de detalle de evento -->
-<div id="modal-detalle-evento" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center mb-4">
-            <h3 id="modal-titulo" class="text-xl font-bold text-gray-900">Detalle del Evento</h3>
-            <button id="btn-cerrar-modal" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        <div id="modal-contenido" class="space-y-4">
-            <!-- Contenido del modal se carga dinámicamente -->
-        </div>
+  <div class="mb-4 space-x-2">
+    <button onclick="showTab('publicaciones')" class="px-4 py-2 bg-blue-600 text-white rounded">📄 Publicaciones</button>
+    <button onclick="showTab('comentarios')" class="px-4 py-2 bg-purple-600 text-white rounded">💬 Comentarios</button>
+    <button onclick="showTab('anuncios')" class="px-4 py-2 bg-green-600 text-white rounded">📢 Anuncios</button>
+    <button onclick="showTab('logs')" class="px-4 py-2 bg-gray-600 text-white rounded">🛠️ Logs</button>
+  </div>
+
+  <div id="tab-publicaciones" class="tab-content">
+    <h2 class="text-xl font-semibold mb-2">📄 Publicaciones recientes</h2>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table id="tabla-publicaciones" class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Página</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Post ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mensaje</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
     </div>
-</div>
-
-<!-- Modal de cuentas registradas -->
-<div id="modal-cuentas-registradas" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold text-gray-900">
-                <i class="fas fa-list-alt text-purple-600 mr-2"></i>Cuentas Registradas en Webhooks
-            </h3>
-            <button id="btn-cerrar-modal-cuentas" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        
-        <!-- Estadísticas rápidas de cuentas -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-                <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-green-100">
-                        <i class="fas fa-check-circle text-green-600"></i>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-green-700">Registradas</p>
-                        <p id="stat-cuentas-registradas" class="text-lg font-bold text-green-900">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-red-50 p-4 rounded-lg border border-red-200">
-                <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-red-100">
-                        <i class="fas fa-times-circle text-red-600"></i>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-red-700">No Registradas</p>
-                        <p id="stat-cuentas-no-registradas" class="text-lg font-bold text-red-900">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-blue-100">
-                        <i class="fas fa-list text-blue-600"></i>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-blue-700">Total</p>
-                        <p id="stat-cuentas-total" class="text-lg font-bold text-blue-900">0</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Controles -->
-        <div class="flex justify-between items-center mb-4">
-            <div class="flex items-center space-x-2">
-                <button id="btn-actualizar-cuentas" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm transition">
-                    <i class="fas fa-sync-alt mr-2"></i>Actualizar Estado
-                </button>
-                <button id="btn-registrar-faltantes" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm transition">
-                    <i class="fas fa-plus-circle mr-2"></i>Registrar Faltantes
-                </button>
-            </div>
-            <div class="flex items-center space-x-2">
-                <label class="text-sm text-gray-600">Filtrar:</label>
-                <select id="filtro-estado-cuenta" class="px-3 py-1 border border-gray-300 rounded text-sm">
-                    <option value="">Todas</option>
-                    <option value="registrada">Registradas</option>
-                    <option value="no-registrada">No Registradas</option>
-                </select>
-            </div>
-        </div>
-        
-        <!-- Tabla de cuentas -->
-        <div id="contenido-cuentas" class="border border-gray-200 rounded-lg overflow-hidden">
-            <div class="text-center py-8 text-gray-500">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                <p>Cargando estado de las cuentas...</p>
-            </div>
-        </div>
+    <!-- Paginación Publicaciones -->
+    <div id="paginacion-publicaciones" class="mt-4 flex justify-between items-center">
+      <div class="text-sm text-gray-700">
+        <span id="info-publicaciones"></span>
+      </div>
+      <div class="flex space-x-2">
+        <button id="prev-publicaciones" onclick="cambiarPagina('publicaciones', -1)" class="px-3 py-1 bg-gray-300 text-gray-700 rounded disabled:opacity-50" disabled>Anterior</button>
+        <span id="pagina-publicaciones" class="px-3 py-1 bg-gray-100 rounded">1</span>
+        <button id="next-publicaciones" onclick="cambiarPagina('publicaciones', 1)" class="px-3 py-1 bg-gray-300 text-gray-700 rounded disabled:opacity-50" disabled>Siguiente</button>
+      </div>
     </div>
-</div>
+  </div>
 
+  <div id="tab-comentarios" class="tab-content hidden">
+    <h2 class="text-xl font-semibold mb-2">💬 Comentarios recientes</h2>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table id="tabla-comentarios" class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Página</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Post ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comentario</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+    <!-- Paginación Comentarios -->
+    <div id="paginacion-comentarios" class="mt-4 flex justify-between items-center">
+      <div class="text-sm text-gray-700">
+        <span id="info-comentarios"></span>
+      </div>
+      <div class="flex space-x-2">
+        <button id="prev-comentarios" onclick="cambiarPagina('comentarios', -1)" class="px-3 py-1 bg-gray-300 text-gray-700 rounded disabled:opacity-50" disabled>Anterior</button>
+        <span id="pagina-comentarios" class="px-3 py-1 bg-gray-100 rounded">1</span>
+        <button id="next-comentarios" onclick="cambiarPagina('comentarios', 1)" class="px-3 py-1 bg-gray-300 text-gray-700 rounded disabled:opacity-50" disabled>Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-anuncios" class="tab-content hidden">
+    <h2 class="text-xl font-semibold mb-2">📢 Anuncios automatizados</h2>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table id="tabla-anuncios" class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaña</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-logs" class="tab-content hidden">
+    <h2 class="text-xl font-semibold mb-2">🛠️ Logs de Webhooks</h2>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table id="tabla-logs" class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Objeto</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cuenta</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script>
-// Variables globales
-window.appConfig = {
-    nombreNora: "{{ nombre_nora }}",
-    baseUrl: "/panel_cliente/{{ nombre_nora }}/meta_ads"
+const nombre_nora = "{{ nombre_nora }}";
+
+// Variables globales para paginación y filtros
+let currentPage = {
+  publicaciones: 1,
+  comentarios: 1
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Estado
-    let tabActual = 'eventos';
-    let paginacionActual = {
-        offset: 0,
-        limite: 50,
-        total: 0
-    };
+let filtros = {
+  page_id: '',
+  date: ''
+};
 
-    // Elementos del DOM
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-    const btnActualizar = document.getElementById('btn-actualizar');
-    const btnAplicarFiltros = document.getElementById('btn-aplicar-filtros');
-    const btnVerCuentasRegistradas = document.getElementById('btn-ver-cuentas-registradas');
-    const modalCuentasRegistradas = document.getElementById('modal-cuentas-registradas');
-    const btnCerrarModalCuentas = document.getElementById('btn-cerrar-modal-cuentas');
-    const btnActualizarCuentas = document.getElementById('btn-actualizar-cuentas');
-    const btnRegistrarFaltantes = document.getElementById('btn-registrar-faltantes');
-    const filtroEstadoCuenta = document.getElementById('filtro-estado-cuenta');
+function showTab(tab) {
+  document.querySelectorAll(".tab-content").forEach(div => div.classList.add("hidden"));
+  document.getElementById("tab-" + tab).classList.remove("hidden");
+}
 
-    // Manejo de pestañas
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const tabId = this.id.replace('tab-', '');
-            cambiarTab(tabId);
-        });
+// Funciones de filtros
+function aplicarFiltros() {
+  filtros.page_id = document.getElementById('filtro-pagina').value;
+  filtros.date = document.getElementById('filtro-fecha').value;
+  
+  // Resetear páginas y recargar datos
+  currentPage.publicaciones = 1;
+  currentPage.comentarios = 1;
+  
+  cargarPublicaciones();
+  cargarComentarios();
+}
+
+function limpiarFiltros() {
+  document.getElementById('filtro-pagina').value = '';
+  document.getElementById('filtro-fecha').value = '';
+  filtros.page_id = '';
+  filtros.date = '';
+  
+  // Resetear páginas y recargar datos
+  currentPage.publicaciones = 1;
+  currentPage.comentarios = 1;
+  
+  cargarPublicaciones();
+  cargarComentarios();
+}
+
+// Funciones de paginación
+function cambiarPagina(tipo, direccion) {
+  currentPage[tipo] += direccion;
+  if (currentPage[tipo] < 1) currentPage[tipo] = 1;
+  
+  if (tipo === 'publicaciones') {
+    cargarPublicaciones();
+  } else if (tipo === 'comentarios') {
+    cargarComentarios();
+  }
+}
+
+function actualizarPaginacion(tipo, pagination) {
+  const prevBtn = document.getElementById(`prev-${tipo}`);
+  const nextBtn = document.getElementById(`next-${tipo}`);
+  const pageSpan = document.getElementById(`pagina-${tipo}`);
+  const infoSpan = document.getElementById(`info-${tipo}`);
+  
+  prevBtn.disabled = !pagination.has_prev;
+  nextBtn.disabled = !pagination.has_next;
+  pageSpan.textContent = `${pagination.current_page} de ${pagination.total_pages}`;
+  infoSpan.textContent = `${pagination.total_count} registros total`;
+}
+
+async function cargarPublicaciones() {
+  try {
+    // Construir URL con parámetros
+    const params = new URLSearchParams({
+      page: currentPage.publicaciones,
+      limit: 50
     });
-
-    function cambiarTab(nuevoTab) {
-        // Actualizar botones
-        tabButtons.forEach(btn => {
-            btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
-            btn.classList.add('border-transparent', 'text-gray-500');
-        });
-        
-        document.getElementById(`tab-${nuevoTab}`).classList.remove('border-transparent', 'text-gray-500');
-        document.getElementById(`tab-${nuevoTab}`).classList.add('active', 'border-blue-500', 'text-blue-600');
-
-        // Actualizar paneles
-        tabPanels.forEach(panel => panel.classList.add('hidden'));
-        document.getElementById(`panel-${nuevoTab}`).classList.remove('hidden');
-        
-        tabActual = nuevoTab;
-        
-        if (nuevoTab === 'estadisticas') {
-            cargarEstadisticasDetalle();
-        }
-    }
-
-    // Event listeners
-    btnActualizar.addEventListener('click', function() {
-        if (tabActual === 'eventos') {
-            cargarEventos();
-        } else {
-            cargarEstadisticasDetalle();
-        }
-        cargarEstadisticasRapidas();
-    });
-
-    btnAplicarFiltros.addEventListener('click', function() {
-        paginacionActual.offset = 0;
-        cargarEventos();
-    });
-
-    // Event listeners para modal de cuentas registradas
-    btnVerCuentasRegistradas.addEventListener('click', function() {
-        modalCuentasRegistradas.classList.remove('hidden');
-        cargarEstadoCuentas();
-    });
-
-    btnCerrarModalCuentas.addEventListener('click', function() {
-        modalCuentasRegistradas.classList.add('hidden');
-    });
-
-    btnActualizarCuentas.addEventListener('click', function() {
-        cargarEstadoCuentas();
-    });
-
-    btnRegistrarFaltantes.addEventListener('click', function() {
-        registrarCuentasFaltantes();
-    });
-
-    filtroEstadoCuenta.addEventListener('change', function() {
-        aplicarFiltroCuentas();
-    });
-
-    // Cerrar modal al hacer clic fuera
-    modalCuentasRegistradas.addEventListener('click', function(e) {
-        if (e.target === modalCuentasRegistradas) {
-            modalCuentasRegistradas.classList.add('hidden');
-        }
-    });
-
-    // Funciones principales
-    async function cargarEstadisticasRapidas() {
-        try {
-            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/estadisticas`);
-            const data = await response.json();
-            
-            if (data.success) {
-                const stats = data.estadisticas;
-                document.getElementById('stat-total').textContent = stats.total_eventos || 0;
-                document.getElementById('stat-procesados').textContent = stats.procesados || 0;
-                document.getElementById('stat-pendientes').textContent = stats.no_procesados || 0;
-                document.getElementById('stat-recientes').textContent = stats.eventos_recientes || 0;
-            }
-        } catch (error) {
-            console.error('Error cargando estadísticas:', error);
-        }
-    }
-
-    async function cargarEventos() {
-        try {
-            const filtros = {
-                objeto: document.getElementById('filtro-objeto').value,
-                procesado: document.getElementById('filtro-procesado').value,
-                limite: paginacionActual.limite,
-                offset: paginacionActual.offset
-            };
-
-            const params = new URLSearchParams();
-            Object.keys(filtros).forEach(key => {
-                if (filtros[key]) params.append(key, filtros[key]);
-            });
-
-            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/eventos?${params}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                paginacionActual.total = data.total;
-                mostrarEventos(data.eventos);
-                actualizarControlesPaginacion();
-            } else {
-                mostrarError('Error cargando eventos: ' + data.message);
-            }
-        } catch (error) {
-            console.error('Error cargando eventos:', error);
-            mostrarError('Error de conexión al cargar eventos');
-        }
-    }
-
-    function mostrarEventos(eventos) {
-        const tabla = document.getElementById('tabla-eventos');
-        
-        if (eventos.length === 0) {
-            tabla.innerHTML = `
-                <div class="text-center py-12 text-gray-500">
-                    <i class="fas fa-inbox text-3xl mb-4"></i>
-                    <p>No se encontraron eventos con los filtros seleccionados</p>
-                </div>
-            `;
-            return;
-        }
-
-        const tablaHTML = `
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Objeto</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Objeto</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    ${eventos.map(evento => crearFilaEvento(evento)).join('')}
-                </tbody>
-            </table>
-        `;
-        
-        tabla.innerHTML = tablaHTML;
-    }
-
-    function crearFilaEvento(evento) {
-        const fecha = new Date(evento.creado_en || evento.hora_evento).toLocaleString('es-MX');
-        const estadoBadge = evento.procesado 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-yellow-100 text-yellow-800';
-        const estadoTexto = evento.procesado ? 'Procesado' : 'Pendiente';
-        
-        // Determininar el tipo de objeto con icono
-        let objetoDisplay = evento.objeto || 'N/A';
-        let objetoIcon = 'fa-question-circle';
-        let objetoColor = 'bg-gray-100 text-gray-800';
-        
-        switch(evento.objeto) {
-            case 'feed':
-                objetoIcon = 'fa-rss';
-                objetoColor = 'bg-purple-100 text-purple-800';
-                break;
-            case 'audience':
-                objetoIcon = 'fa-users';
-                objetoColor = 'bg-blue-100 text-blue-800';
-                break;
-            case 'campaign':
-                objetoIcon = 'fa-bullhorn';
-                objetoColor = 'bg-green-100 text-green-800';
-                break;
-            case 'ad':
-                objetoIcon = 'fa-ad';
-                objetoColor = 'bg-orange-100 text-orange-800';
-                break;
-            case 'account':
-                objetoIcon = 'fa-building';
-                objetoColor = 'bg-indigo-100 text-indigo-800';
-                break;
-        }
-        
-        // Mostrar información adicional para publicaciones
-        let valorDisplay = evento.valor || 'N/A';
-        if (evento.tipo_evento === 'publicacion') {
-            if (evento.mensaje) {
-                valorDisplay = `Página: ${evento.valor} | ${evento.mensaje.substring(0, 50)}${evento.mensaje.length > 50 ? '...' : ''}`;
-            }
-            if (evento.tipo_item) {
-                valorDisplay += ` (${evento.tipo_item})`;
-            }
-        }
-        
-        return `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${fecha}
-                    ${evento.tipo_evento === 'publicacion' ? 
-                        '<span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">📝 Publicación</span>' : 
-                        '<span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">🔗 Webhook</span>'
-                    }
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${objetoColor}">
-                        <i class="fas ${objetoIcon} mr-1"></i>
-                        ${objetoDisplay}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <code class="bg-gray-100 px-2 py-1 rounded text-xs">${evento.objeto_id || 'N/A'}</code>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${evento.campo || 'N/A'}
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-900">
-                    <div class="max-w-xs truncate" title="${valorDisplay}">
-                        ${valorDisplay}
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${estadoBadge}">
-                        ${estadoTexto}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button onclick="verDetalleEvento('${evento.id}')" 
-                            class="text-blue-600 hover:text-blue-900 mr-3">
-                        <i class="fas fa-eye mr-1"></i>Ver
-                    </button>
-                    ${!evento.procesado ? `
-                        <button onclick="marcarProcesado('${evento.id}')" 
-                                class="text-green-600 hover:text-green-900">
-                            <i class="fas fa-check mr-1"></i>Marcar
-                        </button>
-                    ` : ''}
-                </td>
-            </tr>
-        `;
-    }
-
-    function actualizarControlesPaginacion() {
-        const totalPaginas = Math.ceil(paginacionActual.total / paginacionActual.limite);
-        const paginaActual = Math.floor(paginacionActual.offset / paginacionActual.limite) + 1;
-        
-        // Actualizar información
-        const inicio = paginacionActual.offset + 1;
-        const fin = Math.min(paginacionActual.offset + paginacionActual.limite, paginacionActual.total);
-        document.getElementById('info-paginacion').textContent = 
-            `Mostrando ${inicio} - ${fin} de ${paginacionActual.total} eventos`;
-        
-        // Crear controles
-        let html = '';
-        
-        // Botón anterior
-        html += `
-            <button onclick="cambiarPagina(${paginaActual - 1})" 
-                    ${paginaActual <= 1 ? 'disabled' : ''} 
-                    class="px-3 py-1 border border-gray-300 rounded-md text-sm ${paginaActual <= 1 ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-50'}">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-        `;
-        
-        // Páginas
-        for (let i = Math.max(1, paginaActual - 2); i <= Math.min(totalPaginas, paginaActual + 2); i++) {
-            html += `
-                <button onclick="cambiarPagina(${i})" 
-                        class="px-3 py-1 border border-gray-300 rounded-md text-sm ${i === paginaActual ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}">
-                    ${i}
-                </button>
-            `;
-        }
-        
-        // Botón siguiente
-        html += `
-            <button onclick="cambiarPagina(${paginaActual + 1})" 
-                    ${paginaActual >= totalPaginas ? 'disabled' : ''} 
-                    class="px-3 py-1 border border-gray-300 rounded-md text-sm ${paginaActual >= totalPaginas ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-50'}">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        `;
-        
-        document.getElementById('controles-paginacion').innerHTML = html;
-    }
-
-    async function cargarEstadisticasDetalle() {
-        const contenedor = document.getElementById('contenido-estadisticas-detalle');
-        contenedor.innerHTML = `
-            <div class="text-center py-12">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p class="text-gray-600">Cargando estadísticas detalladas...</p>
-            </div>
-        `;
-        
-        // Aquí puedes agregar más estadísticas detalladas
-        setTimeout(() => {
-            contenedor.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Eventos por Tipo de Objeto</h4>
-                        <p class="text-gray-600">Próximamente: Gráfico de distribución por tipos</p>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Eventos por Día</h4>
-                        <p class="text-gray-600">Próximamente: Gráfico temporal de eventos</p>
-                    </div>
-                </div>
-            `;
-        }, 1000);
-    }
-
-    function mostrarError(mensaje) {
-        const tabla = document.getElementById('tabla-eventos');
-        tabla.innerHTML = `
-            <div class="text-center py-12 text-red-500">
-                <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
-                <p>${mensaje}</p>
-            </div>
-        `;
-    }
-
-    // Funciones para gestión de cuentas registradas
-    let estadoCuentasGlobal = [];
-
-    async function cargarEstadoCuentas() {
-        const contenedor = document.getElementById('contenido-cuentas');
-        contenedor.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                <p>Verificando estado de las cuentas...</p>
-            </div>
-        `;
-
-        try {
-            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/estado_cuentas`);
-            const data = await response.json();
-            
-            if (data.success) {
-                estadoCuentasGlobal = data.cuentas;
-                mostrarEstadoCuentas(data.cuentas);
-                actualizarEstadisticasCuentas(data.cuentas);
-            } else {
-                contenedor.innerHTML = `
-                    <div class="text-center py-8 text-red-500">
-                        <i class="fas fa-exclamation-triangle text-2xl mb-4"></i>
-                        <p>Error: ${data.message}</p>
-                    </div>
-                `;
-            }
-        } catch (error) {
-            console.error('Error cargando estado de cuentas:', error);
-            contenedor.innerHTML = `
-                <div class="text-center py-8 text-red-500">
-                    <i class="fas fa-exclamation-triangle text-2xl mb-4"></i>
-                    <p>Error de conexión al verificar cuentas</p>
-                </div>
-            `;
-        }
-    }
-
-    function mostrarEstadoCuentas(cuentas) {
-        const contenedor = document.getElementById('contenido-cuentas');
-        
-        if (cuentas.length === 0) {
-            contenedor.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-inbox text-2xl mb-4"></i>
-                    <p>No se encontraron cuentas de Meta Ads</p>
-                </div>
-            `;
-            return;
-        }
-
-        const tablaHTML = `
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Cuenta</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado Cuenta</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado Webhook</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="tbody-cuentas">
-                    ${cuentas.map(cuenta => crearFilaCuenta(cuenta)).join('')}
-                </tbody>
-            </table>
-        `;
-        
-        contenedor.innerHTML = tablaHTML;
-    }
-
-    function crearFilaCuenta(cuenta) {
-        const estadoCuentaBadge = cuenta.estado_actual === 'ACTIVE' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-gray-100 text-gray-800';
-        
-        const estadoWebhookBadge = cuenta.webhook_registrado 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800';
-        
-        const estadoWebhookTexto = cuenta.webhook_registrado ? 'Registrado' : 'No Registrado';
-        const estadoWebhookIcon = cuenta.webhook_registrado ? 'fa-check-circle' : 'fa-times-circle';
-        
-        return `
-            <tr class="hover:bg-gray-50 cuenta-row" data-estado-webhook="${cuenta.webhook_registrado ? 'registrada' : 'no-registrada'}">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <code class="bg-gray-100 px-2 py-1 rounded text-xs">${cuenta.id_cuenta_publicitaria}</code>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div class="max-w-xs truncate" title="${cuenta.nombre_cliente || 'Sin nombre'}">
-                        ${cuenta.nombre_cliente || 'Sin nombre'}
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${estadoCuentaBadge}">
-                        ${cuenta.estado_actual}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${estadoWebhookBadge}">
-                        <i class="fas ${estadoWebhookIcon} mr-1"></i>
-                        ${estadoWebhookTexto}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    ${!cuenta.webhook_registrado ? `
-                        <button onclick="registrarWebhookCuenta('${cuenta.id_cuenta_publicitaria}')" 
-                                class="text-green-600 hover:text-green-900 mr-3">
-                            <i class="fas fa-plus-circle mr-1"></i>Registrar
-                        </button>
-                    ` : `
-                        <button onclick="verificarWebhookCuenta('${cuenta.id_cuenta_publicitaria}')" 
-                                class="text-blue-600 hover:text-blue-900 mr-3">
-                            <i class="fas fa-sync-alt mr-1"></i>Verificar
-                        </button>
-                    `}
-                    <button onclick="verDetallesCuenta('${cuenta.id_cuenta_publicitaria}')" 
-                            class="text-purple-600 hover:text-purple-900">
-                        <i class="fas fa-info-circle mr-1"></i>Detalles
-                    </button>
-                </td>
-            </tr>
-        `;
-    }
-
-    function actualizarEstadisticasCuentas(cuentas) {
-        const registradas = cuentas.filter(c => c.webhook_registrado).length;
-        const noRegistradas = cuentas.filter(c => !c.webhook_registrado).length;
-        const total = cuentas.length;
-
-        document.getElementById('stat-cuentas-registradas').textContent = registradas;
-        document.getElementById('stat-cuentas-no-registradas').textContent = noRegistradas;
-        document.getElementById('stat-cuentas-total').textContent = total;
-    }
-
-    function aplicarFiltroCuentas() {
-        const filtro = filtroEstadoCuenta.value;
-        const filas = document.querySelectorAll('.cuenta-row');
-        
-        filas.forEach(fila => {
-            const estadoWebhook = fila.getAttribute('data-estado-webhook');
-            
-            if (!filtro || estadoWebhook === filtro) {
-                fila.style.display = '';
-            } else {
-                fila.style.display = 'none';
-            }
-        });
-    }
-
-    async function registrarCuentasFaltantes() {
-        const cuentasNoRegistradas = estadoCuentasGlobal.filter(c => !c.webhook_registrado);
-        
-        if (cuentasNoRegistradas.length === 0) {
-            alert('Todas las cuentas ya tienen webhooks registrados');
-            return;
-        }
-
-        if (!confirm(`¿Registrar webhooks en ${cuentasNoRegistradas.length} cuentas faltantes?`)) {
-            return;
-        }
-
-        try {
-            btnRegistrarFaltantes.innerHTML = `
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline-block mr-2"></div>
-                Registrando...
-            `;
-            btnRegistrarFaltantes.disabled = true;
-
-            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/registrar_masivo`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            const result = await response.json();
-            
-            if (result.success) {
-                alert(`Registro completado: ${result.exitosos} exitosos, ${result.fallidos} fallidos`);
-                cargarEstadoCuentas();
-            } else {
-                alert('Error: ' + result.message);
-            }
-        } catch (error) {
-            alert('Error de conexión');
-        } finally {
-            btnRegistrarFaltantes.innerHTML = `
-                <i class="fas fa-plus-circle mr-2"></i>Registrar Faltantes
-            `;
-            btnRegistrarFaltantes.disabled = false;
-        }
-    }
-
-    // Funciones globales
-    window.cambiarPagina = function(pagina) {
-        const totalPaginas = Math.ceil(paginacionActual.total / paginacionActual.limite);
-        if (pagina < 1 || pagina > totalPaginas) return;
-        
-        paginacionActual.offset = (pagina - 1) * paginacionActual.limite;
-        cargarEventos();
-    };
-
-    window.verDetalleEvento = function(eventoId) {
-        // Implementar modal de detalle
-        alert('Función de detalle en desarrollo');
-    };
-
-    window.marcarProcesado = async function(eventoId) {
-        try {
-            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/marcar_procesado`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ evento_id: eventoId })
-            });
-
-            const result = await response.json();
-            
-            if (result.success) {
-                cargarEventos();
-                cargarEstadisticasRapidas();
-            } else {
-                alert('Error: ' + result.message);
-            }
-        } catch (error) {
-            alert('Error de conexión');
-        }
-    };
-
-    window.registrarWebhookCuenta = async function(idCuenta) {
-        if (!confirm(`¿Registrar webhook para la cuenta ${idCuenta}?`)) {
-            return;
-        }
-
-        try {
-            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/registrar_cuenta`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id_cuenta: idCuenta })
-            });
-
-            const result = await response.json();
-            
-            if (result.success) {
-                alert('Webhook registrado exitosamente');
-                cargarEstadoCuentas();
-            } else {
-                alert('Error: ' + result.message);
-            }
-        } catch (error) {
-            alert('Error de conexión');
-        }
-    };
-
-    window.verificarWebhookCuenta = async function(idCuenta) {
-        try {
-            const response = await fetch(`${window.appConfig.baseUrl}/api/webhooks/verificar_cuenta`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id_cuenta: idCuenta })
-            });
-
-            const result = await response.json();
-            
-            if (result.success) {
-                const estado = result.registrado ? 'registrado' : 'no registrado';
-                alert(`Estado del webhook: ${estado}`);
-                cargarEstadoCuentas();
-            } else {
-                alert('Error: ' + result.message);
-            }
-        } catch (error) {
-            alert('Error de conexión');
-        }
-    };
-
-    window.verDetallesCuenta = function(idCuenta) {
-        const cuenta = estadoCuentasGlobal.find(c => c.id_cuenta_publicitaria === idCuenta);
-        if (cuenta) {
-            const detalles = `
-                ID: ${cuenta.id_cuenta_publicitaria}
-                Cliente: ${cuenta.nombre_cliente || 'Sin nombre'}
-                Estado: ${cuenta.estado_actual}
-                Webhook: ${cuenta.webhook_registrado ? 'Registrado' : 'No registrado'}
-            `;
-            alert(detalles);
-        }
-    };
-
-    // Cargar datos iniciales
-    cargarEstadisticasRapidas();
-    cargarEventos();
     
-    // Auto-actualizar cada 30 segundos
-    setInterval(() => {
-        if (tabActual === 'eventos') {
-            cargarEventos();
-        }
-        cargarEstadisticasRapidas();
-    }, 30000);
+    if (filtros.page_id) params.append('page_id', filtros.page_id);
+    if (filtros.date) params.append('date', filtros.date);
+    
+    const res = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/publicaciones?${params}`);
+    const json = await res.json();
+    console.log("📄 Publicaciones response:", json);
+    
+    const tbody = document.querySelector("#tabla-publicaciones tbody");
+    tbody.innerHTML = "";
+
+    for (const p of json.publicaciones || []) {  
+      // Formatear fecha en dos renglones con colores
+      let fechaHtml = "";
+      if (p.creada_en) {
+        const d = new Date(p.creada_en);
+        const fecha = d.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        const hora = d.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        fechaHtml = `<div class="text-blue-600 font-semibold">${fecha}</div><div class="text-gray-500 text-xs">${hora}</div>`;
+      } else if (p.created_time) {
+        const d = new Date(p.created_time * 1000); // Unix timestamp
+        const fecha = d.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        const hora = d.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        fechaHtml = `<div class="text-blue-600 font-semibold">${fecha}</div><div class="text-gray-500 text-xs">${hora}</div>`;
+      }
+      
+      // Truncar mensaje
+      const mensaje = (p.mensaje || "").length > 100 ? 
+        (p.mensaje || "").substring(0, 100) + "..." : 
+        (p.mensaje || "");
+      
+      tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">
+        <td class="px-4 py-2 text-sm">${fechaHtml}</td>
+        <td class="px-4 py-2 text-sm"><span class="px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-xs">${p.nombre_pagina || p.page_id || ""}</span></td>
+        <td class="px-4 py-2 text-sm font-mono">${p.post_id || ""}</td>
+        <td class="px-4 py-2 text-sm">${mensaje}</td>
+        <td class="px-4 py-2 text-sm"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">${p.tipo_item || "POST"}</span></td>
+      </tr>`;
+    }
+    
+    // Actualizar paginación
+    if (json.pagination) {
+      actualizarPaginacion('publicaciones', json.pagination);
+    }
+  } catch (err) {
+    console.error("❌ Error cargando publicaciones:", err);
+  }
+}async function cargarComentarios() {
+  try {
+    // Construir URL con parámetros
+    const params = new URLSearchParams({
+      page: currentPage.comentarios,
+      limit: 50
+    });
+    
+    if (filtros.page_id) params.append('page_id', filtros.page_id);
+    if (filtros.date) params.append('date', filtros.date);
+    
+    const res = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/comentarios?${params}`);
+    const json = await res.json();
+    console.log("💬 Comentarios response:", json);
+    
+    const tbody = document.querySelector("#tabla-comentarios tbody");
+    tbody.innerHTML = "";
+
+    for (const c of json.comentarios || []) {  
+      // Formatear fecha en dos renglones con colores
+      let fechaHtml = "";
+      if (c.creada_en) {
+        const d = new Date(c.creada_en);
+        const fecha = d.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        const hora = d.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        fechaHtml = `<div class="text-purple-600 font-semibold">${fecha}</div><div class="text-gray-500 text-xs">${hora}</div>`;
+      } else if (c.created_time) {
+        const d = new Date(c.created_time * 1000); // Unix timestamp
+        const fecha = d.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        const hora = d.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        fechaHtml = `<div class="text-purple-600 font-semibold">${fecha}</div><div class="text-gray-500 text-xs">${hora}</div>`;
+      }
+      
+      // Truncar comentario
+      const comentario = (c.mensaje || "").length > 150 ? 
+        (c.mensaje || "").substring(0, 150) + "..." : 
+        (c.mensaje || "");
+      
+      tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">
+        <td class="px-4 py-2 text-sm">${fechaHtml}</td>
+        <td class="px-4 py-2 text-sm"><span class="px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-xs">${c.nombre_pagina || c.page_id || ""}</span></td>
+        <td class="px-4 py-2 text-sm font-mono">${c.post_id || ""}</td>
+        <td class="px-4 py-2 text-sm">${comentario}</td>
+        <td class="px-4 py-2 text-sm"><span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">${c.tipo_item || "COMMENT"}</span></td>
+      </tr>`;
+    }
+    
+    // Actualizar paginación
+    if (json.pagination) {
+      actualizarPaginacion('comentarios', json.pagination);
+    }
+  } catch (err) {
+    console.error("❌ Error cargando comentarios:", err);
+  }
+}
+
+async function cargarAnuncios() {
+  try {
+    const res = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/anuncios`);
+    const json = await res.json();
+    console.log("📢 Anuncios response:", json);  // 👈 LOG
+    const tbody = document.querySelector("#tabla-anuncios tbody");
+    tbody.innerHTML = "";
+
+    for (const a of json.anuncios || []) {
+      // Formatear fecha en dos renglones con colores
+      let fechaHtml = "";
+      if (a.creado_en) {
+        const d = new Date(a.creado_en);
+        const fecha = d.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        const hora = d.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        fechaHtml = `<div class="text-green-600 font-semibold">${fecha}</div><div class="text-gray-500 text-xs">${hora}</div>`;
+      }
+      
+      tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">
+        <td class="px-4 py-2 text-sm">${fechaHtml}</td>
+        <td class="px-4 py-2 text-sm font-mono">${a.id || ""}</td>
+        <td class="px-4 py-2 text-sm">${a.nombre || ""}</td>
+        <td class="px-4 py-2 text-sm">${a.id_campaña || ""}</td>
+      </tr>`;
+    }
+  } catch (err) {
+    console.error("❌ Error cargando anuncios:", err);
+  }
+}
+
+async function cargarLogs() {
+  try {
+    const res = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/logs`);
+    const json = await res.json();
+    console.log("🛠️ Logs response:", json);  // 👈 LOG
+    const tbody = document.querySelector("#tabla-logs tbody");
+    tbody.innerHTML = "";
+
+    for (const l of json.logs || []) {
+      // Formatear fecha en dos renglones con colores
+      let fechaHtml = "";
+      if (l.timestamp) {
+        const d = new Date(l.timestamp);
+        const fecha = d.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        const hora = d.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        fechaHtml = `<div class="text-gray-600 font-semibold">${fecha}</div><div class="text-gray-500 text-xs">${hora}</div>`;
+      }
+      
+      tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">
+        <td class="px-4 py-2 text-sm">${fechaHtml}</td>
+        <td class="px-4 py-2 text-sm"><span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">${l.tipo_objeto || ""}</span></td>
+        <td class="px-4 py-2 text-sm">${l.campo || ""}</td>
+        <td class="px-4 py-2 text-sm">${l.valor || ""}</td>
+        <td class="px-4 py-2 text-sm font-mono">${l.id_cuenta_publicitaria || ""}</td>
+      </tr>`;
+    }
+  } catch (err) {
+    console.error("❌ Error cargando logs:", err);
+  }
+}
+
+async function cargarPaginas() {
+  try {
+    const res = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/paginas`);
+    const json = await res.json();
+    console.log("📄 Páginas response:", json);
+    
+    const select = document.getElementById('filtro-pagina');
+    // Limpiar opciones existentes (excepto "Todas las páginas")
+    select.innerHTML = '<option value="">Todas las páginas</option>';
+    
+    for (const pagina of json.paginas || []) {
+      const option = document.createElement('option');
+      option.value = pagina.page_id;
+      option.textContent = pagina.nombre_pagina;
+      select.appendChild(option);
+    }
+  } catch (err) {
+    console.error("❌ Error cargando páginas:", err);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  cargarPaginas();
+  cargarPublicaciones();
+  cargarComentarios();
+  cargarAnuncios();
+  cargarLogs();
 });
 </script>
-
-<style>
-.tab-button.active {
-    border-color: #3B82F6 !important;
-    color: #3B82F6 !important;
-}
-
-.tab-panel {
-    animation: fadeIn 0.2s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-</style>
-
 {% endblock %}

@@ -9,6 +9,7 @@ from clientes.aura.utils.meta_ads import (
     listar_campañas_activas
 )
 from .webhooks_meta import webhooks_meta_bp
+from .webhooks_api import webhooks_api_bp
 
 # 🗄️ CONTEXTO BD PARA GITHUB COPILOT
 from clientes.aura.utils.supabase_schemas import SUPABASE_SCHEMAS
@@ -20,6 +21,9 @@ panel_cliente_meta_ads_bp = Blueprint(
     __name__,
     url_prefix="/panel_cliente/<nombre_nora>/meta_ads"
 )
+
+# Registrar el blueprint de webhooks API
+panel_cliente_meta_ads_bp.register_blueprint(webhooks_api_bp)
 
 @panel_cliente_meta_ads_bp.route("/")
 def panel_cliente_meta_ads(nombre_nora):

@@ -1,5 +1,5 @@
 # Archivo generado automáticamente
-# Fecha de generación: 2025-08-06 12:31:36,482
+# Fecha de generación: 2025-08-06 17:21:14,851
 # Total de tablas encontradas: 92
 SUPABASE_SCHEMAS = {'JulietDesigns': {'estructura': 'tabla_vacia'},
  'JulietImages': {'estructura': 'tabla_vacia'},

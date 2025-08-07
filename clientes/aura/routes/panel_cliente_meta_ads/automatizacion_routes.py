@@ -292,47 +292,6 @@ def api_estadisticas_automatizacion():
             'message': f'Error obteniendo estadísticas: {str(e)}'
         }), 500
 
-@automatizacion_routes_bp.route('/api/automatizacion/publicaciones')
-@login_required
-def api_publicaciones_recientes():
-    """API para obtener publicaciones procesadas recientemente"""
-    try:
-        nombre_nora = obtener_nombre_nora()
-        limite = int(request.args.get('limite', 20))
-        
-        # Obtener publicaciones recientes
-        publicaciones = supabase.table('meta_publicaciones_webhook') \
-            .select('*') \
-            .order('creada_en', desc=True) \
-            .limit(limite) \
-            .execute()
-        
-        # Formatear datos
-        publicaciones_formateadas = []
-        for pub in publicaciones.data or []:
-            try:
-                from datetime import datetime
-                fecha = datetime.fromisoformat(pub['creada_en'].replace('Z', '+00:00'))
-                pub['creada_en_fmt'] = fecha.strftime('%d/%m/%Y %H:%M')
-            except:
-                pub['creada_en_fmt'] = 'N/A'
-            
-            # Truncar mensaje
-            mensaje = pub.get('mensaje', '')
-            pub['mensaje_truncado'] = mensaje[:100] + ('...' if len(mensaje) > 100 else '')
-            
-            publicaciones_formateadas.append(pub)
-        
-        return jsonify({
-            'success': True,
-            'publicaciones': publicaciones_formateadas
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': f'Error obteniendo publicaciones: {str(e)}'
-        }), 500
-
 @automatizacion_routes_bp.route('/api/automatizacion/cuentas_meta')
 @login_required
 def api_cuentas_meta():
