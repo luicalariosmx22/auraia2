@@ -2103,3 +2103,221 @@ jinja2.exceptions.UndefinedError: 'dict object' has no attribute 'facebook_impor
 2025-08-04 19:10:36,929 - werkzeug - ERROR - 127.0.0.1 - - [04/Aug/2025 19:10:36] code 400, message Bad request version ('C')
 2025-08-04 19:10:36,975 - werkzeug - ERROR - 127.0.0.1 - - [04/Aug/2025 19:10:36] code 400, message Bad request version ('\x90Ìë0·tÅ,\x11\x84')
 2025-08-04 19:10:37,240 - werkzeug - ERROR - 127.0.0.1 - - [04/Aug/2025 19:10:37] code 400, message Bad request version ('ÉÀlÔ\x80\x92\x84:M·\x97\x0e\x18bEç:V6i%q\x99\x1ba@2?©$Ù¶·\x84Â\x071ÃJl´»P')
+2025-08-07 15:42:29,610 - clientes.aura.utils.meta_webhook_helpers - ERROR - Error HTTP suscribiendo webhook página 323567267755269: 400 - (#100) Param subscribed_fields[1] must be one of {feed, mention, name, picture, category, description, conversations, feature_access_list, inbox_labels, standby, message_mention, messages, message_reactions, messaging_account_linking, messaging_checkout_updates, messaging_customer_information, message_echoes, message_edits, message_deliveries, message_context, messaging_game_plays, messaging_optins, messaging_optouts, messaging_payments, messaging_postbacks, messaging_pre_checkouts, message_reads, messaging_referrals, messaging_handovers, messaging_policy_enforcement, marketing_message_delivery_failed, messaging_appointments, messaging_direct_sends, messaging_fblogin_account_linking, user_action, messaging_feedback, send_cart, group_feed, calls, call_permission_reply, call_settings_update, response_feedback, messaging_integrity, messaging_in_thread_lead_form_submit, message_template_status_update, founded, company_overview, mission, products, general_info, leadgen, leadgen_fat, location, hours, parking, public_transit, page_about_story, mcom_invoice_change, invoice_access_invoice_change, invoice_access_invoice_draft_change, invoice_access_onboarding_status_active, invoice_access_bank_slip_events, local_delivery, phone, email, website, ratings, attire, payment_options, culinary_team, general_manager, price_range, awards, hometown, current_location, bio, affiliation, birthday, personal_info, personal_interests, members, checkins, page_upcoming_change, page_change_proposal, merchant_review, product_review, videos, live_videos, video_text_question_responses, registration, payment_request_update, publisher_subscriptions, invalid_topic_placeholder, marketing_messages_subscriber_upload_status} - got "posts".
+2025-08-07 18:25:57,799 - clientes.aura - ERROR - Exception on /panel_cliente/aura/redes_sociales/facebook/782681001814242 [GET]
+Traceback (most recent call last):
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\routes\panel_cliente_redes_sociales\panel_cliente_redes_sociales.py", line 88, in detalle_pagina_facebook
+    return redirect(url_for('facebook_detalle_bp.detalle_pagina_facebook_optimizado',
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 225, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'facebook_detalle_bp.detalle_pagina_facebook_optimizado' with values ['page_id']. Did you mean 'panel_cliente_redes_sociales_bp.detalle_pagina_facebook' instead?
+2025-08-07 19:54:42,078 - clientes.aura - ERROR - Exception on /panel_cliente/aura/redes_sociales/facebook/782681001814242 [GET]
+Traceback (most recent call last):
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\routes\panel_cliente_redes_sociales\panel_cliente_redes_sociales.py", line 88, in detalle_pagina_facebook
+    """Detalle completo de una página específica de Facebook"""
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 225, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'facebook_detalle_bp.detalle_pagina_facebook_optimizado' with values ['page_id']. Did you mean 'panel_cliente_redes_sociales_bp.detalle_pagina_facebook' instead?
+2025-08-07 20:35:19,038 - clientes.aura - ERROR - Exception on /panel_cliente/aura/redes_sociales/facebook/782681001814242 [GET]
+Traceback (most recent call last):
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\routes\panel_cliente_redes_sociales\panel_cliente_redes_sociales.py", line 88, in detalle_pagina_facebook
+    """Detalle completo de una página específica de Facebook"""
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 225, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'facebook_detalle_bp.detalle_pagina_facebook_optimizado' with values ['page_id']. Did you mean 'panel_cliente_redes_sociales_bp.detalle_pagina_facebook' instead?
+2025-08-07 20:39:29,288 - clientes.aura - ERROR - Exception on /panel_cliente/aura/redes_sociales/facebook/782681001814242 [GET]
+Traceback (most recent call last):
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\routes\panel_cliente_redes_sociales\panel_cliente_redes_sociales.py", line 88, in detalle_pagina_facebook
+    """Detalle completo de una página específica de Facebook"""
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 225, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'facebook_detalle_bp.detalle_pagina_facebook_optimizado' with values ['page_id']. Did you mean 'panel_cliente_redes_sociales_bp.detalle_pagina_facebook' instead?
+2025-08-07 21:04:19,587 - clientes.aura - ERROR - Exception on /panel_cliente/aura/redes_sociales/facebook/782681001814242 [GET]
+Traceback (most recent call last):
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\routes\panel_cliente_redes_sociales\panel_cliente_redes_sociales.py", line 88, in detalle_pagina_facebook
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 225, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'facebook_detalle_bp.detalle_pagina_facebook_optimizado' with values ['page_id']. Did you mean 'panel_cliente_redes_sociales_bp.detalle_pagina_facebook' instead?
+2025-08-07 21:05:22,839 - clientes.aura - ERROR - Exception on /panel_cliente/aura/redes_sociales/facebook/1380835432195600 [GET]
+Traceback (most recent call last):
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\PYTHON\AuraAi2\clientes\aura\routes\panel_cliente_redes_sociales\panel_cliente_redes_sociales.py", line 88, in detalle_pagina_facebook
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\helpers.py", line 225, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\flask\app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC\AppData\Local\Programs\Python\Python311\Lib\site-packages\werkzeug\routing\map.py", line 919, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'facebook_detalle_bp.detalle_pagina_facebook_optimizado' with values ['page_id']. Did you mean 'panel_cliente_redes_sociales_bp.detalle_pagina_facebook' instead?
+2025-08-11 15:19:02,329 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-08-11 15:20:34,566 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-08-11 15:20:42,577 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-08-11 15:20:44,787 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contactos/
+2025-08-11 15:20:49,106 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/cursos/
+2025-08-11 15:20:51,337 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/entrenamiento/
+2025-08-11 15:20:55,656 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/notificaciones/
+2025-08-11 15:20:57,851 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/cursos/
+2025-08-11 15:21:02,099 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/airbnb/
+2025-08-11 15:21:06,028 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/notificaciones/
+2025-08-11 15:21:09,637 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-08-11 15:21:13,303 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/airbnb/
+2025-08-11 15:21:20,748 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/meta_ads/
+2025-08-11 15:21:21,512 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/call_center/
+2025-08-11 15:21:29,566 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-08-11 15:21:32,373 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/call_center/
+2025-08-11 15:21:38,015 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/encuestas/
+2025-08-11 15:21:38,679 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/tareas/
+2025-08-11 15:21:46,544 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-08-11 15:21:49,005 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/encuestas/
+2025-08-11 15:21:53,139 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/agenda/
+2025-08-11 15:21:57,230 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/clientes/
+2025-08-11 15:22:01,164 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-08-11 15:22:05,293 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/agenda/
+2025-08-11 15:22:08,893 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/lading_pages/
+2025-08-11 15:22:11,772 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/alertas/
+2025-08-11 15:22:15,860 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contenidos/
+2025-08-11 15:22:19,688 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/lading_pages/
+2025-08-11 15:22:22,528 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/redes_sociales/
+2025-08-11 15:22:26,797 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/contenidos/
+2025-08-11 15:22:30,992 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/bienes_raices/
+2025-08-11 15:22:34,657 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/redes_sociales/
+2025-08-11 15:22:38,251 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-08-11 15:22:41,913 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/bienes_raices/
+2025-08-11 15:22:45,498 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-08-11 15:22:49,212 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_maps/
+2025-08-11 15:22:53,198 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-08-11 15:22:57,011 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/google_ads/
+2025-08-11 15:23:00,839 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-08-11 15:23:04,619 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/pagos/
+2025-08-11 15:23:08,325 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/api_center/
+2025-08-11 15:23:12,492 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/open_table/
+2025-08-11 15:23:16,144 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/bienesraices/
+2025-08-11 15:23:20,094 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/api_center/
+2025-08-11 15:23:24,502 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/automatizaciones/
+2025-08-11 15:23:27,030 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/bienesraices/
+2025-08-11 15:23:34,242 - aura - INFO - Reintentando con barra final: http://localhost:5000/panel_cliente/aura/automatizaciones/

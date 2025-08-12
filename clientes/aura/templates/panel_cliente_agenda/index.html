@@ -1,8 +1,171 @@
 {% extends "base_cliente.html" %}
 
+{% block titulo %}📅 Agenda - {{ nombre_nora|title }}{% endblock %}
+
+{% block head_extra %}
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+
+<!-- Font Awesome para iconos -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<!-- CSS del módulo agenda -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modulos/agenda/main.css') }}">
+{% endblock %}
+
 {% block contenido %}
-<div class="max-w-4xl mx-auto py-8">
-  <h1 class="text-3xl font-bold mb-4">📆 Módulo: Agenda</h1>
-  <p class="text-gray-700">Este es el módulo inicial para agenda.</p>
+<div class="max-w-7xl mx-auto py-6 px-4">
+    <div id="agenda-container" class="agenda-container">
+        <!-- Header -->
+        <div class="agenda-header">
+            <div>
+                <h1 class="agenda-title">📅 Agenda</h1>
+                <p class="text-sm text-gray-600 mt-1">Gestiona tus eventos, tareas y reuniones</p>
+            </div>
+            
+            <div class="agenda-controls">
+                <!-- Selector de vista -->
+                <div class="vista-selector">
+                    <button class="vista-btn active" onclick="cambiarVista('dayGridMonth')">
+                        Mes
+                    </button>
+                    <button class="vista-btn" onclick="cambiarVista('timeGridWeek')">
+                        Semana
+                    </button>
+                    <button class="vista-btn" onclick="cambiarVista('timeGridDay')">
+                        Día
+                    </button>
+                </div>
+                
+                <!-- Botones de acción -->
+                <button class="btn-primary" id="add-event-btn">
+                    <i class="fas fa-plus"></i>
+                    Nuevo Evento
+                </button>
+                
+                <a href="{{ url_for('panel_cliente_agenda_bp.configuracion_agenda', nombre_nora=nombre_nora) }}" 
+                   class="btn-secondary">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+        </div>
+        
+        <!-- Calendario -->
+        <div style="padding: 1rem;">
+            <div id="calendario"></div>
+        </div>
+        
+        <!-- Overlay de carga -->
+        <div id="loading-overlay" class="loading-overlay hidden">
+            <div class="loading-spinner-overlay">
+                <div class="loading-spinner"></div>
+                <p>Cargando eventos...</p>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Modal para evento -->
+<div id="event-modal" class="evento-modal">
+    <div class="evento-modal-content">
+        <div class="evento-modal-header">
+            <h3 class="evento-modal-title" id="modalTitle">Nuevo Evento</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <form id="event-form">
+            <div class="evento-modal-body">
+                <input type="hidden" id="event-id" name="id">
+                
+                <div class="form-group">
+                    <label class="form-label" for="event-titulo">Título *</label>
+                    <input type="text" class="form-control" id="event-titulo" name="titulo" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="event-descripcion">Descripción</label>
+                    <textarea class="form-control" id="event-descripcion" name="descripcion" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="event-fecha">Fecha *</label>
+                    <input type="date" class="form-control" id="event-fecha" name="fecha" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="event-hora-inicio">Hora de inicio *</label>
+                    <input type="time" class="form-control" id="event-hora-inicio" name="hora_inicio" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="event-hora-fin">Hora de fin</label>
+                    <input type="time" class="form-control" id="event-hora-fin" name="hora_fin">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="event-ubicacion">Ubicación</label>
+                    <input type="text" class="form-control" id="event-ubicacion" name="ubicacion">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="event-tipo">Tipo de evento</label>
+                    <select class="form-select" id="event-tipo" name="tipo">
+                        <option value="reunion">Reunión</option>
+                        <option value="cita">Cita</option>
+                        <option value="llamada">Llamada</option>
+                        <option value="evento">Evento</option>
+                        <option value="recordatorio">Recordatorio</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="event-empresa-id">Empresa (opcional)</label>
+                    <select class="form-select" id="event-empresa-id" name="empresa_id">
+                        <option value="">Seleccionar empresa...</option>
+                        <!-- Se cargarán dinámicamente -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="event-tarea-id">Relacionar con tarea (opcional)</label>
+                    <select class="form-select" id="event-tarea-id" name="tarea_id">
+                        <option value="">Seleccionar tarea...</option>
+                        <!-- Se cargarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
+            
+            <div class="evento-modal-footer">
+                <button type="button" class="btn-danger" id="eliminar-btn" style="display: none;">
+                    Eliminar
+                </button>
+                <button type="button" class="btn-secondary modal-close">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-primary" id="guardar-btn">
+                    <span id="guardar-text">Guardar</span>
+                    <div class="loading-spinner" id="guardar-spinner" style="display: none;"></div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
+
+<!-- JavaScript del módulo agenda -->
+<script>
+    // Configuración global para el módulo agenda
+    window.AGENDA_CONFIG = {
+        nombreNora: '{{ nombre_nora }}',
+        apiUrl: '/panel_cliente/{{ nombre_nora }}/agenda/api'
+    };
+    window.NOMBRE_NORA = '{{ nombre_nora }}';
+</script>
+<script src="{{ url_for('static', filename='js/modulos/agenda/main.js') }}"></script>
 {% endblock %}

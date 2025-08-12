@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS facebook_paginas (
     
     -- Metadatos adicionales
     access_token_valido BOOLEAN DEFAULT TRUE,
+    access_token TEXT, -- Token de acceso específico de cada página
     ultima_sincronizacion TIMESTAMP WITH TIME ZONE,
     permisos_disponibles TEXT[], -- Array de permisos que tiene la app
     
@@ -53,6 +54,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Eliminar trigger existente si existe y crear uno nuevo
+DROP TRIGGER IF EXISTS trigger_update_facebook_paginas_timestamp ON facebook_paginas;
 CREATE TRIGGER trigger_update_facebook_paginas_timestamp
     BEFORE UPDATE ON facebook_paginas
     FOR EACH ROW

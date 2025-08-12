@@ -1,0 +1,338 @@
+{% extends "base_cliente.html" %}
+
+{% block titulo %}🎨 Editor Landing Page - {{ nombre_nora|title }}{% endblock %}
+
+{% block estilos_adicionales %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modulos/landing_pages/editor.css') }}">
+<style>
+/* Estilos temporales del editor */
+.editor-panel {
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+}
+
+.preview-panel {
+    background: white;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+}
+
+.bloque-item {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.bloque-item:hover {
+    background-color: #e2e8f0;
+}
+
+.bloque-selected {
+    background-color: #dbeafe;
+    border-left: 3px solid #3b82f6;
+}
+
+.config-section {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.color-picker {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.preview-frame {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    min-height: 600px;
+}
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="h-screen flex flex-col">
+    <!-- Header del editor -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('panel_cliente_lading_pages_bp.panel_cliente_lading_pages', nombre_nora=nombre_nora) }}" 
+               class="text-gray-600 hover:text-gray-900">
+                ← Volver
+            </a>
+            <h1 class="text-xl font-semibold text-gray-900">🎨 Editor Landing Page</h1>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <button onclick="guardarConfiguracion()" 
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                💾 Guardar
+            </button>
+            <button onclick="abrirPreview()" 
+                    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                👁️ Preview
+            </button>
+        </div>
+    </div>
+
+    <!-- Editor principal -->
+    <div class="flex-1 flex">
+        <!-- Panel izquierdo - Configuración -->
+        <div class="w-80 editor-panel p-6">
+            <!-- Configuración general -->
+            <div class="config-section pb-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">⚙️ Configuración General</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Título de la página</label>
+                        <input type="text" 
+                               id="titulo-landing" 
+                               value="{{ config.titulo or '' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Mi Landing Page">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Subtítulo</label>
+                        <textarea id="subtitulo-landing" 
+                                  rows="2"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="Descripción breve...">{{ config.subtitulo or '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colores -->
+            <div class="config-section pb-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">🎨 Colores</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm font-medium text-gray-700">Primario:</label>
+                        <input type="color" 
+                               id="color-primario" 
+                               value="{{ config.colores.primario if config.colores else '#3B82F6' }}"
+                               class="color-picker">
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm font-medium text-gray-700">Secundario:</label>
+                        <input type="color" 
+                               id="color-secundario" 
+                               value="{{ config.colores.secundario if config.colores else '#1E40AF' }}"
+                               class="color-picker">
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm font-medium text-gray-700">Texto:</label>
+                        <input type="color" 
+                               id="color-texto" 
+                               value="{{ config.colores.texto if config.colores else '#1F2937' }}"
+                               class="color-picker">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloques disponibles -->
+            <div class="config-section pb-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">🧱 Bloques Disponibles</h3>
+                
+                <div id="bloques-disponibles" class="space-y-2">
+                    {% for bloque in bloques %}
+                    <div class="bloque-item p-3 rounded-lg border border-gray-200" 
+                         data-bloque="{{ bloque.id }}"
+                         onclick="toggleBloque('{{ bloque.id }}')">
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium text-gray-900">{{ bloque.nombre }}</span>
+                            <input type="checkbox" 
+                                   id="check-{{ bloque.id }}"
+                                   {% if config.bloques and bloque.id in config.bloques %}checked{% endif %}>
+                        </div>
+                        {% if bloque.descripcion %}
+                        <p class="text-sm text-gray-600 mt-1">{{ bloque.descripcion }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- CTA Principal -->
+            <div class="config-section pb-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">📢 Call to Action</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Texto del botón</label>
+                        <input type="text" 
+                               id="cta-texto" 
+                               value="{{ config.cta.texto if config.cta else 'Contáctanos' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                               placeholder="Contáctanos">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">URL destino</label>
+                        <input type="url" 
+                               id="cta-url" 
+                               value="{{ config.cta.url if config.cta else '' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                               placeholder="https://...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel derecho - Preview -->
+        <div class="flex-1 preview-panel p-6">
+            <div class="preview-frame w-full">
+                <iframe id="preview-iframe" 
+                        src="{{ url_for('panel_cliente_lading_pages_bp.preview_landing', nombre_nora=nombre_nora) }}"
+                        class="w-full h-full border-0 rounded-lg">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notificaciones -->
+<div id="notificacion" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden">
+    ✅ Configuración guardada
+</div>
+{% endblock %}
+
+{% block scripts_adicionales %}
+<script>
+let configActual = {{ config|tojson if config else '{}' }};
+
+// Toggle bloque
+function toggleBloque(bloqueId) {
+    const checkbox = document.getElementById(`check-${bloqueId}`);
+    checkbox.checked = !checkbox.checked;
+    
+    // Actualizar estado visual
+    const bloqueDiv = document.querySelector(`[data-bloque="${bloqueId}"]`);
+    if (checkbox.checked) {
+        bloqueDiv.classList.add('bloque-selected');
+    } else {
+        bloqueDiv.classList.remove('bloque-selected');
+    }
+    
+    // Actualizar configuración
+    actualizarConfiguracion();
+}
+
+// Actualizar configuración en tiempo real
+function actualizarConfiguracion() {
+    configActual = {
+        titulo: document.getElementById('titulo-landing').value,
+        subtitulo: document.getElementById('subtitulo-landing').value,
+        colores: {
+            primario: document.getElementById('color-primario').value,
+            secundario: document.getElementById('color-secundario').value,
+            texto: document.getElementById('color-texto').value
+        },
+        cta: {
+            texto: document.getElementById('cta-texto').value,
+            url: document.getElementById('cta-url').value
+        },
+        bloques: obtenerBloquesSeleccionados()
+    };
+    
+    // Actualizar preview (debounced)
+    clearTimeout(window.updateTimeout);
+    window.updateTimeout = setTimeout(actualizarPreview, 500);
+}
+
+// Obtener bloques seleccionados
+function obtenerBloquesSeleccionados() {
+    const bloques = [];
+    document.querySelectorAll('#bloques-disponibles input[type="checkbox"]:checked').forEach(checkbox => {
+        const bloqueId = checkbox.id.replace('check-', '');
+        bloques.push(bloqueId);
+    });
+    return bloques;
+}
+
+// Actualizar preview
+function actualizarPreview() {
+    // Recargar iframe con nueva configuración
+    const iframe = document.getElementById('preview-iframe');
+    iframe.contentWindow.location.reload();
+}
+
+// Guardar configuración
+async function guardarConfiguracion() {
+    try {
+        const response = await fetch('{{ url_for("panel_cliente_lading_pages_bp.api_guardar_landing", nombre_nora=nombre_nora) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(configActual)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            mostrarNotificacion('✅ Configuración guardada', 'green');
+        } else {
+            mostrarNotificacion('❌ Error: ' + result.message, 'red');
+        }
+        
+    } catch (error) {
+        console.error('Error guardando:', error);
+        mostrarNotificacion('❌ Error de conexión', 'red');
+    }
+}
+
+// Abrir preview en nueva ventana
+function abrirPreview() {
+    window.open('{{ url_for("panel_cliente_lading_pages_bp.preview_landing", nombre_nora=nombre_nora) }}', '_blank');
+}
+
+// Mostrar notificación
+function mostrarNotificacion(mensaje, color = 'green') {
+    const notif = document.getElementById('notificacion');
+    notif.textContent = mensaje;
+    notif.className = `fixed top-4 right-4 bg-${color}-500 text-white px-6 py-3 rounded-lg shadow-lg`;
+    notif.classList.remove('hidden');
+    
+    setTimeout(() => {
+        notif.classList.add('hidden');
+    }, 3000);
+}
+
+// Event listeners para actualización en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    // Inputs de texto
+    document.getElementById('titulo-landing').addEventListener('input', actualizarConfiguracion);
+    document.getElementById('subtitulo-landing').addEventListener('input', actualizarConfiguracion);
+    document.getElementById('cta-texto').addEventListener('input', actualizarConfiguracion);
+    document.getElementById('cta-url').addEventListener('input', actualizarConfiguracion);
+    
+    // Color pickers
+    document.getElementById('color-primario').addEventListener('change', actualizarConfiguracion);
+    document.getElementById('color-secundario').addEventListener('change', actualizarConfiguracion);
+    document.getElementById('color-texto').addEventListener('change', actualizarConfiguracion);
+    
+    // Inicializar estados de bloques
+    document.querySelectorAll('#bloques-disponibles input[type="checkbox"]').forEach(checkbox => {
+        if (checkbox.checked) {
+            const bloqueId = checkbox.id.replace('check-', '');
+            document.querySelector(`[data-bloque="${bloqueId}"]`).classList.add('bloque-selected');
+        }
+    });
+});
+
+// Atajos de teclado
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        guardarConfiguracion();
+    }
+});
+</script>
+{% endblock %}

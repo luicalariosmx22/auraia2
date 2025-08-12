@@ -22,6 +22,7 @@ from clientes.aura.routes.panel_cliente_tareas.recurrentes import panel_tareas_r
 from clientes.aura.routes.panel_cliente_google_ads import panel_cliente_google_ads_bp
 from clientes.aura.routes.whatsapp_integration import whatsapp_integration_bp
 from clientes.aura.routes.panel_cliente_meta_ads.panel_cliente_meta_ads import panel_cliente_meta_ads_bp
+from clientes.aura.routes.panel_cliente_agenda import panel_cliente_agenda_bp
 # Imports adicionales (movidos desde los bloques condicionales)
 from clientes.aura.routes.panel_cliente_entrenamiento.vista_panel_cliente_entrenamiento import panel_cliente_entrenamiento_bp
 from clientes.aura.routes.panel_cliente_tareas.gestionar import panel_tareas_gestionar_bp
@@ -174,6 +175,9 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
                 
         if "cursos" in modulos:
             registrar_modulo(app, "cursos", panel_cliente_cursos_bp, f"/panel_cliente/{nombre_nora}/cursos", modulos_registrados)
+
+        if "agenda" in modulos:
+            registrar_modulo(app, "agenda", panel_cliente_agenda_bp, f"/panel_cliente/{nombre_nora}/agenda", modulos_registrados)
 
         # WhatsApp Web WebSocket - requiere importación dinámica debido a conflicto de nombres
         if "qr_whatsapp_web" in modulos:

@@ -1,8 +1,255 @@
 {% extends "base_cliente.html" %}
 
+{% block titulo %}🏠 Landing Pages - {{ nombre_nora|title }}{% endblock %}
+
+{% block estilos_adicionales %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modulos/landing_pages/main.css') }}">
+{% endblock %}
+
 {% block contenido %}
-<div class="max-w-4xl mx-auto py-8">
-  <h1 class="text-3xl font-bold mb-4">🧲 Módulo: Lading_pages</h1>
-  <p class="text-gray-700">Este es el módulo inicial para lading_pages.</p>
+<div class="max-w-6xl mx-auto py-8">
+  <!-- Header del módulo -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+      🏠 Landing Pages
+    </h1>
+    <p class="text-gray-600">
+      Crea y gestiona páginas de destino personalizadas para {{ nombre_nora|title }}.
+    </p>
+  </div>
+
+  <!-- Estadísticas rápidas -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-blue-50 rounded-lg p-6">
+      <div class="flex items-center">
+        <div class="bg-blue-100 rounded-full p-3 mr-4">
+          <span class="text-2xl">🎨</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-blue-900">Editor Visual</h3>
+          <p class="text-blue-700">Diseña tu landing page</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-green-50 rounded-lg p-6">
+      <div class="flex items-center">
+        <div class="bg-green-100 rounded-full p-3 mr-4">
+          <span class="text-2xl">📱</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-green-900">Responsive</h3>
+          <p class="text-green-700">Adaptado a móviles</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-purple-50 rounded-lg p-6">
+      <div class="flex items-center">
+        <div class="bg-purple-100 rounded-full p-3 mr-4">
+          <span class="text-2xl">🚀</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-purple-900">Rápido</h3>
+          <p class="text-purple-700">Optimizado para velocidad</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configuración actual -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+    <div class="p-6 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-900">📄 Configuración Actual</h2>
+    </div>
+    <div class="p-6">
+      {% if config %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-medium text-gray-900 mb-2">Título</h3>
+            <p class="text-gray-600">{{ config.titulo or 'Sin título' }}</p>
+          </div>
+          
+          <div>
+            <h3 class="font-medium text-gray-900 mb-2">Bloques Activos</h3>
+            {% if config.bloques %}
+              <div class="flex flex-wrap gap-2">
+                {% for bloque in config.bloques %}
+                  <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                    {{ bloque|title }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-gray-500">No hay bloques configurados</p>
+            {% endif %}
+          </div>
+          
+          {% if config.colores %}
+          <div>
+            <h3 class="font-medium text-gray-900 mb-2">Colores</h3>
+            <div class="flex gap-3">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded border" style="background-color: {{ config.colores.primario or '#3B82F6' }}"></div>
+                <span class="text-sm text-gray-600">Primario</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded border" style="background-color: {{ config.colores.secundario or '#1E40AF' }}"></div>
+                <span class="text-sm text-gray-600">Secundario</span>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      {% else %}
+        <p class="text-gray-500">No hay configuración disponible</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Acciones principales -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Editor -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      <div class="text-center">
+        <div class="bg-blue-100 rounded-full p-4 mb-4 mx-auto w-16 h-16 flex items-center justify-center">
+          <span class="text-2xl">🎨</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Editor</h3>
+        <p class="text-gray-600 text-sm mb-4">Diseña y personaliza tu landing page</p>
+        <a href="{{ url_for('panel_cliente_lading_pages_bp.vista_editor_landing', nombre_nora=nombre_nora) }}" 
+           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          Abrir Editor
+        </a>
+      </div>
+    </div>
+
+    <!-- Vista Previa -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      <div class="text-center">
+        <div class="bg-green-100 rounded-full p-4 mb-4 mx-auto w-16 h-16 flex items-center justify-center">
+          <span class="text-2xl">👁️</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Vista Previa</h3>
+        <p class="text-gray-600 text-sm mb-4">Revisa cómo se ve tu landing page</p>
+        <a href="{{ url_for('panel_cliente_lading_pages_bp.preview_landing', nombre_nora=nombre_nora) }}" 
+           target="_blank"
+           class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+          Ver Preview
+        </a>
+      </div>
+    </div>
+
+    <!-- Vista Pública -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      <div class="text-center">
+        <div class="bg-purple-100 rounded-full p-4 mb-4 mx-auto w-16 h-16 flex items-center justify-center">
+          <span class="text-2xl">🌐</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Vista Pública</h3>
+        <p class="text-gray-600 text-sm mb-4">Página final para tus visitantes</p>
+        <a href="{{ url_for('panel_cliente_lading_pages_bp.vista_landing_publica', nombre_nora=nombre_nora) }}" 
+           target="_blank"
+           class="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+          Ver Pública
+        </a>
+      </div>
+    </div>
+
+    <!-- Configuración Avanzada -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      <div class="text-center">
+        <div class="bg-orange-100 rounded-full p-4 mb-4 mx-auto w-16 h-16 flex items-center justify-center">
+          <span class="text-2xl">⚙️</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Configuración</h3>
+        <p class="text-gray-600 text-sm mb-4">Ajustes avanzados y SEO</p>
+        <button onclick="mostrarConfiguracion()" 
+                class="inline-block bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors">
+          Configurar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- URL de la landing page -->
+  <div class="bg-gray-50 rounded-lg p-6 mt-8">
+    <h3 class="text-lg font-semibold text-gray-900 mb-3">🔗 URL de tu Landing Page</h3>
+    <div class="flex items-center gap-3">
+      <input type="text" 
+             readonly
+             value="{{ url_for('panel_cliente_lading_pages_bp.vista_landing_publica', nombre_nora=nombre_nora, _external=True) }}"
+             class="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-lg font-mono text-sm"
+             id="landing-url">
+      <button onclick="copiarURL()" 
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        📋 Copiar
+      </button>
+    </div>
+    <p class="text-gray-600 text-sm mt-2">
+      Comparte esta URL para que tus visitantes accedan a tu landing page.
+    </p>
+  </div>
 </div>
+
+<!-- Modal de configuración -->
+<div id="modal-configuracion" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">⚙️ Configuración Avanzada</h3>
+      <p class="text-gray-600 mb-4">
+        Funciones avanzadas disponibles próximamente:
+      </p>
+      <ul class="text-sm text-gray-600 space-y-2 mb-4">
+        <li>• SEO y meta tags personalizados</li>
+        <li>• Google Analytics integrado</li>
+        <li>• Formularios de contacto avanzados</li>
+        <li>• A/B testing integrado</li>
+      </ul>
+      <button onclick="cerrarConfiguracion()" 
+              class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts_adicionales %}
+<script>
+function copiarURL() {
+    const urlInput = document.getElementById('landing-url');
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999); // Para móviles
+    document.execCommand('copy');
+    
+    // Feedback visual
+    const button = event.target;
+    const originalText = button.textContent;
+    button.textContent = '✅ Copiado';
+    button.classList.add('bg-green-600');
+    button.classList.remove('bg-blue-600');
+    
+    setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove('bg-green-600');
+        button.classList.add('bg-blue-600');
+    }, 2000);
+}
+
+function mostrarConfiguracion() {
+    document.getElementById('modal-configuracion').classList.remove('hidden');
+}
+
+function cerrarConfiguracion() {
+    document.getElementById('modal-configuracion').classList.add('hidden');
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('modal-configuracion').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarConfiguracion();
+    }
+});
+</script>
 {% endblock %}

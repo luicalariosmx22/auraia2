@@ -8,11 +8,20 @@ los nombres de campos en desarrollo.
 
 import os
 from pathlib import Path
-from supabase import create_client
+from supabase.client import create_client  # ✅ Corregido import
 import pprint
 import logging
 from dotenv import load_dotenv
-import psycopg2
+
+# Import opcional de psicopg2 (no necesario para funcionalidad básica)
+try:
+    import psicopg2
+    HAS_PSICOPG2 = True
+except ImportError:
+    psicopg2 = None
+    HAS_PSICOPG2 = False
+    print("INFO: psicopg2 no esta instalado, usando funcionalidad basica")
+
 import re
 import requests
 

@@ -590,3 +590,155 @@ def verificar_webhook_registrado(ad_account_id: str, access_token: str) -> dict:
             'error': str(e),
             'success': False
         }
+
+def suscribir_webhook_pagina_facebook(page_id: str, access_token: str, app_id: str) -> dict:
+    """
+    Suscribe el webhook de una página de Facebook específica.
+    
+    Args:
+        page_id: ID de la página de Facebook
+        access_token: Token de acceso de la página
+        app_id: ID de la aplicación Meta
+        
+    Returns:
+        dict: Resultado de la operación
+    """
+    try:
+        import requests
+        
+        print(f"🔗 Suscribiendo webhook para página: {page_id}")
+        logger.info(f"Iniciando suscripción webhook para página {page_id}")
+        
+        # URL para suscribir aplicación al webhook de la página
+        url = f"https://graph.facebook.com/v18.0/{page_id}/subscribed_apps"
+        
+        # Parámetros para la suscripción
+        params = {
+            'subscribed_fields': 'feed,messages,mention,conversations',  # Campos válidos según la API v18.0
+            'access_token': access_token
+        }
+        
+        # Hacer la petición POST para suscribir
+        response = requests.post(url, params=params)
+        
+        if response.status_code == 200:
+            response_data = response.json()
+            
+            if response_data.get('success'):
+                print(f"✅ Página {page_id} suscrita correctamente al webhook")
+                logger.info(f"Webhook suscrito exitosamente para página {page_id}")
+                
+                return {
+                    'success': True,
+                    'page_id': page_id,
+                    'message': f'Webhook suscrito exitosamente para página {page_id}',
+                    'response': response_data
+                }
+            else:
+                error_msg = f"Error en la respuesta: {response_data}"
+                print(f"❌ {error_msg}")
+                logger.error(f"Error suscribiendo webhook página {page_id}: {error_msg}")
+                
+                return {
+                    'success': False,
+                    'page_id': page_id,
+                    'error': error_msg
+                }
+        else:
+            try:
+                error_data = response.json()
+                error_msg = error_data.get('error', {}).get('message', str(error_data))
+            except:
+                error_msg = response.text or f'HTTP {response.status_code}'
+            
+            print(f"❌ Error HTTP {response.status_code}: {error_msg}")
+            logger.error(f"Error HTTP suscribiendo webhook página {page_id}: {response.status_code} - {error_msg}")
+            
+            return {
+                'success': False,
+                'page_id': page_id,
+                'error': error_msg,
+                'status_code': response.status_code
+            }
+        
+    except Exception as e:
+        error_msg = f"Error suscribiendo webhook página {page_id}: {e}"
+        print(f"❌ {error_msg}")
+        logger.error(error_msg)
+        return {
+            'success': False,
+            'page_id': page_id,
+            'error': str(e)
+        }
+
+def verificar_webhook_pagina_facebook(page_id: str, access_token: str, app_id: str) -> dict:
+    """
+    Verifica si el webhook está suscrito en una página de Facebook.
+    
+    Args:
+        page_id: ID de la página de Facebook
+        access_token: Token de acceso de la página
+        app_id: ID de la aplicación Meta
+        
+    Returns:
+        dict: Estado de la suscripción del webhook
+    """
+    try:
+        import requests
+        
+        print(f"🔍 Verificando webhook para página: {page_id}")
+        
+        # URL para verificar aplicaciones suscritas
+        url = f"https://graph.facebook.com/v18.0/{page_id}/subscribed_apps"
+        params = {'access_token': access_token}
+        
+        response = requests.get(url, params=params)
+        
+        if response.status_code == 200:
+            response_data = response.json()
+            apps_suscritas = response_data.get('data', [])
+            
+            # Verificar si nuestra app está suscrita
+            app_encontrada = False
+            for app in apps_suscritas:
+                if app.get('id') == app_id:
+                    app_encontrada = True
+                    break
+            
+            print(f"✅ Página {page_id}: {'Suscrita' if app_encontrada else 'No suscrita'}")
+            logger.info(f"Verificación webhook página {page_id}: {'suscrita' if app_encontrada else 'no suscrita'}")
+            
+            return {
+                'page_id': page_id,
+                'subscribed': app_encontrada,
+                'subscribed_apps': apps_suscritas,
+                'success': True
+            }
+        else:
+            try:
+                error_data = response.json()
+                error_msg = error_data.get('error', {}).get('message', str(error_data))
+            except:
+                error_msg = response.text or f'HTTP {response.status_code}'
+            
+            print(f"❌ Error HTTP {response.status_code}: {error_msg}")
+            logger.error(f"Error verificando webhook página {page_id}: {response.status_code} - {error_msg}")
+            
+            return {
+                'page_id': page_id,
+                'subscribed': False,
+                'error': error_msg,
+                'success': False,
+                'status_code': response.status_code
+            }
+        
+    except Exception as e:
+        error_msg = f"Error verificando webhook página {page_id}: {e}"
+        print(f"❌ {error_msg}")
+        logger.error(error_msg)
+        return {
+            'page_id': page_id,
+            'subscribed': False,
+            'error': str(e),
+            'success': False
+        }

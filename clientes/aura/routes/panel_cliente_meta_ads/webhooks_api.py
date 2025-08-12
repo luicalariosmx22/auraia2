@@ -7,6 +7,70 @@ webhooks_api_bp = Blueprint(
     url_prefix="/api/webhooks"
 )
 
+def obtener_token_pagina(page_id):
+    """
+    Obtiene el token de acceso específico de una página desde la base de datos.
+    
+    Args:
+        page_id (str): ID de la página de Facebook
+        
+    Returns:
+        str: Token de acceso de la página o None si no se encuentra
+    """
+    try:
+        print(f"🔍 DEBUG: Obteniendo token para página {page_id}")
+        
+        response = supabase.table("facebook_paginas") \
+            .select("access_token, nombre_pagina, access_token_valido") \
+            .eq("page_id", page_id) \
+            .eq("activa", True) \
+            .single() \
+            .execute()
+        
+        if response.data:
+            token_valido = response.data.get('access_token_valido', True)
+            if not token_valido:
+                print(f"⚠️ WARNING: Token marcado como inválido para página {page_id}")
+                return None
+            
+            token = response.data.get('access_token')
+            nombre_pagina = response.data.get('nombre_pagina', 'Desconocida')
+            
+            if token:
+                print(f"✅ Token encontrado para página '{nombre_pagina}' ({page_id})")
+                return token
+            else:
+                print(f"❌ No hay token guardado para página '{nombre_pagina}' ({page_id})")
+                return None
+        else:
+            print(f"❌ Página {page_id} no encontrada en base de datos")
+            return None
+            
+    except Exception as e:
+        print(f"❌ ERROR obteniendo token para página {page_id}: {str(e)}")
+        return None
+
+def actualizar_estado_token_pagina(page_id, es_valido=True):
+    """
+    Actualiza el estado de validez del token de una página.
+    
+    Args:
+        page_id (str): ID de la página de Facebook
+        es_valido (bool): Si el token es válido o no
+    """
+    try:
+        supabase.table("facebook_paginas") \
+            .update({
+                "access_token_valido": es_valido,
+                "actualizado_en": "now()"
+            }) \
+            .eq("page_id", page_id) \
+            .execute()
+        
+        print(f"✅ Estado de token actualizado para página {page_id}: {'válido' if es_valido else 'inválido'}")
+    except Exception as e:
+        print(f"❌ ERROR actualizando estado de token para página {page_id}: {str(e)}")
+
 @webhooks_api_bp.route("/logs")
 def api_logs_webhook(nombre_nora):
     try:
@@ -230,14 +294,21 @@ def api_paginas_webhook(nombre_nora):
         print("🔍 DEBUG: Ejecutando consulta de páginas...")
         # Obtener lista de páginas para el filtro
         paginas = supabase.table("facebook_paginas") \
-            .select("page_id, nombre_pagina") \
+            .select("page_id, nombre_pagina, access_token_valido, ultima_sincronizacion") \
             .eq("activa", True) \
             .order("nombre_pagina") \
             .execute()
         
         print(f"🔍 DEBUG: Respuesta de páginas obtenida: {len(paginas.data or [])} registros")
         
-        result = {'success': True, 'paginas': paginas.data or []}
+        # Agregar información sobre el estado del token
+        paginas_con_estado = []
+        for pagina in paginas.data or []:
+            pagina_info = dict(pagina)
+            pagina_info['tiene_token'] = bool(obtener_token_pagina(pagina['page_id']))
+            paginas_con_estado.append(pagina_info)
+        
+        result = {'success': True, 'paginas': paginas_con_estado}
         
         print("🔍 DEBUG: Enviando respuesta exitosa para páginas")
         return jsonify(result)
@@ -247,3 +318,102 @@ def api_paginas_webhook(nombre_nora):
         import traceback
         traceback.print_exc()
         return jsonify({'success': False, 'message': str(e), 'error_type': str(type(e))}), 500
+
+
+@webhooks_api_bp.route("/pagina/<page_id>/token")
+def api_token_pagina(nombre_nora, page_id):
+    """
+    Obtiene información del token de una página específica.
+    """
+    try:
+        print(f"🔍 DEBUG: Solicitando token para página {page_id}")
+        
+        # Obtener información completa de la página
+        response = supabase.table("facebook_paginas") \
+            .select("page_id, nombre_pagina, access_token_valido, ultima_sincronizacion, creado_en") \
+            .eq("page_id", page_id) \
+            .eq("activa", True) \
+            .single() \
+            .execute()
+        
+        if not response.data:
+            return jsonify({
+                'success': False, 
+                'message': f'Página {page_id} no encontrada o inactiva'
+            }), 404
+        
+        pagina_data = response.data
+        token = obtener_token_pagina(page_id)
+        
+        result = {
+            'success': True,
+            'page_id': page_id,
+            'nombre_pagina': pagina_data.get('nombre_pagina'),
+            'tiene_token': bool(token),
+            'token_valido': pagina_data.get('access_token_valido', True),
+            'ultima_sincronizacion': pagina_data.get('ultima_sincronizacion'),
+            'creado_en': pagina_data.get('creado_en')
+        }
+        
+        # Solo incluir el token si se solicita explícitamente y es para uso interno
+        if request.args.get('include_token') == 'true' and token:
+            result['access_token'] = token
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"❌ ERROR obteniendo token para página {page_id}: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@webhooks_api_bp.route("/pagina/<page_id>/validar-token", methods=['POST'])
+def api_validar_token_pagina(nombre_nora, page_id):
+    """
+    Valida el token de una página específica contra la API de Facebook.
+    """
+    try:
+        import requests
+        import os
+        
+        print(f"🔍 DEBUG: Validando token para página {page_id}")
+        
+        token = obtener_token_pagina(page_id)
+        if not token:
+            return jsonify({
+                'success': False,
+                'message': 'No hay token guardado para esta página'
+            }), 400
+        
+        # Validar token con Facebook API
+        url = f"https://graph.facebook.com/v18.0/{page_id}"
+        params = {
+            'access_token': token,
+            'fields': 'id,name,access_token'
+        }
+        
+        response = requests.get(url, params=params, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            # Actualizar estado como válido
+            actualizar_estado_token_pagina(page_id, True)
+            
+            return jsonify({
+                'success': True,
+                'message': 'Token válido',
+                'page_name': data.get('name'),
+                'validado_en': 'now()'
+            })
+        else:
+            # Token inválido
+            actualizar_estado_token_pagina(page_id, False)
+            
+            return jsonify({
+                'success': False,
+                'message': f'Token inválido: {response.status_code}',
+                'facebook_error': response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
+            }), 400
+            
+    except Exception as e:
+        print(f"❌ ERROR validando token para página {page_id}: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)}), 500

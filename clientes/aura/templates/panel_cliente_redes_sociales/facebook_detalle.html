@@ -1,0 +1,507 @@
+{% extends "base_cliente.html" %}
+
+{% block title %}{{ pagina.nombre_pagina }} - Facebook{% endblock %}
+
+{% block contenido %}
+<!-- � DISEÑO MODERNO ACTUALIZADO - CAMBIO DE PRUEBA AUTO-RELOAD -->
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <!-- Header con portada y foto de perfil MEJORADO -->
+    <div class="relative shadow-2xl">
+        <!-- Portada con animación -->
+        <div class="h-80 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
+            {% if pagina.cover_photo %}
+            <!-- 🖼️ DEBUG: Mostrar URL de portada en consola -->
+            <script>console.log("🖼️ Cover photo URL:", "{{ pagina.cover_photo }}");</script>
+            <img src="{{ pagina.cover_photo }}" alt="Portada de {{ pagina.nombre_pagina }}" 
+                 class="w-full h-full object-cover"
+                 onerror="console.error('❌ Error cargando portada:', this.src); this.style.display='none';"
+                 onload="console.log('✅ Portada cargada correctamente');">
+            <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+            {% else %}
+            <!-- Gradiente de fallback cuando no hay portada -->
+            <script>console.log("❌ No hay cover_photo disponible");</script>
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800"></div>
+            {% endif %}
+            
+            <!-- Botón volver -->
+            <div class="absolute top-6 left-6">
+                <a href="/panel_cliente/{{ nombre_nora }}/redes_sociales/facebook" 
+                   class="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-4 py-2 rounded-lg transition flex items-center space-x-2">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Volver</span>
+                </a>
+            </div>
+            
+            <!-- Estado webhook en esquina -->
+            <div class="absolute top-6 right-6">
+                {% if pagina.estado_webhook == 'activa' %}
+                <span class="bg-green-500/90 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Webhook Activo</span>
+                </span>
+                {% else %}
+                <span class="bg-red-500/90 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Webhook Inactivo</span>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Perfil info AJUSTADO para foto más grande -->
+        <div class="relative -mt-24 mb-8">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="flex flex-col md:flex-row items-start md:items-end space-y-4 md:space-y-0 md:space-x-6">
+                    <!-- Foto de perfil MEJORADA -->
+                    <div class="relative">
+                        <div class="w-40 h-40 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
+                            {% if pagina.picture %}
+                            <!-- 📸 DEBUG: Mostrar URL de foto de perfil -->
+                            <script>console.log("📸 Profile picture URL:", "{{ pagina.picture }}");</script>
+                            <img src="{{ pagina.picture }}" alt="Foto de perfil de {{ pagina.nombre_pagina }}" 
+                                 class="w-full h-full object-cover"
+                                 onerror="console.error('❌ Error cargando foto de perfil:', this.src); this.parentElement.innerHTML='<div class=\'w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center\'><i class=\'fab fa-facebook-f text-white text-4xl\'></i></div>';"
+                                 onload="console.log('✅ Foto de perfil cargada correctamente');">
+                            {% else %}
+                            <!-- Fallback cuando no hay foto de perfil -->
+                            <script>console.log("❌ No hay picture disponible");</script>
+                            <div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                <i class="fab fa-facebook-f text-white text-4xl"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if pagina.verificada %}
+                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
+                            <i class="fas fa-check text-white text-lg"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Info básica -->
+                    <div class="flex-1 text-white md:text-gray-900">
+                        <h1 class="text-3xl md:text-4xl font-bold mb-2">{{ pagina.nombre_pagina }}</h1>
+                        <div class="flex flex-wrap items-center gap-4 text-sm md:text-base opacity-90 md:opacity-70">
+                            {% if pagina.username %}
+                            <span class="flex items-center space-x-1">
+                                <i class="fab fa-facebook-f"></i>
+                                <span>@{{ pagina.username }}</span>
+                            </span>
+                            {% endif %}
+                            {% if pagina.categoria %}
+                            <span class="flex items-center space-x-1">
+                                <i class="fas fa-tag"></i>
+                                <span>{{ pagina.categoria }}</span>
+                            </span>
+                            {% endif %}
+                            {% if pagina.ciudad and pagina.pais %}
+                            <span class="flex items-center space-x-1">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ pagina.ciudad }}, {{ pagina.pais }}</span>
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="max-w-6xl mx-auto px-6 pb-8">
+        <!-- Estadísticas mejoradas con engagement -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fab fa-facebook-f text-blue-600 text-xl"></i>
+                </div>
+                <p class="text-2xl font-bold text-gray-900 mb-1">{{ "{:,}".format(pagina.seguidores|default(0)|int) }}</p>
+                <p class="text-sm text-gray-600">Seguidores</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition">
+                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-heart text-pink-600 text-xl"></i>
+                </div>
+                <p class="text-2xl font-bold text-gray-900 mb-1">{{ "{:,}".format(pagina.likes|default(0)|int) }}</p>
+                <p class="text-sm text-gray-600">Me gusta</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-file-alt text-green-600 text-xl"></i>
+                </div>
+                <p class="text-2xl font-bold text-gray-900 mb-1">{{ pagina.total_publicaciones|default(0) }}</p>
+                <p class="text-sm text-gray-600">Publicaciones</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition">
+                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-comments text-yellow-600 text-xl"></i>
+                </div>
+                <p class="text-2xl font-bold text-gray-900 mb-1">{{ pagina.total_comentarios|default(0) }}</p>
+                <p class="text-sm text-gray-600">Comentarios</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                </div>
+                <p class="text-2xl font-bold text-gray-900 mb-1">{{ pagina.engagement_rate|default(0) }}%</p>
+                <p class="text-sm text-gray-600">Engagement</p>
+            </div>
+        </div>
+
+        <!-- Contenido principal mejorado -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Información de la página (2/3) -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Descripción destacada -->
+                {% if pagina.descripcion %}
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center">
+                        <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                        Acerca de esta página
+                    </h3>
+                    <p class="text-gray-700 leading-relaxed">{{ pagina.descripcion }}</p>
+                </div>
+                {% endif %}
+                
+                <!-- Información de contacto -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-address-book text-blue-600 mr-2"></i>
+                        Información de la página
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Sitio web -->
+                        {% if pagina.website %}
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-globe text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Sitio web</p>
+                                <a href="{{ pagina.website }}" target="_blank" class="text-blue-600 hover:underline font-medium">
+                                    {{ pagina.website|replace('https://', '')|replace('http://', '') }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Teléfono -->
+                        {% if pagina.telefono %}
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-phone text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Teléfono</p>
+                                <p class="text-gray-900 font-medium">{{ pagina.telefono }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Email -->
+                        {% if pagina.email %}
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-envelope text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Email</p>
+                                <p class="text-gray-900 font-medium">{{ pagina.email }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Page ID -->
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fab fa-facebook-f text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Page ID</p>
+                                <code class="text-gray-900 font-mono text-sm">{{ pagina.page_id }}</code>
+                            </div>
+                        </div>
+                        
+                        <!-- Categoría -->
+                        {% if pagina.categoria %}
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-tag text-orange-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Categoría</p>
+                                <p class="text-gray-900 font-medium">{{ pagina.categoria }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Ubicación -->
+                        {% if pagina.ciudad or pagina.pais %}
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-map-marker-alt text-red-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Ubicación</p>
+                                <p class="text-gray-900 font-medium">
+                                    {% if pagina.ciudad and pagina.pais %}
+                                        {{ pagina.ciudad }}, {{ pagina.pais }}
+                                    {% elif pagina.ciudad %}
+                                        {{ pagina.ciudad }}
+                                    {% elif pagina.pais %}
+                                        {{ pagina.pais }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Username -->
+                        {% if pagina.username %}
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-at text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Username</p>
+                                <p class="text-gray-900 font-medium">@{{ pagina.username }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Estado de verificación -->
+                        {% if pagina.verificada %}
+                        <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-xl border border-blue-200">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check-circle text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-blue-500 uppercase tracking-wide font-semibold">Verificada</p>
+                                <p class="text-blue-700 font-medium">Página verificada por Facebook</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Actividad reciente mejorada -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-chart-line text-blue-600 mr-2"></i>
+                        Actividad reciente
+                    </h3>
+                    <div id="actividadReciente">
+                        <div class="text-center py-12">
+                            <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                            <p class="text-gray-500">Cargando actividad...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Panel de control webhook (1/3) -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-cogs text-blue-600 mr-2"></i>
+                        Control de Webhook
+                    </h3>
+                    
+                    <!-- Estado visual mejorado -->
+                    <div class="mb-6">
+                        <div class="text-center">
+                            {% if pagina.estado_webhook == 'activa' %}
+                            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                            </div>
+                            <h4 class="text-lg font-bold text-green-800">Webhook Activo</h4>
+                            <p class="text-sm text-green-600">La página está recibiendo eventos</p>
+                            {% else %}
+                            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-exclamation-circle text-red-600 text-3xl"></i>
+                            </div>
+                            <h4 class="text-lg font-bold text-red-800">Webhook Inactivo</h4>
+                            <p class="text-sm text-red-600">La página no está recibiendo eventos</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if pagina.ultima_sincronizacion %}
+                    <div class="mb-6 p-4 bg-gray-50 rounded-xl">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Última sincronización</p>
+                        <p class="text-sm font-medium text-gray-900">{{ pagina.ultima_sincronizacion }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Botones de acción mejorados -->
+                    <div class="space-y-3">
+                        {% if pagina.estado_webhook == 'activa' %}
+                        <button onclick="toggleWebhook('{{ pagina.page_id }}', 'desactivar')" 
+                                class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-3 rounded-xl font-medium transition transform hover:scale-105 flex items-center justify-center space-x-2">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Desactivar Webhook</span>
+                        </button>
+                        {% else %}
+                        <button onclick="toggleWebhook('{{ pagina.page_id }}', 'activar')" 
+                                class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-4 py-3 rounded-xl font-medium transition transform hover:scale-105 flex items-center justify-center space-x-2">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Activar Webhook</span>
+                        </button>
+                        {% endif %}
+                        
+                        <button onclick="verificarEstado('{{ pagina.page_id }}')" 
+                                class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-3 rounded-xl font-medium transition transform hover:scale-105 flex items-center justify-center space-x-2">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Verificar Estado</span>
+                        </button>
+                        
+                        <button onclick="window.open('https://facebook.com/{{ pagina.page_id }}', '_blank')" 
+                                class="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-4 py-3 rounded-xl font-medium transition transform hover:scale-105 flex items-center justify-center space-x-2">
+                            <i class="fab fa-facebook-f"></i>
+                            <span>Ver en Facebook</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const pageId = '{{ pagina.page_id }}';
+const nombreNora = '{{ nombre_nora }}';
+
+async function toggleWebhook(pageId, accion) {
+    const mensaje = accion === 'activar' ? '¿Activar webhook?' : '¿Desactivar webhook?';
+    if (!confirm(mensaje)) return;
+    
+    try {
+        const response = await fetch(`/panel_cliente/${nombreNora}/redes_sociales/facebook/${pageId}/webhook/${accion}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        if (response.ok && data.success) {
+            // Mostrar notificación moderna
+            showNotification(data.message || `Webhook ${accion}do correctamente`, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification(data.error || `Error al ${accion} webhook`, 'error');
+        }
+    } catch (error) {
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+async function verificarEstado(pageId) {
+    try {
+        const response = await fetch(`/panel_cliente/${nombreNora}/redes_sociales/facebook/${pageId}/estado`);
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showNotification(`Estado: ${data.estado}\nÚltima verificación: ${data.ultima_actualizacion || 'N/A'}`, 'info');
+        } else {
+            showNotification('Error al verificar estado', 'error');
+        }
+    } catch (error) {
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+// Cargar actividad reciente
+async function cargarActividad() {
+    try {
+        const response = await fetch(`/panel_cliente/${nombreNora}/redes_sociales/facebook/${pageId}/actividad`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            mostrarActividad(data);
+        } else {
+            document.getElementById('actividadReciente').innerHTML = 
+                '<div class="text-center py-8"><i class="fas fa-info-circle text-gray-400 text-2xl mb-2"></i><p class="text-gray-500">No hay actividad reciente disponible</p></div>';
+        }
+    } catch (error) {
+        document.getElementById('actividadReciente').innerHTML = 
+            '<div class="text-center py-8"><i class="fas fa-exclamation-triangle text-red-400 text-2xl mb-2"></i><p class="text-red-500">Error al cargar actividad</p></div>';
+    }
+}
+
+function mostrarActividad(data) {
+    const container = document.getElementById('actividadReciente');
+    
+    if (!data.actividad || data.actividad.length === 0) {
+        container.innerHTML = '<div class="text-center py-8"><i class="fas fa-inbox text-gray-400 text-2xl mb-2"></i><p class="text-gray-500">No hay actividad reciente</p></div>';
+        return;
+    }
+    
+    const html = data.actividad.map(item => `
+        <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-xl mb-3 hover:bg-gray-100 transition">
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas ${getIconForType(item.tipo)} text-blue-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">${item.tipo || 'Actividad'}</p>
+                <p class="text-sm text-gray-600 mt-1">${item.descripcion || 'Sin descripción'}</p>
+                ${item.fecha ? `<p class="text-xs text-gray-400 mt-2">${formatDate(item.fecha)}</p>` : ''}
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = html;
+}
+
+function getIconForType(tipo) {
+    if (tipo.includes('publicación')) return 'fa-file-alt';
+    if (tipo.includes('comentario')) return 'fa-comment';
+    if (tipo.includes('reacción')) return 'fa-heart';
+    return 'fa-bell';
+}
+
+function formatDate(dateString) {
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch {
+        return dateString;
+    }
+}
+
+function showNotification(message, type = 'info') {
+    const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500'
+    };
+    
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(full)';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', cargarActividad);
+</script>
+
+{% endblock %}

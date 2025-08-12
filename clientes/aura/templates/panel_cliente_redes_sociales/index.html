@@ -1,8 +1,214 @@
 {% extends "base_cliente.html" %}
 
+{% block title %}Redes Sociales - {{ nombre_nora }}{% endblock %}
+
 {% block contenido %}
-<div class="max-w-4xl mx-auto py-8">
-  <h1 class="text-3xl font-bold mb-4">📱 Módulo: Redes_sociales</h1>
-  <p class="text-gray-700">Este es el módulo inicial para redes_sociales.</p>
+<div class="max-w-6xl mx-auto py-10">
+  <h1 class="text-3xl font-extrabold text-center text-purple-900 mb-4">📱 Gestión de Redes Sociales</h1>
+  <p class="text-center text-gray-600 mb-8">Conecta y administra todas tus redes sociales desde un solo lugar</p>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    
+    <!-- Facebook -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border-2 border-blue-100 hover:border-blue-400 transition transform hover:scale-105">
+      <div class="bg-blue-100 rounded-full p-4 mb-4">
+        <span class="text-3xl">📘</span>
+      </div>
+      <h2 class="text-lg font-bold text-blue-800 mb-2">Facebook</h2>
+      <p class="text-gray-600 text-center text-sm mb-4">Gestiona páginas, publicaciones y análisis de Facebook</p>
+      <div class="mt-auto flex flex-col gap-2 w-full">
+        <button onclick="gestionarRedSocial('facebook')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm shadow hover:bg-blue-700 transition">
+          Gestionar
+        </button>
+      </div>
+    </div>
+
+    <!-- Instagram -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border-2 border-pink-100 hover:border-pink-400 transition transform hover:scale-105">
+      <div class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-full p-4 mb-4">
+        <span class="text-3xl text-white">📷</span>
+      </div>
+      <h2 class="text-lg font-bold text-pink-800 mb-2">Instagram</h2>
+      <p class="text-gray-600 text-center text-sm mb-4">Publica contenido y gestiona tu presencia en Instagram</p>
+      <div class="mt-auto flex flex-col gap-2 w-full">
+        <button onclick="gestionarRedSocial('instagram')" class="px-4 py-2 bg-pink-600 text-white rounded-lg font-semibold text-sm shadow hover:bg-pink-700 transition">
+          Gestionar
+        </button>
+      </div>
+    </div>
+
+    <!-- YouTube -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border-2 border-red-100 hover:border-red-400 transition transform hover:scale-105">
+      <div class="bg-red-100 rounded-full p-4 mb-4">
+        <span class="text-3xl text-red-600">📺</span>
+      </div>
+      <h2 class="text-lg font-bold text-red-800 mb-2">YouTube</h2>
+      <p class="text-gray-600 text-center text-sm mb-4">Administra tu canal y analiza el rendimiento de videos</p>
+      <div class="mt-auto flex flex-col gap-2 w-full">
+        <button onclick="gestionarRedSocial('youtube')" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold text-sm shadow hover:bg-red-700 transition">
+          Gestionar
+        </button>
+      </div>
+    </div>
+
+    <!-- TikTok -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border-2 border-gray-100 hover:border-gray-400 transition transform hover:scale-105">
+      <div class="bg-gray-900 rounded-full p-4 mb-4">
+        <span class="text-3xl text-white">🎵</span>
+      </div>
+      <h2 class="text-lg font-bold text-gray-800 mb-2">TikTok</h2>
+      <p class="text-gray-600 text-center text-sm mb-4">Publica videos cortos y gestiona tu contenido viral</p>
+      <div class="mt-auto flex flex-col gap-2 w-full">
+        <button onclick="gestionarRedSocial('tiktok')" class="px-4 py-2 bg-gray-800 text-white rounded-lg font-semibold text-sm shadow hover:bg-gray-900 transition">
+          Gestionar
+        </button>
+      </div>
+    </div>
+
+    <!-- X (Twitter) -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border-2 border-slate-100 hover:border-slate-400 transition transform hover:scale-105">
+      <div class="bg-slate-900 rounded-full p-4 mb-4">
+        <span class="text-3xl text-white">�</span>
+      </div>
+      <h2 class="text-lg font-bold text-slate-800 mb-2">X (Twitter)</h2>
+      <p class="text-gray-600 text-center text-sm mb-4">Programa tweets y monitorea interacciones</p>
+      <div class="mt-auto flex flex-col gap-2 w-full">
+        <button onclick="gestionarRedSocial('x')" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-semibold text-sm shadow hover:bg-slate-900 transition">
+          Gestionar
+        </button>
+      </div>
+    </div>
+
+    <!-- Threads -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border-2 border-emerald-100 hover:border-emerald-400 transition transform hover:scale-105">
+      <div class="bg-emerald-100 rounded-full p-4 mb-4">
+        <span class="text-3xl text-emerald-700">🧵</span>
+      </div>
+      <h2 class="text-lg font-bold text-emerald-800 mb-2">Threads</h2>
+      <p class="text-gray-600 text-center text-sm mb-4">Gestiona tu presencia en la nueva red de Meta</p>
+      <div class="mt-auto flex flex-col gap-2 w-full">
+        <button onclick="gestionarRedSocial('threads')" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold text-sm shadow hover:bg-emerald-700 transition">
+          Gestionar
+        </button>
+      </div>
+    </div>
+
+    <!-- LinkedIn -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border-2 border-blue-100 hover:border-blue-400 transition transform hover:scale-105">
+      <div class="bg-blue-700 rounded-full p-4 mb-4">
+        <span class="text-3xl text-white">💼</span>
+      </div>
+      <h2 class="text-lg font-bold text-blue-800 mb-2">LinkedIn</h2>
+      <p class="text-gray-600 text-center text-sm mb-4">Administra tu perfil profesional y empresa</p>
+      <div class="mt-auto flex flex-col gap-2 w-full">
+        <button onclick="gestionarRedSocial('linkedin')" class="px-4 py-2 bg-blue-700 text-white rounded-lg font-semibold text-sm shadow hover:bg-blue-800 transition">
+          Gestionar
+        </button>
+      </div>
+    </div>
+
+    <!-- Pinterest -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border-2 border-red-100 hover:border-red-400 transition transform hover:scale-105">
+      <div class="bg-red-600 rounded-full p-4 mb-4">
+        <span class="text-3xl text-white">📌</span>
+      </div>
+      <h2 class="text-lg font-bold text-red-800 mb-2">Pinterest</h2>
+      <p class="text-gray-600 text-center text-sm mb-4">Organiza y comparte contenido visual inspirador</p>
+      <div class="mt-auto flex flex-col gap-2 w-full">
+        <button onclick="gestionarRedSocial('pinterest')" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold text-sm shadow hover:bg-red-700 transition">
+          Gestionar
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sección de estadísticas generales -->
+  <div class="mt-12 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8">
+    <h2 class="text-2xl font-bold text-center text-purple-900 mb-6">📊 Resumen General</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="bg-white rounded-xl p-6 text-center shadow-sm">
+        <div class="text-3xl font-bold text-purple-600 mb-2">0</div>
+        <div class="text-gray-600 text-sm">Cuentas Conectadas</div>
+      </div>
+      <div class="bg-white rounded-xl p-6 text-center shadow-sm">
+        <div class="text-3xl font-bold text-blue-600 mb-2">0</div>
+        <div class="text-gray-600 text-sm">Publicaciones Hoy</div>
+      </div>
+      <div class="bg-white rounded-xl p-6 text-center shadow-sm">
+        <div class="text-3xl font-bold text-green-600 mb-2">0</div>
+        <div class="text-gray-600 text-sm">Interacciones</div>
+      </div>
+      <div class="bg-white rounded-xl p-6 text-center shadow-sm">
+        <div class="text-3xl font-bold text-orange-600 mb-2">0</div>
+        <div class="text-gray-600 text-sm">Mensajes Pendientes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones rápidas -->
+  <div class="mt-8 bg-white rounded-2xl shadow-lg p-8">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">⚡ Acciones Rápidas</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <button onclick="crearPublicacion()" class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-purple-400 hover:bg-purple-50 transition">
+        <span class="text-2xl">✍️</span>
+        <div class="text-left">
+          <div class="font-semibold text-gray-800">Crear Publicación</div>
+          <div class="text-sm text-gray-600">Publica en múltiples redes a la vez</div>
+        </div>
+      </button>
+      <button onclick="programarContenido()" class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition">
+        <span class="text-2xl">📅</span>
+        <div class="text-left">
+          <div class="font-semibold text-gray-800">Programar Contenido</div>
+          <div class="text-sm text-gray-600">Planifica tu calendario editorial</div>
+        </div>
+      </button>
+      <button onclick="verAnalisis()" class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-green-400 hover:bg-green-50 transition">
+        <span class="text-2xl">📈</span>
+        <div class="text-left">
+          <div class="font-semibold text-gray-800">Ver Análisis</div>
+          <div class="text-sm text-gray-600">Revisa métricas y rendimiento</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
 </div>
+
+<script>
+// Funciones JavaScript para el módulo de redes sociales
+function gestionarRedSocial(plataforma) {
+  // Obtener nombre_nora desde la URL actual
+  const pathParts = window.location.pathname.split('/');
+  const nombreNora = pathParts[2]; // /panel_cliente/{nombre_nora}/redes_sociales
+  
+  if (plataforma === 'facebook') {
+    window.location.href = `/panel_cliente/${nombreNora}/redes_sociales/facebook`;
+  } else {
+    alert(`Gestión de ${plataforma} estará disponible próximamente`);
+  }
+}
+
+function conectarRedSocial(redSocial) {
+  // Para compatibilidad, redirigir a gestionar
+  gestionarRedSocial(redSocial);
+}
+
+function crearPublicacion() {
+  alert('Función de crear publicación estará disponible próximamente');
+}
+
+function programarContenido() {
+  const pathParts = window.location.pathname.split('/');
+  const nombreNora = pathParts[2];
+  window.location.href = `/panel_cliente/${nombreNora}/redes_sociales/programar`;
+}
+
+function verAnalisis() {
+  const pathParts = window.location.pathname.split('/');
+  const nombreNora = pathParts[2];
+  window.location.href = `/panel_cliente/${nombreNora}/redes_sociales/estadisticas`;
+}
+</script>
 {% endblock %}

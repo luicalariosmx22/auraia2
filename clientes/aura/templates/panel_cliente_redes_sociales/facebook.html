@@ -1,0 +1,455 @@
+{% extends "base_cliente.html" %}
+
+{% block title %}Gestión de Facebook - {{ nombre_nora }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .facebook-gradient {
+        background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+    }
+    .page-card {
+        transition: all 0.3s ease;
+        max-height: 420px; /* Altura máxima para mantener consistencia */
+    }
+    .page-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(24, 119, 242, 0.1);
+    }
+    .verified-badge {
+        background: linear-gradient(45deg, #1877f2, #42a5f5);
+    }
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    /* Mejorar responsive */
+    @media (max-width: 768px) {
+        .page-card {
+            max-height: none;
+        }
+    }
+    
+    /* Grid más compacto en pantallas grandes */
+    @media (min-width: 1400px) {
+        .xl\\:grid-cols-5 {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+
+<!-- Header -->
+<div class="facebook-gradient text-white py-4">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='/panel_cliente/{{ nombre_nora }}/redes_sociales/'" 
+                        class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white p-2 rounded-lg">
+                        <i class="fab fa-facebook-f text-xl text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-black">Gestión de Facebook</h1>
+                        <p class="text-black text-sm">{{ paginas|length }} páginas conectadas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <button class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg font-medium transition text-sm">
+                    <i class="fas fa-sync-alt mr-2"></i>Sincronizar
+                </button>
+                <button class="bg-white text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg font-medium transition text-sm">
+                    <i class="fas fa-plus mr-2"></i>Conectar Página
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas Rápidas -->
+<div class="max-w-7xl mx-auto px-4 -mt-2">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+        <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-xs font-medium">Total Páginas</p>
+                    <p class="text-xl font-bold text-gray-900">{{ paginas|length }}</p>
+                </div>
+                <div class="bg-blue-100 p-2 rounded-full">
+                    <i class="fab fa-facebook-f text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-xs font-medium">Páginas Activas</p>
+                    <p class="text-xl font-bold text-gray-900">{{ paginas|selectattr('activa')|list|length }}</p>
+                </div>
+                <div class="bg-green-100 p-2 rounded-full">
+                    <i class="fas fa-check-circle text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-yellow-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-xs font-medium">Páginas Verificadas</p>
+                    <p class="text-xl font-bold text-gray-900">{{ paginas|selectattr('verificada')|list|length }}</p>
+                </div>
+                <div class="bg-yellow-100 p-2 rounded-full">
+                    <i class="fas fa-shield-alt text-yellow-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-xs font-medium">Total Seguidores</p>
+                    <p class="text-xl font-bold text-gray-900">{{ paginas|sum(attribute='seguidores')|default(0) }}</p>
+                </div>
+                <div class="bg-purple-100 p-2 rounded-full">
+                    <i class="fas fa-users text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="max-w-7xl mx-auto px-4 mb-6">
+    <div class="bg-white rounded-lg shadow-md p-4">
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Búsqueda por nombre -->
+            <div class="flex-1 min-w-64">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="Buscar por nombre de página..." 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filtro por webhook -->
+            <div class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-700">Webhook:</label>
+                <select id="webhookFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Todas</option>
+                    <option value="activa">Activas</option>
+                    <option value="inactiva">Inactivas</option>
+                </select>
+            </div>
+            
+            <!-- Filtro por empresa -->
+            <div class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-700">Empresa:</label>
+                <select id="empresaFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Todas</option>
+                    <option value="vinculada">Vinculadas</option>
+                    <option value="sin_vincular">Sin vincular</option>
+                </select>
+            </div>
+            
+            <!-- Botón limpiar filtros -->
+            <button onclick="limpiarFiltros()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition">
+                <i class="fas fa-times mr-1"></i>Limpiar
+            </button>
+        </div>
+        
+        <!-- Contador de resultados -->
+        <div class="mt-3 pt-3 border-t border-gray-100">
+            <p class="text-sm text-gray-600">
+                <span id="resultCount">{{ paginas|length }}</span> páginas encontradas
+                <span id="filterStatus" class="text-blue-600"></span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Grid de Páginas -->
+<div class="max-w-7xl mx-auto px-4 pb-8">
+    {% if paginas %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+        {% for pagina in paginas %}
+        <div class="page-card bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300">
+            <!-- Header de la página -->
+            <div class="relative">
+                {% if pagina.foto_portada_url %}
+                <img src="{{ pagina.foto_portada_url }}" alt="Portada" class="w-full h-24 object-cover">
+                {% else %}
+                <div class="w-full h-24 facebook-gradient"></div>
+                {% endif %}
+                
+                <!-- Foto de perfil -->
+                <div class="absolute -bottom-8 left-4">
+                    {% if pagina.foto_perfil_url %}
+                    <img src="{{ pagina.foto_perfil_url }}" alt="{{ pagina.nombre_pagina }}" 
+                         class="w-16 h-16 rounded-full border-3 border-white shadow-md">
+                    {% else %}
+                    <div class="w-16 h-16 rounded-full border-3 border-white shadow-md bg-blue-500 flex items-center justify-center">
+                        <i class="fab fa-facebook-f text-white text-lg"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Badges -->
+                <div class="absolute top-2 right-2 flex space-x-1">
+                    {% if pagina.verificada %}
+                    <span class="verified-badge text-white px-2 py-1 rounded-full text-xs font-medium">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    {% endif %}
+                    
+                    {% if pagina.estado_webhook_real == 'activa' %}
+                    <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                        <i class="fas fa-circle text-xs"></i>
+                    </span>
+                    {% elif pagina.estado_webhook_real == 'inactiva' %}
+                    <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                        <i class="fas fa-times text-xs"></i>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Contenido de la página -->
+            <div class="pt-10 p-4">
+                <div class="mb-3">
+                    <h3 class="text-lg font-bold text-gray-900 mb-1 line-clamp-1">{{ pagina.nombre_pagina }}</h3>
+                    {% if pagina.username %}
+                    <p class="text-blue-600 text-sm font-medium">@{{ pagina.username }}</p>
+                    {% endif %}
+                    {% if pagina.categoria %}
+                    <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs mt-1">
+                        {{ pagina.categoria }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                {% if pagina.descripcion %}
+                <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ pagina.descripcion }}</p>
+                {% endif %}
+                
+                <!-- Estadísticas -->
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div class="text-center bg-blue-50 rounded-lg p-2">
+                        <p class="text-lg font-bold text-blue-600">{{ pagina.seguidores|default(0) }}</p>
+                        <p class="text-gray-500 text-xs">Seguidores</p>
+                    </div>
+                    <div class="text-center bg-blue-50 rounded-lg p-2">
+                        <p class="text-lg font-bold text-blue-600">{{ pagina.likes|default(0) }}</p>
+                        <p class="text-gray-500 text-xs">Me gusta</p>
+                    </div>
+                </div>
+                
+                <!-- Información adicional compacta -->
+                <div class="space-y-1 mb-3 text-xs text-gray-600">
+                    {% if pagina.ciudad and pagina.pais %}
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt w-3 mr-2"></i>
+                        <span class="truncate">{{ pagina.ciudad }}, {{ pagina.pais }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if pagina.website %}
+                    <div class="flex items-center">
+                        <i class="fas fa-globe w-3 mr-2"></i>
+                        <a href="{{ pagina.website }}" target="_blank" class="text-blue-600 hover:underline truncate">
+                            {{ pagina.website|replace('https://', '')|replace('http://', '') }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Acciones -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="gestionarPagina('{{ pagina.page_id }}')" 
+                            class="bg-blue-600 text-white px-2 py-2 rounded-md text-xs font-medium hover:bg-blue-700 transition">
+                        <i class="fas fa-cog mr-1"></i>Gestionar
+                    </button>
+                    <button onclick="verEstadisticas('{{ pagina.page_id }}')" 
+                            class="bg-gray-100 text-gray-700 px-2 py-2 rounded-md text-xs font-medium hover:bg-gray-200 transition">
+                        <i class="fas fa-chart-bar mr-1"></i>Stats
+                    </button>
+                </div>
+                
+                <!-- Última sincronización -->
+                {% if pagina.ultima_sincronizacion %}
+                <div class="mt-2 pt-2 border-t border-gray-100">
+                    <p class="text-xs text-gray-500 truncate">
+                        <i class="fas fa-sync-alt mr-1"></i>
+                        {{ pagina.ultima_sincronizacion }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Estado vacío -->
+    <div class="text-center py-12">
+        <div class="bg-blue-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <i class="fab fa-facebook-f text-blue-600 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-3">No hay páginas de Facebook conectadas</h3>
+        <p class="text-gray-600 mb-6 max-w-md mx-auto text-sm">
+            Conecta tus páginas de Facebook para comenzar a gestionar tu contenido y estadísticas desde aquí.
+        </p>
+        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+            <i class="fab fa-facebook-f mr-2"></i>Conectar Primera Página
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function gestionarPagina(pageId) {
+    const pathParts = window.location.pathname.split('/');
+    const nombreNora = pathParts[2];
+    window.location.href = `/panel_cliente/${nombreNora}/redes_sociales/facebook/${pageId}`;
+}
+
+function verEstadisticas(pageId) {
+    alert(`Ver estadísticas de página ${pageId} - Función en desarrollo`);
+}
+
+// Variables para el filtrado
+let todasLasPaginas = [];
+let paginasFiltradas = [];
+
+// Inicializar filtros cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Obtener todas las páginas del DOM
+    const pageCards = document.querySelectorAll('.page-card');
+    pageCards.forEach(card => {
+        const pagina = extraerDatosPagina(card);
+        todasLasPaginas.push(pagina);
+    });
+    
+    paginasFiltradas = [...todasLasPaginas];
+    actualizarContador();
+    
+    // Agregar event listeners
+    document.getElementById('searchInput').addEventListener('input', aplicarFiltros);
+    document.getElementById('webhookFilter').addEventListener('change', aplicarFiltros);
+    document.getElementById('empresaFilter').addEventListener('change', aplicarFiltros);
+});
+
+function extraerDatosPagina(card) {
+    const nombre = card.querySelector('h3').textContent.trim();
+    
+    // Determinar estado del webhook por el icono
+    let estadoWebhook = 'inactiva'; // Por defecto inactiva
+    if (card.querySelector('.fa-circle')) estadoWebhook = 'activa';
+    else if (card.querySelector('.fa-times')) estadoWebhook = 'inactiva';
+    
+    // Para empresa, podríamos agregar un atributo data-empresa o extraer de la descripción
+    // Por ahora, asumiremos que todas pueden estar vinculadas
+    const tieneEmpresa = Math.random() > 0.5; // Placeholder - debe venir del backend
+    
+    return {
+        element: card,
+        nombre: nombre.toLowerCase(),
+        estadoWebhook: estadoWebhook,
+        tieneEmpresa: tieneEmpresa
+    };
+}
+
+function aplicarFiltros() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const webhookFilter = document.getElementById('webhookFilter').value;
+    const empresaFilter = document.getElementById('empresaFilter').value;
+    
+    paginasFiltradas = todasLasPaginas.filter(pagina => {
+        // Filtro por nombre
+        if (searchTerm && !pagina.nombre.includes(searchTerm)) {
+            return false;
+        }
+        
+        // Filtro por webhook
+        if (webhookFilter && pagina.estadoWebhook !== webhookFilter) {
+            return false;
+        }
+        
+        // Filtro por empresa
+        if (empresaFilter === 'vinculada' && !pagina.tieneEmpresa) {
+            return false;
+        }
+        if (empresaFilter === 'sin_vincular' && pagina.tieneEmpresa) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    mostrarPaginasFiltradas();
+    actualizarContador();
+    actualizarEstadoFiltros();
+}
+
+function mostrarPaginasFiltradas() {
+    // Ocultar todas las páginas
+    todasLasPaginas.forEach(pagina => {
+        pagina.element.style.display = 'none';
+    });
+    
+    // Mostrar solo las filtradas
+    paginasFiltradas.forEach(pagina => {
+        pagina.element.style.display = 'block';
+    });
+}
+
+function actualizarContador() {
+    document.getElementById('resultCount').textContent = paginasFiltradas.length;
+}
+
+function actualizarEstadoFiltros() {
+    const searchTerm = document.getElementById('searchInput').value;
+    const webhookFilter = document.getElementById('webhookFilter').value;
+    const empresaFilter = document.getElementById('empresaFilter').value;
+    
+    const filtrosActivos = [];
+    
+    if (searchTerm) filtrosActivos.push(`"${searchTerm}"`);
+    if (webhookFilter) filtrosActivos.push(`webhook: ${webhookFilter}`);
+    if (empresaFilter) filtrosActivos.push(`empresa: ${empresaFilter}`);
+    
+    const statusElement = document.getElementById('filterStatus');
+    if (filtrosActivos.length > 0) {
+        statusElement.textContent = ` - Filtros: ${filtrosActivos.join(', ')}`;
+    } else {
+        statusElement.textContent = '';
+    }
+}
+
+function limpiarFiltros() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('webhookFilter').value = '';
+    document.getElementById('empresaFilter').value = '';
+    
+    aplicarFiltros();
+}
+</script>
+
+{% endblock %}

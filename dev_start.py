@@ -200,7 +200,21 @@ try:
         for rule in app_instance.url_map.iter_rules():
             print(f"  • {rule.endpoint} -> {rule}")
         
-        app_instance.run(debug=True, port=5000)
+        # � Verificar si se debe activar auto-reload
+        auto_reload = os.getenv("DISABLE_AUTO_RELOAD", "false").lower() != "true"
+        
+        if auto_reload:
+            print("🔄 Auto-reload ACTIVADO")
+            print("⚠️  Para desactivar: export DISABLE_AUTO_RELOAD=true")
+        else:
+            print("� Auto-reload DESACTIVADO")
+            print("📁 Los cambios en tests/ NO reinician el servidor")
+        
+        app_instance.run(
+            debug=auto_reload, 
+            port=5000,
+            host='0.0.0.0'
+        )
 except Exception as e:
     print(f"❌ Error al iniciar la aplicación: {str(e)}")
     logging.error(f"Error al iniciar la aplicación: {str(e)}", exc_info=True)

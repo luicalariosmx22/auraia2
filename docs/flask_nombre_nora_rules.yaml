@@ -1,0 +1,131 @@
+# ===================================================================
+# REGLAS PARA MANEJO DE nombre_nora EN FLASK + NORA
+# ===================================================================
+# Este archivo documenta el patrón correcto para manejar el parámetro
+# nombre_nora en blueprints de Flask dentro del proyecto Nora.
+
+blueprint_pattern:
+  # 1. DECLARACIÓN DEL BLUEPRINT
+  # Siempre incluir <nombre_nora> en el url_prefix
+  blueprint_declaration: |
+    Blueprint(
+        "panel_cliente_x_bp", 
+        __name__, 
+        url_prefix="/panel_cliente/<nombre_nora>/x"
+    )
+
+function_patterns:
+  # 2. FUNCIONES SIN PARÁMETROS ADICIONALES EN LA RUTA
+  simple_route:
+    # ❌ INCORRECTO - No usar nombre_nora como parámetro directo
+    wrong: |
+      @bp.route("/")
+      def vista(nombre_nora):  # ← NO FUNCIONA
+          pass
+    
+    # ✅ CORRECTO - Extraer desde request.view_args
+    correct: |
+      @bp.route("/")
+      def vista():
+          nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+          return render_template("template.html", nombre_nora=nombre_nora)
+
+  # 3. FUNCIONES CON PARÁMETROS ADICIONALES
+  route_with_params:
+    # ❌ INCORRECTO - No incluir nombre_nora en parámetros
+    wrong: |
+      @bp.route("/conectar/<red_social>")
+      def conectar(nombre_nora, red_social):  # ← NO FUNCIONA
+          pass
+    
+    # ✅ CORRECTO - Solo parámetros de la ruta específica
+    correct: |
+      @bp.route("/conectar/<red_social>")
+      def conectar(red_social):
+          nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+          # Usar red_social y nombre_nora normalmente
+
+  # 4. MANEJO SEGURO DE request.view_args
+  safe_extraction:
+    # Siempre verificar que view_args no sea None
+    pattern: |
+      nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+
+# ===================================================================
+# EJEMPLOS REALES DEL PROYECTO
+# ===================================================================
+
+examples:
+  working_blueprint: |
+    panel_cliente_redes_sociales_bp = Blueprint(
+        "panel_cliente_redes_sociales_bp", 
+        __name__, 
+        url_prefix="/panel_cliente/<nombre_nora>/redes_sociales"
+    )
+
+  working_functions:
+    index: |
+      @panel_cliente_redes_sociales_bp.route("/")
+      def panel_cliente_redes_sociales(**kwargs):
+          nombre_nora = kwargs.get("nombre_nora") or (request.view_args.get("nombre_nora") if request.view_args else None)
+          return render_template("panel_cliente_redes_sociales/index.html", nombre_nora=nombre_nora)
+    
+    facebook: |
+      @panel_cliente_redes_sociales_bp.route("/facebook")
+      def gestionar_facebook():
+          nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+          return render_template("panel_cliente_redes_sociales/facebook.html", nombre_nora=nombre_nora)
+    
+    with_params: |
+      @panel_cliente_redes_sociales_bp.route("/conectar/<red_social>")
+      def conectar_red_social(red_social):
+          nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+          # Usar tanto red_social como nombre_nora
+
+# ===================================================================
+# ERRORES COMUNES A EVITAR
+# ===================================================================
+
+common_mistakes:
+  - mistake: "Usar nombre_nora como parámetro directo de función"
+    why: "Flask no lo inyecta automáticamente desde el blueprint url_prefix"
+    solution: "Extraer desde request.view_args"
+  
+  - mistake: "No verificar si request.view_args es None"
+    why: "Puede causar errores de atributo en algunos casos"
+    solution: "Usar if request.view_args else None"
+  
+  - mistake: "Inconsistencia entre funciones del mismo blueprint"
+    why: "Genera confusión y errores"
+    solution: "Seguir el mismo patrón en todas las funciones"
+
+# ===================================================================
+# URLS RESULTANTES
+# ===================================================================
+
+url_examples:
+  - route: "/panel_cliente/<nombre_nora>/redes_sociales/"
+    function: "panel_cliente_redes_sociales()"
+    
+  - route: "/panel_cliente/<nombre_nora>/redes_sociales/facebook"
+    function: "gestionar_facebook()"
+    
+  - route: "/panel_cliente/<nombre_nora>/redes_sociales/conectar/instagram"
+    function: "conectar_red_social(red_social='instagram')"
+
+# ===================================================================
+# IMPORTS NECESARIOS
+# ===================================================================
+
+required_imports:
+  - "from flask import Blueprint, render_template, request, jsonify"
+
+# ===================================================================
+# NOTAS IMPORTANTES
+# ===================================================================
+
+notes:
+  - "El parámetro nombre_nora SIEMPRE debe pasarse al template"
+  - "Verificar que base_cliente.html o base.html reciban nombre_nora"
+  - "Mantener consistencia en todo el proyecto"
+  - "Este patrón aplica para TODOS los blueprints que usen nombre_nora"

@@ -1,0 +1,596 @@
+from flask import Blueprint, render_template, request, jsonify
+from clientes.aura.utils.supabase_client import supabase
+from datetime import datetime, timedelta
+
+panel_cliente_redes_sociales_bp = Blueprint("panel_cliente_redes_sociales_bp", __name__, url_prefix="/panel_cliente/<nombre_nora>/redes_sociales")
+
+@panel_cliente_redes_sociales_bp.route("/")
+def panel_cliente_redes_sociales(**kwargs):
+    """Panel principal de gestión de redes sociales"""
+    nombre_nora = kwargs.get("nombre_nora") or (request.view_args.get("nombre_nora") if request.view_args else None)
+    return render_template("panel_cliente_redes_sociales/index.html", nombre_nora=nombre_nora)
+
+@panel_cliente_redes_sociales_bp.route("/conectar/<red_social>")
+def conectar_red_social(nombre_nora, red_social):
+    """Iniciar proceso de conexión con una red social específica"""
+    redes_disponibles = ['facebook', 'instagram', 'youtube', 'tiktok', 'x', 'threads', 'linkedin', 'pinterest']
+    
+    if red_social.lower() not in redes_disponibles:
+        return jsonify({'error': 'Red social no soportada'}), 400
+    
+    # Por ahora, retornamos un mensaje de que la función está en desarrollo
+    return jsonify({
+        'message': f'Conexión con {red_social.title()} estará disponible próximamente',
+        'red_social': red_social,
+        'status': 'en_desarrollo'
+    })
+
+@panel_cliente_redes_sociales_bp.route("/estadisticas")
+def estadisticas_redes_sociales(nombre_nora):
+    """Ver estadísticas consolidadas de todas las redes sociales"""
+    return render_template("panel_cliente_redes_sociales/estadisticas.html", nombre_nora=nombre_nora)
+
+@panel_cliente_redes_sociales_bp.route("/programar")
+def programar_publicaciones(nombre_nora):
+    """Interface para programar publicaciones en múltiples redes"""
+    return render_template("panel_cliente_redes_sociales/programar.html", nombre_nora=nombre_nora)
+
+@panel_cliente_redes_sociales_bp.route("/calendario")
+def calendario_contenido(nombre_nora):
+    """Vista de calendario editorial"""
+    return render_template("panel_cliente_redes_sociales/calendario.html", nombre_nora=nombre_nora)
+
+@panel_cliente_redes_sociales_bp.route("/facebook")
+def gestionar_facebook():
+    """Panel de gestión de páginas de Facebook"""
+    nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+    
+    try:
+        # Obtener todas las páginas de Facebook de la base de datos
+        response = supabase.table('facebook_paginas').select('*').eq('activa', True).order('nombre_pagina').execute()
+        paginas_facebook = response.data if response.data else []
+        
+        # Calcular estado_webhook_real para cada página
+        for pagina in paginas_facebook:
+            page_id = pagina['page_id']
+            
+            # Verificar actividad reciente (publicaciones de los últimos 7 días)
+            webhook_activo = False
+            try:
+                publicaciones_response = supabase.table("meta_publicaciones_webhook") \
+                    .select("created_time") \
+                    .eq("page_id", page_id) \
+                    .order("created_time", desc=True) \
+                    .limit(5) \
+                    .execute()
+                
+                publicaciones = publicaciones_response.data if publicaciones_response.data else []
+                
+                if publicaciones:
+                    fecha_limite = datetime.now() - timedelta(days=7)
+                    for pub in publicaciones:
+                        if pub.get('created_time'):
+                            try:
+                                if isinstance(pub['created_time'], (int, float)):
+                                    fecha_pub = datetime.fromtimestamp(pub['created_time'])
+                                elif isinstance(pub['created_time'], str):
+                                    try:
+                                        fecha_pub = datetime.fromisoformat(pub['created_time'].replace('Z', '+00:00'))
+                                    except ValueError:
+                                        try:
+                                            fecha_pub = datetime.strptime(pub['created_time'], '%Y-%m-%d %H:%M:%S')
+                                        except ValueError:
+                                            fecha_pub = datetime.strptime(pub['created_time'], '%Y-%m-%dT%H:%M:%S')
+                                
+                                if fecha_pub >= fecha_limite:
+                                    webhook_activo = True
+                                    break
+                            except Exception:
+                                continue
+            except Exception:
+                webhook_activo = False
+            
+            # Determinar estado real del webhook
+            estado_db = pagina.get('estado_webhook', 'pausada')
+            
+            # Un webhook se considera activo si:
+            # 1. Está marcado como activo en la BD, O
+            # 2. Tiene actividad reciente (aunque esté pausado en BD)
+            if estado_db == 'activa' or webhook_activo:
+                pagina['estado_webhook_real'] = 'activa'
+            else:
+                pagina['estado_webhook_real'] = 'inactiva'
+        
+        return render_template("panel_cliente_redes_sociales/facebook.html", 
+                             nombre_nora=nombre_nora,
+                             paginas=paginas_facebook)
+    except Exception as e:
+        print(f"Error al obtener páginas de Facebook: {e}")
+        return render_template("panel_cliente_redes_sociales/facebook.html", 
+                             nombre_nora=nombre_nora,
+                             paginas=[])
+
+@panel_cliente_redes_sociales_bp.route("/facebook/<page_id>")
+def detalle_pagina_facebook(page_id):
+    """Detalle completo de una página específica de Facebook - OPTIMIZADO"""
+    nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+    
+    try:
+        # 🚀 PASO 1: Obtener datos básicos de la página (más rápido)
+        pagina_response = supabase.table('facebook_paginas').select('*').eq('page_id', page_id).single().execute()
+        pagina = pagina_response.data if pagina_response.data else None
+        
+        if not pagina:
+            return "Página no encontrada", 404
+
+        # 🚀 PASO 2: Optimizar empresa info con una sola query compuesta
+        empresa_info = None
+        if pagina.get('empresa_id'):
+            try:
+                # Una sola query que trae empresa Y cliente de una vez
+                empresa_response = supabase.table('cliente_empresas').select(
+                    'id, nombre_empresa, cliente_id, clientes(nombre_cliente)'
+                ).eq('id', pagina['empresa_id']).single().execute()
+                
+                if empresa_response.data:
+                    empresa_data = empresa_response.data
+                    nombre_contacto = "Sin contacto"
+                    if empresa_data.get('clientes') and len(empresa_data['clientes']) > 0:
+                        nombre_contacto = empresa_data['clientes'][0]['nombre_cliente']
+                    
+                    empresa_info = {
+                        'id': empresa_data['id'],
+                        'nombre_empresa': empresa_data['nombre_empresa'],
+                        'nombre_contacto': nombre_contacto
+                    }
+            except Exception as e:
+                print(f"Error al obtener empresa: {e}")
+                
+        if empresa_info:
+            pagina['cliente_vinculado'] = empresa_info
+
+        # 🚀 PASO 3: Cargar solo datos esenciales inicialmente (LAZY LOADING)
+        # Reducir a 10 publicaciones iniciales en lugar de 50
+        publicaciones_response = supabase.table('meta_publicaciones_webhook').select(
+            'post_id, message, type, created_time, reactions_count, comments_count, shares_count'
+        ).eq('page_id', page_id).order('created_time', desc=True).limit(10).execute()
+        
+        publicaciones_raw = publicaciones_response.data if publicaciones_response.data else []
+        
+        # 🚀 PASO 4: Formateo de fechas optimizado
+        publicaciones = []
+        for publicacion in publicaciones_raw:
+            try:
+                # Formateo rápido de fecha
+                if publicacion.get('created_time'):
+                    if isinstance(publicacion['created_time'], (int, float)):
+                        fecha_formateada = datetime.fromtimestamp(publicacion['created_time']).strftime('%d/%m/%Y %H:%M')
+                    else:
+                        fecha_formateada = str(publicacion['created_time'])[:16]  # Truncar string largo
+                else:
+                    fecha_formateada = 'Sin fecha'
+                
+                publicacion['fecha_formateada'] = fecha_formateada
+                publicaciones.append(publicacion)
+            except:
+                publicacion['fecha_formateada'] = 'Sin fecha'
+                publicaciones.append(publicacion)
+
+        # 🚀 PASO 5: Cargar solo 10 comentarios y reacciones recientes (no 50)
+        comentarios_response = supabase.table('meta_publicaciones_webhook').select(
+            'post_id, mensaje, created_time, webhook_data'
+        ).eq('page_id', page_id).eq('tipo_item', 'comment').order('created_time', desc=True).limit(10).execute()
+        
+        comentarios_raw = comentarios_response.data if comentarios_response.data else []
+        
+        # Formateo rápido de comentarios
+        comentarios = []
+        for comentario in comentarios_raw:
+            try:
+                if comentario.get('created_time'):
+                    if isinstance(comentario['created_time'], (int, float)):
+                        fecha_formateada = datetime.fromtimestamp(comentario['created_time']).strftime('%d/%m/%Y %H:%M')
+                    else:
+                        fecha_formateada = str(comentario['created_time'])[:16]
+                else:
+                    fecha_formateada = 'Sin fecha'
+                    
+                comentario['fecha_formateada'] = fecha_formateada
+                comentarios.append(comentario)
+            except:
+                comentario['fecha_formateada'] = 'Sin fecha'
+                comentarios.append(comentario)
+
+        # 🚀 PASO 6: Cargar solo 10 reacciones recientes  
+        reacciones_response = supabase.table('meta_publicaciones_webhook').select(
+            'post_id, created_time, webhook_data'
+        ).eq('page_id', page_id).eq('tipo_item', 'reaction').order('created_time', desc=True).limit(10).execute()
+        
+        reacciones_raw = reacciones_response.data if reacciones_response.data else []
+        
+        # Formateo rápido de reacciones
+        reacciones = []
+        for reaccion in reacciones_raw:
+            try:
+                if reaccion.get('created_time'):
+                    if isinstance(reaccion['created_time'], (int, float)):
+                        fecha_formateada = datetime.fromtimestamp(reaccion['created_time']).strftime('%d/%m/%Y %H:%M')
+                    else:
+                        fecha_formateada = str(reaccion['created_time'])[:16]
+                else:
+                    fecha_formateada = 'Sin fecha'
+                    
+                reaccion['fecha_formateada'] = fecha_formateada
+                reacciones.append(reaccion)
+            except:
+                reaccion['fecha_formateada'] = 'Sin fecha'
+                reacciones.append(reaccion)
+
+        # 🚀 PASO 7: Estado webhook simplificado (sin verificaciones complejas)
+        webhook_activo = pagina.get('estado_webhook') == 'activa'
+        pagina['estado_webhook_real'] = 'activa' if webhook_activo else 'inactiva'
+                    else:
+                        # String de fecha
+                        fecha_formateada = str(comentario['created_time'])
+                    comentario_formateado['fecha_formateada'] = fecha_formateada
+                except:
+                    comentario_formateado['fecha_formateada'] = str(comentario.get('created_time', 'Sin fecha'))
+            elif comentario.get('creada_en'):
+                comentario_formateado['fecha_formateada'] = str(comentario['creada_en'])
+            else:
+                comentario_formateado['fecha_formateada'] = 'Sin fecha'
+            comentarios.append(comentario_formateado)
+        
+        # Obtener reacciones recientes de la página (tabla meta_publicaciones_webhook con tipo_item='reaction')
+        reacciones_response = supabase.table('meta_publicaciones_webhook').select('*').eq('page_id', page_id).eq('tipo_item', 'reaction').order('created_time', desc=True).limit(50).execute()
+        reacciones_raw = reacciones_response.data if reacciones_response.data else []
+        
+        # Formatear reacciones con fechas legibles
+        reacciones = []
+        for reaccion in reacciones_raw:
+            reaccion_formateada = reaccion.copy()
+            if reaccion.get('created_time'):
+                try:
+                    if isinstance(reaccion['created_time'], (int, float)):
+                        # Timestamp
+                        fecha_formateada = datetime.fromtimestamp(reaccion['created_time']).strftime('%d/%m/%Y %H:%M')
+                    else:
+                        # String de fecha
+                        fecha_formateada = str(reaccion['created_time'])
+                    reaccion_formateada['fecha_formateada'] = fecha_formateada
+                except:
+                    reaccion_formateada['fecha_formateada'] = str(reaccion.get('created_time', 'Sin fecha'))
+            elif reaccion.get('creada_en'):
+                reaccion_formateada['fecha_formateada'] = str(reaccion['creada_en'])
+            else:
+                reaccion_formateada['fecha_formateada'] = 'Sin fecha'
+            reacciones.append(reaccion_formateada)
+        
+        # Verificar estado real del webhook basándose en actividad reciente
+        webhook_activo = False
+        if publicaciones:
+            try:
+                # Verificar si hay publicaciones de los últimos 7 días
+                fecha_limite = datetime.now() - timedelta(days=7)
+                for pub in publicaciones[:10]:  # Solo verificar las últimas 10
+                    if pub.get('created_time'):
+                        created_time = pub['created_time']
+                        
+                        # Manejar diferentes formatos de fecha
+                        if isinstance(created_time, (int, float)):
+                            # Si es timestamp (número)
+                            fecha_pub = datetime.fromtimestamp(created_time)
+                        elif isinstance(created_time, str):
+                            # Si es string con formato ISO
+                            try:
+                                # Intentar parsear como ISO con Z
+                                fecha_pub = datetime.fromisoformat(created_time.replace('Z', '+00:00'))
+                            except ValueError:
+                                # Si falla, intentar otros formatos comunes
+                                try:
+                                    fecha_pub = datetime.strptime(created_time, '%Y-%m-%d %H:%M:%S')
+                                except ValueError:
+                                    # Último intento con formato completo
+                                    fecha_pub = datetime.strptime(created_time, '%Y-%m-%dT%H:%M:%S')
+                        else:
+                            continue  # Saltar si no podemos procesar el formato
+                        
+                        if fecha_pub >= fecha_limite:
+                            webhook_activo = True
+                            break
+            except Exception as e:
+                print(f"Error al verificar actividad del webhook: {e}")
+                # En caso de error, asumir que no hay actividad reciente
+                webhook_activo = False
+        
+        # Determinar el estado real del webhook basado en la base de datos y actividad reciente
+        estado_db = pagina.get('estado_webhook', 'pausada')
+        
+        # Un webhook se considera activo si:
+        # 1. Está marcado como activo en la BD, O
+        # 2. Tiene actividad reciente (aunque esté pausado en BD)
+        if estado_db == 'activa' or webhook_activo:
+            pagina['estado_webhook_real'] = 'activa'
+        else:
+            pagina['estado_webhook_real'] = 'inactiva'  # Para mostrar en la UI
+        
+        # Calcular estadísticas
+        total_publicaciones = len(publicaciones)
+        total_comentarios_webhook = len(comentarios)  # Comentarios via webhook
+        total_reacciones_webhook = len(reacciones)    # Reacciones via webhook
+        
+        # Comentarios y reacciones de las publicaciones (datos históricos)
+        total_comentarios_historicos = sum([pub.get('comments_count', 0) or 0 for pub in publicaciones])
+        total_reacciones_historicos = sum([pub.get('reactions_count', 0) or 0 for pub in publicaciones])
+        total_shares = sum([pub.get('shares_count', 0) or 0 for pub in publicaciones])
+        
+        # Combinar totales (webhook + histórico)
+        total_comentarios = total_comentarios_webhook + total_comentarios_historicos
+        total_reacciones = total_reacciones_webhook + total_reacciones_historicos
+        
+        # Estadísticas por tipo de contenido
+        tipos_contenido = {}
+        for pub in publicaciones:
+            tipo = pub.get('type', 'unknown')
+            tipos_contenido[tipo] = tipos_contenido.get(tipo, 0) + 1
+            
+        # Obtener lista de empresas activas para el dropdown
+        empresas_response = supabase.table('cliente_empresas').select('id, nombre_empresa, email_empresa, telefono_empresa, cliente_id').eq('activo', True).order('nombre_empresa').execute()
+        empresas_raw = empresas_response.data if empresas_response.data else []
+        
+        # Enriquecer con información del contacto principal
+        empresas = []
+        for empresa in empresas_raw:
+            empresa_info = {
+                'id': empresa['id'],  # Usamos el ID de la empresa directamente
+                'nombre_empresa': empresa['nombre_empresa'],
+                'email_empresa': empresa.get('email_empresa'),
+                'telefono_empresa': empresa.get('telefono_empresa'),
+                'empresa_id': empresa['id'],  # ID de la empresa
+                'nombre_contacto': 'Sin contacto'
+            }
+            
+            # Buscar información del contacto principal
+            try:
+                if empresa.get('cliente_id'):
+                    contacto_response = supabase.table('clientes').select('nombre_cliente, telefono, email').eq('id', empresa['cliente_id']).single().execute()
+                    if contacto_response.data:
+                        empresa_info['nombre_contacto'] = contacto_response.data['nombre_cliente']
+                        empresa_info['telefono_contacto'] = contacto_response.data.get('telefono')
+                        empresa_info['email_contacto'] = contacto_response.data.get('email')
+            except Exception as e:
+                print(f"Error al obtener contacto para empresa {empresa['id']}: {e}")
+                    
+            empresas.append(empresa_info)
+        
+        estadisticas = {
+            'total_publicaciones': total_publicaciones,
+            'total_comentarios': total_comentarios,
+            'total_reacciones': total_reacciones,
+            'total_shares': total_shares,
+            'comentarios_webhook': total_comentarios_webhook,
+            'reacciones_webhook': total_reacciones_webhook,
+            'comentarios_historicos': total_comentarios_historicos,
+            'reacciones_historicos': total_reacciones_historicos,
+            'tipos_contenido': tipos_contenido,
+            'promedio_reacciones': round(total_reacciones / total_publicaciones, 2) if total_publicaciones > 0 else 0,
+            'promedio_comentarios': round(total_comentarios / total_publicaciones, 2) if total_publicaciones > 0 else 0
+        }
+        
+        return render_template("panel_cliente_redes_sociales/facebook_detalle.html", 
+                             nombre_nora=nombre_nora,
+                             pagina=pagina,
+                             publicaciones=publicaciones,
+                             comentarios=comentarios,
+                             reacciones=reacciones,
+                             estadisticas=estadisticas,
+                             clientes=empresas)
+    except Exception as e:
+        print(f"Error al obtener detalle de página de Facebook: {e}")
+        return f"Error al cargar la página: {e}", 500
+
+@panel_cliente_redes_sociales_bp.route("/facebook/<page_id>/vincular", methods=['POST'])
+def vincular_pagina_cliente(page_id):
+    """Vincular página de Facebook a un cliente específico"""
+    nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+    
+    try:
+        data = request.get_json()
+        empresa_id = data.get('empresa_id')
+        
+        if not empresa_id:
+            return jsonify({'error': 'ID de la empresa es requerido'}), 400
+            
+        # Verificar que la empresa existe
+        empresa_response = supabase.table('cliente_empresas').select('id, nombre_empresa').eq('id', empresa_id).single().execute()
+        if not empresa_response.data:
+            return jsonify({'error': 'Empresa no encontrada'}), 404
+            
+        empresa = empresa_response.data
+        
+        # Actualizar la página con la empresa vinculada
+        update_response = supabase.table('facebook_paginas').update({
+            'empresa_id': empresa_id
+        }).eq('page_id', page_id).execute()
+        
+        if update_response.data:
+            return jsonify({
+                'success': True,
+                'message': f'Página vinculada exitosamente a la empresa: {empresa["nombre_empresa"]}',
+                'empresa': {
+                    'id': empresa['id'],
+                    'nombre_empresa': empresa['nombre_empresa']
+                }
+            })
+        else:
+            return jsonify({'error': 'Error al vincular la página'}), 500
+            
+    except Exception as e:
+        print(f"Error al vincular página a cliente: {e}")
+        return jsonify({'error': f'Error interno: {str(e)}'}), 500
+
+@panel_cliente_redes_sociales_bp.route("/facebook/<page_id>/desvincular", methods=['POST'])
+def desvincular_pagina_cliente(page_id):
+    """Desvincular página de Facebook de su cliente actual"""
+    nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+    
+    try:
+        # Actualizar la página removiendo la empresa vinculada
+        update_response = supabase.table('facebook_paginas').update({
+            'empresa_id': None
+        }).eq('page_id', page_id).execute()
+        
+        if update_response.data:
+            return jsonify({
+                'success': True,
+                'message': 'Página desvinculada exitosamente de la empresa'
+            })
+        else:
+            return jsonify({'error': 'Error al desvincular la página'}), 500
+            
+    except Exception as e:
+        print(f"Error al desvincular página: {e}")
+        return jsonify({'error': f'Error interno: {str(e)}'}), 500
+
+@panel_cliente_redes_sociales_bp.route("/facebook/<page_id>/webhook/suscribir", methods=['POST'])
+def suscribir_webhook_facebook(page_id):
+    """Suscribir webhook de una página de Facebook"""
+    nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+    
+    try:
+        # Importar función helper
+        from clientes.aura.utils.meta_webhook_helpers import suscribir_webhook_pagina_facebook
+        import os
+        
+        # Obtener información de la página de la base de datos
+        pagina_response = supabase.table('facebook_paginas').select('*').eq('page_id', page_id).single().execute()
+        
+        if not pagina_response.data:
+            return jsonify({'error': 'Página no encontrada'}), 404
+            
+        pagina = pagina_response.data
+        
+        # Obtener tokens y configuración necesaria
+        page_access_token = pagina.get('access_token')
+        if not page_access_token:
+            return jsonify({'error': 'Token de acceso de página no disponible'}), 400
+            
+        # Obtener APP_ID de variables de entorno
+        app_id = os.getenv('META_APP_ID')
+        if not app_id:
+            return jsonify({'error': 'META_APP_ID no configurado'}), 500
+        
+        # Intentar suscribir el webhook
+        resultado = suscribir_webhook_pagina_facebook(page_id, page_access_token, app_id)
+        
+        if resultado.get('success'):
+            # Actualizar estado en la base de datos
+            update_response = supabase.table('facebook_paginas').update({
+                'estado_webhook': 'activa'
+            }).eq('page_id', page_id).execute()
+            
+            return jsonify({
+                'success': True,
+                'message': resultado.get('message', 'Webhook suscrito exitosamente')
+            })
+        else:
+            return jsonify({
+                'error': resultado.get('error', 'Error al suscribir webhook')
+            }), 500
+            
+    except Exception as e:
+        print(f"Error al suscribir webhook: {e}")
+        return jsonify({'error': f'Error interno: {str(e)}'}), 500
+
+@panel_cliente_redes_sociales_bp.route("/facebook/<page_id>/webhook/desconectar", methods=['POST'])
+def desconectar_webhook_facebook(page_id):
+    """Desconectar webhook de una página de Facebook"""
+    nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+    
+    try:
+        # Verificar si la página existe y tiene token válido
+        page_result = supabase.table('facebook_paginas').select('access_token').eq('page_id', page_id).execute()
+        
+        if not page_result.data:
+            return jsonify({'error': 'Página no encontrada'}), 404
+        
+        page_token = page_result.data[0].get('access_token')
+        
+        # Si hay token válido, intentar desuscribir de Meta
+        if page_token:
+            try:
+                import requests
+                
+                # Desuscribir webhook de Meta
+                url = f"https://graph.facebook.com/v18.0/{page_id}/subscribed_apps"
+                data = {
+                    'access_token': page_token,
+                    'subscribed_fields': ''  # Campos vacíos = desuscribir
+                }
+                
+                response = requests.post(url, data=data)
+                print(f"Respuesta de Meta desuscripción: {response.status_code} - {response.text}")
+                
+            except Exception as meta_error:
+                print(f"Error desuscribiendo de Meta: {meta_error}")
+        
+        # Actualizar estado en BD - usar 'pausada' para páginas desconectadas 
+        update_response = supabase.table('facebook_paginas').update({
+            'estado_webhook': 'pausada',
+            'access_token': None,  # Limpiar token
+            'actualizado_en': 'now()'  # ✅ Corregido nombre de columna
+        }).eq('page_id', page_id).execute()
+        
+        if update_response.data:
+            return jsonify({
+                'success': True,
+                'message': 'Webhook desconectado exitosamente'
+            })
+        else:
+            return jsonify({'error': 'Error al desconectar webhook'}), 500
+            
+    except Exception as e:
+        print(f"Error al desconectar webhook: {e}")
+        return jsonify({'error': f'Error interno: {str(e)}'}), 500
+
+
+@panel_cliente_redes_sociales_bp.route("/facebook/<page_id>/api/comentarios")
+def api_comentarios_facebook(page_id):
+    """API para obtener comentarios recientes de una página de Facebook"""
+    nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+    
+    try:
+        # Obtener comentarios de la tabla meta_publicaciones_webhook
+        comentarios_response = supabase.table('meta_publicaciones_webhook').select('*').eq('page_id', page_id).eq('tipo_item', 'comment').order('created_time', desc=True).limit(20).execute()
+        comentarios = comentarios_response.data if comentarios_response.data else []
+        
+        return jsonify({
+            'success': True,
+            'comentarios': comentarios,
+            'total': len(comentarios)
+        })
+        
+    except Exception as e:
+        print(f"Error al obtener comentarios: {e}")
+        return jsonify({'error': f'Error interno: {str(e)}'}), 500
+
+
+@panel_cliente_redes_sociales_bp.route("/facebook/<page_id>/api/reacciones")
+def api_reacciones_facebook(page_id):
+    """API para obtener reacciones recientes de una página de Facebook"""
+    nombre_nora = request.view_args.get("nombre_nora") if request.view_args else None
+    
+    try:
+        # Obtener reacciones de la tabla meta_publicaciones_webhook
+        reacciones_response = supabase.table('meta_publicaciones_webhook').select('*').eq('page_id', page_id).eq('tipo_item', 'reaction').order('created_time', desc=True).limit(20).execute()
+        reacciones = reacciones_response.data if reacciones_response.data else []
+        
+        return jsonify({
+            'success': True,
+            'reacciones': reacciones,
+            'total': len(reacciones)
+        })
+        
+    except Exception as e:
+        print(f"Error al obtener reacciones: {e}")
+        return jsonify({'error': f'Error interno: {str(e)}'}), 500

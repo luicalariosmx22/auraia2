@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview - {{ config.titulo or 'Landing Page' }}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Estilos personalizados -->
+    <style>
+        :root {
+            --color-primario: {{ config.colores.primario if config.colores else '#3B82F6' }};
+            --color-secundario: {{ config.colores.secundario if config.colores else '#1E40AF' }};
+            --color-texto: {{ config.colores.texto if config.colores else '#1F2937' }};
+        }
+        
+        .color-primario { color: var(--color-primario); }
+        .bg-primario { background-color: var(--color-primario); }
+        .border-primario { border-color: var(--color-primario); }
+        
+        .color-secundario { color: var(--color-secundario); }
+        .bg-secundario { background-color: var(--color-secundario); }
+        
+        .color-texto { color: var(--color-texto); }
+        
+        .btn-cta {
+            background: linear-gradient(135deg, var(--color-primario), var(--color-secundario));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--color-primario)20, var(--color-secundario)20);
+        }
+        
+        /* Overlay de preview */
+        .preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            z-index: 1000;
+            text-align: center;
+        }
+        
+        .preview-badge {
+            background: #f59e0b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        body {
+            padding-top: 40px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Overlay de preview -->
+    <div class="preview-overlay">
+        <span class="preview-badge">PREVIEW</span>
+        Esta es una vista previa. Los enlaces no están activos.
+        <button onclick="window.close()" class="ml-4 bg-red-600 px-3 py-1 rounded text-sm hover:bg-red-700">
+            ✕ Cerrar
+        </button>
+    </div>
+
+    <!-- Hero Section -->
+    {% if 'hero' in config.bloques or not config.bloques %}
+    <section class="hero-gradient min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            {% if config.titulo %}
+            <h1 class="text-5xl md:text-7xl font-bold color-texto mb-6">
+                {{ config.titulo }}
+            </h1>
+            {% else %}
+            <h1 class="text-5xl md:text-7xl font-bold color-texto mb-6">
+                Tu Título Aquí
+            </h1>
+            {% endif %}
+            
+            {% if config.subtitulo %}
+            <p class="text-xl md:text-2xl color-texto opacity-80 mb-8 max-w-2xl mx-auto">
+                {{ config.subtitulo }}
+            </p>
+            {% else %}
+            <p class="text-xl md:text-2xl color-texto opacity-80 mb-8 max-w-2xl mx-auto">
+                Tu subtítulo descriptivo aquí. Explica de forma breve y atractiva lo que ofreces.
+            </p>
+            {% endif %}
+            
+            <a href="#" onclick="return false;" 
+               class="btn-cta text-white text-lg font-semibold px-8 py-4 rounded-full inline-block cursor-not-allowed">
+                {{ config.cta.texto if config.cta else 'Contáctanos' }}
+            </a>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Características -->
+    {% if 'caracteristicas' in config.bloques %}
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold color-texto mb-4">¿Por qué elegirnos?</h2>
+                <p class="text-xl color-texto opacity-70">Ofrecemos lo mejor en cada aspecto</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="bg-primario w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white text-2xl">⚡</span>
+                    </div>
+                    <h3 class="text-xl font-semibold color-texto mb-2">Rápido</h3>
+                    <p class="color-texto opacity-70">Resultados inmediatos y eficientes</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-primario w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white text-2xl">🎯</span>
+                    </div>
+                    <h3 class="text-xl font-semibold color-texto mb-2">Preciso</h3>
+                    <p class="color-texto opacity-70">Soluciones exactas a tus necesidades</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-primario w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white text-2xl">🏆</span>
+                    </div>
+                    <h3 class="text-xl font-semibold color-texto mb-2">Calidad</h3>
+                    <p class="color-texto opacity-70">Los más altos estándares siempre</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Servicios -->
+    {% if 'servicios' in config.bloques %}
+    <section class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold color-texto mb-4">Nuestros Servicios</h2>
+                <p class="text-xl color-texto opacity-70">Todo lo que necesitas en un solo lugar</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold color-texto mb-3">🚀 Consultoría</h3>
+                    <p class="color-texto opacity-70 mb-4">Asesoramiento experto para hacer crecer tu negocio</p>
+                    <a href="#" onclick="return false;" class="color-primario font-medium cursor-not-allowed">Saber más →</a>
+                </div>
+                
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold color-texto mb-3">💡 Desarrollo</h3>
+                    <p class="color-texto opacity-70 mb-4">Soluciones tecnológicas a medida para tu empresa</p>
+                    <a href="#" onclick="return false;" class="color-primario font-medium cursor-not-allowed">Saber más →</a>
+                </div>
+                
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold color-texto mb-3">📈 Marketing</h3>
+                    <p class="color-texto opacity-70 mb-4">Estrategias digitales que generan resultados</p>
+                    <a href="#" onclick="return false;" class="color-primario font-medium cursor-not-allowed">Saber más →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Testimonios -->
+    {% if 'testimonios' in config.bloques %}
+    <section class="py-20 bg-gray-900">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-white mb-4">Lo que dicen nuestros clientes</h2>
+                <p class="text-xl text-gray-300">Experiencias reales de personas satisfechas</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gray-600 rounded-full mr-4"></div>
+                        <div>
+                            <h4 class="text-white font-semibold">María González</h4>
+                            <p class="text-gray-400 text-sm">CEO, TechStart</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300">"Excelente servicio y resultados que superaron nuestras expectativas."</p>
+                </div>
+                
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gray-600 rounded-full mr-4"></div>
+                        <div>
+                            <h4 class="text-white font-semibold">Carlos Ruiz</h4>
+                            <p class="text-gray-400 text-sm">Director, Innovación S.A.</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300">"Profesionales dedicados que realmente entienden nuestro negocio."</p>
+                </div>
+                
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gray-600 rounded-full mr-4"></div>
+                        <div>
+                            <h4 class="text-white font-semibold">Ana Martín</h4>
+                            <p class="text-gray-400 text-sm">Fundadora, CreativaPlus</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300">"La inversión más inteligente que hemos hecho para nuestro crecimiento."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Contacto -->
+    {% if 'contacto' in config.bloques %}
+    <section class="py-20 bg-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold color-texto mb-4">¿Listo para comenzar?</h2>
+            <p class="text-xl color-texto opacity-70 mb-8">
+                Contacta con nosotros y descubre cómo podemos ayudarte
+            </p>
+            
+            <a href="#" onclick="return false;" 
+               class="btn-cta text-white text-lg font-semibold px-8 py-4 rounded-full inline-block mb-8 cursor-not-allowed">
+                {{ config.cta.texto if config.cta else 'Contáctanos' }}
+            </a>
+            
+            <div class="flex justify-center gap-8 text-sm color-texto opacity-70">
+                <span>📧 info@{{ nombre_nora }}.com</span>
+                <span>📱 +52 1 55 1234 5678</span>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-8">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p>&copy; 2024 {{ nombre_nora|title }}. Todos los derechos reservados.</p>
+            <p class="text-sm mt-2 opacity-70">Powered by Nora AI</p>
+        </div>
+    </footer>
+
+    <script>
+        // Deshabilitar todos los enlaces en preview
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+            });
+        });
+    </script>
+    
+</body>
+</html>

@@ -211,6 +211,11 @@ def create_app(config_class=Config):
         template_folder=template_path,  # OJO: esto es crítico
         static_folder='static'
     )
+    
+    # 🔧 APLICAR CONFIGURACIÓN - ¡ESTO ES LO QUE FALTABA!
+    app.config.from_object(config_class)
+    print(f"✅ Configuración aplicada: TEMPLATES_AUTO_RELOAD = {app.config.get('TEMPLATES_AUTO_RELOAD')}")
+    
     # Configurar la clave secreta desde variable de entorno
     app.secret_key = os.environ.get("SECRET_KEY")
 

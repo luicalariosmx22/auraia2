@@ -60,9 +60,74 @@ def editar_modulo():
             "descripcion": descripcion,
             "icono": icono
         }).eq("id", id_modulo).execute()
-        if hasattr(res, 'error') and res.error:
-            return jsonify({"success": False, "error": str(res.error)}), 500
+        if not res.data:
+            return jsonify({"success": False, "error": "Error actualizando módulo en la base de datos"}), 500
         return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# Endpoint para eliminar módulo vía AJAX
+@admin_creador_modulos_bp.route("/eliminar_modulo", methods=["POST"])
+def eliminar_modulo():
+    try:
+        data = request.get_json()
+        id_modulo = data.get("id")
+        nombre_modulo = data.get("nombre")
+        
+        if not id_modulo:
+            return jsonify({"success": False, "error": "ID de módulo requerido"}), 400
+
+        # 1. Obtener información del módulo antes de eliminarlo
+        modulo_info = supabase.table("modulos_disponibles").select("*").eq("id", id_modulo).execute()
+        if not modulo_info.data:
+            return jsonify({"success": False, "error": "Módulo no encontrado"}), 404
+        
+        modulo = modulo_info.data[0]
+        nombre_modulo = modulo.get("nombre")
+
+        # 2. Eliminar de modulos_disponibles
+        delete_res = supabase.table("modulos_disponibles").delete().eq("id", id_modulo).execute()
+        if not delete_res.data:
+            return jsonify({"success": False, "error": "Error eliminando módulo de la base de datos"}), 500
+
+        # 3. Desactivar en todas las configuraciones de Noras
+        if nombre_modulo:
+            noras_response = supabase.table("configuracion_bot").select("id, nombre_nora, modulos").execute()
+            for nora in noras_response.data or []:
+                modulos_actuales = nora.get("modulos", {})
+                if isinstance(modulos_actuales, dict) and nombre_modulo in modulos_actuales:
+                    # Remover el módulo de la configuración
+                    del modulos_actuales[nombre_modulo]
+                    supabase.table("configuracion_bot").update({"modulos": modulos_actuales}).eq("id", nora["id"]).execute()
+
+        # 4. Intentar eliminar archivos físicos (opcional - sin fallar si no existen)
+        try:
+            import shutil
+            carpeta_backend = f"clientes/aura/routes/panel_cliente_{nombre_modulo}"
+            carpeta_templates = f"clientes/aura/templates/panel_cliente_{nombre_modulo}"
+            
+            archivos_eliminados = []
+            if os.path.exists(carpeta_backend):
+                shutil.rmtree(carpeta_backend)
+                archivos_eliminados.append(carpeta_backend)
+            
+            if os.path.exists(carpeta_templates):
+                shutil.rmtree(carpeta_templates)
+                archivos_eliminados.append(carpeta_templates)
+            
+            mensaje_archivos = f" (Archivos eliminados: {', '.join(archivos_eliminados)})" if archivos_eliminados else " (No se encontraron archivos físicos)"
+        except Exception as e:
+            mensaje_archivos = f" (Error eliminando archivos: {str(e)})"
+
+        # 5. Actualizar esquemas de Supabase
+        esquemas_actualizados = actualizar_esquemas_supabase()
+        mensaje_esquemas = " - Esquemas actualizados ✅" if esquemas_actualizados else " - Error actualizando esquemas ⚠️"
+
+        return jsonify({
+            "success": True, 
+            "message": f"Módulo '{nombre_modulo}' eliminado correctamente{mensaje_archivos}{mensaje_esquemas}"
+        })
+        
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
