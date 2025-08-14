@@ -5,43 +5,4 @@ __pycache__/
 
 # No subir documentación interna con secretos
 .github/instructions/docs/
-.github/instructions/biblia.instructions.md
-.github/instructions/*.md
-
-# Archivos de entorno y configuración
-.env*
-!.env.example
-
-# Logs
-logs/
-*.log
-clientes/aura/logs/
-
-# Archivos temporales y de desarrollo
-CONTEXTO_*.md
-RESUMEN_*.md
-test_*.py
-verificar_*.py
-diagnostico_*.py
-gestionar_*.py
-suscribir_*.py
-actualizar_*.py
-agregar_*.py
-probar_*.py
-registrar_*.py
-
-# Directorios de entorno virtual
-venv*/
-node_modules/
-
-# Directorio de tests (no subir pruebas temporales)
-tests/
-test/
-
-# Sesiones y caché
-flask_session/
-.wwebjs_auth/
-
-# Archivos SQL temporales
-*.sql
-!crear_tablas_*.sql
+node_modules
