@@ -83,7 +83,7 @@ function sincronizarCompleto() {
 
   <!-- Panel de Control -->
   <div class="bg-white rounded-xl shadow-lg p-8 border border-indigo-100 mb-8">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <!-- Botón de Generar Reporte -->
       <button onclick="generarReporteSemanal()" class="btn-tarjeta-meta tarjeta-azul">
         <span class="icono-btn"><i class="fa-solid fa-file-invoice"></i></span>
@@ -95,6 +95,12 @@ function sincronizarCompleto() {
         <span class="icono-btn"><i class="fa-solid fa-sync-alt"></i></span>
         <span>Sincronizar Datos<br>(7 días)</span>
       </button>
+      
+      <!-- Botón de Reportes Archivados -->
+      <a href="{{ url_for('panel_cliente_meta_ads_bp.vista_reportes_archivados', nombre_nora=nombre_nora) }}" class="btn-tarjeta-meta tarjeta-naranja text-decoration-none">
+        <span class="icono-btn"><i class="fa-solid fa-archive"></i></span>
+        <span>Reportes<br>Archivados</span>
+      </a>
       
       <!-- Botón de Copiar Todos los Reportes -->
       <button onclick="copiarTodosLosReportes()" class="btn-tarjeta-meta tarjeta-verde">
@@ -117,7 +123,7 @@ function sincronizarCompleto() {
         <thead class="bg-indigo-50">
           <tr>
             <th class="px-4 py-2">Cliente</th>
-            <th class="px-4 py-2">Periodo</th>
+            <th class="px-4 py-2">Hasta el</th>
             <th class="px-4 py-2">Gasto Total</th>
             <th class="px-4 py-2">Facebook</th>
             <th class="px-4 py-2">Instagram</th>
@@ -128,7 +134,7 @@ function sincronizarCompleto() {
           {% for reporte in reportes %}
           <tr class="border-b hover:bg-indigo-50 transition">
             <td class="px-4 py-2">{{ reporte.empresa_nombre or reporte.nombre_cliente or 'Sin empresa' }}</td>
-            <td class="px-4 py-2">{{ reporte.fecha_desde_fmt }} a {{ reporte.fecha_hasta_fmt }}</td>
+            <td class="px-4 py-2">{{ reporte.fecha_fin }}</td>
             <td class="px-4 py-2 font-mono text-green-700 font-semibold">${{ "{:,.2f}".format(reporte.importe_gastado_campañas|float) if reporte.importe_gastado_campañas else '0.00' }}</td>
             <td class="px-4 py-2 text-blue-700 font-semibold">${{ "{:,.2f}".format(reporte.facebook_importe_gastado|float) if reporte.facebook_importe_gastado else '0.00' }}</td>
             <td class="px-4 py-2 text-pink-700 font-semibold">${{ "{:,.2f}".format(reporte.instagram_importe_gastado|float) if reporte.instagram_importe_gastado else '0.00' }}</td>
@@ -150,6 +156,10 @@ function sincronizarCompleto() {
                    class="text-orange-700 hover:underline font-semibold text-xs px-2 py-1 bg-orange-50 rounded">
                    📊 Descargar
                 </a>
+                <button onclick="archivarReporte('{{ reporte.id }}', this)" 
+                        class="text-red-700 hover:underline font-semibold text-xs px-2 py-1 bg-red-50 rounded border-0 cursor-pointer">
+                        🗄️ Archivar
+                </button>
               </div>
             </td>
           </tr>
@@ -225,6 +235,17 @@ function sincronizarCompleto() {
   background: #dcfce7;
   border-color: #16a34a;
   color: #14532d;
+}
+
+.tarjeta-naranja {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+.tarjeta-naranja .icono-btn { color: #ea580c; }
+.tarjeta-naranja:hover, .tarjeta-naranja:focus {
+  background: #ffedd5;
+  border-color: #ea580c;
+  color: #9a3412;
 }
 
 .tarjeta-roja {

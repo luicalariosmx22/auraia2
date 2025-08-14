@@ -46,7 +46,9 @@ flask-cors==4.0.0
 python-socketio==5.8.0
 flask-apscheduler==1.12.3
 
+
 # --- Compatibilidad Flask (evita conflictos con jinja, werkzeug, etc) ---
+beautifulsoup4==4.12.3  # Para scraping en bienes_raices
 werkzeug>=2.2.2,<3.0
 itsdangerous==2.0.1
 jinja2==3.0.3

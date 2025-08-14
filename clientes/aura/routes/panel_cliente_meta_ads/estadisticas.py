@@ -45,9 +45,9 @@ def compartir_reporte(nombre_nora):
         if not reporte_id:
             return jsonify({'ok': False, 'error': 'ID de reporte requerido'}), 400
         
-        # Verificar que el reporte existe
+        # Verificar que el reporte existe y está activo
         try:
-            reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).single().execute().data
+            reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).eq('estatus', 'activo').single().execute().data
         except Exception as e:
             return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
         

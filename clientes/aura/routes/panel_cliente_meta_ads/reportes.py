@@ -9,6 +9,7 @@ def vista_reportes_meta_ads(nombre_nora):
         respuesta = supabase.table("meta_ads_reportes_semanales") \
             .select("*") \
             .eq("nombre_nora", nombre_nora) \
+            .eq("estatus", "activo") \
             .order("fecha_inicio", desc=True) \
             .execute()
         
@@ -17,6 +18,79 @@ def vista_reportes_meta_ads(nombre_nora):
     except Exception as e:
         print(f"❌ Error consultando reportes: {e}")
         return render_template("panel_cliente_meta_ads/reportes.html", nombre_nora=nombre_nora, reportes=[])
+
+@panel_cliente_meta_ads_bp.route("/reportes/archivados", methods=["GET"])
+def vista_reportes_archivados(nombre_nora):
+    """Vista para mostrar reportes archivados"""
+    try:
+        respuesta = supabase.table("meta_ads_reportes_semanales") \
+            .select("*") \
+            .eq("nombre_nora", nombre_nora) \
+            .eq("estatus", "archivado") \
+            .order("fecha_inicio", desc=True) \
+            .execute()
+        
+        reportes_archivados = respuesta.data or []
+        return render_template("panel_cliente_meta_ads/reportes_archivados.html", 
+                             nombre_nora=nombre_nora, 
+                             reportes=reportes_archivados)
+    except Exception as e:
+        print(f"❌ Error consultando reportes archivados: {e}")
+        return render_template("panel_cliente_meta_ads/reportes_archivados.html", 
+                             nombre_nora=nombre_nora, 
+                             reportes=[])
+
+@panel_cliente_meta_ads_bp.route("/reportes/archivar", methods=["POST"])
+def archivar_reporte(nombre_nora):
+    """Archiva un reporte específico"""
+    try:
+        data = request.get_json()
+        reporte_id = data.get('reporte_id')
+        
+        if not reporte_id:
+            return jsonify({'ok': False, 'error': 'ID de reporte requerido'}), 400
+        
+        # Actualizar estatus a archivado
+        resultado = supabase.table('meta_ads_reportes_semanales') \
+            .update({'estatus': 'archivado'}) \
+            .eq('id', reporte_id) \
+            .eq('nombre_nora', nombre_nora) \
+            .execute()
+        
+        if resultado.data:
+            return jsonify({'ok': True, 'message': 'Reporte archivado exitosamente'})
+        else:
+            return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
+            
+    except Exception as e:
+        print(f"❌ Error archivando reporte: {e}")
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+@panel_cliente_meta_ads_bp.route("/reportes/restaurar", methods=["POST"])
+def restaurar_reporte(nombre_nora):
+    """Restaura un reporte archivado"""
+    try:
+        data = request.get_json()
+        reporte_id = data.get('reporte_id')
+        
+        if not reporte_id:
+            return jsonify({'ok': False, 'error': 'ID de reporte requerido'}), 400
+        
+        # Actualizar estatus a activo
+        resultado = supabase.table('meta_ads_reportes_semanales') \
+            .update({'estatus': 'activo'}) \
+            .eq('id', reporte_id) \
+            .eq('nombre_nora', nombre_nora) \
+            .execute()
+        
+        if resultado.data:
+            return jsonify({'ok': True, 'message': 'Reporte restaurado exitosamente'})
+        else:
+            return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
+            
+    except Exception as e:
+        print(f"❌ Error restaurando reporte: {e}")
+        return jsonify({'ok': False, 'error': str(e)}), 500
 
 @panel_cliente_meta_ads_bp.route('/sincronizar_completo', methods=['POST'])
 def sincronizar_completo_meta_ads(nombre_nora):
@@ -251,9 +325,9 @@ def compartir_reporte_meta_ads(nombre_nora):
         if not reporte_id:
             return jsonify({'ok': False, 'error': 'ID de reporte requerido'}), 400
         
-        # Verificar que el reporte existe
+        # Verificar que el reporte existe y está activo
         try:
-            reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).single().execute().data
+            reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).eq('estatus', 'activo').single().execute().data
         except Exception as e:
             return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
         
@@ -325,7 +399,7 @@ def vista_reporte_publico(nombre_nora, token_uuid):
         reporte_id = enlace_compartido['reporte_id']
         print(f"[DEBUG] Buscando reporte con ID: {reporte_id}")
         try:
-            reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).single().execute().data
+            reporte = supabase.table('meta_ads_reportes_semanales').select('*').eq('id', reporte_id).eq('estatus', 'activo').single().execute().data
             print(f"[DEBUG] Reporte encontrado: {reporte}")
         except Exception as e:
             print(f"[ERROR] Error al obtener reporte: {e}")

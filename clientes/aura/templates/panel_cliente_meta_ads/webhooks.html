@@ -24,10 +24,113 @@
   </div>
 
   <div class="mb-4 space-x-2">
+    <button onclick="showTab('suscripciones')" class="px-4 py-2 bg-red-600 text-white rounded">🔗 Suscripciones</button>
     <button onclick="showTab('publicaciones')" class="px-4 py-2 bg-blue-600 text-white rounded">📄 Publicaciones</button>
     <button onclick="showTab('comentarios')" class="px-4 py-2 bg-purple-600 text-white rounded">💬 Comentarios</button>
     <button onclick="showTab('anuncios')" class="px-4 py-2 bg-green-600 text-white rounded">📢 Anuncios</button>
     <button onclick="showTab('logs')" class="px-4 py-2 bg-gray-600 text-white rounded">🛠️ Logs</button>
+  </div>
+
+  <!-- Tab Suscripciones de Webhooks -->
+  <div id="tab-suscripciones" class="tab-content">
+    <div class="space-y-6">
+      <!-- Header con botones de acción -->
+      <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-6 border-l-4 border-red-500">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-2xl font-bold text-red-800 mb-2">🔗 Gestión de Suscripciones Webhook</h2>
+            <p class="text-red-600">Administra las suscripciones de webhook para cuentas publicitarias de Meta Ads</p>
+          </div>
+          <div class="space-x-3">
+            <button onclick="registrarTodasCuentas()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              🚀 Registrar Todas
+            </button>
+            <button onclick="cargarSuscripciones()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              🔄 Actualizar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div id="estadisticas-suscripciones" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+          <div class="flex items-center">
+            <div class="text-blue-600 text-2xl mr-3">📊</div>
+            <div>
+              <p class="text-sm text-gray-600">Total Cuentas</p>
+              <p id="stat-total-cuentas" class="text-2xl font-bold text-blue-600">-</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+          <div class="flex items-center">
+            <div class="text-green-600 text-2xl mr-3">✅</div>
+            <div>
+              <p class="text-sm text-gray-600">Suscritas</p>
+              <p id="stat-suscritas" class="text-2xl font-bold text-green-600">-</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-red-500">
+          <div class="flex items-center">
+            <div class="text-red-600 text-2xl mr-3">❌</div>
+            <div>
+              <p class="text-sm text-gray-600">No Suscritas</p>
+              <p id="stat-no-suscritas" class="text-2xl font-bold text-red-600">-</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
+          <div class="flex items-center">
+            <div class="text-yellow-600 text-2xl mr-3">⚠️</div>
+            <div>
+              <p class="text-sm text-gray-600">Con Errores</p>
+              <p id="stat-errores" class="text-2xl font-bold text-yellow-600">-</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de cuentas -->
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">📋 Cuentas Publicitarias</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table id="tabla-suscripciones" class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cuenta</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Webhook</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Verificación</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-suscripciones" class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                  <div class="flex items-center justify-center">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+                    Cargando cuentas...
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Log de acciones -->
+      <div id="log-acciones" class="bg-white rounded-lg shadow p-4 hidden">
+        <h4 class="text-lg font-semibold text-gray-900 mb-3">📝 Log de Acciones</h4>
+        <div id="log-content" class="bg-gray-100 rounded p-3 h-32 overflow-y-auto text-sm font-mono">
+          <div class="text-gray-600">Listo para mostrar acciones...</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="tab-publicaciones" class="tab-content">
@@ -143,6 +246,11 @@ let filtros = {
 function showTab(tab) {
   document.querySelectorAll(".tab-content").forEach(div => div.classList.add("hidden"));
   document.getElementById("tab-" + tab).classList.remove("hidden");
+  
+  // Cargar datos específicos de la pestaña
+  if (tab === 'suscripciones') {
+    cargarSuscripciones();
+  }
 }
 
 // Funciones de filtros
@@ -437,5 +545,254 @@ window.addEventListener("DOMContentLoaded", () => {
   cargarAnuncios();
   cargarLogs();
 });
+
+// ========== FUNCIONES DE GESTIÓN DE SUSCRIPCIONES ==========
+
+let suscripcionesData = [];
+
+function addLog(message, type = 'info') {
+  const logContent = document.getElementById('log-content');
+  const logAcciones = document.getElementById('log-acciones');
+  const timestamp = new Date().toLocaleTimeString();
+  
+  const colorClass = {
+    'info': 'text-blue-600',
+    'success': 'text-green-600',
+    'error': 'text-red-600',
+    'warning': 'text-yellow-600'
+  }[type] || 'text-gray-600';
+  
+  logContent.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+  logContent.scrollTop = logContent.scrollHeight;
+  
+  // Mostrar el log si está oculto
+  logAcciones.classList.remove('hidden');
+}
+
+async function cargarSuscripciones() {
+  try {
+    addLog('🔄 Iniciando carga de cuentas...', 'info');
+    
+    const response = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/cuentas`);
+    const data = await response.json();
+    
+    if (data.success) {
+      suscripcionesData = data.cuentas;
+      actualizarTablaSuscripciones();
+      actualizarEstadisticas();
+      addLog(`✅ Cargadas ${data.cuentas.length} cuentas exitosamente`, 'success');
+    } else {
+      addLog(`❌ Error cargando cuentas: ${data.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error cargando suscripciones:', error);
+    addLog(`❌ Error de conexión: ${error.message}`, 'error');
+  }
+}
+
+function actualizarTablaSuscripciones() {
+  const tbody = document.getElementById('tbody-suscripciones');
+  tbody.innerHTML = '';
+  
+  if (suscripcionesData.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+          No se encontraron cuentas publicitarias
+        </td>
+      </tr>
+    `;
+    return;
+  }
+  
+  suscripcionesData.forEach(cuenta => {
+    const estadoBadge = getEstadoBadge(cuenta.estado_actual);
+    const webhookBadge = getWebhookBadge(cuenta.webhook_registrado);
+    const fechaVerificacion = cuenta.ultima_verificacion ? 
+      new Date(cuenta.ultima_verificacion).toLocaleString('es-ES') : 
+      'Nunca';
+    
+    tbody.innerHTML += `
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm font-medium text-gray-900">${cuenta.id_cuenta_publicitaria}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-900">${cuenta.nombre_cliente || 'Sin nombre'}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          ${estadoBadge}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          ${webhookBadge}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          ${fechaVerificacion}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+          ${getAccionesBotones(cuenta)}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function getEstadoBadge(estado) {
+  const badges = {
+    'ACTIVE': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">✅ Activa</span>',
+    'INACTIVE': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">❌ Inactiva</span>',
+    'PENDING': '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">⏳ Pendiente</span>'
+  };
+  return badges[estado] || '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">❓ Desconocido</span>';
+}
+
+function getWebhookBadge(registrado) {
+  if (registrado === true) {
+    return '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">🔗 Suscrito</span>';
+  } else if (registrado === false) {
+    return '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">🚫 No suscrito</span>';
+  } else {
+    return '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">❓ Verificando</span>';
+  }
+}
+
+function getAccionesBotones(cuenta) {
+  let botones = '';
+  
+  if (cuenta.webhook_registrado === false) {
+    botones += `<button onclick="registrarWebhook('${cuenta.id_cuenta_publicitaria}')" 
+                       class="text-green-600 hover:text-green-900 px-2 py-1 rounded border border-green-300 hover:bg-green-50">
+                  📝 Registrar
+                </button>`;
+  } else if (cuenta.webhook_registrado === true) {
+    botones += `<button onclick="eliminarWebhook('${cuenta.id_cuenta_publicitaria}')" 
+                       class="text-red-600 hover:text-red-900 px-2 py-1 rounded border border-red-300 hover:bg-red-50">
+                  🗑️ Eliminar
+                </button>`;
+  }
+  
+  botones += ` <button onclick="verificarWebhook('${cuenta.id_cuenta_publicitaria}')" 
+                      class="text-blue-600 hover:text-blue-900 px-2 py-1 rounded border border-blue-300 hover:bg-blue-50">
+                🔍 Verificar
+              </button>`;
+  
+  return botones;
+}
+
+function actualizarEstadisticas() {
+  const totalCuentas = suscripcionesData.length;
+  const suscritas = suscripcionesData.filter(c => c.webhook_registrado === true).length;
+  const noSuscritas = suscripcionesData.filter(c => c.webhook_registrado === false).length;
+  const errores = suscripcionesData.filter(c => c.estado_actual !== 'ACTIVE').length;
+  
+  document.getElementById('stat-total-cuentas').textContent = totalCuentas;
+  document.getElementById('stat-suscritas').textContent = suscritas;
+  document.getElementById('stat-no-suscritas').textContent = noSuscritas;
+  document.getElementById('stat-errores').textContent = errores;
+}
+
+async function registrarWebhook(idCuenta) {
+  try {
+    addLog(`🔄 Registrando webhook para cuenta ${idCuenta}...`, 'info');
+    
+    const response = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/cuentas/registrar-webhook`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id_cuenta: idCuenta
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      addLog(`✅ Webhook registrado exitosamente para cuenta ${idCuenta}`, 'success');
+      // Recargar datos
+      cargarSuscripciones();
+    } else {
+      addLog(`❌ Error registrando webhook para ${idCuenta}: ${data.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error registrando webhook:', error);
+    addLog(`❌ Error de conexión registrando webhook: ${error.message}`, 'error');
+  }
+}
+
+async function eliminarWebhook(idCuenta) {
+  if (!confirm(`¿Estás seguro de eliminar el webhook de la cuenta ${idCuenta}?`)) {
+    return;
+  }
+  
+  try {
+    addLog(`🔄 Eliminando webhook para cuenta ${idCuenta}...`, 'info');
+    
+    const response = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/cuentas/eliminar-webhook/${idCuenta}`, {
+      method: 'DELETE'
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      addLog(`✅ Webhook eliminado exitosamente para cuenta ${idCuenta}`, 'success');
+      // Recargar datos
+      cargarSuscripciones();
+    } else {
+      addLog(`❌ Error eliminando webhook para ${idCuenta}: ${data.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error eliminando webhook:', error);
+    addLog(`❌ Error de conexión eliminando webhook: ${error.message}`, 'error');
+  }
+}
+
+async function verificarWebhook(idCuenta) {
+  try {
+    addLog(`🔍 Verificando webhook para cuenta ${idCuenta}...`, 'info');
+    
+    const response = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/cuentas/verificar-webhook/${idCuenta}`);
+    const data = await response.json();
+    
+    if (data.success) {
+      const estado = data.webhook_registrado ? 'registrado' : 'no registrado';
+      addLog(`✅ Verificación completada: ${idCuenta} está ${estado}`, 'success');
+      // Recargar datos
+      cargarSuscripciones();
+    } else {
+      addLog(`❌ Error verificando webhook para ${idCuenta}: ${data.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error verificando webhook:', error);
+    addLog(`❌ Error de conexión verificando webhook: ${error.message}`, 'error');
+  }
+}
+
+async function registrarTodasCuentas() {
+  if (!confirm('¿Registrar webhooks para TODAS las cuentas no suscritas? Esto puede tomar varios minutos.')) {
+    return;
+  }
+  
+  try {
+    addLog('🚀 Iniciando registro masivo de webhooks...', 'info');
+    
+    const response = await fetch(`/panel_cliente/${nombre_nora}/meta_ads/api/webhooks/cuentas/registrar-todas`, {
+      method: 'POST'
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      addLog(`✅ Registro masivo completado: ${data.registradas} cuentas registradas, ${data.errores} errores`, 'success');
+      // Recargar datos
+      cargarSuscripciones();
+    } else {
+      addLog(`❌ Error en registro masivo: ${data.error}`, 'error');
+    }
+  } catch (error) {
+    console.error('Error en registro masivo:', error);
+    addLog(`❌ Error de conexión en registro masivo: ${error.message}`, 'error');
+  }
+}
 </script>
 {% endblock %}

@@ -6,16 +6,65 @@ import uuid
 from clientes.aura.utils.supabase_client import supabase
 
 def obtener_rango_semana_actual():
+    """
+    Obtiene el rango de fechas de la semana que tiene datos disponibles en Meta Ads.
+    Primero intenta la semana anterior, si no hay datos, usa la última semana con datos.
+    """
     hoy = datetime.utcnow().date()
-    fin = hoy - timedelta(days=hoy.weekday() + 1)
-    inicio = fin - timedelta(days=6)
+    print(f"📅 Fecha actual: {hoy}")
     
-    # Para datos de Meta Ads, usar el rango exacto que está en la base
-    # Los datos actuales van de 2025-07-28 a 2025-08-04
-    inicio = datetime(2025, 7, 28).date()
-    fin = datetime(2025, 8, 4).date()
+    # Calcular el lunes de la semana pasada
+    dias_desde_lunes = hoy.weekday()  # 0=lunes, 6=domingo
+    lunes_esta_semana = hoy - timedelta(days=dias_desde_lunes)
+    lunes_semana_pasada = lunes_esta_semana - timedelta(days=7)
     
-    return inicio.isoformat(), fin.isoformat()
+    # El rango va del lunes al domingo de la semana pasada
+    inicio_ideal = lunes_semana_pasada
+    fin_ideal = lunes_semana_pasada + timedelta(days=6)
+    
+    fecha_inicio_ideal = inicio_ideal.isoformat()
+    fecha_fin_ideal = fin_ideal.isoformat()
+    
+    print(f"📅 Rango ideal (semana anterior): {fecha_inicio_ideal} a {fecha_fin_ideal}")
+    
+    # Verificar si hay datos para esta semana
+    try:
+        result = supabase.table('meta_ads_anuncios_detalle') \
+            .select('fecha_inicio, fecha_fin') \
+            .gte('fecha_inicio', fecha_inicio_ideal) \
+            .lte('fecha_fin', fecha_fin_ideal) \
+            .limit(1) \
+            .execute()
+        
+        if result.data:
+            print(f"✅ Datos encontrados para semana ideal: {fecha_inicio_ideal} a {fecha_fin_ideal}")
+            return fecha_inicio_ideal, fecha_fin_ideal
+        else:
+            print(f"⚠️ No hay datos para semana ideal, buscando última semana con datos...")
+            
+            # Buscar la última semana con datos disponibles
+            result_ultimos = supabase.table('meta_ads_anuncios_detalle') \
+                .select('fecha_inicio, fecha_fin') \
+                .order('fecha_fin', desc=True) \
+                .limit(1) \
+                .execute()
+            
+            if result_ultimos.data:
+                ultimo_registro = result_ultimos.data[0]
+                fecha_inicio_disponible = ultimo_registro['fecha_inicio']
+                fecha_fin_disponible = ultimo_registro['fecha_fin']
+                
+                print(f"📊 Usando última semana con datos: {fecha_inicio_disponible} a {fecha_fin_disponible}")
+                return fecha_inicio_disponible, fecha_fin_disponible
+            else:
+                print(f"❌ No hay datos disponibles en meta_ads_anuncios_detalle")
+                # Fallback a las fechas ideales aunque no haya datos
+                return fecha_inicio_ideal, fecha_fin_ideal
+                
+    except Exception as e:
+        print(f"❌ Error verificando datos: {e}")
+        print(f"🔄 Usando fechas calculadas como fallback: {fecha_inicio_ideal} a {fecha_fin_ideal}")
+        return fecha_inicio_ideal, fecha_fin_ideal
 
 def sincronizar_reportes_semanales(nombre_nora=None):
     fecha_inicio, fecha_fin = obtener_rango_semana_actual()
@@ -190,19 +239,31 @@ def sincronizar_reportes_semanales(nombre_nora=None):
             "created_at": datetime.utcnow().isoformat(),
         }
 
-        # Verifica si ya existe
+        # Verifica si ya existe un reporte activo
         existente = supabase.table("meta_ads_reportes_semanales") \
             .select("id") \
             .eq("empresa_id", empresa_id) \
             .eq("id_cuenta_publicitaria", cuenta_id) \
             .eq("fecha_inicio", fecha_inicio) \
             .eq("fecha_fin", fecha_fin) \
+            .eq("estatus", "activo") \
             .execute()
 
-        if not existente.data:
-            registros.append(reporte)
-        else:
-            print(f"ℹ️ Reporte ya existe para empresa {empresa_id}, cuenta {cuenta_id}")
+        if existente.data:
+            # Archivar el reporte existente
+            supabase.table("meta_ads_reportes_semanales") \
+                .update({"estatus": "archivado", "archivado_en": datetime.utcnow().isoformat()}) \
+                .eq("empresa_id", empresa_id) \
+                .eq("id_cuenta_publicitaria", cuenta_id) \
+                .eq("fecha_inicio", fecha_inicio) \
+                .eq("fecha_fin", fecha_fin) \
+                .eq("estatus", "activo") \
+                .execute()
+            print(f"📂 Reporte archivado para empresa {empresa_id}, cuenta {cuenta_id}")
+        
+        # Agregar nuevo reporte (siempre activo)
+        reporte["estatus"] = "activo"
+        registros.append(reporte)
 
     # Resumen final detallado
     total_cuentas_con_datos = len(set([a.get("id_cuenta_publicitaria") for a in anuncios]))

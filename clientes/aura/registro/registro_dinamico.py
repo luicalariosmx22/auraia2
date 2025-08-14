@@ -196,6 +196,34 @@ def registrar_blueprints_por_nora(app, nombre_nora, safe_register_blueprint):
         resultado = supabase.table("modulos_disponibles").select("nombre, ruta").execute()
         modulos_disponibles = resultado.data if resultado.data else []
 
+        if "bienes_raices" in modulos:
+            try:
+                from clientes.aura.routes.panel_cliente_bienes_raices import (
+                    panel_cliente_bienes_raices_bp,
+                    br_crud_bp,
+                    br_social_bp,
+                    br_scraper_bp
+                )
+                safe_register_blueprint(app, panel_cliente_bienes_raices_bp, url_prefix=f"/panel_cliente/{nombre_nora}/bienes_raices")
+                safe_register_blueprint(app, br_crud_bp, url_prefix=f"/panel_cliente/{nombre_nora}/bienes_raices/crud")
+                safe_register_blueprint(app, br_social_bp, url_prefix=f"/panel_cliente/{nombre_nora}/bienes_raices/social")
+                safe_register_blueprint(app, br_scraper_bp, url_prefix=f"/panel_cliente/{nombre_nora}/bienes_raices/scraper")
+                print(f"✅ Módulo bienes_raices registrado")
+            except ImportError as e:
+                print(f"❌ Error importando bienes_raices: {e}")
+            except Exception as e:
+                print(f"❌ Error registrando bienes_raices: {e}")
+        # Registro explícito para planeacion_contenido (módulo generado)
+        if "planeacion_contenido" in modulos:
+            try:
+                from clientes.aura.routes.panel_cliente_planeacion_contenido.panel_cliente_planeacion_contenido import panel_cliente_planeacion_contenido_bp
+                safe_register_blueprint(app, panel_cliente_planeacion_contenido_bp, url_prefix=f"/panel_cliente/{nombre_nora}/planeacion_contenido")
+                print(f"✅ Módulo planeacion_contenido registrado")
+            except ImportError as e:
+                print(f"❌ Error importando planeacion_contenido: {e}")
+            except Exception as e:
+                print(f"❌ Error registrando planeacion_contenido: {e}")
+
         for item in modulos_disponibles:
             nombre_modulo = item["nombre"]
             ruta_import = item["ruta"]

@@ -101,8 +101,8 @@ def vista_reportes_meta_ads_interno(nombre_nora):
 @panel_cliente_meta_ads_bp.route("/reportes/<reporte_id>")
 def detalle_reporte_ads(nombre_nora, reporte_id):
     try:
-        # Obtener el reporte
-        res = supabase.table("meta_ads_reportes_semanales").select("*").eq("id", reporte_id).single().execute()
+        # Obtener el reporte (solo si está activo)
+        res = supabase.table("meta_ads_reportes_semanales").select("*").eq("id", reporte_id).eq("estatus", "activo").single().execute()
         reporte = res.data or {}
         
         # Obtener información de la empresa si existe empresa_id

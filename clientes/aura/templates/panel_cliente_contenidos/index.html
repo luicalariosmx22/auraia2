@@ -1,8 +1,1054 @@
 {% extends "base_cliente.html" %}
 
+{% block titulo %}🎬 Planeación de Contenidos - {{ nombre_nora|title }}{% endblock %}
+
+{% block head_extra %}
+<style>
+  .step-active {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  .step-inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 2px solid #e5e7eb;
+  }
+  
+  .step-line-active {
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  }
+  
+  .step-line-inactive {
+    background: #e5e7eb;
+  }
+  
+  .card-section {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+  }
+  
+  .card-section:hover {
+    border-color: #e5e7eb;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .quick-action-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .quick-action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+</style>
+{% endblock %}
+
 {% block contenido %}
-<div class="max-w-4xl mx-auto py-8">
-  <h1 class="text-3xl font-bold mb-4">🎞️ Módulo: Contenidos</h1>
-  <p class="text-gray-700">Este es el módulo inicial para contenidos.</p>
+<div class="max-w-7xl mx-auto py-6 px-4">
+  <!-- Header mejorado -->
+  <div class="gradient-bg rounded-2xl p-8 mb-8 text-white">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <div>
+        <h1 class="text-4xl font-bold mb-3">🎬 Planeación de Contenidos</h1>
+        <p class="text-xl opacity-90">Crea contenidos profesionales con nuestro flujo de trabajo guiado</p>
+        <p class="text-lg opacity-80 mt-2">Preproducción → Estructura → Producción → Postproducción</p>
+      </div>
+      
+      <!-- Acciones rápidas -->
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button id="btn-nueva-planeacion" class="px-8 py-4 bg-white text-purple-700 rounded-xl font-bold hover:bg-gray-50 transition shadow-lg">
+          ✨ Nueva Planeación
+        </button>
+        <button id="btn-ver-planeaciones" class="px-8 py-4 bg-purple-600 bg-opacity-30 backdrop-blur-sm text-white rounded-xl font-bold hover:bg-opacity-40 transition border border-white border-opacity-20">
+          📋 Ver Planeaciones
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="quick-action-card bg-white rounded-xl p-6 text-center shadow-sm">
+      <div class="text-3xl mb-2">📊</div>
+      <div class="text-2xl font-bold text-gray-900" id="total-planeaciones">-</div>
+      <div class="text-sm text-gray-600">Total Planeaciones</div>
+    </div>
+    
+    <div class="quick-action-card bg-white rounded-xl p-6 text-center shadow-sm">
+      <div class="text-3xl mb-2">✅</div>
+      <div class="text-2xl font-bold text-green-600" id="completadas">-</div>
+      <div class="text-sm text-gray-600">Completadas</div>
+    </div>
+    
+    <div class="quick-action-card bg-white rounded-xl p-6 text-center shadow-sm">
+      <div class="text-3xl mb-2">⏳</div>
+      <div class="text-2xl font-bold text-yellow-600" id="en-progreso">-</div>
+      <div class="text-sm text-gray-600">En Progreso</div>
+    </div>
+    
+    <div class="quick-action-card bg-white rounded-xl p-6 text-center shadow-sm">
+      <div class="text-3xl mb-2">🎯</div>
+      <div class="text-2xl font-bold text-blue-600" id="esta-semana">-</div>
+      <div class="text-sm text-gray-600">Esta Semana</div>
+    </div>
+  </div>
+
+  <!-- Vista principal: Lista de planeaciones y formulario -->
+  <div id="vista-principal">
+    <!-- Planeaciones recientes -->
+    <div class="bg-white rounded-xl shadow-sm mb-8">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-gray-900">📋 Planeaciones Recientes</h2>
+          <button id="btn-filtrar" class="px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition">
+            🔍 Filtrar
+          </button>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <!-- Controles de listado -->
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-sm text-gray-500">
+            Mostrando planeaciones en formato listado
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="page-size" class="text-sm text-gray-600">Filas por página</label>
+            <select id="page-size" class="text-sm border border-gray-300 rounded px-2 py-1">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="lista-planeaciones" class="">
+          <!-- Las planeaciones se cargarán aquí dinámicamente -->
+          <div class="text-center py-12 text-gray-500">
+            <div class="text-4xl mb-3">📝</div>
+            <p class="text-lg">No hay planeaciones aún</p>
+            <p class="text-sm">Crea tu primera planeación de contenido</p>
+          </div>
+        </div>
+        
+        <!-- Paginación -->
+        <div id="paginacion" class="flex justify-between items-center mt-6">
+          <button id="btn-prev" class="px-3 py-2 text-gray-600 bg-gray-100 rounded hover:bg-gray-200">← Anterior</button>
+          <div class="text-sm text-gray-500">Página <span id="pagina-actual">1</span></div>
+          <button id="btn-next" class="px-3 py-2 text-gray-600 bg-gray-100 rounded hover:bg-gray-200">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vista del formulario de nueva planeación (oculta inicialmente) -->
+  <div id="vista-formulario" class="hidden">
+    <!-- Stepper Visual -->
+    <div class="flex items-center justify-center mb-10">
+    <div class="flex items-center w-full max-w-4xl">
+      <!-- Paso 1: Preproducción -->
+      <div class="flex flex-col items-center">
+        <div id="step-1" class="w-12 h-12 rounded-full step-active flex items-center justify-center font-bold text-lg">1</div>
+        <span class="mt-2 text-sm font-medium text-blue-700">Preproducción</span>
+      </div>
+      
+      <!-- Línea conectora 1-2 -->
+      <div id="line-1-2" class="flex-1 h-1 step-line-inactive mx-4"></div>
+      
+      <!-- Paso 2: Estructura -->
+      <div class="flex flex-col items-center">
+        <div id="step-2" class="w-12 h-12 rounded-full step-inactive flex items-center justify-center font-bold text-lg">2</div>
+        <span class="mt-2 text-sm font-medium text-gray-500">Estructura</span>
+      </div>
+      
+      <!-- Línea conectora 2-3 -->
+      <div id="line-2-3" class="flex-1 h-1 step-line-inactive mx-4"></div>
+      
+      <!-- Paso 3: Producción -->
+      <div class="flex flex-col items-center">
+        <div id="step-3" class="w-12 h-12 rounded-full step-inactive flex items-center justify-center font-bold text-lg">3</div>
+        <span class="mt-2 text-sm font-medium text-gray-500">Producción</span>
+      </div>
+      
+      <!-- Línea conectora 3-4 -->
+      <div id="line-3-4" class="flex-1 h-1 step-line-inactive mx-4"></div>
+      
+      <!-- Paso 4: Postproducción -->
+      <div class="flex flex-col items-center">
+        <div id="step-4" class="w-12 h-12 rounded-full step-inactive flex items-center justify-center font-bold text-lg">4</div>
+        <span class="mt-2 text-sm font-medium text-gray-500">Postproducción</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 1: Preproducción -->
+  <section id="seccion-preproduccion" class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 mb-8">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-blue-700">📋 1. Preproducción</h2>
+      <button id="btn-analizar-brief" class="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
+        ✨ Analizar brief con IA
+      </button>
+    </div>
+    
+    <form id="form-preproduccion" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Empresa cliente</label>
+          <select id="empresa_id" name="empresa_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">Seleccionar empresa...</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Ubicación del contenido</label>
+          <select id="ubicacion" name="ubicacion" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="reel">Instagram Reels</option>
+            <option value="tiktok">TikTok</option>
+          </select>
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Objetivo del contenido</label>
+        <textarea id="objetivo" name="objetivo" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="¿Qué quieres lograr con este contenido?"></textarea>
+      </div>
+      
+  <!-- Público objetivo se omitirá por ahora -->
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Ideas y conceptos principales</label>
+        <textarea id="ideas_principales" name="ideas_principales" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Escribe las ideas clave que quieres comunicar"></textarea>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Referencias y recursos</label>
+        <textarea id="referencias" name="referencias" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enlaces, ejemplos, inspiración..."></textarea>
+      </div>
+      
+      <div class="flex justify-end">
+        <button type="button" id="btn-siguiente-estructura" class="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+          Continuar a Estructura →
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Sección 2: Estructura -->
+  <section id="seccion-estructura" class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 mb-8 hidden">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-green-700">🎥 2. Estructura del Contenido</h2>
+      <button id="btn-ia-estructura" class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition">
+        🤖 Generar con IA
+      </button>
+    </div>
+    
+    <form id="form-estructura" class="space-y-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Premisa/Guión principal</label>
+        <textarea id="premisa" name="premisa" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Describe la estructura general del contenido"></textarea>
+      </div>
+      
+      <!-- Editor de clips/secciones -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">📝 Estructura por clips/secciones</h3>
+        <div id="clips-editor" class="space-y-4">
+          <!-- Clip 1: Introducción -->
+          <div class="bg-gray-50 p-4 rounded-lg border">
+            <h4 class="font-medium text-gray-800 mb-2">📍 Clip 1: Introducción (0-3s)</h4>
+            <textarea data-orden="1" data-tipo="intro" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-green-500" placeholder="Hook inicial, presentación del tema..."></textarea>
+          </div>
+          
+          <!-- Clip 2: Desarrollo -->
+          <div class="bg-gray-50 p-4 rounded-lg border">
+            <h4 class="font-medium text-gray-800 mb-2">📖 Clip 2: Desarrollo (3-10s)</h4>
+            <textarea data-orden="2" data-tipo="desarrollo" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-green-500" placeholder="Contenido principal, información clave..."></textarea>
+          </div>
+          
+          <!-- Clip 3: Cierre -->
+          <div class="bg-gray-50 p-4 rounded-lg border">
+            <h4 class="font-medium text-gray-800 mb-2">🎯 Clip 3: Cierre (10-15s)</h4>
+            <textarea data-orden="3" data-tipo="cierre" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-green-500" placeholder="Call to action, conclusión..."></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-between">
+        <button type="button" id="btn-volver-preprod" class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition">
+          ← Volver a Preproducción
+        </button>
+        <button type="button" id="btn-siguiente-produccion" class="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">
+          Continuar a Producción →
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Sección 3: Producción -->
+  <section id="seccion-produccion" class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500 mb-8 hidden">
+    <h2 class="text-2xl font-bold text-yellow-700 mb-6">🛠 3. Producción</h2>
+    
+    <form id="form-produccion" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Equipo necesario</label>
+          <textarea id="equipo" name="equipo" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Cámara, micrófono, luces, trípode..."></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Locación/Set</label>
+          <textarea id="locacion" name="locacion" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Describe dónde se grabará el contenido"></textarea>
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Archivos adjuntos</label>
+        <input type="file" id="archivos" name="archivos" multiple class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+        <p class="text-sm text-gray-500 mt-1">Sube videos, imágenes, audios o documentos relacionados</p>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Notas de grabación</label>
+        <textarea id="notas_grabacion" name="notas_grabacion" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Indicaciones específicas para la grabación..."></textarea>
+      </div>
+      
+      <div class="flex justify-between">
+        <button type="button" id="btn-volver-estructura" class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition">
+          ← Volver a Estructura
+        </button>
+        <button type="button" id="btn-siguiente-postprod" class="px-8 py-3 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transition">
+          Continuar a Postproducción →
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Sección 4: Postproducción -->
+  <section id="seccion-postproduccion" class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 mb-8 hidden">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-purple-700">🎞 4. Postproducción</h2>
+      <button id="btn-ia-checklist" class="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
+        📋 Checklist con IA
+      </button>
+    </div>
+    
+    <form id="form-postproduccion" class="space-y-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Software de edición</label>
+        <select id="software_edicion" name="software_edicion" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+          <option value="premiere">Adobe Premiere Pro</option>
+          <option value="finalcut">Final Cut Pro</option>
+          <option value="davinci">DaVinci Resolve</option>
+          <option value="capcut">CapCut</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Efectos y transiciones</label>
+        <textarea id="efectos" name="efectos" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Describe los efectos, transiciones y estilo visual"></textarea>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Música y audio</label>
+        <textarea id="musica_audio" name="musica_audio" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Música de fondo, efectos de sonido, ajustes de audio"></textarea>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Texto y gráficos</label>
+        <textarea id="texto_graficos" name="texto_graficos" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Títulos, subtítulos, elementos gráficos..."></textarea>
+      </div>
+      
+      <div id="resultado-ia" class="bg-gray-50 p-4 rounded-lg border text-sm text-gray-700 hidden"></div>
+      
+      <div class="flex justify-between">
+        <button type="button" id="btn-volver-produccion" class="px-6 py-3 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition">
+          ← Volver a Producción
+        </button>
+        <button type="submit" id="btn-finalizar" class="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+          ✅ Finalizar Planeación
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Link de compartir (oculto inicialmente) -->
+  <div id="link-compartir" class="hidden bg-green-50 border border-green-200 rounded-lg p-4 mt-6 text-center">
+    <p class="text-green-800 font-medium">🎉 ¡Planeación guardada exitosamente!</p>
+    <button id="btn-compartir" class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+      📤 Compartir planeación
+    </button>
+  </div>
 </div>
+
+<!-- Modal de temas sugeridos por IA -->
+<div id="modal-brief" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 p-6">
+    <div class="flex items-center justify-between mb-4">
+  <h3 class="text-xl font-bold text-purple-700">✨ Análisis de brief</h3>
+      <button id="cerrar-modal-brief" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">×</button>
+    </div>
+    
+    <div id="brief-loading" class="text-center text-gray-500 py-8 hidden">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
+      Analizando empresa y generando ideas...
+    </div>
+    
+    <div id="brief-error" class="text-red-600 text-sm mb-4 hidden"></div>
+    
+    <form id="form-temas-brief">
+      <div id="temas-brief-lista" class="space-y-3 mb-6"></div>
+      <button type="submit" class="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+        Aplicar temas seleccionados
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables globales
+    let currentStep = 1;
+    const totalSteps = 4;
+  // Paginación
+  let limit = 20;
+  let offset = 0;
+  let hasMore = false;
+  // Selector tamaño de página
+  document.getElementById('page-size')?.addEventListener('change', (e) => {
+    const val = parseInt(e.target.value, 10);
+    if (!isNaN(val)) {
+      limit = val;
+      offset = 0;
+      document.getElementById('pagina-actual').textContent = 1;
+      cargarPlaneaciones();
+    }
+  });
+
+    
+    // Navegación del stepper
+    function showStep(stepNumber) {
+        // Ocultar todas las secciones
+        document.querySelectorAll('section[id^="seccion-"]').forEach(section => {
+            section.classList.add('hidden');
+        });
+        
+        // Mostrar la sección correspondiente
+        const seccion = document.getElementById(`seccion-${getSeccionName(stepNumber)}`);
+        if (seccion) {
+            seccion.classList.remove('hidden');
+        }
+        
+        // Actualizar stepper visual
+        updateStepperVisual(stepNumber);
+        currentStep = stepNumber;
+    }
+    
+    function getSeccionName(stepNumber) {
+        const nombres = {
+            1: 'preproduccion',
+            2: 'estructura', 
+            3: 'produccion',
+            4: 'postproduccion'
+        };
+        return nombres[stepNumber];
+    }
+    
+    function updateStepperVisual(activeStep) {
+        for (let i = 1; i <= totalSteps; i++) {
+            const step = document.getElementById(`step-${i}`);
+            const stepSpan = step.nextElementSibling;
+            
+            if (i <= activeStep) {
+                // Pasos completados o activo
+                step.className = 'w-12 h-12 rounded-full step-active flex items-center justify-center font-bold text-lg';
+                stepSpan.className = 'mt-2 text-sm font-medium text-blue-700';
+                
+                // Actualizar líneas conectoras
+                if (i < totalSteps) {
+                    const line = document.getElementById(`line-${i}-${i+1}`);
+                    if (line && i < activeStep) {
+                        line.className = 'flex-1 h-1 step-line-active mx-4';
+                    } else if (line) {
+                        line.className = 'flex-1 h-1 step-line-inactive mx-4';
+                    }
+                }
+            } else {
+                // Pasos inactivos
+                step.className = 'w-12 h-12 rounded-full step-inactive flex items-center justify-center font-bold text-lg';
+                stepSpan.className = 'mt-2 text-sm font-medium text-gray-500';
+            }
+        }
+    }
+    
+    // Event listeners para botones de navegación
+    document.getElementById('btn-siguiente-estructura')?.addEventListener('click', () => showStep(2));
+    document.getElementById('btn-volver-preprod')?.addEventListener('click', () => showStep(1));
+    document.getElementById('btn-siguiente-produccion')?.addEventListener('click', () => showStep(3));
+    document.getElementById('btn-volver-estructura')?.addEventListener('click', () => showStep(2));
+    document.getElementById('btn-siguiente-postprod')?.addEventListener('click', () => showStep(4));
+    document.getElementById('btn-volver-produccion')?.addEventListener('click', () => showStep(3));
+    
+    // Modal de brief con IA
+    const btnAnalizarBrief = document.getElementById('btn-analizar-brief');
+    const modalBrief = document.getElementById('modal-brief');
+    const cerrarModalBrief = document.getElementById('cerrar-modal-brief');
+    
+    btnAnalizarBrief?.addEventListener('click', abrirModalBrief);
+    cerrarModalBrief?.addEventListener('click', cerrarModalBriefFn);
+    
+  function abrirModalBrief() {
+        const empresaSelect = document.getElementById('empresa_id');
+        if (!empresaSelect.value) {
+            alert('Por favor selecciona una empresa primero');
+            return;
+        }
+        
+        modalBrief.classList.remove('hidden');
+    // Mostrar nombre de empresa seleccionado en el modal (si existe opción seleccionada)
+    const empresaNombre = empresaSelect.options[empresaSelect.selectedIndex]?.textContent || '';
+    const tituloModal = modalBrief.querySelector('h3');
+    if (tituloModal && empresaNombre) {
+      tituloModal.innerHTML = `✨ Temas sugeridos por IA <span class="text-gray-500 text-sm">(${empresaNombre})</span>`;
+    }
+    generarTemasBrief(empresaSelect.value);
+    }
+    
+    function cerrarModalBriefFn() {
+        modalBrief.classList.add('hidden');
+        document.getElementById('temas-brief-lista').innerHTML = '';
+        document.getElementById('brief-error').classList.add('hidden');
+        document.getElementById('brief-loading').classList.add('hidden');
+    }
+    
+  async function generarTemasBrief(empresaId) {
+        const loading = document.getElementById('brief-loading');
+        const error = document.getElementById('brief-error');
+        const lista = document.getElementById('temas-brief-lista');
+        
+        loading.classList.remove('hidden');
+        error.classList.add('hidden');
+        lista.innerHTML = '';
+        
+        try {
+            const payload = {
+              empresa_id: empresaId,
+              ubicacion: document.getElementById('ubicacion').value,
+              objetivo: document.getElementById('objetivo').value,
+              ideas_principales: document.getElementById('ideas_principales').value,
+              referencias: document.getElementById('referencias').value
+            };
+            const response = await fetch(`/panel_cliente/{{ nombre_nora }}/contenidos/api/ia/preproduccion/analizar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            const data = await response.json();
+            
+            if (data.ok) {
+                // Actualizar título con nombre de empresa
+                const empresaNombre = data.empresa?.nombre_empresa;
+                const tituloModal = document.querySelector('#modal-brief h3');
+                if (tituloModal && empresaNombre) {
+                  tituloModal.innerHTML = `✨ Análisis de brief <span class="text-gray-500 text-sm">(${empresaNombre})</span>`;
+                }
+                mostrarTemasBrief(data.analisis?.temas || []);
+            } else {
+                error.textContent = data.error || 'Error analizando brief';
+                error.classList.remove('hidden');
+            }
+        } catch (err) {
+            error.textContent = 'Error de conexión: ' + err.message;
+            error.classList.remove('hidden');
+        } finally {
+            loading.classList.add('hidden');
+        }
+    }
+    
+    function mostrarTemasBrief(temas) {
+        const lista = document.getElementById('temas-brief-lista');
+        lista.innerHTML = '';
+        
+        temas.forEach((tema, index) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer';
+            div.innerHTML = `
+                <input type="checkbox" id="tema-${index}" value="${tema.id}" class="mt-1">
+                <label for="tema-${index}" class="flex-1 cursor-pointer">
+                    <h4 class="font-medium text-gray-900">${tema.titulo}</h4>
+                    <p class="text-sm text-gray-600">${tema.descripcion}</p>
+                </label>
+            `;
+            lista.appendChild(div);
+        });
+    }
+    
+    // Aplicar temas seleccionados
+    document.getElementById('form-temas-brief')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const checkboxes = document.querySelectorAll('#temas-brief-lista input[type="checkbox"]:checked');
+        if (checkboxes.length === 0) {
+            alert('Selecciona al menos un tema');
+            return;
+        }
+        
+        // Aplicar al campo de ideas principales
+        const ideasField = document.getElementById('ideas_principales');
+        const temasSeleccionados = Array.from(checkboxes).map(cb => {
+            const label = cb.parentNode.querySelector('h4').textContent;
+            return label;
+        });
+        
+        ideasField.value = temasSeleccionados.join('\n\n');
+        cerrarModalBriefFn();
+    });
+    
+    // Funciones de IA para otros pasos
+    document.getElementById('btn-ia-estructura')?.addEventListener('click', generarEstructuraIA);
+    document.getElementById('btn-ia-checklist')?.addEventListener('click', generarChecklistIA);
+    
+  async function generarEstructuraIA() {
+        const premisaField = document.getElementById('premisa');
+        const objetivo = document.getElementById('objetivo').value;
+        const ideas = document.getElementById('ideas_principales').value;
+        
+    if (!objetivo) {
+      alert('Completa el objetivo en preproducción primero');
+            return;
+        }
+        
+        try {
+      const response = await fetch(`/panel_cliente/{{ nombre_nora }}/contenidos/api/ia/estructura/generar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    objetivo,
+                    ideas_principales: ideas
+                })
+            });
+            
+            const data = await response.json();
+            
+      if (data.ok && Array.isArray(data.estructura)) {
+        // Backend devuelve lista de bloques con orden/tipo/guion
+        const first = data.estructura.find(b => b.guion);
+        if (first) premisaField.value = first.guion;
+        data.estructura.forEach((clip, idx) => {
+          const textarea = document.querySelector(`textarea[data-orden="${clip.orden || idx + 1}"]`);
+          if (textarea && clip.guion) textarea.value = clip.guion;
+        });
+      } else if (!data.ok && data.error) {
+        alert('Error: ' + data.error);
+      }
+        } catch (err) {
+            alert('Error de conexión: ' + err.message);
+        }
+    }
+    
+    async function generarChecklistIA() {
+        const resultadoDiv = document.getElementById('resultado-ia');
+        const software = document.getElementById('software_edicion').value;
+        const efectos = document.getElementById('efectos').value;
+        
+        if (!software) {
+            alert('Selecciona el software de edición primero');
+            return;
+        }
+        
+        try {
+            resultadoDiv.classList.remove('hidden');
+            resultadoDiv.innerHTML = '<div class="animate-pulse">Generando checklist personalizado...</div>';
+            
+      const response = await fetch(`/panel_cliente/{{ nombre_nora }}/contenidos/api/ia/checklist/post`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    software_edicion: software,
+                    efectos: efectos
+                })
+            });
+            
+            const data = await response.json();
+            
+      if (data.ok && data.checklist) {
+                resultadoDiv.innerHTML = `
+                    <h4 class="font-medium text-gray-900 mb-2">📋 Checklist de postproducción:</h4>
+                    <ul class="space-y-1">
+      ${Object.values(data.checklist).flat().map(item => `<li class="flex items-center"><span class="text-green-500 mr-2">✓</span>${item}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+    resultadoDiv.innerHTML = `<div class="text-red-600">Error: ${data.error || 'No se pudo generar el checklist'}</div>`;
+            }
+        } catch (err) {
+            resultadoDiv.innerHTML = `<div class="text-red-600">Error de conexión: ${err.message}</div>`;
+        }
+    }
+    
+    // Guardar formulario final
+    document.getElementById('form-postproduccion')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Recopilar datos de todos los pasos
+        const datosCompletos = {
+      preproduccion: {
+        empresa_id: document.getElementById('empresa_id').value,
+        ubicacion: document.getElementById('ubicacion').value,
+        objetivo: document.getElementById('objetivo').value,
+        // público objetivo omitido
+        ideas_principales: document.getElementById('ideas_principales').value,
+        referencias: document.getElementById('referencias').value
+      },
+            estructura: {
+                premisa: document.getElementById('premisa').value,
+                clips: Array.from(document.querySelectorAll('#clips-editor textarea')).map(textarea => ({
+                    orden: textarea.dataset.orden,
+                    tipo: textarea.dataset.tipo,
+                    contenido: textarea.value
+                }))
+            },
+            produccion: {
+                equipo: document.getElementById('equipo').value,
+                locacion: document.getElementById('locacion').value,
+                notas_grabacion: document.getElementById('notas_grabacion').value
+            },
+            postproduccion: {
+                software_edicion: document.getElementById('software_edicion').value,
+                efectos: document.getElementById('efectos').value,
+                musica_audio: document.getElementById('musica_audio').value,
+                texto_graficos: document.getElementById('texto_graficos').value
+            }
+        };
+        
+        try {
+            const response = await fetch(`/panel_cliente/{{ nombre_nora }}/contenidos/api/guardar-planeacion`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datosCompletos)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('link-compartir').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                alert('Error guardando: ' + data.error);
+            }
+        } catch (err) {
+            alert('Error de conexión: ' + err.message);
+        }
+    });
+    
+    // Cargar empresas al inicio
+    cargarEmpresas();
+    
+  async function cargarEmpresas() {
+        try {
+            const response = await fetch(`/panel_cliente/{{ nombre_nora }}/contenidos/api/empresas`);
+            const data = await response.json();
+            
+      if (data.ok) {
+                const select = document.getElementById('empresa_id');
+        select.innerHTML = '<option value="">Seleccionar empresa...</option>';
+        (data.empresas || []).forEach(empresa => {
+                    const option = document.createElement('option');
+                    option.value = empresa.id;
+          option.textContent = empresa.nombre_empresa || empresa.nombre || `Empresa ${empresa.id}`;
+                    select.appendChild(option);
+                });
+            }
+        } catch (err) {
+            console.error('Error cargando empresas:', err);
+        }
+    }
+    
+    // Compartir planeación
+    document.getElementById('btn-compartir')?.addEventListener('click', function() {
+        const url = window.location.href;
+        if (navigator.share) {
+            navigator.share({
+                title: 'Planeación de Contenidos',
+                text: 'Revisa esta planeación de contenidos',
+                url: url
+            });
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copiado al portapapeles');
+            });
+        }
+    });
+    
+    // Funcionalidad dual-view: alternar entre lista y formulario
+    const vistaListaPrincipal = document.getElementById('vista-principal');
+    const vistaFormulario = document.getElementById('vista-formulario');
+    const btnNuevaPlaneacion = document.getElementById('btn-nueva-planeacion');
+    const btnVerPlaneaciones = document.getElementById('btn-ver-planeaciones');
+    const btnVolverLista = document.getElementById('btn-volver-lista');
+    
+    // Event listeners para navegación entre vistas
+    btnNuevaPlaneacion?.addEventListener('click', function() {
+        vistaListaPrincipal.classList.add('hidden');
+        vistaFormulario.classList.remove('hidden');
+        // Cargar empresas al mostrar formulario
+        cargarEmpresas();
+        // Inicializar en paso 1
+        showStep(1);
+    });
+    
+    btnVerPlaneaciones?.addEventListener('click', function() {
+        vistaFormulario.classList.add('hidden');
+        vistaListaPrincipal.classList.remove('hidden');
+        // Cargar lista de planeaciones
+        cargarPlaneaciones();
+    });
+    
+    btnVolverLista?.addEventListener('click', function() {
+        vistaFormulario.classList.add('hidden');
+        vistaListaPrincipal.classList.remove('hidden');
+        // Actualizar lista al volver
+        cargarPlaneaciones();
+    });
+    
+    // Función para cargar planeaciones existentes
+  async function cargarPlaneaciones() {
+        try {
+      const response = await fetch(`/panel_cliente/{{ nombre_nora }}/contenidos/api/planeaciones?limit=${limit}&offset=${offset}`);
+            const data = await response.json();
+            
+            const listaContainer = document.getElementById('lista-planeaciones');
+      const planeaciones = (data.ok && Array.isArray(data.planeaciones)) ? data.planeaciones : [];
+      hasMore = !!data.has_more;
+      actualizarPaginacion();
+      // Actualizar estadísticas
+      actualizarEstadisticas(planeaciones);
+      // Renderizar lista o placeholder
+      renderizarListaPlaneaciones(planeaciones);
+        } catch (err) {
+            console.error('Error cargando planeaciones:', err);
+        }
+    }
+
+  // Paginación UI
+  document.getElementById('btn-prev')?.addEventListener('click', () => {
+    if (offset - limit >= 0) {
+      offset = offset - limit;
+      document.getElementById('pagina-actual').textContent = (offset / limit) + 1;
+      cargarPlaneaciones();
+    }
+  });
+  document.getElementById('btn-next')?.addEventListener('click', () => {
+    if (hasMore) {
+      offset = offset + limit;
+      document.getElementById('pagina-actual').textContent = (offset / limit) + 1;
+      cargarPlaneaciones();
+    }
+  });
+  function actualizarPaginacion() {
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const pag = document.getElementById('paginacion');
+    if (btnPrev) btnPrev.disabled = offset === 0;
+    if (btnNext) btnNext.disabled = !hasMore;
+    if (pag) pag.classList.remove('hidden');
+    const pageNum = Math.floor(offset / limit) + 1;
+    const elPage = document.getElementById('pagina-actual');
+    if (elPage) elPage.textContent = pageNum;
+  }
+    
+    // Función para renderizar lista de planeaciones
+    function renderizarListaPlaneaciones(planeaciones) {
+        const listaContainer = document.getElementById('lista-planeaciones');
+        if (!listaContainer) return;
+        if (!planeaciones || planeaciones.length === 0) {
+            listaContainer.innerHTML = `
+              <div class="text-center py-12 text-gray-500">
+                <div class="text-4xl mb-3">📝</div>
+                <p class="text-lg">No hay planeaciones aún</p>
+                <p class="text-sm">Crea tu primera planeación de contenido</p>
+              </div>`;
+            return;
+        }
+
+        // Construir tabla compacta
+        let html = `
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                  <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-100">
+        `;
+
+        planeaciones.forEach((p) => {
+            const fechaBase = p.created_at || p.fecha_creacion || Date.now();
+            const fecha = new Date(fechaBase).toLocaleDateString('es-ES');
+            const empresa = p.nombre_empresa || p.empresa_nombre || p.empresa_id || 'Sin asignar';
+            const estado = (p.estado || 'draft');
+            const estadoBadge = getEstadoBadge(estado);
+            html += `
+              <tr class="hover:bg-gray-50">
+                <td class="px-3 py-2 text-sm text-gray-900">
+                  <div class="font-medium line-clamp-1">${p.titulo || '(sin título)'}</div>
+                  ${p.descripcion ? `<div class=\"text-xs text-gray-500 line-clamp-1\">${p.descripcion}</div>` : ''}
+                </td>
+                <td class="px-3 py-2 text-sm text-gray-700">${empresa}</td>
+                <td class="px-3 py-2 text-sm text-gray-700">${fecha}</td>
+                <td class="px-3 py-2">${estadoBadge}</td>
+                <td class="px-3 py-2 text-right">
+                  <button onclick="editarPlaneacion(${p.id})" class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition">Editar</button>
+                  <button onclick="eliminarPlaneacion(${p.id})" class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition">Eliminar</button>
+                </td>
+              </tr>
+            `;
+        });
+
+        html += `
+              </tbody>
+            </table>
+          </div>
+        `;
+        listaContainer.innerHTML = html;
+    }
+    
+    // Función para obtener badge de estado
+    function getEstadoBadge(estado) {
+        const estados = {
+            'draft': { class: 'bg-gray-100 text-gray-700', text: 'Borrador' },
+            'en_progreso': { class: 'bg-yellow-100 text-yellow-700', text: 'En Progreso' },
+            'completado': { class: 'bg-green-100 text-green-700', text: 'Completado' },
+            'archivado': { class: 'bg-gray-100 text-gray-500', text: 'Archivado' }
+        };
+        
+        const config = estados[estado] || estados['draft'];
+        return `<span class="px-2 py-1 text-xs font-medium rounded-full ${config.class}">${config.text}</span>`;
+    }
+    
+    // Función para actualizar estadísticas
+  function actualizarEstadisticas(planeaciones) {
+    const total = planeaciones.length;
+    const completadas = planeaciones.filter(p => (p.estado || 'draft') === 'completado').length;
+    const enProgreso = planeaciones.filter(p => (p.estado || 'draft') === 'en_progreso').length;
+    const estaSemana = planeaciones.filter(p => {
+      const fechaBase = p.created_at || p.fecha_creacion || Date.now();
+      const fecha = new Date(fechaBase);
+      const ahora = new Date();
+      const diff = ahora - fecha;
+      return diff <= 7 * 24 * 60 * 60 * 1000; // última semana
+    }).length;
+
+    const elTotal = document.getElementById('total-planeaciones');
+    const elCompletadas = document.getElementById('completadas');
+    const elProgreso = document.getElementById('en-progreso');
+    const elSemana = document.getElementById('esta-semana');
+    if (elTotal) elTotal.textContent = total;
+    if (elCompletadas) elCompletadas.textContent = completadas;
+    if (elProgreso) elProgreso.textContent = enProgreso;
+    if (elSemana) elSemana.textContent = estaSemana;
+  }
+    
+    // Funciones globales para acciones de planeaciones
+    window.editarPlaneacion = function(id) {
+        // Cargar datos de la planeación para editar
+        cargarPlaneacionParaEditar(id);
+    };
+    
+    window.eliminarPlaneacion = function(id) {
+        if (confirm('¿Estás seguro de que quieres eliminar esta planeación?')) {
+            eliminarPlaneacionConfirmado(id);
+        }
+    };
+    
+  async function cargarPlaneacionParaEditar(id) {
+        try {
+      const response = await fetch(`/panel_cliente/{{ nombre_nora }}/contenidos/api/planeaciones/${id}`);
+            const data = await response.json();
+            
+      if (data.ok) {
+                // Cambiar a vista de formulario
+                vistaListaPrincipal.classList.add('hidden');
+                vistaFormulario.classList.remove('hidden');
+                
+                // Rellenar formulario con datos existentes
+        rellenarFormulario(data.planeacion);
+                
+                // Mostrar paso apropiado según progreso
+                showStep(1);
+            }
+        } catch (err) {
+            console.error('Error cargando planeación:', err);
+            alert('Error cargando planeación para editar');
+        }
+    }
+    
+  async function eliminarPlaneacionConfirmado(id) {
+        try {
+      const response = await fetch(`/panel_cliente/{{ nombre_nora }}/contenidos/api/planeaciones/${id}`, {
+                method: 'DELETE'
+            });
+            
+            const data = await response.json();
+            
+      if (data.ok) {
+                // Recargar lista
+                cargarPlaneaciones();
+            } else {
+                alert('Error eliminando planeación: ' + data.error);
+            }
+        } catch (err) {
+            console.error('Error eliminando planeación:', err);
+            alert('Error de conexión al eliminar');
+        }
+    }
+    
+    function rellenarFormulario(planeacion) {
+        // Rellenar campos básicos
+        document.getElementById('empresa_id').value = planeacion.empresa_id || '';
+        document.getElementById('titulo_proyecto').value = planeacion.titulo || '';
+        document.getElementById('descripcion_proyecto').value = planeacion.descripcion || '';
+        
+        // Rellenar datos de preproducción si existen
+        if (planeacion.preproduccion) {
+            const preprod = JSON.parse(planeacion.preproduccion);
+            document.getElementById('brief_cliente').value = preprod.brief || '';
+            document.getElementById('publico_objetivo').value = preprod.publico_objetivo || '';
+            document.getElementById('presupuesto').value = preprod.presupuesto || '';
+            document.getElementById('fecha_entrega').value = preprod.fecha_entrega || '';
+        }
+        
+        // Continuar con otros pasos según sea necesario...
+    }
+    
+    // Inicializar aplicación
+  // Cargar planeaciones al inicio
+  cargarPlaneaciones();
+    
+    // Inicializar en paso 1 (Preproducción) para el formulario
+  showStep(1);
+});
+</script>
 {% endblock %}

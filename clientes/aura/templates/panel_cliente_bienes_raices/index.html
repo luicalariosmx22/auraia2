@@ -1,8 +1,65 @@
 {% extends "base_cliente.html" %}
 
 {% block contenido %}
-<div class="max-w-4xl mx-auto py-8">
-  <h1 class="text-3xl font-bold mb-4">🏠 Módulo: Bienes_raices</h1>
-  <p class="text-gray-700">Este es el módulo inicial para bienes_raices.</p>
+<div class="max-w-7xl mx-auto py-8">
+  <h1 class="text-3xl font-bold mb-6">🏠 Catálogo de Bienes Raíces</h1>
+
+  <form id="filtros" class="grid grid-cols-1 md:grid-cols-6 gap-3 mb-6">
+    <select name="operacion" class="border rounded px-3 py-2">
+      <option value="">Operación</option><option value="venta">Venta</option><option value="renta">Renta</option>
+    </select>
+    <input name="precio_min" type="number" placeholder="Precio mín." class="border rounded px-3 py-2" />
+    <input name="precio_max" type="number" placeholder="Precio máx." class="border rounded px-3 py-2" />
+    <input name="recamaras" type="number" placeholder="Recámaras" class="border rounded px-3 py-2" />
+    <input name="banos" type="number" placeholder="Baños" class="border rounded px-3 py-2" />
+    <input name="q" type="text" placeholder="Búsqueda" class="border rounded px-3 py-2 md:col-span-2" />
+    <button type="submit" class="bg-blue-600 text-white rounded px-4 py-2 md:col-span-1">Filtrar</button>
+  </form>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div>
+      <h2 class="text-xl font-semibold mb-2">Mapa</h2>
+      <div id="mapa" class="w-full h-80 border rounded"></div>
+      <p class="text-sm text-gray-500 mt-2">Los marcadores se cargan desde <code>/mapa/datos</code>.</p>
+    </div>
+    <div>
+      <h2 class="text-xl font-semibold mb-2">Propiedades</h2>
+      <ul id="lista" class="space-y-3"></ul>
+    </div>
+  </div>
 </div>
+
+<script>
+  const base = window.location.pathname.replace(/\/$/, '');
+  async function cargarLista(params = new URLSearchParams()) {
+    const res = await fetch(`${base}/propiedades?` + params.toString());
+    const data = await res.json();
+    const ul = document.getElementById('lista'); ul.innerHTML = '';
+    (data.items || []).forEach(p => {
+      const li = document.createElement('li');
+      li.className = "border rounded p-4";
+      li.innerHTML = `<div class="font-semibold">${p.titulo || 'Propiedad'}</div>
+                      <div class="text-sm text-gray-600">${p.direccion || ''}</div>
+                      <div class="text-sm">$${p.precio ?? '-'}</div>`;
+      ul.appendChild(li);
+    });
+  }
+  document.getElementById('filtros').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams(new FormData(e.target));
+    cargarLista(params);
+    cargarMapa(params);
+  });
+
+  // ⚠️ Integra aquí tu Google Maps JS; abajo un fetch a GeoJSON:
+  async function cargarMapa(params = new URLSearchParams()) {
+    const res = await fetch(`${base}/mapa/datos?` + params.toString());
+    const data = await res.json();
+    // TODO: pintar en Google Maps usando data.features (lng,lat)
+    console.log("GeoJSON propiedades:", data);
+  }
+
+  // Inicial
+  cargarLista(); cargarMapa();
+</script>
 {% endblock %}

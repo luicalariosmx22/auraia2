@@ -35,15 +35,13 @@ def vista_meta_ads():
     Vista del dashboard de Meta Ads.
     """
     try:
-        # Obtener estadísticas básicas
+        # Obtener estadísticas básicas (solo reportes activos)
+        reportes_activos = supabase.table("meta_ads_reportes_semanales").select("count").eq("estatus", "activo").execute()
+        ultima_actualiz = supabase.table("meta_ads_reportes_semanales").select("created_at").eq("estatus", "activo").order("created_at", desc=True).limit(1).execute()
+        
         stats = {
-            "total_reportes": supabase.table("meta_ads_reportes_semanales").select("count").execute().count,
-            "ultima_actualizacion": supabase.table("meta_ads_reportes_semanales")
-                .select("created_at")
-                .order("created_at", desc=True)
-                .limit(1)
-                .execute()
-                .data[0]["created_at"] if supabase.table("meta_ads_reportes_semanales").select("count").execute().count > 0 else None
+            "total_reportes": reportes_activos.count or 0,
+            "ultima_actualizacion": ultima_actualiz.data[0]["created_at"] if ultima_actualiz.data else None
         }
         
         return render_template(
